@@ -1,4 +1,4 @@
-# Appendix B — Mathematical Notation Reference
+# Appendix B - Mathematical Notation Reference
 
 > *"The notation used in this book, defined once and used everywhere."*
 
@@ -11,7 +11,7 @@ least once in the main chapters.
 | Symbol | Meaning | First use |
 |---|---|---|
 | \\(\mathbb{R}\\) | The real numbers; \\(\mathbb{R}^n\\) is \\(n\\)-dimensional real space | Ch. 1 |
-| \\(n, N, k, i, j\\) | Indices and sizes (integers) | Ch. 1–15 |
+| \\(n, N, k, i, j\\) | Indices and sizes (integers) | Ch. 1-15 |
 | \\(p\\) | The number of processing units (threads, cores) | Ch. 1 |
 | \\(f\\) | The serial fraction of a workload (Amdahl) | Ch. 1 |
 | \\(s\\) | The serial fraction of parallel time (Gustafson) | Ch. 1 |
@@ -20,12 +20,12 @@ least once in the main chapters.
 
 | Symbol | Meaning | Definition | First use |
 |---|---|---|---|
-| \\(T_1\\) | Serial execution time | — | Ch. 1 |
-| \\(T_p\\) | Execution time on \\(p\\) units | — | Ch. 1 |
+| \\(T_1\\) | Serial execution time | - | Ch. 1 |
+| \\(T_p\\) | Execution time on \\(p\\) units | - | Ch. 1 |
 | \\(S(p)\\) | Speedup | \\(T_1 / T_p\\) | Ch. 1 |
 | \\(E(p)\\) | Efficiency | \\(S(p) / p\\) | Ch. 1 |
-| \\(P_{\text{peak}}\\) | Peak FLOP rate (FLOP/s) | — | Ch. 1 |
-| \\(B\\) | Peak memory bandwidth (bytes/s) | — | Ch. 1 |
+| \\(P_{\text{peak}}\\) | Peak FLOP rate (FLOP/s) | - | Ch. 1 |
+| \\(B\\) | Peak memory bandwidth (bytes/s) | - | Ch. 1 |
 | \\(I\\) | Arithmetic intensity | FLOPs ÷ bytes | Ch. 1 |
 | \\(I_{\text{ridge}}\\) | Ridge point | \\(P_{\text{peak}} / B\\) | Ch. 1 |
 
@@ -83,10 +83,10 @@ The Gaussian weights of the 5-tap blur, \\(\\sigma = 1\\):
 
 - **Row-major** storage is assumed everywhere unless stated otherwise:
   element \\((i, j)\\) of a \\(W\\)-wide matrix lives at linear index
-  \\(i \\cdot W + j\\). Consecutive threads map to consecutive \\(j\\) — the
+  \\(i \\cdot W + j\\). Consecutive threads map to consecutive \\(j\\) - the
   coalescing convention of Chapter 7.
 - **Zero-based** indexing, matching the hardware (`threadIdx.x` starts at 0).
-- **FLOPs** counts a fused multiply–add as two operations (the convention
+- **FLOPs** counts a fused multiply-add as two operations (the convention
   behind Chapter 2's peak rates).
 - **Powers of two** dominate block sizes and tile sizes; when a formula
   requires one, the text says so (Chapter 8, §8.3).

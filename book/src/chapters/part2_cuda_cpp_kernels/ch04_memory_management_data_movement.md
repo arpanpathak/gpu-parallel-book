@@ -5,8 +5,8 @@
 
 Chapter 3 moved data with `cudaMalloc`/`cudaMemcpy` and said nothing about
 *how* it moves. This chapter is about that how. The GPU's memory system is a
-pipeline with three distinct actors — the host DRAM, the transfer bus (PCIe or
-NVLink), and the device DRAM — and the performance of any real application is
+pipeline with three distinct actors - the host DRAM, the transfer bus (PCIe or
+NVLink), and the device DRAM - and the performance of any real application is
 dominated by the slowest stage. We cover the memory *kinds* you can allocate,
 the *copy primitives* that move data, and the *unified memory* model that
 pretends the separation does not exist. Every term is defined from first
@@ -30,10 +30,10 @@ of this chapter.
 
 ## 4.2 Pageable vs Pinned Host Memory
 
-> **Primitive — pageable memory.** Ordinary host memory allocated with
+> **Primitive - pageable memory.** Ordinary host memory allocated with
 > `malloc`/`new`. The OS may move or swap the underlying pages at any time;
 > therefore the GPU's DMA engine cannot touch them directly.
-> **Primitive — pinned (page-locked) memory.** Host memory whose pages the OS
+> **Primitive - pinned (page-locked) memory.** Host memory whose pages the OS
 > has agreed *not* to swap. The DMA engine can access it directly. Pinned
 > memory is allocated with `cudaMallocHost` or `cudaHostAlloc`.
 
@@ -73,15 +73,15 @@ lifelong habit here.
 
 ## 4.3 Transfer Bandwidth: The Numbers
 
-As teaching figures for a PCIe Gen4 x16 link (≈ 25–32 GB/s effective) and a
+As teaching figures for a PCIe Gen4 x16 link (≈ 25-32 GB/s effective) and a
 modern GPU (≈ 1 TB/s HBM for the RTX family, 3.35 TB/s for H100):
 
 | Copy | Approximate effective bandwidth |
 |---|---|
-| Host pageable → device | 6–8 GB/s (staging hop dominates) |
-| Host pinned → device | 20–25 GB/s (PCIe-limited) |
-| Device → host pinned | 20–25 GB/s |
-| Device → device | 1–3 TB/s (HBM) |
+| Host pageable → device | 6-8 GB/s (staging hop dominates) |
+| Host pinned → device | 20-25 GB/s (PCIe-limited) |
+| Device → host pinned | 20-25 GB/s |
+| Device → device | 1-3 TB/s (HBM) |
 
 The lesson is arithmetic: copying 1 GB host→device costs ~40 ms pinned,
 ~140 ms pageable, and the kernel that *uses* that 1 GB might run for 1 ms.
@@ -130,7 +130,7 @@ asynchronous kernel work issued earlier, keeping the measurement clean.
 
 ## 4.5 Unified Memory: `cudaMallocManaged`
 
-> **Primitive — unified memory (UM).** A single virtual address space shared
+> **Primitive - unified memory (UM).** A single virtual address space shared
 > by host and device. A pointer allocated with `cudaMallocManaged` can be
 > dereferenced *on the host and in kernels* without explicit copies. The
 > driver migrates pages on demand.
@@ -148,7 +148,7 @@ CHECK(cudaMallocManaged((void**)&m, nBytes));
 // Host fills it like an ordinary array:
 for (int i = 0; i < n; ++i) m[i] = static_cast<float>(i);
 
-// Kernel reads it directly — no copy issued:
+// Kernel reads it directly - no copy issued:
 addVectors<<<blocksPerGrid, threadsPerBlock>>>(m, m, m, n);  // m = m + m
 CHECK(cudaDeviceSynchronize());   // page faults migrate data on demand
 ```
@@ -172,7 +172,7 @@ CHECK(cudaMemPrefetchAsync(m, nBytes, cudaCpuDeviceId));
 
 `cudaMemPrefetchAsync` is the *explicit* version of what the driver does
 lazily. Use it: a kernel that page-faults through 1 GB of unified memory pays
-a fault per page — milliseconds of hidden stalls.
+a fault per page - milliseconds of hidden stalls.
 
 **Why choose unified memory at all?** For productivity (no copy code), for
 data structures with complex pointer graphs (linked structures migrate
@@ -183,7 +183,7 @@ first, use UM where it earns its keep, and always measure.**
 
 ## 4.6 Zero-Copy Host Memory
 
-> **Primitive — zero-copy.** Host memory mapped into the device address space.
+> **Primitive - zero-copy.** Host memory mapped into the device address space.
 > Kernels access it directly over the bus; no explicit copy ever happens. Each
 > access pays the bus latency, so zero-copy is fast only for small, rarely
 > re-read data.
@@ -240,9 +240,17 @@ kernel on chunk k+1  ───────────────────�
 ```
 
 With two buffers, the copy for the *next* chunk overlaps the compute on the
-*current* chunk, and the transfer cost disappears from the critical path —
+*current* chunk, and the transfer cost disappears from the critical path  - 
 provided the transfers are pinned and asynchronous. Chapter 6 builds this
 pipeline in full; the capstone (Chapter 15) uses it for images.
+
+## Key Takeaways
+
+- Transfers can cost 100x more than the kernel that uses the data - data movement is computation.
+- Pinned memory (cudaMallocHost) enables direct DMA and asynchronous transfers; pageable memory goes through a staging copy.
+- Unified memory (cudaMallocManaged) hides the copy but migrates pages lazily; prefetch explicitly with cudaMemPrefetchAsync.
+- Zero-copy (cudaHostAllocMapped) suits small, rarely re-read data; device memory suits hot data.
+- Match every allocation with its paired free (cudaFree, cudaFreeHost) and measure bandwidth before optimising.
 
 ## 4.9 Exercises
 

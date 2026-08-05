@@ -20,14 +20,14 @@ generations, but the structure does not.
 A GPU is a collection of identical compute clusters plus a memory system. The
 H100, for example, has:
 
-- **132 streaming multiprocessors (SMs)** — the compute clusters;
-- **128 FP32 cores per SM** — the arithmetic units;
+- **132 streaming multiprocessors (SMs)** - the compute clusters;
+- **128 FP32 cores per SM** - the arithmetic units;
 - **64 KB to 228 KB of shared memory per SM**, configurable;
 - **64 K registers per SM**, partitioned among the threads;
 - **50 MB of L2 cache**, shared by all SMs;
 - **HBM3 DRAM** with a bandwidth of roughly **3.35 TB/s**.
 
-The arithmetic rate of such a chip is on the order of 60–70 TFLOP/s in FP32.
+The arithmetic rate of such a chip is on the order of 60-70 TFLOP/s in FP32.
 The memory bandwidth is 3.35 TB/s. Applying the roofline formula from Chapter 1:
 
 \\[ I_{\text{ridge}} = \frac{60 \times 10^{12}\ \text{FLOP/s}}{3.35 \times 10^{12}\ \text{B/s}} \approx 18\ \text{FLOP/byte} \\]
@@ -38,13 +38,13 @@ this number in your pocket; it will explain most of the optimisation chapters.
 ## 2.2 The Streaming Multiprocessor (SM)
 
 The SM is the GPU's unit of compute. It is best thought of as a **small,
-heavily multithreaded processor** — closer to a 128-lane vector machine than
+heavily multithreaded processor** - closer to a 128-lane vector machine than
 to a CPU core.
 
 Each SM contains:
 
 - **FP32 cores** (also called CUDA cores): single-precision floating-point
-  units, one FMA (fused multiply–add) per core per clock. An FMA computes
+  units, one FMA (fused multiply-add) per core per clock. An FMA computes
   \\(a \cdot b + c\\) in one instruction, so counting it as *two* FLOPs is why
   peak FLOP rates look so large.
 - **INT32 cores**: integer units, which in modern architectures share the
@@ -64,9 +64,46 @@ one instruction stream per core. It has a small number of *warp schedulers*,
 each feeding instructions to a *warp* of threads. The threads are the data
 parallelism; the scheduler is the control.
 
+Here is the internal anatomy of one SM, drawn to scale in the sense that
+matters (everything on the left feeds the four schedulers on the right):
+
+```
+                          ┌──────────────────────────────────────┐
+                          │          STREAMING PROCESSOR         │
+  ┌────────────────────┐  │  ┌─────────┐  ┌─────────┐            │
+  │  register file     │  │  │ warp    │  │ warp    │   ...      │
+  │  64 K x 32-bit     │◄─┼──┤ 0-31    │  │ 32-63   │            │
+  └────────────────────┘  │  └────┬────┘  └────┬────┘            │
+                          │       │             │                │
+  ┌────────────────────┐  │  ┌────▼────┐  ┌────▼────┐            │
+  │  shared memory /   │  │  │ warp    │  │ warp    │   ...      │
+  │  L1 cache (unified)│◄─┼──┤ 64-95   │  │ 96-127  │            │
+  └────────────────────┘  │  └─────────┘  └─────────┘            │
+                          │                                      │
+  ┌────────────────────┐  │  ┌─────────────────────────────┐     │
+  │  FP32 cores x128   │  │  │  scheduler 0     scheduler 1 │     │
+  │  INT32 cores       │◄─┼──┤  scheduler 2     scheduler 3 │     │
+  │  SFUs / Tensor Cores│ │  └─────────────────────────────┘     │
+  └────────────────────┘  │            │  one instruction per    │
+                          │            │  clock per scheduler,   │
+                          │            │  fetched for one warp   │
+                          └────────────┼─────────────────────────┘
+                                       │
+                          ┌────────────▼─────────────┐
+                          │  L2 cache (chip-wide)    │
+                          │  Global DRAM (HBM)       │
+                          └──────────────────────────┘
+```
+
+Read the diagram as a data-flow picture: warps live in the register file,
+share memory and arithmetic units through the schedulers, and reach the rest
+of the chip through the L1/L2 path. The four schedulers are the control
+plane; the FP32/INT32/SFU/Tensor units are the data plane; shared memory and
+registers are the on-chip storage.
+
 ## 2.3 The Warp
 
-> **Primitive — warp.** A warp is a group of **32 consecutive threads** that
+> **Primitive - warp.** A warp is a group of **32 consecutive threads** that
 > are scheduled and executed together. The warp is the hardware's unit of
 > execution, exactly as the *thread* is the programmer's unit of logic.
 
@@ -101,8 +138,8 @@ hierarchy as follows:
 - A **thread block** is scheduled onto **one SM**, as a unit. All threads of a
   block run on the same SM, which is what makes block-level shared memory and
   `__syncthreads()` possible.
-- A block is partitioned into **warps** by consecutive thread IDs. Threads 0–31
-  form warp 0, threads 32–63 form warp 1, and so on. For a 2-D block, the
+- A block is partitioned into **warps** by consecutive thread IDs. Threads 0-31
+  form warp 0, threads 32-63 form warp 1, and so on. For a 2-D block, the
   threads are linearised in x-major order (x varies fastest).
 - The SM runs **many blocks concurrently**, time-slicing its warps. How many
   depends on occupancy (§2.9).
@@ -144,14 +181,14 @@ The GPU memory hierarchy is a hierarchy of *distance and size*:
 From top to bottom, each level is larger and slower:
 
 **1. Registers.** Private to a single thread; 32-bit wide; up to 255 per
-thread. There is no address for a register — it is named by the instruction
+thread. There is no address for a register - it is named by the instruction
 (`R0`, `R1`, ...). Access is free, but there are only 64 K per SM, shared by
 all threads. Register pressure directly limits occupancy (§2.9).
 
 **2. Shared memory.** Private to a *block*; on-chip; configurable as part of
-the SM's 228 KB (H100) unified L1/shared resource. Access latency is ~20–30
+the SM's 228 KB (H100) unified L1/shared resource. Access latency is ~20-30
 cycles, versus ~400+ cycles for global memory. Shared memory is the
-programmer's explicitly managed cache — the workhorse of Chapter 7.
+programmer's explicitly managed cache - the workhorse of Chapter 7.
 
 **3. L1 cache.** On-chip, per-SM, unified with shared memory. Global loads
 that hit L1 avoid the trip to DRAM. L1 lines are 128 bytes.
@@ -168,9 +205,9 @@ enterprise is, mostly, keeping global traffic low.
 
 **6. Constant and texture memory.** Two specialised read-only paths. Constant
 memory is a small (64 KB) cache that broadcasts a single value to all threads
-in a warp *for free* when they read the same address — ideal for kernel
+in a warp *for free* when they read the same address - ideal for kernel
 parameters. Texture memory is a cached read-only path with hardware support
-for 2-D spatial locality and interpolation — used for images. Both are
+for 2-D spatial locality and interpolation - used for images. Both are
 discussed in Chapter 7.
 
 **7. Local memory.** A misnomer: "local" memory is actually global memory
@@ -186,24 +223,24 @@ as teaching figures, not datasheet values:
 | Resource | Approximate latency | Notes |
 |---|---|---|
 | Register | ~0 cycles | Operand to instruction |
-| Shared memory | ~20–30 cycles | On-chip, banked |
+| Shared memory | ~20-30 cycles | On-chip, banked |
 | L1 hit | ~30 cycles | Per-SM |
 | L2 hit | ~200 cycles | Chip-wide |
-| Global DRAM | ~400–800 cycles | HBM3 |
+| Global DRAM | ~400-800 cycles | HBM3 |
 | Host memory (PCIe) | ~1,000+ cycles + transfer time | Off-chip, CPU side |
 
 The lesson: **one global memory access costs roughly 30 shared-memory
 accesses.** Any algorithm that can restructure itself to reuse data in shared
-memory is buying speed with engineering effort — and Chapter 7 will show the
+memory is buying speed with engineering effort - and Chapter 7 will show the
 accounting in detail.
 
 ## 2.7 Coalescing: How a Warp Reads Memory
 
 Here is the single most consequential performance rule in CUDA programming:
 
-> **Primitive — coalescing.** When the threads of a warp issue a load, the
+> **Primitive - coalescing.** When the threads of a warp issue a load, the
 > memory system groups their requests and services them in **128-byte cache
-> lines** (or 32-byte sectors) — *if* the addresses are contiguous. If the 32
+> lines** (or 32-byte sectors) - *if* the addresses are contiguous. If the 32
 > threads read 32 consecutive 4-byte words, one or two 128-byte transactions
 > satisfy the entire warp. If the threads read a stride-32 pattern, the same
 > data is fetched in 32 separate transactions.
@@ -237,11 +274,11 @@ When a warp accesses shared memory, the hardware services **one access per
 bank per cycle**. If two threads in the warp hit the same bank, the hardware
 serialises them: that is a **bank conflict**, and it costs extra cycles.
 
-- Threads 0–31 reading consecutive words: all 32 banks busy, one access,
+- Threads 0-31 reading consecutive words: all 32 banks busy, one access,
   no conflict.
-- Threads 0–31 reading a stride of 32 words: all 32 threads hit bank 0,
-  thirty-two-way conflict — 32 cycles of pain.
-- Threads 0–31 reading the *same* word (a broadcast): hardware broadcasts,
+- Threads 0-31 reading a stride of 32 words: all 32 threads hit bank 0,
+  thirty-two-way conflict - 32 cycles of pain.
+- Threads 0-31 reading the *same* word (a broadcast): hardware broadcasts,
   one access, no conflict.
 
 Bank conflicts are a shared-memory phenomenon (Chapter 7 shows the classic
@@ -249,7 +286,7 @@ fix: padding). Global memory has no banks; it has lines and sectors.
 
 ## 2.9 Occupancy
 
-> **Primitive — occupancy.** The ratio of active warps on an SM to the maximum
+> **Primitive - occupancy.** The ratio of active warps on an SM to the maximum
 > number of warps the SM can hold. An SM with 64 warp slots at 100% occupancy
 > has 64 warps resident.
 
@@ -270,6 +307,25 @@ The limits on occupancy are the SM's finite resources:
 
 The occupancy of a given launch configuration is the *minimum* over all these
 limits. The famous **occupancy calculator** spreadsheet (and `cudaOccupancyMaxActiveBlocksPerMultiprocessor`, Chapter 16) computes it for you.
+
+**A worked occupancy calculation.** Suppose the SM limits are the ones used
+throughout this chapter (64 K registers, 2,048 threads per SM, 32 blocks per
+SM, 228 KB shared memory), and the kernel is launched with blocks of 256
+threads (8 warps). We take the minimum of the four constraints:
+
+| Constraint | Equation | Blocks allowed |
+|---|---|---|
+| Registers (32/thread) | 64 K / (256 × 32) | 8 blocks |
+| Threads per SM | 2,048 / 256 | 8 blocks |
+| Blocks per SM | hardware limit | 32 blocks |
+| Shared memory (0 bytes used) | no demand on the 228 KB budget | not a constraint |
+
+The minimum is **8 blocks**, i.e., 64 warps resident - and since the SM holds
+at most 64 warps, this is 100% occupancy. Now repeat the register column with
+a register-heavy kernel using 64 registers per thread: 64 K / (256 × 64) = 4
+blocks - occupancy drops to 50%. The same kernel with 128 registers per
+thread: 2 blocks, 25% occupancy. This is why Chapter 9's `__launch_bounds__`
+matters: *register count is an occupancy dial.*
 
 **The trade.** High occupancy is not always good. A kernel that uses shared
 memory heavily may want fewer blocks to fit more shared memory per block. A
@@ -306,6 +362,15 @@ anywhere else, the first question to ask is: *on which compute capability?*
 You can query your own hardware with `deviceQuery` (a CUDA sample), which
 reports the SM count, CC, register file, shared memory per SM, and the limits
 from §2.9. Chapter 16 shows how to read that output.
+
+## Key Takeaways
+
+- The warp (32 threads) is the hardware unit of execution, not the thread.
+- Blocks map to SMs; warps are consecutive thread IDs within a block.
+- Memory hierarchy: registers, shared memory, L1, L2, global DRAM - each level larger and slower (roughly 20-30 cycles for shared, 400-800 for DRAM).
+- Coalescing: consecutive threads should read consecutive addresses; the hardware fetches 128-byte lines.
+- Shared memory has 32 banks of 4 bytes; a 32-way bank conflict costs 32 cycles - padding fixes it.
+- Occupancy is the ratio of resident warps to the SM's maximum; registers, threads and shared memory each cap it.
 
 ## 2.12 Exercises
 

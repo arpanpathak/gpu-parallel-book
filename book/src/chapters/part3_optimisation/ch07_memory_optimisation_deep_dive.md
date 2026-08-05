@@ -3,23 +3,23 @@
 > *"Most kernels are not too slow to compute; they are too slow to fetch."*
 
 Chapter 2 promised that this chapter would show the accounting. Here it is.
-We examine the three tools that dominate GPU memory performance — **coalescing
+We examine the three tools that dominate GPU memory performance - **coalescing
 and the grid-stride loop**, **shared memory and bank conflicts**, and
-**vectorised and specialised memory paths** — and we end with a complete,
+**vectorised and specialised memory paths** - and we end with a complete,
 optimised matrix transpose, the canonical exercise in memory optimisation.
 
 ## 7.1 The Accounting: Where Time Goes
 
-From Chapter 2's latency table, a global load costs roughly 400–800 cycles
-and a shared-memory access 20–30. The arithmetic: a warp of 32 threads doing
+From Chapter 2's latency table, a global load costs roughly 400-800 cycles
+and a shared-memory access 20-30. The arithmetic: a warp of 32 threads doing
 one global load each spends ~500 cycles waiting; the SM could have executed
 ~16 shared-memory accesses per lane in that time. Memory-bound kernels (the
 roofline test of Chapter 1) spend most of their time in this wait.
 
 Two levers reduce the wait:
 
-1. **Fewer transactions** — coalescing (use each fetched byte).
-2. **Fewer round trips** — reuse fetched data in shared memory or registers.
+1. **Fewer transactions** - coalescing (use each fetched byte).
+2. **Fewer round trips** - reuse fetched data in shared memory or registers.
 
 Everything in this chapter is one of those two levers.
 
@@ -33,6 +33,28 @@ its 32 addresses fall within as few lines as possible.
 - 32 `float`s with stride 1 but misaligned start → 2 lines. **Good.**
 - 32 `float`s with stride 32 → 32 lines. **Catastrophic**: 32× traffic.
 
+Pictured, for a warp of 32 threads each loading one `float` (the grid is
+128-byte cache lines; `T0..T31` are the threads; `[ ]` marks one fetched
+line):
+
+```
+COALESCED (stride 1):                 UNCOALESCED (stride 32):
+                                          
+[ T0 T1 T2 ... T31 ]                 [T0]           [T1]           [T2]
+ └── one 128-byte line ──┘             └─line─┘      └─line─┘      └─line─┘
+  32 floats, 128 bytes                32 threads, 32 lines = 4 KB fetched
+  1 transaction                        for 128 bytes actually used:
+                                       a 32x waste of bandwidth
+
+  T0..T31 read 0,4,8,...,124          T0 reads 0, T1 reads 128,
+                                       T2 reads 256, ... (stride 32 floats)
+```
+
+The left picture is why the global-index formula exists (Chapter 3, §3.5):
+it hands consecutive threads consecutive addresses *by construction*. The
+right picture is what happens when the formula is inverted - the classic
+column-access bug in row-major data.
+
 The rule, restated with the hardware in mind: **consecutive thread IDs should
 map to consecutive addresses**. The global-index formula from Chapter 3
 satisfies this by construction for 1-D arrays and row-major 2-D data.
@@ -42,7 +64,7 @@ satisfies this by construction for 1-D arrays and row-major 2-D data.
 // for a row-major matrix in[row][col], col varies fastest:
 float v = in[row * width + col];        // col == threadIdx.x mapped to col
 
-// BAD (uncoalesced): thread t reads element t*width — stride of width floats.
+// BAD (uncoalesced): thread t reads element t*width - stride of width floats.
 // 32 threads span 32 different cache lines for a large width:
 float v = in[col * width + row];        // col varies slowest
 ```
@@ -90,7 +112,7 @@ always a **tile**:
 4. `__syncthreads()` before the next tile overwrites this one.
 
 The classic example is the matrix transpose. A naive transpose kernel reads
-rows (coalesced) and writes columns (uncoalesced), or vice versa — one side
+rows (coalesced) and writes columns (uncoalesced), or vice versa - one side
 always pays. The shared-memory version fixes both sides:
 
 ```cpp
@@ -128,7 +150,7 @@ __global__ void transposeTiled(const float* in, float* out, int width)
     const int jy = blockIdx.x * TILE + threadIdx.y;   // row of output
 
     // Stage 3: write the transposed element. Consecutive threads (x) map to
-    // consecutive jy rows at the same jx — i.e., consecutive addresses in
+    // consecutive jy rows at the same jx - i.e., consecutive addresses in
     // the row-major output. Coalesced.
     if (jx < width && jy < width)
         out[jy * width + jx] = tile[threadIdx.x][threadIdx.y];
@@ -147,12 +169,12 @@ From Chapter 2, shared memory is 32 banks of 4 bytes. The bank of an address
 is `(address / 4) mod 32`. Consider the un-padded tile `float tile[32][32]`:
 
 - Row `r` starts at byte `r * 128`, so row `r` occupies banks
-  `(r * 32) mod 32 = 0` — **every row starts on bank 0**.
+  `(r * 32) mod 32 = 0` - **every row starts on bank 0**.
 - When the kernel reads `tile[threadIdx.y][threadIdx.x]` with consecutive
-  `threadIdx.x`, all 32 threads of a warp hit banks `0..31` — fine.
+  `threadIdx.x`, all 32 threads of a warp hit banks `0..31` - fine.
 
 But a *column* read `tile[threadIdx.x][threadIdx.y]` (as the transpose does
-in stage 3) has consecutive threads reading addresses `r * 32` words apart —
+in stage 3) has consecutive threads reading addresses `r * 32` words apart  - 
 all 32 threads hit **bank 0**: a 32-way bank conflict, 32 cycles instead of 1.
 
 **The fix is padding by one column** (`float tile[32][33]`): row `r` now
@@ -169,7 +191,7 @@ once each. One float of padding per row converts a 32-cycle stall into a
 
 ## 7.6 Vectorised Loads: `float4` and Alignment
 
-A warp loading 32 `float`s fetches 128 bytes in one transaction — but each
+A warp loading 32 `float`s fetches 128 bytes in one transaction - but each
 *instruction* moves 4 bytes per lane. The memory subsystem is happiest with
 128-bit accesses. **Vectorised loads** let one instruction move 16 bytes per
 lane: a warp then moves 512 bytes per instruction.
@@ -202,15 +224,15 @@ tail elements scalar-wise.
 **Why vectorisation helps beyond coalescing.** Fewer instructions (one load
 vs four), fewer memory requests, and the 128-bit path uses the bus more
 efficiently. On memory-bound kernels, float4-style access routinely adds
-20–40% throughput. The `int4`, `double2`, and `uint4` types follow the same
+20-40% throughput. The `int4`, `double2`, and `uint4` types follow the same
 rules.
 
 ## 7.7 Constant Memory
 
-> **Primitive — constant memory.** A 64 KB read-only memory space, cached in
+> **Primitive - constant memory.** A 64 KB read-only memory space, cached in
 > a dedicated per-SM cache, optimised for **broadcasts**: when all threads of
 > a warp read the *same* address, the hardware serves all 32 lanes in one
-> access. When threads read *different* addresses, it serialises — the exact
+> access. When threads read *different* addresses, it serialises - the exact
 > inverse of shared memory's behaviour.
 
 ```cpp
@@ -221,7 +243,7 @@ __constant__ float g_coeffs[16];
 float h_coeffs[16] = { /* ... */ };
 CHECK(cudaMemcpyToSymbol(g_coeffs, h_coeffs, sizeof(h_coeffs)));
 
-// Kernel reads: all threads read the SAME coefficient per call —
+// Kernel reads: all threads read the SAME coefficient per call  - 
 // a broadcast, served in one access from the constant cache.
 __global__ void applyCoeffs(const float* in, float* out, int n, int c)
 {
@@ -232,20 +254,20 @@ __global__ void applyCoeffs(const float* in, float* out, int n, int c)
 
 **When to use constant memory.** Kernel parameters (all threads read the same
 value), lookup tables indexed by a *uniform* value, coefficients. When to
-avoid it: data indexed differently per thread — a *divergent* constant access
+avoid it: data indexed differently per thread - a *divergent* constant access
 serialises and is slower than global memory.
 
 ## 7.8 Texture and Surface Memory (Briefly)
 
 Texture memory is a cached read-only path with two special powers: **spatial
-locality** (2-D caches for images — neighbouring pixels in any direction) and
+locality** (2-D caches for images - neighbouring pixels in any direction) and
 **hardware interpolation** (bilinear filtering, used by graphics). On modern
 GPUs, the L1/L2 caches largely subsume its raw speed advantage; its remaining
 value is the interpolation hardware and the `cudaTextureObject` API for
 image-like data. If your kernel reads images with 2-D locality, a texture
 object is a legitimate optimisation; for linear 1-D access, global memory with
 good coalescing is equal or better. The capstone (Chapter 15) uses plain
-global memory for its image pipeline and stays within 5% of peak bandwidth —
+global memory for its image pipeline and stays within 5% of peak bandwidth  - 
 a useful baseline that says: *coalescing first, specialised paths second*.
 
 ## 7.9 The Optimisation Checklist
@@ -261,11 +283,19 @@ When a kernel is memory-bound, walk this list in order:
    (§7.6).
 5. **Are uniform values in constant memory?** (§7.7)
 6. **Is the transfer pipeline streamed?** Pinned memory + streams (Chapters
-   4, 6) — memory-bound kernels are no faster than their copies.
+   4, 6) - memory-bound kernels are no faster than their copies.
 
 Each step is cheap to try and easy to measure (Chapter 16 shows the
 measurement discipline). Never apply step 6 without measuring the result of
 step 1.
+
+## Key Takeaways
+
+- Coalescing means touching the fewest 128-byte cache lines per warp access: consecutive threads, consecutive addresses.
+- The grid-stride loop decouples launch size from problem size and preserves coalescing.
+- Shared memory is the explicit cache; padding by one column eliminates bank conflicts.
+- float4-style vectorised loads move 16 bytes per thread and require 16-byte alignment.
+- Constant memory broadcasts uniform reads for free; per-thread divergent reads are slower than global memory.
 
 ## 7.10 Exercises
 

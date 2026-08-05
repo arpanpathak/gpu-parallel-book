@@ -1,11 +1,11 @@
-# Appendix A — CUDA API Reference
+# Appendix A - CUDA API Reference
 
 > *"Every primitive of the CUDA programming model, gathered in one place. When
 > a chapter says 'the primitive', this is the definition it means."*
 
 This appendix is the book's vocabulary list: every type, built-in variable,
 function and flag used in the main text, with its meaning and where it is
-discussed. It is intended as a lookup table, not as a tutorial — the tutorials
+discussed. It is intended as a lookup table, not as a tutorial - the tutorials
 are the chapters.
 
 ## A.1 Execution Configuration
@@ -43,7 +43,7 @@ NVRTC lookup (Chapters 12, 13).
 | `uchar3` | 3 | 1 | RGB pixels; no padding (Chapter 15) |
 | `float2`, `float4` | 8, 16 | 4, 16 | Vectorised loads (Chapter 7, §7.6) |
 | `int2`, `int4`, `double2`, `uint4` | 8/16/16/16 | as size | Same vectorisation rules |
-| `size_t` | platform | — | Byte sizes; use instead of `int` (Chapter 3) |
+| `size_t` | platform | - | Byte sizes; use instead of `int` (Chapter 3) |
 
 Vectorised accesses require alignment to the vector size.
 
@@ -117,7 +117,7 @@ Chapter 3, §3.8.
 `powf`, `fmaf` (fused multiply-add). The `__host__ __device__` versions work
 on both sides (Chapter 10, §10.4). Fast approximations live in the `__`
 prefixed forms (`__expf`, `__sinf`); enable globally with
-`--use_fast_math` — but measure before trusting (Chapter 16, §16.7).
+`--use_fast_math` - but measure before trusting (Chapter 16, §16.7).
 
 ## A.9 Warp-Level Primitives
 

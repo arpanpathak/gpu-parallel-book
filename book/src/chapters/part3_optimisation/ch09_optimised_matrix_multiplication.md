@@ -4,7 +4,7 @@
 > should be able to explain why."*
 
 Matrix multiplication (\\(C = A \times B\\), all \\(N \times N\\)) is the
-canonical GPU workload — the inner loop of deep learning, linear algebra, and
+canonical GPU workload - the inner loop of deep learning, linear algebra, and
 scientific computing. It is also the perfect teaching kernel: it is
 compute-bound (so the optimisations are about *arithmetic reuse*, not just
 memory), it exercises every idea from Chapters 2, 7 and 8, and its optimised
@@ -20,7 +20,7 @@ bytes. The arithmetic intensity (Chapter 1):
 
 \\[ I = \frac{2N^3}{12N^2} = \frac{N}{6}\ \text{FLOP/byte} \\]
 
-For \\(N = 4096\\), \\(I \\approx 683\\) FLOP/byte — two orders of magnitude
+For \\(N = 4096\\), \\(I \\approx 683\\) FLOP/byte - two orders of magnitude
 above the ~18 FLOP/byte ridge point of a modern GPU (Chapter 2). SGEMM is
 **compute-bound**: the memory system is not the constraint; *keeping the
 arithmetic units fed* is. Every optimisation below is about reuse: each value
@@ -39,10 +39,10 @@ __global__ void sgemmNaive(const float* A, const float* B, float* C,
 
     float sum = 0.0f;
     for (int k = 0; k < N; ++k)
-        // A[i][k] : consecutive threads read CONSECUTIVE i? No — they read
+        // A[i][k] : consecutive threads read CONSECUTIVE i? No - they read
         //   A[i*N + k]; consecutive threads differ in j, so the SAME k and
         //   DIFFERENT i → stride-N addresses. Uncoalesced!
-        // B[k][j] : consecutive threads read B[k*N + j] — consecutive j →
+        // B[k][j] : consecutive threads read B[k*N + j] - consecutive j →
         //   coalesced. Half the traffic is good.
         sum += A[i * N + k] * B[k * N + j];
     C[i * N + j] = sum;
@@ -51,7 +51,7 @@ __global__ void sgemmNaive(const float* A, const float* B, float* C,
 
 **Why it is slow.** The read of A is stride-`N` (uncoalesced, Chapter 7), and
 every output element re-reads a full row of A and column of B from global
-memory: \\(2N^3\\) bytes moved for \\(2N^3\\) FLOPs — intensity \\(1\\), far
+memory: \\(2N^3\\) bytes moved for \\(2N^3\\) FLOPs - intensity \\(1\\), far
 below the ridge. The kernel is effectively memory-bound *because of its own
 access pattern*. The shared-memory tiling of §9.4 fixes exactly this.
 
@@ -64,7 +64,7 @@ mapping to `j` and `threadIdx.y` to `i` gives:
 - `B[k][j]`: consecutive threads → consecutive `j` → coalesced ✓
 - `A[i][k]`: consecutive threads → same `i`, consecutive... no: `i` varies
   with `threadIdx.y`, so within a row of threads `i` is constant and `j`
-  varies — `A[i][k]` is *uniform per thread-row* (broadcast), not strided.
+  varies - `A[i][k]` is *uniform per thread-row* (broadcast), not strided.
 
 The broadcast is served efficiently (all threads of a warp read the same
 address in the same load). So a block-oriented launch with `threadIdx.x → j`
@@ -125,8 +125,8 @@ __global__ void sgemmTiled(const float* A, const float* B, float* C, int N)
         __syncthreads();   // tile complete before any thread reads it
 
         // Inner product over the tile. Each thread reads:
-        //   sA[ty][k]  — row of the A-tile   (bank-conflict-free due to pad)
-        //   sB[k][tx]  — column of the B-tile (broadcast along the row)
+        //   sA[ty][k]  - row of the A-tile   (bank-conflict-free due to pad)
+        //   sB[k][tx]  - column of the B-tile (broadcast along the row)
         #pragma unroll
         for (int k = 0; k < T; ++k)
             acc += sA[threadIdx.y][k] * sB[k][threadIdx.x];
@@ -140,9 +140,9 @@ __global__ void sgemmTiled(const float* A, const float* B, float* C, int N)
 
 **Why `#pragma unroll`?** The inner `k` loop is a compile-time-fixed trip
 count (16). Unrolling emits 16 straight-line FMAs with no loop bookkeeping and
-lets the compiler schedule the shared-memory loads ahead of the arithmetic —
+lets the compiler schedule the shared-memory loads ahead of the arithmetic  - 
 hiding shared-memory latency behind FMA work. This single pragma is worth
-10–20% on this kernel.
+10-20% on this kernel.
 
 **The bank-conflict analysis.** `sA[ty][k]` for fixed `ty`, varying `k` over
 a warp's threads: threads differ in `ty` (since `threadIdx.x = tx` varies
@@ -166,7 +166,7 @@ kernel is now compute-bound, which is where it belongs.
 ## 9.5 Stage 3: Register Tiling
 
 The tiled kernel still reads shared memory for every FMA: one shared load per
-multiply-add. Shared-memory bandwidth is finite — with 32 banks × 4 bytes, an
+multiply-add. Shared-memory bandwidth is finite - with 32 banks × 4 bytes, an
 SM can supply at most 128 bytes/cycle, and the FP32 units can consume 128
 FLOPs/cycle (128 cores × FMA). The FMA-to-load ratio is already at the limit.
 The fix: **each thread computes more than one output element**, reusing each
@@ -259,7 +259,7 @@ production kernels shipped in cuBLAS use micro-tiles of 8×8 with special
 register-allocation tricks; our 2×2 and 4×4 versions capture the idea.
 
 **The correctness note on the tile-load.** Each thread loads `RM` elements of
-the A-tile row at `sA[ty*RM + r][tx*RN]` — note that `RN` elements of the row
+the A-tile row at `sA[ty*RM + r][tx*RN]` - note that `RN` elements of the row
 are loaded by `RN` different threads *in the same row* (`tx` ranges over
 `T/RN`), so the row segment `[tx*RN, tx*RN+RN)` is covered by `RN` threads.
 The loads are coalesced because consecutive `tx` cover consecutive columns.
@@ -268,8 +268,8 @@ The loads are coalesced because consecutive `tx` cover consecutive columns.
 
 The register-tiled kernel consumes more registers per thread. If the compiler
 uses, say, 40 registers, occupancy falls to `64K / (40 × 256)` ≈ 6 blocks/SM.
-That may be fine — the kernel is compute-bound and register tiling gives it
-enough ILP — but the compiler should be *told* the budget so it does not
+That may be fine - the kernel is compute-bound and register tiling gives it
+enough ILP - but the compiler should be *told* the budget so it does not
 spill:
 
 ```cpp
@@ -290,25 +290,33 @@ Chapter 2 into a compiler directive.
 **The tuning loop.** For a given micro-tile, measure the kernel at
 `minBlocksPerSM` = 2, 4, 6, 8 (Chapter 16's benchmarking discipline). The
 sweet spot is where register tiling's ILP and occupancy's latency hiding
-balance. There is no universal answer — which is why the measurements, not
+balance. There is no universal answer - which is why the measurements, not
 the folklore, decide.
 
 ## 9.7 What the Optimised Kernel Achieves
 
 With `T = 16`, 2×2 register tiling, padding, and `__launch_bounds__`, the
-kernel of §9.5 typically reaches 60–75% of peak FP32 on a modern GPU
+kernel of §9.5 typically reaches 60-75% of peak FP32 on a modern GPU
 (measured on the same hardware as the roofline numbers of Chapter 2). The
 remaining gap is the shared-memory FMA supply rate and the k-loop's tile
 overhead. Closing it further requires:
 
 - **Warp-level tiling** (each warp computes a 32×8 tile with `ldmatrix`,
-  the layout descriptor instruction) — the territory of cuBLAS;
+  the layout descriptor instruction) - the territory of cuBLAS;
 - **Tensor cores** (`mma` instructions), which multiply 16×16×16 tiles per
-  instruction — a completely different pipeline covered in Chapter 11.
+  instruction - a completely different pipeline covered in Chapter 11.
 
 Both are beyond this chapter's scope, but the journey from naive (5% of peak)
 to register-tiled (70%) is the same journey every optimisation chapter in this
 book teaches: *find the bottleneck, remove it, measure, repeat*.
+
+## Key Takeaways
+
+- SGEMM is compute-bound (intensity N/6 FLOP/byte): the goal is arithmetic reuse, not just coalescing.
+- The naive kernel has zero reuse and runs at a few percent of peak.
+- Shared-memory tiling makes each loaded element feed T threads; global traffic drops by T.
+- Register tiling makes each shared-memory value feed RM x RN FMAs from registers.
+- __launch_bounds__ trades registers for occupancy; the right balance is found by measuring.
 
 ## 9.8 Exercises
 

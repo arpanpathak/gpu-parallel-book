@@ -34,7 +34,7 @@ flight that the hardware always has something to do while others wait.
 
 This is the first primitive of the book:
 
-> **Primitive — latency hiding.** If an execution unit must wait for a slow
+> **Primitive - latency hiding.** If an execution unit must wait for a slow
 > operation (a memory access, a division), the unit is idle. The GPU avoids
 > idleness by switching to another ready thread. The cost of the wait is
 > hidden, not eliminated.
@@ -49,14 +49,14 @@ Let \\(T_1\\) be the time a program takes to solve a problem on a single
 processing unit (a single core, a single thread), and let \\(T_p\\) be the time
 it takes on \\(p\\) processing units. We define:
 
-**Speedup** — the ratio of the serial time to the parallel time:
+**Speedup** - the ratio of the serial time to the parallel time:
 
 \\[ S(p) = \frac{T_1}{T_p} \\]
 
 A perfect speedup of \\(p\\) means the \\(p\\)-fold work is done in
 \\(\frac{1}{p}\\) the time. We then define:
 
-**Efficiency** — the speedup per processing unit:
+**Efficiency** - the speedup per processing unit:
 
 \\[ E(p) = \frac{S(p)}{p} = \frac{T_1}{p \cdot T_p} \\]
 
@@ -69,7 +69,7 @@ the efficiency is 0.156.
 **Why efficiency matters on a GPU.** A GPU may have tens of thousands of
 threads in flight. If the achievable efficiency is 20%, you are paying for
 five times more hardware than you are using. Almost every optimisation in this
-book is, at heart, an attempt to raise efficiency — by keeping threads busy,
+book is, at heart, an attempt to raise efficiency - by keeping threads busy,
 by keeping memory transactions full, and by removing serialisation points.
 
 ## 1.3 Amdahl's Law
@@ -107,7 +107,7 @@ is dedicated to hiding host overhead: the serial fraction is the enemy.
 fixed*. If the problem grows with the number of processing units, the
 conclusion changes. That is the subject of the next section.
 
-## 1.4 Gustafson–Barsis Law
+## 1.4 Gustafson-Barsis Law
 
 John Gustafson and Edwin Barsis argued in 1988 that in practice the problem
 size is not fixed: given more hardware, users solve *larger* problems in the
@@ -134,10 +134,10 @@ you which optimisation is worthwhile.
 
 These two terms name the two regimes above:
 
-- **Strong scaling** — fixed problem size, increasing units. The limit is
+- **Strong scaling** - fixed problem size, increasing units. The limit is
   Amdahl's law. Used for latency-critical workloads where the problem size is
   dictated by the application (a 1080p frame must be processed at 60 Hz).
-- **Weak scaling** — fixed problem size *per unit*, increasing units. The
+- **Weak scaling** - fixed problem size *per unit*, increasing units. The
   total problem grows with the units. The limit is Gustafson's law. Used for
   throughput workloads (larger batch, larger grid).
 
@@ -150,13 +150,13 @@ total work).
 
 Parallelism is not one idea but several, and each maps to different hardware:
 
-- **Task parallelism** — different *functions* run concurrently on different
+- **Task parallelism** - different *functions* run concurrently on different
   data (e.g., decode one frame while filtering another). On a GPU, task
   parallelism is coarse and limited: a GPU has few independent "task" slots,
   but they correspond to *streams* (Chapter 6).
-- **Data parallelism** — the *same* function runs on many data elements. This
+- **Data parallelism** - the *same* function runs on many data elements. This
   is the natural mode of the GPU: one kernel, millions of elements.
-- **Pipeline parallelism** — a computation is split into stages; each stage
+- **Pipeline parallelism** - a computation is split into stages; each stage
   processes a different element simultaneously. The classic example is a
   convolution pipeline: stage one loads, stage two computes, stage three
   stores. On a GPU, pipeline parallelism appears both at the hardware level
@@ -173,21 +173,21 @@ Michael Flynn's 1966 taxonomy classifies computers by whether they operate on
 one or many *instruction streams* and one or many *data streams*. The four
 combinations are:
 
-- **SISD** (single instruction, single data) — a conventional scalar CPU core.
+- **SISD** (single instruction, single data) - a conventional scalar CPU core.
   One instruction stream, one data stream. Your laptop's cores, in scalar mode.
-- **SIMD** (single instruction, multiple data) — one instruction operates on a
+- **SIMD** (single instruction, multiple data) - one instruction operates on a
   *vector* of data elements simultaneously. Examples: SSE and AVX on x86 CPUs.
   The programmer (or compiler) explicitly packs data into wide registers; a
   256-bit AVX register holds eight 32-bit floats, and one instruction adds all
   eight at once.
-- **MIMD** (multiple instruction, multiple data) — each processing unit runs
+- **MIMD** (multiple instruction, multiple data) - each processing unit runs
   its own instruction stream on its own data. Examples: multi-core CPUs, GPU
   streaming multiprocessors as a whole.
-- **SIMT** (single instruction, multiple threads) — NVIDIA's execution model,
+- **SIMT** (single instruction, multiple threads) - NVIDIA's execution model,
   a hybrid of SIMD and MIMD. The hardware fetches *one* instruction per cycle
   for a *group* of threads (a **warp**, defined in Chapter 2), but each thread
   has its own registers, its own program counter, and its own data. This
-  combination — one instruction, many independent thread contexts — is the
+  combination - one instruction, many independent thread contexts - is the
   single most important architectural idea in this book.
 
 **Why SIMT is not SIMD.** In SIMD, the data elements are explicitly packed
@@ -208,7 +208,7 @@ system?*
 
 Define:
 
-**Arithmetic intensity** — the ratio of floating-point operations to bytes
+**Arithmetic intensity** - the ratio of floating-point operations to bytes
 moved, \\(I = \frac{\text{FLOPs}}{\text{Bytes}}\\). A dense matrix multiply has
 high intensity (many operations per byte); a vector add has low intensity
 (one operation per byte).
@@ -230,7 +230,7 @@ and performance is capped by bandwidth (\\(I \cdot B\\)); if above, you are
 **Worked numbers.** An RTX-class GPU with \\(P_{\text{peak}} = 40\\) TFLOP/s
 of FP32 and \\(B = 1\\) TB/s has a ridge point of
 \\(I_{\text{ridge}} = 40\\) FLOP/byte. A vector add moving 4-byte floats has
-intensity \\(I = 1\\) FLOP / (2 reads + 1 write) × 4 bytes ≈ 0.08 FLOP/byte —
+intensity \\(I = 1\\) FLOP / (2 reads + 1 write) × 4 bytes ≈ 0.08 FLOP/byte  - 
 deep in memory-bound territory. No amount of arithmetic optimisation will make
 a vector add faster; only bandwidth optimisation will. This single
 observation explains why Chapter 7 is devoted to memory.
@@ -275,6 +275,15 @@ The terms defined in this chapter are the book's working vocabulary:
 | Ridge point | \\(P_{\text{peak}} / B\\) | §1.8 |
 | Memory-bound | \\(I < I_{\text{ridge}}\\), limited by bandwidth | §1.8 |
 | Compute-bound | \\(I > I_{\text{ridge}}\\), limited by FLOPs | §1.8 |
+
+## Key Takeaways
+
+- Parallelism buys throughput, not latency; the GPU hides latency by keeping many warps in flight.
+- Speedup S(p) = T1 / Tp; efficiency S(p) / p is the honest metric.
+- Amdahl's law: a serial fraction f caps speedup at 1/f, no matter how many units you add.
+- Gustafson-Barsis: when the problem grows with the hardware, scaled speedup grows linearly.
+- Arithmetic intensity I = FLOPs / bytes, compared with the ridge point P_peak / B, decides memory-bound vs compute-bound.
+- SIMT executes one instruction per warp; divergent control flow serialises the divergent paths.
 
 ## 1.11 Exercises
 

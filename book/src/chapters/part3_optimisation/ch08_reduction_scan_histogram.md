@@ -4,7 +4,7 @@
 
 This chapter covers the three canonical data-parallel algorithms that appear,
 in disguise, in almost every real GPU application: **reduction** (sum,
-max, min — fold an array to one value), **scan** (prefix sums — fold an array
+max, min - fold an array to one value), **scan** (prefix sums - fold an array
 to an array), and **histogram** (count occurrences). Each is presented in
 stages, from the naive version to the optimised one, with the reasoning for
 every transformation. These three patterns are the vocabulary of Chapter 9's
@@ -94,7 +94,7 @@ for 256 threads. Stage 3 removes all but one.
 
 One element per thread leaves most of each thread idle: each thread loads one
 value and then participates in \\(\log_2 TILE\\) additions. The fix is
-**thread coarsening** — each thread processes *many* elements in a grid-stride
+**thread coarsening** - each thread processes *many* elements in a grid-stride
 loop (Chapter 7, §7.3) before entering the tree:
 
 ```cpp
@@ -136,10 +136,10 @@ multiples of the grid size.
 ## 8.5 Stage 3: Warp Shuffles
 
 The tree's barriers are the cost. But a warp's 32 threads share an execution
-unit — they can exchange data through **registers** without touching memory or
+unit - they can exchange data through **registers** without touching memory or
 barriers at all. The instruction is the **warp shuffle**:
 
-> **Primitive — warp shuffle.** `__shfl_down_sync(mask, value, delta)` moves
+> **Primitive - warp shuffle.** `__shfl_down_sync(mask, value, delta)` moves
 > `value` from lane `lane + delta` to lane `lane`, within one warp, through
 > the register file. No memory, no barrier. `mask` is the set of participating
 > lanes (all 32: `0xffffffff`). All 32 lanes must execute the shuffle or the
@@ -150,7 +150,7 @@ barriers at all. The instruction is the **warp shuffle**:
 __device__ float warpReduce(float val)
 {
     // mask: all 32 lanes participate. Steps move data rightward by
-    // 16, 8, 4, 2, 1 — the warp-size equivalents of the tree's strides.
+    // 16, 8, 4, 2, 1 - the warp-size equivalents of the tree's strides.
     for (int offset = 16; offset > 0; offset >>= 1)
         val += __shfl_down_sync(0xffffffffu, val, offset);
     return val;      // lane 0 now holds the warp total
@@ -159,7 +159,7 @@ __device__ float warpReduce(float val)
 
 **Why 16, 8, 4, 2, 1?** A warp is 32 lanes. The first shuffle moves the sum
 of lanes 16..31 into lanes 0..15; the second folds 8..15 into 0..7; and so on.
-Five steps halve a warp — the same \\(\log_2 32\\) levels as the shared-memory
+Five steps halve a warp - the same \\(\log_2 32\\) levels as the shared-memory
 tree, but at register speed with **no barrier and no shared memory**.
 
 ## 8.6 The Complete Block Reduction
@@ -220,25 +220,25 @@ standard against which reductions are judged; it routinely achieves 90%+ of
 peak bandwidth because its only global traffic is the coalesced read.
 
 **Determinism.** The tree order is fixed by the code, so the summation order
-is fixed — the result is *bit-reproducible* across runs, unlike an
+is fixed - the result is *bit-reproducible* across runs, unlike an
 atomic-based reduction (Chapter 5, §5.6). This is a feature, not an accident.
 
 ## 8.7 Scan (Prefix Sum)
 
-> **Primitive — inclusive scan.** Given \\(a\\), compute
+> **Primitive - inclusive scan.** Given \\(a\\), compute
 > \\(y_i = a_0 + a_1 + \cdots + a_i\\).
-> **Primitive — exclusive scan.** Given \\(a\\), compute
+> **Primitive - exclusive scan.** Given \\(a\\), compute
 > \\(y_i = a_0 + \cdots + a_{i-1}\\), with \\(y_0 = 0\\).
 > An exclusive scan of an array is an inclusive scan shifted right by one.
 
 Scans appear in stream compaction (filtering), radix sort, and the
-equalisation of workloads — any algorithm that needs *where* the data went.
+equalisation of workloads - any algorithm that needs *where* the data went.
 The work-efficient **Blelloch scan** is the canonical GPU formulation. It has
 two phases:
 
-1. **Upsweep** — a tree reduction that computes partial sums (exactly the
+1. **Upsweep** - a tree reduction that computes partial sums (exactly the
    tree of §8.3, but *storing* the internal nodes instead of discarding them).
-2. **Downsweep** — a second tree that *propagates* the totals to produce
+2. **Downsweep** - a second tree that *propagates* the totals to produce
    exclusive prefix sums.
 
 ```cpp
@@ -266,7 +266,7 @@ __device__ void scanBlock(float* s)
     if (threadIdx.x == 0) s[n - 1] = 0.0f;
 
     // Walk the tree top-down. At each level, the pair rooted at right child
-    // t (left child t - stride) receives its CARRY — the sum of everything
+    // t (left child t - stride) receives its CARRY - the sum of everything
     // before its subtree, which the parent level stored in s[t]:
     //   - the left child inherits the carry unchanged;
     //   - the right child gets carry + (its old value, the left subtree sum).
@@ -292,16 +292,16 @@ upsweep at level `stride`, the element at index `t` is the right child of the
 subtree whose left child ends at `t - stride`. Writing `t` as
 `(threadIdx.x + 1) * 2 * stride - 1` gives the *odd* indices within each
 `2*stride` group: exactly the right children. The formula is fiddly; the
-*property* that matters is that each level is a disjoint set of writes — no
+*property* that matters is that each level is a disjoint set of writes - no
 two threads write the same slot, so no atomicity is needed.
 
 **Why does the downsweep produce *exclusive* sums?** The invariant is the
 *carry*: at each level, `s[t]` holds the sum of everything before the pair
 `(t - stride, t)`. The root's carry is set to `0` (the identity) before the
 loop. Each step hands the carry to the left child unchanged, and passes
-`carry + (left child's old value)` — the sum of everything before the *right*
-child — down the right side. Inductively, slot `i` ends up holding the sum of
-elements `0..i-1` — the exclusive prefix. A trace on `[1, 2, 3, 4]` is
+`carry + (left child's old value)` - the sum of everything before the *right*
+child - down the right side. Inductively, slot `i` ends up holding the sum of
+elements `0..i-1` - the exclusive prefix. A trace on `[1, 2, 3, 4]` is
 Exercise 3 below; note the order of the writes: `s[t]` must be read into
 `carry` *before* `s[t - stride]` is overwritten.
 
@@ -354,11 +354,11 @@ __global__ void histogramPrivatised(const unsigned char* data, int* g_hist,
 atomic is roughly an order of magnitude cheaper than a global atomic, and it
 is spread across 256 bins instead of funneled into one address per warp. The
 global fold touches each bin once per block. For skewed data (all elements in
-one bin), the shared atomics still contend — the next-level fix is *per-warp*
-histograms — but privatisation handles the common case.
+one bin), the shared atomics still contend - the next-level fix is *per-warp*
+histograms - but privatisation handles the common case.
 
 **The barrier count.** Two barriers: one after zeroing, one before the fold.
-Both are uniformly reachable — the loops are compile-time shaped, so no thread
+Both are uniformly reachable - the loops are compile-time shaped, so no thread
 can skip a barrier.
 
 ## 8.9 Summary Table
@@ -368,6 +368,14 @@ can skip a barrier.
 | Reduction | \\(O(n)\\) serial or \\(\log_2 n\\) barriers | 1 barrier, \\(O(\log_2 32)\\) shuffles | Warp shuffle + coarsening |
 | Scan | \\(O(n)\\) serial | \\(2 \log_2 n\\) barriers | Blelloch upsweep/downsweep |
 | Histogram | global atomic per element | shared privatisation + fold | Per-block private bins |
+
+## Key Takeaways
+
+- The optimised reduction: coarsen (grid-stride), reduce within each warp by shuffle, then one shared-memory round and one barrier per block.
+- Warp shuffles exchange values through registers - no memory, no barrier.
+- The Blelloch scan is an upsweep that stores internal nodes, then a downsweep that propagates carries to build exclusive prefixes.
+- Histograms should be privatised per block in shared memory and folded into global memory once.
+- A fixed tree order makes reductions bit-reproducible across runs.
 
 ## 8.10 Exercises
 

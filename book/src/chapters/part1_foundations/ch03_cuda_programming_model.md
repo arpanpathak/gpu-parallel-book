@@ -5,16 +5,16 @@
 This chapter introduces the CUDA programming model: how a function becomes a
 kernel, how a launch describes a grid of work, and how data moves between the
 CPU (the *host*) and the GPU (the *device*). Every concept is introduced from
-first principles, and the first complete program — a vector addition — is
+first principles, and the first complete program - a vector addition - is
 presented with line-by-line commentary.
 
 ## 3.1 Host and Device
 
 CUDA programs are divided into two worlds:
 
-- **Host** — the CPU and its memory. The host *launches* kernels and moves
+- **Host** - the CPU and its memory. The host *launches* kernels and moves
   data.
-- **Device** — the GPU and its memory (global memory, §2.5). The device
+- **Device** - the GPU and its memory (global memory, §2.5). The device
   *executes* kernels.
 
 The two worlds do not share an address space. A pointer obtained from
@@ -25,24 +25,24 @@ confusion for new CUDA programmers, and it is permanent: Chapter 4 introduces
 the escape hatches (pinned memory, unified memory), but the separation remains
 the mental model.
 
-> **Primitive — host.** The CPU side of a CUDA program.
-> **Primitive — device.** The GPU side of a CUDA program.
-> **Primitive — kernel.** A function that runs on the device, launched by the
+> **Primitive - host.** The CPU side of a CUDA program.
+> **Primitive - device.** The GPU side of a CUDA program.
+> **Primitive - kernel.** A function that runs on the device, launched by the
 > host, executed by many threads.
 
 ## 3.2 The Function Qualifiers
 
 CUDA extends C++ with three function qualifiers:
 
-- `__global__` — the kernel qualifier. The function runs **on the device** and
+- `__global__` - the kernel qualifier. The function runs **on the device** and
   is **called from the host** (or from the device in some later CUDA
   generations, via cooperative launch). A `__global__` function must return
   `void`. Its arguments are copied from host memory to the device before
   launch.
-- `__device__` — the function runs on the device and is called *only from
+- `__device__` - the function runs on the device and is called *only from
   device code* (from a kernel, or from another `__device__` function).
-- `__host__` — the default: a normal host function. It can be combined as
-  `__host__ __device__` to produce one function compiled for both sides — a
+- `__host__` - the default: a normal host function. It can be combined as
+  `__host__ __device__` to produce one function compiled for both sides - a
   workhorse of modern CUDA (Chapter 10).
 
 A `__device__` function cannot call a `__host__` function; the device has no
@@ -58,19 +58,42 @@ myKernel<<<gridDim, blockDim>>>(args...);
 ```
 
 The double-angle-bracket expression is the **execution configuration**: it
-describes the *shape* of the work. Both arguments are of type `dim3` — a
+describes the *shape* of the work. Both arguments are of type `dim3` - a
 three-component vector type with fields `x`, `y`, `z`, each an unsigned
 integer (`unsigned int`).
 
-- **blockDim** — the number of threads per block, one to three dimensions.
+- **blockDim** - the number of threads per block, one to three dimensions.
   Total threads per block = `blockDim.x * blockDim.y * blockDim.z`, and must
   not exceed 1,024 on modern hardware.
-- **gridDim** — the number of blocks in the grid, one to three dimensions.
+- **gridDim** - the number of blocks in the grid, one to three dimensions.
   Total threads in the kernel = `gridDim * blockDim` across all dimensions.
 
 The hardware view of this (from Chapter 2): blocks are assigned to SMs; each
 block is chopped into warps of 32 consecutive threads; warps execute in
 lockstep.
+
+Here is the whole hierarchy for a small launch, `kernel<<<3, 8>>>` (3 blocks
+of 8 threads - smaller than reality, exactly right for a picture):
+
+```
+        GRID  (3 blocks)
+   ┌───────────────┬───────────────┬───────────────┐
+   │  block 0      │  block 1      │  block 2      │
+   │  ┌─┬─┬─┬─┬─┬─┬─┬─┐  ┌─┬─┬─┬─┬─┬─┬─┬─┐  ┌─┬─┬─┬─┬─┬─┬─┬─┐
+   │  │0│1│2│3│4│5│6│7│  │0│1│2│3│4│5│6│7│  │0│1│2│3│4│5│6│7│
+   │  └─┴─┴─┴─┴─┴─┴─┴─┘  └─┴─┴─┴─┴─┴─┴─┴─┘  └─┴─┴─┴─┴─┴─┴─┴─┘
+   │   threadIdx.x      threadIdx.x           threadIdx.x
+   │   blockIdx.x = 0   blockIdx.x = 1        blockIdx.x = 2
+   └───────────────┴───────────────┴───────────────┘
+                   └── each block goes to one SM ──┘
+   blockDim.x = 8, gridDim.x = 3
+
+        GLOBAL INDEX of a thread = blockIdx.x * blockDim.x + threadIdx.x
+        block 0: threads 0..7    block 1: threads 8..15   block 2: 16..23
+
+   (blockDim.x = 8 is legal but inefficient: each 32-thread warp would carry
+    only 8 active lanes, wasting 24. Production blocks use 128-1024 threads.)
+```
 
 **Why three dimensions?** Because real data is often two- or three-dimensional
 (images, volumes, grids). A 2-D launch lets the kernel index an image as
@@ -114,9 +137,28 @@ unsigned int idx = iy * width + ix;                        // linear memory inde
 ```
 
 Note the ordering: in row-major layout, consecutive `ix` values are
-consecutive in memory — and, by construction, consecutive threads have
+consecutive in memory - and, by construction, consecutive threads have
 consecutive `ix`. This is *coalescing by construction* (§2.7), which is why
 the formula exists.
+
+**A worked example, with real numbers.** Launch `kernel<<<4, 256>>>` (4 blocks
+of 256 threads, covering 1,024 global indices). Consider the thread with
+`blockIdx.x = 2` and `threadIdx.x = 137`:
+
+```
+global index = blockIdx.x * blockDim.x + threadIdx.x
+             = 2 * 256 + 137
+             = 512 + 137
+             = 649
+```
+
+That thread therefore owns element 649 of the array - no ambiguity, no shared
+state, and 1,023 other threads own the other 1,023 elements. Now the warp
+view: `blockIdx.x = 2` covers global indices 512..767. Its warp 0 is
+threads 0..31, i.e., global indices 512..543: 32 consecutive addresses -
+coalesced by construction, exactly as §3.5 promised. If the array had only
+900 elements (not a multiple of 1,024), the threads owning indices 900..1,023
+would be masked by the `if (i < n)` guard in the kernel.
 
 ## 3.6 The First Kernel: Vector Addition
 
@@ -146,7 +188,7 @@ __global__ void addVectors(const float* a, const float* b, float* c, int n)
     // The grid may cover more threads than n (we launch a rounded-up grid,
     // see the host code). Threads whose index is >= n must do nothing.
     // Without this guard we would read and write past the end of the arrays
-    // — an out-of-bounds memory error on the device.
+    // - an out-of-bounds memory error on the device.
     if (i < n)
     {
         // Element-wise add. Each thread owns exactly one output element,
@@ -289,7 +331,7 @@ The runtime API functions used above are primitives you will use daily:
 convention: the function needs to *write a pointer* into your variable, so it
 takes the address of your pointer variable. C++ would return a pointer;
 CUDA's C heritage writes through a pointer-to-pointer. And why the explicit
-`(void**)` cast, which every allocation above carries? Because C++ — unlike C —
+`(void**)` cast, which every allocation above carries? Because C++ - unlike C  - 
 does not allow an implicit conversion from `float**` to `void**` (only `T*` to
 `void*` is implicit). The cast is *required* for the code to compile, not
 optional decoration. This is one of the few places where the API's C heritage
@@ -302,12 +344,12 @@ flag removes the ambiguity.
 
 ## 3.8 Error Handling: The Contract
 
-CUDA functions return a `cudaError_t` — an enum, where `cudaSuccess` is 0 and
+CUDA functions return a `cudaError_t` - an enum, where `cudaSuccess` is 0 and
 every other value is an error code. There are two failure modes:
 
-1. **Synchronous errors** — detected immediately by the call (e.g., an invalid
+1. **Synchronous errors** - detected immediately by the call (e.g., an invalid
    argument, an illegal `cudaMemcpy` kind). The call returns the error code.
-2. **Asynchronous errors** — detected *after* the call (e.g., an invalid
+2. **Asynchronous errors** - detected *after* the call (e.g., an invalid
    kernel launch, an illegal memory access inside the kernel). The launch
    itself returns `cudaSuccess`; the error surfaces on the *next* CUDA API
    call from the same thread, which is why we call `cudaGetLastError()`
@@ -315,7 +357,7 @@ every other value is an error code. There are two failure modes:
 
 The `CHECK` macro routes every call through `cudaGetErrorString`, so a failure
 reports the offending source line. Production code should do something more
-graceful than `std::exit`, but the *discipline* — check every call — is not
+graceful than `std::exit`, but the *discipline* - check every call - is not
 optional. An unchecked error is a silent wrong answer or a corrupt image.
 
 ## 3.9 Compilation and the Build Pipeline
@@ -328,8 +370,8 @@ compiler driver. The pipeline has two phases:
    (`kernel<<<...>>>`) with runtime-API calls that package the arguments and
    launch the kernel.
 2. **Device pass.** `nvcc` compiles the `__global__` and `__device__`
-   functions to **PTX** (Parallel Thread Execution) — NVIDIA's portable
-   virtual instruction set — and then to **SASS** (the actual machine code of
+   functions to **PTX** (Parallel Thread Execution) - NVIDIA's portable
+   virtual instruction set - and then to **SASS** (the actual machine code of
    the target GPU) via `ptxas`.
 
 ```bash
@@ -337,10 +379,10 @@ compiler driver. The pipeline has two phases:
 nvcc -arch=sm_90 kernel.cu -o kernel
 ```
 
-> **Primitive — PTX.** The intermediate virtual ISA (Chapter 12 shows it in
+> **Primitive - PTX.** The intermediate virtual ISA (Chapter 12 shows it in
 > detail). Portable across GPU generations; translated to SASS by the driver
 > at load time if no SASS is embedded.
-> **Primitive — SASS.** The GPU's real machine code, tied to a specific
+> **Primitive - SASS.** The GPU's real machine code, tied to a specific
 > compute capability.
 
 If you have no NVIDIA GPU on your machine, `nvcc` still compiles `.cu` files;
@@ -360,6 +402,15 @@ compiled with `nvcc -arch=sm_90 -o bin src.cu` and run on any CC 9.0 GPU.
   surface later; `cudaGetLastError()` after the launch and
   `cudaDeviceSynchronize()` before copying results are the two mandatory
   checkpoints.
+
+## Key Takeaways
+
+- Host and device have separate address spaces; every transfer is an explicit cudaMemcpy.
+- Function qualifiers: __global__ (kernel, called from host), __device__ (device only), __host__ (host).
+- The launch configuration `<<<grid, block>>>` is a declaration of parallelism, not a loop.
+- threadIdx, blockIdx, blockDim and gridDim are hardware-provided primitives; the global index is blockIdx.x * blockDim.x + threadIdx.x.
+- Boundary guards make rounded-up grids safe; they diverge only in the last (partial) block.
+- Check every CUDA call: cudaGetLastError() after the launch, cudaDeviceSynchronize() before copying results back.
 
 ## 3.11 Exercises
 

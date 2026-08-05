@@ -1,11 +1,11 @@
-# Chapter 15: Capstone — The GPU Image Processing Pipeline
+# Chapter 15: Capstone - The GPU Image Processing Pipeline
 
 > *"A pipeline is a chain of kernels. A fast pipeline is a chain of kernels
 > that never waits."*
 
 This is the chapter every earlier one was building toward. The capstone is a
-complete GPU image-processing pipeline — **RGB → greyscale → Gaussian blur →
-Sobel edge detection** — implemented three ways (hand-written CUDA C++,
+complete GPU image-processing pipeline - **RGB → greyscale → Gaussian blur →
+Sobel edge detection** - implemented three ways (hand-written CUDA C++,
 Thrust, and CUDA-Oxide Rust), streamed with pinned memory, verified against a
 CPU reference, and measured with CUDA events. It is deliberately small enough
 to fit in one chapter and real enough to ship.
@@ -34,7 +34,7 @@ Design decisions, each with its reason:
   fractional weights; `float` avoids rounding at every stage and matches the
   arithmetic intensity discussion of Chapter 1. The final edge map is scaled
   back to `unsigned char` for output.
-- **Separable Gaussian.** A 2-D Gaussian kernel of radius 2 is a 5×5 stencil —
+- **Separable Gaussian.** A 2-D Gaussian kernel of radius 2 is a 5×5 stencil  - 
   25 taps per output pixel. A *separable* Gaussian is a horizontal 5-tap
   followed by a vertical 5-tap: 10 taps per pixel. Separability halves the
   arithmetic for a mathematically identical result, and each pass is naturally
@@ -77,7 +77,7 @@ __global__ void rgbToGray(const uchar3* rgb, float* gray, int numPixels)
 
 **Why `uchar3`?** CUDA's built-in 3-byte vector type matches the RGB layout
 exactly. Its alignment is 1 (no padding), so it is safe to point at raw RGB
-bytes. (A `float3` would *not* be safe — it is 16-byte aligned.) This is the
+bytes. (A `float3` would *not* be safe - it is 16-byte aligned.) This is the
 "describe every primitive" discipline paying off: the layout contract is in
 the type.
 
@@ -93,7 +93,7 @@ the same down columns.
 // blurH: horizontal 5-tap Gaussian. Each thread owns output pixel (y, x)
 // and reads input pixels (y, x-2 .. x+2). Consecutive threads read
 // consecutive windows -> coalesced. The halo pixels are read by two
-// neighbouring threads, which is the cost of the stencil — and the reason
+// neighbouring threads, which is the cost of the stencil - and the reason
 // tiled shared memory (Chapter 7) would win for large radii.
 // ---------------------------------------------------------------------------
 __global__ void blurH(const float* in, float* out, int width, int height)
@@ -112,7 +112,7 @@ __global__ void blurH(const float* in, float* out, int width, int height)
 }
 ```
 
-**Wait — the weights are wrong for clamped edges.** The comment says
+**Wait - the weights are wrong for clamped edges.** The comment says
 replicate-edge, but the code above assigns both `x0` and `x1` the same weight
 pattern, which double-weights the border. The *honest* version computes the
 stencil with per-tap clamping:
@@ -146,13 +146,13 @@ and wrong*; the second is *correct by construction*. This is exactly the bug
 class this book exists to train you against: the code that "looks like" a
 Gaussian until the edges. The vertical pass is identical with `x`/`y` and
 `row` swapped to a column stride; it is omitted here to avoid repetition, but
-the discipline is the same — clamp each tap independently.
+the discipline is the same - clamp each tap independently.
 
 **Why two kernels and not one?** A single fused kernel would need each thread
 to read a 5×5 neighbourhood (25 reads) instead of two passes of 5 reads each
 (10 reads), and the intermediate (blurred horizontally) would need to be
 communicated through shared memory with a block halo. Two global passes are
-simpler, fully coalesced, and — at this image scale — bandwidth-dominated in
+simpler, fully coalesced, and - at this image scale - bandwidth-dominated in
 exactly the way Chapter 7's checklist predicts.
 
 ## 15.4 Stage 3: Sobel Edge Detection
@@ -195,7 +195,7 @@ __global__ void sobel(const float* in, float* out, int width, int height)
 
 **The separable structure, annotated.** \\(G_x\\) is a derivative in `x`
 (`[-1 0 1]`) convolved with a smoothing in `y` (`[1 2 1]`); \\(G_y\\) is the
-transpose. The kernel reads 9 pixels and produces two convolutions — the
+transpose. The kernel reads 9 pixels and produces two convolutions - the
 separable factoring is what keeps it at 9 reads instead of 18.
 
 ## 15.5 The Streaming Host Pipeline
@@ -247,7 +247,7 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
 ```
 
 **Why two streams and events?** The copy for frame `n+1` and the kernels for
-frame `n` are independent work on *different* buffers — the exact condition
+frame `n` are independent work on *different* buffers - the exact condition
 for overlap (§6.5). The event/dependency pair (`cudaEventRecord` +
 `cudaStreamWaitEvent`) keeps the ordering correct on every iteration without
 serialising the pipeline.
@@ -313,7 +313,7 @@ Chapter 11 decision procedure in live action.
 ## 15.7 The Same Pipeline in CUDA-Oxide
 
 With CUDA-Oxide (Chapter 14), the greyscale stage becomes a `#[kernel]` Rust
-function — the same single-source style, with `DisjointSlice` giving the
+function - the same single-source style, with `DisjointSlice` giving the
 no-alias guarantee:
 
 ```rust
@@ -345,7 +345,7 @@ mod kernels {
 
 **What this demonstrates.** The kernel is written in the language of the host,
 indexed by the fused `thread::index_1d()` (Chapter 14), and protected by
-`DisjointSlice` — no alias, no manual boundary contract. The stencil kernels
+`DisjointSlice` - no alias, no manual boundary contract. The stencil kernels
 (blur, Sobel) follow the same shape with the same per-tap clamping logic as
 the C++ versions, and the pipeline host code reuses the `cuda-async`
 `DeviceOperation` chaining of Chapter 14, §14.6. As Chapter 14 warned: the
@@ -368,7 +368,7 @@ at 10 FPS. The verification strategy is the differential test:
 The differential test is the Chapter 16 discipline applied to the capstone:
 it converts "the pipeline works" into a measurable, repeatable assertion, and
 it is exactly what makes the *second* implementation (Thrust) and the *third*
-(CUDA-Oxide) trustworthy — they must pass the same test as the first.
+(CUDA-Oxide) trustworthy - they must pass the same test as the first.
 
 ## 15.9 Measurement: The Report Card
 
@@ -395,12 +395,12 @@ The report card for a 1920×1080 frame on a modern GPU, as teaching numbers:
 | rgbToGray | ~0.4 ms | ~75% of peak | Memory-bound (as predicted) |
 | blurH + blurV | ~1.0 ms | ~70% of peak | Memory-bound, halo cost visible |
 | sobel | ~0.5 ms | ~70% of peak | Memory-bound |
-| histogram | ~0.3 ms | — | Atomic overhead, privatised |
-| **Total compute** | **~2.2 ms** | — | 450+ FPS, transfer-limited overall |
+| histogram | ~0.3 ms | - | Atomic overhead, privatised |
+| **Total compute** | **~2.2 ms** | - | 450+ FPS, transfer-limited overall |
 
 The roofline (Chapter 1) *predicted* the memory-bound verdicts before any
 code ran: every stage moves ~1 byte of data per pixel per pass with a handful
-of FLOPs — far below the ridge point. The measurement confirms the prediction.
+of FLOPs - far below the ridge point. The measurement confirms the prediction.
 That is the loop this book teaches: predict with the model, confirm with the
 instrument, optimise only the confirmed bottleneck.
 
@@ -413,6 +413,14 @@ histogram (Chapters 5, 8), pinned memory and streamed double buffering
 differential test (Chapters 11, 13, 14), and a measurement discipline that
 turns opinions into numbers (Chapter 16). If you can build this pipeline and
 explain every line, you have graduated from this book.
+
+## Key Takeaways
+
+- A pipeline is a chain of kernels; a fast pipeline is one that never waits (streams + pinned memory + events).
+- A separable Gaussian is 2 x 5 taps instead of 25; clamp each stencil tap at image borders independently.
+- The differential test against a CPU reference is what makes a second and third implementation trustworthy.
+- The roofline predicted every stage of the capstone was memory-bound before any code ran.
+- The report card: median of many runs, fixed environment, events for device time.
 
 ## 15.11 Exercises
 

@@ -1,0 +1,142 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Night Owl theme for the GPU Parallel Book (mdBook)
+   Palette adapted from Sarah Drasner's Night Owl for VS Code:
+   background #011627, foreground #d6deeb, accent blue #82aaff.
+   Scoped to the "navy" mdBook theme (set as default in book.toml), so the
+   light and ayu themes remain untouched for readers who switch.
+   ───────────────────────────────────────────────────────────────────────── */
+
+html.navy {
+    /* --- Core surfaces ---------------------------------------------------- */
+    --bg: #011627;                    /* deep blue-black page background      */
+    --fg: #d6deeb;                    /* soft blue-grey body text             */
+    --sidebar-bg: #01111f;            /* sidebar slightly darker than page    */
+    --sidebar-fg: #9db2c9;            /* muted blue for inactive sidebar text */
+    --sidebar-active: #ffffff;        /* active sidebar item in pure white    */
+    --sidebar-spacer: #1d3b53;        /* part separators in the sidebar       */
+    --scrollbar: #82aaff;             /* scrollbar thumb in accent blue       */
+
+    --icons: #5f7e97;
+    --icons-hover: #82aaff;
+
+    --links: #82aaff;                 /* accent blue for links                */
+    --links-hover: #addb67;           /* green on hover, Night Owl style      */
+    --inline-code-color: #addb67;     /* inline code in soft green            */
+
+    --theme-popup-bg: #01111f;
+    --theme-popup-border: #1d3b53;
+    --theme-hover: rgba(130, 170, 255, 0.12);
+
+    --quote-bg: rgba(130, 170, 255, 0.06);   /* blockquote wash              */
+    --quote-border: #82aaff;                 /* blockquote bar in accent     */
+
+    --table-border-color: #1d3b53;
+    --headings-border-color: #1d3b53;
+    --border-color: #0b2942;
+
+    --searchbar-border-color: #1d3b53;
+    --searchbar-bg: #01111f;
+    --searchbar-fg: #d6deeb;
+    --searchbar-shadow-color: rgba(0, 0, 0, 0.6);
+    --searchresults-header-fg: #637777;
+    --searchresults-border-color: #1d3b53;
+    --searchresults-li-bg: #0b2942;
+    --search-mark-bg: #f78c6c;
+
+    --focus-border: #82aaff;
+    --button-hover: rgba(130, 170, 255, 0.15);
+}
+
+/* --- Headings: Night Owl blue ------------------------------------------- */
+html.navy h1,
+html.navy h2,
+html.navy h3,
+html.navy h4 {
+    color: #82aaff;
+}
+
+html.navy h1 {
+    border-bottom: 1px solid var(--headings-border-color);
+    padding-bottom: 0.3em;
+}
+
+html.navy h2 {
+    border-bottom: 1px solid var(--headings-border-color);
+    padding-bottom: 0.2em;
+}
+
+/* --- Blockquotes (the book's "Primitive" callouts) ---------------------- */
+html.navy blockquote {
+    background: var(--quote-bg);
+    border-left: 3px solid var(--quote-border);
+    border-radius: 0 4px 4px 0;
+    padding: 0.4em 1em;
+    color: #c3d4e8;
+}
+
+/* --- Code blocks: dark panel, Night Owl syntax colours ------------------- */
+html.navy pre {
+    background: #01111f;
+    border: 1px solid #0b2942;
+    border-radius: 6px;
+}
+
+html.navy code {
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", Menlo, Consolas,
+                 "Liberation Mono", monospace;
+}
+
+html.navy pre code {
+    color: #d6deeb;
+}
+
+/* Night Owl syntax palette (highlight.js token classes) */
+html.navy .hljs-keyword    { color: #c792ea; }  /* purple   */
+html.navy .hljs-built_in   { color: #addb67; }  /* green    */
+html.navy .hljs-type       { color: #ffcb8b; }  /* sand     */
+html.navy .hljs-literal    { color: #f78c6c; }  /* orange   */
+html.navy .hljs-number     { color: #f78c6c; }  /* orange   */
+html.navy .hljs-string     { color: #addb67; }  /* green    */
+html.navy .hljs-comment    { color: #637777; font-style: italic; }
+html.navy .hljs-title      { color: #82aaff; }  /* blue     */
+html.navy .hljs-title.class_, 
+html.navy .hljs-title.function_ { color: #82aaff; }
+html.navy .hljs-attr,
+html.navy .hljs-attribute { color: #c792ea; }
+html.navy .hljs-meta      { color: #ffcb8b; }
+html.navy .hljs-variable  { color: #d6deeb; }
+html.navy .hljs-params    { color: #d6deeb; }
+html.navy .hljs-symbol    { color: #7fdbca; }  /* cyan     */
+html.navy .hljs-section   { color: #82aaff; }
+
+/* --- Tables -------------------------------------------------------------- */
+html.navy table thead td,
+html.navy table thead th {
+    border-bottom: 2px solid #82aaff;
+    color: #addb67;
+}
+
+/* --- Menu / breadcrumb ---------------------------------------------------- */
+html.navy .menu-bar {
+    border-bottom: 1px solid #0b2942;
+}
+
+html.navy .nav-chapters {
+    background: #011627;
+    color: #82aaff;
+}
+
+/* --- Print: keep readable on paper ---------------------------------------- */
+@media print {
+    html.navy {
+        --bg: #ffffff;
+        --fg: #111111;
+        --links: #1a4b8c;
+        --inline-code-color: #b30036;
+        --quote-bg: #f5f5f5;
+        --quote-border: #999999;
+    }
+    html.navy pre { background: #f5f5f5; border-color: #cccccc; }
+    html.navy code { color: #333333; }
+    html.navy h1, html.navy h2, html.navy h3, html.navy h4 { color: #111111; }
+}

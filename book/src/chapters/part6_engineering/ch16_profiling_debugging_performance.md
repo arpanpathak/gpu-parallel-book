@@ -4,9 +4,9 @@
 > the machine is wrong. The tools in this chapter find the model."*
 
 Every chapter so far has claimed "this is faster because...". This chapter is
-about *proving* it. We cover the four instruments of GPU engineering —
+about *proving* it. We cover the four instruments of GPU engineering  - 
 **Nsight Systems** and **Nsight Compute** (profilers), **Compute Sanitizer**
-(debugger), and **the benchmarking discipline** — plus the verification
+(debugger), and **the benchmarking discipline** - plus the verification
 techniques (differential and property testing) that keep optimisations honest.
 By the end you can take any kernel from this book and answer two questions
 reproducibly: *is it correct?* and *is it fast?*
@@ -15,18 +15,18 @@ reproducibly: *is it correct?* and *is it fast?*
 
 NVIDIA ships two profilers with distinct jobs:
 
-> **Primitive — Nsight Systems (`nsys`).** A *system-level* profiler. It
+> **Primitive - Nsight Systems (`nsys`).** A *system-level* profiler. It
 > shows the timeline of your whole program: when kernels ran, when transfers
 > ran, when the CPU was idle, how streams overlapped. It answers *where the
-> time goes* — and, crucially, whether the GPU was ever idle waiting for the
+> time goes* - and, crucially, whether the GPU was ever idle waiting for the
 > host.
-> **Primitive — Nsight Compute (`ncu`).** A *kernel-level* profiler. It
+> **Primitive - Nsight Compute (`ncu`).** A *kernel-level* profiler. It
 > reports per-kernel hardware counters: achieved occupancy, memory
 > throughput, shared-memory bank conflicts, warp stall reasons, FLOP counts.
 > It answers *why a kernel is slow*.
 
 The workflow is always: **`nsys` first, `ncu` second.** If the GPU is idle
-40% of the time, no amount of kernel tuning helps — the fix is streams and
+40% of the time, no amount of kernel tuning helps - the fix is streams and
 overlap (Chapter 6). Only when the timeline shows the GPU busy do you drill
 into a kernel with `ncu`.
 
@@ -42,7 +42,7 @@ ncu --kernel-name regex:sobel --set full ./pipeline
 **Why `ncu` "replays" the kernel.** Profiling with full counters changes
 timing; `ncu` runs the kernel multiple times under instrumentation and
 aggregates counters, so the numbers describe the kernel, not the profiler's
-overhead. This is also why `ncu` cannot profile everything at once — use
+overhead. This is also why `ncu` cannot profile everything at once - use
 `--set` presets for the metric groups you need.
 
 ## 16.2 Reading the Timeline (nsys)
@@ -75,25 +75,25 @@ each fix is a chapter you have already read.
 For a single kernel, `ncu --set full` reports the metrics this book has
 trained you to interpret:
 
-- **Achieved occupancy** (§2.9) — warps resident versus the theoretical max.
+- **Achieved occupancy** (§2.9) - warps resident versus the theoretical max.
   Low occupancy + memory stalls → not enough warps to hide latency.
-- **Memory throughput** — percentage of peak DRAM bandwidth used. Near 100%
+- **Memory throughput** - percentage of peak DRAM bandwidth used. Near 100%
   on a memory-bound kernel means coalescing is working; far below it means
   the checklist of Chapter 7 (§7.9) applies.
-- **Shared-memory bank conflicts** — the count of extra cycles lost to bank
+- **Shared-memory bank conflicts** - the count of extra cycles lost to bank
   conflicts (§2.8, §7.5). Zero is achievable with padding.
-- **Warp stall reasons** — *why* warps wait: `long_scoreboard` (waiting on a
+- **Warp stall reasons** - *why* warps wait: `long_scoreboard` (waiting on a
   global load), `short_scoreboard` (shared memory), `barrier` (waiting at
   `__syncthreads`), `drain` (stores not flushed). Each stall reason points at
   a different chapter of this book.
 
 The discipline: **record the metric, form a hypothesis, change one thing,
-re-measure.** Change one variable at a time — two simultaneous changes make
+re-measure.** Change one variable at a time - two simultaneous changes make
 the measurement uninterpretable.
 
 ## 16.4 Compute Sanitizer: The Debugger
 
-> **Primitive — Compute Sanitizer (`compute-sanitizer`).** A runtime tool that
+> **Primitive - Compute Sanitizer (`compute-sanitizer`).** A runtime tool that
 > instruments your kernel to detect memory and synchronisation errors that
 > would otherwise be silent: out-of-bounds accesses, misaligned accesses,
 > data races, and invalid `__syncthreads` usage.
@@ -114,7 +114,7 @@ compute-sanitizer --tool synccheck ./pipeline
 
 **Why these tools matter more on GPUs than on CPUs.** A CPU out-of-bounds
 write usually crashes at the instruction; a GPU out-of-bounds write corrupts
-*adjacent memory in the same allocation* — the kernel "succeeds", and the
+*adjacent memory in the same allocation* - the kernel "succeeds", and the
 corruption surfaces as a wrong image three stages later. `memcheck` finds the
 write at the moment it happens, with the thread and instruction identified.
 
@@ -163,8 +163,8 @@ __device__ long long profileRegion()
 }
 ```
 
-**The caveats.** `clock64()` measures *this thread's* view — warps may be
-preempted by the scheduler mid-region — and the SM clock can vary with power
+**The caveats.** `clock64()` measures *this thread's* view - warps may be
+preempted by the scheduler mid-region - and the SM clock can vary with power
 state. Use it for *relative* comparisons of code paths within one kernel run,
 not as a cross-run benchmark. For cross-run numbers, use events (Chapter 6)
 and the discipline of §16.7.
@@ -176,7 +176,7 @@ claim in this book:
 
 1. **Warm up.** Run the kernel several times before measuring, so caches,
    page tables, and JIT state are steady.
-2. **Repeat and report the median**, not the mean — the median is robust to
+2. **Repeat and report the median**, not the mean - the median is robust to
    the rare outlier (OS preemption, clock boost). Report the spread (P10/P90)
    alongside.
 3. **Use events, not host timers**, for device work (Chapter 6, §6.4).
@@ -212,11 +212,11 @@ float benchmarkKernel(int iters)
 Performance engineering without correctness is vandalism. Two techniques from
 the capstone generalise:
 
-- **Differential testing** — compare the GPU result against a trusted CPU
+- **Differential testing** - compare the GPU result against a trusted CPU
   reference (Chapter 15, §15.8). Run it in CI on every change; a
   "refactor" that changes the last bit of a reduction (Chapter 5, §5.6) gets
   caught, not shipped.
-- **Property testing** — assert invariants that hold for *any* input:
+- **Property testing** - assert invariants that hold for *any* input:
   a histogram's counts sum to the input length; a transpose's output is the
   input's transpose; an edge map of a constant image is all zeros. Property
   tests find the bugs that differential tests miss (both may be wrong in the
@@ -224,7 +224,7 @@ the capstone generalise:
 
 The engineering payoff: once the differential and property suites exist, an
 optimisation is *just* a change you run through the suite. This is what
-allows the whole optimisation literature — Chapter 7 through 9 — to proceed
+allows the whole optimisation literature - Chapter 7 through 9 - to proceed
 without fear.
 
 ## 16.9 The Engineering Loop, Formalised
@@ -239,9 +239,17 @@ The chapter's whole content reduces to a loop:
 6. **Verify** (differential + property tests still pass).
 
 A loop that skips step 2 or 6 is a gambling habit. A loop that follows all six
-steps is engineering. Everything in this book — the roofline of Chapter 1, the
-coalescing of Chapter 7, the pipelines of Chapter 15 — is an argument about
+steps is engineering. Everything in this book - the roofline of Chapter 1, the
+coalescing of Chapter 7, the pipelines of Chapter 15 - is an argument about
 what step 3 should say. The loop is how you know the argument was right.
+
+## Key Takeaways
+
+- nsys answers 'where does the time go' (is the GPU ever idle?); ncu answers 'why is this kernel slow' (counters).
+- Compute Sanitizer finds what kernels hide: memcheck, racecheck, initcheck, synccheck.
+- cuda-gdb debugs kernels interactively, thread by thread.
+- The benchmark protocol: warm up, repeat, report the median, use events, fix the environment, verify the output.
+- The loop - measure, profile, hypothesise, change one thing, re-measure, verify - is the discipline behind every claim in this book.
 
 ## 16.10 Exercises
 

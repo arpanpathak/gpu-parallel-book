@@ -31,7 +31,7 @@ overlap, serially.
 
 ## 6.2 Streams: Ordered Queues of Work
 
-> **Primitive — stream.** An ordered sequence of device operations (copies,
+> **Primitive - stream.** An ordered sequence of device operations (copies,
 > kernel launches, events) that executes in FIFO order on the device. Work in
 > *different* streams is unordered and may overlap. A stream is created with
 > `cudaStreamCreate` and destroyed with `cudaStreamDestroy`.
@@ -41,7 +41,7 @@ The key properties:
 1. **Order within a stream is guaranteed.** Operations in stream A execute in
    the order issued, never reordered.
 2. **Order across streams is not guaranteed.** Operations in streams A and B
-   may execute in any order — or concurrently, if resources permit.
+   may execute in any order - or concurrently, if resources permit.
 3. **Asynchronous by construction.** `cudaMemcpyAsync` (with pinned memory,
    Chapter 4) returns immediately; the copy is queued in the stream.
 
@@ -96,7 +96,7 @@ legitimate; the discipline is safer.
 
 ## 6.4 Events: Markers and Stopwatches
 
-> **Primitive — event.** A marker queued into a stream. It has no payload; it
+> **Primitive - event.** A marker queued into a stream. It has no payload; it
 > records *when the stream reaches it*. Events measure time, order
 > cross-stream dependencies, and let the host wait for specific milestones.
 
@@ -128,7 +128,7 @@ timing, events are the honest instrument (Chapter 16 uses them for every
 benchmark).
 
 **Events also order work across streams.** `cudaStreamWaitEvent(stream, event)`
-makes a stream wait for an event recorded in *another* stream — a
+makes a stream wait for an event recorded in *another* stream - a
 cross-stream dependency. This is the primitive behind producer/consumer
 patterns.
 
@@ -137,6 +137,25 @@ patterns.
 The canonical overlap pattern, in full. Two host buffers; while the GPU
 computes on chunk `c`, the DMA engine copies chunk `c+1` into the other
 buffer. The transfer cost disappears from the critical path:
+
+```
+time ──────────────────────────────────────────────────────────────►
+
+copy stream:   [c0 H2D] [c1 H2D]   [c2 H2D]   [c3 H2D]   ...
+compute str:        [c0 kernel] [c1 kernel] [c2 kernel] [c3 kernel]
+                       └─ copy c1 overlaps kernel c0 ─┘
+                       └─ copy c2 overlaps kernel c1 ─┘
+
+The DMA engine and the SMs work SIMULTANEOUSLY: the copy for chunk c+1
+runs in the copy stream while the kernel for chunk c runs in the compute
+stream. The dependency (kernel c+1 waits for copy c+1) is installed with
+cudaEventRecord + cudaStreamWaitEvent.
+```
+
+Without double buffering the timeline is serial - copy, kernel, copy, kernel
+- with the bus idle during kernels and the SMs idle during copies. With it,
+the only serial residue is the first copy (the pipeline prime) and the last
+kernel (the pipeline drain).
 
 ```cpp
 // ---------------------------------------------------------------------------
@@ -189,17 +208,17 @@ uses exactly this shape for image frames.
 
 **Why two buffers and not one?** One buffer would force copy `c+1` to wait
 for kernel `c` (data hazard), serialising the pipeline. Two buffers let copy
-and kernel proceed simultaneously — the DMA engine and the SMs work on
+and kernel proceed simultaneously - the DMA engine and the SMs work on
 different memory simultaneously.
 
 ## 6.6 Stream Priorities and Concurrency Limits
 
 Not every pair of operations can overlap. The hardware limits:
 
-- **One copy engine per direction** (H2D and D2H) on most GPUs — two
+- **One copy engine per direction** (H2D and D2H) on most GPUs - two
   simultaneous host↔device copies, one each way. Device↔device copies use the
   SM copy path or dedicated copy engines depending on architecture.
-- **Limited concurrent kernels.** Older GPUs could run 2–4 kernels
+- **Limited concurrent kernels.** Older GPUs could run 2-4 kernels
   concurrently; modern GPUs run many, but each SM time-slices.
 
 You can hint the scheduler with priorities:
@@ -220,11 +239,11 @@ synchronisation rule (§6.3).
 ## 6.7 CUDA Graphs: The Pipeline Without Launch Overhead
 
 Every `kernel<<<>>>` and `cudaMemcpyAsync` call has host-side overhead
-(argument marshalling, queueing) — roughly 3–10 microseconds per operation.
+(argument marshalling, queueing) - roughly 3-10 microseconds per operation.
 A pipeline of hundreds of operations pays that per operation. **CUDA Graphs**
 capture the whole dependency structure once and replay it with one launch:
 
-> **Primitive — CUDA graph.** A captured, reusable description of device work
+> **Primitive - CUDA graph.** A captured, reusable description of device work
 > (kernel launches, copies, events) and their dependencies. Captured once,
 > replayed many times, with launch overhead amortised away.
 
@@ -254,7 +273,7 @@ CHECK(cudaGraphDestroy(graph));
 ```
 
 **When graphs pay off.** When the launch overhead is a significant fraction of
-the kernel time — many small kernels, or a fixed pipeline replayed thousands
+the kernel time - many small kernels, or a fixed pipeline replayed thousands
 of times (inference loops, render pipelines). For large kernels, the overhead
 is negligible and graphs add complexity for no gain. The capstone (Chapter 15)
 measures both regimes.
@@ -266,9 +285,17 @@ measures both regimes.
 | `cudaDeviceSynchronize()` | ALL device work (every stream) issued by this host thread |
 | `cudaStreamSynchronize(s)` | All work queued in stream `s` |
 | `cudaEventSynchronize(e)` | The device reaching event `e` |
-| `cudaStreamWaitEvent(s, e)` | No waiting — installs a dependency: stream `s` waits for event `e` |
+| `cudaStreamWaitEvent(s, e)` | No waiting - installs a dependency: stream `s` waits for event `e` |
 | `cudaMemcpy` (sync) | The copy itself (in the legacy default stream) |
-| `cudaMemcpyAsync(..., stream)` | Nothing — returns immediately, copy queued in `stream` |
+| `cudaMemcpyAsync(..., stream)` | Nothing - returns immediately, copy queued in `stream` |
+
+## Key Takeaways
+
+- A stream is an ordered FIFO queue of device work; work in different streams may overlap.
+- The legacy default stream synchronises with all other streams - name your streams or use cudaStreamNonBlocking.
+- Events measure device time (not host time) and install cross-stream dependencies via cudaStreamWaitEvent.
+- Double buffering overlaps the next copy with the current kernel, hiding transfer cost.
+- CUDA Graphs capture and replay fixed pipelines, amortising launch overhead.
 
 ## 6.9 Exercises
 

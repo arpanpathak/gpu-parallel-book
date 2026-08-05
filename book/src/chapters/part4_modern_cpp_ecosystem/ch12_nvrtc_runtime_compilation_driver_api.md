@@ -3,8 +3,8 @@
 > *"The compiler is not always your toolchain's secret. Sometimes it is your
 > program's input."*
 
-Everything so far has used the **CUDA runtime API** — the `cudaMalloc`,
-`cudaMemcpy`, `cudaStreamCreate` functions — and the offline toolchain
+Everything so far has used the **CUDA runtime API** - the `cudaMalloc`,
+`cudaMemcpy`, `cudaStreamCreate` functions - and the offline toolchain
 (`nvcc` → PTX → SASS, Chapter 3). This chapter opens the second door: the
 **driver API**, which exposes the lower-level objects (contexts, modules,
 kernels), and **NVRTC** (NVIDIA Runtime Compilation), which compiles CUDA
@@ -14,10 +14,10 @@ parameters. The capstone uses exactly this machinery.
 
 ## 12.1 The Two APIs
 
-> **Primitive — runtime API.** The high-level `cuda*` functions (Chapters
-> 3–6). It initialises a context implicitly, manages device memory, streams,
+> **Primitive - runtime API.** The high-level `cuda*` functions (Chapters
+> 3-6). It initialises a context implicitly, manages device memory, streams,
 > and launches kernels by *name* at compile time.
-> **Primitive — driver API.** The low-level `cu*` functions. You create
+> **Primitive - driver API.** The low-level `cu*` functions. You create
 > contexts explicitly, load *modules* (compiled kernels), extract kernel
 > handles, and launch them with a raw parameter array.
 
@@ -25,18 +25,18 @@ The runtime API is implemented *on top of* the driver API. Everything you did
 with `cudaMalloc` has a `cuMemAlloc` equivalent; every `kernel<<<>>>` is a
 `cuLaunchKernel`. The runtime is more convenient; the driver is more explicit
 and is the *only* API that can launch kernels that did not exist when your
-program was compiled — the defining feature of this chapter.
+program was compiled - the defining feature of this chapter.
 
 ## 12.2 PTX, cubin, and fatbin
 
 The offline pipeline produced PTX and SASS (Chapter 3). The artefacts have
 names:
 
-> **Primitive — PTX.** The portable virtual ISA. Architecture-independent
+> **Primitive - PTX.** The portable virtual ISA. Architecture-independent
 > (within CUDA's versioning), compiled to SASS by the driver at load time.
-> **Primitive — cubin.** A CUDA *binary*: SASS for one specific compute
+> **Primitive - cubin.** A CUDA *binary*: SASS for one specific compute
 > capability, produced by `ptxas`.
-> **Primitive — fatbin.** A container bundling multiple cubins (and PTX) for
+> **Primitive - fatbin.** A container bundling multiple cubins (and PTX) for
 > different architectures, so one executable runs on many GPUs. When you
 > compile with `nvcc -arch=sm_90`, the `.so`/`.exe` embeds a fatbin.
 
@@ -131,7 +131,7 @@ void launchFromPtx(const std::string& ptx,
     cuInit(0);
 
     // 2. Create a context on device 0 (the driver API has no implicit
-    //    context — this is the "explicit" part of the driver API).
+    //    context - this is the "explicit" part of the driver API).
     CUdevice  device;
     CUcontext context;
     cuDeviceGet(&device, 0);
@@ -150,7 +150,7 @@ void launchFromPtx(const std::string& ptx,
     if (res != CUDA_SUCCESS) throw std::runtime_error("cuModuleGetFunction");
 
     // 5. Package the kernel arguments. The driver API takes a raw array of
-    //    POINTERS TO the arguments — hence the address-of dance below.
+    //    POINTERS TO the arguments - hence the address-of dance below.
     void* args[] = { &d_a, &d_b, &d_c, &n };
 
     // 6. Launch. gridDimX/Y/Z, blockDimX/Y/Z, sharedMemBytes, stream,
@@ -207,9 +207,17 @@ The two APIs can coexist in one program: the runtime manages memory and
 streams; the driver launches the JIT-compiled kernel. The bridge is the
 **current context**: the runtime's implicit context is also the driver's
 current context, so device pointers obtained from `cudaMalloc` are valid for
-`cuLaunchKernel` in the same thread. This hybrid — `cudaMalloc` for memory,
-NVRTC+driver for the kernel — is the pragmatic sweet spot, and it is the shape
+`cuLaunchKernel` in the same thread. This hybrid - `cudaMalloc` for memory,
+NVRTC+driver for the kernel - is the pragmatic sweet spot, and it is the shape
 the capstone uses in Chapter 15.
+
+## Key Takeaways
+
+- The runtime API (cuda*) is built on the driver API (cu*); the driver is the only way to launch kernels that did not exist at compile time.
+- PTX is portable text; cubin is SASS for one architecture; fatbin bundles several.
+- NVRTC compiles a source string to PTX at run time; errors surface in the compilation log.
+- cuLaunchKernel takes a raw array of pointers-to-arguments - passing the pointer instead of its address is the classic crash.
+- The JIT cache (CUDA_CACHE_MAXSIZE) and module reuse make runtime compilation production-viable.
 
 ## 12.7 Exercises
 

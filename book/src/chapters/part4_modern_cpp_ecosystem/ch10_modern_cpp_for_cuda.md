@@ -1,9 +1,9 @@
 # Chapter 10: Modern C++ for CUDA
 
 > *"CUDA is C++ with a different address space. The rules of good C++ still
-> apply — more so, because the stakes are higher."*
+> apply - more so, because the stakes are higher."*
 
-Chapters 3–9 wrote CUDA in a C-style dialect: raw `cudaMalloc` pointers,
+Chapters 3-9 wrote CUDA in a C-style dialect: raw `cudaMalloc` pointers,
 manual `cudaFree` calls, unchecked errors in the interest of brevity. This
 chapter is the reckoning. We apply the full strength of modern C++ (C++17/20)
 to GPU programming: **RAII** to make leaks impossible, **templates** to make
@@ -17,23 +17,23 @@ The Chapter 3 vector-add had three structural weaknesses, all of which are
 features of the C API:
 
 1. **Leaks.** `cudaMalloc` must be matched with `cudaFree`. An early `return`
-   or an exception between the two leaks device memory — and device memory is
-   *scarce* (8–80 GB) and *per-process*: a leaked allocation is gone until the
+   or an exception between the two leaks device memory - and device memory is
+   *scarce* (8-80 GB) and *per-process*: a leaked allocation is gone until the
    process exits.
 2. **Unchecked errors.** Every call that can fail was routed through `CHECK`,
    but nothing *enforced* that discipline.
 3. **No type safety.** `float*` and `int*` are both `void*` to the API; a
    wrong cast compiles and corrupts.
 
-The C++ answer to all three is RAII, templates, and exceptions — the tools
+The C++ answer to all three is RAII, templates, and exceptions - the tools
 below.
 
 ## 10.2 RAII: The Device Buffer
 
-> **Primitive — RAII (Resource Acquisition Is Initialisation).** A resource
+> **Primitive - RAII (Resource Acquisition Is Initialisation).** A resource
 > (here: a device allocation) is acquired in a constructor and released in the
 > corresponding destructor. The language guarantees the destructor runs when
-> the object dies — whether by scope exit, `return`, or exception — so the
+> the object dies - whether by scope exit, `return`, or exception - so the
 > resource cannot leak.
 
 ```cpp
@@ -73,7 +73,7 @@ public:
 
     // --- Move semantics: transfer ownership, never copy the bytes ---------
     // After a move, the source is empty (nullptr). The destructor must
-    // handle nullptr gracefully — hence the check in ~DeviceBuffer.
+    // handle nullptr gracefully - hence the check in ~DeviceBuffer.
     DeviceBuffer(DeviceBuffer&& other) noexcept
         : ptr_(other.ptr_), count_(other.count_)
     {
@@ -148,7 +148,7 @@ best-effort in a destructor; the error is logged by the runtime, and
 explicit `release()` that throws.
 
 **Why move and not copy?** Copying a `DeviceBuffer` would mean copying the
-*pointer* — two objects owning the same allocation, both freeing it →
+*pointer* - two objects owning the same allocation, both freeing it →
 double-free. Deleting the copy operations and keeping only moves gives the
 ownership semantics of `std::unique_ptr`, which is exactly right.
 
@@ -171,7 +171,7 @@ CHECK(cudaGetLastError());
 // Copy back:
 std::vector<float> h_out(d_out.size());
 d_out.copyToHost(h_out.data());
-// d_in and d_out are freed automatically at scope exit — no cudaFree calls.
+// d_in and d_out are freed automatically at scope exit - no cudaFree calls.
 ```
 
 The whole Chapter 3 program shrinks, and its failure modes disappear. The
@@ -181,7 +181,7 @@ kernel expects, so the RAII layer costs nothing at launch time.
 ## 10.3 Templates: One Kernel, Many Types
 
 CUDA supports C++ templates in device code. A kernel can be generic over its
-element type and its operation — the compiler instantiates exactly the
+element type and its operation - the compiler instantiates exactly the
 specialisations you use:
 
 ```cpp
@@ -208,14 +208,14 @@ void runTransform(const DeviceBuffer<float>& d_in, DeviceBuffer<float>& d_out,
 ```
 
 **Why does a lambda work as a kernel argument?** The CUDA compiler lowers a
-*captureless* lambda to an empty struct with an `operator()` — a function
+*captureless* lambda to an empty struct with an `operator()` - a function
 object with no state. Passing it as a kernel argument is free (zero bytes),
 and the compiler inlines the call. A *capturing* lambda has state (the
-captured values) that must be copied to the device as kernel arguments — legal
+captured values) that must be copied to the device as kernel arguments - legal
 in modern CUDA (values, not references), but the state travels through the
 launch, so keep it small and trivially copyable.
 
-**The cost of templates.** None at runtime — the instantiations are compiled,
+**The cost of templates.** None at runtime - the instantiations are compiled,
 not interpreted. The cost is compile time and binary size: each `(T, F)` pair
 is a separate kernel. This is the standard trade: type safety and reuse for
 compile time.
@@ -223,14 +223,14 @@ compile time.
 ## 10.4 `__host__ __device__` Functions: One Definition, Two Worlds
 
 A function qualified with both `__host__` and `__device__` is compiled twice
-— once for each side — from a single source. This is how shared *algorithm*
+ - once for each side - from a single source. This is how shared *algorithm*
 code is written:
 
 ```cpp
 // One definition, two compilations. On the host it is ordinary C++;
 // on the device it becomes SASS. This function can be called from kernels
 // AND from host code, and the two sides produce identical results (for
-// identical inputs) — a boon for testing (Chapter 16).
+// identical inputs) - a boon for testing (Chapter 16).
 __host__ __device__ inline float clampf(float v, float lo, float hi)
 {
     return fminf(fmaxf(v, lo), hi);   // fminf/fmaxf exist on both sides
@@ -240,7 +240,7 @@ __host__ __device__ inline float clampf(float v, float lo, float hi)
 **The catch.** A `__device__` compilation cannot call host functions, so a
 `__host__ __device__` function may only use *both-side* facilities: the CUDA
 math library (`fminf`, `sqrtf`, `sinf`, ...), `constexpr` arithmetic, and
-plain C++. No `std::vector`, no `new`, no I/O — unless you guard the calls
+plain C++. No `std::vector`, no `new`, no I/O - unless you guard the calls
 with `#ifdef __CUDA_ARCH__`, which is defined only during device compilation:
 
 ```cpp
@@ -299,14 +299,14 @@ __device__ cuda::atomic<int, cuda::thread_scope_device> g_counter{0};
 ```
 
 `cuda::atomic<T, cuda::thread_scope_device>` is the C++20 `std::atomic`
-interface for device memory, with scoped ordering — the *modern* replacement
+interface for device memory, with scoped ordering - the *modern* replacement
 for the raw `atomicAdd` of Chapter 5 when you need acquire/release semantics
 rather than relaxed increments.
 
 The ecosystem is moving toward a *standard-C++-flavoured* CUDA: RAII,
 atomics with memory orders, and structured barriers. The old C API remains
-fully supported — the runtime API you learned in Chapters 3–6 *is* the stable
-foundation — but new code should prefer the modern idioms where they exist.
+fully supported - the runtime API you learned in Chapters 3-6 *is* the stable
+foundation - but new code should prefer the modern idioms where they exist.
 
 ## 10.7 C++20 Concepts: Constraining the Templates
 
@@ -343,11 +343,19 @@ without becoming debugging labyrinths.
 | `atomicAdd` everywhere | `cuda::atomic` where ordering matters | Memory-model clarity |
 | Untested device math | `__host__ __device__` + differential tests | Same code, both sides |
 
+## Key Takeaways
+
+- RAII (`DeviceBuffer<T>`) makes device-allocation leaks and double-frees impossible.
+- static_assert moves invariants (trivially copyable, block sizes) into the type system.
+- Templates and captureless lambdas give zero-cost generic kernels.
+- __host__ __device__ compiles one function for both sides - the foundation of differential testing.
+- constexpr for configuration, cuda::atomic for modern memory ordering.
+
 ## 10.9 Exercises
 
 1. Why must `DeviceBuffer` delete its copy constructor? Trace the
    double-free that a copy would allow.
-2. `static_assert(std::is_trivially_copyable_v<T>, ...)` — give a concrete
+2. `static_assert(std::is_trivially_copyable_v<T>, ...)` - give a concrete
    type that would fail this assertion, and explain what copying it through
    device memory would corrupt.
 3. Write a `__host__ __device__` function `lerp(a, b, t)` and a short

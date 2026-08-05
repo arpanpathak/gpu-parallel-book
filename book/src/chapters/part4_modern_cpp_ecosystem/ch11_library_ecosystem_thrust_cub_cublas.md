@@ -1,13 +1,13 @@
-# Chapter 11: The Library Ecosystem — Thrust, CUB & cuBLAS
+# Chapter 11: The Library Ecosystem - Thrust, CUB & cuBLAS
 
 > *"The best kernel you will ever write is the one NVIDIA already shipped."*
 
-Chapters 3–10 taught you to write kernels. This chapter teaches you when *not*
+Chapters 3-10 taught you to write kernels. This chapter teaches you when *not*
 to. The CUDA ecosystem ships three libraries that implement, in battle-tested
 and hardware-tuned form, most of the algorithms of Chapters 8 and 9: **Thrust**
 (high-level algorithms), **CUB** (block-level primitives), and **cuBLAS**
 (dense linear algebra). A professional GPU engineer uses them first and writes
-custom kernels only where the libraries cannot express the problem — and
+custom kernels only where the libraries cannot express the problem - and
 *this* book's earlier chapters are exactly what you need to understand what
 the libraries are doing underneath.
 
@@ -24,7 +24,7 @@ designers, for every generation of GPU:
 
 Your hand-written SGEMM from Chapter 9 (70% of peak) is genuinely good; cuBLAS
 ships ~95% of peak with tensor cores. The engineering decision is not
-"libraries or custom kernels" — it is *"does my problem fit a library?"*.
+"libraries or custom kernels" - it is *"does my problem fit a library?"*.
 
 ## 11.2 Thrust: STL for the GPU
 
@@ -82,8 +82,8 @@ assume.
 ## 11.3 CUB: Block-Level Primitives
 
 Thrust works at the *container* level. **CUB** works at the *block* level: it
-gives you the building blocks — `cub::BlockReduce`, `cub::BlockScan`,
-`cub::BlockHistogram`, `cub::WarpReduce` — that your own kernels can embed.
+gives you the building blocks - `cub::BlockReduce`, `cub::BlockScan`,
+`cub::BlockHistogram`, `cub::WarpReduce` - that your own kernels can embed.
 This is the library to reach for when you need a *block-sized* reduction
 inside a kernel that also does something custom:
 
@@ -122,7 +122,7 @@ shuffle+shared strategies, and per-architecture tuning. Your Chapter 8 kernel
 is the *explanation*; CUB is the *implementation* you ship.
 
 **The cost of CUB.** It is header-only and template-heavy: compile times grow,
-and error messages can be intimidating. The runtime cost is zero — the
+and error messages can be intimidating. The runtime cost is zero - the
 templates inline to the same SASS you would write.
 
 ## 11.4 cuBLAS: Dense Linear Algebra
@@ -182,18 +182,18 @@ doubt, verify with a 2×2 case before scaling up.
 
 **Why use cuBLAS for GEMM at all?** Performance: for large matrices it uses
 tensor cores and achieves 90%+ of peak, versus ~70% for the hand-written
-kernel of Chapter 9 — and it took zero optimisation effort. The Chapter 9
+kernel of Chapter 9 - and it took zero optimisation effort. The Chapter 9
 kernel's value is *understanding*; the cuBLAS call's value is *shipping*.
 
 ## 11.5 cuFFT and cuRAND: The Specialists
 
 Two more libraries complete the common toolkit:
 
-- **cuFFT** — Fast Fourier Transforms (1-D, 2-D, 3-D, batched, complex and
+- **cuFFT** - Fast Fourier Transforms (1-D, 2-D, 3-D, batched, complex and
   real). Hand-written FFTs on GPUs are a research project; cuFFT is the
   product. Its API mirrors FFTW's planner model: create a *plan* describing
   the transform, execute it many times on different data.
-- **cuRAND** — random number generation on the device, with many generators
+- **cuRAND** - random number generation on the device, with many generators
   (XORWOW, MRG32k3a, Philox, ...) and distributions (uniform, normal,
   Poisson). The distinguishing feature: it can generate *device-side*,
   so kernels can draw random numbers internally (important for Monte Carlo).
@@ -211,7 +211,7 @@ When faced with a GPU problem, walk this list:
    saved goes into profiling the parts that matter.
 2. **Is the library call the bottleneck?** → Profile it (Chapter 16). If it
    is, the question becomes whether your *data layout* fits the library's
-   assumptions (leading dimensions, transposes) — usually fixable without a
+   assumptions (leading dimensions, transposes) - usually fixable without a
    custom kernel.
 3. **Does the problem have custom per-element logic?** → Write a custom
    *kernel*, but use CUB's block primitives inside it. Custom is not
@@ -223,6 +223,36 @@ The failure mode this procedure prevents is the reverse: rewriting
 `thrust::sort` because "it might be faster", while the actual bottleneck sits
 in a badly-coalesced custom kernel next door. Measure first; the library is
 the default.
+
+**A worked decision: "I need to normalise a 100M-float array."** Walk the
+list: (1) normalisation is elementwise - `thrust::transform` with a functor
+is the library answer; (2) no bottleneck to profile yet, because we have not
+written anything; (3) no custom logic - the functor *is* the per-element
+logic; (4) no custom kernel needed. The correct engineering move is one
+`thrust::transform` call, measured at ~95% of bandwidth. Rewriting it as a
+hand-tuned kernel would take an hour and gain nothing, because the roofline
+(Chapter 1) already says the transform is memory-bound and Thrust's
+dispatcher already coalesces.
+
+**A second worked decision: "I need a 7-tap separable blur per frame."**
+(1) No library call matches a stencil with a halo; (2) nothing to profile
+yet; (3) the halo logic is custom, but the surrounding machinery is generic -
+so write a custom kernel and keep it simple: coalesced row reads, per-tap
+clamped indices
+(Chapter 15's `blurH` is exactly this shape). (4) Only if the profiler shows
+this kernel as the pipeline's bottleneck do you reach for shared-memory
+tiling (Chapter 7). This is the capstone's actual path in Chapter 15.
+
+The pattern in both cases is the same: **the decision is driven by the
+algorithm's shape and the profiler's numbers, never by taste.**
+
+## Key Takeaways
+
+- Use the tuned, tested libraries first: Thrust (algorithms), CUB (block primitives), cuBLAS (dense linear algebra).
+- Thrust mirrors the STL: device_vector, transform, reduce, sort, scans.
+- CUB slots into your own kernels: cub::BlockReduce, cub::BlockScan, cub::BlockHistogram.
+- cuBLAS is handle-based and column-major - the transpose trap is the classic bug.
+- Rewrite a library call only when the profiler proves it is the bottleneck.
 
 ## 11.7 Exercises
 

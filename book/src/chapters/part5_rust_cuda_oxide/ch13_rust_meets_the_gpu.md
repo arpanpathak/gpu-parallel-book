@@ -4,11 +4,11 @@
 > the crashes were."*
 
 This part of the book changes language but not hardware. The GPU is still the
-machine of Chapter 2; the kernels of Chapters 3–12 still run on it. What
+machine of Chapter 2; the kernels of Chapters 3-12 still run on it. What
 changes is the *host*: instead of C++ calling `cudaMalloc` and launching
 kernels, we use Rust. This chapter covers why that matters, the ecosystem
 (`rustacuda` and `cudarc`), and a complete Rust host program that allocates
-device memory, moves data, and launches a CUDA kernel — with the safety
+device memory, moves data, and launches a CUDA kernel - with the safety
 properties Rust brings to each step.
 
 ## 13.1 Why Rust on the Host
@@ -22,7 +22,7 @@ system attacks exactly these:
   when it is dropped, the allocation is freed. Double-frees and leaks become
   type errors, not runtime incidents.
 - **No data races by construction.** The borrow checker prevents two mutable
-  references to the same buffer from existing simultaneously — a guarantee
+  references to the same buffer from existing simultaneously - a guarantee
   the C++ compiler never offers.
 - **`Result`-based errors.** CUDA's `cudaError_t` becomes a typed `Result<T,
   CudaError>`; ignoring an error is a compile-time warning (the `must_use`
@@ -36,10 +36,10 @@ is about drawing that boundary well.
 
 Two host libraries dominate:
 
-- **`rustacuda`** — the older wrapper over the CUDA driver API. Safe-ish
+- **`rustacuda`** - the older wrapper over the CUDA driver API. Safe-ish
   modules for contexts, modules, functions, streams, and memory. Historically
   important; now largely superseded for new work.
-- **`cudarc`** — the actively maintained wrapper ("CUDA in Rust"). It wraps
+- **`cudarc`** - the actively maintained wrapper ("CUDA in Rust"). It wraps
   the driver API (`cudarc::driver`), NVRTC (`cudarc::nvrtc`), and the
   libraries (cuBLAS, cuDNN, cuFFT, cuRAND, NCCL) with three layers per
   wrapper: `safe` (high-level, checked), `result` (thin, returns error codes),
@@ -53,7 +53,7 @@ Rust kernels into PTX. Chapter 14 is devoted to it. This chapter stays with
 ## 13.3 The Kernel, Compiled Ahead of Time
 
 We reuse the Chapter 3 vector-add kernel, compiled to PTX with `nvcc` (not
-NVRTC — we keep the toolchain classic for this chapter):
+NVRTC - we keep the toolchain classic for this chapter):
 
 ```cuda
 // kernels/vector_add.cu
@@ -75,7 +75,7 @@ without demangling. This is the same convention NVRTC examples use.
 ## 13.4 The Rust Host Program
 
 ```rust
-// main.rs — Rust host driving the vector_add kernel via cudarc.
+// main.rs - Rust host driving the vector_add kernel via cudarc.
 // Requires: CUDA toolkit installed (for the driver and nvrtc), and the
 // vector_add.ptx file next to the binary (or embedded; see 13.5).
 
@@ -122,7 +122,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The launch is marked unsafe: the configuration (grid/block shape) and
     // the argument tuple must match the kernel's real signature and index
     // space. cudarc checks argument arity and types at the type level but
-    // cannot verify the kernel's internal assumptions — hence SAFETY.
+    // cannot verify the kernel's internal assumptions - hence SAFETY.
     //
     // SAFETY: the grid covers exactly N threads (LaunchConfig::for_num_elems
     // rounds up to whole warps), the kernel guards with `if (i < n)`, and the
@@ -151,13 +151,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 **The safety ledger.** What is unsafe in this program, and why?
 
-1. The `unsafe { f.launch(...) }` block — the raw launch. The type system
+1. The `unsafe { f.launch(...) }` block - the raw launch. The type system
    checks the *arity* and *types* of the arguments (the tuple `(&d_a, &d_b,
    &mut d_c, n32)`), but not the *semantics*: that the kernel's index
    arithmetic matches `LaunchConfig`, that `n32` matches the kernel's `int n`.
-   The `SAFETY` comment states the invariants a reviewer must check — the same
+   The `SAFETY` comment states the invariants a reviewer must check - the same
    contract Chapter 3 expressed as comments in C++.
-2. Everything else — allocation, copies, module loading — is safe API:
+2. Everything else - allocation, copies, module loading - is safe API:
    ownership guarantees the lifetimes, `Result` guarantees the errors.
 
 **What is *not* solved.** The kernel itself is still C++ and still
@@ -185,7 +185,7 @@ capstone uses.
 
 ## 13.6 Comparing with the C++ Host
 
-| Concern | C++ (Chapters 3–6) | Rust + cudarc |
+| Concern | C++ (Chapters 3-6) | Rust + cudarc |
 |---|---|---|
 | Allocation lifetime | Manual `cudaMalloc`/`cudaFree` | `CudaSlice` RAII on drop |
 | Copy direction | `cudaMemcpy` with direction enum | Typed `htod_copy_into` / `dtoh_sync_copy` |
@@ -195,10 +195,51 @@ capstone uses.
 | Device-side safety | No help | No help (until CUDA-Oxide) |
 
 The table is the pitch: every column on the left was a class of bug; every
-entry on the right removes a class. The price — the `unsafe` block and its
-SAFETY comment — is honest and small.
+entry on the right removes a class. The price - the `unsafe` block and its
+SAFETY comment - is honest and small.
 
-## 13.7 Exercises
+## 13.7 Lifetimes in Action: What the Borrow Checker Prevents
+
+The claims in §13.1 deserve a concrete demonstration. The borrow checker is
+not a style preference; it rejects whole classes of GPU program at compile
+time:
+
+```rust
+// What the borrow checker prevents (none of these compile):
+
+// 1. Two mutable borrows of the same device buffer - the launch tuple below
+//    would need two &mut to d_c, which Rust forbids:
+//      f.launch(config, (&mut d_c, &mut d_c))   // ERROR: cannot borrow twice
+//    In C++ this compiles and produces a race inside the kernel.
+
+// 2. Using a buffer after moving it - the CudaSlice is GONE after the move,
+//    so any use is a compile error, not a use-after-free:
+//      let stolen = d_a;          // d_a is moved into stolen
+//      dev.htod_copy_into(&a, &mut d_a);   // ERROR: borrow of moved value
+//    In C++, the equivalent (copying a raw pointer, then freeing it) is a
+//    use-after-free that Compute Sanitizer must catch at run time.
+
+// 3. Passing a host Vec where a device slice is expected - the types do not
+//    match, so the error is at the call site, not after a silent copy:
+//      dev.htod_copy_into(&host_vec, &mut d_c);  // ERROR: type mismatch
+```
+
+Each rejected program is a bug class that, in the C++ chapters, required a
+runtime tool (Compute Sanitizer, Chapter 16) or a discipline (the `CHECK`
+macro, Chapter 3) to catch. Rust moves the detection to the compiler, which
+runs earlier and cannot be forgotten. This is the honest summary of the
+chapter: *the borrow checker is the CHECK macro, promoted to a compile-time
+guarantee.*
+
+## Key Takeaways
+
+- Rust secures the host: ownership kills leaks and double-frees, the borrow checker kills data races, Result kills ignored errors.
+- cudarc gives RAII device memory (CudaSlice), typed copies, and module loading from PTX.
+- extern "C" keeps kernel symbols unmangled so the driver can find them by name.
+- The unsafe launch is honest: the SAFETY comment states the kernel-side obligations the type system cannot check.
+- include_str! embeds PTX in the binary, removing the filesystem dependency.
+
+## 13.8 Exercises
 
 1. Explain why `extern "C"` on the kernel matters for `dev.get_func(module,
    "vector_add")`. What would happen without it?

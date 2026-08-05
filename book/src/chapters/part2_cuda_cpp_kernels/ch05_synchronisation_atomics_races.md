@@ -5,18 +5,18 @@
 
 Chapters 3 and 4 built kernels whose threads never communicated. Real kernels
 share data, and sharing data in parallel is where correctness lives. This
-chapter covers the three mechanisms the CUDA programming model provides —
+chapter covers the three mechanisms the CUDA programming model provides  - 
 **warp divergence** (the cost of independent control flow), **barriers**
 (`__syncthreads`) and **atomics** (hardware-arbitrated read-modify-write
-operations) — and the failure mode that motivates all of them: the **race
+operations) - and the failure mode that motivates all of them: the **race
 condition**.
 
 ## 5.1 The Race Condition, Defined
 
-> **Primitive — race condition.** Two or more threads access the same memory
+> **Primitive - race condition.** Two or more threads access the same memory
 > location, at least one access is a *write*, and the accesses are not ordered
 > by any synchronisation mechanism. The result depends on the order in which
-> the hardware happens to execute the threads — an order you cannot predict.
+> the hardware happens to execute the threads - an order you cannot predict.
 
 Races in CUDA are worse than races on a CPU because of two multipliers:
 
@@ -65,13 +65,13 @@ branches so that *contiguous ranges of threads* take the same path wherever
 possible.
 
 **The boundary guard is fine.** The `if (i < n)` guard in Chapter 3 diverges
-only in the *last* (partial) block of the grid — at most one warp per grid.
+only in the *last* (partial) block of the grid - at most one warp per grid.
 The cost is one extra instruction path in one block. This is why the guard is
 free in practice: divergence at block boundaries is negligible.
 
 ## 5.3 `__syncthreads()`: The Block Barrier
 
-> **Primitive — barrier.** A point at which every thread in a *group* must
+> **Primitive - barrier.** A point at which every thread in a *group* must
 > arrive before any thread may proceed. `__syncthreads()` is a barrier over
 > **one thread block**, provided by the hardware.
 
@@ -134,7 +134,7 @@ synchronise cheaply (they might not even be resident at the same time).
 A grid-wide barrier exists (`cooperative groups`), but it requires a
 *cooperative launch* where every block is resident simultaneously, which caps
 grid size. For cross-block communication, use atomics (§5.5) or split the work
-into two kernel launches — the classic and honest solution.
+into two kernel launches - the classic and honest solution.
 
 ## 5.4 Visibility: Caches, `volatile`, and Fences
 
@@ -142,26 +142,26 @@ A barrier orders *block-internal* accesses. Cross-block and host-device
 visibility have their own rules, because modern GPUs have caches:
 
 - L1 caches are per-SM and are *not* coherent between SMs. A thread on SM 0
-  may read a stale value of a location written by SM 1 — unless the access is
+  may read a stale value of a location written by SM 1 - unless the access is
   made visible via L2, the coherence point.
 - The compiler may also *reorder* or *cache* loads and stores in registers
   unless told otherwise.
 
 Two tools handle this:
 
-> **Primitive — `volatile`.** Tells the compiler: "this memory may change
+> **Primitive - `volatile`.** Tells the compiler: "this memory may change
 > outside your knowledge; do not cache it in registers; emit the access every
 > time." Used for *device-scope* communication through global memory where the
 > compiler's register caching would otherwise hide the value.
 
-> **Primitive — memory fence.** An instruction that forces the ordering of
+> **Primitive - memory fence.** An instruction that forces the ordering of
 > memory operations at a given scope. `__threadfence()` orders global-memory
 > accesses for the *device*; `__threadfence_block()` for the block;
 > `__threadfence_system()` for host *and* device. A fence does not wait for
 > other threads; it forces *your* prior writes to become visible before *your*
 > later writes.
 
-The canonical pattern — a device-scope flag — combines volatile with a fence:
+The canonical pattern - a device-scope flag - combines volatile with a fence:
 
 ```cpp
 // Shared state: a buffer and a "ready" flag, both in global memory.
@@ -193,13 +193,13 @@ __global__ void consumer()
 ```
 
 where `volatileLoad` is a `volatile int*` read. In practice, prefer the
-higher-level abstractions — atomics (§5.5) and cooperative groups — over
+higher-level abstractions - atomics (§5.5) and cooperative groups - over
 hand-rolled fences; the fences exist so you can *understand* what the
 abstractions do, and for the rare case you must do it yourself.
 
 ## 5.5 Atomics: Hardware-Arbitrated Read-Modify-Write
 
-> **Primitive — atomic operation.** A read-modify-write (e.g., *read, add,
+> **Primitive - atomic operation.** A read-modify-write (e.g., *read, add,
 > write*) that the hardware guarantees to execute *indivisibly* with respect
 > to other threads. Two threads performing `atomicAdd` on the same location
 > cannot interleave: the result is exactly as if the two adds happened in some
@@ -242,13 +242,13 @@ __global__ void histogram(const unsigned char* data, int* hist, int n)
         const int bin = data[i];               // value is the bin index
         // The atomic serialises concurrent increments to the same bin.
         // Without it, two threads could both read old, both add 1, and
-        // both write old+1 — losing one count (the classic lost update).
+        // both write old+1 - losing one count (the classic lost update).
         atomicAdd(&hist[bin], 1);
     }
 }
 ```
 
-**The cost.** Atomics on the *same* address from many threads serialise —
+**The cost.** Atomics on the *same* address from many threads serialise  - 
 hardware arbitration is a bottleneck. The classic fix is **privatisation**
 (Chapter 8): give each *block* its own histogram in shared memory, accumulate
 into shared memory (where atomics are cheaper), then one thread per block
@@ -272,7 +272,7 @@ __global__ void lockedCriticalSection(float* g_data, int n)
     for (int i = threadIdx.x; i < n; i += blockDim.x)
     {
         // Acquire: atomically swap 1 into the lock; if the old value was 0,
-        // we won the lock. If it was 1, someone else holds it — retry.
+        // we won the lock. If it was 1, someone else holds it - retry.
         while (atomicCAS(&s_lock, 0, 1) != 0) { /* spin */ }
 
         // Critical section: safe because we exclusively hold the lock.
@@ -300,7 +300,7 @@ sees a consistent state.
 design smell: they serialise work on a machine built for parallelism. The
 patterns that *avoid* locks (privatisation, partitioning, lock-free atomics)
 are uniformly faster. This example exists so you understand what the
-abstractions protect you from — not as a recommendation.
+abstractions protect you from - not as a recommendation.
 
 ## 5.6 Floating-Point Non-Determinism: The Silent Race
 
@@ -331,6 +331,14 @@ When you see a kernel that writes to shared state, run this checklist:
    or cooperative groups. Never spin on a non-atomic, non-volatile flag.
 4. **Is the order deterministic?** If reproducibility matters, prefer fixed
    tree orders over atomic accumulation.
+
+## Key Takeaways
+
+- A race is two threads accessing one location with a write and no ordering - and on a GPU it fails silently.
+- Warp divergence serialises divergent paths; branches uniform across a warp are free.
+- __syncthreads() is a block barrier; it must be uniformly reachable or the block deadlocks.
+- Atomics are indivisible read-modify-write operations; contention is the cost, privatisation the fix.
+- Floating-point addition is not associative: fixed tree orders give bit-reproducible results.
 
 ## 5.8 Exercises
 
