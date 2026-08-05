@@ -1,0 +1,65 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GitHub Actions workflow: Build mdBook + Deploy to GitHub Pages
+# ─────────────────────────────────────────────────────────────────────────────
+# Trigger: pushes to main OR manual workflow dispatch
+#
+# Builds the book/ directory with mdBook, then publishes the static HTML
+# to GitHub Pages so it is accessible at:
+#   https://arpanpathak.github.io/gpu-parallel-book/
+#
+# Requires: in the repo Settings > Pages > Build and deployment >
+#   Source = "GitHub Actions" (not the default "Deploy from a branch")
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Deploy mdBook to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install mdBook
+        run: |
+          curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.5.4/mdbook-v0.5.4-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz -C /usr/local/bin
+
+      - name: Build the book
+        run: mdbook build book
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./book/book
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
