@@ -76,7 +76,7 @@ lockstep.
 Here is the whole hierarchy for a small launch, `kernel<<<3, 8>>>` (3 blocks
 of 8 threads - smaller than reality, exactly right for a picture):
 
-![Launch hierarchy: a grid of three blocks of eight threads, and the global index formula](assets/ch03_launch_hierarchy.svg)
+![Launch hierarchy: a grid of three blocks of eight threads, and the global index formula](../../assets/ch03_launch_hierarchy.svg)
 
 **Why three dimensions?** Because real data is often two- or three-dimensional
 (images, volumes, grids). A 2-D launch lets the kernel index an image as

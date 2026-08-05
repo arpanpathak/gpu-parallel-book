@@ -13,7 +13,7 @@ to fit in one chapter and real enough to ship.
 
 ## 15.1 The Pipeline and Its Data Flow
 
-![The capstone pipeline: RGB to greyscale to blur to Sobel to histogram](assets/ch15_capstone_pipeline.svg)
+![The capstone pipeline: RGB to greyscale to blur to Sobel to histogram](../../assets/ch15_capstone_pipeline.svg)
 
 Design decisions, each with its reason:
 

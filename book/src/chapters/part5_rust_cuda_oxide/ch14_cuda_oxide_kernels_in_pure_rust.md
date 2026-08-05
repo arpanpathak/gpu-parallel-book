@@ -45,7 +45,7 @@ this chapter.
 CUDA-Oxide does not translate Rust to CUDA C. It walks the *same* internal
 representations rustc uses, replacing only the codegen:
 
-![CUDA-Oxide compilation pipeline: Rust to MIR to Pliron to LLVM IR to PTX](assets/ch14_rust_to_ptx.svg)
+![CUDA-Oxide compilation pipeline: Rust to MIR to Pliron to LLVM IR to PTX](../../assets/ch14_rust_to_ptx.svg)
 
 **Why this pipeline matters.** Because the *front end* is real rustc, you get
 the real guarantees - ownership, borrowing, pattern matching, traits - before

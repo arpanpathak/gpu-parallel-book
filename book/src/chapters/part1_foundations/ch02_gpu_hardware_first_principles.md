@@ -67,7 +67,7 @@ parallelism; the scheduler is the control.
 Here is the internal anatomy of one SM, drawn to scale in the sense that
 matters (everything on the left feeds the four schedulers on the right):
 
-![Anatomy of a streaming multiprocessor: register file, shared memory, warps, schedulers and execution units](assets/ch02_sm_anatomy.svg)
+![Anatomy of a streaming multiprocessor: register file, shared memory, warps, schedulers and execution units](../../assets/ch02_sm_anatomy.svg)
 
 Read the diagram as a data-flow picture: warps live in the register file,
 share memory and arithmetic units through the schedulers, and reach the rest
@@ -125,7 +125,7 @@ unit of *execution*. Never confuse the two.
 
 The GPU memory hierarchy is a hierarchy of *distance and size*:
 
-![The GPU memory hierarchy: grid to SM to L2 to global and host memory](assets/ch02_memory_hierarchy.svg)
+![The GPU memory hierarchy: grid to SM to L2 to global and host memory](../../assets/ch02_memory_hierarchy.svg)
 
 From top to bottom, each level is larger and slower:
 

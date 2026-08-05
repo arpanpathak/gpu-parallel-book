@@ -232,7 +232,7 @@ A transfer and a kernel *on different data* can run concurrently if the
 runtime can see that they are independent. The canonical shape is **double
 buffering**:
 
-![Double buffering: copies of the next chunk overlap kernels on the current chunk](assets/ch04_double_buffer.svg)
+![Double buffering: copies of the next chunk overlap kernels on the current chunk](../../assets/ch04_double_buffer.svg)
 
 With two buffers, the copy for the *next* chunk overlaps the compute on the
 *current* chunk, and the transfer cost disappears from the critical path  - 

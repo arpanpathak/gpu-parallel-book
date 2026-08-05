@@ -35,7 +35,7 @@ its 32 addresses fall within as few lines as possible.
 
 Pictured below, for a warp of 32 threads each loading one `float`:
 
-![Coalesced versus uncoalesced warp access to 128-byte cache lines](assets/ch07_coalescing.svg)
+![Coalesced versus uncoalesced warp access to 128-byte cache lines](../../assets/ch07_coalescing.svg)
 
 The left panel is why the global-index formula exists (Chapter 3, §3.5):
 it hands consecutive threads consecutive addresses *by construction*. The

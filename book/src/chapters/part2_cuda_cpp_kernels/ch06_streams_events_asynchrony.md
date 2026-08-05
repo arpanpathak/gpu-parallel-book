@@ -138,7 +138,7 @@ The canonical overlap pattern, in full. Two host buffers; while the GPU
 computes on chunk `c`, the DMA engine copies chunk `c+1` into the other
 buffer. The transfer cost disappears from the critical path:
 
-![Stream timeline: copies in the copy stream overlap kernels in the compute stream](assets/ch06_stream_timeline.svg)
+![Stream timeline: copies in the copy stream overlap kernels in the compute stream](../../assets/ch06_stream_timeline.svg)
 
 Without double buffering the timeline is serial - copy, kernel, copy, kernel
 - with the bus idle during kernels and the SMs idle during copies. With it,
