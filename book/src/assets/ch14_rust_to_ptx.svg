@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 360" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <rect x="0" y="0" width="860" height="360" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+  <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="14" font-weight="bold">CUDA-OXIDE COMPILATION PIPELINE</text>
+  <text x="430" y="48" text-anchor="middle" fill="#637777" font-size="11">Rust - MIR - Pliron - LLVM - PTX</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#82aaff"/>
+    </marker>
+  </defs>
+
+  <!-- Stage 1: Rust source -->
+  <rect x="250" y="66" width="360" height="40" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="430" y="81" text-anchor="middle" fill="#addb67" font-size="13" font-weight="bold">Rust source (.rs)</text>
+  <text x="430" y="98" text-anchor="middle" fill="#637777" font-size="10">#[kernel] functions + host code, one file</text>
+
+  <!-- Stage 2: rustc frontend -->
+  <line x1="430" y1="106" x2="430" y2="124" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="180" y="124" width="500" height="30" rx="7" fill="#01111f" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="430" y="143" text-anchor="middle" fill="#c792ea" font-size="12">rustc frontend - parse, type-check, borrow-check</text>
+
+  <!-- Stage 3: MIR -->
+  <line x1="430" y1="154" x2="430" y2="172" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="250" y="172" width="360" height="36" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="430" y="195" text-anchor="middle" fill="#7fdbca" font-size="12" font-weight="bold">Rust MIR (mid-level IR)</text>
+
+  <!-- Stage 4: Pliron -->
+  <line x1="430" y1="208" x2="430" y2="226" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="250" y="226" width="360" height="36" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="430" y="249" text-anchor="middle" fill="#c792ea" font-size="12" font-weight="bold">Pliron IR (MLIR-like, in Rust)</text>
+
+  <!-- Stage 5: LLVM -->
+  <line x1="430" y1="262" x2="430" y2="280" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="250" y="280" width="360" height="36" rx="8" fill="#0b2942" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="430" y="303" text-anchor="middle" fill="#f78c6c" font-size="12" font-weight="bold">LLVM IR - NVPTX backend</text>
+
+  <!-- Stage 6: PTX -->
+  <line x1="430" y1="316" x2="430" y2="334" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="250" y="334" width="360" height="22" rx="8" fill="#addb67" fill-opacity="0.12" stroke="#addb67" stroke-width="1.5"/>
+  <text x="430" y="349" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">PTX - the portable virtual ISA</text>
+</svg>

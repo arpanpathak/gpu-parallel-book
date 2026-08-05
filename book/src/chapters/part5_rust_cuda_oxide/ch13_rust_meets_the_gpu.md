@@ -2,6 +2,7 @@
 
 > *"Rust does not make the GPU safer. It makes the *host* safer, which is where
 > the crashes were."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch13_rust_vector_add/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch13_rust_vector_add) in the repository.
 
 This part of the book changes language but not hardware. The GPU is still the
 machine of Chapter 2; the kernels of Chapters 3-12 still run on it. What

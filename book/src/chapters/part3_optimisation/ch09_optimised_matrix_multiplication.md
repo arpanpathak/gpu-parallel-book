@@ -2,6 +2,7 @@
 
 > *"Matrix multiplication is the one kernel every GPU vendor gets right. You
 > should be able to explain why."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch09_sgemm/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch09_sgemm) in the repository.
 
 Matrix multiplication (\\(C = A \times B\\), all \\(N \times N\\)) is the
 canonical GPU workload - the inner loop of deep learning, linear algebra, and

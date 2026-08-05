@@ -138,19 +138,7 @@ The canonical overlap pattern, in full. Two host buffers; while the GPU
 computes on chunk `c`, the DMA engine copies chunk `c+1` into the other
 buffer. The transfer cost disappears from the critical path:
 
-```
-time ──────────────────────────────────────────────────────────────►
-
-copy stream:   [c0 H2D] [c1 H2D]   [c2 H2D]   [c3 H2D]   ...
-compute str:        [c0 kernel] [c1 kernel] [c2 kernel] [c3 kernel]
-                       └─ copy c1 overlaps kernel c0 ─┘
-                       └─ copy c2 overlaps kernel c1 ─┘
-
-The DMA engine and the SMs work SIMULTANEOUSLY: the copy for chunk c+1
-runs in the copy stream while the kernel for chunk c runs in the compute
-stream. The dependency (kernel c+1 waits for copy c+1) is installed with
-cudaEventRecord + cudaStreamWaitEvent.
-```
+![Stream timeline: copies in the copy stream overlap kernels in the compute stream](assets/ch06_stream_timeline.svg)
 
 Without double buffering the timeline is serial - copy, kernel, copy, kernel
 - with the bus idle during kernels and the SMs idle during copies. With it,

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <!-- Night Owl background panel -->
+  <rect x="0" y="0" width="860" height="420" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- SM container -->
+  <rect x="330" y="24" width="510" height="300" rx="10" fill="#01111f" stroke="#82aaff" stroke-width="2"/>
+  <text x="585" y="48" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">STREAMING MULTIPROCESSOR (SM)</text>
+
+  <!-- Register file -->
+  <rect x="350" y="66" width="150" height="58" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="425" y="88" text-anchor="middle" fill="#d6deeb" font-size="13">register file</text>
+  <text x="425" y="108" text-anchor="middle" fill="#637777" font-size="11">64 K x 32-bit</text>
+
+  <!-- Shared memory / L1 -->
+  <rect x="350" y="140" width="150" height="58" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="425" y="162" text-anchor="middle" fill="#d6deeb" font-size="13">shared memory / L1</text>
+  <text x="425" y="182" text-anchor="middle" fill="#637777" font-size="11">on-chip, per-SM</text>
+
+  <!-- Warps (2 x 2) -->
+  <rect x="540" y="66" width="130" height="34" rx="7" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="605" y="88" text-anchor="middle" fill="#7fdbca" font-size="12">warp 0-31</text>
+  <rect x="682" y="66" width="130" height="34" rx="7" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="747" y="88" text-anchor="middle" fill="#7fdbca" font-size="12">warp 32-63</text>
+  <rect x="540" y="106" width="130" height="34" rx="7" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="605" y="128" text-anchor="middle" fill="#7fdbca" font-size="12">warp 64-95</text>
+  <rect x="682" y="106" width="130" height="34" rx="7" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="747" y="128" text-anchor="middle" fill="#7fdbca" font-size="12">warp 96-127</text>
+  <text x="819" y="128" text-anchor="middle" fill="#637777" font-size="13">...</text>
+
+  <!-- Schedulers -->
+  <rect x="540" y="176" width="272" height="54" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="676" y="196" text-anchor="middle" fill="#c792ea" font-size="12" font-weight="bold">warp schedulers</text>
+  <text x="676" y="216" text-anchor="middle" fill="#d6deeb" font-size="12">scheduler 0 - 3, one instr/clock each</text>
+
+  <!-- Cores -->
+  <rect x="540" y="248" width="272" height="54" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="676" y="268" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">execution units</text>
+  <text x="676" y="288" text-anchor="middle" fill="#d6deeb" font-size="12">FP32 x128 - INT32 - SFU - Tensor</text>
+
+  <!-- Arrows inside SM -->
+  <line x1="500" y1="95" x2="540" y2="95" stroke="#82aaff" stroke-width="1.5"/>
+  <line x1="500" y1="169" x2="540" y2="130" stroke="#82aaff" stroke-width="1.5"/>
+  <line x1="676" y1="140" x2="676" y2="176" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="676" y1="230" x2="676" y2="248" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- L2 / DRAM -->
+  <rect x="350" y="348" width="462" height="50" rx="8" fill="#0b2942" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="581" y="369" text-anchor="middle" fill="#f78c6c" font-size="13" font-weight="bold">L2 cache (chip-wide) - Global DRAM (HBM3)</text>
+  <text x="581" y="386" text-anchor="middle" fill="#637777" font-size="11">one L2 for all SMs; ~200 cycles / ~500 cycles latency</text>
+  <line x1="581" y1="324" x2="581" y2="348" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Side label -->
+  <text x="24" y="180" fill="#637777" font-size="12" transform="rotate(-90 24 180)" text-anchor="middle" letter-spacing="2">PER-SM RESOURCES</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#82aaff"/>
+    </marker>
+  </defs>
+</svg>

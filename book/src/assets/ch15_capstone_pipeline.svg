@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 260" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <rect x="0" y="0" width="860" height="260" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#82aaff"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="28" text-anchor="middle" fill="#82aaff" font-size="13" font-weight="bold">GPU IMAGE-PROCESSING PIPELINE</text>
+
+  <!-- input -->
+  <rect x="30" y="70" width="120" height="60" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="90" y="96" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">RGB image</text>
+  <text x="90" y="114" text-anchor="middle" fill="#637777" font-size="9">W x H x 3 bytes</text>
+
+  <!-- kernel 1 -->
+  <line x1="150" y1="100" x2="178" y2="100" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="178" y="70" width="130" height="60" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <text x="243" y="90" text-anchor="middle" fill="#82aaff" font-size="11" font-weight="bold">rgbToGray</text>
+  <text x="243" y="106" text-anchor="middle" fill="#637777" font-size="9">coalesced · Ch 3/7</text>
+  <text x="243" y="121" text-anchor="middle" fill="#637777" font-size="9">gray float</text>
+
+  <!-- kernel 2 -->
+  <line x1="308" y1="100" x2="336" y2="100" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="336" y="70" width="130" height="60" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <text x="401" y="90" text-anchor="middle" fill="#82aaff" font-size="11" font-weight="bold">blurH + blurV</text>
+  <text x="401" y="106" text-anchor="middle" fill="#637777" font-size="9">separable 5-tap</text>
+  <text x="401" y="121" text-anchor="middle" fill="#637777" font-size="9">blurred float</text>
+
+  <!-- kernel 3 -->
+  <line x1="466" y1="100" x2="494" y2="100" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="494" y="70" width="130" height="60" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <text x="559" y="90" text-anchor="middle" fill="#82aaff" font-size="11" font-weight="bold">sobel</text>
+  <text x="559" y="106" text-anchor="middle" fill="#637777" font-size="9">Gx, Gy magnitude</text>
+  <text x="559" y="121" text-anchor="middle" fill="#637777" font-size="9">edges float</text>
+
+  <!-- kernel 4 -->
+  <line x1="624" y1="100" x2="652" y2="100" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="652" y="70" width="130" height="60" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <text x="717" y="90" text-anchor="middle" fill="#82aaff" font-size="11" font-weight="bold">histogram</text>
+  <text x="717" y="106" text-anchor="middle" fill="#637777" font-size="9">privatised</text>
+  <text x="717" y="121" text-anchor="middle" fill="#637777" font-size="9">stats</text>
+
+  <!-- streams note -->
+  <rect x="120" y="160" width="620" height="44" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="430" y="180" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">streamed with pinned memory - copy c+1 overlaps kernel c</text>
+  <text x="430" y="196" text-anchor="middle" fill="#637777" font-size="10">verified against a CPU reference with a differential test</text>
+
+  <!-- three implementations -->
+  <rect x="120" y="214" width="190" height="32" rx="6" fill="#01111f" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="215" y="234" text-anchor="middle" fill="#c792ea" font-size="11">CUDA C++ kernels</text>
+  <rect x="335" y="214" width="190" height="32" rx="6" fill="#01111f" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="430" y="234" text-anchor="middle" fill="#c792ea" font-size="11">Thrust / CUB</text>
+  <rect x="550" y="214" width="190" height="32" rx="6" fill="#01111f" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="645" y="234" text-anchor="middle" fill="#c792ea" font-size="11">CUDA-Oxide Rust</text>
+</svg>

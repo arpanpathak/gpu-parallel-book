@@ -1,6 +1,7 @@
 # Chapter 3: The CUDA Programming Model
 
 > *"A kernel is a function that the hardware multiplies."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch03_vector_add/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch03_vector_add) in the repository.
 
 This chapter introduces the CUDA programming model: how a function becomes a
 kernel, how a launch describes a grid of work, and how data moves between the
@@ -75,25 +76,7 @@ lockstep.
 Here is the whole hierarchy for a small launch, `kernel<<<3, 8>>>` (3 blocks
 of 8 threads - smaller than reality, exactly right for a picture):
 
-```
-        GRID  (3 blocks)
-   ┌───────────────┬───────────────┬───────────────┐
-   │  block 0      │  block 1      │  block 2      │
-   │  ┌─┬─┬─┬─┬─┬─┬─┬─┐  ┌─┬─┬─┬─┬─┬─┬─┬─┐  ┌─┬─┬─┬─┬─┬─┬─┬─┐
-   │  │0│1│2│3│4│5│6│7│  │0│1│2│3│4│5│6│7│  │0│1│2│3│4│5│6│7│
-   │  └─┴─┴─┴─┴─┴─┴─┴─┘  └─┴─┴─┴─┴─┴─┴─┴─┘  └─┴─┴─┴─┴─┴─┴─┴─┘
-   │   threadIdx.x      threadIdx.x           threadIdx.x
-   │   blockIdx.x = 0   blockIdx.x = 1        blockIdx.x = 2
-   └───────────────┴───────────────┴───────────────┘
-                   └── each block goes to one SM ──┘
-   blockDim.x = 8, gridDim.x = 3
-
-        GLOBAL INDEX of a thread = blockIdx.x * blockDim.x + threadIdx.x
-        block 0: threads 0..7    block 1: threads 8..15   block 2: 16..23
-
-   (blockDim.x = 8 is legal but inefficient: each 32-thread warp would carry
-    only 8 active lanes, wasting 24. Production blocks use 128-1024 threads.)
-```
+![Launch hierarchy: a grid of three blocks of eight threads, and the global index formula](assets/ch03_launch_hierarchy.svg)
 
 **Why three dimensions?** Because real data is often two- or three-dimensional
 (images, volumes, grids). A 2-D launch lets the kernel index an image as

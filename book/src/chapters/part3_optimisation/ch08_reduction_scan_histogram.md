@@ -1,6 +1,7 @@
 # Chapter 8: Reduction, Scan & Histogram
 
 > *"Every parallel algorithm is a reduction, a scan, or a lie."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch08_reduction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch08_reduction) in the repository.
 
 This chapter covers the three canonical data-parallel algorithms that appear,
 in disguise, in almost every real GPU application: **reduction** (sum,

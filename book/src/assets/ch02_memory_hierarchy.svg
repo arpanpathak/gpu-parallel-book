@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 430" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <rect x="0" y="0" width="860" height="430" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- GRID -->
+  <rect x="190" y="30" width="480" height="52" rx="8" fill="#0b2942" stroke="#82aaff" stroke-width="2"/>
+  <text x="430" y="51" text-anchor="middle" fill="#82aaff" font-size="14" font-weight="bold">GRID</text>
+  <text x="430" y="69" text-anchor="middle" fill="#d6deeb" font-size="12">all blocks of one kernel launch</text>
+  <line x1="430" y1="82" x2="430" y2="112" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- SM -->
+  <rect x="150" y="112" width="560" height="150" rx="10" fill="#01111f" stroke="#82aaff" stroke-width="2"/>
+  <text x="430" y="134" text-anchor="middle" fill="#82aaff" font-size="13" font-weight="bold">STREAMING MULTIPROCESSOR</text>
+  <!-- warps row -->
+  <rect x="180" y="146" width="120" height="32" rx="6" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="240" y="167" text-anchor="middle" fill="#7fdbca" font-size="11">warp 0</text>
+  <rect x="310" y="146" width="120" height="32" rx="6" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="370" y="167" text-anchor="middle" fill="#7fdbca" font-size="11">warp 1</text>
+  <rect x="440" y="146" width="120" height="32" rx="6" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="500" y="167" text-anchor="middle" fill="#7fdbca" font-size="11">warp 2</text>
+  <text x="625" y="167" text-anchor="middle" fill="#637777" font-size="12">...</text>
+  <!-- shared / L1 -->
+  <rect x="180" y="196" width="190" height="44" rx="7" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="275" y="215" text-anchor="middle" fill="#d6deeb" font-size="11">shared memory (per-block)</text>
+  <text x="275" y="231" text-anchor="middle" fill="#637777" font-size="10">L1 cache (per-SM)</text>
+  <!-- registers -->
+  <rect x="400" y="196" width="190" height="44" rx="7" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="495" y="215" text-anchor="middle" fill="#d6deeb" font-size="11">registers (per-thread)</text>
+  <text x="495" y="231" text-anchor="middle" fill="#637777" font-size="10">64 K x 32-bit, private</text>
+  <text x="625" y="222" text-anchor="middle" fill="#637777" font-size="11">~20-30 cyc</text>
+  <line x1="430" y1="262" x2="430" y2="292" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- L2 -->
+  <rect x="300" y="292" width="260" height="44" rx="8" fill="#0b2942" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="430" y="311" text-anchor="middle" fill="#f78c6c" font-size="12" font-weight="bold">L2 cache (chip-wide)</text>
+  <text x="430" y="327" text-anchor="middle" fill="#637777" font-size="10">~200 cycles</text>
+  <line x1="360" y1="336" x2="280" y2="366" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="500" y1="336" x2="580" y2="366" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Global + Host -->
+  <rect x="150" y="366" width="250" height="44" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="275" y="385" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">global memory (DRAM)</text>
+  <text x="275" y="401" text-anchor="middle" fill="#637777" font-size="10">~400-800 cycles - HBM3</text>
+  <rect x="460" y="366" width="250" height="44" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="585" y="385" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">host memory (CPU DRAM)</text>
+  <text x="585" y="401" text-anchor="middle" fill="#637777" font-size="10">PCIe / NVLink transfer path</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#82aaff"/>
+    </marker>
+  </defs>
+</svg>

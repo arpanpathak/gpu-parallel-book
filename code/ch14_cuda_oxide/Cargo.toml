@@ -1,0 +1,19 @@
+[package]
+name = "host_closure"
+version = "0.1.0"
+edition = "2021"
+
+# CUDA-Oxide (Chapter 14) - experimental rustc backend compiling #[kernel]
+# functions to PTX. The crates live in the NVlabs/cuda-oxide repository.
+#
+# NOTE: CUDA-Oxide is alpha software on a nightly toolchain, and the crates
+# are not published on crates.io. The supported way to create a project is
+# the repository's bootstrap command, which generates a correct Cargo.toml:
+#
+#   nix run github:NVlabs/cuda-oxide#new my-project
+#
+# The dependency lines below are the shape that command generates; adjust the
+# git revision to a pinned commit of the project.
+[dependencies]
+cuda-device = { git = "https://github.com/NVlabs/cuda-oxide" }
+cuda-core = { git = "https://github.com/NVlabs/cuda-oxide" }

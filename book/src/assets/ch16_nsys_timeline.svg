@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <rect x="0" y="0" width="860" height="220" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <text x="430" y="26" text-anchor="middle" fill="#637777" font-size="12">time</text>
+  <line x1="60" y1="38" x2="800" y2="38" stroke="#637777" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- CPU lane -->
+  <text x="60" y="78" fill="#c792ea" font-size="12" font-weight="bold">CPU</text>
+  <rect x="110" y="58" width="70" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="145" y="75" text-anchor="middle" fill="#c792ea" font-size="10">idle</text>
+  <rect x="190" y="58" width="80" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="230" y="75" text-anchor="middle" fill="#c792ea" font-size="10">idle</text>
+  <rect x="280" y="58" width="80" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="320" y="75" text-anchor="middle" fill="#c792ea" font-size="10">idle</text>
+  <rect x="370" y="58" width="80" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="410" y="75" text-anchor="middle" fill="#c792ea" font-size="10">idle</text>
+  <rect x="460" y="58" width="80" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="500" y="75" text-anchor="middle" fill="#c792ea" font-size="10">idle</text>
+  <rect x="550" y="58" width="80" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="590" y="75" text-anchor="middle" fill="#c792ea" font-size="10">idle</text>
+  <rect x="640" y="58" width="80" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+  <text x="680" y="75" text-anchor="middle" fill="#c792ea" font-size="10">idle</text>
+  <rect x="730" y="58" width="50" height="26" rx="5" fill="#c792ea" fill-opacity="0.25" stroke="#c792ea" stroke-width="1.2"/>
+
+  <!-- GPU lane -->
+  <text x="60" y="138" fill="#addb67" font-size="12" font-weight="bold">GPU</text>
+  <rect x="110" y="118" width="70" height="26" rx="5" fill="#7fdbca" fill-opacity="0.5" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="145" y="135" text-anchor="middle" fill="#011627" font-size="9" font-weight="bold">copy</text>
+  <rect x="190" y="118" width="540" height="26" rx="5" fill="#addb67" fill-opacity="0.5" stroke="#addb67" stroke-width="1.2"/>
+  <text x="460" y="135" text-anchor="middle" fill="#011627" font-size="9" font-weight="bold">kernels</text>
+  <rect x="740" y="118" width="40" height="26" rx="5" fill="#7fdbca" fill-opacity="0.5" stroke="#7fdbca" stroke-width="1.2"/>
+
+  <!-- labels -->
+  <text x="110" y="176" fill="#637777" font-size="10">copy</text>
+  <text x="190" y="176" fill="#637777" font-size="10">kernels</text>
+  <text x="740" y="176" fill="#637777" font-size="10">copy</text>
+  <rect x="110" y="184" width="670" height="26" rx="5" fill="#82aaff" fill-opacity="0.10" stroke="#82aaff" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="445" y="201" text-anchor="middle" fill="#82aaff" font-size="11">copies and kernels overlap - the GPU bar stays busy</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#82aaff"/>
+    </marker>
+  </defs>
+</svg>

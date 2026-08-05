@@ -2,6 +2,7 @@
 
 > *"A pipeline is a chain of kernels. A fast pipeline is a chain of kernels
 > that never waits."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch15_capstone/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch15_capstone) in the repository.
 
 This is the chapter every earlier one was building toward. The capstone is a
 complete GPU image-processing pipeline - **RGB → greyscale → Gaussian blur →
@@ -12,21 +13,7 @@ to fit in one chapter and real enough to ship.
 
 ## 15.1 The Pipeline and Its Data Flow
 
-```
- input RGB (W x H, 3 bytes/pixel, row-major)
-   │
-   ▼  kernel 1: rgbToGray      (Chapter 3/7: coalescing)
- gray float (W x H, 4 bytes/pixel)
-   │
-   ▼  kernel 2: blurH + blurV  (separable Gaussian, 5-tap)
- blurred float (W x H)
-   │
-   ▼  kernel 3: sobel          (two 3x3 derivative kernels + magnitude)
- edge float (W x H)
-   │
-   ▼  kernel 4: histogram      (Chapter 8: privatised histogram, for stats)
- stats
-```
+![The capstone pipeline: RGB to greyscale to blur to Sobel to histogram](assets/ch15_capstone_pipeline.svg)
 
 Design decisions, each with its reason:
 

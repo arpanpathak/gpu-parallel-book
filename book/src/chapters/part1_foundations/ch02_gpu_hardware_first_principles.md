@@ -67,33 +67,7 @@ parallelism; the scheduler is the control.
 Here is the internal anatomy of one SM, drawn to scale in the sense that
 matters (everything on the left feeds the four schedulers on the right):
 
-```
-                          ┌──────────────────────────────────────┐
-                          │          STREAMING PROCESSOR         │
-  ┌────────────────────┐  │  ┌─────────┐  ┌─────────┐            │
-  │  register file     │  │  │ warp    │  │ warp    │   ...      │
-  │  64 K x 32-bit     │◄─┼──┤ 0-31    │  │ 32-63   │            │
-  └────────────────────┘  │  └────┬────┘  └────┬────┘            │
-                          │       │             │                │
-  ┌────────────────────┐  │  ┌────▼────┐  ┌────▼────┐            │
-  │  shared memory /   │  │  │ warp    │  │ warp    │   ...      │
-  │  L1 cache (unified)│◄─┼──┤ 64-95   │  │ 96-127  │            │
-  └────────────────────┘  │  └─────────┘  └─────────┘            │
-                          │                                      │
-  ┌────────────────────┐  │  ┌─────────────────────────────┐     │
-  │  FP32 cores x128   │  │  │  scheduler 0     scheduler 1 │     │
-  │  INT32 cores       │◄─┼──┤  scheduler 2     scheduler 3 │     │
-  │  SFUs / Tensor Cores│ │  └─────────────────────────────┘     │
-  └────────────────────┘  │            │  one instruction per    │
-                          │            │  clock per scheduler,   │
-                          │            │  fetched for one warp   │
-                          └────────────┼─────────────────────────┘
-                                       │
-                          ┌────────────▼─────────────┐
-                          │  L2 cache (chip-wide)    │
-                          │  Global DRAM (HBM)       │
-                          └──────────────────────────┘
-```
+![Anatomy of a streaming multiprocessor: register file, shared memory, warps, schedulers and execution units](assets/ch02_sm_anatomy.svg)
 
 Read the diagram as a data-flow picture: warps live in the register file,
 share memory and arithmetic units through the schedulers, and reach the rest
@@ -151,32 +125,7 @@ unit of *execution*. Never confuse the two.
 
 The GPU memory hierarchy is a hierarchy of *distance and size*:
 
-```
-            ┌────────────────────────────────────────────┐
-            │  GRID  (all blocks of one kernel launch)   │
-            └────────────────────┬───────────────────────┘
-                                 │
-        ┌────────────────────────▼────────────────────────┐
-        │  SM   (one block or many, time-sliced)          │
-        │  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
-        │  │  warp 0  │  │  warp 1  │ ... │  warp n │     │
-        │  └────┬─────┘  └────┬─────┘  └────┬─────┘      │
-        │       │             │             │            │
-        │  ┌────▼─────┐  registers (per-thread, private) │
-        │  │ shared   │  shared memory (per-block)       │
-        │  │ memory   │  L1 cache (per-SM)               │
-        │  └────┬─────┘                                  │
-        └───────┼────────────────────────────────────────┘
-                │
-        ┌───────▼───────────┐        ┌───────────────────┐
-        │  L2 cache (chip)  │◄──────►│  Global memory     │
-        └───────┬───────────┘        │  (DRAM, GPU)       │
-                │                    └───────────────────┘
-        ┌───────▼───────────┐        ┌───────────────────┐
-        │  Host memory      │◄──────►│  PCIe / NVLink    │
-        │  (CPU DRAM)       │        └───────────────────┘
-        └───────────────────┘
-```
+![The GPU memory hierarchy: grid to SM to L2 to global and host memory](assets/ch02_memory_hierarchy.svg)
 
 From top to bottom, each level is larger and slower:
 

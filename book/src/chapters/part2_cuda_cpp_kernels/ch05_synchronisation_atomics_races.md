@@ -2,6 +2,7 @@
 
 > *"Parallelism is the ability to disagree about the order of events. Most bugs
 > are disagreements you did not intend."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch05_histogram/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch05_histogram) in the repository.
 
 Chapters 3 and 4 built kernels whose threads never communicated. Real kernels
 share data, and sharing data in parallel is where correctness lives. This

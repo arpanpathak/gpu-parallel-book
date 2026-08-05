@@ -2,6 +2,7 @@
 
 > *"The kernel was the last thing keeping C++ in your program. CUDA-Oxide
 > removes even that."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch14_cuda_oxide/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch14_cuda_oxide) in the repository.
 
 Chapter 13 secured the host with Rust, but the kernel itself remained C++  - 
 compiled by `nvcc`, invoked through an `unsafe` boundary. **CUDA-Oxide** is
@@ -44,21 +45,7 @@ this chapter.
 CUDA-Oxide does not translate Rust to CUDA C. It walks the *same* internal
 representations rustc uses, replacing only the codegen:
 
-```
-Rust source (.rs)
-      │  rustc frontend (parse, type-check, borrow-check)
-      ▼
-Rust MIR (mid-level IR - the borrow checker's world)
-      │  cuda-oxide codegen backend
-      ▼
-Pliron IR (an MLIR-like IR framework, written in Rust)
-      │  mem2reg, LLVM dialect lowering
-      ▼
-LLVM IR
-      │  LLVM NVPTX backend
-      ▼
-PTX   (the portable virtual ISA of Chapters 3 and 12)
-```
+![CUDA-Oxide compilation pipeline: Rust to MIR to Pliron to LLVM IR to PTX](assets/ch14_rust_to_ptx.svg)
 
 **Why this pipeline matters.** Because the *front end* is real rustc, you get
 the real guarantees - ownership, borrowing, pattern matching, traits - before

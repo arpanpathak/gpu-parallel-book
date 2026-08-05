@@ -49,11 +49,7 @@ overhead. This is also why `ncu` cannot profile everything at once - use
 
 A healthy streamed pipeline (Chapter 15) shows:
 
-```
-CPU  ████████░░░░████████░░░░████████░░░░
-GPU  ░░░░████████████████████████████████
-     └─copy─┘└──────kernels──────┘└─copy─┘
-```
+![Nsight Systems timeline: copies and kernels overlap, keeping the GPU busy](assets/ch16_nsys_timeline.svg)
 
 The GPU bar is continuously busy: copies and kernels overlap, and the only
 gaps are the unavoidable pipeline priming. The unhealthy versions, and their

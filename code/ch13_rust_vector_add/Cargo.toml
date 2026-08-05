@@ -1,0 +1,16 @@
+[package]
+name = "vector-add"
+version = "0.1.0"
+edition = "2021"
+
+# cudarc - safe CUDA bindings for Rust (Chapter 13).
+# Choose the feature matching your CUDA toolkit version, e.g.:
+#   cuda-12040  -> CUDA 12.4
+#   cuda-13010  -> CUDA 13.1
+# See https://crates.io/crates/cudarc for the full list.
+[dependencies]
+cudarc = { version = "0.13", features = ["cuda-12040"] }
+
+# The kernel is compiled to PTX ahead of time with nvcc, exactly as in the
+# book (13.3). The main.rs embeds vector_add.ptx with include_str! (13.5).
+#   nvcc -arch=compute_90 -ptx vector_add.cu -o vector_add.ptx

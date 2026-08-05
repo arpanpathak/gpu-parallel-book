@@ -2,6 +2,7 @@
 
 > *"CUDA is C++ with a different address space. The rules of good C++ still
 > apply - more so, because the stakes are higher."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch10_device_buffer/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch10_device_buffer) in the repository.
 
 Chapters 3-9 wrote CUDA in a C-style dialect: raw `cudaMalloc` pointers,
 manual `cudaFree` calls, unchecked errors in the interest of brevity. This

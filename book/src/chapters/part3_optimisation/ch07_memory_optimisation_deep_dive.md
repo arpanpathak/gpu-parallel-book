@@ -33,24 +33,11 @@ its 32 addresses fall within as few lines as possible.
 - 32 `float`s with stride 1 but misaligned start → 2 lines. **Good.**
 - 32 `float`s with stride 32 → 32 lines. **Catastrophic**: 32× traffic.
 
-Pictured, for a warp of 32 threads each loading one `float` (the grid is
-128-byte cache lines; `T0..T31` are the threads; `[ ]` marks one fetched
-line):
+Pictured below, for a warp of 32 threads each loading one `float`:
 
-```
-COALESCED (stride 1):                 UNCOALESCED (stride 32):
-                                          
-[ T0 T1 T2 ... T31 ]                 [T0]           [T1]           [T2]
- └── one 128-byte line ──┘             └─line─┘      └─line─┘      └─line─┘
-  32 floats, 128 bytes                32 threads, 32 lines = 4 KB fetched
-  1 transaction                        for 128 bytes actually used:
-                                       a 32x waste of bandwidth
+![Coalesced versus uncoalesced warp access to 128-byte cache lines](assets/ch07_coalescing.svg)
 
-  T0..T31 read 0,4,8,...,124          T0 reads 0, T1 reads 128,
-                                       T2 reads 256, ... (stride 32 floats)
-```
-
-The left picture is why the global-index formula exists (Chapter 3, §3.5):
+The left panel is why the global-index formula exists (Chapter 3, §3.5):
 it hands consecutive threads consecutive addresses *by construction*. The
 right picture is what happens when the formula is inverted - the classic
 column-access bug in row-major data.

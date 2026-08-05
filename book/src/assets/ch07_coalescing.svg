@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 280" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <rect x="0" y="0" width="860" height="280" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- COALESCED panel -->
+  <rect x="40" y="30" width="380" height="220" rx="10" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
+  <text x="230" y="56" text-anchor="middle" fill="#addb67" font-size="13" font-weight="bold">COALESCED - stride 1</text>
+
+  <!-- 128-byte line with 32 slots -->
+  <rect x="60" y="80" width="340" height="46" rx="6" fill="#0b2942" stroke="#addb67" stroke-width="2"/>
+  <g font-size="9" fill="#d6deeb" text-anchor="middle">
+    <text x="70" y="100">T0</text><text x="85" y="100">T1</text><text x="100" y="100">T2</text>
+    <text x="115" y="100">T3</text><text x="130" y="100">T4</text><text x="145" y="100">T5</text>
+    <text x="160" y="100">T6</text><text x="175" y="100">T7</text><text x="190" y="100">T8</text>
+    <text x="205" y="100">T9</text><text x="220" y="100">..</text><text x="235" y="100">..</text>
+    <text x="250" y="100">..</text><text x="265" y="100">..</text><text x="280" y="100">..</text>
+    <text x="295" y="100">..</text><text x="310" y="100">..</text><text x="325" y="100">..</text>
+    <text x="340" y="100">..</text><text x="355" y="100">..</text><text x="370" y="100">T31</text>
+  </g>
+  <text x="230" y="112" text-anchor="middle" fill="#011627" font-size="9" font-weight="bold">one 128-byte line</text>
+  <text x="230" y="150" text-anchor="middle" fill="#d6deeb" font-size="12">32 floats, 128 bytes, one transaction</text>
+  <text x="230" y="172" text-anchor="middle" fill="#637777" font-size="11">T0..T31 read 0, 4, 8, ..., 124</text>
+  <text x="230" y="204" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">100% of fetched bytes used</text>
+
+  <!-- UNCOALESCED panel -->
+  <rect x="440" y="30" width="380" height="220" rx="10" fill="#01111f" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="630" y="56" text-anchor="middle" fill="#f78c6c" font-size="13" font-weight="bold">UNCOALESCED - stride 32</text>
+
+  <g font-size="9" fill="#d6deeb" text-anchor="middle">
+    <rect x="470" y="80" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="505" y="98">T0</text>
+    <rect x="570" y="80" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="605" y="98">T1</text>
+    <rect x="670" y="80" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="705" y="98">T2</text>
+    <rect x="470" y="116" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="505" y="134">T3</text>
+    <rect x="570" y="116" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="605" y="134">T4</text>
+    <rect x="670" y="116" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="705" y="134">T5</text>
+    <rect x="470" y="152" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="505" y="170">...</text>
+    <rect x="570" y="152" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="605" y="170">...</text>
+    <rect x="670" y="152" width="70" height="30" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1"/><text x="705" y="170">T31</text>
+  </g>
+  <text x="630" y="204" text-anchor="middle" fill="#d6deeb" font-size="12">32 threads, 32 lines = 4 KB fetched</text>
+  <text x="630" y="224" text-anchor="middle" fill="#f78c6c" font-size="12" font-weight="bold">128 bytes used - a 32x waste of bandwidth</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#82aaff"/>
+    </marker>
+  </defs>
+</svg>
