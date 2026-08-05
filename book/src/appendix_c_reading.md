@@ -57,7 +57,21 @@
   around the Rust compiler of Chapter 14.
 - **crates.io/cudarc** - the Rust host library of Chapter 13, with examples.
 
-## C.5 How to Continue
+## C.5 Cloud GPU Services
+
+If you do not own an NVIDIA GPU, the cloud gives you enough free compute to
+finish this book. The quickest starts: **Google Colab** (free T4 in a
+browser, zero setup) and **Kaggle Notebooks** (roughly 30 free GPU hours per
+week). For serious sessions, the big clouds offer new-account credits
+(Google Cloud roughly USD 300, Microsoft Azure roughly USD 200); for cheap
+on-demand GPUs, try Lambda, RunPod or Vast.ai; for serverless Python with
+recurring credits, Modal. **NVIDIA LaunchPad** offers free, time-boxed
+hands-on labs on real NVIDIA hardware.
+
+The repository README keeps a fuller comparison table with links; credit
+amounts change frequently, so always check the provider's current terms.
+
+## C.6 How to Continue
 
 1. **Re-implement the capstone** (Chapter 15) from memory, without looking.
    The gaps in your memory are the gaps in your understanding.

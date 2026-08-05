@@ -61,6 +61,36 @@ mathematical notation, recommended reading).
 - A Night Owl inspired dark theme (bluish-black, easy on the eyes) with full
   support for printing.
 
+## Cloud GPUs: learn without owning hardware
+
+Every kernel in this book runs on any NVIDIA GPU with CUDA 12.x - including
+the free ones. If you do not own a GPU, start in the cloud; most providers
+give away enough free compute to finish the entire book.
+
+| Provider | What you get | Free credits (approx.; check current terms) | Best for |
+|---|---|---|---|
+| [Google Colab](https://colab.research.google.com/) | Free T4 GPU in browser notebooks | Free tier with dynamic session limits | First kernels, zero setup |
+| [Kaggle Notebooks](https://www.kaggle.com/) | Free GPU hours (T4/P100) | Roughly 30 GPU hours per week | Notebook-based learning |
+| [Google Cloud](https://cloud.google.com/free) | Full GPU/TPU VMs (L4, A100, H100) | Roughly USD 300 new-account trial | Serious projects |
+| [Microsoft Azure](https://azure.microsoft.com/) | NC/ND-series GPU VMs | Roughly USD 200 new-account credit | Enterprise stack |
+| [AWS](https://aws.amazon.com/) | g4dn/g5/p4 GPU instances | Free tier is CPU-only; Activate/Educate credits for startups and students | Enterprise stack |
+| [Paperspace / Gradient](https://www.paperspace.com/) | GPU notebooks + cloud workstations | Small signup credit; free notebook tiers | One-click ML |
+| [Lambda](https://lambdalabs.com/gpu-cloud) | RTX 4090 / A100 / H100 on demand | None typically | High-end training |
+| [RunPod](https://www.runpod.io/) | Pay-as-you-go + serverless GPU | Occasional promos | Flexible jobs |
+| [Vast.ai](https://vast.ai/) | Community GPU marketplace | None | Cheapest spot GPUs |
+| [NVIDIA LaunchPad](https://www.nvidia.com/en-us/launchpad/) | Time-boxed hands-on labs on NVIDIA hardware | Free labs | Trying NVIDIA tech hands-on |
+| [Modal](https://modal.com/) | Serverless GPU Python | Roughly USD 30/month recurring credits | Code-first workloads |
+
+Notes:
+
+- Free-credit amounts and session limits change frequently. Always check the
+  provider's current terms before signing up.
+- Everything this book teaches fits in a free tier: the heaviest capstone
+  pipeline runs in minutes on a T4.
+- When you outgrow the free tiers, pay-as-you-go GPU providers (Lambda,
+  RunPod, Vast.ai) are usually cheaper than the big three clouds for
+  GPU-only work.
+
 ## Repository layout
 
 ```
