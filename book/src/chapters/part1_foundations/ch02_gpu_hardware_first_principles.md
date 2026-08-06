@@ -110,16 +110,44 @@ registers are the on-chip storage.
 > are scheduled and executed together. The warp is the hardware's unit of
 > execution, exactly as the *thread* is the programmer's unit of logic.
 
-The number 32 is an architectural constant of every NVIDIA GPU to date. When
-you launch a kernel with 1,000 threads, the hardware creates 32 warps
-(32 × 31 = 992 threads in 31 full warps, plus one partial warp of 8 threads;
-the remaining 24 lanes are disabled but still occupy scheduling slots).
+**A picture first.** Forget definitions for a moment and look at the diagram:
+one instruction is fetched once and broadcast to 32 lanes, and all 32 lanes
+execute it in the same clock - but each lane applies it to its *own* registers
+and its *own* data:
 
-How does a warp execute? The warp scheduler picks an instruction for the warp;
-the instruction is fetched once and issued to all 32 lanes in lockstep. Each
-lane (thread) has its **own registers**, so each lane can hold different data,
-but all lanes execute the *same* instruction at the *same* time. This is SIMT
-(Chapter 1, §1.7).
+![Anatomy of a warp: one instruction fetched once, broadcast to 32 lanes, each with its own registers and data](../../assets/ch02_warp_anatomy.svg)
+
+That is the entire idea of a warp. The scheduler does not manage 32 threads
+as 32 separate things; it manages them as *one row of 32 seats*. When it
+issues an instruction, every occupied seat executes it simultaneously, on
+whatever that seat's thread happens to be holding.
+
+**Why 32?** The number is an architectural constant of every NVIDIA GPU to
+date. It is a deliberate engineering balance, not a magic value:
+
+- **It amortises instruction cost.** Fetching and decoding an instruction
+  costs the same whether it serves one thread or thirty-two. A wider warp
+  means the fixed cost of each instruction is spread over more useful work.
+- **It is a power of two.** Warp boundaries fall at 32, 64, 96, ... which
+  makes thread-to-warp arithmetic (integer division and modulo by 32) free on
+  the hardware.
+- **It matches the memory system's granularity.** 32 threads × 4 bytes = 128
+  bytes - exactly one cache line (§2.7). A warp of consecutive threads can be
+  satisfied by one memory transaction. This is not a coincidence; it is how
+  coalescing became cheap.
+
+The cost of a large warp is that divergence (§ below) is coarser: one thread
+taking a different branch forces the whole warp to pay. Thirty-two balances
+instruction amortisation against divergence waste, and every generation has
+kept it.
+
+**How a warp executes - and what "lockstep" means.** The warp scheduler picks
+an instruction for the warp; the instruction is fetched once and issued to all
+32 lanes at the same time. Each lane (thread) has its **own registers**, so
+each lane can hold different data - but all lanes execute the *same*
+instruction at the *same* time. This is SIMT (Chapter 1, §1.7), and the
+difference from a CPU is the whole game: a CPU runs one instruction stream per
+core; a GPU runs one instruction stream per *32 threads*.
 
 **Consequence: divergence.** If two threads in a warp take different branches
 of an `if`, the hardware cannot execute both paths simultaneously. It executes
@@ -131,6 +159,13 @@ instruction slots. A 50/50 branch costs double. Chapter 5 returns to this.
 instruction, a single memory load instruction issued to a warp is, in fact, 32
 loads. How those 32 loads are serviced by the memory system is the subject of
 §2.7 (coalescing).
+
+**The empty-seat footnote.** When you launch a kernel with 1,000 threads, the
+hardware creates 32 warps: 31 full warps (32 × 31 = 992 threads) plus one
+partial warp of 8 threads. The remaining 24 lanes of that last warp are
+disabled but still occupy scheduling slots - dead weight that costs occupancy
+(§2.9) without doing work. This is why real kernels are launched with block
+sizes that are multiples of 32 (Chapter 3).
 
 ## 2.4 Blocks, Grids, and the Hardware's View
 
@@ -147,8 +182,25 @@ hierarchy as follows:
 - The SM runs **many blocks concurrently**, time-slicing its warps. How many
   depends on occupancy (§2.9).
 
+**Why two levels? An analogy: rooms and rows.** Think of a block as a *room*
+and a warp as a *row of seats* inside it. The programmer says: "here is a room
+of 256 people who must be able to talk to each other." The hardware answers:
+"I cannot track 256 individuals cheaply, so I will seat them in 8 rows of 32
+and march each row as one unit." The room (block) is the *unit of
+cooperation* - everyone in it can share memory and synchronise. The row
+(warp) is the *unit of execution* - the hardware only ever moves whole rows at
+a time.
+
+![A block of 256 threads is chopped into 8 warps of 32 consecutive threads; the whole block is placed on one SM](../../assets/ch02_block_to_warps.svg)
+
 The block is the programmer's unit of *cooperation*; the warp is the hardware's
-unit of *execution*. Never confuse the two.
+unit of *execution*. Never confuse the two levels:
+
+- You, the programmer, choose the **block** size (Chapter 3's `blockDim`) -
+  and you choose it in multiples of 32 so that no warp is partially empty.
+- The hardware, invisibly, slices your blocks into **warps** - you never
+  create a warp, and you rarely address one directly. It exists purely so the
+  SM can schedule 32 threads with the cost of one.
 
 ## 2.5 The Memory Hierarchy
 

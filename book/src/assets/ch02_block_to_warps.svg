@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 480" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <!-- Night Owl background panel -->
+  <rect x="0" y="0" width="860" height="480" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- Title -->
+  <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">A BLOCK OF 256 THREADS = 8 WARPS OF 32</text>
+  <text x="430" y="50" text-anchor="middle" fill="#637777" font-size="11">the block is the programmer's unit of cooperation; the hardware slices it into warps - its own unit of execution</text>
+
+  <!-- Block container -->
+  <rect x="120" y="72" width="620" height="84" rx="10" fill="#01111f" stroke="#82aaff" stroke-width="2"/>
+  <text x="430" y="92" text-anchor="middle" fill="#82aaff" font-size="12" font-weight="bold">THREAD BLOCK - blockDim.x = 256 threads</text>
+
+  <!-- 8 warp slices inside the block -->
+  <rect x="140" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="175" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 0</text>
+  <text x="175" y="136" text-anchor="middle" fill="#637777" font-size="8">T 0-31</text>
+  <rect x="216" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="251" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 1</text>
+  <text x="251" y="136" text-anchor="middle" fill="#637777" font-size="8">T 32-63</text>
+  <rect x="292" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="327" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 2</text>
+  <text x="327" y="136" text-anchor="middle" fill="#637777" font-size="8">T 64-95</text>
+  <rect x="368" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="403" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 3</text>
+  <text x="403" y="136" text-anchor="middle" fill="#637777" font-size="8">T 96-127</text>
+  <rect x="444" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="479" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 4</text>
+  <text x="479" y="136" text-anchor="middle" fill="#637777" font-size="8">T 128-159</text>
+  <rect x="520" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="555" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 5</text>
+  <text x="555" y="136" text-anchor="middle" fill="#637777" font-size="8">T 160-191</text>
+  <rect x="596" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="631" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 6</text>
+  <text x="631" y="136" text-anchor="middle" fill="#637777" font-size="8">T 192-223</text>
+  <rect x="672" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="707" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 7</text>
+  <text x="707" y="136" text-anchor="middle" fill="#637777" font-size="8">T 224-255</text>
+
+  <!-- Arrows down: block -> SM -->
+  <line x1="430" y1="156" x2="430" y2="186" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="440" y="176" fill="#637777" font-size="9">the whole block is scheduled onto ONE SM</text>
+
+  <!-- SM -->
+  <rect x="180" y="186" width="500" height="70" rx="10" fill="#01111f" stroke="#f78c6c" stroke-width="2"/>
+  <text x="430" y="208" text-anchor="middle" fill="#f78c6c" font-size="12" font-weight="bold">STREAMING MULTIPROCESSOR (SM)</text>
+  <text x="430" y="228" text-anchor="middle" fill="#d6deeb" font-size="11">holds the block's 8 warps; its schedulers issue them one at a time, in rotation</text>
+  <text x="430" y="246" text-anchor="middle" fill="#637777" font-size="10">warps from DIFFERENT blocks can share the SM too - that is occupancy (Section 2.9)</text>
+
+  <!-- Bottom callout -->
+  <rect x="60" y="282" width="740" height="176" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="76" y="306" fill="#addb67" font-size="12" font-weight="bold">why this two-level design? Because the two levels answer different questions:</text>
+  <text x="76" y="330" fill="#d6deeb" font-size="11">- The BLOCK (programmer's level): threads that share shared memory and __syncthreads() must be</text>
+  <text x="76" y="346" fill="#d6deeb" font-size="11">  co-located on one SM, so the hardware places a whole block on one SM - it cannot be split.</text>
+  <text x="76" y="370" fill="#d6deeb" font-size="11">- The WARP (hardware's level): the SM does not track 256 threads separately - it tracks 8 warps.</text>
+  <text x="76" y="386" fill="#d6deeb" font-size="11">  One scheduler instruction covers 32 threads at once, which is far cheaper to manage.</text>
+  <text x="76" y="410" fill="#7fdbca" font-size="11" font-weight="bold">- Threads are numbered x-fastest: in a 2-D block (blockDim.x, blockDim.y), thread (x, y) has</text>
+  <text x="76" y="426" fill="#7fdbca" font-size="11" font-weight="bold">  linear ID y * blockDim.x + x, so warp 0 is always the first 32 threads in x-major order.</text>
+  <text x="76" y="444" fill="#637777" font-size="10">(The warp is the hardware's unit of execution; never confuse the two levels. A block of 32 threads = exactly 1 warp.)</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#82aaff"/>
+    </marker>
+  </defs>
+</svg>

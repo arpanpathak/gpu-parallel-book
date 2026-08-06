@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <!-- Night Owl background panel -->
+  <rect x="0" y="0" width="860" height="560" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- Title -->
+  <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">WHY 2-D LAUNCHES: BLOCKS BECOME TILES, THREADS BECOME PIXELS</text>
+  <text x="430" y="50" text-anchor="middle" fill="#637777" font-size="11">an 8 x 8 image, kernel&lt;&lt;&lt;dim3(2,2), dim3(4,4)&gt;&gt;&gt;: a 2 x 2 grid of blocks, each block a 4 x 4 tile of threads</text>
+
+  <!-- The image: 8x8 pixels, 2x2 blocks of 4x4 threads -->
+  <!-- pixel size = 44, gap = 2 ; image origin -->
+  <g>
+    <!-- draw pixels -->
+    <!-- block (0,0): top-left, block (1,0): top-right, block (0,1): bottom-left, block (1,1): bottom-right -->
+    <!-- each block contains 4x4 threads -->
+    <text x="196" y="96" text-anchor="middle" fill="#f78c6c" font-size="11" font-weight="bold">blockIdx.x = 0</text>
+    <text x="418" y="96" text-anchor="middle" fill="#f78c6c" font-size="11" font-weight="bold">blockIdx.x = 1</text>
+    <text x="120" y="286" fill="#c792ea" font-size="11" font-weight="bold" transform="rotate(-90 120 286)" text-anchor="middle">blockIdx.y = 0</text>
+    <text x="120" y="430" fill="#c792ea" font-size="11" font-weight="bold" transform="rotate(-90 120 430)" text-anchor="middle">blockIdx.y = 1</text>
+
+    <!-- block (0,0) -->
+    <rect x="140" y="110" width="188" height="188" fill="none" stroke="#f78c6c" stroke-width="2.5"/>
+    <!-- block (1,0) -->
+    <rect x="330" y="110" width="188" height="188" fill="none" stroke="#f78c6c" stroke-width="2.5"/>
+    <!-- block (0,1) -->
+    <rect x="140" y="300" width="188" height="188" fill="none" stroke="#f78c6c" stroke-width="2.5"/>
+    <!-- block (1,1) -->
+    <rect x="330" y="300" width="188" height="188" fill="none" stroke="#f78c6c" stroke-width="2.5"/>
+
+    <!-- 8x8 pixels -->
+    <g fill="#0b2942" stroke="#1d3b53" stroke-width="0.6">
+      <rect x="142" y="112" width="44" height="44"/><rect x="188" y="112" width="44" height="44"/><rect x="234" y="112" width="44" height="44"/><rect x="280" y="112" width="44" height="44"/>
+      <rect x="332" y="112" width="44" height="44"/><rect x="378" y="112" width="44" height="44"/><rect x="424" y="112" width="44" height="44"/><rect x="470" y="112" width="44" height="44"/>
+      <rect x="142" y="158" width="44" height="44"/><rect x="188" y="158" width="44" height="44"/><rect x="234" y="158" width="44" height="44"/><rect x="280" y="158" width="44" height="44"/>
+      <rect x="332" y="158" width="44" height="44"/><rect x="378" y="158" width="44" height="44"/><rect x="424" y="158" width="44" height="44"/><rect x="470" y="158" width="44" height="44"/>
+      <rect x="142" y="204" width="44" height="44"/><rect x="188" y="204" width="44" height="44"/><rect x="234" y="204" width="44" height="44"/><rect x="280" y="204" width="44" height="44"/>
+      <rect x="332" y="204" width="44" height="44"/><rect x="378" y="204" width="44" height="44"/><rect x="424" y="204" width="44" height="44"/><rect x="470" y="204" width="44" height="44"/>
+      <rect x="142" y="250" width="44" height="44"/><rect x="188" y="250" width="44" height="44"/><rect x="234" y="250" width="44" height="44"/><rect x="280" y="250" width="44" height="44"/>
+      <rect x="332" y="250" width="44" height="44"/><rect x="378" y="250" width="44" height="44"/><rect x="424" y="250" width="44" height="44"/><rect x="470" y="250" width="44" height="44"/>
+      <rect x="142" y="302" width="44" height="44"/><rect x="188" y="302" width="44" height="44"/><rect x="234" y="302" width="44" height="44"/><rect x="280" y="302" width="44" height="44"/>
+      <rect x="332" y="302" width="44" height="44"/><rect x="378" y="302" width="44" height="44"/><rect x="424" y="302" width="44" height="44"/><rect x="470" y="302" width="44" height="44"/>
+      <rect x="142" y="348" width="44" height="44"/><rect x="188" y="348" width="44" height="44"/><rect x="234" y="348" width="44" height="44"/><rect x="280" y="348" width="44" height="44"/>
+      <rect x="332" y="348" width="44" height="44"/><rect x="378" y="348" width="44" height="44"/><rect x="424" y="348" width="44" height="44"/><rect x="470" y="348" width="44" height="44"/>
+      <rect x="142" y="394" width="44" height="44"/><rect x="188" y="394" width="44" height="44"/><rect x="234" y="394" width="44" height="44"/><rect x="280" y="394" width="44" height="44"/>
+      <rect x="332" y="394" width="44" height="44"/><rect x="378" y="394" width="44" height="44"/><rect x="424" y="394" width="44" height="44"/><rect x="470" y="394" width="44" height="44"/>
+    </g>
+
+    <!-- highlight one thread: block(1,0) thread(2,1) -> global (6,1) -->
+    <rect x="424" y="158" width="44" height="44" fill="#addb67" opacity="0.35" stroke="#addb67" stroke-width="2.5"/>
+    <text x="446" y="185" text-anchor="middle" fill="#addb67" font-size="10" font-weight="bold">T</text>
+
+    <!-- threadIdx labels inside block (0,0) -->
+    <g font-size="8" fill="#637777" text-anchor="middle">
+      <text x="164" y="126">tx0</text><text x="210" y="126">tx1</text><text x="256" y="126">tx2</text><text x="302" y="126">tx3</text>
+      <text x="164" y="172">tx0</text><text x="210" y="172">tx1</text><text x="256" y="172">tx2</text><text x="302" y="172">tx3</text>
+      <text x="164" y="218">tx0</text><text x="210" y="218">tx1</text><text x="256" y="218">tx2</text><text x="302" y="218">tx3</text>
+      <text x="164" y="264">tx0</text><text x="210" y="264">tx1</text><text x="256" y="264">tx2</text><text x="302" y="264">tx3</text>
+    </g>
+    <text x="196" y="120" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">block (0,0)</text>
+  </g>
+
+  <!-- Right panel: formulas -->
+  <rect x="550" y="110" width="280" height="300" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <text x="690" y="134" text-anchor="middle" fill="#82aaff" font-size="12" font-weight="bold">THE 2-D INDEX FORMULA</text>
+  <text x="690" y="162" text-anchor="middle" fill="#d6deeb" font-size="11">global x = blockIdx.x * blockDim.x + threadIdx.x</text>
+  <text x="690" y="182" text-anchor="middle" fill="#d6deeb" font-size="11">global y = blockIdx.y * blockDim.y + threadIdx.y</text>
+  <text x="690" y="212" text-anchor="middle" fill="#637777" font-size="10">highlighted thread: block (1,0), thread (2,1)</text>
+  <text x="690" y="230" text-anchor="middle" fill="#ecc48d" font-size="11" font-weight="bold">gx = 1*4 + 2 = 6   |   gy = 0*4 + 1 = 1</text>
+  <text x="690" y="258" text-anchor="middle" fill="#d6deeb" font-size="11">row-major linear index (width = 8):</text>
+  <text x="690" y="278" text-anchor="middle" fill="#ecc48d" font-size="11" font-weight="bold">idx = gy * width + gx = 1*8 + 6 = 14</text>
+  <text x="690" y="308" text-anchor="middle" fill="#637777" font-size="10">consecutive threadIdx.x = consecutive memory</text>
+  <text x="690" y="324" text-anchor="middle" fill="#637777" font-size="10">addresses: coalescing by construction (2.7)</text>
+  <text x="690" y="356" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">gridDim = (2,2): total = gridDim.x*blockDim.x = 8</text>
+  <text x="690" y="372" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">per axis: grid (8 x 8) threads = 64 pixels</text>
+  <text x="690" y="400" text-anchor="middle" fill="#637777" font-size="9">blocks = tiles of the image; threads = pixels</text>
+
+  <!-- Bottom callout -->
+  <rect x="60" y="488" width="740" height="56" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="430" y="510" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">this is why blockDim and gridDim have x, y (and z): they mirror the data's own shape</text>
+  <text x="430" y="530" text-anchor="middle" fill="#d6deeb" font-size="11">an image is 2-D, so a 2-D launch avoids flattening by hand - and the hardware linearises anyway (x fastest, then y)</text>
+</svg>

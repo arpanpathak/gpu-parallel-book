@@ -80,6 +80,52 @@ integer (`unsigned int`).
 - **gridDim** - the number of blocks in the grid, one to three dimensions.
   Total threads in the kernel = `gridDim * blockDim` across all dimensions.
 
+**Two 3-D vectors describe the whole launch.** The key to not getting lost in
+`<<<grid, block>>>` is to see both arguments as what they literally are:
+vectors. `gridDim` is a 3-D vector that says *how many blocks exist along each
+axis*; `blockDim` is a 3-D vector that says *how many threads exist along each
+axis inside every block*. Together they describe a 3-D grid of 3-D blocks - a
+box of boxes:
+
+![The launch hierarchy in 3-D: the grid is a 3-D array of blocks, each block a 3-D array of threads; global position = blockIdx * blockDim + threadIdx](../../assets/ch03_grid_block_3d.svg)
+
+Read the diagram in three steps:
+
+1. **The grid** (left) is a 3-D array of blocks. `gridDim = (3, 2, 2)` means
+   3 blocks along x, 2 along y, 2 along z - 12 blocks. Each little cube is a
+   block, and its coordinates are `blockIdx = (x, y, z)`.
+2. **Each block** (right, zoomed in) is itself a 3-D array of threads.
+   `blockDim = (4, 4, 2)` means 4 threads along x, 4 along y, 2 along z -
+   4 × 4 × 2 = 32 threads, which is exactly one warp (§2.3). Each thread's
+   coordinates inside its block are `threadIdx = (x, y, z)`.
+3. **The position of any thread in the whole grid** is the block's position
+   times the block's size, plus the thread's position inside the block - the
+   component-wise formula at the bottom of the diagram:
+
+\\[ \text{gx} = \text{blockIdx.x} \times \text{blockDim.x} + \text{threadIdx.x} \\]
+\\[ \text{gy} = \text{blockIdx.y} \times \text{blockDim.y} + \text{threadIdx.y} \\]
+\\[ \text{gz} = \text{blockIdx.z} \times \text{blockDim.z} + \text{threadIdx.z} \\]
+
+This is why the 1-D formula `blockIdx.x * blockDim.x + threadIdx.x` of §3.5 is
+not a special case - it is the x-component of a vector identity that works in
+all three dimensions. The grid and block sizes *multiply*: the total number of
+threads is
+
+\\[ \text{gridDim.x} \cdot \text{gridDim.y} \cdot \text{gridDim.z} \cdot
+\text{blockDim.x} \cdot \text{blockDim.y} \cdot \text{blockDim.z} \\]
+
+**Why three dimensions?** Because real data is often two- or three-dimensional
+(images, volumes, grids). A 2-D launch lets the kernel index an image as
+`(x, y)` instead of flattening it by hand - the grid and block become *tiles*
+and *pixels*:
+
+![Why 2-D launches: an 8 x 8 image with a 2 x 2 grid of blocks, each a 4 x 4 tile of threads; global position = blockIdx * blockDim + threadIdx per axis](../../assets/ch03_image_tiles.svg)
+
+The image example above is the single most useful mental model in this
+chapter: **blocks tile the data, threads fill each tile.** A 2-D launch means
+you never flatten coordinates yourself - the hardware linearises anyway
+(x fastest, then y, then z), but you think in the data's own shape.
+
 The hardware view of this (from Chapter 2): blocks are assigned to SMs; each
 block is chopped into warps of 32 consecutive threads; warps execute in
 lockstep.
@@ -99,11 +145,6 @@ of 8 threads - smaller than reality, exactly right for a picture):
 
 ![Launch hierarchy: a grid of three blocks of eight threads, and the global index formula](../../assets/ch03_launch_hierarchy.svg)
 
-**Why three dimensions?** Because real data is often two- or three-dimensional
-(images, volumes, grids). A 2-D launch lets the kernel index an image as
-`(x, y)` instead of flattening it by hand. The cost of extra dimensions is
-zero; the hardware linearises anyway (x fastest, then y, then z).
-
 ## 3.4 The Built-in Variables
 
 Inside a kernel, four read-only built-in variables describe the launch:
@@ -116,7 +157,12 @@ Inside a kernel, four read-only built-in variables describe the launch:
 | `gridDim` | `dim3` | Blocks per grid (the `gridDim` you passed) |
 
 These are **primitives provided by the hardware**, not variables you create.
-They are how a thread knows *who it is*.
+They are how a thread knows *who it is*. In the language of the 3-D picture in
+§3.3: `blockIdx` is the *address of your block* (which cube of the grid you
+live in), `threadIdx` is the *address of you inside that cube*, and
+`blockDim` / `gridDim` are the *sizes* of the two containers. The global
+formula `blockIdx * blockDim + threadIdx` is the address translator between
+them.
 
 ## 3.5 The Global Index Formula
 
@@ -130,7 +176,9 @@ unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
 The reasoning: thread `threadIdx.x` lives in block `blockIdx.x`. Each block
 contains `blockDim.x` threads, so block number `blockIdx.x` starts at
 `blockIdx.x * blockDim.x`. Add the position within the block to get the global
-position. For a 2-D problem, the formula composes:
+position. If you saw the 3-D picture in §3.3, this is the same formula with
+only the x-components left - a 1-D launch is just a 3-D launch where the
+y and z components are all 1. For a 2-D problem, the formula composes:
 
 ```cpp
 // 2-D indexing: x and y are independent linear indices in their dimension.

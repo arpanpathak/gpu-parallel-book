@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <!-- Night Owl background panel -->
+  <rect x="0" y="0" width="860" height="560" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- Title -->
+  <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">THE WARP: 32 THREADS, ONE INSTRUCTION, LOCKSTEP</text>
+  <text x="430" y="50" text-anchor="middle" fill="#637777" font-size="11">the hardware fetches ONE instruction; all 32 lanes (threads) execute it together, each on its OWN data</text>
+
+  <!-- Scheduler -->
+  <rect x="310" y="68" width="240" height="38" rx="7" fill="#01111f" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="430" y="92" text-anchor="middle" fill="#c792ea" font-size="11" font-weight="bold">warp scheduler picks one instruction</text>
+
+  <!-- Instruction -->
+  <rect x="350" y="120" width="160" height="36" rx="7" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="430" y="143" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">LD R4, [R2+8]</text>
+
+  <!-- Bus from instruction to all lanes -->
+  <line x1="430" y1="156" x2="430" y2="172" stroke="#addb67" stroke-width="1.5"/>
+  <line x1="96" y1="172" x2="764" y2="172" stroke="#addb67" stroke-width="1.5"/>
+  <text x="430" y="167" text-anchor="middle" fill="#637777" font-size="9">one instruction, broadcast to all 32 lanes</text>
+
+  <!-- 32 lanes: 4 rows x 8 cols -->
+  <!-- Row 1: threads 0-7 -->
+  <g>
+    <rect x="60" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="102" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T0</text><text x="102" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x0</text><text x="102" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="156" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="198" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T1</text><text x="198" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x1</text><text x="198" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="252" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="294" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T2</text><text x="294" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x2</text><text x="294" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="348" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="390" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T3</text><text x="390" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x3</text><text x="390" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="444" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="486" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T4</text><text x="486" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x4</text><text x="486" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="540" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="582" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T5</text><text x="582" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x5</text><text x="582" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="636" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="678" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T6</text><text x="678" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x6</text><text x="678" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="732" y="186" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="774" y="208" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T7</text><text x="774" y="224" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x7</text><text x="774" y="238" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+  </g>
+  <!-- Row 2: threads 8-15 -->
+  <g>
+    <rect x="60" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="102" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T8</text><text x="102" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x8</text><text x="102" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="156" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="198" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T9</text><text x="198" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x9</text><text x="198" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="252" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="294" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T10</text><text x="294" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x10</text><text x="294" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="348" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="390" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T11</text><text x="390" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x11</text><text x="390" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="444" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="486" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T12</text><text x="486" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x12</text><text x="486" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="540" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="582" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T13</text><text x="582" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x13</text><text x="582" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="636" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="678" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T14</text><text x="678" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x14</text><text x="678" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="732" y="252" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="774" y="274" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T15</text><text x="774" y="290" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x15</text><text x="774" y="304" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+  </g>
+  <!-- Row 3: threads 16-23 -->
+  <g>
+    <rect x="60" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="102" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T16</text><text x="102" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x16</text><text x="102" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="156" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="198" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T17</text><text x="198" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x17</text><text x="198" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="252" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="294" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T18</text><text x="294" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x18</text><text x="294" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="348" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="390" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T19</text><text x="390" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x19</text><text x="390" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="444" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="486" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T20</text><text x="486" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x20</text><text x="486" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="540" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="582" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T21</text><text x="582" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x21</text><text x="582" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="636" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="678" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T22</text><text x="678" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x22</text><text x="678" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="732" y="318" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="774" y="340" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T23</text><text x="774" y="356" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x23</text><text x="774" y="370" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+  </g>
+  <!-- Row 4: threads 24-31 -->
+  <g>
+    <rect x="60" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="102" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T24</text><text x="102" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x24</text><text x="102" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="156" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="198" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T25</text><text x="198" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x25</text><text x="198" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="252" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="294" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T26</text><text x="294" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x26</text><text x="294" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="348" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="390" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T27</text><text x="390" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x27</text><text x="390" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="444" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="486" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T28</text><text x="486" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x28</text><text x="486" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="540" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="582" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T29</text><text x="582" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x29</text><text x="582" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="636" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="678" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T30</text><text x="678" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x30</text><text x="678" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+    <rect x="732" y="384" width="84" height="58" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.2"/><text x="774" y="406" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">T31</text><text x="774" y="422" text-anchor="middle" fill="#d6deeb" font-size="9">R4 = x31</text><text x="774" y="436" text-anchor="middle" fill="#637777" font-size="8">own regs</text>
+  </g>
+
+  <!-- Bottom callout -->
+  <rect x="60" y="470" width="740" height="72" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="430" y="490" text-anchor="middle" fill="#7fdbca" font-size="12" font-weight="bold">one instruction, fetched once - executed by 32 lanes in the SAME clock, each on its OWN data</text>
+  <text x="430" y="508" text-anchor="middle" fill="#d6deeb" font-size="11">this is SIMT (Chapter 1, 1.7): the programming convenience of many threads, the cost of SIMD</text>
+  <text x="430" y="526" text-anchor="middle" fill="#f78c6c" font-size="11">if lanes take different branches, the paths run one after another - that is divergence (Chapter 5)</text>
+</svg>

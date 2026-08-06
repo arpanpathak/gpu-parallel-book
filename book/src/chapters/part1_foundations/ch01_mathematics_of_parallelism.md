@@ -215,22 +215,75 @@ the most useful performance model in this book. It answers one question: *for
 a given computation, is the limit set by the arithmetic units or by the memory
 system?*
 
-Define:
+### 1.8.1 Why "per byte"? The question the ratio answers
 
-**Arithmetic intensity** - the ratio of floating-point operations to bytes
-moved, \\(I = \frac{\text{FLOPs}}{\text{Bytes}}\\). A dense matrix multiply has
-high intensity (many operations per byte); a vector add has low intensity
-(one operation per byte).
+Before the formula, the intuition - because the formula is only confusing
+until you can *feel* the ratio.
+
+A GPU has two completely different kinds of resources:
+
+- **The arithmetic units** (FP32 cores): they can do work at a fixed maximum
+  rate, \\(P_{\text{peak}}\\) FLOP/s. They are the *workers*.
+- **The memory system** (DRAM, L2, the bus): it can deliver data at a fixed
+  maximum rate, \\(B\\) bytes/s. It is the *supply line*.
+
+Here is the catch that defines everything: **the workers cannot work on data
+they do not have.** Before the FP32 cores can add two numbers, those two
+numbers must physically travel from DRAM across the bus and into the chip.
+That travel is not free - it consumes memory bandwidth, and bandwidth is a
+finite, per-second budget.
+
+So imagine each kernel as a *transaction*: it moves some number of bytes out
+of memory, and for each byte it does some number of FLOPs. The ratio
+
+\\[ I = \frac{\text{FLOPs}}{\text{Bytes}} \\]
+
+is a *productivity measure*: **how much work do you get out of each byte of
+data you bother to ship?** It is exactly like fuel efficiency - miles per
+gallon. "Arithmetic intensity" is **work per byte**: FLOPs per byte moved.
+
+Why is this ratio the single most important number in GPU programming?
+Because it decides *which one of the two resources runs out first*:
+
+- A kernel with **low intensity** (few FLOPs per byte) uses up the memory
+  system's byte budget long before the arithmetic units are tired. The
+  arithmetic units then sit idle, waiting for the next byte to arrive. Such a
+  kernel is **memory-bound** - no amount of extra arithmetic horsepower helps,
+  because the bottleneck is the supply line.
+- A kernel with **high intensity** (many FLOPs per byte) makes the arithmetic
+  units the bottleneck instead: the supply line could easily deliver more
+  data, but the workers cannot chew through it fast enough. Such a kernel is
+  **compute-bound** - extra bandwidth is wasted, because the bottleneck is the
+  workers.
+
+What raises a kernel's intensity? **Reusing data.** If a byte is loaded once
+and used for many operations, it "pays for itself" many times over. If it is
+loaded, used once, and discarded, it is expensive fuel.
+
+![Arithmetic intensity as work per byte: the same machine, four kernels, and where each sits relative to the ridge point](../../assets/ch01_intensity_scale.svg)
+
+Read the diagram from left to right: every kernel on the same machine moves
+the same kinds of bytes, but gets wildly different amounts of work out of
+them. A vector add ships 12 bytes (two reads, one write) to earn a single
+FLOP - intensity 0.08, deep in memory-bound territory. A dense matrix multiply
+reuses each loaded byte for hundreds of operations - intensity ~683, deep in
+compute-bound territory. *Nothing about the machine changed; only the
+reuse.* This is why Chapter 9's matrix multiply is the book's crowning
+optimisation: it is the art of raising intensity.
+
+### 1.8.2 The ridge point: where the two limits meet
 
 Let \\(P_{\text{peak}}\\) be the machine's peak floating-point throughput
-(FLOP/s) and \\(B\\) its peak memory bandwidth (bytes/s). The **ridge point**
-is the intensity at which the two limits meet:
-
-\\[ I_{\text{ridge}} = \frac{P_{\text{peak}}}{B} \\]
-
-The achievable performance obeys:
+(FLOP/s) and \\(B\\) its peak memory bandwidth (bytes/s). If a kernel has
+intensity \\(I\\), then while the memory system delivers bytes, the workers
+can at most produce:
 
 \\[ P \le \min(P_{\text{peak}},\; I \cdot B) \\]
+
+The two limits meet at the **ridge point** - the intensity at which the
+supply line and the workers are exactly balanced:
+
+\\[ I_{\text{ridge}} = \frac{P_{\text{peak}}}{B} \\]
 
 ![The roofline model: the bandwidth diagonal, the arithmetic roof, and the ridge point that separates memory-bound from compute-bound kernels](../../assets/ch01_roofline.svg)
 
@@ -241,6 +294,12 @@ model: the diagonal is the bandwidth ceiling (\\(P = I \cdot B\\)), the roof
 is the arithmetic ceiling (\\(P_{\text{peak}}\\)), and the ridge point is
 where the two meet. Every kernel in this book is a dot on this picture; its
 distance from the ridge tells you which resource to optimise.
+
+**The ridge point as a break-even efficiency.** You can read
+\\(I_{\text{ridge}}\\) as: "the minimum work-per-byte a kernel must achieve
+on this machine, or the workers will starve." It converts the machine's two
+raw specs into a single number you can compare any kernel against - which is
+why every hardware chapter in this book quotes it (e.g., §2.1).
 
 **An intuition: the factory and the freight line.** Think of the machine as a
 factory (the FP32 cores, capable of \\(P_{\text{peak}}\\) units of work per
@@ -255,11 +314,21 @@ are exactly busy: the only intensity where adding either resource pays off.
 
 **Worked numbers.** An RTX-class GPU with \\(P_{\text{peak}} = 40\\) TFLOP/s
 of FP32 and \\(B = 1\\) TB/s has a ridge point of
-\\(I_{\text{ridge}} = 40\\) FLOP/byte. A vector add moving 4-byte floats has
-intensity \\(I = 1\\) FLOP / (2 reads + 1 write) × 4 bytes ≈ 0.08 FLOP/byte  - 
-deep in memory-bound territory. No amount of arithmetic optimisation will make
-a vector add faster; only bandwidth optimisation will. This single
-observation explains why Chapter 7 is devoted to memory.
+\\(I_{\text{ridge}} = 40\\) FLOP/byte. Now compute the intensity of a vector
+add, carefully - this is the calculation that explains the entire field of
+GPU memory optimisation. Each output element \\(c[i] = a[i] + b[i]\\) does
+exactly **1 FLOP** (one addition), but it must first **read two 4-byte floats
+and write one 4-byte float** - 12 bytes moved:
+
+\\[ I = \frac{1\\ \text{FLOP}}{(2\\ \text{reads} + 1\\ \text{write}) \times
+4\\ \text{bytes}} = \frac{1}{12} \approx 0.08\\ \text{FLOP/byte} \\]
+
+That is 500× below the ridge point - deep in memory-bound territory. No
+amount of arithmetic optimisation will make a vector add faster; only
+bandwidth optimisation will (coalesced accesses, §2.7; avoiding redundant
+reads, Chapter 7). This single observation explains why Chapter 7 is devoted
+to memory: for most real kernels, *the bytes are the problem, not the
+arithmetic*.
 
 ## 1.9 The Cost of Synchronisation
 
