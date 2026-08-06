@@ -1,73 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 500" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 540" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
   <!-- Night Owl background panel -->
-  <rect x="0" y="0" width="860" height="500" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+  <rect x="0" y="0" width="860" height="540" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
 
   <!-- Title -->
   <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">THE ROOFLINE MODEL</text>
-  <text x="430" y="50" text-anchor="middle" fill="#637777" font-size="11">achievable P = min(P_peak, I x B) - the bandwidth diagonal vs the arithmetic roof</text>
+  <text x="430" y="50" text-anchor="middle" fill="#637777" font-size="11">achievable P = min(P_peak, I x B): the bandwidth diagonal vs the arithmetic roof</text>
 
-  <!-- Plot area: x 140..820 (log intensity 0.1..10000), y 100..400 (log P/peak 1e-3..1) -->
-  <!-- Memory-bound region (under the diagonal, left of the ridge) -->
-  <polygon points="140,400 140,325.5 446.7,100 446.7,400" fill="#82aaff" opacity="0.08"/>
+  <!-- Plot: x = intensity 0.05..10000 (log), y = fraction of peak 0.001..1 (log) -->
+  <!-- Memory-bound region: below the diagonal, left of the ridge -->
+  <polygon points="140,400 140,325.5 467.9,100 467.9,400" fill="#82aaff" opacity="0.07"/>
   <!-- Compute-bound roof band -->
-  <rect x="446.7" y="100" width="373.3" height="30" fill="#addb67" opacity="0.15"/>
+  <rect x="467.9" y="100" width="352.1" height="28" fill="#addb67" opacity="0.15"/>
 
-  <!-- Diagonal: P = I x B (memory-bound ceiling), slope 1 in log-log -->
-  <line x1="140" y1="325.5" x2="446.7" y2="100" stroke="#82aaff" stroke-width="2.5"/>
-  <!-- Horizontal roof: P = P_peak (compute-bound ceiling) -->
-  <line x1="446.7" y1="100" x2="820" y2="100" stroke="#addb67" stroke-width="2.5"/>
+  <!-- Diagonal: P = I x B (bandwidth ceiling), slope 1 in log-log -->
+  <line x1="140" y1="325.5" x2="467.9" y2="100" stroke="#82aaff" stroke-width="2.5"/>
+  <!-- Roof: P = P_peak (arithmetic ceiling) -->
+  <line x1="467.9" y1="100" x2="820" y2="100" stroke="#addb67" stroke-width="2.5"/>
 
-  <!-- Dashed guides through the ridge point -->
-  <line x1="446.7" y1="100" x2="446.7" y2="400" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
-  <line x1="140" y1="100" x2="446.7" y2="100" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
+  <!-- Ridge guides -->
+  <line x1="467.9" y1="100" x2="467.9" y2="400" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="140" y1="100" x2="467.9" y2="100" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
 
-  <!-- Ridge point -->
-  <circle cx="446.7" cy="100" r="5" fill="#ecc48d" stroke="#d6deeb" stroke-width="1.5"/>
-  <text x="446.7" y="88" text-anchor="middle" fill="#ecc48d" font-size="12" font-weight="bold">ridge point: I = P_peak / B ~ 18 FLOP/byte</text>
+  <!-- Ridge point and label -->
+  <circle cx="467.9" cy="100" r="5" fill="#ecc48d" stroke="#d6deeb" stroke-width="1.5"/>
+  <text x="467.9" y="86" text-anchor="middle" fill="#ecc48d" font-size="12" font-weight="bold">ridge point: I ~ 18 FLOP/byte</text>
 
   <!-- Region labels -->
-  <text x="700" y="74" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">compute-bound: P = P_peak</text>
-  <text x="230" y="230" fill="#82aaff" font-size="12" font-weight="bold" transform="rotate(-35 230 230)" text-anchor="middle">memory-bound: P = I x B</text>
+  <text x="250" y="365" text-anchor="middle" fill="#82aaff" font-size="12" font-weight="bold">memory-bound: P = I x B</text>
+  <text x="644" y="118" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">compute-bound: P = P_peak</text>
 
   <!-- Axes -->
   <line x1="140" y1="400" x2="820" y2="400" stroke="#d6deeb" stroke-width="1.5"/>
   <line x1="140" y1="400" x2="140" y2="100" stroke="#d6deeb" stroke-width="1.5"/>
 
-  <!-- X axis ticks -->
-  <line x1="140" y1="400" x2="140" y2="394" stroke="#d6deeb" stroke-width="1"/>
-  <line x1="276" y1="400" x2="276" y2="394" stroke="#d6deeb" stroke-width="1"/>
-  <line x1="412" y1="400" x2="412" y2="394" stroke="#d6deeb" stroke-width="1"/>
-  <line x1="548" y1="400" x2="548" y2="394" stroke="#d6deeb" stroke-width="1"/>
-  <line x1="684" y1="400" x2="684" y2="394" stroke="#d6deeb" stroke-width="1"/>
-  <line x1="820" y1="400" x2="820" y2="394" stroke="#d6deeb" stroke-width="1"/>
-  <text x="140" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10^-1</text>
-  <text x="276" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10^0</text>
-  <text x="412" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10^1</text>
-  <text x="548" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10^2</text>
-  <text x="684" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10^3</text>
-  <text x="820" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10^4</text>
+  <!-- X axis: log intensity, 0.05..10000; ticks at 0.1, 1, 10, 100, 1000, 10000 -->
+  <line x1="178.5" y1="400" x2="178.5" y2="394" stroke="#d6deeb" stroke-width="1"/>
+  <line x1="306.8" y1="400" x2="306.8" y2="394" stroke="#d6deeb" stroke-width="1"/>
+  <line x1="435.1" y1="400" x2="435.1" y2="394" stroke="#d6deeb" stroke-width="1"/>
+  <line x1="563.4" y1="400" x2="563.4" y2="394" stroke="#d6deeb" stroke-width="1"/>
+  <line x1="691.7" y1="400" x2="691.7" y2="394" stroke="#d6deeb" stroke-width="1"/>
+  <line x1="820"   y1="400" x2="820"   y2="394" stroke="#d6deeb" stroke-width="1"/>
+  <text x="178.5" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">0.1</text>
+  <text x="306.8" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">1</text>
+  <text x="435.1" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10</text>
+  <text x="563.4" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">100</text>
+  <text x="691.7" y="421" text-anchor="middle" fill="#d6deeb" font-size="11">1000</text>
+  <text x="820"   y="421" text-anchor="middle" fill="#d6deeb" font-size="11">10000</text>
   <text x="480" y="446" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">arithmetic intensity I (FLOP/byte) - log scale</text>
 
-  <!-- Y axis ticks -->
-  <text x="126" y="403" text-anchor="end" fill="#d6deeb" font-size="11">10^-3</text>
-  <text x="126" y="304" text-anchor="end" fill="#d6deeb" font-size="11">10^-2</text>
-  <text x="126" y="204" text-anchor="end" fill="#d6deeb" font-size="11">10^-1</text>
-  <text x="126" y="104" text-anchor="end" fill="#d6deeb" font-size="11">10^0</text>
+  <!-- Y axis: fraction of peak, log -->
+  <text x="126" y="404" text-anchor="end" fill="#d6deeb" font-size="11">0.001</text>
+  <text x="126" y="304" text-anchor="end" fill="#d6deeb" font-size="11">0.01</text>
+  <text x="126" y="204" text-anchor="end" fill="#d6deeb" font-size="11">0.1</text>
+  <text x="126" y="104" text-anchor="end" fill="#d6deeb" font-size="11">1.0</text>
   <text x="26" y="250" fill="#d6deeb" font-size="12" font-weight="bold" transform="rotate(-90 26 250)" text-anchor="middle">performance (fraction of P_peak)</text>
 
-  <!-- Vector add point -->
-  <circle cx="128" cy="335" r="5" fill="#f78c6c" stroke="#ff9d5c" stroke-width="1.5"/>
-  <text x="152" y="362" fill="#f78c6c" font-size="11" font-weight="bold">vector add: I ~ 0.08 - memory-bound</text>
-  <text x="152" y="380" fill="#637777" font-size="11">bandwidth-bound: FLOP tuning won't help</text>
-
-  <!-- SGEMM point -->
-  <circle cx="661.5" cy="100" r="5" fill="#7fdbca" stroke="#d6deeb" stroke-width="1.5"/>
-  <text x="661.5" y="142" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">SGEMM: I ~ 683 - compute-bound</text>
-  <text x="661.5" y="160" text-anchor="middle" fill="#637777" font-size="11">above ridge: reuse is the lever (Chapter 9)</text>
+  <!-- Example kernels (dots only; the legend below explains them) -->
+  <circle cx="166" cy="335" r="5" fill="#f78c6c" stroke="#ff9d5c" stroke-width="1.5"/>
+  <circle cx="670.5" cy="100" r="5" fill="#7fdbca" stroke="#d6deeb" stroke-width="1.5"/>
 
   <!-- Legend -->
-  <line x1="230" y1="472" x2="270" y2="472" stroke="#82aaff" stroke-width="2.5"/>
-  <text x="278" y="476" fill="#d6deeb" font-size="11">diagonal: bandwidth ceiling (I x B)</text>
-  <line x1="540" y1="472" x2="580" y2="472" stroke="#addb67" stroke-width="2.5"/>
-  <text x="588" y="476" fill="#d6deeb" font-size="11">roof: arithmetic ceiling (P_peak)</text>
+  <rect x="140" y="458" width="580" height="76" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
+  <line x1="150" y1="474" x2="190" y2="474" stroke="#82aaff" stroke-width="2.5"/>
+  <text x="200" y="478" fill="#d6deeb" font-size="11">diagonal: bandwidth ceiling P = I x B</text>
+  <line x1="150" y1="490" x2="190" y2="490" stroke="#addb67" stroke-width="2.5"/>
+  <text x="200" y="494" fill="#d6deeb" font-size="11">roof: arithmetic ceiling P = P_peak</text>
+  <circle cx="170" cy="506" r="4.5" fill="#f78c6c" stroke="#ff9d5c" stroke-width="1"/>
+  <text x="200" y="510" fill="#d6deeb" font-size="11">vector add: I ~ 0.08 - memory-bound</text>
+  <circle cx="170" cy="522" r="4.5" fill="#7fdbca" stroke="#d6deeb" stroke-width="1"/>
+  <text x="200" y="526" fill="#d6deeb" font-size="11">SGEMM: I ~ 683 - compute-bound</text>
 </svg>
