@@ -55,6 +55,8 @@ the hardware must:
 2. Execute the `else` path (empty here) with the remaining lanes active;
 3. Rejoin the warp.
 
+![Warp divergence: the then-path and else-path run serially, each consuming the warp's full instruction slots](../../assets/ch05_divergence.svg)
+
 The two paths run **serially**. This is **warp divergence**, and it is the
 price SIMT pays for the convenience of per-thread control flow.
 

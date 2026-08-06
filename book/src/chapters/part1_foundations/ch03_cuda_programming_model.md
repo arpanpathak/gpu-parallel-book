@@ -31,6 +31,17 @@ the mental model.
 > **Primitive - kernel.** A function that runs on the device, launched by the
 > host, executed by many threads.
 
+**The physical picture (from Chapter 2).** The host is a CPU sitting across a
+bus; the device is the whole GPU die - GPCs of SMs above a chip-wide L2 above
+DRAM. Every `cudaMemcpy` is a shipment across that bus; every kernel launch is
+a work order delivered to the SMs. The two address spaces are separate
+*because the hardware is physically separate*: different DRAM, different
+caches, different execution units. The programming model is simply refusing to
+pretend otherwise - and that refusal is the source of most of the API's
+apparent ceremony (Chapter 4 explains the escape hatches). Keep the die
+diagram of §2.1 in mind and none of the rules in this chapter will feel
+arbitrary.
+
 ## 3.2 The Function Qualifiers
 
 CUDA extends C++ with three function qualifiers:
@@ -72,6 +83,16 @@ integer (`unsigned int`).
 The hardware view of this (from Chapter 2): blocks are assigned to SMs; each
 block is chopped into warps of 32 consecutive threads; warps execute in
 lockstep.
+
+**Read `<<<grid, block>>>` as a declaration, not a loop.** You are not writing
+a `for` that the machine walks through; you are telling the hardware *how much
+work exists and how it is shaped*, and the hardware - not you - decides which
+SM runs which block, and when. The launch is a contract with the machine:
+enough blocks to fill every SM, blocks small enough to fit the SM's resources
+(registers, shared memory, the 1,024-thread cap), and a shape that maps your
+data's natural dimensions. Get the declaration right and the hardware's own
+scheduler does the rest; get it wrong and the hardware cannot compensate
+(Chapter 2, §2.9).
 
 Here is the whole hierarchy for a small launch, `kernel<<<3, 8>>>` (3 blocks
 of 8 threads - smaller than reality, exactly right for a picture):

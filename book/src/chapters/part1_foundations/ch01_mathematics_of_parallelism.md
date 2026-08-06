@@ -96,6 +96,15 @@ The crucial property is the limit as \\(p \to \infty\\):
 no amount of parallelism can exceed a 20x speedup, because the serial part
 still takes \\(0.05 \cdot T_1\\) regardless of how many units you add.
 
+**An intuition: the manager and the cashiers.** Picture a shop with \\(p\\)
+cashiers and one manager who must personally approve every transaction. The
+cashiers are the parallel part; the manager is the serial fraction. Hiring
+more cashiers shortens the queue only up to the point where the manager
+becomes the bottleneck - and no number of cashiers removes the manager. On a
+GPU, the "manager" is anything that cannot be parallelised: host launch
+overhead, a single reduction step, a dependency chain. Amdahl's law is just
+the arithmetic of that manager's unavoidable time.
+
 **Worked example.** Consider a kernel launch pipeline: 10 microseconds of host
 overhead (serial) plus a kernel that takes 100 microseconds on one GPU and
 scales perfectly. Here \\(f = 10/110 \\approx 0.091\\). The maximum speedup is
@@ -223,9 +232,26 @@ The achievable performance obeys:
 
 \\[ P \le \min(P_{\text{peak}},\; I \cdot B) \\]
 
+![The roofline model: the bandwidth diagonal, the arithmetic roof, and the ridge point that separates memory-bound from compute-bound kernels](../../assets/ch01_roofline.svg)
+
 In words: if your intensity is below the ridge point, you are **memory-bound**
 and performance is capped by bandwidth (\\(I \cdot B\\)); if above, you are
-**compute-bound** and capped by peak FLOP rate.
+**compute-bound** and capped by peak FLOP rate. The diagram above *is* the
+model: the diagonal is the bandwidth ceiling (\\(P = I \cdot B\\)), the roof
+is the arithmetic ceiling (\\(P_{\text{peak}}\\)), and the ridge point is
+where the two meet. Every kernel in this book is a dot on this picture; its
+distance from the ridge tells you which resource to optimise.
+
+**An intuition: the factory and the freight line.** Think of the machine as a
+factory (the FP32 cores, capable of \\(P_{\text{peak}}\\) units of work per
+second) supplied by a freight line (the memory bus, capable of \\(B\\) bytes
+per second). Every byte that arrives buys you \\(I\\) units of work. If the
+freight line delivers less work per second than the factory can consume, the
+factory idles between deliveries - that is *memory-bound*, and no amount of
+factory (arithmetic) tuning helps. If the freight line delivers more than the
+factory can consume, the line backs up - that is *compute-bound*, and buying
+more bandwidth is wasted money. The ridge point is the intensity at which both
+are exactly busy: the only intensity where adding either resource pays off.
 
 **Worked numbers.** An RTX-class GPU with \\(P_{\text{peak}} = 40\\) TFLOP/s
 of FP32 and \\(B = 1\\) TB/s has a ridge point of

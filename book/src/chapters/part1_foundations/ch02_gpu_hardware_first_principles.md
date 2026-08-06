@@ -27,6 +27,35 @@ H100, for example, has:
 - **50 MB of L2 cache**, shared by all SMs;
 - **HBM3 DRAM** with a bandwidth of roughly **3.35 TB/s**.
 
+![The GPU at a glance: host CPU, transfer bus, GPCs of SMs, chip-wide L2, memory controllers and HBM3 DRAM](../../assets/ch02_gpu_die.svg)
+
+Read the diagram as the whole machine, top to bottom: the host CPU lives
+across a bus; the die is organised into *graphics processing clusters*
+(GPCs), each holding several SMs; every SM funnels into one chip-wide L2; L2
+feeds the memory controllers; the controllers drive the HBM3 stacks. This is
+the physical map that every later chapter's reasoning walks along.
+
+**Why these numbers?** The headline figures are design consequences, not
+arbitrary specifications:
+
+- **Why so many SMs?** A GPU is a throughput machine (Chapter 1, §1.1). Chip
+  area is spent on many small compute clusters rather than a few large cores,
+  because parallelism - not single-thread speed - is the product. 132 SMs is
+  what fits when each SM is deliberately small.
+- **Why 128 FP32 cores per SM?** Each SM has four warp schedulers (§2.2), and
+  a scheduler issues one *warp* instruction per clock - 32 lanes at once. 128
+  = 4 × 32: one full warp per scheduler per clock, with no lane sharing. The
+  number is dictated by the warp, the fundamental unit of execution.
+- **Why 64 K registers?** Registers are the SM's working storage for resident
+  warps. A deeper register file holds more warps, which hides more latency
+  (§2.9) - at the price of chip area and clock speed. 64 K is the engineered
+  balance.
+- **Why is DRAM so fast yet so far?** HBM3 stacks memory vertically beside
+  the die on a silicon interposer, with thousands of narrow channels - that
+  is where 3.35 TB/s comes from. But every access still leaves the chip, which
+  is why latency stays in the hundreds of cycles (§2.6), and why the on-chip
+  memory hierarchy exists at all.
+
 The arithmetic rate of such a chip is on the order of 60-70 TFLOP/s in FP32.
 The memory bandwidth is 3.35 TB/s. Applying the roofline formula from Chapter 1:
 
@@ -178,6 +207,15 @@ as teaching figures, not datasheet values:
 | Global DRAM | ~400-800 cycles | HBM3 |
 | Host memory (PCIe) | ~1,000+ cycles + transfer time | Off-chip, CPU side |
 
+The table is a map of *physical distance*, not a marketing sheet. Registers
+sit on the SM, a few millimetres from the arithmetic units; shared memory and
+L1 are on the same die; L2 spans the whole chip; DRAM is a separate package
+beside the die on an interposer; host memory is across a bus and an OS
+boundary. Every step off the SM adds distance *and* arbitration - more
+circuits competing for the same wires. The 20× gap between shared memory and
+DRAM is not a tuning detail; it is the difference between an on-chip wire and
+an off-chip trip, and it is the entire reason the optimisation chapters exist.
+
 The lesson: **one global memory access costs roughly 30 shared-memory
 accesses.** Any algorithm that can restructure itself to reuse data in shared
 memory is buying speed with engineering effort - and Chapter 7 will show the
@@ -276,6 +314,15 @@ blocks - occupancy drops to 50%. The same kernel with 128 registers per
 thread: 2 blocks, 25% occupancy. This is why Chapter 9's `__launch_bounds__`
 matters: *register count is an occupancy dial.*
 
+![Occupancy as warp slots: 8, 4 and 2 resident blocks of 8 warps each](../../assets/ch02_occupancy.svg)
+
+The diagram above draws the same arithmetic as the three columns: each cell
+is one warp slot, each row is one block's eight warps, and the dim cells are
+slots the scheduler *could* have switched to but cannot - the register file
+ran out. The difference between 100% and 25% occupancy is the difference
+between always having a ready warp when one stalls and frequently having
+none. That is why §2.10's time-slicing only works when occupancy is high.
+
 **The trade.** High occupancy is not always good. A kernel that uses shared
 memory heavily may want fewer blocks to fit more shared memory per block. A
 kernel whose working set fits in registers may want low occupancy to avoid
@@ -287,11 +334,13 @@ Suppose an SM has 64 warp slots and your kernel is configured with blocks of
 256 threads (8 warps per block), and the occupancy calculation permits 8 blocks
 per SM. The SM hosts 8 blocks = 64 warps = 100% occupancy.
 
+![Time slicing: while warp 3 waits on a global load, the scheduler keeps issuing other warps](../../assets/ch02_warp_time_slicing.svg)
+
 At any instant, each of the four warp schedulers owns 16 warps. The scheduler
 issues an instruction from one of its warps each clock. When warp 3 issues a
 global load, it will not be ready for ~500 cycles; the scheduler simply issues
-from warps 4, 5, ... meanwhile. When warp 3's load returns, the scheduler
-resumes issuing for it.
+from warps 4, 5, ... meanwhile - the orange-to-blue handoff in the diagram
+above. When warp 3's load returns, the scheduler resumes issuing for it.
 
 The elegance is that **no one explicitly scheduled anything**. The hardware
 rotates among resident warps automatically. Your job as a programmer is to give
@@ -315,6 +364,7 @@ from §2.9. Chapter 16 shows how to read that output.
 ## Key Takeaways
 
 - The warp (32 threads) is the hardware unit of execution, not the thread.
+- The whole chip: GPCs of SMs above a chip-wide L2 above HBM3 DRAM, with the host across PCIe/NVLink - a physical map, not an abstraction.
 - Blocks map to SMs; warps are consecutive thread IDs within a block.
 - Memory hierarchy: registers, shared memory, L1, L2, global DRAM - each level larger and slower (roughly 20-30 cycles for shared, 400-800 for DRAM).
 - Coalescing: consecutive threads should read consecutive addresses; the hardware fetches 128-byte lines.

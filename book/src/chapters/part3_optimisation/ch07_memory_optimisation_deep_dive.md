@@ -170,6 +170,15 @@ A column read `tile[t][r]` for consecutive `t` now hits banks `0..31` exactly
 once each. One float of padding per row converts a 32-cycle stall into a
 1-cycle access. Padding is the cheapest performance win in CUDA.
 
+![Bank conflicts: consecutive, stride-32 and padded column access to the 32 banks](../../assets/ch07_bank_conflict.svg)
+
+The diagram above shows the three cases on the same bank hardware: consecutive
+words spread across all 32 banks (one cycle), an unpadded column read funneling
+every thread into bank 0 (thirty-two cycles), and the same column read after
+one column of padding landing on every bank exactly once (one cycle). The
+padding works because it makes the row stride (33 words) coprime with the bank
+count (32) - the same coprime rule that keeps §9.4's SGEMM tiles conflict-free.
+
 ```cpp
 // Padding rule of thumb:
 //   float tile[TILE][TILE];        // 32-way conflicts on column access
