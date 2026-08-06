@@ -1,115 +1,114 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 440" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 460" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
   <!-- Night Owl background panel -->
-  <rect x="0" y="0" width="860" height="440" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+  <rect x="0" y="0" width="860" height="460" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
   <text x="430" y="26" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">SHARED-MEMORY BANKS - WHY PADDING KILLS CONFLICTS</text>
   <text x="430" y="46" text-anchor="middle" fill="#637777" font-size="11">bank = (byte address / 4) mod 32 - 32 banks, 4 bytes each, one access per bank per cycle</text>
 
   <!-- ============ Panel A: consecutive ============ -->
-  <rect x="30" y="62" width="800" height="104" rx="8" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="50" y="84" fill="#7fdbca" font-size="12" font-weight="bold">A - CONSECUTIVE ADDRESSES (threads 0..31 read words 0..31): 1 cycle, no conflict</text>
+  <rect x="30" y="64" width="800" height="112" rx="8" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="50" y="86" fill="#7fdbca" font-size="12" font-weight="bold">A - CONSECUTIVE ADDRESSES (threads 0..31 read words 0..31): 1 cycle</text>
 
-  <!-- thread chips -->
-  <rect x="50" y="94" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="76" y="109" text-anchor="middle" fill="#7fdbca" font-size="9">t0</text>
-  <rect x="108" y="94" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="134" y="109" text-anchor="middle" fill="#7fdbca" font-size="9">t1</text>
-  <rect x="166" y="94" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="192" y="109" text-anchor="middle" fill="#7fdbca" font-size="9">t2</text>
-  <rect x="224" y="94" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="250" y="109" text-anchor="middle" fill="#7fdbca" font-size="9">t3</text>
-  <text x="290" y="109" text-anchor="middle" fill="#637777" font-size="10">... t31</text>
+  <rect x="50" y="98" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="76" y="112" text-anchor="middle" fill="#7fdbca" font-size="9">t0</text>
+  <rect x="108" y="98" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="134" y="112" text-anchor="middle" fill="#7fdbca" font-size="9">t1</text>
+  <rect x="166" y="98" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="192" y="112" text-anchor="middle" fill="#7fdbca" font-size="9">t2</text>
+  <rect x="224" y="98" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="250" y="112" text-anchor="middle" fill="#7fdbca" font-size="9">t3</text>
+  <text x="290" y="112" text-anchor="middle" fill="#637777" font-size="10">... t31</text>
 
-  <line x1="76" y1="116" x2="76" y2="136" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="134" y1="116" x2="134" y2="136" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="192" y1="116" x2="192" y2="136" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="250" y1="116" x2="250" y2="136" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="76" y1="118" x2="76" y2="138" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="134" y1="118" x2="134" y2="138" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="192" y1="118" x2="192" y2="138" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="250" y1="118" x2="250" y2="138" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
 
-  <!-- bank strip: 32 banks -->
-  <rect x="50" y="136" width="744" height="22" rx="4" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
-  <rect x="50"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="73.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="96.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="119.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="143"   y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="166.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="189.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="212.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="236"   y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="259.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="282.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="305.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="329"   y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="352.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="375.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="398.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="422"   y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="445.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="468.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="491.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="515"   y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="538.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="561.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="584.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="608"   y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="631.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="654.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="677.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="701"   y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="724.25" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="747.5"  y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="770.75" y="136" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/>
-  <text x="61" y="170" text-anchor="middle" fill="#637777" font-size="8">0</text>
-  <text x="84" y="170" text-anchor="middle" fill="#637777" font-size="8">1</text>
-  <text x="108" y="170" text-anchor="middle" fill="#637777" font-size="8">2</text>
-  <text x="131" y="170" text-anchor="middle" fill="#637777" font-size="8">3</text>
-  <text x="155" y="170" text-anchor="middle" fill="#637777" font-size="8">4</text>
-  <text x="178" y="170" text-anchor="middle" fill="#637777" font-size="8">5</text>
-  <text x="201" y="170" text-anchor="middle" fill="#637777" font-size="8">6</text>
-  <text x="224" y="170" text-anchor="middle" fill="#637777" font-size="8">7</text>
-  <text x="248" y="170" text-anchor="middle" fill="#637777" font-size="8">8</text>
-  <text x="271" y="170" text-anchor="middle" fill="#637777" font-size="8">9</text>
-  <text x="294" y="170" text-anchor="middle" fill="#637777" font-size="8">10</text>
-  <text x="317" y="170" text-anchor="middle" fill="#637777" font-size="8">11</text>
-  <text x="341" y="170" text-anchor="middle" fill="#637777" font-size="8">12</text>
-  <text x="364" y="170" text-anchor="middle" fill="#637777" font-size="8">13</text>
-  <text x="387" y="170" text-anchor="middle" fill="#637777" font-size="8">14</text>
-  <text x="410" y="170" text-anchor="middle" fill="#637777" font-size="8">15</text>
-  <text x="434" y="170" text-anchor="middle" fill="#637777" font-size="8">16</text>
-  <text x="457" y="170" text-anchor="middle" fill="#637777" font-size="8">17</text>
-  <text x="480" y="170" text-anchor="middle" fill="#637777" font-size="8">18</text>
-  <text x="503" y="170" text-anchor="middle" fill="#637777" font-size="8">19</text>
-  <text x="527" y="170" text-anchor="middle" fill="#637777" font-size="8">20</text>
-  <text x="550" y="170" text-anchor="middle" fill="#637777" font-size="8">21</text>
-  <text x="573" y="170" text-anchor="middle" fill="#637777" font-size="8">22</text>
-  <text x="596" y="170" text-anchor="middle" fill="#637777" font-size="8">23</text>
-  <text x="620" y="170" text-anchor="middle" fill="#637777" font-size="8">24</text>
-  <text x="643" y="170" text-anchor="middle" fill="#637777" font-size="8">25</text>
-  <text x="666" y="170" text-anchor="middle" fill="#637777" font-size="8">26</text>
-  <text x="689" y="170" text-anchor="middle" fill="#637777" font-size="8">27</text>
-  <text x="713" y="170" text-anchor="middle" fill="#637777" font-size="8">28</text>
-  <text x="736" y="170" text-anchor="middle" fill="#637777" font-size="8">29</text>
-  <text x="759" y="170" text-anchor="middle" fill="#637777" font-size="8">30</text>
-  <text x="782" y="170" text-anchor="middle" fill="#637777" font-size="8">31</text>
+  <rect x="50" y="138" width="744" height="20" rx="4" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="50"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="73.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="96.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="119.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="143"   y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="166.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="189.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="212.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="236"   y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="259.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="282.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="305.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="329"   y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="352.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="375.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="398.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="422"   y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="445.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="468.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="491.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="515"   y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="538.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="561.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="584.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="608"   y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="631.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="654.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="677.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="701"   y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="724.25" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="747.5"  y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="770.75" y="138" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/>
+
+  <text x="61" y="166" text-anchor="middle" fill="#637777" font-size="8">0</text>
+  <text x="84" y="166" text-anchor="middle" fill="#637777" font-size="8">1</text>
+  <text x="108" y="166" text-anchor="middle" fill="#637777" font-size="8">2</text>
+  <text x="131" y="166" text-anchor="middle" fill="#637777" font-size="8">3</text>
+  <text x="155" y="166" text-anchor="middle" fill="#637777" font-size="8">4</text>
+  <text x="178" y="166" text-anchor="middle" fill="#637777" font-size="8">5</text>
+  <text x="201" y="166" text-anchor="middle" fill="#637777" font-size="8">6</text>
+  <text x="224" y="166" text-anchor="middle" fill="#637777" font-size="8">7</text>
+  <text x="248" y="166" text-anchor="middle" fill="#637777" font-size="8">8</text>
+  <text x="271" y="166" text-anchor="middle" fill="#637777" font-size="8">9</text>
+  <text x="294" y="166" text-anchor="middle" fill="#637777" font-size="8">10</text>
+  <text x="317" y="166" text-anchor="middle" fill="#637777" font-size="8">11</text>
+  <text x="341" y="166" text-anchor="middle" fill="#637777" font-size="8">12</text>
+  <text x="364" y="166" text-anchor="middle" fill="#637777" font-size="8">13</text>
+  <text x="387" y="166" text-anchor="middle" fill="#637777" font-size="8">14</text>
+  <text x="410" y="166" text-anchor="middle" fill="#637777" font-size="8">15</text>
+  <text x="434" y="166" text-anchor="middle" fill="#637777" font-size="8">16</text>
+  <text x="457" y="166" text-anchor="middle" fill="#637777" font-size="8">17</text>
+  <text x="480" y="166" text-anchor="middle" fill="#637777" font-size="8">18</text>
+  <text x="503" y="166" text-anchor="middle" fill="#637777" font-size="8">19</text>
+  <text x="527" y="166" text-anchor="middle" fill="#637777" font-size="8">20</text>
+  <text x="550" y="166" text-anchor="middle" fill="#637777" font-size="8">21</text>
+  <text x="573" y="166" text-anchor="middle" fill="#637777" font-size="8">22</text>
+  <text x="596" y="166" text-anchor="middle" fill="#637777" font-size="8">23</text>
+  <text x="620" y="166" text-anchor="middle" fill="#637777" font-size="8">24</text>
+  <text x="643" y="166" text-anchor="middle" fill="#637777" font-size="8">25</text>
+  <text x="666" y="166" text-anchor="middle" fill="#637777" font-size="8">26</text>
+  <text x="689" y="166" text-anchor="middle" fill="#637777" font-size="8">27</text>
+  <text x="713" y="166" text-anchor="middle" fill="#637777" font-size="8">28</text>
+  <text x="736" y="166" text-anchor="middle" fill="#637777" font-size="8">29</text>
+  <text x="759" y="166" text-anchor="middle" fill="#637777" font-size="8">30</text>
+  <text x="782" y="166" text-anchor="middle" fill="#637777" font-size="8">31</text>
 
   <!-- ============ Panel B: stride-32 ============ -->
-  <rect x="30" y="188" width="800" height="104" rx="8" fill="#01111f" stroke="#f78c6c" stroke-width="1.5"/>
-  <text x="50" y="210" fill="#f78c6c" font-size="12" font-weight="bold">B - STRIDE-32, UNPADDED COLUMN READ tile[t][r]: every thread hits bank 0 - 32 cycles</text>
+  <rect x="30" y="188" width="800" height="112" rx="8" fill="#01111f" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="50" y="210" fill="#f78c6c" font-size="12" font-weight="bold">B - STRIDE-32, UNPADDED COLUMN READ tile[t][r]: all threads hit bank 0 - 32 cycles</text>
 
-  <rect x="50" y="220" width="52" height="22" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
-  <text x="76" y="235" text-anchor="middle" fill="#f78c6c" font-size="9">t0</text>
-  <rect x="108" y="220" width="52" height="22" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
-  <text x="134" y="235" text-anchor="middle" fill="#f78c6c" font-size="9">t1</text>
-  <rect x="166" y="220" width="52" height="22" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
-  <text x="192" y="235" text-anchor="middle" fill="#f78c6c" font-size="9">t2</text>
-  <rect x="224" y="220" width="52" height="22" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
-  <text x="250" y="235" text-anchor="middle" fill="#f78c6c" font-size="9">t3</text>
-  <text x="290" y="235" text-anchor="middle" fill="#637777" font-size="10">... t31</text>
+  <rect x="50" y="222" width="52" height="20" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
+  <text x="76" y="236" text-anchor="middle" fill="#f78c6c" font-size="9">t0</text>
+  <rect x="108" y="222" width="52" height="20" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
+  <text x="134" y="236" text-anchor="middle" fill="#f78c6c" font-size="9">t1</text>
+  <rect x="166" y="222" width="52" height="20" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
+  <text x="192" y="236" text-anchor="middle" fill="#f78c6c" font-size="9">t2</text>
+  <rect x="224" y="222" width="52" height="20" rx="4" fill="#0b2942" stroke="#f78c6c" stroke-width="1.2"/>
+  <text x="250" y="236" text-anchor="middle" fill="#f78c6c" font-size="9">t3</text>
+  <text x="290" y="236" text-anchor="middle" fill="#637777" font-size="10">... t31</text>
 
-  <line x1="76" y1="242" x2="73" y2="260" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="134" y1="242" x2="96" y2="260" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="192" y1="242" x2="119" y2="260" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="250" y1="242" x2="142" y2="260" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="76" y1="242" x2="73" y2="262" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="134" y1="242" x2="96" y2="262" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="192" y1="242" x2="119" y2="262" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="250" y1="242" x2="142" y2="262" stroke="#f78c6c" stroke-width="1.2" marker-end="url(#arrow)"/>
 
-  <rect x="50" y="262" width="744" height="22" rx="4" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
-  <rect x="50" y="262" width="23.25" height="22" fill="#01111f" stroke="#f78c6c" stroke-width="1.2"/>
-  <rect x="73.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="96.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="119.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="143" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="166.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="189.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="212.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="236" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="259.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="282.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="305.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="329" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="352.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="375.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="398.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="422" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="445.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="468.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="491.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="515" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="538.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="561.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="584.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="608" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="631.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="654.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="677.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="701" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="724.25" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="747.5" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="770.75" y="262" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/>
+  <rect x="50" y="262" width="744" height="20" rx="4" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="50" y="262" width="23.25" height="20" fill="#01111f" stroke="#f78c6c" stroke-width="1.2"/>
+  <rect x="73.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="96.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="119.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="143" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="166.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="189.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="212.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="236" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="259.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="282.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="305.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="329" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="352.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="375.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="398.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="422" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="445.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="468.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="491.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="515" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="538.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="561.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="584.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="608" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="631.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="654.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="677.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="701" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="724.25" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="747.5" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="770.75" y="262" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/>
 
-  <text x="61" y="296" text-anchor="middle" fill="#f78c6c" font-size="9" font-weight="bold">0</text>
-  <text x="430" y="296" text-anchor="middle" fill="#637777" font-size="9">banks 1-31 idle while bank 0 serialises 32 accesses</text>
-  <text x="700" y="296" text-anchor="middle" fill="#637777" font-size="9">...31</text>
+  <text x="61" y="290" text-anchor="middle" fill="#f78c6c" font-size="9" font-weight="bold">0</text>
+  <text x="430" y="290" text-anchor="middle" fill="#637777" font-size="9">banks 1-31 idle while bank 0 serialises 32 accesses</text>
+  <text x="700" y="290" text-anchor="middle" fill="#637777" font-size="9">...31</text>
 
   <!-- ============ Panel C: padded ============ -->
-  <rect x="30" y="314" width="800" height="104" rx="8" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="50" y="336" fill="#7fdbca" font-size="12" font-weight="bold">C - PADDED tile[32][33], SAME COLUMN READ: row r starts at bank r - 1 cycle</text>
+  <rect x="30" y="312" width="800" height="112" rx="8" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="50" y="334" fill="#7fdbca" font-size="12" font-weight="bold">C - PADDED tile[32][33], SAME COLUMN READ: row r starts at bank r - 1 cycle</text>
 
-  <rect x="50" y="346" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="76" y="361" text-anchor="middle" fill="#7fdbca" font-size="9">t0</text>
-  <rect x="108" y="346" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="134" y="361" text-anchor="middle" fill="#7fdbca" font-size="9">t1</text>
-  <rect x="166" y="346" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="192" y="361" text-anchor="middle" fill="#7fdbca" font-size="9">t2</text>
-  <rect x="224" y="346" width="52" height="22" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="250" y="361" text-anchor="middle" fill="#7fdbca" font-size="9">t3</text>
-  <text x="290" y="361" text-anchor="middle" fill="#637777" font-size="10">... t31</text>
+  <rect x="50" y="346" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="76" y="360" text-anchor="middle" fill="#7fdbca" font-size="9">t0</text>
+  <rect x="108" y="346" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="134" y="360" text-anchor="middle" fill="#7fdbca" font-size="9">t1</text>
+  <rect x="166" y="346" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="192" y="360" text-anchor="middle" fill="#7fdbca" font-size="9">t2</text>
+  <rect x="224" y="346" width="52" height="20" rx="4" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="250" y="360" text-anchor="middle" fill="#7fdbca" font-size="9">t3</text>
+  <text x="290" y="360" text-anchor="middle" fill="#637777" font-size="10">... t31</text>
 
-  <line x1="76" y1="368" x2="76" y2="388" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="134" y1="368" x2="134" y2="388" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="192" y1="368" x2="192" y2="388" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
-  <line x1="250" y1="368" x2="250" y2="388" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="76" y1="366" x2="76" y2="386" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="134" y1="366" x2="134" y2="386" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="192" y1="366" x2="192" y2="386" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="250" y1="366" x2="250" y2="386" stroke="#7fdbca" stroke-width="1.2" marker-end="url(#arrow)"/>
 
-  <rect x="50" y="388" width="744" height="22" rx="4" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
-  <rect x="50" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="73.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="96.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="119.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="143" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="166.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="189.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="212.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="236" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="259.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="282.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="305.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="329" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="352.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="375.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="398.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="422" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="445.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="468.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="491.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="515" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="538.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="561.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="584.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="608" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="631.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="654.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="677.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="701" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="724.25" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="747.5" y="388" width="23.25" height="22" fill="#7fdbca" opacity="0.55"/><rect x="770.75" y="388" width="23.25" height="22" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/>
+  <rect x="50" y="386" width="744" height="20" rx="4" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="50" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="73.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="96.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="119.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="143" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="166.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="189.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="212.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="236" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="259.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="282.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="305.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="329" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="352.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="375.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="398.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="422" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="445.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="468.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="491.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="515" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="538.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="561.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="584.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="608" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="631.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="654.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="677.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="701" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="724.25" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/><rect x="747.5" y="386" width="23.25" height="20" fill="#7fdbca" opacity="0.55"/><rect x="770.75" y="386" width="23.25" height="20" fill="#01111f" stroke="#1d3b53" stroke-width="0.5"/>
 
-  <text x="430" y="424" text-anchor="middle" fill="#d6deeb" font-size="11">Padding shifts every row's bank start by +1: row r starts at bank (33r mod 32) = r - each thread lands on a distinct bank. One float per row = 32 cycles saved.</text>
+  <text x="430" y="446" text-anchor="middle" fill="#d6deeb" font-size="11">Padding shifts every row's bank start by +1: row r lands on bank (33r mod 32) = r - distinct banks, 1 cycle</text>
 
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">

@@ -4,95 +4,96 @@
   <text x="430" y="26" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">THE SM IN ACTION - TIME SLICING &amp; LATENCY HIDING</text>
 
   <!-- Left panel: scheduler with 16 resident warps -->
-  <rect x="30" y="44" width="250" height="300" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <rect x="30" y="44" width="250" height="310" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
   <text x="155" y="66" text-anchor="middle" fill="#82aaff" font-size="12" font-weight="bold">WARP SCHEDULER 0</text>
-  <text x="155" y="82" text-anchor="middle" fill="#637777" font-size="10">owns 16 of the SM's 64 resident warps</text>
+  <text x="155" y="84" text-anchor="middle" fill="#637777" font-size="9">owns 16 of the SM's 64 resident warps</text>
 
-  <!-- 16 warp slots: 2 rows x 8 cols -->
-  <rect x="42" y="96" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="68" y="115" text-anchor="middle" fill="#7fdbca" font-size="9">W0</text>
-  <rect x="98" y="96" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="124" y="115" text-anchor="middle" fill="#7fdbca" font-size="9">W1</text>
-  <rect x="154" y="96" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="180" y="115" text-anchor="middle" fill="#7fdbca" font-size="9">W2</text>
-  <rect x="210" y="96" width="52" height="30" rx="5" fill="#01111f" stroke="#f78c6c" stroke-width="2"/>
-  <text x="236" y="115" text-anchor="middle" fill="#f78c6c" font-size="9" font-weight="bold">W3</text>
-  <rect x="42" y="132" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="68" y="151" text-anchor="middle" fill="#7fdbca" font-size="9">W4</text>
-  <rect x="98" y="132" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="124" y="151" text-anchor="middle" fill="#7fdbca" font-size="9">W5</text>
-  <rect x="154" y="132" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="180" y="151" text-anchor="middle" fill="#7fdbca" font-size="9">W6</text>
-  <rect x="210" y="132" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="236" y="151" text-anchor="middle" fill="#7fdbca" font-size="9">W7</text>
-  <rect x="42" y="168" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="68" y="187" text-anchor="middle" fill="#7fdbca" font-size="9">W8</text>
-  <rect x="98" y="168" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="124" y="187" text-anchor="middle" fill="#7fdbca" font-size="9">W9</text>
-  <rect x="154" y="168" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="180" y="187" text-anchor="middle" fill="#7fdbca" font-size="9">W10</text>
-  <rect x="210" y="168" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="236" y="187" text-anchor="middle" fill="#7fdbca" font-size="9">W11</text>
-  <rect x="42" y="204" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="68" y="223" text-anchor="middle" fill="#7fdbca" font-size="9">W12</text>
-  <rect x="98" y="204" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="124" y="223" text-anchor="middle" fill="#7fdbca" font-size="9">W13</text>
-  <rect x="154" y="204" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="180" y="223" text-anchor="middle" fill="#7fdbca" font-size="9">W14</text>
-  <rect x="210" y="204" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="236" y="223" text-anchor="middle" fill="#7fdbca" font-size="9">W15</text>
+  <!-- 16 warp slots: 4 rows x 4 cols -->
+  <rect x="42" y="102" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="68" y="121" text-anchor="middle" fill="#7fdbca" font-size="9">W0</text>
+  <rect x="98" y="102" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="124" y="121" text-anchor="middle" fill="#7fdbca" font-size="9">W1</text>
+  <rect x="154" y="102" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="180" y="121" text-anchor="middle" fill="#7fdbca" font-size="9">W2</text>
+  <rect x="210" y="102" width="52" height="30" rx="5" fill="#01111f" stroke="#f78c6c" stroke-width="2"/>
+  <text x="236" y="121" text-anchor="middle" fill="#f78c6c" font-size="9" font-weight="bold">W3</text>
+  <rect x="42" y="142" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="68" y="161" text-anchor="middle" fill="#7fdbca" font-size="9">W4</text>
+  <rect x="98" y="142" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="124" y="161" text-anchor="middle" fill="#7fdbca" font-size="9">W5</text>
+  <rect x="154" y="142" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="180" y="161" text-anchor="middle" fill="#7fdbca" font-size="9">W6</text>
+  <rect x="210" y="142" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="236" y="161" text-anchor="middle" fill="#7fdbca" font-size="9">W7</text>
+  <rect x="42" y="182" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="68" y="201" text-anchor="middle" fill="#7fdbca" font-size="9">W8</text>
+  <rect x="98" y="182" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="124" y="201" text-anchor="middle" fill="#7fdbca" font-size="9">W9</text>
+  <rect x="154" y="182" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="180" y="201" text-anchor="middle" fill="#7fdbca" font-size="9">W10</text>
+  <rect x="210" y="182" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="236" y="201" text-anchor="middle" fill="#7fdbca" font-size="9">W11</text>
+  <rect x="42" y="222" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="68" y="241" text-anchor="middle" fill="#7fdbca" font-size="9">W12</text>
+  <rect x="98" y="222" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="124" y="241" text-anchor="middle" fill="#7fdbca" font-size="9">W13</text>
+  <rect x="154" y="222" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="180" y="241" text-anchor="middle" fill="#7fdbca" font-size="9">W14</text>
+  <rect x="210" y="222" width="52" height="30" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="236" y="241" text-anchor="middle" fill="#7fdbca" font-size="9">W15</text>
 
-  <text x="155" y="258" text-anchor="middle" fill="#f78c6c" font-size="11" font-weight="bold">warp W3 issues a global load</text>
-  <text x="155" y="274" text-anchor="middle" fill="#637777" font-size="10">it will not be ready for ~500 cycles</text>
-  <text x="155" y="296" text-anchor="middle" fill="#637777" font-size="10">15 other warps are resident -</text>
-  <text x="155" y="310" text-anchor="middle" fill="#637777" font-size="10">plenty of work to switch to</text>
+  <text x="155" y="272" text-anchor="middle" fill="#f78c6c" font-size="11" font-weight="bold">warp W3 issues a global load</text>
+  <text x="155" y="290" text-anchor="middle" fill="#637777" font-size="10">it will not be ready for ~500 cycles</text>
+  <text x="155" y="312" text-anchor="middle" fill="#637777" font-size="10">15 other warps are resident -</text>
+  <text x="155" y="328" text-anchor="middle" fill="#637777" font-size="10">plenty of work to switch to</text>
 
   <!-- Right panel: issue timeline -->
-  <rect x="310" y="44" width="520" height="300" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <rect x="310" y="44" width="520" height="310" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
   <text x="570" y="66" text-anchor="middle" fill="#82aaff" font-size="12" font-weight="bold">ISSUE TIMELINE - ONE INSTRUCTION PER CLOCK</text>
-  <text x="570" y="82" text-anchor="middle" fill="#637777" font-size="10">the scheduler never waits: it rotates through ready warps</text>
+  <text x="570" y="84" text-anchor="middle" fill="#637777" font-size="10">the scheduler never waits: it rotates through ready warps</text>
+
+  <!-- Cycle labels -->
+  <text x="360" y="106" text-anchor="middle" fill="#f78c6c" font-size="10">cycle 0 (LD)</text>
+  <text x="426" y="106" text-anchor="middle" fill="#d6deeb" font-size="10">cycle 1</text>
+  <text x="492" y="106" text-anchor="middle" fill="#d6deeb" font-size="10">cycle 2</text>
+  <text x="558" y="106" text-anchor="middle" fill="#d6deeb" font-size="10">cycle 3</text>
+  <text x="624" y="106" text-anchor="middle" fill="#d6deeb" font-size="10">cycle 4</text>
+  <text x="690" y="106" text-anchor="middle" fill="#d6deeb" font-size="10">cycle 5</text>
+  <text x="756" y="106" text-anchor="middle" fill="#d6deeb" font-size="10">cycle 6</text>
 
   <!-- Cycle boxes -->
-  <rect x="330" y="100" width="60" height="36" rx="5" fill="#01111f" stroke="#f78c6c" stroke-width="2"/>
-  <text x="360" y="122" text-anchor="middle" fill="#f78c6c" font-size="10" font-weight="bold">W3</text>
-  <rect x="396" y="100" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="426" y="122" text-anchor="middle" fill="#7fdbca" font-size="10">W4</text>
-  <rect x="462" y="100" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="492" y="122" text-anchor="middle" fill="#7fdbca" font-size="10">W5</text>
-  <rect x="528" y="100" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="558" y="122" text-anchor="middle" fill="#7fdbca" font-size="10">W6</text>
-  <rect x="594" y="100" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="624" y="122" text-anchor="middle" fill="#7fdbca" font-size="10">W7</text>
-  <rect x="660" y="100" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="690" y="122" text-anchor="middle" fill="#7fdbca" font-size="10">W8</text>
-  <rect x="726" y="100" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="756" y="122" text-anchor="middle" fill="#7fdbca" font-size="10">W9</text>
-  <text x="795" y="122" text-anchor="middle" fill="#637777" font-size="11">...</text>
-
-  <text x="330" y="90" fill="#f78c6c" font-size="10">cycle 0: LD</text>
-  <text x="396" y="90" fill="#d6deeb" font-size="10">cycle 1</text>
-  <text x="462" y="90" fill="#d6deeb" font-size="10">cycle 2</text>
-  <text x="528" y="90" fill="#d6deeb" font-size="10">cycle 3</text>
-  <text x="594" y="90" fill="#d6deeb" font-size="10">cycle 4</text>
-  <text x="660" y="90" fill="#d6deeb" font-size="10">cycle 5</text>
-  <text x="726" y="90" fill="#d6deeb" font-size="10">cycle 6</text>
+  <rect x="330" y="116" width="60" height="36" rx="5" fill="#01111f" stroke="#f78c6c" stroke-width="2"/>
+  <text x="360" y="138" text-anchor="middle" fill="#f78c6c" font-size="10" font-weight="bold">W3</text>
+  <rect x="396" y="116" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="426" y="138" text-anchor="middle" fill="#7fdbca" font-size="10">W4</text>
+  <rect x="462" y="116" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="492" y="138" text-anchor="middle" fill="#7fdbca" font-size="10">W5</text>
+  <rect x="528" y="116" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="558" y="138" text-anchor="middle" fill="#7fdbca" font-size="10">W6</text>
+  <rect x="594" y="116" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="624" y="138" text-anchor="middle" fill="#7fdbca" font-size="10">W7</text>
+  <rect x="660" y="116" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="690" y="138" text-anchor="middle" fill="#7fdbca" font-size="10">W8</text>
+  <rect x="726" y="116" width="60" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
+  <text x="756" y="138" text-anchor="middle" fill="#7fdbca" font-size="10">W9</text>
+  <text x="795" y="138" text-anchor="middle" fill="#637777" font-size="11">...</text>
 
   <!-- W3's stall bracket -->
-  <line x1="360" y1="148" x2="360" y2="190" stroke="#f78c6c" stroke-width="1.5"/>
-  <line x1="360" y1="190" x2="756" y2="190" stroke="#f78c6c" stroke-width="1.5"/>
-  <line x1="756" y1="148" x2="756" y2="190" stroke="#f78c6c" stroke-width="1.5"/>
-  <text x="558" y="182" text-anchor="middle" fill="#f78c6c" font-size="10" font-weight="bold">W3's load in flight (~500 cycles) - fully hidden</text>
+  <line x1="360" y1="164" x2="360" y2="200" stroke="#f78c6c" stroke-width="1.5"/>
+  <line x1="360" y1="200" x2="756" y2="200" stroke="#f78c6c" stroke-width="1.5"/>
+  <line x1="756" y1="164" x2="756" y2="200" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="558" y="192" text-anchor="middle" fill="#f78c6c" font-size="10" font-weight="bold">W3's load in flight (~500 cycles) - fully hidden</text>
 
   <!-- Resume -->
-  <rect x="330" y="206" width="220" height="36" rx="5" fill="#01111f" stroke="#ecc48d" stroke-width="1.5"/>
-  <text x="440" y="228" text-anchor="middle" fill="#ecc48d" font-size="10" font-weight="bold">~500 cycles later: W3 resumes</text>
+  <rect x="330" y="212" width="220" height="36" rx="5" fill="#01111f" stroke="#ecc48d" stroke-width="1.5"/>
+  <text x="440" y="234" text-anchor="middle" fill="#ecc48d" font-size="10" font-weight="bold">~500 cycles later: W3 resumes</text>
 
-  <text x="570" y="272" text-anchor="middle" fill="#637777" font-size="10">The four schedulers of the SM rotate this way over their 16 warps each,</text>
-  <text x="570" y="286" text-anchor="middle" fill="#637777" font-size="10">every clock, automatically. No programmer intervention - only enough</text>
-  <text x="570" y="300" text-anchor="middle" fill="#637777" font-size="10">resident warps (occupancy, §2.9) and enough independent work per warp.</text>
+  <text x="570" y="278" text-anchor="middle" fill="#637777" font-size="10">The four schedulers rotate this way over their 16 warps each,</text>
+  <text x="570" y="292" text-anchor="middle" fill="#637777" font-size="10">every clock, automatically - no programmer intervention,</text>
+  <text x="570" y="306" text-anchor="middle" fill="#637777" font-size="10">only enough resident warps (occupancy, Section 2.9) and enough ILP.</text>
 
   <!-- Bottom callout -->
-  <rect x="30" y="360" width="800" height="48" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="430" y="380" text-anchor="middle" fill="#7fdbca" font-size="12" font-weight="bold">LATENCY HIDING (§1.1): the cost of the wait is hidden, not eliminated</text>
-  <text x="430" y="397" text-anchor="middle" fill="#d6deeb" font-size="11">one stall = ~500 cycles of arithmetic lost. High occupancy = the scheduler always has a ready warp to issue instead.</text>
+  <rect x="30" y="372" width="800" height="44" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="430" y="390" text-anchor="middle" fill="#7fdbca" font-size="12" font-weight="bold">LATENCY HIDING (Section 1.1): the cost of the wait is hidden, not eliminated</text>
+  <text x="430" y="406" text-anchor="middle" fill="#d6deeb" font-size="11">one stall = ~500 cycles lost; high occupancy = the scheduler always has a ready warp to issue</text>
 </svg>

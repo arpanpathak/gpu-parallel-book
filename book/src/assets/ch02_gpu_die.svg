@@ -4,73 +4,74 @@
   <text x="430" y="26" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">THE GPU AT A GLANCE - WHOLE-CHIP ARCHITECTURE</text>
 
   <!-- Host CPU -->
-  <rect x="30" y="150" width="150" height="64" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
-  <text x="105" y="176" text-anchor="middle" fill="#addb67" font-size="13" font-weight="bold">HOST CPU</text>
-  <text x="105" y="194" text-anchor="middle" fill="#637777" font-size="10">launches kernels,</text>
-  <text x="105" y="206" text-anchor="middle" fill="#637777" font-size="10">moves data (Ch. 3-4)</text>
+  <rect x="20" y="150" width="120" height="70" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="80" y="176" text-anchor="middle" fill="#addb67" font-size="13" font-weight="bold">HOST CPU</text>
+  <text x="80" y="198" text-anchor="middle" fill="#637777" font-size="10">launches kernels,</text>
+  <text x="80" y="212" text-anchor="middle" fill="#637777" font-size="9">moves data (Ch. 3-4)</text>
 
   <!-- Host DRAM -->
-  <rect x="30" y="230" width="150" height="40" rx="6" fill="#01111f" stroke="#1d3b53" stroke-width="1.5"/>
-  <text x="105" y="255" text-anchor="middle" fill="#637777" font-size="11">host DRAM (pageable / pinned)</text>
+  <rect x="20" y="260" width="120" height="40" rx="6" fill="#01111f" stroke="#1d3b53" stroke-width="1.5"/>
+  <text x="80" y="276" text-anchor="middle" fill="#637777" font-size="10">host DRAM</text>
+  <text x="80" y="290" text-anchor="middle" fill="#637777" font-size="10">(pageable / pinned)</text>
 
   <!-- Transfer bus -->
-  <line x1="180" y1="182" x2="272" y2="182" stroke="#ecc48d" stroke-width="2.5" marker-end="url(#arrow)"/>
-  <text x="226" y="172" text-anchor="middle" fill="#ecc48d" font-size="11" font-weight="bold">PCIe Gen5 / NVLink</text>
-  <text x="226" y="215" text-anchor="middle" fill="#637777" font-size="10">cudaMemcpy travels here</text>
-  <text x="226" y="228" text-anchor="middle" fill="#637777" font-size="10">(~64 GB/s PCIe, ~900 GB/s NVLink)</text>
+  <line x1="140" y1="182" x2="296" y2="182" stroke="#ecc48d" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="218" y="170" text-anchor="middle" fill="#ecc48d" font-size="11" font-weight="bold">PCIe Gen5 / NVLink</text>
+  <text x="218" y="194" text-anchor="middle" fill="#637777" font-size="10">cudaMemcpy travels here</text>
+  <text x="218" y="240" text-anchor="middle" fill="#637777" font-size="10">(~64 GB/s PCIe, ~900 GB/s NVLink)</text>
 
   <!-- GPU die -->
-  <rect x="280" y="44" width="550" height="288" rx="10" fill="#01111f" stroke="#82aaff" stroke-width="2"/>
-  <text x="555" y="66" text-anchor="middle" fill="#82aaff" font-size="13" font-weight="bold">GPU DIE (H100-class, compute capability 9.0)</text>
+  <rect x="300" y="44" width="530" height="288" rx="10" fill="#01111f" stroke="#82aaff" stroke-width="2"/>
+  <text x="565" y="66" text-anchor="middle" fill="#82aaff" font-size="13" font-weight="bold">GPU DIE (H100-class, compute capability 9.0)</text>
 
   <!-- Four GPCs, each holding 4 SMs (16 drawn; H100 has 132 SMs) -->
-  <rect x="294" y="80" width="252" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
-  <text x="420" y="96" text-anchor="middle" fill="#c792ea" font-size="11" font-weight="bold">GPC - graphics processing cluster</text>
-  <rect x="578" y="80" width="252" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
-  <text x="704" y="96" text-anchor="middle" fill="#c792ea" font-size="11" font-weight="bold">GPC - graphics processing cluster</text>
-  <rect x="294" y="198" width="252" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
-  <text x="420" y="214" text-anchor="middle" fill="#c792ea" font-size="11" font-weight="bold">GPC - graphics processing cluster</text>
-  <rect x="578" y="198" width="252" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
-  <text x="704" y="214" text-anchor="middle" fill="#c792ea" font-size="11" font-weight="bold">GPC - graphics processing cluster</text>
+  <rect x="314" y="80" width="238" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="433" y="96" text-anchor="middle" fill="#c792ea" font-size="10" font-weight="bold">GPC - graphics processing cluster</text>
+  <rect x="556" y="80" width="238" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="675" y="96" text-anchor="middle" fill="#c792ea" font-size="10" font-weight="bold">GPC - graphics processing cluster</text>
+  <rect x="314" y="196" width="238" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="433" y="212" text-anchor="middle" fill="#c792ea" font-size="10" font-weight="bold">GPC - graphics processing cluster</text>
+  <rect x="556" y="196" width="238" height="108" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="675" y="212" text-anchor="middle" fill="#c792ea" font-size="10" font-weight="bold">GPC - graphics processing cluster</text>
 
   <!-- SMs inside each GPC: 2 x 2 -->
-  <rect x="308" y="106" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="364" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="428" y="106" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="484" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="308" y="148" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="364" y="169" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="428" y="148" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="484" y="169" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="328" y="106" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="380" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="442" y="106" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="494" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="328" y="146" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="380" y="167" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="442" y="146" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="494" y="167" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
 
-  <rect x="592" y="106" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="648" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="712" y="106" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="768" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="592" y="148" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="648" y="169" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="712" y="148" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="768" y="169" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="570" y="106" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="622" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="684" y="106" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="736" y="127" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="570" y="146" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="622" y="167" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="684" y="146" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="736" y="167" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
 
-  <rect x="308" y="224" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="364" y="245" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="428" y="224" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="484" y="245" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="308" y="266" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="364" y="287" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="428" y="266" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="484" y="287" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="328" y="222" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="380" y="243" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="442" y="222" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="494" y="243" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="328" y="262" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="380" y="283" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="442" y="262" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="494" y="283" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
 
-  <rect x="592" y="224" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="648" y="245" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="712" y="224" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="768" y="245" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="592" y="266" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="648" y="287" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
-  <rect x="712" y="266" width="112" height="34" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="768" y="287" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="570" y="222" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="622" y="243" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="684" y="222" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="736" y="243" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="570" y="262" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="622" y="283" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
+  <rect x="684" y="262" width="104" height="32" rx="6" fill="#01111f" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="736" y="283" text-anchor="middle" fill="#7fdbca" font-size="11">SM</text>
 
-  <text x="555" y="314" text-anchor="middle" fill="#637777" font-size="10">16 SMs drawn for space - H100 carries 132 SMs across 8 GPCs; each SM = 128 FP32 cores + 4 warp schedulers (§2.2)</text>
+  <text x="565" y="314" text-anchor="middle" fill="#637777" font-size="10">16 SMs drawn - H100 carries 132 across 8 GPCs (Section 2.2)</text>
 
   <!-- SMs to L2 -->
   <line x1="350" y1="332" x2="350" y2="344" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -79,9 +80,9 @@
   <line x1="710" y1="332" x2="710" y2="344" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <!-- L2 -->
-  <rect x="280" y="344" width="550" height="44" rx="8" fill="#0b2942" stroke="#f78c6c" stroke-width="1.5"/>
-  <text x="555" y="363" text-anchor="middle" fill="#f78c6c" font-size="12" font-weight="bold">L2 cache (50 MB, chip-wide)</text>
-  <text x="555" y="379" text-anchor="middle" fill="#637777" font-size="10">the coherence point between SMs - ~200 cycles</text>
+  <rect x="300" y="344" width="530" height="44" rx="8" fill="#0b2942" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="565" y="363" text-anchor="middle" fill="#f78c6c" font-size="12" font-weight="bold">L2 cache (50 MB, chip-wide)</text>
+  <text x="565" y="379" text-anchor="middle" fill="#637777" font-size="10">the coherence point between SMs - ~200 cycles</text>
 
   <!-- L2 to memory controllers -->
   <line x1="350" y1="388" x2="350" y2="402" stroke="#addb67" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -90,14 +91,14 @@
   <line x1="710" y1="388" x2="710" y2="402" stroke="#addb67" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <!-- Memory controllers -->
-  <rect x="294" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
-  <text x="350" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
-  <rect x="414" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
-  <text x="470" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
-  <rect x="534" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
-  <text x="590" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
-  <rect x="654" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
-  <text x="710" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
+  <rect x="314" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
+  <text x="370" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
+  <rect x="438" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
+  <text x="494" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
+  <rect x="562" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
+  <text x="618" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
+  <rect x="686" y="402" width="112" height="30" rx="6" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
+  <text x="742" y="421" text-anchor="middle" fill="#addb67" font-size="10">mem ctrl</text>
 
   <!-- MC to HBM -->
   <line x1="350" y1="432" x2="350" y2="446" stroke="#addb67" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -106,9 +107,9 @@
   <line x1="710" y1="432" x2="710" y2="446" stroke="#addb67" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <!-- HBM3 -->
-  <rect x="280" y="446" width="550" height="44" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
-  <text x="555" y="465" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">HBM3 DRAM stacks (global memory)</text>
-  <text x="555" y="481" text-anchor="middle" fill="#637777" font-size="10">6 stacks, ~3.35 TB/s, ~400-800 cycles - where cudaMalloc puts data</text>
+  <rect x="300" y="446" width="530" height="44" rx="8" fill="#0b2942" stroke="#addb67" stroke-width="1.5"/>
+  <text x="565" y="465" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">HBM3 DRAM stacks (global memory)</text>
+  <text x="565" y="481" text-anchor="middle" fill="#637777" font-size="10">6 stacks, ~3.35 TB/s, ~400-800 cycles - where cudaMalloc puts data</text>
 
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
