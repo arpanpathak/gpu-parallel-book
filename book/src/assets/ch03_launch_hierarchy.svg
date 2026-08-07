@@ -5,53 +5,55 @@
   <rect x="60" y="40" width="740" height="150" rx="10" fill="#01111f" stroke="#82aaff" stroke-width="2"/>
   <text x="430" y="62" text-anchor="middle" fill="#82aaff" font-size="13" font-weight="bold">GRID - kernel&lt;&lt;&lt;3, 8&gt;&gt;&gt;  (gridDim.x = 3)</text>
 
-  <!-- Block 0 -->
-  <rect x="90" y="76" width="210" height="100" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="195" y="94" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">block 0 - blockIdx.x = 0</text>
+  <!-- Block 0: x=60..290, 8 threads -->
+  <rect x="60" y="76" width="230" height="100" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="175" y="94" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">block 0 - blockIdx.x = 0</text>
   <g font-size="10" fill="#d6deeb" text-anchor="middle">
-    <rect x="100" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="111" y="121">0</text>
-    <rect x="128" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="139" y="121">1</text>
-    <rect x="156" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="167" y="121">2</text>
-    <rect x="184" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="195" y="121">3</text>
-    <rect x="212" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="223" y="121">4</text>
-    <rect x="240" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="251" y="121">5</text>
-    <rect x="268" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="279" y="121">6</text>
-    <rect x="296" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="307" y="121">7</text>
+    <rect x="70"  y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="81"  y="121">0</text>
+    <rect x="98"  y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="109" y="121">1</text>
+    <rect x="126" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="137" y="121">2</text>
+    <rect x="154" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="165" y="121">3</text>
+    <rect x="182" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="193" y="121">4</text>
+    <rect x="210" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="221" y="121">5</text>
+    <rect x="238" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="249" y="121">6</text>
+    <rect x="266" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="277" y="121">7</text>
   </g>
-  <text x="195" y="152" text-anchor="middle" fill="#637777" font-size="10">threadIdx.x = 0..7 - global 0..7</text>
+  <text x="175" y="152" text-anchor="middle" fill="#637777" font-size="10">threadIdx.x = 0..7 - global 0..7</text>
 
-  <!-- Block 1 -->
-  <rect x="325" y="76" width="210" height="100" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <!-- Block 1: x=315..545, 8 threads -->
+  <rect x="315" y="76" width="230" height="100" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
   <text x="430" y="94" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">block 1 - blockIdx.x = 1</text>
   <g font-size="10" fill="#d6deeb" text-anchor="middle">
-    <rect x="335" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="346" y="121">0</text>
-    <rect x="363" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="374" y="121">1</text>
-    <rect x="391" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="402" y="121">2</text>
-    <rect x="419" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="430" y="121">3</text>
-    <rect x="447" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="458" y="121">4</text>
-    <rect x="475" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="486" y="121">5</text>
-    <rect x="503" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="514" y="121">6</text>
+    <rect x="325" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="336" y="121">0</text>
+    <rect x="353" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="364" y="121">1</text>
+    <rect x="381" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="392" y="121">2</text>
+    <rect x="409" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="420" y="121">3</text>
+    <rect x="437" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="448" y="121">4</text>
+    <rect x="465" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="476" y="121">5</text>
+    <rect x="493" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="504" y="121">6</text>
+    <rect x="521" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="532" y="121">7</text>
   </g>
   <text x="430" y="152" text-anchor="middle" fill="#637777" font-size="10">threadIdx.x = 0..7 - global 8..15</text>
 
-  <!-- Block 2 -->
-  <rect x="560" y="76" width="210" height="100" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="665" y="94" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">block 2 - blockIdx.x = 2</text>
+  <!-- Block 2: x=570..800, 8 threads -->
+  <rect x="570" y="76" width="230" height="100" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="685" y="94" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">block 2 - blockIdx.x = 2</text>
   <g font-size="10" fill="#d6deeb" text-anchor="middle">
-    <rect x="570" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="581" y="121">0</text>
-    <rect x="598" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="609" y="121">1</text>
-    <rect x="626" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="637" y="121">2</text>
-    <rect x="654" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="665" y="121">3</text>
-    <rect x="682" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="693" y="121">4</text>
-    <rect x="710" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="721" y="121">5</text>
-    <rect x="738" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="749" y="121">6</text>
+    <rect x="580" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="591" y="121">0</text>
+    <rect x="608" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="619" y="121">1</text>
+    <rect x="636" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="647" y="121">2</text>
+    <rect x="664" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="675" y="121">3</text>
+    <rect x="692" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="703" y="121">4</text>
+    <rect x="720" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="731" y="121">5</text>
+    <rect x="748" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="759" y="121">6</text>
+    <rect x="776" y="106" width="22" height="22" rx="4" fill="#011627" stroke="#1d3b53"/><text x="787" y="121">7</text>
   </g>
-  <text x="665" y="152" text-anchor="middle" fill="#637777" font-size="10">threadIdx.x = 0..7 - global 16..23</text>
+  <text x="685" y="152" text-anchor="middle" fill="#637777" font-size="10">threadIdx.x = 0..7 - global 16..23</text>
 
   <!-- SMs note -->
-  <line x1="195" y1="176" x2="195" y2="212" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="175" y1="176" x2="175" y2="212" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
   <line x1="430" y1="176" x2="430" y2="212" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="665" y1="176" x2="665" y2="212" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="685" y1="176" x2="685" y2="212" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
   <rect x="60" y="212" width="740" height="46" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
   <text x="430" y="232" text-anchor="middle" fill="#d6deeb" font-size="12">each block is scheduled onto one SM, then split into warps of 32 threads</text>
   <text x="430" y="249" text-anchor="middle" fill="#637777" font-size="11">blockDim.x = 8 is legal but inefficient: a 32-thread warp would carry only 8 active lanes</text>
