@@ -86,7 +86,7 @@
   <line x1="560" y1="500" x2="650" y2="516" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrowT)"/>
   <line x1="560" y1="512" x2="650" y2="560" stroke="#f78c6c" stroke-width="1.5" marker-end="url(#arrowT)"/>
   <text x="630" y="610" text-anchor="middle" fill="#d6deeb" font-size="11" font-weight="bold">2N^3 FLOPs / (3N^2 x 4 bytes) -> I ~ N/6 ~ 683</text>
-  <text x="630" y="628" text-anchor="middle" fill="#637777" font-size="10">one byte of A is multiplied into EVERY output of row i: massive reuse</text>
+  <text x="630" y="628" text-anchor="middle" fill="#637777" font-size="10">one byte of A is reused for EVERY output of row i</text>
 
   <defs>
     <marker id="arrowT" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">

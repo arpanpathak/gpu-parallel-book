@@ -55,26 +55,26 @@
       <text x="164" y="218">tx0</text><text x="210" y="218">tx1</text><text x="256" y="218">tx2</text><text x="302" y="218">tx3</text>
       <text x="164" y="264">tx0</text><text x="210" y="264">tx1</text><text x="256" y="264">tx2</text><text x="302" y="264">tx3</text>
     </g>
-    <text x="196" y="120" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">block (0,0)</text>
+    <text x="234" y="104" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">block (0,0)</text>
   </g>
 
   <!-- Right panel: formulas -->
   <rect x="550" y="110" width="280" height="300" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
   <text x="690" y="134" text-anchor="middle" fill="#82aaff" font-size="12" font-weight="bold">THE 2-D INDEX FORMULA</text>
-  <text x="690" y="162" text-anchor="middle" fill="#d6deeb" font-size="11">global x = blockIdx.x * blockDim.x + threadIdx.x</text>
-  <text x="690" y="182" text-anchor="middle" fill="#d6deeb" font-size="11">global y = blockIdx.y * blockDim.y + threadIdx.y</text>
+  <text x="690" y="162" text-anchor="middle" fill="#d6deeb" font-size="10">gx = blockIdx.x * blockDim.x + threadIdx.x</text>
+  <text x="690" y="182" text-anchor="middle" fill="#d6deeb" font-size="10">gy = blockIdx.y * blockDim.y + threadIdx.y</text>
   <text x="690" y="212" text-anchor="middle" fill="#637777" font-size="10">highlighted thread: block (1,0), thread (2,1)</text>
   <text x="690" y="230" text-anchor="middle" fill="#ecc48d" font-size="11" font-weight="bold">gx = 1*4 + 2 = 6   |   gy = 0*4 + 1 = 1</text>
   <text x="690" y="258" text-anchor="middle" fill="#d6deeb" font-size="11">row-major linear index (width = 8):</text>
   <text x="690" y="278" text-anchor="middle" fill="#ecc48d" font-size="11" font-weight="bold">idx = gy * width + gx = 1*8 + 6 = 14</text>
   <text x="690" y="308" text-anchor="middle" fill="#637777" font-size="10">consecutive threadIdx.x = consecutive memory</text>
   <text x="690" y="324" text-anchor="middle" fill="#637777" font-size="10">addresses: coalescing by construction (2.7)</text>
-  <text x="690" y="356" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">gridDim = (2,2): total = gridDim.x*blockDim.x = 8</text>
+  <text x="690" y="356" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">gridDim = (2,2): gridDim.x*blockDim.x = 8</text>
   <text x="690" y="372" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">per axis: grid (8 x 8) threads = 64 pixels</text>
   <text x="690" y="400" text-anchor="middle" fill="#637777" font-size="9">blocks = tiles of the image; threads = pixels</text>
 
   <!-- Bottom callout -->
   <rect x="60" y="488" width="740" height="56" rx="8" fill="#0b2942" stroke="#1d3b53" stroke-width="1.5"/>
   <text x="430" y="510" text-anchor="middle" fill="#addb67" font-size="12" font-weight="bold">this is why blockDim and gridDim have x, y (and z): they mirror the data's own shape</text>
-  <text x="430" y="530" text-anchor="middle" fill="#d6deeb" font-size="11">an image is 2-D, so a 2-D launch avoids flattening by hand - and the hardware linearises anyway (x fastest, then y)</text>
+  <text x="430" y="530" text-anchor="middle" fill="#d6deeb" font-size="11">a 2-D launch mirrors the image itself; the hardware linearises anyway (x fastest, then y)</text>
 </svg>
