@@ -12,29 +12,29 @@
 
   <!-- 8 warp slices inside the block -->
   <rect x="140" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="175" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 0</text>
-  <text x="175" y="136" text-anchor="middle" fill="#637777" font-size="8">T 0-31</text>
+  <text x="175" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 0</text>
+  <text x="175" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 0-31</text>
   <rect x="216" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="251" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 1</text>
-  <text x="251" y="136" text-anchor="middle" fill="#637777" font-size="8">T 32-63</text>
+  <text x="251" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 1</text>
+  <text x="251" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 32-63</text>
   <rect x="292" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="327" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 2</text>
-  <text x="327" y="136" text-anchor="middle" fill="#637777" font-size="8">T 64-95</text>
+  <text x="327" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 2</text>
+  <text x="327" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 64-95</text>
   <rect x="368" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="403" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 3</text>
-  <text x="403" y="136" text-anchor="middle" fill="#637777" font-size="8">T 96-127</text>
+  <text x="403" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 3</text>
+  <text x="403" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 96-127</text>
   <rect x="444" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="479" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 4</text>
-  <text x="479" y="136" text-anchor="middle" fill="#637777" font-size="8">T 128-159</text>
+  <text x="479" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 4</text>
+  <text x="479" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 128-159</text>
   <rect x="520" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="555" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 5</text>
-  <text x="555" y="136" text-anchor="middle" fill="#637777" font-size="8">T 160-191</text>
+  <text x="555" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 5</text>
+  <text x="555" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 160-191</text>
   <rect x="596" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="631" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 6</text>
-  <text x="631" y="136" text-anchor="middle" fill="#637777" font-size="8">T 192-223</text>
+  <text x="631" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 6</text>
+  <text x="631" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 192-223</text>
   <rect x="672" y="106" width="70" height="36" rx="5" fill="#0b2942" stroke="#7fdbca" stroke-width="1.2"/>
-  <text x="707" y="123" text-anchor="middle" fill="#7fdbca" font-size="9" font-weight="bold">warp 7</text>
-  <text x="707" y="136" text-anchor="middle" fill="#637777" font-size="8">T 224-255</text>
+  <text x="707" y="123" text-anchor="middle" fill="#7fdbca" font-size="10" font-weight="bold">warp 7</text>
+  <text x="707" y="136" text-anchor="middle" fill="#637777" font-size="9.5">T 224-255</text>
 
   <!-- Arrows down: block -> SM -->
   <line x1="430" y1="156" x2="430" y2="186" stroke="#82aaff" stroke-width="1.5" marker-end="url(#arrow)"/>
