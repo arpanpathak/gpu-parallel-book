@@ -275,17 +275,30 @@ accounting in detail.
 
 ## 2.7 Coalescing: How a Warp Reads Memory
 
-Start with the situation, because everything follows from it. When a warp
-issues a load, that is not one request - it is **32 requests**, one per lane,
-arriving at the memory system in the same instant and asking for 32 pieces of
-data.
+**What it is, in one sentence.** Coalescing is the degree to which a warp's
+memory accesses get serviced *together*. When the threads of a warp read
+addresses that sit close together, the memory system groups those requests
+into a handful of transactions; when the addresses are spread far apart, it
+cannot, and each thread's access costs its own transaction. That is the whole
+idea; the rest of this section is why the hardware works that way and how to
+exploit it.
 
-And here is the fact that defines coalescing: **the memory system does not
-deliver 32 arbitrary 4-byte pieces.** It delivers in fixed-size chunks -
-32-byte **sectors**, a quarter of a 128-byte cache line - and it charges
-roughly the same per chunk whether the chunk is full or not. Addressing a
-DRAM row, decoding the address, driving the bus: that setup cost is paid
-*per transaction*, not per byte.
+> **Primitive - coalescing.** A warp load is serviced at sector granularity
+> (32 bytes; four sectors per 128-byte cache line). The load is *coalesced*
+> when the warp's addresses fall in as few sectors as possible, and
+> *uncoalesced* when they sprawl. The cost of a warp load is, to a first
+> approximation, the number of sectors it touches.
+
+**The mechanism.** Start with the situation: when a warp issues a load, that
+is not one request - it is **32 requests**, one per lane, arriving at the
+memory system in the same instant and asking for 32 pieces of data.
+
+The fact that makes coalescing matter: **the memory system does not deliver
+32 arbitrary 4-byte pieces.** It delivers in fixed-size chunks - 32-byte
+**sectors**, a quarter of a 128-byte cache line - and it charges roughly the
+same per chunk whether the chunk is full or not. Addressing a DRAM row,
+decoding the address, driving the bus: that setup cost is paid *per
+transaction*, not per byte.
 
 So the only number that matters for a warp load is: **how many sectors did
 these 32 lanes touch?**
@@ -305,12 +318,6 @@ half-empty. Coalescing is simply *arranging the warehouse so that a warp's 32
 lanes always reach for the same pallet*. Nothing else, no magic: the hardware
 does not detect access patterns or rearrange anything - it only counts which
 sectors the warp touched, and bills accordingly.
-
-> **Primitive - coalescing.** A warp load is serviced at sector granularity
-> (32 bytes; four sectors per 128-byte cache line). The load is *coalesced*
-> when the warp's addresses fall in as few sectors as possible, and
-> *uncoalesced* when they sprawl. The cost of a warp load is, to a first
-> approximation, the number of sectors it touches.
 
 **Why coalescing matters.** Global memory bandwidth is the scarcest resource
 on a memory-bound kernel (Chapter 1's roofline). Coalescing is the difference
