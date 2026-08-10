@@ -275,13 +275,32 @@ accounting in detail.
 
 ## 2.7 Coalescing: How a Warp Reads Memory
 
-**What it is, in one sentence.** Coalescing is the degree to which a warp's
-memory accesses get serviced *together*. When the threads of a warp read
-addresses that sit close together, the memory system groups those requests
-into a handful of transactions; when the addresses are spread far apart, it
-cannot, and each thread's access costs its own transaction. That is the whole
-idea; the rest of this section is why the hardware works that way and how to
-exploit it.
+**What it is.** Coalescing is the difference between a GPU program that uses
+its memory system well and one that wastes most of the bandwidth it buys -
+and it is the most common reason a kernel is slower than it should be.
+
+Start with what a warp is actually doing when it reads memory. A warp is 32
+threads executing the same instruction together, and when that instruction is
+a load, all 32 threads go to memory at once. Each thread wants its own piece
+of data - a `float`, say, four bytes. The question is what the memory system
+does with those 32 separate requests, and the answer depends entirely on
+where the data lives.
+
+If the 32 threads want 32 pieces of data packed next to each other in memory,
+the memory system can treat the whole thing as one job: it fetches one
+contiguous block and hands each thread its slice. The entire warp is served
+by one transaction, or two at most. If the 32 threads want data scattered
+across memory - every 32nd `float`, or addresses with no pattern at all - the
+memory system cannot group them. Each thread's request becomes its own
+transaction, and the warp pays 32 trips to memory for exactly the same amount
+of useful data.
+
+That property - the degree to which a warp's accesses can be grouped into a
+few transactions - is **coalescing**. A warp whose accesses group well is
+*coalesced*; a warp whose accesses sprawl is *uncoalesced*. Everything else
+in this section is the machinery behind this one idea: memory transactions
+are expensive, and coalescing is how you make a warp buy as few of them as
+possible.
 
 > **Primitive - coalescing.** A warp load is serviced at sector granularity
 > (32 bytes; four sectors per 128-byte cache line). The load is *coalesced*
@@ -289,16 +308,12 @@ exploit it.
 > *uncoalesced* when they sprawl. The cost of a warp load is, to a first
 > approximation, the number of sectors it touches.
 
-**The mechanism.** Start with the situation: when a warp issues a load, that
-is not one request - it is **32 requests**, one per lane, arriving at the
-memory system in the same instant and asking for 32 pieces of data.
-
-The fact that makes coalescing matter: **the memory system does not deliver
-32 arbitrary 4-byte pieces.** It delivers in fixed-size chunks - 32-byte
-**sectors**, a quarter of a 128-byte cache line - and it charges roughly the
-same per chunk whether the chunk is full or not. Addressing a DRAM row,
-decoding the address, driving the bus: that setup cost is paid *per
-transaction*, not per byte.
+**The machinery: sectors and transactions.** The memory system does not
+deliver 32 arbitrary 4-byte pieces - it delivers in fixed-size chunks,
+32-byte **sectors**, a quarter of a 128-byte cache line. And it charges
+roughly the same per chunk whether the chunk is full or not: addressing a
+DRAM row, decoding the address, driving the bus - that setup cost is paid
+*per transaction*, not per byte.
 
 So the only number that matters for a warp load is: **how many sectors did
 these 32 lanes touch?**
