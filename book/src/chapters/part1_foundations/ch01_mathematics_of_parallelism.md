@@ -330,6 +330,72 @@ reads, Chapter 7). This single observation explains why Chapter 7 is devoted
 to memory: for most real kernels, *the bytes are the problem, not the
 arithmetic*.
 
+### 1.8.3 The wider taxonomy: CPU-bound, memory-bound, I/O-bound
+
+The roofline model classifies the two resources *inside* a GPU. But the
+question it answers - *"which resource is the wall?"* - is older and wider
+than GPUs, and every program on every machine is eventually limited by one of
+three resources:
+
+- **The CPU** - the instruction-issue capacity of the processor.
+- **The memory system** - DRAM bandwidth and latency.
+- **An input/output device** - disk, network, PCIe bus, GPU transfer.
+
+We name the program after whichever one is the wall:
+
+> **Definition - the bound of a program.** A program is *bound by resource
+> \\\\(R\\\\)* if its total execution time is approximately the time it spends
+> using (or waiting on) \\\\(R\\\\). Concretely: \\\\(R\\\\)'s utilisation is
+> near 100% while the other resources idle, and *increasing \\\\(R\\\\)'s
+> capacity alone reduces total time proportionally, while increasing any other
+> resource's capacity changes nothing.*
+
+If we split the total time \\\\(T\\\\) into the time each resource is busy -
+\\\\(T_{\\\\text{CPU}}\\\\), \\\\(T_{\\\\text{mem}}\\\\),
+\\\\(T_{\\\\text{io}}\\\\) - plus an irreducible overhead, the three verdicts
+fall out of one ratio:
+
+- **CPU-bound**: \\\\(T_{\\\\text{CPU}} / T \\\\approx 1\\\\). The processor
+  is the wall. *Example: SHA-256 hashing of ten million in-memory keys.* The
+  data is already in RAM, so memory and I/O idle while the CPU executes
+  thousands of instructions per key. A faster CPU halves the time; faster RAM
+  or a faster disk changes nothing.
+- **Memory-bound**: \\\\(T_{\\\\text{mem}} / T \\\\approx 1\\\\). DRAM
+  bandwidth or latency is the wall. *Example: the vector add of §1.8.2.*
+  \\\\(I = 0.08\\\\), 500× below the ridge: the FP32 units idle while bytes
+  stream. Faster memory helps; more arithmetic horsepower changes nothing -
+  the roofline's exact verdict.
+- **I/O-bound**: \\\\(T_{\\\\text{io}} / T \\\\approx 1\\\\). Bytes must cross
+  into or out of the machine (disk, network, PCIe, `cudaMemcpy`), and that
+  crossing is the wall. *Example: streaming 10 GB from disk.* The CPU and
+  memory idle for nearly the whole run, waiting for sectors. A faster disk -
+  or asynchronous I/O (Chapter 6) - helps; a faster CPU changes nothing.
+
+![The bound taxonomy: three programs, three walls. Each panel shows the utilisation of CPU, memory and I/O during one run; the resource pinned at ~100% is the one the program is named after, and the only one worth optimising.](../../assets/ch01_bound_taxonomy.svg)
+
+![Where the time goes: the same three programs as timelines. Rows are resources; coloured blocks are busy intervals, dark gaps are idle time. The resource whose row is almost solid is the bound; the composition bar below each example shows the dominant colour.](../../assets/ch01_bound_examples.svg)
+
+**How to find your bound in practice.** The definition suggests a two-minute
+test: pick a resource, double its capacity, re-measure, and repeat:
+
+| You double... | ...and total time halves? | Then you are |
+|---|---|---|
+| CPU clock | ✓ | CPU-bound |
+| Memory bandwidth | ✓ | Memory-bound |
+| Disk / network / PCIe rate | ✓ | I/O-bound |
+| All three | ✗ | Serial-bound (Amdahl, §1.3) |
+
+**Why this matters before you write a single kernel.** Every optimisation in
+this book is a bet that you know which resource is the wall. Coalescing
+(§2.7) is a bet that the kernel is memory-bound. Register tiling (Chapter 9)
+is a bet that it is compute-bound. Streams and asynchronous transfers
+(Chapter 6) are a bet that it is I/O-bound. The roofline's *compute-bound* is
+simply the GPU-side name for CPU-bound: the arithmetic units are the wall,
+seen from the device side of the PCIe bus. Optimise the wrong resource and
+the wall does not move - which is why Chapter 16's profiler exists: to tell
+you which resource is actually saturated *before* you spend a week on the
+wrong fix.
+
 ## 1.9 The Cost of Synchronisation
 
 Parallel work must occasionally rendezvous: threads must agree on an order, or
@@ -370,6 +436,8 @@ The terms defined in this chapter are the book's working vocabulary:
 | Ridge point | \\(P_{\text{peak}} / B\\) | §1.8 |
 | Memory-bound | \\(I < I_{\text{ridge}}\\), limited by bandwidth | §1.8 |
 | Compute-bound | \\(I > I_{\text{ridge}}\\), limited by FLOPs | §1.8 |
+| CPU-bound | \\(T_{\text{CPU}} / T \approx 1\\), limited by the processor | §1.8 |
+| I/O-bound | \\(T_{\text{IO}} / T \approx 1\\), limited by disk/network/PCIe | §1.8 |
 
 ## Key Takeaways
 
@@ -378,6 +446,7 @@ The terms defined in this chapter are the book's working vocabulary:
 - Amdahl's law: a serial fraction f caps speedup at 1/f, no matter how many units you add.
 - Gustafson-Barsis: when the problem grows with the hardware, scaled speedup grows linearly.
 - Arithmetic intensity I = FLOPs / bytes, compared with the ridge point P_peak / B, decides memory-bound vs compute-bound.
+- A program is bound by the resource whose utilisation is ~100%: CPU-bound, memory-bound, or I/O-bound. Double one resource's capacity - if time halves, that is the wall.
 - SIMT executes one instruction per warp; divergent control flow serialises the divergent paths.
 
 ## 1.11 Exercises
@@ -392,3 +461,7 @@ The terms defined in this chapter are the book's working vocabulary:
 4. Explain, in your own words, why a GPU designed for throughput would
    willingly execute a warp of threads in lockstep even though each thread has
    its own program counter.
+5. A program downloads 10 GB from the network at 2 GB/s and compresses it on
+   the CPU at 20 GB/s. Estimate the CPU utilisation. Is the program CPU-bound,
+   memory-bound or I/O-bound? Which single change - a 2× faster CPU or a 2×
+   faster network - speeds it up more?

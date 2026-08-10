@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 600" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <!-- Night Owl background panel -->
+  <rect x="0" y="0" width="860" height="600" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- Title -->
+  <text x="430" y="28" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">WHERE DOES THE TIME GO?</text>
+  <text x="430" y="48" text-anchor="middle" fill="#637777" font-size="11">same 100 time units, three programs - the resource whose row is almost solid is the wall</text>
+
+  <!-- Legend -->
+  <rect x="40" y="66" width="12" height="12" rx="2" fill="#addb67"/>
+  <text x="58" y="76" fill="#d6deeb" font-size="10">CPU busy</text>
+  <rect x="160" y="66" width="12" height="12" rx="2" fill="#82aaff"/>
+  <text x="178" y="76" fill="#d6deeb" font-size="10">memory busy</text>
+  <rect x="280" y="66" width="12" height="12" rx="2" fill="#f78c6c"/>
+  <text x="298" y="76" fill="#d6deeb" font-size="10">I/O busy</text>
+  <rect x="400" y="66" width="12" height="12" rx="2" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <text x="418" y="76" fill="#d6deeb" font-size="10">idle</text>
+
+  <!-- Example 1: CPU-bound -->
+  <text x="40" y="126" fill="#d6deeb" font-size="12" font-weight="bold">SHA-256 hashing of 10M keys</text>
+  <text x="200" y="146" text-anchor="end" fill="#637777" font-size="10">CPU</text>
+  <rect x="210" y="134" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="224" y="134" width="476" height="16" rx="3" fill="#addb67"/>
+  <text x="200" y="168" text-anchor="end" fill="#637777" font-size="10">MEM</text>
+  <rect x="210" y="156" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="210" y="156" width="58" height="16" rx="3" fill="#82aaff"/>
+  <text x="200" y="190" text-anchor="end" fill="#637777" font-size="10">I/O</text>
+  <rect x="210" y="178" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <text x="730" y="180" fill="#addb67" font-size="13" font-weight="bold">CPU-BOUND</text>
+  <rect x="210" y="204" width="490" height="12" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="216" y="204" width="484" height="12" rx="3" fill="#addb67"/>
+  <text x="700" y="228" text-anchor="end" fill="#637777" font-size="9">the dominant colour is the wall</text>
+
+  <!-- Example 2: memory-bound -->
+  <text x="40" y="254" fill="#d6deeb" font-size="12" font-weight="bold">vector add of 10^9 floats on GPU</text>
+  <text x="200" y="274" text-anchor="end" fill="#637777" font-size="10">CPU</text>
+  <rect x="210" y="262" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="210" y="262" width="25" height="16" rx="3" fill="#addb67"/>
+  <text x="200" y="296" text-anchor="end" fill="#637777" font-size="10">MEM</text>
+  <rect x="210" y="284" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="235" y="284" width="465" height="16" rx="3" fill="#82aaff"/>
+  <text x="200" y="318" text-anchor="end" fill="#637777" font-size="10">I/O</text>
+  <rect x="210" y="306" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="210" y="306" width="15" height="16" rx="3" fill="#f78c6c"/>
+  <rect x="685" y="306" width="15" height="16" rx="3" fill="#f78c6c"/>
+  <text x="730" y="308" fill="#82aaff" font-size="13" font-weight="bold">MEMORY-BOUND</text>
+  <rect x="210" y="332" width="490" height="12" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="259" y="332" width="441" height="12" rx="3" fill="#82aaff"/>
+  <text x="700" y="356" text-anchor="end" fill="#637777" font-size="9">the dominant colour is the wall</text>
+
+  <!-- Example 3: I/O-bound -->
+  <text x="40" y="382" fill="#d6deeb" font-size="12" font-weight="bold">stream 10 GB from disk/network</text>
+  <text x="200" y="402" text-anchor="end" fill="#637777" font-size="10">CPU</text>
+  <rect x="210" y="390" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="210" y="390" width="20" height="16" rx="3" fill="#addb67"/>
+  <rect x="377" y="390" width="19" height="16" rx="3" fill="#addb67"/>
+  <rect x="543" y="390" width="20" height="16" rx="3" fill="#addb67"/>
+  <rect x="681" y="390" width="19" height="16" rx="3" fill="#addb67"/>
+  <text x="200" y="424" text-anchor="end" fill="#637777" font-size="10">MEM</text>
+  <rect x="210" y="412" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="210" y="412" width="10" height="16" rx="3" fill="#82aaff"/>
+  <rect x="358" y="412" width="14" height="16" rx="3" fill="#82aaff"/>
+  <rect x="525" y="412" width="14" height="16" rx="3" fill="#82aaff"/>
+  <rect x="676" y="412" width="14" height="16" rx="3" fill="#82aaff"/>
+  <text x="200" y="446" text-anchor="end" fill="#637777" font-size="10">I/O</text>
+  <rect x="210" y="434" width="490" height="16" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="230" y="434" width="451" height="16" rx="3" fill="#f78c6c"/>
+  <text x="730" y="436" fill="#f78c6c" font-size="13" font-weight="bold">I/O-BOUND</text>
+  <rect x="210" y="460" width="490" height="12" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="229" y="460" width="461" height="12" rx="3" fill="#f78c6c"/>
+  <text x="700" y="484" text-anchor="end" fill="#637777" font-size="9">the dominant colour is the wall</text>
+
+  <!-- Time axis -->
+  <line x1="210" y1="520" x2="700" y2="520" stroke="#d6deeb" stroke-width="1.5"/>
+  <line x1="210" y1="520" x2="210" y2="526" stroke="#d6deeb" stroke-width="1"/>
+  <text x="210" y="540" text-anchor="middle" fill="#d6deeb" font-size="10">t=0</text>
+  <line x1="332.5" y1="520" x2="332.5" y2="526" stroke="#d6deeb" stroke-width="1"/>
+  <text x="332.5" y="540" text-anchor="middle" fill="#d6deeb" font-size="10">t=25</text>
+  <line x1="455" y1="520" x2="455" y2="526" stroke="#d6deeb" stroke-width="1"/>
+  <text x="455" y="540" text-anchor="middle" fill="#d6deeb" font-size="10">t=50</text>
+  <line x1="577.5" y1="520" x2="577.5" y2="526" stroke="#d6deeb" stroke-width="1"/>
+  <text x="577.5" y="540" text-anchor="middle" fill="#d6deeb" font-size="10">t=75</text>
+  <line x1="700" y1="520" x2="700" y2="526" stroke="#d6deeb" stroke-width="1"/>
+  <text x="700" y="540" text-anchor="middle" fill="#d6deeb" font-size="10">t=100</text>
+
+  <text x="455" y="562" text-anchor="middle" fill="#d6deeb" font-size="11" font-weight="bold">time (arbitrary units, 0 to 100 - one full run of each program)</text>
+  <text x="430" y="584" text-anchor="middle" fill="#637777" font-size="10">busy = the resource is in use; idle = it could accept more work - the saturated resource is where the time goes</text>
+</svg>

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <!-- Night Owl background panel -->
+  <rect x="0" y="0" width="860" height="560" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <!-- Title -->
+  <text x="430" y="28" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">WHICH RESOURCE IS THE WALL?</text>
+  <text x="430" y="48" text-anchor="middle" fill="#637777" font-size="11">a program is named after the resource whose utilisation hits ~100% - the others idle</text>
+
+  <!-- Panel 1: CPU-bound -->
+  <rect x="16" y="78" width="260" height="336" rx="8" fill="#01111f" stroke="#addb67" stroke-width="1.5"/>
+  <text x="146" y="102" text-anchor="middle" fill="#addb67" font-size="13" font-weight="bold">CPU-BOUND</text>
+  <text x="146" y="122" text-anchor="middle" fill="#d6deeb" font-size="10">SHA-256 hashing of 10M</text>
+  <text x="146" y="136" text-anchor="middle" fill="#637777" font-size="10">in-memory keys, no disk</text>
+  <!-- bars -->
+  <text x="66" y="171" text-anchor="end" fill="#637777" font-size="10">CPU</text>
+  <rect x="78" y="158" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="78" y="158" width="126" height="18" rx="3" fill="#addb67"/>
+  <text x="216" y="171" fill="#addb67" font-size="10" font-weight="bold">97%</text>
+  <text x="66" y="203" text-anchor="end" fill="#637777" font-size="10">MEM</text>
+  <rect x="78" y="190" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="78" y="190" width="30" height="18" rx="3" fill="#82aaff" opacity="0.25"/>
+  <text x="216" y="203" fill="#637777" font-size="10">23%</text>
+  <text x="66" y="235" text-anchor="end" fill="#637777" font-size="10">I/O</text>
+  <rect x="78" y="222" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="78" y="222" width="4" height="18" rx="3" fill="#f78c6c" opacity="0.25"/>
+  <text x="216" y="235" fill="#637777" font-size="10">3%</text>
+  <!-- verdict -->
+  <text x="146" y="258" text-anchor="middle" fill="#d6deeb" font-size="10">CPU ~100% busy - the wall</text>
+  <text x="146" y="274" text-anchor="middle" fill="#addb67" font-size="10" font-weight="bold">2x CPU speed -&gt; time halves</text>
+  <text x="146" y="294" text-anchor="middle" fill="#637777" font-size="10">T_CPU / T ~ 1.0</text>
+  <text x="146" y="316" text-anchor="middle" fill="#addb67" font-size="10" font-weight="bold">fix: faster CPU, offload work</text>
+
+  <!-- Panel 2: memory-bound -->
+  <rect x="300" y="78" width="260" height="336" rx="8" fill="#01111f" stroke="#82aaff" stroke-width="1.5"/>
+  <text x="430" y="102" text-anchor="middle" fill="#82aaff" font-size="13" font-weight="bold">MEMORY-BOUND</text>
+  <text x="430" y="122" text-anchor="middle" fill="#d6deeb" font-size="10">vector add of 10^9 floats</text>
+  <text x="430" y="136" text-anchor="middle" fill="#637777" font-size="10">on the GPU (I ~ 0.08)</text>
+  <!-- bars -->
+  <text x="350" y="171" text-anchor="end" fill="#637777" font-size="10">CPU</text>
+  <rect x="362" y="158" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="362" y="158" width="12" height="18" rx="3" fill="#addb67" opacity="0.25"/>
+  <text x="500" y="171" fill="#637777" font-size="10">9%</text>
+  <text x="350" y="203" text-anchor="end" fill="#637777" font-size="10">MEM</text>
+  <rect x="362" y="190" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="362" y="190" width="126" height="18" rx="3" fill="#82aaff"/>
+  <text x="500" y="203" fill="#82aaff" font-size="10" font-weight="bold">97%</text>
+  <text x="350" y="235" text-anchor="end" fill="#637777" font-size="10">I/O</text>
+  <rect x="362" y="222" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="362" y="222" width="5" height="18" rx="3" fill="#f78c6c" opacity="0.25"/>
+  <text x="500" y="235" fill="#637777" font-size="10">4%</text>
+  <!-- verdict -->
+  <text x="430" y="258" text-anchor="middle" fill="#d6deeb" font-size="10">memory ~100% busy - the wall</text>
+  <text x="430" y="274" text-anchor="middle" fill="#82aaff" font-size="10" font-weight="bold">2x bandwidth -&gt; time halves</text>
+  <text x="430" y="294" text-anchor="middle" fill="#637777" font-size="10">T_MEM / T ~ 1.0</text>
+  <text x="430" y="316" text-anchor="middle" fill="#82aaff" font-size="10" font-weight="bold">fix: coalescing + reuse</text>
+
+  <!-- Panel 3: I/O-bound -->
+  <rect x="584" y="78" width="260" height="336" rx="8" fill="#01111f" stroke="#f78c6c" stroke-width="1.5"/>
+  <text x="714" y="102" text-anchor="middle" fill="#f78c6c" font-size="13" font-weight="bold">I/O-BOUND</text>
+  <text x="714" y="122" text-anchor="middle" fill="#d6deeb" font-size="10">stream 10 GB from disk,</text>
+  <text x="714" y="136" text-anchor="middle" fill="#637777" font-size="10">or network, into RAM</text>
+  <!-- bars -->
+  <text x="634" y="171" text-anchor="end" fill="#637777" font-size="10">CPU</text>
+  <rect x="646" y="158" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="646" y="158" width="10" height="18" rx="3" fill="#addb67" opacity="0.25"/>
+  <text x="784" y="171" fill="#637777" font-size="10">8%</text>
+  <text x="634" y="203" text-anchor="end" fill="#637777" font-size="10">MEM</text>
+  <rect x="646" y="190" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="646" y="190" width="14" height="18" rx="3" fill="#82aaff" opacity="0.25"/>
+  <text x="784" y="203" fill="#637777" font-size="10">11%</text>
+  <text x="634" y="235" text-anchor="end" fill="#637777" font-size="10">I/O</text>
+  <rect x="646" y="222" width="130" height="18" rx="3" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <rect x="646" y="222" width="124" height="18" rx="3" fill="#f78c6c"/>
+  <text x="784" y="235" fill="#f78c6c" font-size="10" font-weight="bold">95%</text>
+  <!-- verdict -->
+  <text x="714" y="258" text-anchor="middle" fill="#d6deeb" font-size="10">I/O ~100% busy - the wall</text>
+  <text x="714" y="274" text-anchor="middle" fill="#f78c6c" font-size="10" font-weight="bold">2x I/O rate -&gt; time halves</text>
+  <text x="714" y="294" text-anchor="middle" fill="#637777" font-size="10">T_IO / T ~ 1.0</text>
+  <text x="714" y="316" text-anchor="middle" fill="#f78c6c" font-size="10" font-weight="bold">fix: async I/O, overlap (Ch.6)</text>
+
+  <!-- Footer legend -->
+  <rect x="40" y="432" width="12" height="12" rx="2" fill="#addb67"/>
+  <text x="58" y="442" fill="#d6deeb" font-size="10">CPU busy</text>
+  <rect x="160" y="432" width="12" height="12" rx="2" fill="#82aaff"/>
+  <text x="178" y="442" fill="#d6deeb" font-size="10">memory busy</text>
+  <rect x="300" y="432" width="12" height="12" rx="2" fill="#f78c6c"/>
+  <text x="318" y="442" fill="#d6deeb" font-size="10">I/O busy</text>
+  <rect x="420" y="432" width="12" height="12" rx="2" fill="#0b2942" stroke="#1d3b53" stroke-width="1"/>
+  <text x="438" y="442" fill="#d6deeb" font-size="10">idle</text>
+
+  <text x="430" y="470" text-anchor="middle" fill="#d6deeb" font-size="11" font-weight="bold">diagnostic: double one resource's capacity - if total time halves, that resource is the bound</text>
+  <text x="430" y="490" text-anchor="middle" fill="#637777" font-size="10">if doubling CPU, memory and I/O all change nothing, you are serial-bound (Amdahl's law, sec. 1.3) - parallelism cannot help</text>
+</svg>
