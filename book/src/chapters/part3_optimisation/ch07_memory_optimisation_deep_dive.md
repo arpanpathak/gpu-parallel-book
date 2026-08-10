@@ -42,9 +42,11 @@ it hands consecutive threads consecutive addresses *by construction*. The
 right picture is what happens when the formula is inverted - the classic
 column-access bug in row-major data.
 
-The rule, restated with the hardware in mind: **consecutive thread IDs should
-map to consecutive addresses**. The global-index formula from Chapter 3
-satisfies this by construction for 1-D arrays and row-major 2-D data.
+The consequence, restated with the sector in mind (§2.7): **consecutive
+thread IDs should map to consecutive addresses** - not because a rule says
+so, but because contiguity is what keeps a warp's 32 lanes on one pallet.
+The global-index formula from Chapter 3 satisfies this by construction for
+1-D arrays and row-major 2-D data.
 
 ```cpp
 // GOOD (coalesced): thread t reads element t of each row.

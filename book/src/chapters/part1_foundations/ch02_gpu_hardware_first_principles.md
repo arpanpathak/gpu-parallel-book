@@ -275,31 +275,57 @@ accounting in detail.
 
 ## 2.7 Coalescing: How a Warp Reads Memory
 
-Here is the single most consequential performance rule in CUDA programming:
+Start with the situation, because everything follows from it. When a warp
+issues a load, that is not one request - it is **32 requests**, one per lane,
+arriving at the memory system in the same instant and asking for 32 pieces of
+data.
 
-> **Primitive - coalescing.** When the threads of a warp issue a load, the
-> memory system groups their requests and services them in **128-byte cache
-> lines** (or 32-byte sectors) - *if* the addresses are contiguous. If the 32
-> threads read 32 consecutive 4-byte words, one or two 128-byte transactions
-> satisfy the entire warp. If the threads read a stride-32 pattern, the same
-> data is fetched in 32 separate transactions.
+And here is the fact that defines coalescing: **the memory system does not
+deliver 32 arbitrary 4-byte pieces.** It delivers in fixed-size chunks -
+32-byte **sectors**, a quarter of a 128-byte cache line - and it charges
+roughly the same per chunk whether the chunk is full or not. Addressing a
+DRAM row, decoding the address, driving the bus: that setup cost is paid
+*per transaction*, not per byte.
 
-Concretely: a warp of 32 threads loading `float` values at consecutive
-addresses accesses 32 × 4 = 128 bytes. The memory system fetches exactly one
-128-byte line. A warp loading the same 128 bytes in a scrambled order may
-trigger several times that traffic. The hardware cannot detect the access
-pattern in general; it only knows which sectors the warp touched.
+So the only number that matters for a warp load is: **how many sectors did
+these 32 lanes touch?**
 
-**Why coalescing matters.** Global memory bandwidth is the scarcest resource on
-a memory-bound kernel (Chapter 1's roofline). Coalescing is the difference
-between using 100% of that bandwidth and using 6% of it. A stride of 32 floats
-between consecutive threads wastes 31/32 of every fetched byte.
+- Thirty-two lanes reading 32 consecutive `float`s touch exactly 128 bytes -
+  one cache line, one trip. The whole warp is served at once.
+- Thirty-two lanes reading every 32nd `float` touch 32 different lines - 32
+  transactions for the same 32 pieces of data. Same groceries, 32× the
+  shipping.
 
-**The rule of thumb.** Arrange your data so that **consecutive threads access
-consecutive addresses**. This single sentence explains the layout choices made
-throughout this book: the row-major matrix layout in Chapter 9, the thread-to-
-pixel mapping in the capstone (Chapter 15), and the padded shared-memory arrays
-of Chapter 7.
+**The intuition: the freight company.** The memory system is a freight
+company that only ships full pallets. A warp is 32 customers shopping
+together. If their 32 items are stacked on one pallet, the company makes one
+trip. If the items are scattered across 32 pallets in 32 different aisles, it
+makes 32 trips - and each trip costs the same whether the pallet is full or
+half-empty. Coalescing is simply *arranging the warehouse so that a warp's 32
+lanes always reach for the same pallet*. Nothing else, no magic: the hardware
+does not detect access patterns or rearrange anything - it only counts which
+sectors the warp touched, and bills accordingly.
+
+> **Primitive - coalescing.** A warp load is serviced at sector granularity
+> (32 bytes; four sectors per 128-byte cache line). The load is *coalesced*
+> when the warp's addresses fall in as few sectors as possible, and
+> *uncoalesced* when they sprawl. The cost of a warp load is, to a first
+> approximation, the number of sectors it touches.
+
+**Why coalescing matters.** Global memory bandwidth is the scarcest resource
+on a memory-bound kernel (Chapter 1's roofline). Coalescing is the difference
+between using 100% of that bandwidth and using roughly 3% of it: with a
+stride of 32 floats between consecutive threads, every fetched byte is 31/32
+wasted, and bandwidth is a per-second budget that does not care how it was
+wasted.
+
+**The one-sentence takeaway.** The consequence of all this - not the cause,
+the consequence - is the layout habit you will see everywhere in this book:
+*arrange your data so that consecutive threads touch consecutive addresses*.
+That is what the row-major matrix of Chapter 9 does, what the thread-to-pixel
+mapping of the capstone (Chapter 15) does, and what the padded shared-memory
+arrays of Chapter 7 do. Understand the sector, and that sentence stops being
+a rule you memorised and becomes a rule you could have derived.
 
 ## 2.8 Shared Memory Banks
 
