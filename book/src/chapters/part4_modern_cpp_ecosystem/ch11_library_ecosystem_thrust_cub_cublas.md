@@ -145,20 +145,25 @@ void gemmViaCublas(const float* dA, const float* dB, float* dC,
     cublasHandle_t handle;
     cublasCreate(&handle);
 
-    // The leading dimensions: for row-major storage we ask cuBLAS for the
-    // column-major view by swapping m and n (cuBLAS is column-major).
-    const int lda = k;   // leading dimension of A (elements per column)
-    const int ldb = n;   // leading dimension of B
-    const int ldc = n;   // leading dimension of C
+    // cuBLAS, like Fortran BLAS, is COLUMN-major: matrix columns are
+    // contiguous. Row-major C (m x n) = A (m x k) * B (k x n) has the same
+    // flat memory layout as column-major C^T = B^T * A^T, so we swap the
+    // operands and the problem sizes and compute the transposed product:
+    //   cublasSgemm(..., n, m, k, ..., dB, ldb, dA, lda, ..., dC, ldc)
+    // Each leading dimension is the matrix's ROW length (the number of
+    // elements per row in row-major storage):
+    const int ldb = n;   // B is k x n row-major -> B^T is n x k col-major, ld = n
+    const int lda = k;   // A is m x k row-major -> A^T is k x m col-major, ld = k
+    const int ldc = n;   // C is m x n row-major -> C^T is n x m col-major, ld = n
 
     // cuBLAS returns a status, not an exception. Check it:
     const cublasStatus_t status =
         cublasSgemm(handle,
-                    CUBLAS_OP_N, CUBLAS_OP_N,   // no transposes
-                    m, n, k,                    // problem sizes
+                    CUBLAS_OP_N, CUBLAS_OP_N,   // no transposes; the swap does the work
+                    n, m, k,                    // SWAPPED sizes: compute C^T = B^T * A^T
                     &alpha,
-                    dA, lda,
-                    dB, ldb,
+                    dB, ldb,                    // B first (it plays the "A" role)
+                    dA, lda,                    // A second (it plays the "B" role)
                     &beta,
                     dC, ldc);
     if (status != CUBLAS_STATUS_SUCCESS)

@@ -111,9 +111,10 @@ always pays. The shared-memory version fixes both sides:
 //   consecutive threads map to consecutive ix → consecutive addresses.
 // Stage 2 (shared memory):   the tile is stored in shared as tile[ty][tx].
 // Stage 3 (coalesced write): each thread writes tile[tx][ty] to a[jx][jy];
-//   this time consecutive threads (consecutive tx) map to consecutive jy →
-//   consecutive addresses in the OUTPUT row. The transpose happened in
-//   shared memory, so BOTH global accesses are coalesced.
+//   this time consecutive threads (consecutive tx) map to consecutive jx
+//   within the same output row (jy) -> consecutive addresses in the output.
+//   The transpose happened in shared memory, so BOTH global accesses are
+//   coalesced.
 // ---------------------------------------------------------------------------
 #define TILE 32
 
@@ -137,8 +138,8 @@ __global__ void transposeTiled(const float* in, float* out, int width)
     const int jy = blockIdx.x * TILE + threadIdx.y;   // row of output
 
     // Stage 3: write the transposed element. Consecutive threads (x) map to
-    // consecutive jy rows at the same jx - i.e., consecutive addresses in
-    // the row-major output. Coalesced.
+    // consecutive jx columns within the same output row (jy) - i.e.,
+    // consecutive addresses in the row-major output. Coalesced.
     if (jx < width && jy < width)
         out[jy * width + jx] = tile[threadIdx.x][threadIdx.y];
 }

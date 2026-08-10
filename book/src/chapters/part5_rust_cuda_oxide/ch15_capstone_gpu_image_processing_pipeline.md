@@ -90,19 +90,24 @@ __global__ void blurH(const float* in, float* out, int width, int height)
     if (x < width && y < height)
     {
         const float* row = in + y * width;       // this row's base
-        // Clamp the stencil at image borders (replicate-edge policy).
+        // Clamp the stencil at image borders (replicate-edge policy) - WRONG:
+        // only the outer taps are clamped, and the INNER taps (x-1, x+1)
+        // reuse the clamped values. At the left edge, row[x0] is therefore
+        // weighted 0.06136 + 0.24477 = 0.30613 instead of 0.06136.
         const int x0 = max(x - 2, 0), x1 = min(x + 2, width - 1);
-        out[y * width + x] = 0.06136f * row[x0] + 0.24477f * row[x1]
+        out[y * width + x] = 0.06136f * row[x0] + 0.24477f * row[x0]
                            + 0.38774f * row[x]  + 0.24477f * row[x1]
-                           + 0.06136f * row[x0];
+                           + 0.06136f * row[x1];
     }
 }
 ```
 
-**Wait - the weights are wrong for clamped edges.** The comment says
-replicate-edge, but the code above assigns both `x0` and `x1` the same weight
-pattern, which double-weights the border. The *honest* version computes the
-stencil with per-tap clamping:
+**Wait - the weights are wrong at the borders.** In the interior this version
+is the correct Gaussian: the five taps `[0.06136, 0.24477, 0.38774, 0.24477,
+0.06136]` land on `[x-2, x-1, x, x+1, x+2]`. But at the edges the *inner* taps
+(x-1 and x+1) reuse the clamped outer values, so the replicated border pixel
+is weighted twice (0.06136 + 0.24477) instead of once. The *honest* version
+clamps each tap independently:
 
 ```cpp
 __global__ void blurH(const float* in, float* out, int width, int height)
@@ -185,6 +190,28 @@ __global__ void sobel(const float* in, float* out, int width, int height)
 transpose. The kernel reads 9 pixels and produces two convolutions - the
 separable factoring is what keeps it at 9 reads instead of 18.
 
+## 15.4.1 Scale Back to `unsigned char`
+
+The design note in §15.1 promised the edge map would be "scaled back to
+`unsigned char` for output". The magnitude \\(\\sqrt{G_x^2 + G_y^2}\\) is a
+`float` that can exceed 255; the histogram of Chapter 8 counts `unsigned
+char` bins, so the two must meet at a scaling step. Clamping is not optional
+here: an out-of-range `float` converted to `unsigned char` is undefined
+behaviour, and the histogram would count byte patterns instead of edges.
+
+```cpp
+// Clamp the float edge magnitude to [0, 255] and store as uchar.
+__global__ void scaleEdges(const float* in, unsigned char* out, int n)
+{
+    const int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+    {
+        const int v = static_cast<int>(in[i] + 0.5f);   // round, don't truncate
+        out[i] = static_cast<unsigned char>(min(max(v, 0), 255));
+    }
+}
+```
+
 ## 15.5 The Streaming Host Pipeline
 
 The frame loop uses the machinery of Chapters 4 and 6: pinned host memory,
@@ -192,7 +219,7 @@ two streams, and double buffering so transfers overlap kernels:
 
 ```cpp
 // ---------------------------------------------------------------------------
-// One "frame" = load RGB, run the 4 kernels, store edges. Frames arrive in
+// One "frame" = load RGB, run the 5 kernels, store edges. Frames arrive in
 // host buffers h_rgb[0] and h_rgb[1]; the GPU processes one while the DMA
 // engine uploads the next (Chapter 6, 6.5).
 // ---------------------------------------------------------------------------
@@ -204,19 +231,27 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
     const int cur = frame % 2;          // buffer holding THIS frame's input
     const int nxt = (frame + 1) % 2;    // buffer for the NEXT frame
 
-    // Upload the NEXT frame while THIS one computes (pinned memory!):
+    // Upload the NEXT frame while THIS one computes (pinned memory!), and
+    // record an event after it: the NEXT iteration's kernel waits on it.
     if (!last)
+    {
         CHECK(cudaMemcpyAsync(d_rgb[nxt], h_rgb[nxt],
                               rgbBytes, cudaMemcpyHostToDevice, sCopy));
+        CHECK(cudaEventRecord(copyDone[nxt], sCopy));
+    }
 
-    // Make the compute stream wait for this frame's copy:
-    CHECK(cudaEventRecord(copyDone[nxt], sCopy));
-    CHECK(cudaStreamWaitEvent(sCompute, copyDone[nxt], 0));
+    // Make the compute stream wait for THIS frame's copy. Its event was
+    // recorded in the previous iteration (or during the prime before the
+    // loop). cudaStreamWaitEvent installs the dependency without blocking.
+    CHECK(cudaStreamWaitEvent(sCompute, copyDone[cur], 0));
 
-    // The four stages, all in the compute stream, in order:
+    // The five stages, all in the compute stream, in order:
     const dim3 block(256);
     const dim3 grid((numPixels + 255) / 256);
-    rgbToGray<<<grid, block, 0, sCompute>>>(d_rgb[cur], d_gray, numPixels);
+    // d_rgb is a raw byte buffer; rgbToGray reads it as uchar3 (alignment 1,
+    // §15.2), so the view is explicit:
+    rgbToGray<<<grid, block, 0, sCompute>>>(
+        reinterpret_cast<const uchar3*>(d_rgb[cur]), d_gray, numPixels);
 
     const dim3 b2(32, 8);   // 2-D block: 32 x 8 threads
     const dim3 g2((width  + 31) / 32, (height + 7) / 8);
@@ -224,11 +259,17 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
     blurV    <<<g2, b2, 0, sCompute>>>(d_blurred, d_blurred2, width, height);
     sobel    <<<g2, b2, 0, sCompute>>>(d_blurred2, d_edges, width, height);
 
-    histogram<<<g2, b2, 0, sCompute>>>(d_edges, d_hist, numPixels);
+    // Scale float edges back to uchar (15.4.1) before the histogram: the
+    // histogram counts EDGE INTENSITIES, not the bytes of a float.
+    scaleEdges<<<grid, block, 0, sCompute>>>(d_edges, d_edges8, numPixels);
+
+    histogram<<<g2, b2, 0, sCompute>>>(d_edges8, d_hist, numPixels);
     // (histogram kernel as in Chapter 8, 8.8)
 
-    // Copy the edge map back (device -> host, pinned, async):
-    CHECK(cudaMemcpyAsync(h_edges[cur], d_edges, grayBytes,
+    // Copy the edge map back (device -> host, pinned, async). The buffer is
+    // numPixels BYTES (uchar edges), not 4 bytes per pixel.
+    CHECK(cudaMemcpyAsync(h_edges[cur], d_edges8,
+                          numPixels * sizeof(unsigned char),
                           cudaMemcpyDeviceToHost, sCompute));
 }
 ```
@@ -245,9 +286,9 @@ blocks tile-shaped (32 = warp width in `x`, so warps are row-aligned).
 
 ## 15.6 The Same Pipeline in Thrust
 
-The library version replaces the four hand-written kernels with four
-`thrust::transform` calls (Chapter 11). The stencil kernels need neighbouring
-pixels, which `transform` provides via *shifted iterators*:
+The library version replaces the five hand-written kernels with five
+`thrust::transform`-shaped calls (Chapter 11). The stencil kernels need
+neighbouring pixels, which `transform` provides via *shifted iterators*:
 
 ```cpp
 #include <thrust/iterator/zip_iterator.h>
@@ -285,7 +326,8 @@ thrust::device_vector<float>  d_gray(n), d_blur(n), d_edges(n);
 thrust::transform(d_rgb.begin(), d_rgb.end(), d_gray.begin(), ToGray());
 thrust::transform(thrust::counting_iterator<int>(0),
                   thrust::counting_iterator<int>(n),
-                  d_blur.begin(), BlurH5{raw_pointer(d_gray), width});
+                  d_blur.begin(),
+                  BlurH5{thrust::raw_pointer_cast(d_gray.data()), width});
 // ... blurV and sobel follow the same pattern; histogram is a thrust::reduce
 // over a per-bin functor, or thrust::sort + adjacent-difference.
 ```
@@ -343,12 +385,12 @@ API is alpha, the shape is the point.
 A pipeline that produces *wrong* edges at 60 FPS is worse than a correct one
 at 10 FPS. The verification strategy is the differential test:
 
-1. **A CPU reference** implements the same four stages with plain loops
+1. **A CPU reference** implements the same five stages with plain loops
    (trivially correct, slow).
 2. **The GPU pipeline** runs on a test image.
 3. **Compare** stage by stage: greyscale, blurred, and edge maps must agree
-   within a tolerance (`1e-4` for float stages; `uchar` output compared
-   exactly).
+   within a tolerance (`1e-3` for float stages; the `uchar` edge map within
+   ±1 - the SFU `sqrtf` can round differently at a `.5` boundary).
 4. **Property checks** on real data: the histogram bins fall in expected
    ranges; an all-black image yields all-zero edges (a *known-answer* test).
 
@@ -367,7 +409,7 @@ over many frames, with warm-up excluded:
 cudaEventRecord(start, sCompute);
 rgbToGray<<<...>>>(...);
 cudaEventRecord(mid, sCompute);
-blurH<<<...>>>(); blurV<<<...>>>(); sobel<<<...>>>();
+blurH<<<...>>>(); blurV<<<...>>>(); sobel<<<...>>>(); scaleEdges<<<...>>>();
 cudaEventRecord(stop, sCompute);
 cudaEventSynchronize(stop);
 float msStage1 = 0, msRest = 0;
@@ -375,19 +417,33 @@ cudaEventElapsedTime(&msStage1, start, mid);
 cudaEventElapsedTime(&msRest,   mid,   stop);
 ```
 
-The report card for a 1920×1080 frame on a modern GPU, as teaching numbers:
+The report card for a 1920×1080 frame on a modern GPU, as teaching numbers.
+The times follow from the bandwidths: rgbToGray moves 6.2 MB (read) + 8.3 MB
+(write) ≈ 14.5 MB, so at ~75% of the 3.35 TB/s peak it takes ≈ 6 µs - not
+hundreds of microseconds. Measure on your own GPU; the *ratio* between stages
+is what the roofline predicts:
 
 | Stage | Time | Bandwidth (3.35 TB/s peak) | Roofline verdict |
 |---|---|---|---|
-| rgbToGray | ~0.4 ms | ~75% of peak | Memory-bound (as predicted) |
-| blurH + blurV | ~1.0 ms | ~70% of peak | Memory-bound, halo cost visible |
-| sobel | ~0.5 ms | ~70% of peak | Memory-bound |
-| histogram | ~0.3 ms | - | Atomic overhead, privatised |
-| **Total compute** | **~2.2 ms** | - | 450+ FPS, transfer-limited overall |
+| rgbToGray | ~6 µs | ~75% of peak | Memory-bound (as predicted) |
+| blurH + blurV | ~14 µs | ~70% of peak | Memory-bound, halo cost visible |
+| sobel | ~7 µs | ~70% of peak | Memory-bound |
+| histogram | ~10 µs | - | Atomic overhead, privatised |
+| **Total compute** | **~40 µs** | - | ~25,000 FPS compute-only; transfer-limited overall |
+
+The transfer arithmetic is the punchline. A 1920×1080 RGB frame is 6.2 MB to
+upload, and the `uchar` edge map is 2.1 MB to download - about 8.3 MB of
+host↔device traffic per frame. At a pinned PCIe Gen4 rate (~20 GB/s) that is
+roughly **400 µs of transfer per frame, ten times the total compute time**.
+The pipeline is transfer-limited: even a ~2,400 FPS transfer ceiling leaves
+the kernels nowhere near the limit, and a 60 FPS target has ~40× headroom.
+This is exactly why the streaming machinery of Chapters 4 and 6 matters - not
+because the kernels are slow, but because hiding the transfers is the only
+battle worth fighting at this image size.
 
 The roofline (Chapter 1) *predicted* the memory-bound verdicts before any
-code ran: every stage moves ~1 byte of data per pixel per pass with a handful
-of FLOPs - far below the ridge point. The measurement confirms the prediction.
+code ran: every stage moves a few bytes per pixel per pass with a handful of
+FLOPs - far below the ridge point. The measurement confirms the prediction.
 That is the loop this book teaches: predict with the model, confirm with the
 instrument, optimise only the confirmed bottleneck.
 
@@ -419,8 +475,9 @@ explain every line, you have graduated from this book.
    guarantees at the borders.
 3. In the streaming loop, why must `h_rgb` be *pinned* memory? Trace what
    happens if it is pageable.
-4. The differential test uses a tolerance of `1e-4` for float stages. Why not
-   exact equality? (Hint: Chapter 5, §5.6.)
+4. The differential test uses a tolerance of `1e-3` for float stages, and ±1
+   for the `uchar` edge map. Why not exact equality? (Hint: Chapter 5, §5.6,
+   and the SFU `sqrtf` in the sobel kernel.)
 5. Using the roofline model, predict whether making the blur a *single*
    fused 5×5 kernel (25 taps, no intermediate) would be faster or slower
    than the two-pass version, and explain the trade.

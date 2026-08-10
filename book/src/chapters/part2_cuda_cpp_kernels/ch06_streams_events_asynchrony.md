@@ -156,11 +156,14 @@ void runPipelined(int k, int chunkElems, cudaStream_t computeStream,
 {
     const size_t chunkBytes = chunkElems * sizeof(float);
     float* h_pinned[2];  float* d_buf[2];  float* d_out;
+    cudaEvent_t copyDone[2];   // one event per buffer (created in the omitted setup)
     // ... (allocations omitted for brevity; see 6.2) ...
 
-    // Prime the pipeline: copy chunk 0 into device buffer 0.
+    // Prime the pipeline: copy chunk 0 into device buffer 0, and record the
+    // event the first iteration will wait on.
     CHECK(cudaMemcpyAsync(d_buf[0], h_pinned[0], chunkBytes,
                           cudaMemcpyHostToDevice, copyStream));
+    CHECK(cudaEventRecord(copyDone[0], copyStream));
 
     for (int c = 0; c < k; ++c)
     {
@@ -169,19 +172,20 @@ void runPipelined(int k, int chunkElems, cudaStream_t computeStream,
 
         // If there is a next chunk, its copy goes into the OTHER buffer,
         // in the COPY stream, while the kernel runs in the COMPUTE stream.
+        // Record an event after it: the NEXT iteration's kernel waits on it.
         if (c + 1 < k)
+        {
             CHECK(cudaMemcpyAsync(d_buf[nxt], h_pinned[nxt], chunkBytes,
                                   cudaMemcpyHostToDevice, copyStream));
-
-        // The kernel must wait for ITS copy (stream dependency).
-        // cudaStreamWaitEvent makes computeStream wait for the copyStream
-        // event that marks the copy completion.
-        if (c == 0 || true)   // first iteration: copy already queued
-        {
-            // Correct dependency: make computeStream wait for the event
-            // recorded after the copy in copyStream. (Shown simplified;
-            // a full implementation records events per iteration.)
+            CHECK(cudaEventRecord(copyDone[nxt], copyStream));
         }
+
+        // The kernel must wait for ITS copy. THIS chunk's copy was queued
+        // in the previous iteration (or the prime), and its completion is
+        // marked by copyDone[cur]. cudaStreamWaitEvent installs the
+        // dependency without blocking the host.
+        CHECK(cudaStreamWaitEvent(computeStream, copyDone[cur], 0));
+
         kernel<<<grid, block, 0, computeStream>>>(d_buf[cur], d_out,
                                                   chunkElems);
     }
@@ -292,9 +296,10 @@ measures both regimes.
 2. The legacy default stream "synchronises with all other streams". Draw the
    timeline if a pipeline alternates `cudaMemcpyAsync(..., s1)` and
    `kernel<<<...>>>` (no stream argument).
-3. Rewrite the double-buffered loop using explicit `cudaEventRecord` /
-   `cudaStreamWaitEvent` calls so the dependency between copy and kernel is
-   correct on every iteration, including the first.
+3. The loop above uses one event per buffer (`copyDone[0]`, `copyDone[1]`).
+   Explain why two events are enough for any number of chunks, then extend
+   the loop to time each kernel with events (§6.4) and report the median
+   per-chunk kernel time.
 4. A graph captures a sequence of 500 kernel launches of 2 microseconds each.
    Host launch overhead is 5 microseconds per launch. How much time does one
    replay save compared with 500 individual launches?

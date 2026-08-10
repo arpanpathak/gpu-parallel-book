@@ -6,6 +6,7 @@
 // vector_add.ptx file next to the binary (or embedded; see 13.5).
 
 use cudarc::driver::{CudaDevice, CudaSlice, LaunchAsync, LaunchConfig};
+use cudarc::nvrtc::Ptx;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // --- Device handle -----------------------------------------------------
@@ -31,18 +32,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut d_c: CudaSlice<f32> = dev.alloc_zeros::<f32>(N)?;
 
     // --- Host -> device copies ----------------------------------------------
-    // htod_copy_into copies a &[f32] into a device slice. The '&mut' on the
+    // htod_copy_into takes ownership of the host Vec (the copy is queued on
+    // the device's stream, so no other code can mutate the buffer while it
+    // is in flight - the ownership story again). We pass clones so the
+    // originals remain usable for verification below. The '&mut' on the
     // destination is the ownership language: the copy mutates the device
     // buffer, and Rust requires exclusive access to do so.
-    dev.htod_copy_into(&a, &mut d_a)?;
-    dev.htod_copy_into(&b, &mut d_b)?;
+    dev.htod_copy_into(a.clone(), &mut d_a)?;
+    dev.htod_copy_into(b.clone(), &mut d_b)?;
 
     // --- Load the PTX and fetch the kernel handle ---------------------------
-    // load_ptx loads the module from the filesystem and registers the named
-    // kernel. Errors (missing file, missing symbol) surface as Results.
+    // load_ptx loads the module and registers the named kernel. The PTX is
+    // wrapped in a Ptx (Ptx::from_file for a path, Ptx::from_src for an
+    // embedded string - see 13.5). Errors (missing file, missing symbol)
+    // surface as Results.
     let module = "vector_add";
-    dev.load_ptx("vector_add.ptx", module, &["vector_add"])?;
-    let f = dev.get_func(module, "vector_add")?;
+    dev.load_ptx(Ptx::from_file("vector_add.ptx"), module, &["vector_add"])?;
+    let f = dev.get_func(module, "vector_add")
+        .ok_or("kernel 'vector_add' not found in the loaded module")?;
 
     // --- Launch --------------------------------------------------------------
     // The launch is marked unsafe: the configuration (grid/block shape) and
@@ -54,7 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // rounds up to whole warps), the kernel guards with `if (i < n)`, and the
     // argument tuple (a, b, &mut c, n) matches the extern "C" signature.
     unsafe {
-        f.launch(LaunchConfig::for_num_elems(N),
+        f.launch(LaunchConfig::for_num_elems(N as u32),
                  (&d_a, &d_b, &mut d_c, n32))
     }?;
 
