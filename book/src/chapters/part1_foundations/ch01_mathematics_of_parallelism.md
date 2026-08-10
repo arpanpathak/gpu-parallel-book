@@ -344,28 +344,28 @@ three resources:
 We name the program after whichever one is the wall:
 
 > **Definition - the bound of a program.** A program is *bound by resource
-> \\\\(R\\\\)* if its total execution time is approximately the time it spends
-> using (or waiting on) \\\\(R\\\\). Concretely: \\\\(R\\\\)'s utilisation is
-> near 100% while the other resources idle, and *increasing \\\\(R\\\\)'s
+> \\(R\\)* if its total execution time is approximately the time it spends
+> using (or waiting on) \\(R\\). Concretely: \\(R\\)'s utilisation is
+> near 100% while the other resources idle, and *increasing \\(R\\)'s
 > capacity alone reduces total time proportionally, while increasing any other
 > resource's capacity changes nothing.*
 
-If we split the total time \\\\(T\\\\) into the time each resource is busy -
-\\\\(T_{\\\\text{CPU}}\\\\), \\\\(T_{\\\\text{mem}}\\\\),
-\\\\(T_{\\\\text{io}}\\\\) - plus an irreducible overhead, the three verdicts
+If we split the total time \\(T\\) into the time each resource is busy -
+\\(T_{\text{CPU}}\\), \\(T_{\text{mem}}\\),
+\\(T_{\text{io}}\\) - plus an irreducible overhead, the three verdicts
 fall out of one ratio:
 
-- **CPU-bound**: \\\\(T_{\\\\text{CPU}} / T \\\\approx 1\\\\). The processor
+- **CPU-bound**: \\(T_{\text{CPU}} / T \approx 1\\). The processor
   is the wall. *Example: SHA-256 hashing of ten million in-memory keys.* The
   data is already in RAM, so memory and I/O idle while the CPU executes
   thousands of instructions per key. A faster CPU halves the time; faster RAM
   or a faster disk changes nothing.
-- **Memory-bound**: \\\\(T_{\\\\text{mem}} / T \\\\approx 1\\\\). DRAM
+- **Memory-bound**: \\(T_{\text{mem}} / T \approx 1\\). DRAM
   bandwidth or latency is the wall. *Example: the vector add of §1.8.2.*
-  \\\\(I = 0.08\\\\), 500× below the ridge: the FP32 units idle while bytes
+  \\(I = 0.08\\), 500× below the ridge: the FP32 units idle while bytes
   stream. Faster memory helps; more arithmetic horsepower changes nothing -
   the roofline's exact verdict.
-- **I/O-bound**: \\\\(T_{\\\\text{io}} / T \\\\approx 1\\\\). Bytes must cross
+- **I/O-bound**: \\(T_{\text{io}} / T \approx 1\\). Bytes must cross
   into or out of the machine (disk, network, PCIe, `cudaMemcpy`), and that
   crossing is the wall. *Example: streaming 10 GB from disk.* The CPU and
   memory idle for nearly the whole run, waiting for sectors. A faster disk -
