@@ -33,6 +33,7 @@
 - [Chapter 13: Rust Meets the GPU](chapters/part5_rust_cuda_oxide/ch13_rust_meets_the_gpu.md)
 - [Chapter 14: CUDA-Oxide  -  Kernels in Pure Rust](chapters/part5_rust_cuda_oxide/ch14_cuda_oxide_kernels_in_pure_rust.md)
 - [Chapter 15: Capstone  -  The GPU Image Processing Pipeline](chapters/part5_rust_cuda_oxide/ch15_capstone_gpu_image_processing_pipeline.md)
+- [Chapter 15b: Benchmarking CUDA-Oxide on Jetson Orin](chapters/part5_rust_cuda_oxide/ch15b_benchmarking_cuda_oxide_jetson.md)
 
 # Part VI  -  The Engineering Mindset
 

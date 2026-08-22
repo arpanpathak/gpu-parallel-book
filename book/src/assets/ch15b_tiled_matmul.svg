@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 360" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <rect x="0" y="0" width="860" height="360" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <text x="430" y="32" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold">TILED MATMUL: REUSE DATA IN SHARED MEMORY</text>
+  <text x="430" y="52" text-anchor="middle" fill="#637777" font-size="11">16x16 tiles of A and B are loaded once, then reused for 16x16 output cells</text>
+
+  <!-- A tile -->
+  <rect x="80" y="90" width="160" height="160" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <text x="160" y="120" text-anchor="middle" fill="#7fdbca" font-size="13" font-weight="bold">A tile</text>
+  <text x="160" y="180" text-anchor="middle" fill="#637777" font-size="10">16 x 16</text>
+  <text x="160" y="230" text-anchor="middle" fill="#637777" font-size="9">shared memory</text>
+
+  <!-- B tile -->
+  <rect x="360" y="90" width="160" height="160" rx="8" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <text x="440" y="120" text-anchor="middle" fill="#7fdbca" font-size="13" font-weight="bold">B tile</text>
+  <text x="440" y="180" text-anchor="middle" fill="#637777" font-size="10">16 x 16</text>
+  <text x="440" y="230" text-anchor="middle" fill="#637777" font-size="9">shared memory</text>
+
+  <!-- C tile -->
+  <rect x="620" y="90" width="160" height="160" rx="8" fill="#01111f" stroke="#addb67" stroke-width="2"/>
+  <text x="700" y="120" text-anchor="middle" fill="#addb67" font-size="13" font-weight="bold">C tile</text>
+  <text x="700" y="180" text-anchor="middle" fill="#637777" font-size="10">16 x 16</text>
+  <text x="700" y="230" text-anchor="middle" fill="#637777" font-size="9">output, registers</text>
+
+  <!-- multiply symbol -->
+  <text x="275" y="175" text-anchor="middle" fill="#c792ea" font-size="24" font-weight="bold">x</text>
+  <text x="555" y="175" text-anchor="middle" fill="#c792ea" font-size="24" font-weight="bold">=</text>
+
+  <!-- loop annotation -->
+  <rect x="120" y="280" width="620" height="44" rx="8" fill="#0b2942" stroke="#c792ea" stroke-width="1.5"/>
+  <text x="430" y="300" text-anchor="middle" fill="#c792ea" font-size="12" font-weight="bold">for each K-tile: load A and B into shared memory, sync, multiply-accumulate, sync</text>
+  <text x="430" y="316" text-anchor="middle" fill="#637777" font-size="10">global memory traffic drops from O(K) per output cell to O(1) per tile</text>
+</svg>

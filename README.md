@@ -39,9 +39,10 @@
 - **Part IV - Modern C++ & The CUDA Ecosystem** (Chapters 10-12): RAII and
   modern C++ idioms, the Thrust/CUB/cuBLAS libraries, and NVRTC runtime
   compilation with the driver API.
-- **Part V - Rust, CUDA-Oxide & Safe GPU Programming** (Chapters 13-15): Rust
-  host code with `cudarc`, NVIDIA's experimental CUDA-Oxide Rust-to-CUDA
-  compiler, and the image-processing capstone.
+- **Part V - Rust, CUDA-Oxide & Safe GPU Programming** (Chapters 13-15b):
+  Rust host code with `cudarc`, NVIDIA's experimental CUDA-Oxide Rust-to-CUDA
+  compiler, the image-processing capstone, and a Jetson Orin CPU-vs-GPU
+  benchmark study with a Laplace/Jacobi solver.
 - **Part VI - The Engineering Mindset** (Chapter 16): profiling with Nsight
   Compute, debugging with Compute Sanitizer, and reproducible performance
   engineering.

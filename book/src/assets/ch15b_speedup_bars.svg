@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 360" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
+  <rect x="0" y="0" width="860" height="360" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
+
+  <text x="430" y="32" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold">CPU vs GPU SPEEDUP ON JETSON ORIN</text>
+  <text x="430" y="52" text-anchor="middle" fill="#637777" font-size="11">higher is better; GPU time is kernel-only via CUDA events</text>
+
+  <!-- baseline -->
+  <line x1="80" y1="300" x2="820" y2="300" stroke="#1d3b53" stroke-width="2"/>
+  <text x="70" y="305" fill="#637777" font-size="10">0x</text>
+  <text x="810" y="305" fill="#637777" font-size="10">CPU Rayon = 1.0x</text>
+
+  <!-- SAXPY bar -->
+  <rect x="110" y="270" width="120" height="30" rx="4" fill="#7fdbca" opacity="0.9"/>
+  <text x="170" y="258" text-anchor="middle" fill="#7fdbca" font-size="12" font-weight="bold">SAXPY 1.8x</text>
+
+  <!-- Dot bar -->
+  <rect x="300" y="282" width="120" height="18" rx="4" fill="#7fdbca" opacity="0.6"/>
+  <text x="360" y="278" text-anchor="middle" fill="#7fdbca" font-size="12" font-weight="bold">Dot 1.4x</text>
+
+  <!-- Matmul bar -->
+  <rect x="490" y="90" width="120" height="210" rx="4" fill="#addb67" opacity="0.9"/>
+  <text x="550" y="78" text-anchor="middle" fill="#addb67" font-size="13" font-weight="bold">Matmul 7.0x</text>
+  <text x="550" y="200" text-anchor="middle" fill="#011627" font-size="16" font-weight="bold">7.0x</text>
+
+  <!-- Jacobi bar -->
+  <rect x="680" y="264" width="120" height="36" rx="4" fill="#c792ea" opacity="0.85"/>
+  <text x="740" y="252" text-anchor="middle" fill="#c792ea" font-size="12" font-weight="bold">Jacobi 1.6x</text>
+
+  <!-- annotations -->
+  <text x="170" y="330" text-anchor="middle" fill="#637777" font-size="10">memory-bound</text>
+  <text x="360" y="330" text-anchor="middle" fill="#637777" font-size="10">memory-bound</text>
+  <text x="550" y="330" text-anchor="middle" fill="#637777" font-size="10">compute-bound + shared memory</text>
+  <text x="740" y="330" text-anchor="middle" fill="#637777" font-size="10">stencil / memory-bound</text>
+</svg>
