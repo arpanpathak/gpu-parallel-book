@@ -44,12 +44,12 @@ properties:
   GPU's memory directly, without a bounce through host memory.
 
 ```
-GPU 0                GPU 1
+GPU 0                 GPU 1  
 ┌──────┐   NVLink    ┌──────┐
 │ SM   │◄───────────►│ SM   │
 │ HBM  │◄───────────►│ HBM  │
 └──────┘             └──────┘
-   peer-to-peer DMA, no host involvement
+   P2P, no host involvement  
 ```
 
 > **Primitive - NVLink.** NVIDIA's proprietary high-bandwidth,

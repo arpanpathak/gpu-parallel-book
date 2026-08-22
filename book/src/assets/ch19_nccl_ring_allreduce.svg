@@ -1,42 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 460" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
   <rect x="0" y="0" width="860" height="460" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
-  <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="14" font-weight="bold">NCCL ring all-reduce (N = 4 GPUs)</text>
+  <text x="430" y="30" text-anchor="middle" fill="#d6deeb" font-size="14" font-weight="bold">NCCL ring all-reduce (N = 4 GPUs)</text>
+  <text x="700" y="52" text-anchor="middle" fill="#637777" font-size="10">every link is used in every step</text>
 
-  <!-- GPU boxes in a ring layout -->
-  <rect x="350" y="60"  width="120" height="70" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
-  <text x="410" y="88"  text-anchor="middle" fill="#d6deeb" font-size="13" font-weight="bold">GPU 0</text>
-  <text x="410" y="108" text-anchor="middle" fill="#637777" font-size="11">rank 0</text>
+  <rect x="390" y="60"  width="80" height="60" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <text x="430" y="84"  text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">GPU 0</text>
+  <text x="430" y="102" text-anchor="middle" fill="#637777" font-size="10">rank 0</text>
 
-  <rect x="630" y="190" width="120" height="70" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
-  <text x="690" y="218" text-anchor="middle" fill="#d6deeb" font-size="13" font-weight="bold">GPU 1</text>
-  <text x="690" y="238" text-anchor="middle" fill="#637777" font-size="11">rank 1</text>
+  <rect x="650" y="200" width="80" height="60" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <text x="690" y="224" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">GPU 1</text>
+  <text x="690" y="242" text-anchor="middle" fill="#637777" font-size="10">rank 1</text>
 
-  <rect x="350" y="330" width="120" height="70" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
-  <text x="410" y="358" text-anchor="middle" fill="#d6deeb" font-size="13" font-weight="bold">GPU 2</text>
-  <text x="410" y="378" text-anchor="middle" fill="#637777" font-size="11">rank 2</text>
+  <rect x="390" y="340" width="80" height="60" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <text x="430" y="364" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">GPU 2</text>
+  <text x="430" y="382" text-anchor="middle" fill="#637777" font-size="10">rank 2</text>
 
-  <rect x="70"  y="190" width="120" height="70" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
-  <text x="130" y="218" text-anchor="middle" fill="#d6deeb" font-size="13" font-weight="bold">GPU 3</text>
-  <text x="130" y="238" text-anchor="middle" fill="#637777" font-size="11">rank 3</text>
+  <rect x="130" y="200" width="80" height="60" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <text x="170" y="224" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">GPU 3</text>
+  <text x="170" y="242" text-anchor="middle" fill="#637777" font-size="10">rank 3</text>
 
-  <!-- Ring arrows -->
-  <line x1="470" y1="96"  x2="628" y2="200" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <text x="562" y="126" text-anchor="middle" fill="#addb67" font-size="11">chunk A</text>
+  <line x1="470" y1="90"  x2="650" y2="204" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <text x="568" y="126" text-anchor="middle" fill="#addb67" font-size="11">chunk A</text>
 
-  <line x1="690" y1="262" x2="500" y2="338" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <text x="622" y="318" text-anchor="middle" fill="#addb67" font-size="11">chunk B</text>
+  <line x1="690" y1="260" x2="470" y2="350" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <text x="596" y="316" text-anchor="middle" fill="#addb67" font-size="11">chunk B</text>
 
-  <line x1="350" y1="366" x2="192" y2="262" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <text x="240" y="338" text-anchor="middle" fill="#addb67" font-size="11">chunk C</text>
+  <line x1="390" y1="370" x2="210" y2="256" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <text x="264" y="334" text-anchor="middle" fill="#addb67" font-size="11">chunk C</text>
 
-  <line x1="130" y1="188" x2="320" y2="112" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
-  <text x="196" y="126" text-anchor="middle" fill="#addb67" font-size="11">chunk D</text>
+  <line x1="170" y1="200" x2="390" y2="110" stroke="#addb67" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <text x="232" y="126" text-anchor="middle" fill="#addb67" font-size="11">chunk D</text>
 
-  <!-- Phase labels -->
+  <circle cx="470" cy="90" r="4" fill="#addb67"/>
+  <circle cx="650" cy="204" r="4" fill="#addb67"/>
+  <circle cx="690" cy="260" r="4" fill="#addb67"/>
+  <circle cx="470" cy="350" r="4" fill="#addb67"/>
+  <circle cx="390" cy="370" r="4" fill="#addb67"/>
+  <circle cx="210" cy="256" r="4" fill="#addb67"/>
+  <circle cx="170" cy="200" r="4" fill="#addb67"/>
+  <circle cx="390" cy="110" r="4" fill="#addb67"/>
+
   <rect x="250" y="420" width="360" height="26" rx="6" fill="#01111f" stroke="#1d3b53" stroke-width="1.5"/>
   <text x="430" y="437" text-anchor="middle" fill="#d6deeb" font-size="11">reduce-scatter (N-1 steps) + all-gather (N-1 steps)</text>
-
-  <text x="640" y="55" text-anchor="middle" fill="#637777" font-size="10">every link is used in every step</text>
 
   <defs>
     <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">

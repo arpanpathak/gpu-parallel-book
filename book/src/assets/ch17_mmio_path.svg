@@ -1,56 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" font-family="'JetBrains Mono','Fira Code','SF Mono',Menlo,Consolas,monospace">
   <rect x="0" y="0" width="860" height="420" rx="12" fill="#011627" stroke="#1d3b53" stroke-width="2"/>
-  <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="14" font-weight="bold">MMIO control path vs DMA data path</text>
+  <text x="430" y="30" text-anchor="middle" fill="#d6deeb" font-size="14" font-weight="bold">MMIO control path vs DMA data path</text>
 
   <!-- CPU -->
-  <rect x="40" y="70" width="180" height="130" rx="10" fill="#0b2942" stroke="#82aaff" stroke-width="2"/>
+  <rect x="40" y="70" width="180" height="100" rx="10" fill="#0b2942" stroke="#82aaff" stroke-width="2"/>
   <text x="130" y="96" text-anchor="middle" fill="#d6deeb" font-size="13" font-weight="bold">CPU</text>
   <text x="130" y="116" text-anchor="middle" fill="#637777" font-size="11">user-mode driver</text>
   <text x="130" y="134" text-anchor="middle" fill="#637777" font-size="11">writes doorbell</text>
   <text x="130" y="152" text-anchor="middle" fill="#637777" font-size="11">via MMIO store</text>
 
   <!-- Host memory -->
-  <rect x="40" y="300" width="180" height="70" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
-  <text x="130" y="326" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">Host memory</text>
-  <text x="130" y="346" text-anchor="middle" fill="#637777" font-size="11">pinned h_a buffer</text>
+  <rect x="40" y="280" width="180" height="70" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <text x="130" y="306" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">Host memory</text>
+  <text x="130" y="326" text-anchor="middle" fill="#637777" font-size="11">pinned h_a buffer</text>
 
-  <!-- PCIe root complex (tall enough to carry both paths) -->
-  <rect x="330" y="90" width="170" height="250" rx="10" fill="#01111f" stroke="#1d3b53" stroke-width="2"/>
-  <text x="415" y="116" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">PCIe</text>
-  <text x="415" y="136" text-anchor="middle" fill="#637777" font-size="11">root complex</text>
-  <text x="415" y="154" text-anchor="middle" fill="#637777" font-size="11">packet transport</text>
-  <text x="415" y="172" text-anchor="middle" fill="#637777" font-size="11">MMIO + DMA</text>
+  <!-- PCIe root complex (spans both paths) -->
+  <rect x="330" y="70" width="160" height="280" rx="10" fill="#01111f" stroke="#82aaff" stroke-width="2"/>
+  <text x="410" y="96" text-anchor="middle" fill="#d6deeb" font-size="12" font-weight="bold">PCIe</text>
+  <text x="410" y="116" text-anchor="middle" fill="#637777" font-size="11">root complex</text>
+  <text x="410" y="134" text-anchor="middle" fill="#637777" font-size="11">packet transport</text>
+  <text x="410" y="152" text-anchor="middle" fill="#637777" font-size="11">MMIO + DMA</text>
 
   <!-- GPU -->
-  <rect x="620" y="70" width="210" height="220" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
+  <rect x="620" y="70" width="210" height="240" rx="10" fill="#0b2942" stroke="#7fdbca" stroke-width="2"/>
   <text x="725" y="96" text-anchor="middle" fill="#d6deeb" font-size="13" font-weight="bold">GPU</text>
   <rect x="640" y="108" width="170" height="44" rx="6" fill="#011627" stroke="#82aaff" stroke-width="1.5"/>
   <text x="725" y="127" text-anchor="middle" fill="#82aaff" font-size="11" font-weight="bold">MMIO registers</text>
   <text x="725" y="143" text-anchor="middle" fill="#637777" font-size="10">doorbell / mailbox</text>
-  <rect x="640" y="162" width="170" height="44" rx="6" fill="#011627" stroke="#addb67" stroke-width="1.5"/>
-  <text x="725" y="181" text-anchor="middle" fill="#addb67" font-size="11" font-weight="bold">DMA engine</text>
-  <text x="725" y="197" text-anchor="middle" fill="#637777" font-size="10">descriptor walker</text>
-  <rect x="640" y="216" width="170" height="58" rx="6" fill="#011627" stroke="#7fdbca" stroke-width="1.5"/>
-  <text x="725" y="238" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">Device memory</text>
-  <text x="725" y="256" text-anchor="middle" fill="#637777" font-size="10">d_a / d_b / d_c</text>
+  <rect x="640" y="170" width="170" height="44" rx="6" fill="#011627" stroke="#addb67" stroke-width="1.5"/>
+  <text x="725" y="189" text-anchor="middle" fill="#addb67" font-size="11" font-weight="bold">DMA engine</text>
+  <text x="725" y="205" text-anchor="middle" fill="#637777" font-size="10">descriptor walker</text>
+  <rect x="640" y="232" width="170" height="58" rx="6" fill="#011627" stroke="#7fdbca" stroke-width="1.5"/>
+  <text x="725" y="254" text-anchor="middle" fill="#7fdbca" font-size="11" font-weight="bold">Device memory</text>
+  <text x="725" y="272" text-anchor="middle" fill="#637777" font-size="10">d_a / d_b / d_c</text>
 
-  <!-- MMIO path: CPU -> PCIe -> GPU MMIO -->
+  <!-- Control path arrows -->
   <line x1="220" y1="110" x2="328" y2="110" stroke="#82aaff" stroke-width="2" marker-end="url(#arrowBlue)"/>
   <text x="274" y="102" text-anchor="middle" fill="#82aaff" font-size="11">store</text>
-  <line x1="500" y1="120" x2="638" y2="128" stroke="#82aaff" stroke-width="2" marker-end="url(#arrowBlue)"/>
-  <text x="569" y="112" text-anchor="middle" fill="#82aaff" font-size="11">write txn</text>
+  <line x1="492" y1="130" x2="640" y2="130" stroke="#82aaff" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <text x="555" y="122" text-anchor="middle" fill="#82aaff" font-size="11">write txn</text>
 
-  <!-- DMA path: Host memory -> PCIe -> DMA engine -> Device memory -->
-  <line x1="220" y1="330" x2="328" y2="330" stroke="#addb67" stroke-width="2" marker-end="url(#arrowGreen)"/>
-  <text x="274" y="322" text-anchor="middle" fill="#addb67" font-size="11">DMA read</text>
-  <line x1="500" y1="300" x2="638" y2="190" stroke="#addb67" stroke-width="2" marker-end="url(#arrowGreen)"/>
-  <text x="569" y="322" text-anchor="middle" fill="#addb67" font-size="11">DMA write</text>
+  <!-- Data path arrows -->
+  <line x1="220" y1="315" x2="328" y2="315" stroke="#addb67" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="274" y="307" text-anchor="middle" fill="#addb67" font-size="11">DMA read</text>
+  <line x1="492" y1="290" x2="640" y2="192" stroke="#addb67" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="555" y="315" text-anchor="middle" fill="#addb67" font-size="11">DMA write</text>
 
-  <!-- Labels for the two paths -->
-  <text x="130" y="66" text-anchor="middle" fill="#82aaff" font-size="11" font-weight="bold">CONTROL: small, slow</text>
-  <text x="130" y="290" text-anchor="middle" fill="#addb67" font-size="11" font-weight="bold">DATA: bulk, fast</text>
+  <!-- Path labels -->
+  <text x="130" y="60" text-anchor="middle" fill="#82aaff" font-size="11" font-weight="bold">CONTROL: small, slow</text>
+  <text x="130" y="270" text-anchor="middle" fill="#addb67" font-size="11" font-weight="bold">DATA: bulk, fast</text>
 
-  <text x="430" y="390" text-anchor="middle" fill="#637777" font-size="11">CPU never touches each byte of bulk data: the DMA engine does the transfer</text>
+  <text x="430" y="392" text-anchor="middle" fill="#637777" font-size="11">CPU never touches each byte of bulk data: the DMA engine does the transfer</text>
 
   <defs>
     <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">

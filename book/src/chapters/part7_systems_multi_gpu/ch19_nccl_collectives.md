@@ -114,11 +114,13 @@ For small messages or many ranks, a **tree** algorithm has lower latency than
 a ring because the number of steps is O(log N) instead of O(N).
 
 ```
-        GPU0
-       /    \
-    GPU1    GPU2
-    /  \    /  \
- GPU3 GPU4 GPU5 GPU6
+GPU0        
+├── GPU1    
+│   ├── GPU3
+│   └── GPU4
+└── GPU2    
+    ├── GPU5
+    └── GPU6
 ```
 
 - **Reduce phase:** leaves send their data up; each parent sums children and

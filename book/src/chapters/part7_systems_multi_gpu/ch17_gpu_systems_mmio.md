@@ -151,7 +151,7 @@ CPU memory        DMA engine          GPU memory
 ┌─────────┐   ┌──────────────┐   ┌─────────────┐
 │ h_a     │──►│ read  ──────►│──►│ d_a         │
 └─────────┘   └──────────────┘   └─────────────┘
-              no CPU involvement in the data movement
+             no CPU involvement in data movement
 ```
 
 > **Primitive - DMA (Direct Memory Access).** A hardware engine that copies
@@ -222,7 +222,7 @@ The split is why:
   the GPU and returns an error).
 
 ```
-Your process                      Kernel                      GPU
+   Your process                     Kernel                     GPU    
 ┌──────────────────┐   ioctl    ┌──────────────┐  MMIO/DMA ┌─────────┐
 │ libcuda.so (UMD) │ ─────────► │ nvidia (KMD) │ ─────────►│ device  │
 │  CUDA API        │  (rarely)  │  device mgmt │           │         │
