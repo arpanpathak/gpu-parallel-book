@@ -67,16 +67,6 @@ For a GPU, the MMIO region contains things like:
 - **performance counters / temperature / power** - exposed through NVML and
   `nvidia-smi`, but read via the same underlying MMIO path.
 
-The key mental model:
-
-```
-CPU                          PCIe                     GPU
- ┌──────────┐   store to    ┌──────────┐  write txn  ┌──────────────┐
- │ mov [BAR]│ ────────────► │ Root     │ ──────────► │ MMIO regs   │
- │   , cmd  │               │ Complex  │             │ (doorbell…)  │
- └──────────┘               └──────────┘             └──────────────┘
-```
-
 The store is **posted**: the CPU does not wait for the GPU to process the
 command; it continues immediately. This is why kernel launches are
 asynchronous (Chapter 6): the host writes the launch command and rings the
@@ -236,7 +226,7 @@ Your process                      Kernel                      GPU
 ┌──────────────────┐   ioctl    ┌──────────────┐  MMIO/DMA ┌─────────┐
 │ libcuda.so (UMD) │ ─────────► │ nvidia (KMD) │ ─────────►│ device  │
 │  CUDA API        │  (rarely)  │  device mgmt │           │         │
-│  command buffers │ ─────────► │  IRQ handling │           │         │
+│  command buffers │ ─────────► │  IRQ handling │          │         │
 └──────────────────┘  doorbell  └──────────────┘           └─────────┘
 ```
 
