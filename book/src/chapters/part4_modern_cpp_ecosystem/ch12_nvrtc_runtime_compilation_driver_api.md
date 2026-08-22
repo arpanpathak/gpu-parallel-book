@@ -218,6 +218,62 @@ current context, so device pointers obtained from `cudaMalloc` are valid for
 NVRTC+driver for the kernel - is the pragmatic sweet spot, and it is the shape
 the capstone uses in Chapter 15.
 
+## Deeper Explanation: The Driver API Is Where the Runtime's Magic Lives
+
+The runtime API is convenient because it makes a context, loads modules, and
+manages memory for you. The driver API shows you the machinery: contexts are
+explicit, modules are explicit, kernel arguments are raw pointers, and errors
+are returned rather than hidden. This is not an obsolete layer - it is the
+layer the runtime is built on, and it is the only way to launch code that did
+not exist when your program was compiled. Understanding the driver API also
+demystifies the "kernel launch": a launch is just `cuLaunchKernel` with a
+function handle, a grid, a block, and a pointer-to-argument array. When you
+see a driver-API crash, it is almost always the argument array: `args[i]`
+must point to the *storage* of the i-th argument, not to the argument value.
+
+## Common Pitfalls
+
+- Passing `d_a` instead of `&d_a` in the `args` array. The driver reads
+  `args[i]` as a pointer-to-argument; passing the pointer value directly makes
+  it read the pointer's bytes as the argument.
+- Ignoring NVRTC's compile log. A failed compile tells you exactly what is
+  wrong, but only if you fetch and print it.
+- Creating a new context when the runtime already has one. Use the current
+  context (the hybrid pattern) or the primary context; creating a second
+  context can break pointer validity.
+- Forgetting that PTX for `compute_90` will not run on an older GPU. Choose a
+  virtual arch that matches your deployment range.
+
+## Check Your Understanding
+
+<details>
+<summary>Why must args[i] be the address of the argument?</summary>
+
+`cuLaunchKernel` receives a `void**` where each element is a *pointer to the
+argument's storage*. For a `float*` parameter `d_a`, the storage is the local
+pointer variable, so the driver needs `&d_a`. If you pass `d_a`, the driver
+reads the pointer value as if it were the argument's bytes - wrong data and a
+crash.
+</details>
+
+<details>
+<summary>What is the difference between PTX and cubin?</summary>
+
+PTX is portable virtual ISA text; it is architecture-independent and can be
+JIT-compiled by the driver for the actual GPU. A cubin is SASS for one
+specific compute capability and cannot run on a different architecture without
+recompilation.
+</details>
+
+<details>
+<summary>Why is the hybrid (runtime memory + driver kernel) pattern useful?</summary>
+
+It keeps the convenient, safe runtime API for allocations and copies while
+using the driver API for the one thing the runtime cannot do: launching a
+kernel compiled at run time. Both share the same current context, so device
+pointers remain valid across the boundary.
+</details>
+
 ## Key Takeaways
 
 - The runtime API (cuda*) is built on the driver API (cu*); the driver is the only way to launch kernels that did not exist at compile time.

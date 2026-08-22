@@ -281,6 +281,59 @@ Rust future, and the principles - type-safe indexing, explicit safety
 obligations, single-source compilation - are the same principles this book
 has been teaching since Chapter 3.
 
+## Deeper Explanation: Safe SIMT Is About Making the Hardware's Assumptions Visible
+
+CUDA C++ kernels are "safe" only by convention: the comments say "one thread
+per output", but nothing stops a thread from writing any index. CUDA-Oxide's
+contribution is making those conventions *type-level*. `DisjointSlice`
+guarantees that `get_mut` returns an exclusive slot; `thread::index_1d()`
+fuses the index formula so the mapping cannot be typoed; the borrow checker
+runs before any PTX is generated. The `unsafe` launch remains because the
+*geometry* - grid size vs kernel indexing - is still raw data, but the
+roadmap (`#[launch_contract]`) shows how even that becomes a checked
+precondition. The deeper lesson is architectural: the safest system is not
+the one with the most runtime checks, but the one where invalid programs
+cannot be expressed.
+
+## Common Pitfalls
+
+- Assuming CUDA-Oxide is production-ready. It is alpha; APIs change between
+  revisions (the book's companion tracks CUDA-Oxide 0.2.1).
+- Treating `DisjointSlice` as a licence to ignore bounds. `get_mut` returns
+  `None` for out-of-range indices; forgetting the `if let` guard still skips
+  work silently.
+- Believing `unsafe` means "unchecked". It means "checked by a human via the
+  SAFETY comment"; write the comment before you write the launch.
+- Porting CUDA C++ idioms verbatim (e.g., pointer arithmetic) instead of using
+  the Rust-native abstractions the chapter demonstrates.
+
+## Check Your Understanding
+
+<details>
+<summary>What does DisjointSlice prevent that a comment in CUDA C++ does not?</summary>
+
+It makes the "one thread per output" property a type guarantee: two threads
+cannot obtain `get_mut` for the same element. In CUDA C++, that invariant is
+only a comment; nothing stops a thread from writing any index.
+</details>
+
+<details>
+<summary>Why is the launch still unsafe if the kernel is safe?</summary>
+
+The kernel's internal indexing may be safe, but the *launch configuration*
+(grid/block shape) is raw data. Nothing in `LaunchConfig` proves the grid
+covers the output exactly as the kernel assumes, so the launch is an unsafe
+obligation documented by a SAFETY comment.
+</details>
+
+<details>
+<summary>What does #[launch_contract] change about the obligation?</summary>
+
+It moves the geometry proof into generated code: the launch dimensions and
+resources are validated against the kernel's declared contract, so the
+unsafe obligation becomes a checked precondition instead of a manual comment.
+</details>
+
 ## Key Takeaways
 
 - CUDA-Oxide is NVIDIA Labs' rustc backend: #[kernel] Rust functions compile to PTX - no nvcc, no DSL.

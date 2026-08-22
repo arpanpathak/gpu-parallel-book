@@ -253,6 +253,59 @@ tiling (Chapter 7). This is the capstone's actual path in Chapter 15.
 The pattern in both cases is the same: **the decision is driven by the
 algorithm's shape and the profiler's numbers, never by taste.**
 
+## Deeper Explanation: Libraries Are Optimised Answers to Problems You Should Still Understand
+
+There is a common misunderstanding that using Thrust/CUB/cuBLAS means you do
+not need to understand reductions, scans, or GEMM. The opposite is true: the
+libraries are *tuned implementations of the exact algorithms in Chapters 8-9*.
+If you do not understand the algorithm, you cannot predict when the library
+will be fast, when it will silently choose the wrong path, or when your data
+layout conflicts with its assumptions (cuBLAS's column-major trap is the
+canonical example). Libraries remove the *implementation* burden, not the
+*conceptual* one. The professional workflow is: know the algorithm, reach for
+the library, profile it, and only hand-roll when the profiler proves the
+library is the bottleneck.
+
+## Common Pitfalls
+
+- Passing row-major data to cuBLAS with `CUBLAS_OP_N` and getting the
+  transposed answer. Either transpose operands or use the dimension-swap trick
+  from §11.4.
+- Using `thrust::device_vector` in a per-frame hot loop. Its convenience
+  carries allocation and dispatch overhead; measure before assuming it is
+  free.
+- Reaching for CUB without understanding its template syntax. The errors are
+  intimidating, but the pattern (temp storage + `Sum()`) is small once you
+  have seen it.
+- Rewriting a library call "because it might be faster". The decision
+  procedure requires a profiler, not a hunch.
+
+## Check Your Understanding
+
+<details>
+<summary>Why does cuBLAS need leading dimensions?</summary>
+
+Because matrices can be sub-matrices (tiles) of larger buffers. `lda` tells
+cuBLAS how many elements separate the start of one row/column from the next,
+so it can walk a sub-matrix correctly instead of assuming full density.
+</details>
+
+<details>
+<summary>What does CUB's BlockReduce give you that Chapter 8's reduceFull did not?</summary>
+
+CUB handles non-power-of-two block sizes, architecture-specific tuning, and
+edge cases the hand-written kernel would need to debug. The Chapter 8 kernel
+is the explanation; CUB is the tested implementation.
+</details>
+
+<details>
+<summary>When should you replace thrust::sort with a custom radix sort?</summary>
+
+Only when profiling shows `thrust::sort` is a significant fraction of runtime
+and your data/keys have properties a radix sort can exploit (fixed-size keys,
+known range). Measure sort time and end-to-end time before and after.
+</details>
+
 ## Key Takeaways
 
 - Use the tuned, tested libraries first: Thrust (algorithms), CUB (block primitives), cuBLAS (dense linear algebra).

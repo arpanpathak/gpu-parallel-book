@@ -288,6 +288,59 @@ Each step is cheap to try and easy to measure (Chapter 16 shows the
 measurement discipline). Never apply step 6 without measuring the result of
 step 1.
 
+## Deeper Explanation: Coalescing Is a Contract with the Cache Line
+
+Coalescing is often taught as a rule ("consecutive threads, consecutive
+addresses"), but the mechanism is what makes the rule trustworthy. The memory
+system fetches 128-byte lines and services 32-byte sectors; a warp's 32
+requests are coalesced into as few transactions as possible. When you map
+`threadIdx.x` to the fastest-varying memory dimension, you are not being
+polite - you are guaranteeing that a warp's 32 accesses land in one or two
+lines. The same reasoning explains why a grid-stride loop preserves
+coalescing: within each iteration, consecutive threads still read consecutive
+addresses. And it explains why bank conflicts exist in shared memory: shared
+memory has no cache lines, but it has 32 banks, and a column access in an
+unpadded tile funnels all 32 threads into one bank. Coalescing and padding are
+two sides of the same principle: **map thread identity to physical layout**.
+
+## Common Pitfalls
+
+- Mapping `threadIdx.x` to the *slowest* varying dimension (the classic
+  column-access bug). Always put the fastest-varying thread index on the
+  fastest-varying memory index.
+- Assuming `float4` is safe on any pointer. It requires 16-byte alignment;
+  an unaligned offset compiles but crashes or corrupts.
+- Padding only one dimension and forgetting the other. For a tile that is read
+  both by row and by column, both tiles need `[T][T+1]` (or the equivalent).
+- Using constant memory for per-thread divergent lookups. Constant memory is
+  fast for broadcasts and slow for 32 different addresses in a warp.
+
+## Check Your Understanding
+
+<details>
+<summary>Why does the bank conflict formula matter more than the rule "pad by one"?</summary>
+
+The rule works when the row stride is coprime with 32 (e.g., 33 words).
+The formula `bank = (address / 4) mod 32` lets you verify *any* layout - wider
+tiles, vectorised types, structs - instead of blindly applying a magic +1.
+</details>
+
+<details>
+<summary>A warp loads 32 floats starting at byte offset 4. How many lines?</summary>
+
+32 floats span bytes 4..131, crossing the 0..127 and 128..255 lines: two
+128-byte lines. Perfectly aligned 32 floats (bytes 0..127) touch exactly one
+line.
+</details>
+
+<details>
+<summary>When is constant memory slower than global memory?</summary>
+
+When threads in a warp read different addresses. The constant cache is
+optimised for broadcasts; a divergent access serialises one address per cycle,
+which can be slower than a coalesced global load.
+</details>
+
 ## Key Takeaways
 
 - Coalescing means touching the fewest 128-byte cache lines per warp access: consecutive threads, consecutive addresses.

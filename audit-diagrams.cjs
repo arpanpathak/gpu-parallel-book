@@ -14,7 +14,8 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = process.env.CHROME ||
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = 9240;
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

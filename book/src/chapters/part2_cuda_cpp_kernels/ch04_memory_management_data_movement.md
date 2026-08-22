@@ -239,6 +239,59 @@ With two buffers, the copy for the *next* chunk overlaps the compute on the
 provided the transfers are pinned and asynchronous. Chapter 6 builds this
 pipeline in full; the capstone (Chapter 15) uses it for images.
 
+## Deeper Explanation: The Memory Kind Is Part of the Algorithm
+
+Beginners treat memory allocation as plumbing: pick `cudaMalloc`, copy, done.
+The deeper truth is that the memory kind determines the *cost model* of every
+access. Pinned memory is fast for streaming because the DMA engine can touch
+it directly; pageable memory pays a staging copy; unified memory pays page
+faults and migrations; zero-copy pays bus latency on every access. Each kind
+optimises a different pattern, and choosing the wrong one converts a
+bandwidth-bound kernel into a latency-bound one. This is why Chapter 4 is not
+"API reference" but *algorithm design*: the memory kind is a decision as
+important as the kernel's index arithmetic.
+
+## Common Pitfalls
+
+- Using pageable memory for every transfer and wondering why copies are slow.
+  Pin what you stream.
+- Using unified memory for everything "because it is easy". Lazy migration
+  turns a streaming copy into per-page faults; prefetch explicitly.
+- Forgetting the paired free: `cudaMalloc` → `cudaFree`, `cudaMallocHost` →
+  `cudaFreeHost`, `cudaHostAlloc` → `cudaFreeHost`. Mismatched frees corrupt
+  the runtime's bookkeeping.
+- Using zero-copy for large, repeatedly-read data. Every access crosses the
+  bus; it is only fast for small, rarely re-read data.
+
+## Check Your Understanding
+
+<details>
+<summary>Why can't cudaMemcpyAsync use pageable memory?</summary>
+
+Asynchronous copies are performed by the DMA engine, which needs physical
+pages that will not move. Pageable pages can be swapped; the runtime would
+have to stage through a pinned buffer synchronously, destroying the
+asynchrony. Pinned memory guarantees stable physical pages.
+</details>
+
+<details>
+<summary>What is the cost of unified memory that the API hides?</summary>
+
+Page faults and migrations. When the GPU touches a page resident on the host
+(or vice versa), the driver migrates it over the bus; the first touch of each
+page pays this cost. `cudaMemPrefetchAsync` makes those migrations explicit
+and removes them from kernel time.
+</details>
+
+<details>
+<summary>When is zero-copy the right choice?</summary>
+
+When the data is small enough that a copy would cost more than the bus
+latency of direct access, or when the kernel produces data the host must see
+immediately. It fails for large or repeatedly-read data because every access
+crosses the bus at full latency.
+</details>
+
 ## Key Takeaways
 
 - Transfers can cost 100x more than the kernel that uses the data - data movement is computation.

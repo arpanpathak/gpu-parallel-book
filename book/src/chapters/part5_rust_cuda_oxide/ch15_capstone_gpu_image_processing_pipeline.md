@@ -461,6 +461,60 @@ differential test (Chapters 11, 13, 14), and a measurement discipline that
 turns opinions into numbers (Chapter 16). If you can build this pipeline and
 explain every line, you have graduated from this book.
 
+## Deeper Explanation: The Pipeline Is a Testbed for the Book's Mental Models
+
+The capstone is deliberately more than a program: it is a *measuring
+instrument* for every idea in the book. The roofline predicts each stage is
+memory-bound before any code runs; the streamed double buffer hides transfer
+time; the differential test makes the second and third implementations
+trustworthy; the histogram verifies the whole chain produced sane data. When
+you change one stage (say, replacing blur with a fused 5×5 kernel), the
+pipeline lets you test the roofline's prediction empirically. That is the
+capstone's real lesson: a good system is not a collection of clever kernels,
+but a collection of *testable claims* about where time goes and why.
+
+## Common Pitfalls
+
+- Reusing a 2-D stencil block for a 1-D kernel. The histogram in this chapter
+  must be launched with a 1-D 256-thread block; launching it with the 2-D
+  `(32, 8)` stencil block only zeroes part of the private bins and
+  over-counts massively.
+- Clamping only the outer stencil taps at image borders. Every tap must be
+  clamped independently, or the edge weights are wrong (the "plausible but
+  wrong" blur in §15.3).
+- Using pageable host memory in the streaming loop. Async copies silently
+  become synchronous, and the overlap disappears.
+- Trusting a pipeline without a differential test. A fast wrong image is not a
+  result.
+
+## Check Your Understanding
+
+<details>
+<summary>Why must every stencil tap be clamped independently at borders?</summary>
+
+If you clamp only the outer taps, inner taps reuse the clamped values and the
+border pixel gets double-weighted (e.g., 0.06136 + 0.24477). Independent
+clamping replicates the edge pixel for each tap, preserving the correct
+weights.
+</details>
+
+<details>
+<summary>Why is the histogram a meaningful sanity check for the pipeline?</summary>
+
+The edge map is scaled to uchar, so its histogram counts edge intensities. If
+the histogram total does not equal frames × pixels, data was dropped or
+double-counted somewhere in the chain - a cheap, global correctness signal.
+</details>
+
+<details>
+<summary>Why can the differential test tolerate 1e-3 for floats but only ±1 for uchar?</summary>
+
+Float stages use different summation orders (FMA contraction) and the device
+`sqrtf` approximates the last bits, so exact equality is unrealistic. The
+uchar edge map is quantised; a rounding difference at a .5 boundary can flip a
+byte, so ±1 is allowed, but anything larger is a real error.
+</details>
+
 ## Key Takeaways
 
 - A pipeline is a chain of kernels; a fast pipeline is one that never waits (streams + pinned memory + events).

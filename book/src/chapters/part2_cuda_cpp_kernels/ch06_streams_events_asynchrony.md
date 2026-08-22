@@ -285,6 +285,62 @@ measures both regimes.
 | `cudaMemcpy` (sync) | The copy itself (in the legacy default stream) |
 | `cudaMemcpyAsync(..., stream)` | Nothing - returns immediately, copy queued in `stream` |
 
+## Deeper Explanation: Streams Are Dependency Graphs You Build by Accident or by Design
+
+A stream is not a "thread" and not a "queue in software"; it is the hardware
+scheduler's view of *ordered work*. The deep insight is that the GPU is a
+pipeline: copies use the DMA engines, kernels use the SMs, and both can run
+concurrently if they touch different resources and different memory. Streams
+let you express that concurrency, and events let you express the *dependencies*
+that must remain ordered. Every pipeline is a directed acyclic graph; the
+default stream is just the special case where everything depends on everything
+else. The moment you think in terms of "what must wait for what", streams and
+events stop being API ceremony and become the natural language of GPU
+scheduling.
+
+## Common Pitfalls
+
+- Accidentally using the legacy default stream, which synchronises with all
+  other streams and serialises the pipeline. Name your streams or compile with
+  `--default-stream per-thread`.
+- Using pageable memory with `cudaMemcpyAsync`. It silently becomes
+  synchronous, and your overlap disappears without an error.
+- Recording events on the wrong stream or waiting on the wrong event.
+  `cudaStreamWaitEvent` must reference the event that actually marks the
+  dependency you need.
+- Replaying a CUDA Graph with mutable input pointers without updating the
+  graph's node parameters. Graphs capture addresses; if the buffers move, the
+  replay uses stale pointers.
+
+## Check Your Understanding
+
+<details>
+<summary>Why does the legacy default stream serialise everything?</summary>
+
+The legacy default stream synchronises with all other streams: any operation
+in it waits for all previously issued work in every stream, and blocks other
+streams from starting. One forgotten `<<<...>>>` without a stream argument
+therefore injects a full pipeline barrier.
+</details>
+
+<details>
+<summary>Why are events better than std::chrono for kernel timing?</summary>
+
+Events are recorded by the device when the stream reaches them, so the
+elapsed time excludes host launch overhead and queueing delay. `std::chrono`
+measures host wall time around the launch, which includes everything the host
+was doing.
+</details>
+
+<details>
+<summary>Why are two events enough for any number of double-buffered chunks?</summary>
+
+There are only two buffers, so there are only two copy-completion conditions
+to track: the current chunk's copy (for the kernel) and the next chunk's copy
+(for the following iteration). Each buffer reuses the same event slot every
+two chunks.
+</details>
+
 ## Key Takeaways
 
 - A stream is an ordered FIFO queue of device work; work in different streams may overlap.

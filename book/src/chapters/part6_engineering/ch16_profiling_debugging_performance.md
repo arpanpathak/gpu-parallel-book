@@ -239,6 +239,60 @@ steps is engineering. Everything in this book - the roofline of Chapter 1, the
 coalescing of Chapter 7, the pipelines of Chapter 15 - is an argument about
 what step 3 should say. The loop is how you know the argument was right.
 
+## Deeper Explanation: The Profiler Is Not a Report Card, It Is a Hypothesis Machine
+
+Beginners treat `ncu` output like a school report: occupancy 80%, memory
+throughput 90%, "good". The professional reading is *differential*: each
+metric is a hypothesis about why the kernel is not faster. Low occupancy +
+memory stalls → not enough warps to hide latency. High memory throughput on a
+memory-bound kernel → coalescing is working, stop tuning memory. A stall
+reason like `long_scoreboard` tells you which chapter to revisit. The
+engineering loop exists because a single metric never tells you the answer; it
+tells you what to change next. The same logic applies to Compute Sanitizer:
+a clean run is not proof of correctness, it is evidence that one class of bugs
+is absent - which is why differential and property tests remain necessary.
+
+## Common Pitfalls
+
+- Profiling a debug build. Optimised builds have different register usage,
+  inlining, and performance; always profile `-O3`/release builds.
+- Trusting one run. Kernels are subject to clock boost, thermal state, and OS
+  noise; report the median of many runs.
+- Changing two variables between measurements. The result is uninterpretable;
+  change one thing, re-measure, repeat.
+- Skipping warm-up. The first launch pays JIT, page-table, and cache warm-up
+  costs that are not part of steady-state performance.
+- Believing a fast wrong kernel is a result. Verify output before trusting
+  timings.
+
+## Check Your Understanding
+
+<details>
+<summary>Why does ncu replay the kernel under instrumentation?</summary>
+
+Full counter collection changes timing and some state. Replaying the kernel
+multiple times under instrumentation lets the profiler aggregate hardware
+counters without distorting the measurements as much as a single instrumented
+run would.
+</details>
+
+<details>
+<summary>Why report the median instead of the mean?</summary>
+
+The median is robust to outliers (OS preemption, clock boost, thermal
+throttling). The mean is dragged by rare large outliers, so it does not
+represent the typical run.
+</details>
+
+<details>
+<summary>What does racecheck catch that a passing test does not?</summary>
+
+A race is timing-dependent: it may not manifest on the inputs you tested.
+`racecheck` instruments memory accesses and detects unsynchronised
+read/write pairs even when the race happens to produce the right answer on
+your test cases.
+</details>
+
 ## Key Takeaways
 
 - nsys answers 'where does the time go' (is the GPU ever idle?); ncu answers 'why is this kernel slow' (counters).

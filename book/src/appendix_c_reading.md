@@ -31,6 +31,12 @@
 - **CUDA-Oxide (NVlabs/cuda-oxide)** - the README and examples are the
   primary source for Chapter 14; the project moves quickly, so read the
   repository, not just this book.
+- **NCCL Documentation** - the official `nccl` user guide and API reference
+  for Chapter 19 (collectives, algorithms, environment variables).
+- **NVLink & NVSwitch** - NVIDIA's interconnect architecture papers and DGX
+  system guides for Chapter 18.
+- **Linux kernel PCI/IOMMU documentation** - `Documentation/PCI/` and
+  `Documentation/IOMMU.txt` for the systems layer of Chapter 17.
 
 ## C.3 Tools
 
@@ -46,6 +52,10 @@
 | `cudaOccupancyMaxActiveBlocksPerMultiprocessor` | Occupancy computation | 2, 16 |
 | `cargo-oxide` | CUDA-Oxide build driver | 14 |
 | `cudarc` (crates.io) | Rust host wrapper | 13 |
+| `lspci` | PCIe devices, BARs, drivers | 17 |
+| `nvidia-smi topo -m` | GPU-to-GPU topology (NVLink vs PCIe) | 18 |
+| `nvidia-smi nvlink -s` | NVLink link status | 18 |
+| `nccl-tests` | Collective bandwidth/latency benchmarks | 19 |
 
 ## C.4 Online Resources
 

@@ -317,6 +317,61 @@ Both are beyond this chapter's scope, but the journey from naive (5% of peak)
 to register-tiled (70%) is the same journey every optimisation chapter in this
 book teaches: *find the bottleneck, remove it, measure, repeat*.
 
+## Deeper Explanation: SGEMM Is the Book in One Kernel
+
+Every optimisation in the earlier chapters appears in SGEMM: coalescing
+(Chapter 7) fixes the naive kernel's uncoalesced A reads; shared-memory tiling
+reuses each global byte T times; padding removes bank conflicts; register
+tiling turns shared-memory traffic into register-resident FMAs;
+`__launch_bounds__` turns the occupancy arithmetic of Chapter 2 into a
+compiler constraint; and the roofline (Chapter 1) tells you the journey is
+about intensity, not raw FLOPs. The reason SGEMM is the canonical teaching
+kernel is that it is compute-bound at scale, so every optimisation must
+preserve *reuse* while not starving the arithmetic units. If you can explain
+every line of the register-tiled kernel - including why the B-tile load uses
+`col0 + c` and not `col0 + tx*RN + c` - you have internalised most of the
+book.
+
+## Common Pitfalls
+
+- Getting the tile-load indexing wrong by double-counting an offset (the
+  `col0 + tx*RN` bug: `col0` already contains the thread's column offset).
+  Trace one thread's load by hand before launching.
+- Using `__launch_bounds__` without measuring. Forcing occupancy can increase
+  register spills and slow the kernel.
+- Forgetting the second `__syncthreads()` after the inner-product loop. The
+  next tile's load would overwrite shared memory while some threads still read
+  it.
+- Assuming the naive kernel is correct at scale. It is correct but
+  memory-bound; the uncoalesced A reads can be 20-30× more traffic than
+  necessary.
+
+## Check Your Understanding
+
+<details>
+<summary>Why is SGEMM compute-bound at N=4096?</summary>
+
+Intensity is N/6 ≈ 683 FLOP/byte, far above typical ridge points (20-40
+FLOP/byte). The memory system can easily feed the arithmetic units; the limit
+is keeping the FMAs fed with reused data from shared memory and registers.
+</details>
+
+<details>
+<summary>What does the +1 padding in sA[T][T+1] do?</summary>
+
+It makes each row stride 17 words instead of 16. Since 17 is coprime with the
+32-bank shared-memory layout, column accesses hit distinct banks instead of
+funnelling into a 32-way bank conflict.
+</details>
+
+<details>
+<summary>Why can __launch_bounds__ decrease performance?</summary>
+
+It constrains the compiler to a register budget. If the kernel naturally needs
+more registers than the budget allows, ptxas spills to local memory, and the
+spill traffic can cost more than the occupancy gain.
+</details>
+
 ## Key Takeaways
 
 - SGEMM is compute-bound (intensity N/6 FLOP/byte): the goal is arithmetic reuse, not just coalescing.

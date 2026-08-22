@@ -439,6 +439,57 @@ The terms defined in this chapter are the book's working vocabulary:
 | CPU-bound | \\(T_{\text{CPU}} / T \approx 1\\), limited by the processor | §1.8 |
 | I/O-bound | \\(T_{\text{IO}} / T \approx 1\\), limited by disk/network/PCIe | §1.8 |
 
+## Deeper Explanation: The Two Laws Are Two Questions, Not Two Truths
+
+Students often ask "which law is correct?" The answer is: both, for different
+questions. Amdahl's law answers *"how fast can my fixed problem run?"*
+Gustafson's law answers *"how big a problem can I run in fixed time?"* On a
+GPU you experience both in one session: training a model with a larger batch
+size is weak scaling (Gustafson), while processing a fixed 1080p frame at
+60 FPS is strong scaling (Amdahl). The trick is to know which regime you are
+in before you quote a number. A 10× speedup claim is meaningless unless the
+problem size and the machine are fixed - that is why Chapter 16 demands the
+exact hardware, compiler flags, and measurement method for every performance
+claim.
+
+## Common Pitfalls
+
+- Quoting speedup without efficiency. A "64× speedup on 128 cores" is a 50%
+  efficiency; the machine is half idle.
+- Forgetting the serial fraction includes *host-side* overhead. On a GPU,
+  launch overhead, copies, and synchronization are part of `f` - sometimes the
+  dominant part.
+- Treating memory-bound kernels as compute-bound. If `I < ridge`, adding FLOPs
+  will not help; the roofline says the memory system is the wall.
+- Confusing strong and weak scaling when designing experiments. Always state
+  whether the problem size is fixed or grows with the device count.
+
+## Check Your Understanding
+
+<details>
+<summary>Why is efficiency a more honest metric than speedup?</summary>
+
+Efficiency divides speedup by the number of processing units. A vendor can
+report "10× speedup on 64 cores", but efficiency is only 10/64 ≈ 0.156: 84% of
+the hardware is wasted. Efficiency exposes the waste that raw speedup hides.
+</details>
+
+<details>
+<summary>A kernel has 2% serial time. What is the Amdahl ceiling?</summary>
+
+The maximum speedup is 1/f = 1/0.02 = 50×, no matter how many cores or GPUs
+you add. The 2% serial part alone takes 2% of the original time, so total time
+can never go below that.
+</details>
+
+<details>
+<summary>Vector add has intensity 0.08 FLOP/byte on a machine with ridge 40. Is it memory-bound or compute-bound?</summary>
+
+Memory-bound. 0.08 is far below the ridge point, so the bandwidth diagonal
+caps performance at I × B. The FP32 units are idle waiting for bytes; extra
+arithmetic throughput changes nothing.
+</details>
+
 ## Key Takeaways
 
 - Parallelism buys throughput, not latency; the GPU hides latency by keeping many warps in flight.

@@ -461,6 +461,59 @@ GPU (Pascal or newer) through the driver's JIT.
   `cudaDeviceSynchronize()` before copying results are the two mandatory
   checkpoints.
 
+## Deeper Explanation: Why `<<<grid, block>>>` Is a Declaration, Not a Loop
+
+The single most important mindset shift in CUDA is seeing the launch
+configuration as a *contract with the scheduler*. You are not writing a loop
+that the CPU walks through; you are describing how much work exists and how
+it is shaped. The hardware decides which SM gets which block, when warps are
+scheduled, and how the grid is drained. This is why the same kernel can run
+on a tiny GPU and a huge GPU without changing the source: the launch
+configuration says "there are this many blocks of this size", and the
+hardware maps them onto whatever SMs exist. If you write code that assumes a
+specific SM count, block order, or execution timing, you are violating the
+contract - and your kernel will break on a different GPU even though it
+"worked" on yours.
+
+## Common Pitfalls
+
+- Using `int` for sizes that can exceed 2 billion bytes/indices. `nBytes`
+  should be `size_t`; grid/block dims are unsigned and have hardware limits.
+- Launching with a grid that does not cover all elements and omitting the
+  boundary guard. Rounding up + `if (i < n)` is the safe pattern.
+- Forgetting that the launch is asynchronous. Checking errors immediately
+  after launch is necessary but not sufficient; you must synchronize before
+  reading results.
+- Assuming blocks execute in order. They do not. Never rely on block
+  scheduling order for correctness.
+
+## Check Your Understanding
+
+<details>
+<summary>Why must a __global__ function return void?</summary>
+
+A kernel is launched for thousands of threads; there is no single caller to
+receive a return value. The kernel's "return" is the side effects it writes to
+memory (output arrays, atomics). Return values are expressed through output
+buffers instead.
+</details>
+
+<details>
+<summary>For n = 1,000,000 and 256 threads per block, how many blocks are launched and how many threads are masked?</summary>
+
+blocks = ceil(1,000,000 / 256) = 3,907. Total threads = 3,907 × 256 =
+1,000,192, so 192 threads in the last block are masked by `if (i < n)`.
+</details>
+
+<details>
+<summary>What does cudaGetLastError() catch that cudaDeviceSynchronize() does not?</summary>
+
+`cudaGetLastError()` catches launch-configuration errors that are recorded
+asynchronously (e.g., invalid block size, bad kernel pointer) before you
+synchronize. `cudaDeviceSynchronize()` waits for completion and surfaces
+execution errors (e.g., illegal memory access). Both are needed.
+</details>
+
 ## Key Takeaways
 
 - Host and device have separate address spaces; every transfer is an explicit cudaMemcpy.

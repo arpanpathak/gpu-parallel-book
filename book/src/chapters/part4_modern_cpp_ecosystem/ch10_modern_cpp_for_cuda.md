@@ -344,6 +344,61 @@ without becoming debugging labyrinths.
 | `atomicAdd` everywhere | `cuda::atomic` where ordering matters | Memory-model clarity |
 | Untested device math | `__host__ __device__` + differential tests | Same code, both sides |
 
+## Deeper Explanation: Modern C++ Is How You Make the Compiler Enforce the Book's Rules
+
+Chapters 3-9 asked you to *remember* rules: check every CUDA call, match every
+free, never copy a device buffer. Chapter 10 converts those rules into
+language mechanisms the compiler enforces. `DeviceBuffer`'s deleted copy
+constructor makes double-frees a compile error; `static_assert` makes
+non-trivially-copyable types a compile error; templates and concepts make
+generic kernels type-safe; `constexpr` makes configuration checkable. The
+deeper lesson is that every good API is a *contract expressed in types*: if a
+program is invalid, it should not compile, not fail mysteriously at runtime.
+This is the same philosophy that later chapters apply to Rust (Chapter 13) and
+CUDA-Oxide (Chapter 14): move as many obligations as possible from the
+programmer's memory into the compiler's checks.
+
+## Common Pitfalls
+
+- Copying a `DeviceBuffer` by accident. The copy is deleted on purpose; use
+  `std::move` to transfer ownership.
+- Passing a capturing lambda with non-trivially-copyable state to a kernel.
+  Captured state travels through the launch; keep it small and trivially
+  copyable.
+- Calling host-only facilities (`std::vector`, I/O) inside a `__device__`
+  function. Use `#ifdef __CUDA_ARCH__` to separate host/device paths.
+- Letting exceptions cross the CUDA launch boundary without cleanup. RAII
+  handles device memory, but make sure the rest of the host state is
+  exception-safe too.
+
+## Check Your Understanding
+
+<details>
+<summary>Why must DeviceBuffer delete its copy constructor?</summary>
+
+A copy would duplicate the pointer, producing two objects that both believe
+they own the same device allocation. Both destructors would call
+`cudaFree`, a double-free. Move semantics transfer the pointer and null the
+source, so only one owner remains.
+</details>
+
+<details>
+<summary>What type would fail static_assert(is_trivially_copyable_v&lt;T&gt;)?</summary>
+
+A type with a user-defined copy constructor, virtual functions, or internal
+pointers that need deep copying - e.g., `std::string`. Raw byte-copying it
+through device memory would duplicate or corrupt its internal state.
+</details>
+
+<details>
+<summary>Why is a captureless lambda a legal kernel argument?</summary>
+
+It lowers to an empty struct with an `operator()` - a function object with no
+state. Passing it is zero bytes, and the compiler inlines the call on the
+device. A capturing lambda is legal too, but its captured state must be
+trivially copyable and small enough to travel through the launch.
+</details>
+
 ## Key Takeaways
 
 - RAII (`DeviceBuffer<T>`) makes device-allocation leaks and double-frees impossible.

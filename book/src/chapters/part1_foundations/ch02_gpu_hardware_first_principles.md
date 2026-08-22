@@ -461,6 +461,60 @@ You can query your own hardware with `deviceQuery` (a CUDA sample), which
 reports the SM count, CC, register file, shared memory per SM, and the limits
 from §2.9. Chapter 16 shows how to read that output.
 
+## Deeper Explanation: Occupancy Is a Supply of Readiness, Not a Score
+
+It is tempting to treat occupancy as a number to maximise. The deeper view:
+occupancy is the number of warps the scheduler can switch to when one warp
+stalls. If a kernel is latency-bound (many global loads, few independent
+operations), high occupancy is a cheap way to hide that latency - more warps
+means more chances that *some* warp is ready each cycle. If a kernel is
+throughput-bound (many FMAs, register-resident data), occupancy matters less
+because warps rarely stall; squeezing more blocks in may actually reduce
+performance by forcing register spills. So the correct question is not "what
+is the maximum occupancy?" but "what occupancy gives the scheduler enough
+ready warps without starving the kernel of the resources it actually needs?"
+Chapter 9's `__launch_bounds__` exists precisely to let you set that dial
+intentionally.
+
+## Common Pitfalls
+
+- Believing higher occupancy is always faster. Register spills and reduced
+  shared memory per block can make 50% occupancy beat 100%.
+- Treating the warp as the programming unit. You program threads; the hardware
+  executes warps. Divergence, coalescing, and shuffle operations all care
+  about warp boundaries.
+- Ignoring bank conflicts. `tile[32][32]` looks innocent; a column read can be
+  32× slower than a row read. Padding is one float per row and costs nothing.
+- Assuming the numbers in the chapter apply to your GPU. Always check compute
+  capability and the actual SM limits with `deviceQuery`.
+
+## Check Your Understanding
+
+<details>
+<summary>Why must a block be resident on a single SM?</summary>
+
+Because block-scoped synchronisation (`__syncthreads`) and shared memory need
+all threads of the block to be co-located and able to communicate through a
+common on-chip resource. If a block were split across SMs, the barrier would
+be impossible to implement efficiently.
+</details>
+
+<details>
+<summary>A kernel uses 64 registers per thread. How many 256-thread blocks fit in a 64 K register SM?</summary>
+
+Each block uses 256 × 64 = 16,384 registers. 65,536 / 16,384 = 4 blocks. If
+the thread and block limits allow more, registers cap occupancy at 4 blocks.
+</details>
+
+<details>
+<summary>Why do 32 consecutive floats cost one 128-byte line, but 32 floats with stride 32 cost 32 lines?</summary>
+
+A warp's 32 consecutive floats span 128 bytes - exactly one cache line. With
+stride 32, each thread's float lives in a different 128-byte region (assuming
+a large width), so the hardware must fetch 32 separate lines. Same number of
+bytes useful, 32× the traffic.
+</details>
+
 ## Key Takeaways
 
 - The warp (32 threads) is the hardware unit of execution, not the thread.

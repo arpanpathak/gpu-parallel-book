@@ -243,6 +243,58 @@ runs earlier and cannot be forgotten. This is the honest summary of the
 chapter: *the borrow checker is the CHECK macro, promoted to a compile-time
 guarantee.*
 
+## Deeper Explanation: The Unsafe Boundary Is the Honest Contract
+
+The most important design decision in Chapter 13 is not "Rust is safer" - it
+is *where the unsafe block goes*. Everything before the launch is safe API:
+ownership guarantees the device buffers live as long as they are used, the
+borrow checker guarantees no two mutable references, and `Result` guarantees
+errors are handled. The launch itself is `unsafe` because the type system
+cannot prove that the kernel's *internal* index arithmetic matches the launch
+configuration. The `SAFETY` comment is a contract: a human reviewer must be
+able to verify those assumptions. This is exactly the same contract Chapter 3
+expressed as comments in C++; Rust just makes the rest of the program
+enforceable by the compiler, leaving a single, documented unsafe seam.
+
+## Common Pitfalls
+
+- Forgetting `extern "C"` on the kernel. The driver looks up kernels by
+  unmangled name; without it, `get_func(module, "vector_add")` fails.
+- Copying a `CudaSlice` instead of moving it. Device buffers are unique
+  resources; use `&mut` and moves, not copies.
+- Putting unsafe around the whole program instead of just the launch. The
+  point is to isolate the unprovable part, not to annotate everything.
+- Ignoring the `SAFETY` comment. If you cannot state the kernel-side
+  assumptions, you do not actually know the launch is correct.
+
+## Check Your Understanding
+
+<details>
+<summary>Why does extern "C" matter?</summary>
+
+C++ mangles function names (e.g., `_Z11vector_add...`). The CUDA driver
+loads kernels by exact string name, so `extern "C"` guarantees the symbol is
+literally `vector_add`, letting the Rust host look it up without demangling.
+</details>
+
+<details>
+<summary>Why is &mut d_c required in the launch tuple?</summary>
+
+The kernel writes through the `c` pointer. Rust requires exclusive access for
+mutation, so the launch needs `&mut d_c`; passing `&d_c` would be a compile
+error because shared references cannot be used for mutation. The borrow checker
+prevents two kernels from holding `&mut` to the same buffer simultaneously.
+</details>
+
+<details>
+<summary>What does include_str! give you over Ptx::from_file?</summary>
+
+`include_str!` embeds the PTX text into the binary at compile time. The
+binary is self-contained and cannot lose the kernel file at deployment.
+`Ptx::from_file` reads the filesystem at run time, which is simpler for
+experimentation but fragile in production.
+</details>
+
 ## Key Takeaways
 
 - Rust secures the host: ownership kills leaks and double-frees, the borrow checker kills data races, Result kills ignored errors.

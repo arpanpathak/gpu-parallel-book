@@ -339,6 +339,61 @@ When you see a kernel that writes to shared state, run this checklist:
 4. **Is the order deterministic?** If reproducibility matters, prefer fixed
    tree orders over atomic accumulation.
 
+## Deeper Explanation: Every Race Fix Is the Installation of an Order
+
+A race is not a "bug that happens sometimes"; it is the absence of an order
+between two accesses. Every tool in this chapter is an ordering mechanism:
+`__syncthreads()` orders accesses within a block, atomics order
+read-modify-write cycles at a memory location, fences order a thread's own
+writes with respect to other threads' observations. Once you see it this way,
+debugging becomes systematic: find the shared location, find the writers and
+readers, and ask *what orders them?* If nothing does, that is the race. The
+reason GPU races are so nasty is not that they are hard to understand - it is
+that the corrupted result can be silently correct-looking and timing-dependent.
+Compute Sanitizer's `racecheck` (Chapter 16) is the instrument that turns
+"probably fine" into "proven ordered".
+
+## Common Pitfalls
+
+- Putting a `__syncthreads()` inside a divergent branch. The barrier is only
+  safe if *every* thread in the block reaches it the same number of times.
+- Using atomics on a contended hot path. Atomics serialize; privatise first
+  (Chapter 8) and atomically fold only at the end.
+- Releasing a spinlock without a fence. The lock owner's critical-section
+  writes may not be visible to the next acquirer.
+- Assuming `volatile` makes an access atomic. It prevents compiler caching; it
+  does not make read-modify-write atomic.
+
+## Check Your Understanding
+
+<details>
+<summary>Why is a race on a GPU worse than on a CPU?</summary>
+
+Scale and silence. A race may involve any two of millions of threads, so it
+can appear only on rare inputs, and the GPU reports success while the
+corrupted value is stored. There is no exception - only a wrong answer that
+may take hours to reproduce.
+</details>
+
+<details>
+<summary>Why does divergent control flow cost performance but not correctness?</summary>
+
+Divergent branches in a warp are executed serially: the hardware runs the
+then-path with some lanes masked, then the else-path with the others. The
+result is correct, but it consumes multiple instruction slots, so the warp
+takes longer than if all lanes agreed.
+</details>
+
+<details>
+<summary>What is the difference between a barrier and a fence?</summary>
+
+A barrier makes *all threads in a group* wait at a point and orders their
+memory accesses with respect to each other. A fence orders *one thread's*
+memory accesses with respect to other threads' observations but does not make
+anyone wait. Barriers are for block-scoped phases; fences are for
+device-scoped flags and lock release.
+</details>
+
 ## Key Takeaways
 
 - A race is two threads accessing one location with a write and no ordering - and on a GPU it fails silently.

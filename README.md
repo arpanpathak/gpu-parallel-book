@@ -45,6 +45,10 @@
 - **Part VI - The Engineering Mindset** (Chapter 16): profiling with Nsight
   Compute, debugging with Compute Sanitizer, and reproducible performance
   engineering.
+- **Part VII - Systems & Multi-GPU Programming** (Chapters 17-19): GPU
+  systems programming and memory-mapped I/O (BARs, DMA, IOMMU, drivers),
+  NVLink/NVSwitch topologies and peer-to-peer memory semantics, and NCCL
+  collective communication for multi-GPU training and inference.
 
 Plus a foreword, an epilogue, and three appendices (CUDA API reference,
 mathematical notation, recommended reading).

@@ -370,6 +370,60 @@ can skip a barrier.
 | Scan | \\(O(n)\\) serial | \\(2 \log_2 n\\) barriers | Blelloch upsweep/downsweep |
 | Histogram | global atomic per element | shared privatisation + fold | Per-block private bins |
 
+## Deeper Explanation: Reduction Is a Study in Communication, Not Addition
+
+The arithmetic of a reduction is trivial - addition is addition. The
+performance is entirely about *how partial results travel between threads*.
+The naive kernel moves every value through one thread; the tree moves partials
+through shared memory with barriers; the shuffle version moves them through
+registers; the coarsened version keeps values in registers longer. Each step
+removes a communication bottleneck: fewer barriers, less shared traffic, fewer
+global round trips. Scan is the same story with a harder invariant (every
+output depends on all previous inputs), and the Blelloch scan is the
+work-efficient way to express that dependency. Histogram privatisation is the
+same principle applied to atomics: communicate once at the end instead of on
+every element. When you understand reduction, you understand most of GPU
+optimisation, because every algorithm is secretly a reduction, a scan, or a
+combination.
+
+## Common Pitfalls
+
+- Using non-power-of-two block sizes with tree algorithms. The halving scheme
+  assumes `TILE` is a power of two.
+- Calling `warpReduce` from only some lanes. All 32 lanes must execute
+  `__shfl_down_sync` with the same mask, or behaviour is undefined.
+- Forgetting the final `__syncthreads()` after a shared-memory scan. The last
+  read must not start before the last write is visible.
+- Using atomics for the whole histogram instead of privatising. Global atomic
+  contention serialises; shared-memory privatisation plus one fold per block
+  is the standard fix.
+
+## Check Your Understanding
+
+<details>
+<summary>Why is one barrier per block enough in reduceFull?</summary>
+
+Each warp reduces its 32 lanes with shuffles (no memory, no barrier). Only
+one value per warp is written to shared memory, so exactly one barrier makes
+those 8 values visible to warp 0, which then combines them with shuffles.
+</details>
+
+<details>
+<summary>What does warpReduce return for lanes other than lane 0?</summary>
+
+The shuffle loop leaves partial values in every lane; the documented result
+(and the value that matters) is the total in lane 0. Other lanes contain
+intermediate sums and should not be used.
+</details>
+
+<details>
+<summary>Why is a fixed tree reduction bit-reproducible but an atomic reduction is not?</summary>
+
+A fixed tree always sums in the same order, so the floating-point rounding
+is identical every run. Atomics let the hardware choose an order that can
+differ between runs, changing the last bits.
+</details>
+
 ## Key Takeaways
 
 - The optimised reduction: coarsen (grid-stride), reduce within each warp by shuffle, then one shared-memory round and one barrier per block.
