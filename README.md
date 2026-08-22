@@ -117,6 +117,10 @@ mdbook build book       # compile to book/book/
 mdbook serve book       # live preview at http://localhost:3000
 ```
 
+The `code/` companion has been validated on Jetson Orin (sm_87) with CUDA
+12.6. Use `-arch=sm_87` for native SASS on Jetson, or `-arch=compute_60` for
+portable PTX that runs on any CUDA 12.x GPU via the driver's JIT.
+
 ## Contributing
 
 Corrections, clarifications and missing concepts are all welcome. Please read

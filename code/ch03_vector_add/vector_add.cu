@@ -1,5 +1,6 @@
 // Chapter 3, 3.6 - the first complete CUDA program, verbatim from the book.
-// Build: nvcc -arch=sm_90 vector_add.cu -o vector_add
+// Build: nvcc -arch=compute_60 vector_add.cu -o vector_add
+//        (Jetson Orin: -arch=sm_87; A100: -arch=sm_80; H100: -arch=sm_90)
 
 // kernel.cu
 // ---------------------------------------------------------------------------
@@ -89,7 +90,6 @@ int main()
     const int blocksPerGrid  = (n + threadsPerBlock - 1) / threadsPerBlock;
 
     // --- Launch ------------------------------------------------------------
-    // addVectors<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, n);
     // The launch is asynchronous: the host does NOT wait for the kernel;
     // control returns to the host immediately (see Chapter 6).
     addVectors<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, n);

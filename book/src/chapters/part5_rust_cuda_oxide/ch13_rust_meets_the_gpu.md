@@ -59,7 +59,10 @@ NVRTC - we keep the toolchain classic for this chapter):
 ```cuda
 // kernels/vector_add.cu
 // Compiled once, ahead of time, to PTX:
-//   nvcc -arch=compute_90 -ptx kernels/vector_add.cu -o vector_add.ptx
+//   nvcc -arch=compute_60 -ptx kernels/vector_add.cu -o vector_add.ptx
+// compute_60 PTX runs on any CUDA 12.x GPU (Pascal or newer) via the
+// driver's JIT; use compute_87 on Jetson Orin, compute_80 on A100, or
+// compute_90 on H100 for native SASS.
 extern "C" __global__ void vector_add(const float* a, const float* b,
                                       float* c, int n)
 {
@@ -78,7 +81,7 @@ without demangling. This is the same convention NVRTC examples use.
 ```rust
 // main.rs - Rust host driving the vector_add kernel via cudarc.
 // Requires: CUDA toolkit installed (for the driver and nvrtc), and the
-// vector_add.ptx file next to the binary (or embedded; see 13.5).
+// vector_add.ptx file in the working directory (or embedded; see 13.5).
 
 use cudarc::driver::{CudaDevice, CudaSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::Ptx;   // wraps PTX source: Ptx::from_file or Ptx::from_src

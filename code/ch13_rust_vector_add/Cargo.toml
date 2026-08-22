@@ -14,4 +14,5 @@ cudarc = { version = "0.13", features = ["cuda-12040"] }
 # The kernel is compiled to PTX ahead of time with nvcc, exactly as in the
 # book (13.3). main.rs loads vector_add.ptx from the filesystem via
 # Ptx::from_file (13.4); see 13.5 for the include_str! embedded alternative.
-#   nvcc -arch=compute_90 -ptx vector_add.cu -o vector_add.ptx
+#   nvcc -arch=compute_60 -ptx vector_add.cu -o vector_add.ptx
+# (use compute_87 on Jetson Orin, compute_80 on A100, compute_90 on H100)

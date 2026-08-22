@@ -178,7 +178,7 @@ claim in this book:
 3. **Use events, not host timers**, for device work (Chapter 6, §6.4).
 4. **Fix the environment.** Record the GPU (`nvidia-smi -L`), the CUDA
    version (`nvcc --version`), the driver, and the compiler flags
-   (`-arch=sm_90`, `-O3`, `--use_fast_math` changes results!).
+   (`-arch=compute_60`, `-O3`, `--use_fast_math` changes results!).
 5. **Verify the output** before trusting the timing. A fast wrong kernel is
    not a result.
 

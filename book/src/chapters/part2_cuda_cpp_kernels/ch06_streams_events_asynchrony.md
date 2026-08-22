@@ -66,9 +66,13 @@ CHECK(cudaMemcpyAsync(d_A, h_pinnedA, chunkBytes,
 CHECK(cudaMemcpyAsync(d_B, h_pinnedB, chunkBytes,
                       cudaMemcpyHostToDevice, s2));
 
-// Queue kernels after their own copies in their own streams.
-kernel<<<grid, block, 0, s1>>>(d_A, d_out, chunkElems);
-kernel<<<grid, block, 0, s2>>>(d_B, d_out, chunkElems);
+// Queue kernels after their own copies in their own streams. Each kernel
+// writes its OWN output buffer: sharing d_out would be a data race.
+float *d_outA, *d_outB;
+CHECK(cudaMalloc((void**)&d_outA, chunkBytes));
+CHECK(cudaMalloc((void**)&d_outB, chunkBytes));
+kernel<<<grid, block, 0, s1>>>(d_A, d_outA, chunkElems);
+kernel<<<grid, block, 0, s2>>>(d_B, d_outB, chunkElems);
 ```
 
 The launch syntax gains a fourth argument: `kernel<<<grid, block, sharedBytes,
@@ -252,9 +256,9 @@ cudaMemcpyAsync(h_out, d_out, chunkBytes, cudaMemcpyDeviceToHost,
                 captureStream);
 
 // End capture and instantiate an executable graph.
-cudaGraphExec_t exec;
+cudaGraphExec_t exec = nullptr;
 CHECK(cudaStreamEndCapture(captureStream, &graph));
-CHECK(cudaGraphInstantiate(&exec, graph, nullptr, nullptr, 0));
+CHECK(cudaGraphInstantiate(&exec, graph, 0));
 
 // Replay phase: one call replaces the whole sequence.
 for (int frame = 0; frame < 10000; ++frame)

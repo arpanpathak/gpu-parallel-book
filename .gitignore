@@ -1,2 +1,19 @@
 /book/book/
 .DS_Store
+target/
+*.o
+
+# Compiled example binaries (build with the commands in code/README.md)
+/code/ch03_vector_add/vector_add
+/code/ch05_histogram/histogram
+/code/ch08_reduction/reduction
+/code/ch09_sgemm/sgemm
+/code/ch10_device_buffer/test
+/code/ch11_library_examples/thrust_example
+/code/ch11_library_examples/cub_reduce
+/code/ch11_library_examples/cublas_sgemm
+/code/ch12_nvrtc/nvrtc_example
+/code/ch15_capstone/pipeline
+/code/ch14_cuda_oxide/host_closure.ptx
+/code/ch14_cuda_oxide/*.ll
+/code/ch14_cuda_oxide/*.opt.ll

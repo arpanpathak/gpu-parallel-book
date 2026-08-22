@@ -215,7 +215,7 @@ __global__ void sgemmRegisterTiled(const float* A, const float* B, float* C,
         for (int r = 0; r < RM; ++r)
             for (int c = 0; c < RN; ++c)
                 sB[ty * RM + r][tx * RN + c] =
-                    B[(k0 + ty * RM + r) * N + col0 + tx * RN + c];
+                    B[(k0 + ty * RM + r) * N + col0 + c];
 
         __syncthreads();
 
@@ -264,6 +264,9 @@ the A-tile row at `sA[ty*RM + r][tx*RN]` - note that `RN` elements of the row
 are loaded by `RN` different threads *in the same row* (`tx` ranges over
 `T/RN`), so the row segment `[tx*RN, tx*RN+RN)` is covered by `RN` threads.
 The loads are coalesced because consecutive `tx` cover consecutive columns.
+For the B-tile, `col0` already contains the thread's `tx*RN` column offset, so
+the global column is `col0 + c` - adding `tx*RN` a second time would be an
+off-by-`RN` bug that silently reads the wrong B elements.
 
 ## 9.6 Occupancy and Launch Bounds
 
@@ -280,6 +283,9 @@ spill:
 __global__ void __launch_bounds__(256, 4)
 sgemmRegisterTiled(const float* A, const float* B, float* C, int N) { /* ... */ }
 ```
+
+The body is elided here: apply the attribute to the full kernel of §9.5. The
+companion `code/ch09_sgemm/sgemm.cu` ships the combined final definition.
 
 **Why `__launch_bounds__`?** Without it, `ptxas` minimises register use for
 correctness but may choose more registers than the target occupancy allows.

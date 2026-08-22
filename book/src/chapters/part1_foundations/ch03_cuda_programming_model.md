@@ -318,7 +318,6 @@ int main()
     const int blocksPerGrid  = (n + threadsPerBlock - 1) / threadsPerBlock;
 
     // --- Launch ------------------------------------------------------------
-    // addVectors<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, n);
     // The launch is asynchronous: the host does NOT wait for the kernel;
     // control returns to the host immediately (see Chapter 6).
     addVectors<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, n);
@@ -427,8 +426,14 @@ compiler driver. The pipeline has two phases:
    the target GPU) via `ptxas`.
 
 ```bash
-# Compile for a specific architecture (compute capability 9.0 here):
-nvcc -arch=sm_90 kernel.cu -o kernel
+# Compile for a specific architecture. This book's default is compute_60
+# (Pascal-class PTX): the driver JIT-compiles it to any CUDA 12.x GPU, from
+# T4 and P100 to A100, Jetson Orin and H100.
+nvcc -arch=compute_60 kernel.cu -o kernel
+# Native SASS alternatives (faster startup, less portable):
+#   Jetson Orin : nvcc -arch=sm_87 kernel.cu -o kernel
+#   A100        : nvcc -arch=sm_80 kernel.cu -o kernel
+#   H100        : nvcc -arch=sm_90 kernel.cu -o kernel
 ```
 
 > **Primitive - PTX.** The intermediate virtual ISA (Chapter 12 shows it in
@@ -439,7 +444,8 @@ nvcc -arch=sm_90 kernel.cu -o kernel
 
 If you have no NVIDIA GPU on your machine, `nvcc` still compiles `.cu` files;
 the resulting binary simply will not run. Every `.cu` file in this book can be
-compiled with `nvcc -arch=sm_90 -o bin src.cu` and run on any CC 9.0 GPU.
+compiled with `nvcc -arch=compute_60 -o bin src.cu` and run on any CUDA 12.x
+GPU (Pascal or newer) through the driver's JIT.
 
 ## 3.10 What You Should Remember
 

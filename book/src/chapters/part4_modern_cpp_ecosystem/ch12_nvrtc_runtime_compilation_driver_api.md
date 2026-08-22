@@ -2,6 +2,7 @@
 
 > *"The compiler is not always your toolchain's secret. Sometimes it is your
 > program's input."*
+> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch12_nvrtc/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch12_nvrtc) in the repository.
 
 Everything so far has used the **CUDA runtime API** - the `cudaMalloc`,
 `cudaMemcpy`, `cudaStreamCreate` functions - and the offline toolchain
@@ -70,7 +71,7 @@ std::string compileToPtx(const char* source, const char* name)
     if (res != NVRTC_SUCCESS) throw std::runtime_error("nvrtcCreateProgram");
 
     // 2. Compile. Options are passed as strings, exactly like nvcc flags.
-    const char* options[] = {"-arch=compute_90", "-std=c++17"};
+    const char* options[] = {"-arch=compute_60", "-std=c++17"};
     res = nvrtcCompileProgram(prog, 2, options);
 
     // 3. On failure, fetch the compilation log and report it.
@@ -95,11 +96,13 @@ std::string compileToPtx(const char* source, const char* name)
 }
 ```
 
-**Why `-arch=compute_90`?** NVRTC compiles to PTX for a *virtual*
+**Why `-arch=compute_60`?** NVRTC compiles to PTX for a *virtual*
 architecture. The driver later JIT-compiles that PTX to the *actual* SASS of
-whatever GPU is present. Choosing `compute_90` targets Hopper-class GPUs; a
-lower virtual arch (e.g. `compute_80`) produces more portable PTX at the cost
-of potentially less optimal SASS.
+whatever GPU is present. Choosing `compute_60` (Pascal-class) produces PTX
+that runs on every CUDA 12.x GPU - T4, A100, Jetson Orin, H100 - via the
+driver's forward-compatible JIT. A higher virtual arch (e.g. `compute_90`)
+targets Hopper-class GPUs and can produce slightly better SASS on those
+devices, at the cost of portability (it will not run on older GPUs).
 
 **Why compile at run time at all?**
 
@@ -154,12 +157,16 @@ void launchFromPtx(const std::string& ptx,
     void* args[] = { &d_a, &d_b, &d_c, &n };
 
     // 6. Launch. gridDimX/Y/Z, blockDimX/Y/Z, sharedMemBytes, stream,
-    //    kernel, args.
+    //    kernel, args. The grid must cover ALL n elements: 256 threads per
+    //    block, rounded up. (A hardcoded 1024-block grid would only cover
+    //    262,144 elements and silently leave the rest of the output zero.)
+    const int threads = 256;
+    const int blocks  = (n + threads - 1) / threads;
     res = cuLaunchKernel(kernel,
-                         1024, 1, 1,        // grid: 1024 blocks
-                         256,  1, 1,        // block: 256 threads
-                         0, nullptr,        // no dynamic shared, default stream
-                         args, nullptr);    // arguments, no extra options
+                         blocks, 1, 1,        // grid
+                         threads, 1, 1,       // block
+                         0, nullptr,          // no dynamic shared, default stream
+                         args, nullptr);      // arguments, no extra options
     if (res != CUDA_SUCCESS) throw std::runtime_error("cuLaunchKernel");
 
     cuCtxSynchronize();
@@ -228,5 +235,5 @@ the capstone uses in Chapter 15.
 3. A server receives kernel source from users. Argue for or against caching
    compiled PTX keyed by a hash of the source, and name the two caches
    involved.
-4. When would you choose `-arch=compute_80` over `-arch=compute_90` for
+4. When would you choose `-arch=compute_60` over `-arch=compute_90` for
    NVRTC, and what does each choice cost?

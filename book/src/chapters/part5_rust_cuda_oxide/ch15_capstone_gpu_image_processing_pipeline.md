@@ -263,7 +263,11 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
     // histogram counts EDGE INTENSITIES, not the bytes of a float.
     scaleEdges<<<grid, block, 0, sCompute>>>(d_edges, d_edges8, numPixels);
 
-    histogram<<<g2, b2, 0, sCompute>>>(d_edges8, d_hist, numPixels);
+    // Chapter 8's histogramPrivatised is a 1-D kernel (TILE = 256 threads per
+    // block), so it uses the same 1-D grid/block as rgbToGray - NOT the 2-D
+    // stencil block b2. Launching it with a (32, 8) block would only zero the
+    // first 32 shared-memory bins and massively over-count.
+    histogram<<<grid, block, 0, sCompute>>>(d_edges8, d_hist, numPixels);
     // (histogram kernel as in Chapter 8, 8.8)
 
     // Copy the edge map back (device -> host, pinned, async). The buffer is

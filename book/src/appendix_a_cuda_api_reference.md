@@ -144,7 +144,7 @@ All `_sync` primitives require all named lanes to execute them.
 
 | Tool | Purpose |
 |---|---|
-| `nvcc` | Offline compiler (`-arch=sm_90`, `-ptx`) |
+| `nvcc` | Offline compiler (`-arch=compute_60` portable PTX, or `-arch=sm_87` on Jetson Orin, `-ptx`) |
 | `nsys profile` | System-level timeline |
 | `ncu --set full` | Kernel-level counters |
 | `compute-sanitizer --tool memcheck/racecheck/initcheck/synccheck` | Runtime error detection |

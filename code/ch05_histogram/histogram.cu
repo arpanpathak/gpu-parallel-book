@@ -28,7 +28,11 @@ __global__ void lockedCriticalSection(float* g_data, int n)
     if (threadIdx.x == 0) s_lock = 0;
     __syncthreads();          // everyone must see the lock before using it
 
-    for (int i = threadIdx.x; i < n; i += blockDim.x)
+    // Each block owns a disjoint strided partition of g_data. Without the
+    // blockIdx.x offset, every block would process the SAME indices and the
+    // per-block locks could not protect against cross-block races.
+    for (int i = blockIdx.x * blockDim.x + threadIdx.x;
+         i < n; i += gridDim.x * blockDim.x)
     {
         // Acquire: atomically swap 1 into the lock; if the old value was 0,
         // we won the lock. If it was 1, someone else holds it - retry.

@@ -1,8 +1,10 @@
 // Chapter 14 - CUDA-Oxide: the generic #[kernel] map example.
-// Verbatim from the book (14.4). Build with: cargo oxide run host_closure
+// Adapted from the book (14.4) to the current CUDA-Oxide 0.2.1 API.
+// Build with: cargo oxide run host_closure
 
 // Single source file: device AND host code together.
-use cuda_device::{cuda_module, kernel, thread, DisjointSlice};
+use cuda_device::{kernel, thread, DisjointSlice};
+use cuda_host::{cuda_module, load_kernel_module};
 use cuda_core::{CudaContext, DeviceBuffer, LaunchConfig};
 
 // ---------------------------------------------------------------------------
@@ -32,17 +34,20 @@ mod kernels {
 // ---------------------------------------------------------------------------
 // Host side: allocate, load the module, launch.
 // ---------------------------------------------------------------------------
-fn main() {
-    let ctx = CudaContext::new(0).unwrap();       // open GPU 0
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let ctx = CudaContext::new(0)?;           // open GPU 0
     let stream = ctx.default_stream();
 
     let data: Vec<f32> = (0..1024).map(|i| i as f32).collect();
-    let input  = DeviceBuffer::from_host(&stream, &data).unwrap();
-    let mut output = DeviceBuffer::<f32>::zeroed(&stream, 1024).unwrap();
+    let input  = DeviceBuffer::from_host(&stream, &data)?;
+    let mut output = DeviceBuffer::<f32>::zeroed(&stream, 1024)?;
 
-    // Load the module: #[cuda_module] embeds the compiled PTX in the binary
-    // and generates a typed module.map::<f32, _>(...) launch method.
-    let module = kernels::load(&ctx).unwrap();
+    // Load the module: the codegen backend writes host_closure.ptx next to
+    // Cargo.toml; load_kernel_module reads that file and returns a CUDA
+    // module. (kernels::load() would look for an *embedded* bundle, which
+    // generic-kernel standalone builds do not produce yet.)
+    let module = load_kernel_module(&ctx, "host_closure")?;
+    let typed = kernels::from_module(module)?;
 
     // Launch with a closure. `factor` is captured and passed to the GPU
     // automatically (scalarised into a kernel parameter).
@@ -51,16 +56,17 @@ fn main() {
     // launches one thread per output element. A launch contract can move
     // this proof into the generated safe API.
     unsafe {
-        module.map::<f32, _>(
-            &stream,
+        typed.map::<f32, _>(
+            stream.as_ref(),
             LaunchConfig::for_num_elems(1024),
             move |x: f32| x * factor,
             &input,
             &mut output,
         )
-    }
-    .unwrap();
+    }?;
 
-    let result = output.to_host_vec(&stream).unwrap();
+    let result = output.to_host_vec(&stream)?;
     assert!((result[1] - 2.5).abs() < 1e-5);
+    println!("PASSED: CUDA-Oxide map closure produced expected results");
+    Ok(())
 }

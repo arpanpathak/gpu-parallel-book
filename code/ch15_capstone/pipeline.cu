@@ -1,7 +1,8 @@
 // Chapter 15 - the capstone GPU image-processing pipeline.
 // Kernels verbatim from the book (15.2-15.4); scaleEdges from 15.4.1;
 // histogram from 8.8. The differential test implements 15.8.
-// Build: nvcc -arch=sm_90 pipeline.cu -o pipeline
+// Build: nvcc -arch=compute_60 pipeline.cu -o pipeline
+//        (Jetson Orin: -arch=sm_87; A100: -arch=sm_80; H100: -arch=sm_90)
 // Run:   ./pipeline <width> <height> <frames>
 
 #include <cstdio>
@@ -397,7 +398,11 @@ int main(int argc, char** argv)
         blurV    <<<grid2, block2, 0, sCompute>>>(d_blurred, d_blurred2, width, height);
         sobel    <<<grid2, block2, 0, sCompute>>>(d_blurred2, d_edges,  width, height);
         scaleEdges<<<grid1, block1, 0, sCompute>>>(d_edges, d_edges8, numPixels);
-        histogramPrivatised<<<grid2, block2, 0, sCompute>>>(d_edges8, d_hist, numPixels);
+        // histogramPrivatised is a 1-D kernel (Chapter 8, 8.8): TILE == 256
+        // threads per block, so it must be launched with block1/grid1 - NOT the
+        // 2-D stencil block (32 x 8) used by blur/sobel. Launching it with a
+        // 2-D block would only initialise bins 0..31 and massively over-count.
+        histogramPrivatised<<<grid1, block1, 0, sCompute>>>(d_edges8, d_hist, numPixels);
 
         CHECK(cudaMemcpyAsync(h_edges[cur], d_edges8, edgeBytes,
                               cudaMemcpyDeviceToHost, sCompute));

@@ -1,9 +1,10 @@
 // Chapter 13 - Rust host driving a CUDA kernel via cudarc.
-// Verbatim from the book (13.4). Requires vector_add.ptx next to the binary.
+// Verbatim from the book (13.4). Requires vector_add.ptx in the working
+// directory (the file is committed next to Cargo.toml).
 
 // main.rs - Rust host driving the vector_add kernel via cudarc.
 // Requires: CUDA toolkit installed (for the driver and nvrtc), and the
-// vector_add.ptx file next to the binary (or embedded; see 13.5).
+// vector_add.ptx file in the working directory (or embedded; see 13.5).
 
 use cudarc::driver::{CudaDevice, CudaSlice, LaunchAsync, LaunchConfig};
 use cudarc::nvrtc::Ptx;
