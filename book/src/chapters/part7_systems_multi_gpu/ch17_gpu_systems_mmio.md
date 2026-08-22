@@ -224,9 +224,9 @@ The split is why:
 ```
    Your process                     Kernel                     GPU    
 ┌──────────────────┐   ioctl    ┌──────────────┐  MMIO/DMA ┌─────────┐
-│ libcuda.so (UMD) │ ─────────► │ nvidia (KMD) │ ─────────►│ device  │
+│ libcuda.so (UMD) │ ─────────► │ nvidia (KMD) │ ────────► │ device  │
 │  CUDA API        │  (rarely)  │  device mgmt │           │         │
-│  command buffers │ ─────────► │  IRQ handling │          │         │
+│  command buffers │ ─────────► │ IRQ handling │           │         │
 └──────────────────┘  doorbell  └──────────────┘           └─────────┘
 ```
 
