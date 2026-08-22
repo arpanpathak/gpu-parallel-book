@@ -287,16 +287,40 @@ measures both regimes.
 
 ## Deeper Explanation: Streams Are Dependency Graphs You Build by Accident or by Design
 
-A stream is not a "thread" and not a "queue in software"; it is the hardware
-scheduler's view of *ordered work*. The deep insight is that the GPU is a
-pipeline: copies use the DMA engines, kernels use the SMs, and both can run
-concurrently if they touch different resources and different memory. Streams
-let you express that concurrency, and events let you express the *dependencies*
-that must remain ordered. Every pipeline is a directed acyclic graph; the
-default stream is just the special case where everything depends on everything
-else. The moment you think in terms of "what must wait for what", streams and
-events stop being API ceremony and become the natural language of GPU
-scheduling.
+It is easy to think of a stream as "a thread" or "a queue" and to imagine that
+launching work on two streams is like creating two threads. The hardware
+reality is more interesting and more useful. The GPU contains several
+independent execution engines: copy engines for host↔device transfers, SMs
+for kernels, and other specialised units. These engines can run concurrently
+as long as they are not fighting over the same data or the same resources. A
+stream is simply an ordered sequence of work for the device; work in the same
+stream is guaranteed to execute in order, while work in different streams is
+unordered and may overlap.
+
+The deep insight is that a multi-stream program is a dependency graph. Each
+operation is a node; each "must wait for" relationship is an edge. When you
+record an event in the copy stream and make the compute stream wait on it,
+you are adding an edge to the graph: the kernels depend on the copy. When you
+use the legacy default stream, you are implicitly adding edges between
+*everything*, because the default stream synchronises with all other streams.
+The graph then has no concurrency at all - it is one long chain.
+
+Thinking in graphs explains why the double-buffered pipeline works. The copy
+of frame `n+1` and the kernels of frame `n` operate on different buffers, so
+there is no edge between them; the graph has two independent paths, and the
+hardware can run them at the same time. Events are what keep the graph
+correct without serialising it: the compute stream waits only for the
+specific event that marks its input's copy, not for all copies.
+
+The same graph view explains CUDA Graphs. A graph is just the dependency
+structure captured once and replayed many times. The replay eliminates the
+host-side cost of issuing each operation and each dependency individually,
+which is why graphs help when you have many small kernels with a fixed
+structure. The trade-off is that the graph captures addresses and parameters;
+if your buffers move or your launch parameters change, the graph must be
+updated or re-captured. The tool is powerful precisely because it matches the
+hardware's model: the GPU does not care about your host-side loop, it cares
+about the dependency graph.
 
 ## Common Pitfalls
 

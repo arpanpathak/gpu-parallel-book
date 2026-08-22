@@ -220,16 +220,41 @@ the capstone uses in Chapter 15.
 
 ## Deeper Explanation: The Driver API Is Where the Runtime's Magic Lives
 
-The runtime API is convenient because it makes a context, loads modules, and
-manages memory for you. The driver API shows you the machinery: contexts are
-explicit, modules are explicit, kernel arguments are raw pointers, and errors
-are returned rather than hidden. This is not an obsolete layer - it is the
-layer the runtime is built on, and it is the only way to launch code that did
-not exist when your program was compiled. Understanding the driver API also
-demystifies the "kernel launch": a launch is just `cuLaunchKernel` with a
-function handle, a grid, a block, and a pointer-to-argument array. When you
-see a driver-API crash, it is almost always the argument array: `args[i]`
-must point to the *storage* of the i-th argument, not to the argument value.
+The runtime API is convenient because it makes decisions for you: it creates
+a context lazily, loads modules, manages memory, and hides the plumbing of a
+kernel launch. The driver API removes that convenience and shows you exactly
+what the runtime was doing all along. Contexts are explicit objects that you
+create and destroy. Modules are containers of compiled kernels that you load
+from PTX or cubin data. Kernel arguments are not type-checked by the compiler;
+they are packaged into a raw array of pointers and handed to `cuLaunchKernel`.
+
+This exposure is not merely academic. The driver API is the only way to
+launch code that did not exist when your program was compiled, because the
+program itself performs the compilation through NVRTC. The flow is
+scientifically interesting: NVRTC takes CUDA source as a string, compiles it
+to PTX (the portable virtual ISA), and returns the PTX text. The driver then
+loads that PTX, JIT-compiles it to SASS for the actual GPU in the machine,
+and gives you a function handle. The two-stage design is what makes
+portability possible: PTX is architecture-independent, so the same text can
+become SASS for a T4, an A100, or an H100.
+
+The most common driver-API bug is also the most instructive. `cuLaunchKernel`
+receives `void** args`, an array where each element is a pointer to the
+*storage* of one kernel argument. For a `float*` parameter `d_a`, the storage
+is the local pointer variable, so you pass `&d_a`. If you pass `d_a` instead,
+the driver interprets the pointer value itself as the argument's bytes, reads
+the wrong data, and typically crashes. Understanding why `&d_a` is required
+reveals the fundamental model: the driver API does not know your kernel's
+signature, so you must describe where each argument lives in memory. The type
+safety that the runtime API provides through C++ is, at this level, replaced
+by a precise convention that you must follow correctly.
+
+The hybrid pattern - runtime API for memory, driver API for the kernel - is
+the pragmatic synthesis. The runtime's current context is also the driver's
+current context, so device pointers obtained from `cudaMalloc` remain valid
+when used with `cuLaunchKernel`. This is how real systems use the two APIs:
+the convenience of the runtime where it is safe, and the explicit power of the
+driver exactly where it is needed.
 
 ## Common Pitfalls
 

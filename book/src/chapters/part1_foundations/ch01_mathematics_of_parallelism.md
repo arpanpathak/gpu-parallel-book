@@ -441,16 +441,41 @@ The terms defined in this chapter are the book's working vocabulary:
 
 ## Deeper Explanation: The Two Laws Are Two Questions, Not Two Truths
 
-Students often ask "which law is correct?" The answer is: both, for different
-questions. Amdahl's law answers *"how fast can my fixed problem run?"*
-Gustafson's law answers *"how big a problem can I run in fixed time?"* On a
-GPU you experience both in one session: training a model with a larger batch
-size is weak scaling (Gustafson), while processing a fixed 1080p frame at
-60 FPS is strong scaling (Amdahl). The trick is to know which regime you are
-in before you quote a number. A 10× speedup claim is meaningless unless the
-problem size and the machine are fixed - that is why Chapter 16 demands the
-exact hardware, compiler flags, and measurement method for every performance
-claim.
+Students often ask "which law is correct?" The honest answer is that both are
+correct, and they are correct for different questions. Amdahl's law asks: "If
+I keep the problem exactly the same size and add more processors, how much
+faster can it possibly go?" It assumes a fixed workload and a fixed serial
+fraction, and it tells you that the serial part is an unremovable floor.
+Gustafson's law asks the opposite question: "If I add more processors and
+proportionally enlarge the problem, how much work can I finish in the same
+wall-clock time?" It assumes the workload grows with the hardware, which is
+how real users actually behave: when a machine gets bigger, they run bigger
+models, higher-resolution images, or larger batches rather than re-running the
+same small problem faster.
+
+Both laws matter on a GPU, often in the same afternoon. When you are trying
+to make a fixed 1080p frame process in time for a 60 Hz display, you are in
+Amdahl's regime: the work is fixed, and every microsecond of host overhead or
+synchronisation is a serial fraction that caps your speedup. When you are
+training a model and you increase the batch size because you now have more
+GPUs, you are in Gustafson's regime: the total work grows with the hardware,
+and the parallel fraction grows with it, so scaling looks much better.
+
+The practical skill is knowing which question you are answering before you
+quote a number. A "10x speedup" claim is only meaningful if you also state the
+problem size, the hardware, and whether the serial fraction was measured or
+assumed. This is why Chapter 16 insists on recording the exact environment and
+methodology for every performance claim: without that context, a speedup
+number is not a fact, it is an anecdote.
+
+There is also a deeper scientific point hidden in Amdahl's law: the serial
+fraction is not a fixed property of a program, it is a property of the
+*decomposition* you choose. A reduction that looks serial in one formulation
+can become parallel with a tree. A host-side copy that looks like overhead can
+be hidden with streams. The laws do not tell you what `f` is; they tell you
+what `f` *costs*. Finding ways to shrink `f` is one of the main activities of
+GPU engineering, and it is the thread that connects every chapter of this
+book.
 
 ## Common Pitfalls
 

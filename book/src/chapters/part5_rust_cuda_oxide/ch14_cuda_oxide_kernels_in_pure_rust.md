@@ -283,17 +283,42 @@ has been teaching since Chapter 3.
 
 ## Deeper Explanation: Safe SIMT Is About Making the Hardware's Assumptions Visible
 
-CUDA C++ kernels are "safe" only by convention: the comments say "one thread
-per output", but nothing stops a thread from writing any index. CUDA-Oxide's
-contribution is making those conventions *type-level*. `DisjointSlice`
-guarantees that `get_mut` returns an exclusive slot; `thread::index_1d()`
-fuses the index formula so the mapping cannot be typoed; the borrow checker
-runs before any PTX is generated. The `unsafe` launch remains because the
-*geometry* - grid size vs kernel indexing - is still raw data, but the
-roadmap (`#[launch_contract]`) shows how even that becomes a checked
-precondition. The deeper lesson is architectural: the safest system is not
-the one with the most runtime checks, but the one where invalid programs
-cannot be expressed.
+When you write a CUDA C++ kernel, the "one thread per output element" rule is
+enforced by a comment. The comment is correct, but nothing in the language
+prevents a thread from writing `out[i + 1]` or `out[2*i]`; the compiler will
+happily compile it, and the bug will appear as corrupted data or an illegal
+memory access at runtime. CUDA-Oxide's central idea is to take conventions
+like this and express them in the type system, so that violations become
+compile errors rather than runtime mysteries.
+
+`DisjointSlice<T>` is the clearest example. Its `get_mut(idx)` method returns
+a mutable reference to the element owned by this thread, and the type
+guarantees that no other thread can obtain a mutable reference to the same
+element. The "one thread per output, no races" property that Chapter 3 stated
+in a comment is now a property of the API. Similarly, `thread::index_1d()`
+fuses `blockIdx.x * blockDim.x + threadIdx.x` into one typed operation, so
+the index formula cannot be mistyped in the way that a hand-written expression
+can be. And because the kernel is Rust, the borrow checker runs on the device
+code before any PTX is generated: a kernel that would produce two mutable
+references to the same slot never compiles.
+
+Why does `unsafe` remain? Because the *launch geometry* is still raw data.
+`LaunchConfig` describes how many threads to launch, but nothing in its type
+proves that this count matches the kernel's indexing assumptions. The
+`SAFETY` comment documents the obligation: a human must verify that the
+configuration is 1-D, covers the output, and matches the kernel's use of
+`index_1d()`. The roadmap - `#[launch_contract]` - shows how even this
+obligation can become a checked precondition: a kernel declares its contract
+(domain, block size, resource usage), and the generated launch path validates
+the configuration against it.
+
+The deeper lesson is architectural rather than syntactic. A system is safest
+not when it has the most runtime checks, but when invalid programs cannot be
+written. CUDA-Oxide is an early, incomplete version of that idea: it moves
+some conventions into types, leaves others as documented unsafe obligations,
+and is honest about the difference. That honesty is itself a lesson. The
+future of GPU programming is not "write whatever and hope the debugger finds
+it"; it is "make the compiler reject what cannot be correct."
 
 ## Common Pitfalls
 

@@ -290,18 +290,48 @@ step 1.
 
 ## Deeper Explanation: Coalescing Is a Contract with the Cache Line
 
-Coalescing is often taught as a rule ("consecutive threads, consecutive
-addresses"), but the mechanism is what makes the rule trustworthy. The memory
-system fetches 128-byte lines and services 32-byte sectors; a warp's 32
-requests are coalesced into as few transactions as possible. When you map
-`threadIdx.x` to the fastest-varying memory dimension, you are not being
-polite - you are guaranteeing that a warp's 32 accesses land in one or two
-lines. The same reasoning explains why a grid-stride loop preserves
-coalescing: within each iteration, consecutive threads still read consecutive
-addresses. And it explains why bank conflicts exist in shared memory: shared
-memory has no cache lines, but it has 32 banks, and a column access in an
-unpadded tile funnels all 32 threads into one bank. Coalescing and padding are
-two sides of the same principle: **map thread identity to physical layout**.
+Coalescing is often introduced as a rule: "consecutive threads should read
+consecutive addresses." The rule is correct, but rules without mechanisms
+tend to be applied mechanically and forgotten when the situation changes.
+The mechanism underneath is worth understanding in detail.
+
+The memory system does not fetch one word at a time. It fetches in units of
+128-byte cache lines and services those lines in 32-byte sectors. When a warp
+of 32 threads issues a load instruction, the hardware examines all 32
+addresses and tries to satisfy them with as few line fetches as possible. If
+the threads read 32 consecutive floats, their addresses span exactly 128
+bytes - one line, one transaction, every byte useful. If they read floats
+with a stride of 32 words, each thread's address is in a different 128-byte
+region, and the hardware must fetch 32 lines to deliver 32 floats. The amount
+of useful data is identical; the amount of traffic is not. This is why
+uncoalesced access can multiply memory traffic by 20-30x without changing a
+single line of arithmetic.
+
+The global-index formula from Chapter 3 gives you coalescing *by
+construction*: `threadIdx.x` varies fastest, and in a row-major array the
+fastest-varying memory index is the column. The mapping is not a convention;
+it is the exact translation of "thread identity" into "physical layout." The
+same principle explains the grid-stride loop: within each iteration,
+consecutive threads still read consecutive addresses, so the loop preserves
+coalescing no matter how many elements each thread processes.
+
+Shared memory has a different physical structure but the same lesson. It is
+organised into 32 banks of 4 bytes, and a warp's shared-memory access is
+served in one cycle only if the 32 addresses hit 32 different banks. A row
+read of `float tile[32][32]` hits banks 0..31 once - one cycle. A column read
+hits the same bank 32 times - 32 cycles. Padding the row stride from 32 to 33
+words makes the row-start banks cycle through 0..31 instead of repeating, so
+column reads also hit every bank once. The "pad by one" rule works because 33
+is coprime with 32; the formula `bank = (byte_address / 4) mod 32` lets you
+verify any layout, including vectorised types and structs, instead of hoping
+the rule still applies.
+
+The unifying idea is that a GPU's memory system rewards you for aligning
+*thread identity* with *physical layout*: consecutive threads to consecutive
+addresses in global memory, and distinct threads to distinct banks in shared
+memory. Every optimisation in this chapter - coalescing, tiling, padding,
+vectorisation, constant-memory broadcasts - is a different way of making that
+alignment exact.
 
 ## Common Pitfalls
 

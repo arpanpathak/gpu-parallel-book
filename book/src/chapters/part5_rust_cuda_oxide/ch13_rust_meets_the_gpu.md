@@ -245,16 +245,44 @@ guarantee.*
 
 ## Deeper Explanation: The Unsafe Boundary Is the Honest Contract
 
-The most important design decision in Chapter 13 is not "Rust is safer" - it
-is *where the unsafe block goes*. Everything before the launch is safe API:
-ownership guarantees the device buffers live as long as they are used, the
-borrow checker guarantees no two mutable references, and `Result` guarantees
-errors are handled. The launch itself is `unsafe` because the type system
-cannot prove that the kernel's *internal* index arithmetic matches the launch
-configuration. The `SAFETY` comment is a contract: a human reviewer must be
-able to verify those assumptions. This is exactly the same contract Chapter 3
-expressed as comments in C++; Rust just makes the rest of the program
-enforceable by the compiler, leaving a single, documented unsafe seam.
+The most important design decision in Chapter 13 is not simply "Rust is safer
+than C++." It is *where the unsafe boundary is drawn*. Rust's safety
+guarantees are real, but they only apply to code written within the rules of
+ownership and borrowing. A CUDA kernel launch sits exactly at the edge of
+those rules: the host cannot see inside the kernel, so it cannot prove that
+the kernel's index arithmetic matches the launch configuration. That
+unprovable obligation is what the `unsafe` block marks.
+
+Look at what happens before the launch. `CudaDevice::new(0)` returns a typed
+`Result`, so a missing GPU is an error you must handle. `alloc_zeros` returns
+an owned `CudaSlice`, so the device allocation is freed automatically when
+the slice is dropped; there is no way to forget the free. `htod_copy_into`
+takes ownership of the host vector, so the data cannot be mutated while the
+copy is in flight. The borrow checker requires `&mut d_c` for the output
+buffer, so two kernels cannot hold mutable references to the same buffer at
+the same time. All of these are compile-time guarantees; none of them depend
+on the programmer remembering a rule.
+
+The launch is the one place where the type system runs out. The tuple
+`(&d_a, &d_b, &mut d_c, n32)` has the right arity and types, but nothing in
+the types proves that the grid covers exactly `N` elements, that the kernel's
+`if (i < n)` guard matches, or that `n32` is the correct interpretation of the
+kernel's `int n`. Those are semantic facts about code the host cannot see.
+The `SAFETY` comment is the contract that fills the gap: a human reviewer
+must be able to verify those facts from the comment and the surrounding
+context. This is exactly the same contract that Chapter 3 expressed as
+comments in C++; the difference is that Rust makes everything *around* the
+launch enforceable by the compiler, leaving one small, documented, auditable
+seam instead of a program-wide discipline.
+
+The philosophical point is that safety is not a property of a language; it is
+a property of the boundary between what a system can prove and what it must
+trust. Rust shrinks the trusted part to the launch and then forces you to
+write down what you are trusting. That is why the borrow checker is sometimes
+described as "the CHECK macro promoted to a compile-time guarantee": the
+discipline that Chapter 3 demanded by convention is now a property of the
+language, and the only remaining convention - the kernel's internal
+correctness - is isolated and named.
 
 ## Common Pitfalls
 

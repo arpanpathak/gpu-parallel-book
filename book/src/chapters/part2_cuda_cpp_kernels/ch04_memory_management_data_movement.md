@@ -241,15 +241,47 @@ pipeline in full; the capstone (Chapter 15) uses it for images.
 
 ## Deeper Explanation: The Memory Kind Is Part of the Algorithm
 
-Beginners treat memory allocation as plumbing: pick `cudaMalloc`, copy, done.
-The deeper truth is that the memory kind determines the *cost model* of every
-access. Pinned memory is fast for streaming because the DMA engine can touch
-it directly; pageable memory pays a staging copy; unified memory pays page
-faults and migrations; zero-copy pays bus latency on every access. Each kind
-optimises a different pattern, and choosing the wrong one converts a
-bandwidth-bound kernel into a latency-bound one. This is why Chapter 4 is not
-"API reference" but *algorithm design*: the memory kind is a decision as
-important as the kernel's index arithmetic.
+There is a temptation to treat memory allocation as plumbing: pick a
+function, call it, move on. The deeper truth is that every memory kind
+embodies a different *cost model*, and the cost model determines whether your
+program runs at memory speed or at latency speed.
+
+Consider the physical path each memory kind uses. Pageable memory lives in
+ordinary OS pages that the kernel can swap or move at any time. The GPU's DMA
+engine cannot safely touch those pages, because the physical address might
+change mid-transfer. The runtime therefore copies the data into a pinned
+staging buffer first, then DMA's from there. That extra copy is not free: it
+adds latency and consumes host memory bandwidth. Pinned memory
+(`cudaMallocHost`) locks the physical pages in place, so the DMA engine can
+touch them directly. The difference is not a micro-optimisation; it is the
+difference between one transfer and two, and it is why streaming pipelines
+always pin their buffers.
+
+Unified memory (`cudaMallocManaged`) takes a different approach: it presents
+one virtual address that both the CPU and the GPU can use, and the driver
+migrates pages on demand. The convenience is real, but the mechanism has a
+cost that the API hides: every page fault triggers a migration across the
+bus, and migrations are expensive. A kernel that touches a gigabyte of
+unified memory for the first time may pay a page fault per page, turning what
+should be a streaming read into a series of hidden stalls. `cudaMemPrefetchAsync`
+exists precisely to make those migrations explicit and move them out of the
+kernel's critical path.
+
+Zero-copy memory (`cudaHostAllocMapped`) maps host memory into the device's
+address space. A kernel can read or write it directly over the bus, with no
+explicit copy. The catch is that every access crosses the bus at PCIe
+latency, so zero-copy is only a win when the data is small, accessed rarely,
+or produced by the kernel for immediate host consumption. For large,
+repeatedly-read data, the per-access bus latency dwarfs the cost of a single
+bulk copy.
+
+The unifying principle is that data movement is not free, and different
+memory kinds move data at different times: eagerly (copy), on demand
+(unified memory), or on every access (zero-copy). Choosing the wrong kind for
+your access pattern is not a performance nit; it can change a kernel from
+bandwidth-bound to latency-bound. That is why the memory kind belongs in the
+same design conversation as the kernel's index arithmetic, not in a separate
+"setup" phase.
 
 ## Common Pitfalls
 

@@ -463,15 +463,39 @@ explain every line, you have graduated from this book.
 
 ## Deeper Explanation: The Pipeline Is a Testbed for the Book's Mental Models
 
-The capstone is deliberately more than a program: it is a *measuring
-instrument* for every idea in the book. The roofline predicts each stage is
-memory-bound before any code runs; the streamed double buffer hides transfer
-time; the differential test makes the second and third implementations
-trustworthy; the histogram verifies the whole chain produced sane data. When
-you change one stage (say, replacing blur with a fused 5×5 kernel), the
-pipeline lets you test the roofline's prediction empirically. That is the
-capstone's real lesson: a good system is not a collection of clever kernels,
-but a collection of *testable claims* about where time goes and why.
+The capstone is deliberately more than a program. It is a small, complete
+system in which every idea from the earlier chapters has a concrete
+responsibility, and - just as importantly - a concrete way to be tested.
+
+The roofline model from Chapter 1 makes a prediction before any code runs:
+each stage of the pipeline moves a few bytes per pixel and does very little
+arithmetic, so every stage should be memory-bound. The report card in §15.9
+tests that prediction with CUDA events, and the result confirms it. The
+streaming host loop from Chapters 4 and 6 tests a different claim: pinned
+memory plus two streams plus events should hide the transfer time behind the
+kernel time. The differential test from §15.8 tests the strongest claim of
+all: the GPU pipeline, the Thrust pipeline, and the CUDA-Oxide pipeline all
+produce the same result as a deliberately simple CPU reference.
+
+What makes the capstone a *testbed* rather than a demo is that you can change
+one piece and re-run the whole suite. Replace the two-pass separable blur with
+a fused 5×5 kernel, and the differential test tells you whether the result is
+still correct while the event timings tell you whether the roofline's
+prediction of memory-bound behaviour still holds. Change the histogram launch
+to the wrong block shape, and the histogram total immediately exposes the
+bug. This is the engineering loop of Chapter 16 made concrete: every stage of
+the pipeline is a hypothesis, and the pipeline is the experiment that tests
+it.
+
+There is also a deeper lesson about system design. A good system is not a
+collection of clever kernels; it is a collection of testable claims about
+where time goes and why. The kernels are the claims' implementations, the
+differential test is the correctness oracle, the event timings are the
+performance oracle, and the histogram is a cheap end-to-end sanity check. When
+you build your own systems, the same structure applies: separate the
+implementation from the verification, make the verification automatic, and
+make the performance claims measurable. That is what turns a program into an
+engineering result.
 
 ## Common Pitfalls
 

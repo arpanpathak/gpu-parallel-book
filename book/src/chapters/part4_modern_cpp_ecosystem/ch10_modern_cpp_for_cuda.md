@@ -346,17 +346,35 @@ without becoming debugging labyrinths.
 
 ## Deeper Explanation: Modern C++ Is How You Make the Compiler Enforce the Book's Rules
 
-Chapters 3-9 asked you to *remember* rules: check every CUDA call, match every
-free, never copy a device buffer. Chapter 10 converts those rules into
-language mechanisms the compiler enforces. `DeviceBuffer`'s deleted copy
-constructor makes double-frees a compile error; `static_assert` makes
-non-trivially-copyable types a compile error; templates and concepts make
-generic kernels type-safe; `constexpr` makes configuration checkable. The
-deeper lesson is that every good API is a *contract expressed in types*: if a
-program is invalid, it should not compile, not fail mysteriously at runtime.
-This is the same philosophy that later chapters apply to Rust (Chapter 13) and
-CUDA-Oxide (Chapter 14): move as many obligations as possible from the
-programmer's memory into the compiler's checks.
+The early chapters of this book ask you to follow rules by hand: check every
+CUDA call, match every allocation with a free, never copy a device buffer.
+These rules are easy to state and easy to violate, especially under
+refactoring or exception handling. Chapter 10's real contribution is to move
+those rules from the programmer's memory into the compiler's type system, so
+that violations become compile errors instead of runtime bugs.
+
+Consider each rule and its C++ embodiment. The rule "never leak or double-free
+a device allocation" becomes `DeviceBuffer<T>`: the allocation happens in the
+constructor, the free happens in the destructor, and the copy operations are
+deleted so that two objects can never own the same pointer. The rule "only
+copy trivially-copyable types through device memory" becomes a
+`static_assert` in the constructor: if you try to instantiate
+`DeviceBuffer<std::string>`, the program fails to compile with a message that
+explains exactly which invariant was violated. The rule "write generic kernels
+without duplicating code" becomes templates and lambdas, and the rule "make
+configuration checkable" becomes `constexpr` constants that participate in
+`static_assert`.
+
+This is not stylistic preference; it is the same philosophy that safety-
+critical software has used for decades. A type system is a way of making
+illegal states unrepresentable. If a program cannot be written, it cannot
+fail at runtime. The remaining unprovable parts - the kernel's internal index
+arithmetic, the exact launch geometry - are exactly the parts that later
+chapters isolate into `unsafe` blocks with explicit safety comments (Chapter
+13) or into type-level constructs like `DisjointSlice` (Chapter 14). The
+trajectory of the whole book, from raw `cudaMalloc` to Rust kernels, is the
+same trajectory: move more and more obligations from "remember to do this"
+into "the compiler will not let you do otherwise."
 
 ## Common Pitfalls
 

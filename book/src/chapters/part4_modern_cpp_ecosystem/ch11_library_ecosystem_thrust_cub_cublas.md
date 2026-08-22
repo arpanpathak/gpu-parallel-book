@@ -255,16 +255,41 @@ algorithm's shape and the profiler's numbers, never by taste.**
 
 ## Deeper Explanation: Libraries Are Optimised Answers to Problems You Should Still Understand
 
-There is a common misunderstanding that using Thrust/CUB/cuBLAS means you do
-not need to understand reductions, scans, or GEMM. The opposite is true: the
-libraries are *tuned implementations of the exact algorithms in Chapters 8-9*.
-If you do not understand the algorithm, you cannot predict when the library
-will be fast, when it will silently choose the wrong path, or when your data
-layout conflicts with its assumptions (cuBLAS's column-major trap is the
-canonical example). Libraries remove the *implementation* burden, not the
-*conceptual* one. The professional workflow is: know the algorithm, reach for
-the library, profile it, and only hand-roll when the profiler proves the
-library is the bottleneck.
+There is a common belief that using Thrust, CUB, or cuBLAS means you no
+longer need to understand reductions, scans, or GEMM. The opposite is closer
+to the truth: these libraries are tuned implementations of the very
+algorithms you studied in Chapters 8 and 9, and the value of using them
+depends on understanding what they are doing underneath.
+
+Consider what happens when you call `thrust::reduce`. The library does not
+magically avoid the reduction problem; it solves it with the same strategies
+this book teaches: tree reductions, warp shuffles, shared-memory tiles, and
+architecture-specific tuning. The difference is that the library's version has
+been tested and tuned by engineers with access to the hardware designers. When
+you understand the underlying algorithm, you can predict when the library will
+be fast (large arrays, standard types) and when it might not be (tiny arrays,
+non-standard layouts, per-frame allocation overhead).
+
+The same reasoning applies to CUB. `cub::BlockReduce` is the production
+version of the `reduceFull` kernel from Chapter 8, with edge cases - non-
+power-of-two block sizes, architecture-specific strategy selection - already
+handled. If you do not understand the hand-written version, CUB's template
+errors and tuning knobs will be incomprehensible. If you do, CUB is a tool you
+can deploy confidently.
+
+cuBLAS is the clearest example of "understanding matters." The library is
+column-major because it inherits Fortran BLAS conventions. Feeding it
+row-major data with `CUBLAS_OP_N` silently computes the transposed product.
+This is not a library bug; it is a mismatch between the data layout the
+caller assumed and the layout the library defines. The dimension-swap trick in
+§11.4 works precisely because you understand the mathematics of transposition
+and can reason about what `C^T = B^T A^T` means in memory.
+
+The professional workflow this chapter teaches is: know the algorithm, reach
+for the library, profile it, and hand-roll only when the profiler proves the
+library is the bottleneck. Libraries are not a replacement for understanding;
+they are a way of converting understanding into reliable, tested
+implementations.
 
 ## Common Pitfalls
 

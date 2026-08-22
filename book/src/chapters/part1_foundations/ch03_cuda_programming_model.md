@@ -463,17 +463,38 @@ GPU (Pascal or newer) through the driver's JIT.
 
 ## Deeper Explanation: Why `<<<grid, block>>>` Is a Declaration, Not a Loop
 
-The single most important mindset shift in CUDA is seeing the launch
-configuration as a *contract with the scheduler*. You are not writing a loop
-that the CPU walks through; you are describing how much work exists and how
-it is shaped. The hardware decides which SM gets which block, when warps are
-scheduled, and how the grid is drained. This is why the same kernel can run
-on a tiny GPU and a huge GPU without changing the source: the launch
-configuration says "there are this many blocks of this size", and the
-hardware maps them onto whatever SMs exist. If you write code that assumes a
-specific SM count, block order, or execution timing, you are violating the
-contract - and your kernel will break on a different GPU even though it
-"worked" on yours.
+One of the most important conceptual shifts in CUDA happens the moment you
+stop reading the launch syntax as a loop and start reading it as a
+*declaration of work*. A CPU `for` loop says: "execute this body, then
+execute it again, in this exact order, until the condition fails." A CUDA
+launch says something different: "there exists this much work, shaped like
+this; please execute it as soon as possible, in whatever order the hardware
+finds most efficient." The launch does not specify which SM runs which block,
+or in what order blocks execute. It specifies the *shape* of the problem:
+how many blocks exist, how many threads are in each block, and therefore how
+the work can be divided.
+
+This distinction is not philosophical; it has practical consequences. Because
+the hardware is free to schedule blocks in any order, your kernel must not
+depend on block order for correctness. Two blocks that communicate must do so
+through explicit mechanisms (atomics, separate kernel launches, cooperative
+groups), never through assumptions about which block runs first. Because the
+same launch configuration can run on a GPU with 10 SMs or 100 SMs, your kernel
+must not assume a particular number of SMs. The launch is a contract with the
+scheduler: you provide the work and the shape, the hardware provides the
+mapping. This is why well-written CUDA kernels are portable across the entire
+NVIDIA product line without source changes.
+
+There is a second idea hiding in the same syntax: the boundary guard.
+Rounded-up grids are the standard way to handle problem sizes that are not
+multiples of the block size, and they work because the guard `if (i < n)`
+turns "extra" threads into no-ops. The guard costs almost nothing in
+performance - at most one warp in the last block diverges - and it buys
+universal correctness. The alternative, computing an exact grid that covers
+every element with no extras, is possible but error-prone and offers no
+benefit. The guard is one of those design choices that looks like
+belt-and-suspenders until the day it prevents an out-of-bounds write that
+would corrupt adjacent memory and produce a silently wrong answer.
 
 ## Common Pitfalls
 

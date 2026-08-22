@@ -241,16 +241,40 @@ what step 3 should say. The loop is how you know the argument was right.
 
 ## Deeper Explanation: The Profiler Is Not a Report Card, It Is a Hypothesis Machine
 
-Beginners treat `ncu` output like a school report: occupancy 80%, memory
-throughput 90%, "good". The professional reading is *differential*: each
-metric is a hypothesis about why the kernel is not faster. Low occupancy +
-memory stalls → not enough warps to hide latency. High memory throughput on a
-memory-bound kernel → coalescing is working, stop tuning memory. A stall
-reason like `long_scoreboard` tells you which chapter to revisit. The
-engineering loop exists because a single metric never tells you the answer; it
-tells you what to change next. The same logic applies to Compute Sanitizer:
-a clean run is not proof of correctness, it is evidence that one class of bugs
-is absent - which is why differential and property tests remain necessary.
+When you first open Nsight Compute, the sheer number of metrics can be
+overwhelming, and it is natural to treat them like a school report: occupancy
+80%, memory throughput 90%, therefore "good". The professional way to read a
+profiler is different and more useful: every metric is a *hypothesis* about
+why the kernel is not as fast as it could be, and the metrics only make sense
+when combined into a story.
+
+Consider a kernel with low achieved occupancy and high memory stall time. The
+hypothesis is: not enough warps are resident to hide the latency of global
+loads, so the scheduler frequently has nothing ready to issue. The fix is not
+"increase occupancy"; it is "increase the pool of ready warps without spilling
+registers or starving shared memory" - which may mean reducing registers,
+changing block size, or restructuring the kernel. Now consider a kernel with
+very high memory throughput on a stage the roofline predicted to be
+memory-bound. The hypothesis is that coalescing is already working and memory
+is genuinely the wall; the correct engineering move is to stop tuning memory
+and start reducing the *amount* of memory traffic (tiling, vectorisation, or
+algorithmic change). A stall reason like `long_scoreboard` tells you the warp
+is waiting on a global load; `barrier` tells you it is waiting at
+`__syncthreads`. Each reason points at a different chapter of this book.
+
+The same mindset applies to Compute Sanitizer. A clean `memcheck` or
+`racecheck` run is valuable, but it is not proof of correctness; it is
+evidence that one specific class of bug was not detected on the inputs you
+ran. Races are timing-dependent, and memory errors depend on the exact
+addresses touched. That is why Chapter 16 pairs the tools with differential
+testing and property testing: the tools find classes of bugs, the tests verify
+behaviour, and the two together are what make an optimisation trustworthy.
+
+The engineering loop - measure, profile, hypothesise, change one thing,
+re-measure, verify - exists because a single number never tells you the
+answer. It tells you what to change next. The loop is the scientific method
+applied to performance: the kernel is the hypothesis, the profiler is the
+instrument, and the median-of-many-runs measurement is the experiment.
 
 ## Common Pitfalls
 

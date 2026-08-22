@@ -370,21 +370,68 @@ can skip a barrier.
 | Scan | \\(O(n)\\) serial | \\(2 \log_2 n\\) barriers | Blelloch upsweep/downsweep |
 | Histogram | global atomic per element | shared privatisation + fold | Per-block private bins |
 
-## Deeper Explanation: Reduction Is a Study in Communication, Not Addition
+## Deeper Explanation: Reduction Is a Story About Where Partial Results Live
 
-The arithmetic of a reduction is trivial - addition is addition. The
-performance is entirely about *how partial results travel between threads*.
-The naive kernel moves every value through one thread; the tree moves partials
-through shared memory with barriers; the shuffle version moves them through
-registers; the coarsened version keeps values in registers longer. Each step
-removes a communication bottleneck: fewer barriers, less shared traffic, fewer
-global round trips. Scan is the same story with a harder invariant (every
-output depends on all previous inputs), and the Blelloch scan is the
-work-efficient way to express that dependency. Histogram privatisation is the
-same principle applied to atomics: communicate once at the end instead of on
-every element. When you understand reduction, you understand most of GPU
-optimisation, because every algorithm is secretly a reduction, a scan, or a
-combination.
+It is easy to look at a reduction and think "this is just a loop of
+additions, how hard can it be?" The reality is more subtle and more
+interesting. The addition itself is genuinely simple, but the *performance*
+of a reduction is determined by something entirely different: how partial
+results travel between threads, how often they touch memory, and how many
+times the threads must wait for one another.
+
+Think about what a single-threaded reduction does. One thread walks through
+the array and keeps a running sum in a register. Every addition is local to
+that thread, so there is no communication at all - but only one thread is
+working, and the memory system is barely used. A GPU has thousands of
+execution units, so the challenge is not "how do I add?" but "how do I
+divide the array among many threads, combine their partial results, and pay
+as little as possible for the combining?"
+
+Each version of the reduction in this chapter is a different answer to that
+question, and each answer moves the partial results to a different place:
+
+1. **The naive kernel** keeps everything in one thread. It is correct and
+   simple, but it uses 1 thread out of thousands and leaves the machine
+   almost completely idle.
+2. **The shared-memory tree** divides the work among all threads in a block,
+   then combines partial sums through shared memory. The cost is a barrier at
+   every level of the tree, because a thread must not read a partial sum
+   before the thread that produced it has written it.
+3. **The coarsened kernel** lets each thread accumulate several elements in a
+   register before entering the tree. This reduces how often threads must
+   communicate, because each thread's private sum is combined only once at
+   the end.
+4. **The warp-shuffle kernel** replaces shared memory with register-to-register
+   data movement inside a warp. Shuffles are faster than shared memory and
+   need no barrier, because the lanes of a warp execute in lockstep.
+5. **The full kernel** combines all of these: coarsen, shuffle within warps,
+   write one value per warp to shared memory, one barrier, then a final
+   shuffle across warp totals.
+
+The same way of thinking explains scan. A scan is a reduction with a harder
+requirement: instead of one final total, every output position needs the sum
+of everything before it. The Blelloch scan solves this with an upsweep that
+stores internal tree nodes and a downsweep that propagates "carries" back
+down the tree. The arithmetic is still addition; the intellectual work
+is in the index arithmetic and the careful ordering of writes so that each
+thread reads a value before it is overwritten.
+
+Histogram privatisation is the same principle applied to atomics. The naive
+histogram performs an atomic increment on global memory for every element.
+Global atomics are expensive when many threads target the same bin, because
+the hardware must serialise the read-modify-write cycles. The privatised
+version gives each block its own histogram in shared memory, where atomics
+are cheaper, and then folds the private histograms into global memory once.
+Again: communicate as little as possible, and when you must communicate, do
+it in bulk at the end.
+
+The deeper lesson is that reduction, scan, and histogram are not three
+unrelated algorithms. They are three views of the same underlying problem:
+how to combine distributed data with the minimum amount of communication.
+That is why the patterns in this chapter reappear in matrix multiplication
+(Chapter 9), in library primitives (Chapter 11), and in multi-GPU collectives
+(Chapter 19). Once you can reason about where partial results live and how
+they travel, you can understand almost any parallel algorithm.
 
 ## Common Pitfalls
 

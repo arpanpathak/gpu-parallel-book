@@ -341,17 +341,42 @@ When you see a kernel that writes to shared state, run this checklist:
 
 ## Deeper Explanation: Every Race Fix Is the Installation of an Order
 
-A race is not a "bug that happens sometimes"; it is the absence of an order
-between two accesses. Every tool in this chapter is an ordering mechanism:
-`__syncthreads()` orders accesses within a block, atomics order
-read-modify-write cycles at a memory location, fences order a thread's own
-writes with respect to other threads' observations. Once you see it this way,
-debugging becomes systematic: find the shared location, find the writers and
-readers, and ask *what orders them?* If nothing does, that is the race. The
-reason GPU races are so nasty is not that they are hard to understand - it is
-that the corrupted result can be silently correct-looking and timing-dependent.
-Compute Sanitizer's `racecheck` (Chapter 16) is the instrument that turns
-"probably fine" into "proven ordered".
+A data race can feel mysterious, especially when it only appears on rare
+inputs or after a compiler update. But underneath the mystery is a precise
+definition: two or more threads access the same memory location, at least one
+access is a write, and there is no ordering between them. The definition is
+mechanical, and so is the cure. Every synchronisation tool in this chapter is
+an ordering mechanism, and each one orders a different kind of access:
+
+- `__syncthreads()` orders *all* memory accesses of a block relative to a
+  barrier. Threads that write before the barrier are guaranteed to have their
+  writes visible to threads that read after it.
+- Atomics order *read-modify-write cycles* at a single memory location. When
+  two threads execute `atomicAdd` on the same address, the hardware chooses
+  some serial order and both increments are applied. No torn value is ever
+  observed.
+- Fences order *one thread's own* memory operations with respect to what other
+  threads can observe. A fence does not make anyone wait; it guarantees that
+  this thread's earlier writes become visible before its later writes.
+- `volatile` prevents the compiler from caching a value in a register, so
+  every access actually reaches memory. It does not make an operation atomic,
+  but it is often necessary for flags that are polled by other threads.
+
+Once you think in terms of ordering, debugging a race becomes a systematic
+procedure: identify the shared location, identify the writers and readers,
+and ask "what orders them?" If the answer is "nothing", you have found the
+bug - even if the program happens to produce the right answer on the test
+inputs you tried.
+
+Why are GPU races so much worse than CPU races? Two reasons, both rooted in
+scale. First, a race can involve any two of millions of threads, so the
+interleaving that exposes it may occur once in a billion executions. Second,
+the GPU reports success while the corrupted value is stored; there is no
+exception, no crash, no signal - just a wrong answer that may be subtly wrong
+in a way that passes unit tests. This is why Compute Sanitizer's `racecheck`
+(Chapter 16) is not a luxury. It instruments memory accesses and detects
+unsynchronised read/write pairs directly, turning a timing-dependent mystery
+into a deterministic report.
 
 ## Common Pitfalls
 

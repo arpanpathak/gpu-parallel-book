@@ -463,18 +463,41 @@ from §2.9. Chapter 16 shows how to read that output.
 
 ## Deeper Explanation: Occupancy Is a Supply of Readiness, Not a Score
 
-It is tempting to treat occupancy as a number to maximise. The deeper view:
-occupancy is the number of warps the scheduler can switch to when one warp
-stalls. If a kernel is latency-bound (many global loads, few independent
-operations), high occupancy is a cheap way to hide that latency - more warps
-means more chances that *some* warp is ready each cycle. If a kernel is
-throughput-bound (many FMAs, register-resident data), occupancy matters less
-because warps rarely stall; squeezing more blocks in may actually reduce
-performance by forcing register spills. So the correct question is not "what
-is the maximum occupancy?" but "what occupancy gives the scheduler enough
-ready warps without starving the kernel of the resources it actually needs?"
-Chapter 9's `__launch_bounds__` exists precisely to let you set that dial
-intentionally.
+When people first encounter the occupancy calculation, it is natural to treat
+the resulting percentage as a grade: higher must be better. The hardware
+story is more nuanced, and understanding it makes the difference between
+tuning by folklore and tuning by mechanism.
+
+An SM is a collection of execution units and a scheduler. The scheduler can
+only issue an instruction from a warp that is *ready*: its operands must be
+available, its previous instructions must have completed, and it must not be
+waiting on a barrier. When a warp issues a global load, that load takes
+hundreds of cycles. During those cycles, the warp is not ready. If the SM has
+many other warps, the scheduler simply issues instructions from them, and the
+waiting warp's latency is hidden. If the SM has few warps, the scheduler runs
+out of ready work and the execution units go idle. In this sense, occupancy
+is not a score; it is the *size of the pool of ready-to-run work* available to
+hide stalls.
+
+This explains why high occupancy is not always the right goal. A memory-bound
+kernel with long-latency global loads benefits from a large pool of warps,
+because the pool gives the scheduler alternatives while any one warp waits. A
+compute-bound kernel whose data lives in registers rarely stalls, so a smaller
+pool may be perfectly adequate - and trying to raise occupancy by reducing
+register usage can force the compiler to spill registers to local memory,
+which adds memory traffic and makes the kernel *slower*. The same logic
+applies to shared memory: a kernel that needs a large shared-memory tile per
+block may intentionally use fewer blocks per SM, accepting lower occupancy in
+exchange for less global traffic and more data reuse.
+
+The engineering mindset to cultivate is therefore not "maximise occupancy"
+but "give the scheduler enough readiness without starving the kernel of the
+resources it needs." The occupancy calculator and
+`cudaOccupancyMaxActiveBlocksPerMultiprocessor` are not goalposts; they are
+measurement tools for exploring a trade-off. Chapter 9's `__launch_bounds__`
+is the practical embodiment of this idea: it lets you tell the compiler the
+occupancy you want, and the compiler then decides how many registers it can
+afford, so the trade-off is made deliberately instead of by accident.
 
 ## Common Pitfalls
 

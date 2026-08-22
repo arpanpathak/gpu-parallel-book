@@ -319,18 +319,49 @@ book teaches: *find the bottleneck, remove it, measure, repeat*.
 
 ## Deeper Explanation: SGEMM Is the Book in One Kernel
 
-Every optimisation in the earlier chapters appears in SGEMM: coalescing
-(Chapter 7) fixes the naive kernel's uncoalesced A reads; shared-memory tiling
-reuses each global byte T times; padding removes bank conflicts; register
-tiling turns shared-memory traffic into register-resident FMAs;
-`__launch_bounds__` turns the occupancy arithmetic of Chapter 2 into a
-compiler constraint; and the roofline (Chapter 1) tells you the journey is
-about intensity, not raw FLOPs. The reason SGEMM is the canonical teaching
-kernel is that it is compute-bound at scale, so every optimisation must
-preserve *reuse* while not starving the arithmetic units. If you can explain
-every line of the register-tiled kernel - including why the B-tile load uses
-`col0 + c` and not `col0 + tx*RN + c` - you have internalised most of the
-book.
+Matrix multiplication is often the first serious kernel a CUDA programmer
+encounters, and that is no accident. SGEMM contains, in one small program,
+every optimisation idea that appears earlier in the book, and each stage of
+its development is a concrete answer to a concrete bottleneck.
+
+The naive kernel's problem is not arithmetic; it is memory. Each thread
+computes one output element by looping over the shared dimension `k`, reading
+a row of A and a column of B. The row read is coalesced, but the column read
+is not: consecutive threads in a warp have consecutive `j` values, so their B
+addresses are consecutive - but their A addresses differ by the matrix stride
+`N`, placing them in different cache lines. The result is that half the
+memory traffic is wasted, and the kernel becomes memory-bound despite doing
+useful arithmetic. The fix in the coalesced kernel is to choose a block shape
+where `threadIdx.x` maps to `j`, so B reads are coalesced and A reads are
+broadcast. This helps, but both kernels still re-read every operand from
+global memory for every output element; there is no reuse.
+
+Shared-memory tiling introduces reuse. A block of 16×16 threads loads a 16×16
+tile of A and a 16×16 tile of B into shared memory, then computes the 16×16
+output tile. Each element loaded from global memory is now used by 16 threads
+instead of 1, so global traffic drops by a factor of 16. The cost is a new
+bottleneck: shared-memory bandwidth. The inner product reads shared memory
+for every FMA, and shared-memory bandwidth is finite.
+
+Register tiling removes that bottleneck by giving each thread more output
+elements. With a 2×2 micro-tile, each thread loads a row segment of A and a
+column segment of B into registers once per `k`, then performs 4 FMAs from
+registers with zero shared-memory traffic in the inner product. The FMA-to-
+shared-load ratio improves by a factor of 4, at the cost of more registers per
+thread - which is where `__launch_bounds__` enters. The compiler must decide
+how many registers to use, and that decision trades off occupancy (Chapter 2)
+against spills. `__launch_bounds__(256, 4)` tells the compiler the occupancy
+target explicitly, so the trade is made deliberately.
+
+The deeper lesson is that SGEMM's journey is the journey of every optimised
+kernel: identify the current bottleneck (uncoalesced reads, no reuse,
+shared-memory bandwidth, registers), remove it, and measure. The roofline
+model tells you the journey is about intensity - FLOPs per byte - and each
+stage raises intensity by moving data closer to the arithmetic units: from
+global memory, to shared memory, to registers. If you can explain every line
+of the register-tiled kernel, including why the B-tile load uses `col0 + c`
+rather than `col0 + tx*RN + c`, you have internalised not just SGEMM but the
+whole optimisation playbook of the book.
 
 ## Common Pitfalls
 
