@@ -1,6 +1,6 @@
 # CUDA Kernels: GPU & Parallel Programming from First Principles
 
-> A comprehensive, no-fluff guide to GPU and parallel programming with CUDA:
+> A comprehensive, and systematic guide to GPU and parallel programming with CUDA:
 > the hardware model, fully documented CUDA C++ kernels, modern C++ idioms,
 > and GPU kernels in pure Rust with CUDA-Oxide - all wrapped around a complete
 > image-processing capstone project.
