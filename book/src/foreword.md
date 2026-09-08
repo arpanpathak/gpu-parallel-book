@@ -1,117 +1,92 @@
 # Foreword
 
-This book is a practical introduction to GPU and parallel programming with
-CUDA. It starts with the hardware model, develops the CUDA C++ programming
-model, covers the modern C++ and Rust ecosystems, and finishes with profiling,
-multi-GPU systems, and a complete image-processing pipeline implemented three
-ways.
+Computing is entering its parallel age, and the GPU is the machine that defines it.
 
-## GPUs and Parallel Scaling
+For sixty years, the default path to a faster program was a faster serial processor: a higher clock, a smarter pipeline, a larger cache. That path ran into a wall in the mid-2000s, when clock speeds stopped climbing and silicon stopped cooperating. The industry's answer was not surrender but a change of question - from "how fast can one core go?" to "how many cores can we set free at once?" The GPU is that answer, multiplied a hundred thousand times. A modern accelerator executes tens of trillions of floating-point operations per second, moves memory at terabytes per second, and keeps more threads in flight than there are people on Earth - all directed by code that you, an individual programmer, can write and understand completely.
 
-For decades, the default way to make a program faster was a faster serial
-processor: a higher clock, a deeper pipeline, or a larger cache. That path
-stopped scaling in the mid-2000s, when clock speeds plateaued and power limits
-made further serial scaling impractical. The industry response was
-parallelism: many cores, then many threads per core, and then specialised
-accelerators. A modern GPU executes trillions of floating-point operations per
-second, moves memory at terabytes per second, and keeps far more threads in
-flight than a CPU core count. The relevant question is no longer how fast a
-single core can go but how much work can be kept in flight at once.
+The instruction set is documented, the programming model is teachable, and the performance is explained by a handful of principles - the warp, the memory hierarchy, the roofline model - that fit on a single page and govern every GPU ever built. Few subjects in computer science offer this much return per hour of study.
 
-The GPU is a useful teaching target because its performance model is compact.
-A small set of principles - the warp, the memory hierarchy, and the roofline -
-explains most of the difference between a kernel that runs at a few percent of
-peak and one that runs near it.
+## The Hardware Gap
 
-## The Failure Modes
+A CUDA library call can hide the hardware behind it. A matrix multiply runs at 3% of peak when threads in a warp read columns instead of rows. A reduction can silently drop half of its data when threads diverge across a `__syncthreads()`. A host allocation that is pageable instead of pinned doubles transfer latency. None of these failures print an error. They produce a slow benchmark or a subtly wrong result.
 
-CUDA hides the hardware behind an API, and the API does not report every
-problem. A matrix multiply can run at a fraction of peak when threads in a warp
-read columns instead of rows. A reduction can lose counts when threads update a
-shared histogram without atomics. A transfer can be twice as slow when host
-memory is pageable instead of pinned. None of these failures produces an error
-message. They produce a slow benchmark or a subtly wrong result.
-
-This book covers the hardware model, the CUDA C++ programming model, the C++
-and Rust ecosystem, and the profiling tools, so these failures are diagnosed
-rather than mysterious.
+This book covers the hardware model, the CUDA C++ programming model, and the C++ and Rust ecosystem around them, so those failures are diagnosable instead of mysterious.
 
 ## What You Will Build
 
-The later chapters build toward one project: a complete GPU image-processing
-pipeline. The pipeline reads an image, converts it to greyscale, applies a
-separable Gaussian blur, runs a Sobel edge detector, and writes the result. It
-is implemented three times:
+Every chapter builds toward one project: **a complete GPU image-processing pipeline** - read an image, convert it to greyscale, apply a separable Gaussian blur, run a Sobel edge detector, and write the result - implemented three times:
 
-1. in CUDA C++ with documented kernels;
-2. with the Thrust/CUB/cuBLAS library ecosystem;
-3. in Rust with CUDA-Oxide, NVIDIA's experimental compiler that turns Rust
-   kernels into PTX.
+1. in **CUDA C++** with hand-written, fully commented kernels;
+2. with the **Thrust/CUB/cuBLAS** library ecosystem;
+3. in **pure Rust** with NVIDIA's experimental **CUDA-Oxide** compiler, which turns idiomatic Rust into PTX.
 
-The pipeline includes pinned-memory transfers, streamed double buffering, an
-occupancy-aware kernel configuration, and reproducible benchmarks.
+You will build the same kind of pipeline a camera vendor would ship: pinned-memory transfers, streamed double buffering, an occupancy-tuned kernel configuration, and reproducible benchmarks. When you have finished, you will be able to look at any CUDA kernel - including the ones inside the libraries you already use - and explain, line by line, what it does and why it is fast.
 
 ## Who This Book Is For
 
-This book is for readers who:
+You should read this book if:
 
-- can write C++ or Rust but have used GPUs only through library calls they did
-  not fully understand;
-- have launched a kernel, seen incorrect output, and did not know whether the
-  bug was in index arithmetic, memory layout, or synchronisation;
-- want to understand warps, streaming multiprocessors, and the memory hierarchy
-  before writing CUDA;
-- write Rust and want to know what CUDA-Oxide changes and what it does not;
-- do not own a GPU and want to learn on free cloud instances;
-- work on software with tight performance budgets and zero tolerance for silent
-  correctness failures.
+- You can write C++ or Rust, but every GPU program you have written so far was a library call you did not fully understand.
+- You have launched a kernel, seen it produce garbage, and had no idea whether the bug was in your index arithmetic, your memory layout, or your synchronisation.
+- You suspect that most GPU tutorials skip the hardware model and want to understand the primitives - the warp, the streaming multiprocessor, the memory hierarchy - before touching a single CUDA API.
+- You write Rust and want to know what CUDA-Oxide changes, and what it does not.
+- You do not own a GPU and want to learn on the free compute that the cloud gives away (see the next section).
+- You ship software whose performance budget is measured in microseconds and whose correctness budget is zero.
 
-No prior GPU experience is required. C++ or Rust experience and access to a
-CUDA-capable machine are sufficient. Terms are defined when they first appear,
-and hardware numbers are accompanied by their reasoning.
+You do not need prior GPU experience. You need to be willing to sit with the hardware model. This book does not hand-wave the memory hierarchy. Every term is defined when it first appears; every primitive - every type, every built-in variable, every API call - is described before it is used. Where the book refers to a number (register counts, memory bandwidths, transaction sizes), it gives you the reasoning behind it, not just the number.
 
-## Hardware Requirements
+## You Do Not Need to Own a GPU
 
-The examples target CUDA 12.x and modern NVIDIA compute capabilities, while
-remaining portable through PTX. The repository README lists cloud options;
-free tiers are sufficient for every example. Where a feature is
-architecture-specific, the text says so.
+Every line of code in this book runs on any NVIDIA GPU with CUDA 12.x - including the free ones. If you do not own a GPU, the cloud has you covered, and most providers give away enough free compute to finish this entire book:
 
-CUDA-Oxide is an experimental, alpha-stage compiler. Its API is evolving and
-its examples may change. The chapters that cover it describe the project as it
-exists at the time of writing, with code in the style of its documented
-examples. Treat those chapters as a map of the territory rather than a
-specification.
+- **Google Colab** - free T4 GPUs in browser notebooks, zero setup; the fastest way to run your first kernel.
+- **Kaggle Notebooks** - free GPU hours (roughly 30 per week, refreshed weekly), data-science friendly.
+- **Google Cloud** - a new-account trial credit (about USD 300 at the time of writing) covers serious L4 and A100 sessions.
+- **Microsoft Azure** - a new-account credit (about USD 200) for NC/ND-series GPU virtual machines.
+- **AWS** - GPU instances (g4dn, g5, p4); the free tier is CPU-only, but the Activate and Educate programmes grant credits to startups and students.
+- **Paperspace / Gradient** - GPU notebooks and cloud workstations with free and low-cost tiers.
+- **Lambda, RunPod, Vast.ai** - cheap on-demand GPUs (RTX 4090 up to H100) when you outgrow the free tiers.
+- **NVIDIA LaunchPad** - free, time-boxed hands-on labs on real NVIDIA hardware.
+- **Modal** - serverless GPU code with recurring free compute credits (about USD 30 per month at the time of writing).
 
-## How the Book Is Organised
+Credit amounts and session limits change frequently; check the current terms before you sign up. The repository README contains a fuller comparison table to help you choose.
 
-**Part I - Foundations of GPU Computing** (Chapters 1-3) covers the mathematics
-of parallelism, GPU hardware, and the CUDA programming model. Later chapters
-assume the terms defined here.
+## The Structure
 
-**Part II - Writing CUDA C++ Kernels** (Chapters 4-6) covers memory management,
-synchronisation and atomics, and streams and events for asynchronous execution.
+The book is organised into six parts:
 
-**Part III - Optimisation & Advanced Patterns** (Chapters 7-9) covers memory
-optimisation, reductions and scans, and a step-by-step matrix multiplication.
+**Part I - Foundations of GPU Computing** (Chapters 1-3) covers the mathematics of parallelism, the GPU hardware model, and the CUDA programming model. Read this part carefully; every later chapter assumes the primitives defined here.
 
-**Part IV - Modern C++ & The CUDA Ecosystem** (Chapters 10-12) covers RAII,
-templates, and C++ idioms; the Thrust, CUB, and cuBLAS libraries; and NVRTC
-runtime compilation.
+**Part II - Writing CUDA C++ Kernels** (Chapters 4-6) covers memory management, synchronisation, atomics, and asynchronous execution with streams and events.
 
-**Part V - Rust, CUDA-Oxide & Safe GPU Programming** (Chapters 13-15b) covers
-Rust host code, CUDA-Oxide kernels, the image-processing capstone, and a Jetson
-Orin benchmark study.
+**Part III - Optimisation & Advanced Patterns** (Chapters 7-9) covers memory optimisation, the canonical parallel algorithms (reduction, scan, histogram), and a complete, step-by-step optimisation of matrix multiplication.
 
-**Part VI - The Engineering Mindset** (Chapter 16) covers Nsight profiling,
-Compute Sanitizer, and reproducible performance engineering.
+**Part IV - Modern C++ & The CUDA Ecosystem** (Chapters 10-12) covers RAII wrappers, templates and modern C++ idioms, the Thrust/CUB/cuBLAS libraries, and runtime compilation with NVRTC.
 
-**Part VII - Systems & Multi-GPU Programming** (Chapters 17-19) covers GPU
-systems programming, NVLink and NVSwitch, and NCCL collectives.
+**Part V - Rust, CUDA-Oxide & Safe GPU Programming** (Chapters 13-15) covers Rust host code driving CUDA kernels, NVIDIA's experimental CUDA-Oxide compiler for writing kernels in pure Rust, and the image-processing capstone.
 
-## Corrections
+**Part VI - The Engineering Mindset** (Chapter 16) covers profiling with Nsight Compute, debugging with Compute Sanitizer, and reproducible performance engineering.
 
-If you find a bug in the prose or the code, open an issue or submit a pull
-request. The GPU ecosystem changes; the book is intended to change with it.
+## A Note on the Coding Standards
+
+This project has a constitution. You will find it as `CODING_STANDARDS.md` in the repository root. It is not a suggestion. Every code block in this book follows it:
+
+- Every primitive is explained before it is used.
+- No magic numbers - if it is not `0`, `1`, `-1`, or a power of two required by the CUDA API, it gets a named constant.
+- Every kernel is commented line by line.
+- Every CUDA API call that can fail is checked.
+- Every `__syncthreads()` and every atomic carries a comment stating which data it protects and why.
+
+## A Note on Hardware and Honesty
+
+The examples in this book target the CUDA 12.x toolkit and are written against the compute capability of modern NVIDIA GPUs (Ada and Hopper architectures, compute capability 8.x and 9.0). You do not need to own this hardware: the section "You Do Not Need to Own a GPU" lists the cloud options, and the free tiers alone are enough for everything in this book. Where a feature is architecture-specific, the book says so explicitly.
+
+This book is also direct about the tooling. NVIDIA's CUDA-Oxide is an experimental, alpha-stage compiler; its API is evolving and its syntax may change. The chapters that cover it describe the project as it exists today, with code written in the style of its documented examples. Treat those chapters as a map of the territory, not a surveyor's certificate.
+
+If you find a bug in the book - in the prose or in the code - open an issue or submit a pull request. This is a living document. The GPU does not stop changing, and neither should the book.
+
+Chapter 1 starts from the mathematics and builds the programming model from
+the hardware up. No GPU knowledge is assumed; the requirements are the C++ or
+Rust listed above and a machine that can run CUDA 12.x examples.
 
 - *Arpan Pathak*
