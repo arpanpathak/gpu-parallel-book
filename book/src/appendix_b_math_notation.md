@@ -63,7 +63,7 @@ intensity: \\(N/6\\) FLOP/byte. Chapter 9, §9.1.
 | Symbol | Meaning | First use |
 |---|---|---|
 | \\(\\sigma\\) | Standard deviation (Gaussian blur radius) | Ch. 15 |
-| \\(\\max |x - y|\\) | Maximum absolute difference (verification) | Ch. 3 |
+| \\(\\max \\lvert x - y \\rvert\\) | Maximum absolute difference (verification) | Ch. 3 |
 | \\(1 \\times 10^{-4}\\) | The float-stage verification tolerance | Ch. 15 |
 
 The Gaussian weights of the 5-tap blur, \\(\\sigma = 1\\):

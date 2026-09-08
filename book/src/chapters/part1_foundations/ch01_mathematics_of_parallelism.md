@@ -85,7 +85,7 @@ the efficiency is 0.156.
 Two formal bounds follow immediately from the definitions. Since the parallel
 program cannot take negative time, \\(T_p > 0\\), and therefore:
 
-\[ S(p) = \frac{T_1}{T_p} \le p \quad \text{and} \quad 0 < E(p) \le 1 \]
+\\[ S(p) = \frac{T_1}{T_p} \le p \quad \text{and} \quad 0 < E(p) \le 1 \\]
 
 Equality is possible only when \\(T_p = T_1/p\\), meaning the work divides
 perfectly among processors and every processor runs at full utilisation for

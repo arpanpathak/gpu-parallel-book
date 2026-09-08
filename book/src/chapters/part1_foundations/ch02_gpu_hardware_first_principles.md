@@ -407,16 +407,16 @@ Writing the arithmetic explicitly makes the resource trade visible. Let
 a block use \\(T_B\\) threads, \\(R_T\\) registers per thread, and \\(S_B\\)
 bytes of shared memory. The number of blocks that fit is:
 
-\[ B_{\max} = \min\left(
+\\[ B_{\max} = \min\left(
 \left\lfloor \frac{R_{SM}}{T_B \cdot R_T} \right\rfloor,\;
 \left\lfloor \frac{T_{SM}}{T_B} \right\rfloor,\;
 B_{SM},\;
 \left\lfloor \frac{S_{SM}}{S_B} \right\rfloor\ \text{if } S_B > 0
-\right) \]
+\right) \\]
 
 The number of resident threads is \\(B_{\max} \cdot T_B\\), and occupancy is:
 
-\[ \text{occupancy} = \frac{B_{\max} \cdot T_B}{T_{SM}} \]
+\\[ \text{occupancy} = \frac{B_{\max} \cdot T_B}{T_{SM}} \\]
 
 The four terms are not alternatives; all four budgets are consumed
 simultaneously, so the minimum is the binding one.

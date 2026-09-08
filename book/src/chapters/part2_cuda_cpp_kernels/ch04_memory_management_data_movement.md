@@ -81,10 +81,10 @@ modern GPU (≈ 1 TB/s HBM for the RTX family, 3.35 TB/s for H100):
 | Device → host pinned | 20-25 GB/s |
 | Device → device | 1-3 TB/s (HBM) |
 
-The underlying model is simple: for \(N\) bytes and effective bandwidth
-\(B\), a transfer takes
+The underlying model is simple: for \\(N\\) bytes and effective bandwidth
+\\(B\\), a transfer takes
 
-\[ T = \frac{N}{B} \]
+\\[ T = \frac{N}{B} \\]
 
 The table turns that arithmetic into practice: copying 1 GB host→device costs
 ~40 ms pinned, ~140 ms pageable, and the kernel that *uses* that 1 GB might
