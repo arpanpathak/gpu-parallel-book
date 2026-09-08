@@ -453,7 +453,7 @@ how real users actually behave: when a machine gets bigger, they run bigger
 models, higher-resolution images, or larger batches rather than re-running the
 same small problem faster.
 
-Both laws matter on a GPU, often in the same afternoon. When you are trying
+When you are trying
 to make a fixed 1080p frame process in time for a 60 Hz display, you are in
 Amdahl's regime: the work is fixed, and every microsecond of host overhead or
 synchronisation is a serial fraction that caps your speedup. When you are
