@@ -1,41 +1,42 @@
 # Chapter 15: Capstone - The GPU Image Processing Pipeline
 
-> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch15_capstone/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch15_capstone) in the repository.
+> **Code companion:** the complete, buildable code for this chapter lives in
+> [`code/ch15_capstone/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch15_capstone)
+> in the repository.
 
 This chapter combines the earlier material into one complete system. The
-capstone is a complete GPU image-processing pipeline - **RGB → greyscale → Gaussian blur →
-Sobel edge detection** - implemented three ways (hand-written CUDA C++,
+capstone is a GPU image-processing pipeline: **RGB -> greyscale -> Gaussian
+blur -> Sobel edge detection**, implemented three ways (hand-written CUDA C++,
 Thrust, and CUDA-Oxide Rust), streamed with pinned memory, verified against a
-CPU reference, and measured with CUDA events. It is deliberately small enough
-to fit in one chapter and real enough to ship.
+CPU reference, and measured with CUDA events. It is small enough to fit in one
+chapter and structured enough to exercise the book's methods end to end.
 
-## 15.1 The Pipeline and Its Data Flow
+## 15.1 Pipeline and Data Flow
 
 ![The capstone pipeline: RGB to greyscale to blur to Sobel to histogram](../../assets/ch15_capstone_pipeline.svg)
 
-Design decisions, each with its reason:
+Design decisions and their rationale:
 
-- **Grey as `float`, not `unsigned char`.** The blur and Sobel accumulate
-  fractional weights; `float` avoids rounding at every stage and matches the
-  arithmetic intensity discussion of Chapter 1. The final edge map is scaled
-  back to `unsigned char` for output.
-- **Separable Gaussian.** A 2-D Gaussian kernel of radius 2 is a 5×5 stencil  - 
-  25 taps per output pixel. A *separable* Gaussian is a horizontal 5-tap
-  followed by a vertical 5-tap: 10 taps per pixel. Separability halves the
-  arithmetic for a mathematically identical result, and each pass is naturally
-  coalesced.
-- **Sobel = two separable kernels.** The Sobel operator is the pair of 3×3
-  kernels \\(G_x\\) and \\(G_y\\). Each row/column combination factors into a
-  derivative and a smoothing pass; we implement it directly as two 3×3
-  convolutions and take the magnitude \\(\\sqrt{G_x^2 + G_y^2}\\).
-- **Histogram at the end.** A cheap way to verify the pipeline produced
-  sensible data (edge counts in the expected range) and a demonstration of
-  Chapter 8's privatised histogram on a real workload.
+- **Greyscale stored as `float`, not `unsigned char`.** Blur and Sobel
+  accumulate fractional weights. `float` avoids rounding at every stage and
+  matches the arithmetic-intensity discussion of Chapter 1. The final edge map
+  is scaled to `unsigned char` for output.
+- **Separable Gaussian.** A 2-D Gaussian of radius 2 is a 5x5 stencil: 25 taps
+  per output pixel. A separable Gaussian performs a horizontal 5-tap pass
+  followed by a vertical 5-tap pass: 10 taps per pixel. The two-pass form has
+  the same mathematical result and each pass is naturally coalesced.
+- **Sobel as two separable kernels.** The Sobel operator is the pair of 3x3
+  kernels \\(G_x\\) and \\(G_y\\). Each factors into a derivative pass and a
+  smoothing pass. This implementation computes the two 3x3 convolutions
+  directly and takes the magnitude \\(\sqrt{G_x^2 + G_y^2}\\).
+- **Histogram at the end.** The histogram verifies that the pipeline produced
+  sensible data and demonstrates Chapter 8's privatised histogram on a real
+  workload.
 
-## 15.2 Stage 1: RGB → Greyscale (CUDA C++)
+## 15.2 Stage 1: RGB to Greyscale (CUDA C++)
 
-The canonical coalesced kernel: one thread per output pixel, consecutive
-threads on consecutive pixels, the Chapter 3 index formula.
+The canonical coalesced kernel uses one thread per output pixel and the Chapter
+3 index formula, so consecutive threads read consecutive pixels:
 
 ```cpp
 // ---------------------------------------------------------------------------
@@ -51,8 +52,7 @@ __global__ void rgbToGray(const uchar3* rgb, float* gray, int numPixels)
     {
         const uchar3 px = rgb[i];                 // 12-byte read, coalesced
         // uchar3 components are 0..255; multiply in float to avoid
-        // integer truncation. The 0.114f/0.587f/0.299f order mirrors the
-        // canonical definition.
+        // integer truncation.
         gray[i] = 0.299f * static_cast<float>(px.x)
                 + 0.587f * static_cast<float>(px.y)
                 + 0.114f * static_cast<float>(px.z);
@@ -60,38 +60,29 @@ __global__ void rgbToGray(const uchar3* rgb, float* gray, int numPixels)
 }
 ```
 
-**Why `uchar3`?** CUDA's built-in 3-byte vector type matches the RGB layout
-exactly. Its alignment is 1 (no padding), so it is safe to point at raw RGB
-bytes. (A `float3` would *not* be safe - it is 16-byte aligned.) This is the
-"describe every primitive" discipline paying off: the layout contract is in
-the type.
+`uchar3` is CUDA's built-in 3-byte vector type and matches the RGB layout
+exactly. Its alignment is 1, so it can point at raw RGB bytes. A `float3`
+would not be safe for the same data because it is 16-byte aligned.
 
 ## 15.3 Stage 2: Separable Gaussian Blur
 
-The 5-tap weights for \\(\sigma = 1\\) are `[0.06136, 0.24477, 0.38774,
-0.24477, 0.06136]` (a normalised Gaussian). The horizontal pass reads a row
-segment including a **halo** of 2 pixels on each side; the vertical pass does
-the same down columns.
+The 5-tap weights for \\(\sigma = 1\\) are
+`[0.06136, 0.24477, 0.38774, 0.24477, 0.06136]`, a normalised Gaussian. The
+horizontal pass reads a row segment including a halo of two pixels on each
+side; the vertical pass does the same along columns.
+
+An initial, plausible implementation clamps only the outermost stencil
+coordinates:
 
 ```cpp
-// ---------------------------------------------------------------------------
-// blurH: horizontal 5-tap Gaussian. Each thread owns output pixel (y, x)
-// and reads input pixels (y, x-2 .. x+2). Consecutive threads read
-// consecutive windows -> coalesced. The halo pixels are read by two
-// neighbouring threads, which is the cost of the stencil - and the reason
-// tiled shared memory (Chapter 7) would win for large radii.
-// ---------------------------------------------------------------------------
+// WRONG at image borders:
 __global__ void blurH(const float* in, float* out, int width, int height)
 {
     const int x = blockIdx.x * blockDim.x + threadIdx.x;
     const int y = blockIdx.y * blockDim.y + threadIdx.y;
     if (x < width && y < height)
     {
-        const float* row = in + y * width;       // this row's base
-        // Clamp the stencil at image borders (replicate-edge policy) - WRONG:
-        // only the outer taps are clamped, and the INNER taps (x-1, x+1)
-        // reuse the clamped values. At the left edge, row[x0] is therefore
-        // weighted 0.06136 + 0.24477 = 0.30613 instead of 0.06136.
+        const float* row = in + y * width;
         const int x0 = max(x - 2, 0), x1 = min(x + 2, width - 1);
         out[y * width + x] = 0.06136f * row[x0] + 0.24477f * row[x0]
                            + 0.38774f * row[x]  + 0.24477f * row[x1]
@@ -100,12 +91,10 @@ __global__ void blurH(const float* in, float* out, int width, int height)
 }
 ```
 
-**Wait - the weights are wrong at the borders.** In the interior this version
-is the correct Gaussian: the five taps `[0.06136, 0.24477, 0.38774, 0.24477,
-0.06136]` land on `[x-2, x-1, x, x+1, x+2]`. But at the edges the *inner* taps
-(x-1 and x+1) reuse the clamped outer values, so the replicated border pixel
-is weighted twice (0.06136 + 0.24477) instead of once. The *correct* version
-clamps each tap independently:
+This version is correct in the interior but wrong at borders. The inner taps
+`x-1` and `x+1` reuse the clamped outer values, so the replicated border pixel
+is weighted twice, for example as `0.06136 + 0.24477` on the left edge. The
+correct version clamps each tap independently:
 
 ```cpp
 __global__ void blurH(const float* in, float* out, int width, int height)
@@ -115,11 +104,11 @@ __global__ void blurH(const float* in, float* out, int width, int height)
     if (x < width && y < height)
     {
         const float* row = in + y * width;
-        // Weights, left to right:  [0.06136, 0.24477, 0.38774, 0.24477, 0.06136]
+        // Weights, left to right: [0.06136, 0.24477, 0.38774, 0.24477, 0.06136]
         const float w[5] = {0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f};
         float acc = 0.0f;
         // Each tap clamps its index to the row bounds independently:
-        // interior pixels use the exact stencil; edge pixels replicate.
+        // interior pixels use the exact stencil; edge pixels are replicated.
         #pragma unroll
         for (int t = -2; t <= 2; ++t)
         {
@@ -131,27 +120,22 @@ __global__ void blurH(const float* in, float* out, int width, int height)
 }
 ```
 
-**The lesson embedded in this correction.** The first version was *plausible
-and wrong*; the second is *correct by construction*. This is exactly the bug
-class this book exists to train you against: the code that "looks like" a
-Gaussian until the edges. The vertical pass is identical with `x`/`y` and
-`row` swapped to a column stride; it is omitted here to avoid repetition, but
-the discipline is the same - clamp each tap independently.
+The first version is plausible and wrong; the second is correct by
+construction. Border handling is the difference. The vertical pass uses the
+same logic with `x` and `y` exchanged; it is omitted here to avoid repetition.
 
-**Why two kernels and not one?** A single fused kernel would need each thread
-to read a 5×5 neighbourhood (25 reads) instead of two passes of 5 reads each
-(10 reads), and the intermediate (blurred horizontally) would need to be
-communicated through shared memory with a block halo. Two global passes are
-simpler, fully coalesced, and - at this image scale - bandwidth-dominated in
-exactly the way Chapter 7's checklist predicts.
+Separable blur uses two kernels rather than one fused 5x5 kernel. A fused
+kernel would read a 5x5 neighbourhood per thread, or communicate the
+intermediate image through shared memory with a block halo. Two global passes
+are simpler, fully coalesced, and bandwidth-dominated at this image scale.
 
 ## 15.4 Stage 3: Sobel Edge Detection
 
 ```cpp
 // ---------------------------------------------------------------------------
-// sobel: magnitude of the gradient. Gx = (row -1 + 2*row0 + row1) convolved
-// with [-1, 0, 1]; Gy = the transpose. We compute both 3x3 convolutions and
-// the magnitude sqrt(Gx^2 + Gy^2) per pixel.
+// sobel: magnitude of the gradient. Gx = derivative across x, smoothed in y;
+// Gy = derivative across y, smoothed in x. We compute both 3x3 convolutions
+// and the magnitude sqrt(Gx^2 + Gy^2) per pixel.
 // ---------------------------------------------------------------------------
 __global__ void sobel(const float* in, float* out, int width, int height)
 {
@@ -176,25 +160,21 @@ __global__ void sobel(const float* in, float* out, int width, int height)
         const float gy = (r2[xm] + 2.0f * r2[x] + r2[xp])
                        - (r0[xm] + 2.0f * r0[x] + r0[xp]);
 
-        // Magnitude. sqrtf is the device-side square root; the SFU
-        // approximation is acceptable here (we scale to uchar output).
+        // Magnitude. sqrtf is the device-side square root.
         out[y * width + x] = sqrtf(gx * gx + gy * gy);
     }
 }
 ```
 
-**The separable structure, annotated.** \\(G_x\\) is a derivative in `x`
-(`[-1 0 1]`) convolved with a smoothing in `y` (`[1 2 1]`); \\(G_y\\) is the
-transpose. The kernel reads 9 pixels and produces two convolutions - the
-separable factoring is what keeps it at 9 reads instead of 18.
+\\(G_x\\) is a derivative in \\(x\\) (the kernel `[-1 0 1]`) convolved with a
+smoothing in \\(y\\) (the kernel `[1 2 1]`); \\(G_y\\) is the transpose. The
+kernel reads nine pixels and produces both convolutions.
 
-## 15.4.1 Scale Back to `unsigned char`
+### 15.4.1 Scale Back to `unsigned char`
 
-The design note in §15.1 promised the edge map would be "scaled back to
-`unsigned char` for output". The magnitude \\(\\sqrt{G_x^2 + G_y^2}\\) is a
-`float` that can exceed 255; the histogram of Chapter 8 counts `unsigned
-char` bins, so the two must meet at a scaling step. Clamping is not optional
-here: an out-of-range `float` converted to `unsigned char` is undefined
+The magnitude \\(\sqrt{G_x^2 + G_y^2}\\) is a `float` that can exceed 255. The
+histogram counts `unsigned char` bins, so a scaling step is required. Clamping
+is necessary: converting an out-of-range float to `unsigned char` is undefined
 behaviour, and the histogram would count byte patterns instead of edges.
 
 ```cpp
@@ -212,14 +192,14 @@ __global__ void scaleEdges(const float* in, unsigned char* out, int n)
 
 ## 15.5 The Streaming Host Pipeline
 
-The frame loop uses the machinery of Chapters 4 and 6: pinned host memory,
-two streams, and double buffering so transfers overlap kernels:
+The frame loop uses the machinery of Chapters 4 and 6: pinned host memory, two
+streams, and double buffering so that transfers overlap kernels:
 
 ```cpp
 // ---------------------------------------------------------------------------
-// One "frame" = load RGB, run the 5 kernels, store edges. Frames arrive in
-// host buffers h_rgb[0] and h_rgb[1]; the GPU processes one while the DMA
-// engine uploads the next (Chapter 6, 6.5).
+// One "frame" = load RGB, run the kernels, store edges. Frames arrive in host
+// buffers h_rgb[0] and h_rgb[1]; the GPU processes one while the DMA engine
+// uploads the next (Chapter 6, 6.5).
 // ---------------------------------------------------------------------------
 void processFrames(/* ... device buffers, streams, sizes ... */)
 {
@@ -229,7 +209,7 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
     const int cur = frame % 2;          // buffer holding THIS frame's input
     const int nxt = (frame + 1) % 2;    // buffer for the NEXT frame
 
-    // Upload the NEXT frame while THIS one computes (pinned memory!), and
+    // Upload the NEXT frame while THIS one computes (pinned memory), and
     // record an event after it: the NEXT iteration's kernel waits on it.
     if (!last)
     {
@@ -243,7 +223,7 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
     // loop). cudaStreamWaitEvent installs the dependency without blocking.
     CHECK(cudaStreamWaitEvent(sCompute, copyDone[cur], 0));
 
-    // The five stages, all in the compute stream, in order:
+    // The stages, all in the compute stream, in order:
     const dim3 block(256);
     const dim3 grid((numPixels + 255) / 256);
     // d_rgb is a raw byte buffer; rgbToGray reads it as uchar3 (alignment 1,
@@ -257,14 +237,12 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
     blurV    <<<g2, b2, 0, sCompute>>>(d_blurred, d_blurred2, width, height);
     sobel    <<<g2, b2, 0, sCompute>>>(d_blurred2, d_edges, width, height);
 
-    // Scale float edges back to uchar (15.4.1) before the histogram: the
-    // histogram counts EDGE INTENSITIES, not the bytes of a float.
+    // Scale float edges back to uchar before the histogram: the histogram
+    // counts edge intensities, not the bytes of a float.
     scaleEdges<<<grid, block, 0, sCompute>>>(d_edges, d_edges8, numPixels);
 
-    // Chapter 8's histogramPrivatised is a 1-D kernel (TILE = 256 threads per
-    // block), so it uses the same 1-D grid/block as rgbToGray - NOT the 2-D
-    // stencil block b2. Launching it with a (32, 8) block would only zero the
-    // first 32 shared-memory bins and massively over-count.
+    // The privatised histogram is a 1-D kernel with 256-thread blocks. It
+    // uses the same 1-D grid/block as rgbToGray, not the 2-D stencil block.
     histogram<<<grid, block, 0, sCompute>>>(d_edges8, d_hist, numPixels);
     // (histogram kernel as in Chapter 8, 8.8)
 
@@ -276,21 +254,19 @@ void processFrames(/* ... device buffers, streams, sizes ... */)
 }
 ```
 
-**Why two streams and events?** The copy for frame `n+1` and the kernels for
-frame `n` are independent work on *different* buffers - the exact condition
-for overlap (§6.5). The event/dependency pair (`cudaEventRecord` +
-`cudaStreamWaitEvent`) keeps the ordering correct on every iteration without
-serialising the pipeline.
+The copy for frame \\(n+1\\) and the kernels for frame \\(n\\) operate on
+different buffers, which is the condition for overlap (§6.5). The event and
+dependency pair (`cudaEventRecord` plus `cudaStreamWaitEvent`) keeps the order
+correct on every iteration without serialising the pipeline.
 
-**Why the 2-D block for the stencil kernels?** The 2-D grid lets each thread
-own one `(x, y)` pixel with natural indexing. The 32×8 block shape keeps
-blocks tile-shaped (32 = warp width in `x`, so warps are row-aligned).
+The 2-D grid gives each thread a natural `(x, y)` pixel. The 32x8 block shape
+keeps blocks tile-shaped, with 32 threads in `x` so that warps are row-aligned.
 
 ## 15.6 The Same Pipeline in Thrust
 
-The library version replaces the five hand-written kernels with five
-`thrust::transform`-shaped calls (Chapter 11). The stencil kernels need
-neighbouring pixels, which `transform` provides via *shifted iterators*:
+The library version replaces hand-written kernels with `thrust::transform`
+shaped calls (Chapter 11). Stencil kernels need neighbouring pixels, which
+`transform` can obtain through index-based functors:
 
 ```cpp
 #include <thrust/iterator/zip_iterator.h>
@@ -304,8 +280,7 @@ struct ToGray {
 };
 
 // Blur with halo: the functor receives the pixel INDEX and the row pointer;
-// it reads its own 5-tap window. (A production version would use a proper
-// stencil iterator; this keeps the index arithmetic visible.)
+// it reads its own 5-tap window.
 struct BlurH5 {
     const float* in; int width;
     __device__ float operator()(int i) const {
@@ -334,21 +309,20 @@ thrust::transform(thrust::counting_iterator<int>(0),
 // over a per-bin functor, or thrust::sort + adjacent-difference.
 ```
 
-**The trade, stated plainly.** Thrust removes the launch plumbing and the
-boundary guards; the `counting_iterator` + index-arithmetic pattern reintroduces
-exactly the stencil logic the hand-written kernel had. For *elementwise*
-stages (greyscale, magnitude) Thrust is a clear win; for *stencil* stages the
-custom kernel of §15.3 is no more code and is easier to tune. This is the
-Chapter 11 decision procedure in live action.
+Thrust removes launch plumbing and boundary guards. The index-based stencil
+functor reintroduces the stencil logic that the custom kernel had. For
+elementwise stages such as greyscale and magnitude, Thrust is a clear win. For
+stencil stages, the custom kernel of §15.3 is comparable in code size and easier
+to tune. This is the Chapter 11 decision procedure in practice.
 
 ## 15.7 The Same Pipeline in CUDA-Oxide
 
-With CUDA-Oxide (Chapter 14), the greyscale stage becomes a `#[kernel]` Rust
-function - the same single-source style, with `DisjointSlice` giving the
-no-alias guarantee:
+With CUDA-Oxide (Chapter 14), the greyscale stage becomes a Rust `#[kernel]`
+function with `DisjointSlice` on the output:
 
 ```rust
-use cuda_device::{cuda_module, kernel, thread, DisjointSlice};
+use cuda_device::{kernel, thread, DisjointSlice};
+use cuda_host::cuda_module;
 
 #[cuda_module]
 mod kernels {
@@ -374,40 +348,37 @@ mod kernels {
 }
 ```
 
-**What this demonstrates.** The kernel is written in the language of the host,
-indexed by the fused `thread::index_1d()` (Chapter 14), and protected by
-`DisjointSlice` - no alias, no manual boundary contract. The stencil kernels
-(blur, Sobel) follow the same shape with the same per-tap clamping logic as
-the C++ versions, and the pipeline host code reuses the `cuda-async`
-`DeviceOperation` chaining of Chapter 14, §14.6. As Chapter 14 warned: the
-API is alpha, the shape is the point.
+The kernel is written in the host's language, indexed by the fused
+`thread::index_1d()` (Chapter 14), and protected by `DisjointSlice`, so the
+output has no alias and no manual boundary contract. The stencil kernels follow
+the same shape with per-tap clamping as in the C++ versions. As Chapter 14
+noted, the API is alpha; the shape is the point.
 
 ## 15.8 Verification: The Differential Test
 
-A pipeline that produces *wrong* edges at 60 FPS is worse than a correct one
-at 10 FPS. The verification strategy is the differential test:
+A pipeline that produces wrong edges quickly is not useful. The verification
+strategy is the differential test:
 
-1. **A CPU reference** implements the same five stages with plain loops
-   (trivially correct, slow).
-2. **The GPU pipeline** runs on a test image.
-3. **Compare** stage by stage: greyscale, blurred, and edge maps must agree
-   within a tolerance (`1e-3` for float stages; the `uchar` edge map within
-   ±1 - the SFU `sqrtf` can round differently at a `.5` boundary).
-4. **Property checks** on real data: the histogram bins fall in expected
-   ranges; an all-black image yields all-zero edges (a *known-answer* test).
+1. **CPU reference.** A plain-loop implementation of the same stages is the
+   correctness oracle.
+2. **GPU pipeline.** The same stages run on a test image.
+3. **Stage-by-stage comparison.** Greyscale, blurred, and edge maps must agree
+   within a tolerance. Float stages use `1e-3`; the `uchar` edge map allows ±1
+   because the SFU `sqrtf` can round differently at a `.5` boundary.
+4. **Property checks.** Histogram bins must fall in expected ranges, and an
+   all-black image must produce all-zero edges (a known-answer test).
 
-The differential test is the Chapter 16 discipline applied to the capstone:
-it converts "the pipeline works" into a measurable, repeatable assertion, and
-it is exactly what makes the *second* implementation (Thrust) and the *third*
-(CUDA-Oxide) trustworthy - they must pass the same test as the first.
+The differential test converts "the pipeline works" into a repeatable
+assertion. The second implementation (Thrust) and third (CUDA-Oxide) must pass
+the same test as the first.
 
 ## 15.9 Measurement: The Report Card
 
-The pipeline's performance is measured with CUDA events (Chapter 6, §6.4),
-over many frames, with warm-up excluded:
+Performance is measured with CUDA events (Chapter 6, §6.4) over many frames,
+with warm-up excluded:
 
 ```cpp
-// Per-stage timing with events (the reliable instrument, 6.4):
+// Per-stage timing with events:
 cudaEventRecord(start, sCompute);
 rgbToGray<<<...>>>(...);
 cudaEventRecord(mid, sCompute);
@@ -419,11 +390,9 @@ cudaEventElapsedTime(&msStage1, start, mid);
 cudaEventElapsedTime(&msRest,   mid,   stop);
 ```
 
-The report card for a 1920×1080 frame on a modern GPU, as teaching numbers.
-The times follow from the bandwidths: rgbToGray moves 6.2 MB (read) + 8.3 MB
-(write) ≈ 14.5 MB, so at ~75% of the 3.35 TB/s peak it takes ≈ 6 µs - not
-hundreds of microseconds. Measure on your own GPU; the *ratio* between stages
-is what the roofline predicts:
+The report card below gives teaching numbers for a 1920x1080 frame on a modern
+GPU. Measure on the target hardware; the ratios between stages are what the
+roofline predicts:
 
 | Stage | Time | Bandwidth (3.35 TB/s peak) | Roofline verdict |
 |---|---|---|---|
@@ -433,77 +402,58 @@ is what the roofline predicts:
 | histogram | ~10 µs | - | Atomic overhead, privatised |
 | **Total compute** | **~40 µs** | - | ~25,000 FPS compute-only; transfer-limited overall |
 
-A 1920×1080 RGB frame is 6.2 MB to
-upload, and the `uchar` edge map is 2.1 MB to download - about 8.3 MB of
-host↔device traffic per frame. At a pinned PCIe Gen4 rate (~20 GB/s) that is
-roughly **400 µs of transfer per frame, ten times the total compute time**.
-The pipeline is transfer-limited: even a ~2,400 FPS transfer ceiling leaves
-the kernels nowhere near the limit, and a 60 FPS target has ~40× headroom.
-This is the case for the streaming machinery in Chapters 4 and 6: the kernels
-are not slow; hiding host-device transfer is the optimisation that remains at
-this image size.
+A 1920x1080 RGB frame is 6.2 MB to upload, and the `uchar` edge map is 2.1 MB
+to download, about 8.3 MB of host-device traffic per frame. At a pinned PCIe
+Gen4 rate of about 20 GB/s, that is roughly 400 µs of transfer per frame, about
+ten times the total compute time. The pipeline is transfer-limited: the kernels
+are not the bottleneck at this image size. This is the case for the streaming
+machinery of Chapters 4 and 6.
 
-The roofline (Chapter 1) *predicted* the memory-bound verdicts before any
-code ran: every stage moves a few bytes per pixel per pass with a handful of
-FLOPs - far below the ridge point. The measurement confirms the prediction.
-The loop is: predict with the model, confirm with the instrument, optimise only
-the confirmed bottleneck.
+The roofline predicted the memory-bound verdicts before any code ran: each
+stage moves a few bytes per pixel and performs few FLOPs. The measurement
+confirms the prediction. The engineering loop is: predict with the model,
+confirm with the instrument, and optimise only the confirmed bottleneck.
 
 ## 15.10 The Capstone in One Paragraph
 
-The pipeline is the entire book compressed: coalesced kernels with explicit
-index arithmetic (Chapters 3, 7), synchronisation-free stages and a privatised
-histogram (Chapters 5, 8), pinned memory and streamed double buffering
-(Chapters 4, 6), library and language alternatives that must pass the same
-differential test (Chapters 11, 13, 14), and a measurement discipline that
-turns opinions into numbers (Chapter 16). Being able to build this pipeline and explain every line is the practical
-version of the book's goal: the same reasoning transfers to new kernels.
+The pipeline compresses the book into one system: coalesced kernels with
+explicit index arithmetic (Chapters 3 and 7), synchronisation-free stages and a
+privatised histogram (Chapters 5 and 8), pinned memory and streamed double
+buffering (Chapters 4 and 6), library and language alternatives that must pass
+the same differential test (Chapters 11, 13, and 14), and a measurement
+discipline that turns opinions into numbers (Chapter 16). Building this
+pipeline and explaining every line is the practical version of the book's goal:
+the same reasoning transfers to new kernels.
 
-## Deeper Explanation: The Pipeline Is a Testbed for the Book's Mental Models
+## The Pipeline as a Testbed
 
-The capstone is deliberately more than a program. It is a small, complete
-system in which every idea from the earlier chapters has a concrete
-responsibility and a concrete way to be tested.
+The capstone is more than a program. It is a small, complete system in which
+every idea from the earlier chapters has a concrete responsibility and a way to
+be tested.
 
-The roofline model from Chapter 1 makes a prediction before any code runs:
-each stage of the pipeline moves a few bytes per pixel and does very little
-arithmetic, so every stage should be memory-bound. The report card in §15.9
-tests that prediction with CUDA events, and the result confirms it. The
-streaming host loop from Chapters 4 and 6 tests a different claim: pinned
-memory plus two streams plus events should hide the transfer time behind the
-kernel time. The differential test from §15.8 tests the strongest claim of
-all: the GPU pipeline, the Thrust pipeline, and the CUDA-Oxide pipeline all
-produce the same result as a deliberately simple CPU reference.
+The roofline model predicts, before code runs, that each stage is memory-bound
+because each stage moves a few bytes per pixel and does little arithmetic. The
+report card tests that prediction with CUDA events. The streaming host loop
+tests whether pinned memory plus two streams plus events hides transfer time
+behind kernel time. The differential test tests the strongest claim: all three
+implementations produce the same result as the CPU reference.
 
-What makes the capstone a *testbed* rather than a demo is that you can change
-one piece and re-run the whole suite. Replace the two-pass separable blur with
-a fused 5×5 kernel, and the differential test tells you whether the result is
-still correct while the event timings tell you whether the roofline's
-prediction of memory-bound behaviour still holds. Change the histogram launch
-to the wrong block shape, and the histogram total immediately exposes the
-bug. The pipeline turns the engineering loop of Chapter 16 into a runnable test:
-every stage is a hypothesis, and the pipeline is the experiment that tests it.
-
-A good system is not a collection of clever kernels; it is a collection of
-testable claims about where time goes and why. The kernels are the claims' implementations, the
-differential test is the correctness oracle, the event timings are the
-performance oracle, and the histogram is a cheap end-to-end sanity check. When
-you build your own systems, the same structure applies: separate the
-implementation from the verification, make the verification automatic, and
-make the performance claims measurable. That is what turns a program into an
-engineering result.
+The capstone is a testbed because one piece can be changed and the whole suite
+re-run. Replace the separable blur with a fused 5x5 kernel, and the
+differential test checks correctness while event timings test whether the
+roofline prediction still holds. Change the histogram launch to the wrong block
+shape, and the histogram total exposes the bug. Every stage is a hypothesis;
+the pipeline is the experiment.
 
 ## Common Pitfalls
 
-- Reusing a 2-D stencil block for a 1-D kernel. The histogram in this chapter
-  must be launched with a 1-D 256-thread block; launching it with the 2-D
-  `(32, 8)` stencil block only zeroes part of the private bins and
-  over-counts massively.
+- Reusing a 2-D stencil block for a 1-D kernel. The histogram must be launched
+  with a 1-D 256-thread block. Launching it with the 2-D `(32, 8)` stencil
+  block only zeroes part of the private bins and over-counts.
 - Clamping only the outer stencil taps at image borders. Every tap must be
-  clamped independently, or the edge weights are wrong (the "plausible but
-  wrong" blur in §15.3).
+  clamped independently, or the edge weights are wrong.
 - Using pageable host memory in the streaming loop. Async copies silently
-  become synchronous, and the overlap disappears.
+  become synchronous and the overlap disappears.
 - Trusting a pipeline without a differential test. A fast wrong image is not a
   result.
 
@@ -512,9 +462,9 @@ engineering result.
 <details>
 <summary>Why must every stencil tap be clamped independently at borders?</summary>
 
-If you clamp only the outer taps, inner taps reuse the clamped values and the
-border pixel gets double-weighted (e.g., 0.06136 + 0.24477). Independent
-clamping replicates the edge pixel for each tap, preserving the correct
+If only the outer taps are clamped, inner taps reuse the clamped values and the
+border pixel is double-weighted, for example as 0.06136 + 0.24477. Independent
+clamping replicates the edge pixel for each tap and preserves the correct
 weights.
 </details>
 
@@ -522,40 +472,39 @@ weights.
 <summary>Why is the histogram a meaningful sanity check for the pipeline?</summary>
 
 The edge map is scaled to uchar, so its histogram counts edge intensities. If
-the histogram total does not equal frames × pixels, data was dropped or
-double-counted somewhere in the chain - a cheap, global correctness signal.
+the histogram total does not equal frames times pixels, data was dropped or
+double-counted somewhere in the chain.
 </details>
 
 <details>
 <summary>Why can the differential test tolerate 1e-3 for floats but only ±1 for uchar?</summary>
 
-Float stages use different summation orders (FMA contraction) and the device
-`sqrtf` approximates the last bits, so exact equality is unrealistic. The
-uchar edge map is quantised; a rounding difference at a .5 boundary can flip a
-byte, so ±1 is allowed, but anything larger is a real error.
+Float stages use different summation orders, such as FMA contraction, and the
+device `sqrtf` approximates the last bits, so exact equality is unrealistic.
+The uchar edge map is quantised; a rounding difference at a `.5` boundary can
+flip one byte, so ±1 is allowed. Anything larger is a real error.
 </details>
 
 ## Key Takeaways
 
 - A pipeline is a chain of kernels; a fast pipeline is one that never waits (streams + pinned memory + events).
-- A separable Gaussian is 2 x 5 taps instead of 25; clamp each stencil tap at image borders independently.
+- A separable Gaussian uses 2 x 5 taps instead of 25; each stencil tap must be clamped independently at borders.
 - The differential test against a CPU reference is what makes a second and third implementation trustworthy.
-- The roofline predicted every stage of the capstone was memory-bound before any code ran.
-- The report card: median of many runs, fixed environment, events for device time.
+- The roofline predicted every capstone stage was memory-bound before code ran.
+- Use median-of-many-runs timings, a fixed environment, and CUDA events for device time.
 
 ## 15.11 Exercises
 
 1. Why is the separable blur "10 taps instead of 25"? Derive the count for a
-   5-tap separable Gaussian versus a full 5×5 stencil, and for a 9-tap
+   5-tap separable Gaussian versus a full 5x5 stencil, and for a 9-tap
    version.
-2. The first `blurH` in §15.3 was "plausible and wrong". Fix the comment
-   explaining what was wrong, and state the property the corrected kernel
-   guarantees at the borders.
-3. In the streaming loop, why must `h_rgb` be *pinned* memory? Trace what
-   happens if it is pageable.
-4. The differential test uses a tolerance of `1e-3` for float stages, and ±1
-   for the `uchar` edge map. Why not exact equality? (Hint: Chapter 5, §5.6,
-   and the SFU `sqrtf` in the sobel kernel.)
-5. Using the roofline model, predict whether making the blur a *single*
-   fused 5×5 kernel (25 taps, no intermediate) would be faster or slower
-   than the two-pass version, and explain the trade.
+2. The first `blurH` in §15.3 was plausible and wrong. Explain what was wrong
+   and state the property the corrected kernel guarantees at the borders.
+3. In the streaming loop, why must `h_rgb` be pinned memory? Trace what happens
+   if it is pageable.
+4. The differential test uses a tolerance of `1e-3` for float stages and ±1 for
+   the uchar edge map. Why not exact equality? Consider Chapter 5, §5.6, and
+   the SFU `sqrtf` in the Sobel kernel.
+5. Using the roofline model, predict whether making the blur a single fused 5x5
+   kernel (25 taps, no intermediate) would be faster or slower than the
+   two-pass version, and explain the trade.

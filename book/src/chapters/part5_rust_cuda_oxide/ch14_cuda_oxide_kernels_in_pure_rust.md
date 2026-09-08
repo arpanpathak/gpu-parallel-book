@@ -1,20 +1,21 @@
 # Chapter 14: CUDA-Oxide - Kernels in Pure Rust
 
-> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch14_cuda_oxide/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch14_cuda_oxide) in the repository.
+> **Code companion:** the complete, buildable code for this chapter lives in
+> [`code/ch14_cuda_oxide/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch14_cuda_oxide)
+> in the repository.
 
-Chapter 13 secured the host with Rust, but the kernel itself remained C++  - 
-compiled by `nvcc`, invoked through an `unsafe` boundary. **CUDA-Oxide** is
-NVIDIA Labs' answer to the remaining gap: an experimental `rustc` codegen
-backend that compiles *idiomatic Rust kernels* directly to PTX. No DSL, no
-foreign-language binding, no `nvcc` - one language, one toolchain, host and
-device in the same file. This chapter describes the project as it exists
-today, with its documented example code, its pipeline, and an accurate account
-of what is experimental.
+Chapter 13 secured the host with Rust, but the kernel remained C++ compiled by
+`nvcc` and invoked through an `unsafe` boundary. **CUDA-Oxide** is NVIDIA Labs'
+experimental answer to the remaining gap: a `rustc` codegen backend that
+compiles idiomatic Rust kernels directly to PTX. There is no DSL, no
+foreign-language binding, and no `nvcc`; host and device code can live in the
+same file. This chapter describes the project as documented by its repository,
+including its pipeline and the parts that remain experimental.
 
 ## 14.1 What CUDA-Oxide Is
 
-CUDA-Oxide (repository `NVlabs/cuda-oxide`, announced May 2026) is described
-by its authors as:
+CUDA-Oxide (repository `NVlabs/cuda-oxide`, announced May 2026) is described by
+its authors as:
 
 > *"An experimental Rust-to-CUDA compiler that lets you write SIMT GPU kernels
 > in safe(ish), idiomatic Rust. It compiles standard Rust code directly to
@@ -22,47 +23,46 @@ by its authors as:
 
 Its design goals, from the project documentation:
 
-- **Single-source compilation.** Host and device code live in the same file,
-  built with one command (`cargo oxide build`).
+- **Single-source compilation.** Host and device code live in the same file and
+  are built with one command, `cargo oxide build`.
 - **A rustc codegen backend** that compiles `#[kernel]` functions to PTX.
 - **Device-side abstractions**: type-safe indexing, shared memory, scoped
-  atomics, barriers, TMA, and warp/cluster operations.
+  atomics, barriers, TMA, and warp or cluster operations.
 - **Compile-time kernel policies** for separate tuned specialisations without
   runtime policy arguments.
 - **A host-side runtime** (`cuda-core`, `cuda-async`) for memory management,
   pinned host transfers, and kernel launching.
 
-The word to notice is *"safe(ish)"*: the project's own description. CUDA-Oxide
-keeps Rust's type system and ownership on the device, but SIMT programming
-involves operations (raw launch configuration, memory ordering) that cannot
-yet be fully proven safe. The safety story is explicit about this, and so is
-this chapter.
+The project's own term "safe(ish)" matters. CUDA-Oxide keeps Rust's type system
+and ownership on the device, but SIMT programming includes operations, such as
+raw launch configuration and memory ordering, that cannot yet be fully proven
+safe. The project is explicit about the boundary.
 
 ## 14.2 The Compilation Pipeline
 
-CUDA-Oxide does not translate Rust to CUDA C. It walks the *same* internal
-representations rustc uses, replacing only the codegen:
+CUDA-Oxide does not translate Rust to CUDA C. It reuses rustc's internal
+representations and replaces only the code generation stage:
 
 ![CUDA-Oxide compilation pipeline: Rust to MIR to Pliron to LLVM IR to PTX](../../assets/ch14_rust_to_ptx.svg)
 
-Because the *front end* is real rustc, you get
-the real guarantees - ownership, borrowing, pattern matching, traits - before
-any GPU code is generated. A kernel that violates the borrow checker never
-becomes PTX. The experimental part is the *back end*: Pliron is a young
-framework, and the lowering to LLVM IR is where the project warns of bugs and
-incomplete features.
+Because the front end is real rustc, ownership, borrowing, pattern matching,
+and traits are checked before GPU code is generated. A kernel that violates the
+borrow checker never becomes PTX. The experimental part is the back end:
+Pliron is a young framework, and the project warns that lowering to LLVM IR may
+contain bugs and missing features.
 
 ## 14.3 Installation
 
-CUDA-Oxide is currently **Linux-only** (tested on Ubuntu 24.04) and requires:
+CUDA-Oxide is Linux-only at the time of writing (tested on Ubuntu 24.04) and
+requires:
 
-- **`cargo-oxide`** - the cargo subcommand that drives the build (`cargo
-  oxide build/run/inspect/...`);
-- **Rust nightly** with the `rust-src`, `rustc-dev` and `llvm-tools`
-  components (pinned in the project's `rust-toolchain.toml`);
-- **CUDA Toolkit 12.x+**;
-- **Clang + libclang** dev headers (needed by `bindgen` when building the
-  host `cuda-bindings` crate).
+- **`cargo-oxide`**, the cargo subcommand that drives the build (`cargo oxide
+  build/run/inspect/...`);
+- **Rust nightly** with the `rust-src`, `rustc-dev`, and `llvm-tools`
+  components, pinned in the project's `rust-toolchain.toml`;
+- **CUDA Toolkit 12.x or newer**;
+- **Clang and libclang** development headers, required by `bindgen` when
+  building the host `cuda-bindings` crate.
 
 ```bash
 # Install the cargo subcommand with the pinned nightly toolchain:
@@ -79,16 +79,15 @@ The workflow is cargo-shaped:
 ```bash
 cargo oxide run    host_closure      # build and run an example
 cargo oxide inspect vecadd           # build and print the generated PTX
-cargo oxide pipeline vecadd          # show the full pipeline (MIR → Pliron → LLVM → PTX)
+cargo oxide pipeline vecadd          # show the full pipeline (MIR -> Pliron -> LLVM -> PTX)
 cargo oxide sanitize vecadd --tool memcheck   # CUDA correctness checks
 cargo oxide debug vecadd --tui       # debug with cuda-gdb
 ```
 
 ## 14.4 A First Kernel: The Generic `map`
 
-The project's documented example is a generic elementwise `map` - the Rust
-equivalent of Chapter 10's `transformKernel`, but with the kernel *written in
-Rust*:
+The project's documented example is a generic elementwise `map`, the Rust
+equivalent of Chapter 10's `transformKernel`, with the kernel written in Rust:
 
 ```rust
 // Single source file: device AND host code together.
@@ -161,65 +160,59 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-**Reading the device code, line by line:**
+The device-side pieces are:
 
-- `#[cuda_module] mod kernels { ... }` - the attribute on the module makes
-  the backend compile its `#[kernel]` functions to PTX and generate the host
-  `load`/launch glue. It is the single-source mechanism: this one file
-  produces both the device artifact and the host code.
-- `#[kernel] pub fn map<T: Copy, F: Fn(T) -> T + Copy>(...)` - the kernel
-  signature. Unlike `__global__` C++ kernels, Rust kernels are *generic*:
-  `T` is the element type, `F` the operation. The compiler instantiates one
-  PTX function per `(T, F)` combination used - monomorphisation, the same
-  trick Chapter 10 used with C++ templates, but now on the device.
-- `thread::index_1d()` - the fused equivalent of the Chapter 3 formula
-  `blockIdx.x * blockDim.x + threadIdx.x`, returned as a typed index.
-- `DisjointSlice<T>` - the star of the safety story. It is a *guaranteed
-  disjoint* view: `out.get_mut(idx)` returns a mutable reference to *this
-  thread's exclusive* element. Two threads cannot obtain mutable access to
-  the same slot, which makes the "one thread per output" pattern (Chapter 3)
-  a *type-level* guarantee rather than a comment.
-- `if let Some(out_elem) = ...` - the boundary guard (Chapter 3, §3.6.1),
-  expressed in Rust's Option handling. `None` is the out-of-range case.
+- `#[cuda_module] mod kernels { ... }` makes the backend compile the
+  `#[kernel]` functions in the module to PTX and generate the host loading and
+  launch glue.
+- `#[kernel] pub fn map<T: Copy, F: Fn(T) -> T + Copy>(...)` declares a
+  generic kernel. The compiler instantiates one PTX function per `(T, F)`
+  combination, the same monomorphisation used by C++ templates in Chapter 10.
+- `thread::index_1d()` is the fused equivalent of
+  `blockIdx.x * blockDim.x + threadIdx.x` from Chapter 3, returned as a typed
+  index.
+- `DisjointSlice<T>` is a guaranteed-disjoint view of the output. Its
+  `get_mut(idx)` method returns a mutable reference to this thread's exclusive
+  element. Two threads cannot obtain mutable access to the same slot, making
+  the one-thread-per-output pattern a type-level guarantee.
+- `if let Some(out_elem) = out.get_mut(idx)` expresses the boundary guard:
+  `None` is the out-of-range case.
 
-**Reading the host code:**
+The host-side pieces are:
 
-- `CudaContext::new(0)` - the device handle (compare `CudaDevice::new(0)` in
-  Chapter 13).
-- `DeviceBuffer::from_host(&stream, &data)` - allocate + copy in one call,
-  queued on the stream.
-- `load_kernel_module(&ctx, "host_closure")` - reads the PTX that the
-  codegen backend wrote next to `Cargo.toml`, and `kernels::from_module`
-  binds it to the typed launch API generated by `#[cuda_module]`. The launch
-  method `typed.map::<f32, _>(...)` is *generated* from the kernel signature:
-  the arguments are type-checked against the kernel's parameter list by the
-  Rust compiler. (Standalone generic-kernel builds do not yet embed a PTX
-  bundle into the executable, so the file-based loader is the supported path;
-  non-generic kernels can also use the embedded `kernels::load`.)
-- `unsafe { ... }` - the raw launch. `LaunchConfig` is *intentionally raw
-  data*: nothing in its type proves that the grid shape matches the kernel's
-  indexing assumptions. The `SAFETY` comment is the proof obligation, exactly
-  as in Chapter 13.
+- `CudaContext::new(0)` opens the GPU.
+- `DeviceBuffer::from_host(&stream, &data)` allocates and copies in one call on
+  the given stream.
+- `load_kernel_module` reads the PTX file produced by the backend, and
+  `kernels::from_module` binds it to the generated typed launch API. The
+  `typed.map::<f32, _>(...)` method is generated from the kernel signature, so
+  arguments are type-checked against the kernel parameter list. In the
+  standalone generic-kernel build, the supported path loads the PTX file
+  because a PTX bundle is not yet embedded in the executable. Non-generic
+  kernels can use the embedded `kernels::load`.
+- `unsafe { ... }` marks the raw launch because `LaunchConfig` is raw data:
+  nothing in its type proves that the grid shape matches the kernel's indexing
+  assumptions. The `SAFETY` comment states the proof obligation, as in Chapter
+  13.
 
 ## 14.5 The Safety Progression: `#[launch_contract]`
 
-CUDA-Oxide's answer to the raw `unsafe` launch is the **launch contract**:
-a `#[launch_contract(...)]` attribute that moves the configuration proof into
-generated code. Kernels annotated with a contract get a *checked*
-`PreparedLaunch` through a safe generated method - the launch dimensions and
-resources are validated against the kernel's declared contract instead of
-being an unverifiable `unsafe` obligation.
+CUDA-Oxide's plan for the raw `unsafe` launch is the **launch contract**: a
+`#[launch_contract(...)]` attribute that moves configuration validation into
+generated code. A kernel annotated with a contract receives a checked
+`PreparedLaunch` through a safe generated method. Launch dimensions and
+resources are validated against the declared contract instead of being an
+unverifiable `unsafe` obligation.
 
-This is the project's roadmap in miniature: *each unsafe block is a known
-gap with a planned replacement*. The `unsafe` in this chapter's example is
-not a licence to ignore safety; it is a documented debt that the project is
-paying down.
+This is the project's roadmap in miniature: each `unsafe` block is a known gap
+with a planned replacement. The `unsafe` in this chapter is not a licence to
+ignore safety; it is documented debt that the project is paying down.
 
 ## 14.6 Async: `cuda-async` and `DeviceOperation`
 
-For composable asynchronous work, the `cuda-async` crate changes the launch
-shape: the `stream:` argument disappears, and the launch returns a **lazy
-`DeviceOperation`** that executes when you call `.sync()` or `.await`:
+The `cuda-async` crate changes the launch shape for composable asynchronous
+work. The explicit `stream:` argument disappears and the launch returns a lazy
+`DeviceOperation` that executes when `.sync()` or `.await` is called:
 
 ```rust
 use cuda_async::device_operation::DeviceOperation;
@@ -238,27 +231,25 @@ let launch = unsafe {
 launch.sync()?;      // or: .await?;
 ```
 
-**Why the lazy operation?** It lets you build a *graph* of GPU work without
-executing it - the same idea as CUDA Graphs (Chapter 6, §6.7), expressed as
-composable Rust values. `.sync()` blocks; `.await` composes with `async/await`
-host code. The capstone uses this shape for its pipeline.
+The lazy operation lets a program build a graph of GPU work without executing
+it, the same idea as CUDA Graphs (Chapter 6, §6.7), expressed as composable
+Rust values. `.sync()` blocks; `.await` composes with `async/await` host code.
+The capstone uses this shape.
 
 ## 14.7 Device-Side Abstractions Beyond `map`
 
 The project documents device-side facilities beyond simple indexing:
 
 - **Shared memory** - typed, scoped allocation within a block;
-- **Scoped atomics** - `atomicAdd`-class operations with explicit thread
-  scopes (the Chapter 5 atomics, with Rust's scoping discipline);
+- **Scoped atomics** - atomic operations with explicit thread scopes, as in
+  Chapter 5, with Rust scoping;
 - **Barriers** - block and cluster synchronisation;
 - **TMA** (Tensor Memory Accelerator) - Hopper's bulk asynchronous copies;
-- **Warp/cluster operations** - shuffle-like primitives (Chapter 8's
-  `__shfl_down_sync`), with type-safe masks.
+- **Warp/cluster operations** - shuffle-like primitives such as Chapter 8's
+  `__shfl_down_sync`, with type-safe masks.
 
-These exist to keep the *patterns* of Chapters 5, 7 and 8 expressible in Rust
- - but the project warns they are in active development. The API you meet here
-today may differ next quarter. That is the nature of alpha software, and the
-reason this chapter says "map", not "contract".
+These are in active development. The API may change between revisions; this is
+the nature of alpha software.
 
 ## 14.8 CUDA-Oxide vs the Alternatives
 
@@ -266,75 +257,66 @@ reason this chapter says "map", not "contract".
 |---|---|---|---|
 | CUDA C++ (Chapters 3-12) | C++ | None (by hand) | Production |
 | Rust host + C++ kernel (Ch. 13) | C++ | Host only | Production |
-| CUDA-Oxide (this chapter) | Rust | Type-checked, `safe(ish)` | Alpha, Linux, nightly |
+| CUDA-Oxide (this chapter) | Rust | Type-checked, safe(ish) | Alpha, Linux, nightly |
 | `cudarc` nvrtc JIT | C++ string | Host only | Production |
 
-The clear conclusion: **CUDA-Oxide is not yet a production tool for most
-teams.** It is an *architecture preview* - the demonstration that Rust can
-reach the GPU without sacrificing its guarantees, and the first draft of the
-safety story SIMT programming needs. The value of learning it now is
-positional: the pipeline (MIR → Pliron → LLVM → PTX) and the abstractions
-(`DisjointSlice`, launch contracts, async operations) are the shape of CUDA's
-Rust future, and the principles - type-safe indexing, explicit safety
-obligations, single-source compilation - are the same principles this book
-has been teaching since Chapter 3.
+CUDA-Oxide is not yet a production tool for most teams. It is an architecture
+preview: a demonstration that Rust can target the GPU without giving up its
+guarantees, and a first draft of the safety story SIMT programming needs. Its
+pipeline (MIR to Pliron to LLVM to PTX) and abstractions (`DisjointSlice`,
+launch contracts, async operations) point toward the shape of CUDA's Rust
+future. The underlying principles, type-safe indexing, explicit safety
+obligations, and single-source compilation, are the same principles this book
+has used since Chapter 3.
 
-## Deeper Explanation: Safe SIMT Is About Making the Hardware's Assumptions Visible
+## Safe SIMT and Hardware Assumptions
 
-When you write a CUDA C++ kernel, the "one thread per output element" rule is
-enforced by a comment. The comment is correct, but nothing in the language
-prevents a thread from writing `out[i + 1]` or `out[2*i]`; the compiler will
-happily compile it, and the bug will appear as corrupted data or an illegal
-memory access at runtime. CUDA-Oxide's central idea is to take conventions
-like this and express them in the type system, so that violations become
-compile errors rather than runtime mysteries.
+In CUDA C++, the "one thread per output element" rule is enforced by a comment.
+Nothing in the language stops a thread from writing `out[i + 1]` or `out[2*i]`;
+the compiler accepts it, and the bug appears later as corrupt data or an
+illegal memory access. CUDA-Oxide expresses such conventions in the type system
+so violations become compile errors.
 
-`DisjointSlice<T>` is the clearest example. Its `get_mut(idx)` method returns
-a mutable reference to the element owned by this thread, and the type
-guarantees that no other thread can obtain a mutable reference to the same
-element. The "one thread per output, no races" property that Chapter 3 stated
-in a comment is now a property of the API. Similarly, `thread::index_1d()`
-fuses `blockIdx.x * blockDim.x + threadIdx.x` into one typed operation, so
-the index formula cannot be mistyped in the way that a hand-written expression
-can be. And because the kernel is Rust, the borrow checker runs on the device
-code before any PTX is generated: a kernel that would produce two mutable
-references to the same slot never compiles.
+`DisjointSlice<T>` is the clearest example. Its `get_mut(idx)` returns a
+mutable reference to the element owned by this thread and guarantees that no
+other thread can obtain a mutable reference to the same element. The "one
+thread per output, no races" property that Chapter 3 stated in a comment is now
+an API property. `thread::index_1d()` fuses the index formula into one typed
+operation, so the formula cannot be mistyped as a hand-written expression can.
+Because the kernel is Rust, the borrow checker runs on the device code before
+any PTX is generated: a kernel that would create two mutable references to the
+same slot never compiles.
 
-Why does `unsafe` remain? Because the *launch geometry* is still raw data.
-`LaunchConfig` describes how many threads to launch, but nothing in its type
-proves that this count matches the kernel's indexing assumptions. The
-`SAFETY` comment documents the obligation: a human must verify that the
-configuration is 1-D, covers the output, and matches the kernel's use of
-`index_1d()`. The roadmap - `#[launch_contract]` - shows how even this
-obligation can become a checked precondition: a kernel declares its contract
-(domain, block size, resource usage), and the generated launch path validates
-the configuration against it.
+`unsafe` remains because launch geometry is still raw data. `LaunchConfig`
+describes the number of threads, but nothing in its type proves that this count
+matches the kernel's indexing assumptions. The `SAFETY` comment documents the
+obligation. The `#[launch_contract]` roadmap shows how this obligation can
+become a checked precondition: a kernel declares its contract, and the generated
+launch path validates the configuration against it.
 
-The architectural point follows: a system is safest when invalid programs
-cannot be written, not when it has the most runtime checks. CUDA-Oxide is an early, incomplete version of that idea: it moves
-some conventions into types, leaves others as documented unsafe obligations,
-and is explicit about the difference. The future of GPU programming is to
-make the compiler reject what cannot be correct, rather than writing code and
-hoping the debugger finds the mistakes.
+The architectural point is that a system is safest when invalid programs cannot
+be written, not when it has the most runtime checks. CUDA-Oxide is an early,
+incomplete version of that idea: it moves some conventions into types, leaves
+others as documented unsafe obligations, and is explicit about the difference.
 
 ## Common Pitfalls
 
 - Assuming CUDA-Oxide is production-ready. It is alpha; APIs change between
-  revisions (the book's companion tracks CUDA-Oxide 0.2.1).
+  revisions. The companion code tracks CUDA-Oxide 0.2.1.
 - Treating `DisjointSlice` as a licence to ignore bounds. `get_mut` returns
   `None` for out-of-range indices; forgetting the `if let` guard still skips
   work silently.
-- Believing `unsafe` means "unchecked". It means "checked by a human via the
-  SAFETY comment"; write the comment before you write the launch.
-- Porting CUDA C++ idioms verbatim (e.g., pointer arithmetic) instead of using
-  the Rust-native abstractions the chapter demonstrates.
+- Believing `unsafe` means unchecked. It means "checked by a human through the
+  SAFETY comment"; write the comment before writing the launch.
+- Porting CUDA C++ idioms verbatim, such as pointer arithmetic, instead of
+  using the Rust-native abstractions demonstrated in this chapter.
 
 ## Check Your Understanding
 
 <details>
 <summary>What does DisjointSlice prevent that a comment in CUDA C++ does not?</summary>
 
-It makes the "one thread per output" property a type guarantee: two threads
+It makes the one-thread-per-output property a type guarantee: two threads
 cannot obtain `get_mut` for the same element. In CUDA C++, that invariant is
 only a comment; nothing stops a thread from writing any index.
 </details>
@@ -342,42 +324,41 @@ only a comment; nothing stops a thread from writing any index.
 <details>
 <summary>Why is the launch still unsafe if the kernel is safe?</summary>
 
-The kernel's internal indexing may be safe, but the *launch configuration*
-(grid/block shape) is raw data. Nothing in `LaunchConfig` proves the grid
-covers the output exactly as the kernel assumes, so the launch is an unsafe
-obligation documented by a SAFETY comment.
+The kernel's internal indexing may be safe, but the launch configuration is raw
+data. Nothing in `LaunchConfig` proves the grid covers the output exactly as
+the kernel assumes, so the launch remains an unsafe obligation documented by a
+SAFETY comment.
 </details>
 
 <details>
 <summary>What does #[launch_contract] change about the obligation?</summary>
 
-It moves the geometry proof into generated code: the launch dimensions and
-resources are validated against the kernel's declared contract, so the
-unsafe obligation becomes a checked precondition instead of a manual comment.
+It moves the geometry proof into generated code. Launch dimensions and
+resources are validated against the kernel's declared contract, so the unsafe
+obligation becomes a checked precondition instead of a manual comment.
 </details>
 
 ## Key Takeaways
 
-- CUDA-Oxide is NVIDIA Labs' rustc backend: #[kernel] Rust functions compile to PTX - no nvcc, no DSL.
-- The pipeline Rust -> MIR -> Pliron -> LLVM -> PTX keeps rustc's front-end guarantees (ownership, borrow checking) before any GPU code exists.
-- DisjointSlice provides the 'one thread per output, no races' guarantee at the type level.
-- LaunchConfig is raw data: launching is unsafe until a #[launch_contract] moves the proof into generated code.
-- It is alpha, Linux-only and nightly-only: learn it as an architecture preview, not a production dependency.
+- CUDA-Oxide is NVIDIA Labs' rustc backend: #[kernel] Rust functions compile to PTX, with no nvcc or DSL.
+- The pipeline Rust -> MIR -> Pliron -> LLVM -> PTX keeps rustc's front-end guarantees (ownership, borrow checking) before GPU code is generated.
+- DisjointSlice provides the one-thread-per-output, no-races guarantee at the type level.
+- LaunchConfig is raw data; launching is unsafe until a #[launch_contract] moves the proof into generated code.
+- CUDA-Oxide is alpha, Linux-only, and nightly-only: treat it as an architecture preview, not a production dependency.
 
 ## 14.9 Exercises
 
 1. Compare `thread::index_1d()` with the Chapter 3 formula
    `blockIdx.x * blockDim.x + threadIdx.x`. What does the fused abstraction
    prevent?
-2. Why is `DisjointSlice<T>`'s `get_mut` the type-level version of the
-   Chapter 3 "one thread per output, no races" comment?
+2. Why is `DisjointSlice<T>`'s `get_mut` the type-level version of the Chapter
+   3 "one thread per output, no races" comment?
 3. The raw launch is `unsafe` with a `SAFETY` comment; `#[launch_contract]`
-   moves the proof into generated code. Explain the difference in terms of
-   the obligation, not the syntax.
-4. Using the pipeline diagram in §14.2, explain which phases run on the
-   *host* toolchain and which produce device code. Why is the borrow check
-   upstream of any PTX generation?
-
+   moves the proof into generated code. Explain the difference in terms of the
+   obligation, not the syntax.
+4. Using the pipeline diagram in §14.2, identify which phases run on the host
+   toolchain and which produce device code. Why does borrow checking happen
+   before any PTX generation?
 
 ## Sources and Further Reading
 

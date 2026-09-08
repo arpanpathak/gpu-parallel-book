@@ -11,16 +11,19 @@
 __global__ void sgemmNaive(const float* A, const float* B, float* C,
                            int N)
 {
-    const int i = blockIdx.y * blockDim.y + threadIdx.y;   // row of C
-    const int j = blockIdx.x * blockDim.x + threadIdx.x;   // col of C
+    // This mapping makes threadIdx.x the ROW index, which is the wrong choice
+    // for row-major memory.
+    const int i = blockIdx.x * blockDim.x + threadIdx.x;   // row of C
+    const int j = blockIdx.y * blockDim.y + threadIdx.y;   // col of C
 
     float sum = 0.0f;
     for (int k = 0; k < N; ++k)
-        // A[i][k] : consecutive threads read CONSECUTIVE i? No - they read
-        //   A[i*N + k]; consecutive threads differ in j, so the SAME k and
-        //   DIFFERENT i → stride-N addresses. Uncoalesced!
-        // B[k][j] : consecutive threads read B[k*N + j] - consecutive j →
-        //   coalesced. Half the traffic is good.
+        // A[i][k] : consecutive threads (consecutive i) read A[i*N + k] with
+        //   stride N between lanes. Uncoalesced.
+        // B[k][j] : consecutive threads have the same j within a warp, so this
+        //   address is a broadcast, not a stream.
+        // C[i][j] : consecutive threads write C[i*N + j] with stride N.
+        //   Uncoalesced.
         sum += A[i * N + k] * B[k * N + j];
     C[i * N + j] = sum;
 }

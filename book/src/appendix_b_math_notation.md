@@ -64,7 +64,7 @@ intensity: \\(N/6\\) FLOP/byte. Chapter 9, §9.1.
 |---|---|---|
 | \\(\\sigma\\) | Standard deviation (Gaussian blur radius) | Ch. 15 |
 | \\(\\max \\lvert x - y \\rvert\\) | Maximum absolute difference (verification) | Ch. 3 |
-| \\(1 \\times 10^{-4}\\) | The float-stage verification tolerance | Ch. 15 |
+| \\(1 \\times 10^{-3}\\) | The float-stage verification tolerance | Ch. 15 |
 
 The Gaussian weights of the 5-tap blur, \\(\\sigma = 1\\):
 \\([0.06136, 0.24477, 0.38774, 0.24477, 0.06136]\\). Chapter 15, §15.3.

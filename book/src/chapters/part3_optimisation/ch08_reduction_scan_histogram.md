@@ -1,23 +1,25 @@
 # Chapter 8: Reduction, Scan & Histogram
 
-> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch08_reduction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch08_reduction) in the repository.
+> **Code companion:** the complete, buildable code for this chapter lives in
+> [`code/ch08_reduction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch08_reduction)
+> in the repository.
 
-This chapter covers the three canonical data-parallel algorithms that appear,
-in disguise, in almost every real GPU application: **reduction** (sum,
-max, min - fold an array to one value), **scan** (prefix sums - fold an array
-to an array), and **histogram** (count occurrences). Each is presented in
-stages, from the naive version to the optimised one, with the reasoning for
-every transformation. These three patterns are the vocabulary of Chapter 9's
-matrix multiplication and the capstone's image pipeline.
+This chapter covers three canonical data-parallel algorithms that appear, in
+disguise, in almost every real GPU application: **reduction** (sum, max, or
+min of an array), **scan** (prefix sums, an array of partial results), and
+**histogram** (counting occurrences). Each is developed from a naive version to
+an optimised version, with the reasoning for every transformation. These
+patterns are the vocabulary of Chapter 9's matrix multiplication and the
+capstone's image pipeline.
 
 ## 8.1 The Reduction Problem
 
 Given an array \\(a\\) of \\(n\\) elements, compute
-\\(\Sigma_{i=0}^{n-1} a_i\\). On a CPU this is a loop of \\(n\\) additions. On
-a GPU the challenge is different: additions are cheap, but *combining results
-across threads* requires communication, and communication is the expensive
-thing. A good reduction minimises the number of communication rounds and keeps
-every thread busy between them.
+\\(\sum_{i=0}^{n-1} a_i\\). On a CPU this is a loop of \\(n\\) additions. On a
+GPU the challenge is different: additions are cheap, but combining partial
+results across threads requires communication, and communication is expensive.
+A good reduction minimises the number of communication rounds and keeps every
+thread busy between them.
 
 ## 8.2 Stage 0: One Thread Does It All
 
@@ -33,21 +35,18 @@ __global__ void reduceNaive(const float* in, float* out, int n)
 }
 ```
 
-This "works" and is useless: one thread, thousands of cycles, 0.003% of the
-GPU used. Its only value is as the reference implementation whose answer we
-check the real kernels against.
+This kernel is correct but uses one thread. It is useful as a reference
+implementation whose result the optimised kernels are checked against.
 
 ## 8.3 Stage 1: Tree Reduction in Shared Memory
 
-The insight: addition is associative, so we may *reorder* the additions into a
-tree. In round 1, threads 0..n/2-1 each add two elements; in round 2,
-threads 0..n/4-1 each add two partials; and so on. The tree has
-\\(\log_2 n\\) levels, so \\(n/2\\) additions complete in \\(\log_2 n\\)
-parallel rounds.
+Addition is associative, so the additions can be reordered into a tree. In
+round 1, threads 0..\\(n/2-1\\) each add two elements. In round 2, threads
+0..\\(n/4-1\\) each add two partial sums, and so on. The tree has \\(\log_2 n\\)
+levels, so \\(n/2\\) additions complete in \\(\log_2 n\\) parallel rounds.
 
 ```cpp
-// Reduce one block's worth of data (blockDim.x elements per thread is
-// handled in Stage 2; here: one element per thread) using shared memory.
+// Reduce one block's worth of data (one element per thread) using shared memory.
 __global__ void reduceTree(const float* in, float* out, int n)
 {
     __shared__ float s[TILE];          // TILE = blockDim.x, a power of two
@@ -62,7 +61,7 @@ __global__ void reduceTree(const float* in, float* out, int n)
     // Level k: active threads < TILE >> (k+1).
     for (int stride = TILE / 2; stride > 0; stride >>= 1)
     {
-        __syncthreads();               // everyone's writes visible
+        __syncthreads();               // make all writes visible
         if (threadIdx.x < stride)
             s[threadIdx.x] += s[threadIdx.x + stride];
     }
@@ -72,29 +71,27 @@ __global__ void reduceTree(const float* in, float* out, int n)
 }
 ```
 
-**Why `__syncthreads()` inside the loop?** At each level, thread `t` reads a
-partial sum written by thread `t + stride` *at the previous level*. The
-barrier guarantees the previous level's writes are complete and visible before
+The barrier inside the loop is required because, at each level, thread
+\\(t\\) reads a partial sum written by thread \\(t + stride\\) at the previous
+level. The barrier guarantees the previous level's writes are complete before
 the next level reads them.
 
-**Why a power-of-two block size?** The halving scheme assumes `TILE` is a
-power of two, so every level halves evenly and the active set
-`threadIdx.x < stride` is contiguous. Non-power-of-two block sizes make the
-active-set arithmetic messy for no benefit; 128, 256 and 512 dominate practice.
+The halving scheme assumes `TILE` is a power of two, so every level halves
+evenly and the active set `threadIdx.x < stride` is contiguous.
+Non-power-of-two block sizes complicate the active-set arithmetic without
+benefit; 128, 256, and 512 dominate practice. For unsigned sizes,
+`stride >>= 1` and `stride /= 2` are equivalent; the shift form documents the
+halving intent.
 
-**Why `stride >>= 1` and not `stride /= 2`?** For unsigned sizes both are
-identical; `>> 1` documents the halving intent and avoids any doubt about
-integer division semantics. Either is correct.
-
-**Cost accounting.** The tree has \\(\log_2 TILE\\) levels; each level is one
-barrier. This kernel therefore pays \\(\log_2 256 = 8\\) barriers per block
-for 256 threads. Stage 3 removes all but one.
+**Cost.** The tree has \\(\log_2 TILE\\) levels and one barrier per level. This
+kernel pays \\(\log_2 256 = 8\\) barriers per block for a 256-thread block.
+Stage 3 removes all but one.
 
 ## 8.4 Stage 2: Thread Coarsening
 
-One element per thread leaves most of each thread idle: each thread loads one
-value and then participates in \\(\log_2 TILE\\) additions. The fix is
-**thread coarsening** - each thread processes *many* elements in a grid-stride
+One element per thread leaves most threads idle after the initial load: each
+thread loads one value and then participates in \\(\log_2 TILE\\) additions.
+**Thread coarsening** makes each thread process many elements in a grid-stride
 loop (Chapter 7, §7.3) before entering the tree:
 
 ```cpp
@@ -126,24 +123,23 @@ __global__ void reduceCoarsened(const float* in, float* out, int n)
 }
 ```
 
-**Why is this faster?** Three reasons: (1) each thread loads 4+ values before
-any communication, so memory-level parallelism is higher; (2) the serial
-addition into a local register is free (no barrier, no shared memory); (3)
-fewer blocks means fewer block-level reductions to combine later. The
-grid-stride loop also makes the kernel *correct for any n*, not just
-multiples of the grid size.
+Coarsening helps for three reasons: each thread issues several independent
+loads before communicating, increasing memory-level parallelism; the serial
+addition into a local register uses no barrier or shared memory; and fewer
+blocks means fewer partial results to combine later. The grid-stride loop also
+makes the kernel correct for any \\(n\\), not only multiples of the grid size.
 
 ## 8.5 Stage 3: Warp Shuffles
 
-The tree's barriers are the cost. But a warp's 32 threads share an execution
-unit - they can exchange data through **registers** without touching memory or
-barriers at all. The instruction is the **warp shuffle**:
+The tree's barriers are its main cost. A warp's 32 threads, however, can
+exchange data through registers without touching memory or using a barrier. The
+instruction is the **warp shuffle**:
 
 > **Primitive - warp shuffle.** `__shfl_down_sync(mask, value, delta)` moves
-> `value` from lane `lane + delta` to lane `lane`, within one warp, through
-> the register file. No memory, no barrier. `mask` is the set of participating
-> lanes (all 32: `0xffffffff`). All 32 lanes must execute the shuffle or the
-> behaviour is undefined.
+> `value` from lane `lane + delta` to lane `lane` within one warp, through the
+> register file. No memory access or barrier is required. `mask` is the set of
+> participating lanes (all 32: `0xffffffff`). All 32 lanes must execute the
+> shuffle or the behaviour is undefined.
 
 ```cpp
 // Reduce a warp's 32 lanes to lane 0 using only shuffles: 5 steps.
@@ -157,17 +153,17 @@ __device__ float warpReduce(float val)
 }
 ```
 
-**Why 16, 8, 4, 2, 1?** A warp is 32 lanes. The first shuffle moves the sum
-of lanes 16..31 into lanes 0..15; the second folds 8..15 into 0..7; and so on.
-Five steps halve a warp - the same \\(\log_2 32\\) levels as the shared-memory
-tree, but at register speed with **no barrier and no shared memory**.
+A warp has 32 lanes. The first shuffle moves the partial sums of lanes 16..31
+into lanes 0..15, the second folds lanes 8..15 into 0..7, and so on. Five
+steps reduce a warp, matching the \\(\log_2 32\\) levels of the shared-memory
+tree, but at register speed with no barrier and no shared memory.
 
 ## 8.6 The Complete Block Reduction
 
-The production form combines everything: coarsening (§8.4), warp shuffle
-(§8.5), and exactly **one** shared-memory transaction + one barrier per block
-(one value per warp written to shared, then warp 0's shuffle over those
-values):
+The production form combines coarsening (§8.4), warp shuffles (§8.5), and one
+shared-memory round per block. Each warp writes one value to shared memory,
+one barrier makes those values visible, and the first warp combines them with
+shuffles:
 
 ```cpp
 #define TILE 256            // block size, a multiple of the warp size 32
@@ -213,15 +209,14 @@ __global__ void reduceFull(const float* in, float* out, int n)
 }
 ```
 
-**The accounting.** One barrier per block (down from 8), one shared-memory
-round trip per block, five shuffle steps per warp. The shuffle steps are the
-only "communication" the bulk of the work ever performs. This kernel is the
-standard against which reductions are judged; it routinely achieves 90%+ of
-peak bandwidth because its only global traffic is the coalesced read.
+**Cost.** One barrier per block, down from eight; one shared-memory round trip
+per block; and five shuffle steps per warp. The only global traffic is the
+coalesced read. This kernel is the standard against which reductions are
+judged and routinely achieves over 90% of peak bandwidth.
 
-**Determinism.** The tree order is fixed by the code, so the summation order
-is fixed - the result is *bit-reproducible* across runs, unlike an
-atomic-based reduction (Chapter 5, §5.6). This is a feature, not an accident.
+**Determinism.** The tree order is fixed by the code, so the summation order is
+fixed and the result is bit-reproducible across runs. An atomic-based reduction
+(Chapter 5, §5.6) is not.
 
 ## 8.7 Scan (Prefix Sum)
 
@@ -231,15 +226,14 @@ atomic-based reduction (Chapter 5, §5.6). This is a feature, not an accident.
 > \\(y_i = a_0 + \cdots + a_{i-1}\\), with \\(y_0 = 0\\).
 > An exclusive scan of an array is an inclusive scan shifted right by one.
 
-Scans appear in stream compaction (filtering), radix sort, and the
-equalisation of workloads - any algorithm that needs *where* the data went.
-The work-efficient **Blelloch scan** is the canonical GPU formulation. It has
-two phases:
+Scans appear in stream compaction (filtering), radix sort, and workload
+equalisation: algorithms that need to know where data lands. The work-efficient
+**Blelloch scan** is the canonical GPU formulation. It has two phases:
 
-1. **Upsweep** - a tree reduction that computes partial sums (exactly the
-   tree of §8.3, but *storing* the internal nodes instead of discarding them).
-2. **Downsweep** - a second tree that *propagates* the totals to produce
-   exclusive prefix sums.
+1. **Upsweep** - a tree reduction that computes partial sums, as in §8.3, but
+   stores the internal nodes instead of discarding them.
+2. **Downsweep** - a second tree that propagates totals to produce exclusive
+   prefix sums.
 
 ```cpp
 // Exclusive scan of a BLOCK's data, in place in shared memory.
@@ -287,37 +281,32 @@ __device__ void scanBlock(float* s)
 }
 ```
 
-**Why the index arithmetic `(threadIdx.x + 1) * 2 * stride - 1`?** In the
-upsweep at level `stride`, the element at index `t` is the right child of the
-subtree whose left child ends at `t - stride`. Writing `t` as
-`(threadIdx.x + 1) * 2 * stride - 1` gives the *odd* indices within each
-`2*stride` group: exactly the right children. The formula is fiddly; the
-*property* that matters is that each level is a disjoint set of writes - no
-two threads write the same slot, so no atomicity is needed.
+The index arithmetic `(threadIdx.x + 1) * 2 * stride - 1` identifies the right
+child of each subtree: within a group of size `2*stride`, these are exactly the
+odd indices. The important property is that each level performs disjoint
+writes; no two threads write the same slot, so no atomicity is needed.
 
-**Why does the downsweep produce *exclusive* sums?** The invariant is the
-*carry*: at each level, `s[t]` holds the sum of everything before the pair
-`(t - stride, t)`. The root's carry is set to `0` (the identity) before the
-loop. Each step hands the carry to the left child unchanged, and passes
-`carry + (left child's old value)` - the sum of everything before the *right*
-child - down the right side. Inductively, slot `i` ends up holding the sum of
-elements `0..i-1` - the exclusive prefix. A trace on `[1, 2, 3, 4]` is
-Exercise 3 below; note the order of the writes: `s[t]` must be read into
-`carry` *before* `s[t - stride]` is overwritten.
+The downsweep produces exclusive sums through the invariant of the carry. At
+each level, `s[t]` holds the sum of everything before the pair `(t - stride,
+t)`. The root's carry is set to zero before the loop. Each step passes the
+carry unchanged to the left child and passes `carry + left_subtree_sum` to the
+right child. Inductively, slot \\(i\\) ends with the sum of elements
+\\(0..i-1\\). A hand trace on `[1, 2, 3, 4]` is Exercise 3. Note that `s[t]`
+must be read into `carry` before `s[t - stride]` is overwritten.
 
-**The cost.** Two passes, each with \\(\log_2 n\\) barrier levels: the scan
-is the rare case where the number of barriers is *inherent* to the algorithm,
-not an implementation defect. A single block can scan at most 1,024 elements;
-scanning more requires a two-level scheme (block scans + a scan of block
-totals), which the library CUB provides ready-made (Chapter 11).
+**Cost.** The scan has two passes, each with \\(\log_2 n\\) barrier levels.
+Here the barrier count is inherent to the algorithm rather than an
+implementation defect. A single block can scan at most 1,024 elements. Larger
+arrays require a two-level scheme of block scans plus a scan of block totals,
+which the CUB library provides (Chapter 11).
 
 ## 8.8 Histogram: Privatisation
 
-The naive histogram of Chapter 5 (`atomicAdd` per element) serialises on
-contended bins. The production fix is **privatisation**: every block
-accumulates into its *own* shared-memory histogram (shared-memory atomics are
-much cheaper than global), and one thread per block folds the private
-histograms into global memory once at the end.
+The naive histogram of Chapter 5 performs one global `atomicAdd` per element
+and serialises on contended bins. The standard fix is **privatisation**: each
+block accumulates into its own shared-memory histogram, where atomics are
+cheaper, and one thread per block folds the private histogram into global
+memory at the end.
 
 ```cpp
 #define BINS 256
@@ -350,16 +339,15 @@ __global__ void histogramPrivatised(const unsigned char* data, int* g_hist,
 }
 ```
 
-**Why is this fast?** Contention now happens in shared memory, where an
-atomic is roughly an order of magnitude cheaper than a global atomic, and it
-is spread across 256 bins instead of funneled into one address per warp. The
-global fold touches each bin once per block. For skewed data (all elements in
-one bin), the shared atomics still contend - the next-level fix is *per-warp*
-histograms - but privatisation handles the common case.
+Contention now occurs in shared memory, where an atomic is roughly an order of
+magnitude cheaper than a global atomic, and it is spread across 256 bins rather
+than concentrated at one global address. The global fold touches each bin once
+per block. For highly skewed data, all elements fall in one bin and shared
+atomics still contend; the next-level fix is per-warp histograms. Privatisation
+handles the common case.
 
-**The barrier count.** Two barriers: one after zeroing, one before the fold.
-Both are uniformly reachable - the loops are compile-time shaped, so no thread
-can skip a barrier.
+The kernel uses two barriers, one after zeroing and one before the fold. Both
+are uniformly reachable because the loops have compile-time trip counts.
 
 ## 8.9 Summary Table
 
@@ -369,108 +357,92 @@ can skip a barrier.
 | Scan | \\(O(n)\\) serial | \\(2 \log_2 n\\) barriers | Blelloch upsweep/downsweep |
 | Histogram | global atomic per element | shared privatisation + fold | Per-block private bins |
 
-## Deeper Explanation: Reduction Is a Story About Where Partial Results Live
+## Where Partial Results Live
 
-The addition in a reduction is simple. The *performance* is determined by
-something different: how partial results travel between threads, how often
-they touch memory, and how many times threads must wait for one another.
+A reduction's arithmetic is simple; its performance is determined by how
+partial results travel between threads, how often they touch memory, and how
+often threads wait for one another.
 
-Think about what a single-threaded reduction does. One thread walks through
-the array and keeps a running sum in a register. Every addition is local to
-that thread, so there is no communication at all - but only one thread is
-working, and the memory system is barely used. A GPU has thousands of
-execution units, so the challenge is not "how do I add?" but "how do I
-divide the array among many threads, combine their partial results, and pay
-as little as possible for the combining?"
+A single-threaded reduction keeps a running sum in one register. There is no
+communication, but only one thread works. A GPU has thousands of execution
+units, so the problem is not how to add but how to divide the array among
+threads, combine their results, and minimise the cost of combining.
 
-Each version of the reduction in this chapter is a different answer to that
-question, and each answer moves the partial results to a different place:
+Each reduction version answers that question differently:
 
-1. **The naive kernel** keeps everything in one thread. It is correct and
-   simple, but it uses 1 thread out of thousands and leaves the machine
-   almost completely idle.
-2. **The shared-memory tree** divides the work among all threads in a block,
-   then combines partial sums through shared memory. The cost is a barrier at
-   every level of the tree, because a thread must not read a partial sum
-   before the thread that produced it has written it.
-3. **The coarsened kernel** lets each thread accumulate several elements in a
-   register before entering the tree. This reduces how often threads must
-   communicate, because each thread's private sum is combined only once at
-   the end.
-4. **The warp-shuffle kernel** replaces shared memory with register-to-register
-   data movement inside a warp. Shuffles are faster than shared memory and
-   need no barrier, because the lanes of a warp execute in lockstep.
+1. **The naive kernel** keeps everything in one thread. It is correct but uses
+   one thread out of thousands.
+2. **The shared-memory tree** divides work among all threads of a block and
+   combines partial sums through shared memory. Its cost is a barrier at every
+   tree level.
+3. **The coarsened kernel** accumulates several elements per thread in a
+   register before entering the tree, reducing the frequency of communication.
+4. **The warp-shuffle kernel** moves data between lanes through registers.
+   Shuffles need no barrier because the lanes of a warp execute together.
 5. **The full kernel** combines all of these: coarsen, shuffle within warps,
-   write one value per warp to shared memory, one barrier, then a final
-   shuffle across warp totals.
+   write one value per warp to shared memory, one barrier, and a final shuffle
+   over warp totals.
 
-The same way of thinking explains scan. A scan is a reduction with a harder
-requirement: instead of one final total, every output position needs the sum
-of everything before it. The Blelloch scan solves this with an upsweep that
-stores internal tree nodes and a downsweep that propagates "carries" back
-down the tree. The arithmetic is still addition; the intellectual work
-is in the index arithmetic and the careful ordering of writes so that each
-thread reads a value before it is overwritten.
+Scan is a reduction with a harder requirement: every output position needs the
+sum of everything before it. The Blelloch scan solves it with an upsweep that
+stores internal tree nodes and a downsweep that propagates carries down the
+tree. The arithmetic is still addition; the work is in the index arithmetic and
+in ordering writes so that a thread reads a value before it is overwritten.
 
-Histogram privatisation is the same principle applied to atomics. The naive
-histogram performs an atomic increment on global memory for every element.
-Global atomics are expensive when many threads target the same bin, because
-the hardware must serialise the read-modify-write cycles. The privatised
-version gives each block its own histogram in shared memory, where atomics
-are cheaper, and then folds the private histograms into global memory once.
-Again: communicate as little as possible, and when you must communicate, do
-it in bulk at the end.
+Histogram privatisation applies the same principle to atomics. Global atomics
+are expensive when many threads target the same bin because the hardware
+serialises read-modify-write cycles. A privatised histogram accumulates in
+shared memory and folds into global memory once. Communicate as little as
+possible, and when communication is unavoidable, do it in bulk.
 
-Reduction, scan, and histogram are not three unrelated algorithms. They are
-three views of the same underlying problem: how to combine distributed data
-with the minimum amount of communication. The patterns in this chapter
-reappear in matrix multiplication (Chapter 9), in library primitives
-(Chapter 11), and in multi-GPU collectives (Chapter 19). Once you can reason about where partial results live and how
-they travel, you can understand almost any parallel algorithm.
+Reduction, scan, and histogram are three views of one problem: combining
+distributed data with minimal communication. The patterns recur in matrix
+multiplication (Chapter 9), library primitives (Chapter 11), and multi-GPU
+collectives (Chapter 19).
 
 ## Common Pitfalls
 
 - Using non-power-of-two block sizes with tree algorithms. The halving scheme
   assumes `TILE` is a power of two.
 - Calling `warpReduce` from only some lanes. All 32 lanes must execute
-  `__shfl_down_sync` with the same mask, or behaviour is undefined.
+  `__shfl_down_sync` with the same mask, or the behaviour is undefined.
 - Forgetting the final `__syncthreads()` after a shared-memory scan. The last
-  read must not start before the last write is visible.
-- Using atomics for the whole histogram instead of privatising. Global atomic
-  contention serialises; shared-memory privatisation plus one fold per block
-  is the standard fix.
+  read must not begin before the last write is visible.
+- Using global atomics for the whole histogram instead of privatising. Global
+  contention serialises; shared privatisation plus one fold per block is the
+  standard fix.
 
 ## Check Your Understanding
 
 <details>
 <summary>Why is one barrier per block enough in reduceFull?</summary>
 
-Each warp reduces its 32 lanes with shuffles (no memory, no barrier). Only
-one value per warp is written to shared memory, so exactly one barrier makes
-those 8 values visible to warp 0, which then combines them with shuffles.
+Each warp reduces its 32 lanes with shuffles, using no memory or barrier. Only
+one value per warp is written to shared memory, so one barrier makes those
+values visible to warp 0, which then combines them with shuffles.
 </details>
 
 <details>
 <summary>What does warpReduce return for lanes other than lane 0?</summary>
 
-The shuffle loop leaves partial values in every lane; the documented result
-(and the value that matters) is the total in lane 0. Other lanes contain
+The shuffle loop leaves partial values in every lane. The documented result,
+and the value used by the kernel, is the total in lane 0. Other lanes contain
 intermediate sums and should not be used.
 </details>
 
 <details>
 <summary>Why is a fixed tree reduction bit-reproducible but an atomic reduction is not?</summary>
 
-A fixed tree always sums in the same order, so the floating-point rounding
-is identical every run. Atomics let the hardware choose an order that can
+A fixed tree always sums in the same order, so floating-point rounding is
+identical on every run. Atomics allow the hardware to choose an order that can
 differ between runs, changing the last bits.
 </details>
 
 ## Key Takeaways
 
 - The optimised reduction: coarsen (grid-stride), reduce within each warp by shuffle, then one shared-memory round and one barrier per block.
-- Warp shuffles exchange values through registers - no memory, no barrier.
-- The Blelloch scan is an upsweep that stores internal nodes, then a downsweep that propagates carries to build exclusive prefixes.
+- Warp shuffles exchange values through registers, with no memory or barrier.
+- The Blelloch scan is an upsweep that stores internal nodes and a downsweep that propagates carries to build exclusive prefixes.
 - Histograms should be privatised per block in shared memory and folded into global memory once.
 - A fixed tree order makes reductions bit-reproducible across runs.
 
@@ -478,10 +450,9 @@ differ between runs, changing the last bits.
 
 1. Derive the number of barriers in the Stage-1 tree reduction for
    `TILE = 512`, and compare it with the full kernel of §8.6.
-2. In `reduceFull`, why does lane 0 of each warp *write* `s[warpId]` and
-   not every lane? What would happen if every lane wrote its own `sum`?
+2. In `reduceFull`, why does lane 0 of each warp write `s[warpId]` and not
+   every lane? What would happen if every lane wrote its own `sum`?
 3. Trace the Blelloch downsweep on `[1, 2, 3, 4]` by hand, showing the state
    of `s` after each level. Verify the exclusive prefix `[0, 1, 3, 6]`.
 4. The histogram fold skips empty bins with `if (s_hist[b] != 0)`. Is this
-   correct? Is it always faster? (Consider a case where every bin is
-   non-empty.)
+   correct? Is it always faster? Consider a case where every bin is non-empty.

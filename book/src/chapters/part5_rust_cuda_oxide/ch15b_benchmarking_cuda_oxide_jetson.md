@@ -1,35 +1,37 @@
 # Chapter 15b: Benchmarking CUDA-Oxide on Jetson Orin
 
-> 📦 **Code companion:** the complete, buildable code for this chapter lives in [`arpanpathak/cuda-oxide-demo`](https://github.com/arpanpathak/cuda-oxide-demo). The article version is [`CUDA_RUST_JETSON_BENCHMARKS.md`](https://github.com/arpanpathak/cuda-oxide-demo/blob/main/CUDA_RUST_JETSON_BENCHMARKS.md).
+> **Code companion:** the complete, buildable code for this chapter lives in
+> [`arpanpathak/cuda-oxide-demo`](https://github.com/arpanpathak/cuda-oxide-demo).
+> The article version is
+> [`CUDA_RUST_JETSON_BENCHMARKS.md`](https://github.com/arpanpathak/cuda-oxide-demo/blob/main/CUDA_RUST_JETSON_BENCHMARKS.md).
 
-Chapter 14 showed how CUDA-Oxide compiles idiomatic Rust kernels to PTX.
-This chapter answers the next question: *how fast are those kernels on real
-hardware, and when is the GPU actually worth it?*
+Chapter 14 showed how CUDA-Oxide compiles idiomatic Rust kernels to PTX. This
+chapter measures those kernels on real hardware and asks when the GPU is worth
+using on an embedded SoC.
 
-We benchmark four kernels on a Jetson Orin:
+Four kernels are benchmarked on a Jetson Orin:
 
-1. **SAXPY** - memory-bound vector operation.
-2. **Dot product** - block reduction.
-3. **Matrix multiply** - naive vs shared-memory tiled.
+1. **SAXPY** - a memory-bound vector operation.
+2. **Dot product** - a block reduction.
+3. **Matrix multiply** - naive versus shared-memory tiled.
 4. **Jacobi solver for the 2D Laplace equation** - a stencil that solves a
-   real partial differential equation.
+   partial differential equation.
 
 Every GPU result is verified against a CPU reference. The CPU baseline uses
-Rayon so all 8 ARM cores participate.
+Rayon so that all eight ARM cores participate.
 
-## 15b.1 The hardware reality check
+## 15b.1 Hardware Context
 
-The Jetson Orin is not a datacenter GPU. It is an embedded SoC where the CPU
+The Jetson Orin is not a datacenter GPU. It is an embedded SoC in which the CPU
 and GPU share:
 
 - the same DRAM bandwidth,
 - the same power budget,
 - the same thermal envelope.
 
-This changes the performance story. On a discrete GPU, almost any kernel
-beats the CPU. On an SoC, the CPU is surprisingly competitive for
-memory-bound work because both processors are limited by the same memory
-system.
+This changes the performance story. On a discrete GPU, many kernels beat the
+CPU. On an SoC, the CPU is competitive for memory-bound work because both
+processors are limited by the same memory system.
 
 ![CPU vs GPU speedup on Jetson Orin](../../assets/ch15b_speedup_bars.svg)
 
@@ -37,18 +39,18 @@ The chart shows:
 
 - SAXPY: 1.8x GPU speedup.
 - Dot product: roughly parity (0.7x to 1.8x across runs).
-- Tiled matmul: **7.0x** GPU speedup.
+- Tiled matmul: 7.0x GPU speedup.
 - Jacobi global stencil: 1.6x GPU speedup.
 
-Compute-bound work with data reuse is where the GPU dominates. Memory-bound
-work is a toss-up.
+Compute-bound work with data reuse is where the GPU dominates. Memory-bound work
+is closer to a tie.
 
-## 15b.2 The kernels in the demo
+## 15b.2 The Kernels in the Demo
 
-The repository is deliberately modular. Each binary is split into small
+The repository is modular. Each benchmark binary is split into small
 single-purpose modules:
 
-```
+```text
 src/bin/06_benchmark/
 ├── main.rs        # entry point
 ├── kernels.rs     # #[kernel] device functions
@@ -82,7 +84,7 @@ pub fn saxpy(alpha: f32, input_x: &[f32], input_y: &[f32], mut output: DisjointS
 }
 ```
 
-### Dot product block reduction
+### Dot Product Block Reduction
 
 ```rust
 static mut SHARED: SharedArray<f32, 256> = SharedArray::UNINIT;
@@ -100,23 +102,23 @@ while offset > 0 {
 }
 ```
 
-### Tiled matrix multiply
+### Tiled Matrix Multiply
 
 ![Tiled matmul: reuse data in shared memory](../../assets/ch15b_tiled_matmul.svg)
 
-Each 16x16 block loads a tile of `A` and a tile of `B` into shared memory,
-synchronizes, computes the output tile from shared memory, synchronizes
-again, and advances to the next K-tile. This single change turns the naive
-GPU kernel into a 6x-faster kernel.
+Each 16x16 block loads a tile of A and a tile of B into shared memory,
+synchronises, computes the output tile from shared memory, synchronises again,
+and advances to the next K-tile. This change turns the naive GPU kernel into a
+roughly 6x faster kernel.
 
-### Jacobi solver
+### Jacobi Solver
 
 ![Five-point Jacobi stencil](../../assets/ch15b_jacobi_stencil.svg)
 
 The Laplace equation is the steady-state diffusion equation. On a grid, the
 discrete form becomes:
 
-```
+```text
 u_new[i,j] = (u[i-1,j] + u[i+1,j] + u[i,j-1] + u[i,j+1]) / 4
 ```
 
@@ -126,7 +128,7 @@ iteration spreads the boundary information inward.
 
 ## 15b.3 Where the Laplace Equation Appears
 
-The Laplace equation `∇²u = 0` describes equilibrium in physics:
+The Laplace equation \\(\nabla^2 u = 0\\) describes equilibrium in physics:
 
 - **Heat conduction**: steady-state temperature in a solid.
 - **Electrostatics**: electric potential in a charge-free region.
@@ -134,30 +136,30 @@ The Laplace equation `∇²u = 0` describes equilibrium in physics:
 - **Image processing**: inpainting, smoothing, and edge detection.
 - **Graphics**: surface fairing and smooth height fields.
 
-The Poisson variant `∇²u = f` adds sources and appears in pressure
-projection for fluid simulation, thermal simulation with heat sources, and
-many other fields. Jacobi iteration is the simplest solver, and it is the
-foundation for multigrid and Krylov methods used in production solvers.
+The Poisson variant \\(\nabla^2 u = f\\) adds sources. Jacobi iteration is the
+simplest solver and is the foundation for the multigrid and Krylov methods used
+in production solvers.
 
-## 15b.4 Benchmark methodology
+## 15b.4 Benchmark Methodology
 
 - **CPU**: Rayon-parallel Rust, `std::time::Instant`, best of 5.
 - **GPU**: CUDA events, best of 5, kernel time only.
-- **Warm-up**: 5 GPU launches before timing so the Jetson's clocks ramp up.
+- **Warm-up**: 5 GPU launches before timing so that the Jetson's clocks ramp
+  up.
 - **Data**: deterministic pseudo-random `f32` vectors and matrices.
-- **Verification**: every GPU result is compared against the CPU reference
-  with a tolerance.
+- **Verification**: every GPU result is compared against the CPU reference with
+  a tolerance.
 
 ## 15b.5 Results
 
-### Vector kernels
+### Vector Kernels
 
 | Benchmark | CPU ms | CPU rate | GPU ms | GPU rate | Speedup |
 |---|---:|---:|---:|---:|---:|
 | SAXPY, N = 16,777,216 | 4.989 | 40.4 GB/s | 2.700 | 74.6 GB/s | 1.8x |
 | Dot product, N = 33,554,432 | 6.926 | 38.8 GB/s | 4.891 | 54.9 GB/s | 1.4x |
 
-### Matrix multiply
+### Matrix Multiply
 
 | Implementation | Time | Rate | Speedup vs CPU Rayon |
 |---|---:|---:|---:|
@@ -166,7 +168,7 @@ foundation for multigrid and Krylov methods used in production solvers.
 | GPU, naive | 66.490 ms | 32.3 GFLOPS | 1.1x |
 | GPU, tiled 16x16 | 10.575 ms | 203.1 GFLOPS | 7.0x |
 
-### Jacobi solver
+### Jacobi Solver
 
 | Implementation | ms/iteration | 500 iterations | Speedup |
 |---|---:|---:|---:|
@@ -178,15 +180,16 @@ Both GPU Jacobi variants match the CPU field exactly after 500 iterations.
 
 ## 15b.6 Lessons
 
-1. **Memory-bound kernels are a tie on SoCs.** When the CPU can already
+1. **Memory-bound kernels are close on SoCs.** When the CPU can already
    saturate the shared memory bandwidth, the GPU adds little.
-2. **Shared memory tiling is the GPU's superpower.** Matmul jumps from 32 to
-   203 GFLOPS, a 6.3x improvement over the naive kernel and 7x over the CPU.
+2. **Shared-memory tiling is the GPU's main advantage here.** Matmul jumps from
+   32 to 203 GFLOPS, a 6.3x improvement over the naive GPU kernel and 7x over
+   the CPU.
 3. **Shared memory is not always the answer.** The tiled Jacobi stencil is
    slower than the simple global stencil on the Orin because the unified L2
-   cache absorbs the halo reads. Measure on your hardware.
+   cache absorbs the halo reads. Measure on the target hardware.
 4. **Warm-up matters on embedded GPUs.** Without warm-up launches, the first
-   measured kernel can be 2x slower due to clock ramping.
+   measured kernel can be 2x slower because of clock ramping.
 
 ## 15b.7 Reproduce
 
@@ -208,7 +211,6 @@ cargo oxide build -- --release --bin 06_benchmark --bin 07_laplace_jacobi
 
 Reports are written to `benchmarks/benchmark_results.{md,csv}` and
 `benchmarks/jacobi_results.{md,csv}`.
-
 
 ## Sources and Further Reading
 
