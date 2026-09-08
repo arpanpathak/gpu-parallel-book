@@ -1,7 +1,5 @@
 # Chapter 9: Optimised Matrix Multiplication
 
-> *"Matrix multiplication is the one kernel every GPU vendor gets right. You
-> should be able to explain why."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch09_sgemm/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch09_sgemm) in the repository.
 
 Matrix multiplication (\\(C = A \times B\\), all \\(N \times N\\)) is the
@@ -313,9 +311,9 @@ overhead. Closing it further requires:
 - **Tensor cores** (`mma` instructions), which multiply 16×16×16 tiles per
   instruction - a completely different pipeline covered in Chapter 11.
 
-Both are beyond this chapter's scope, but the journey from naive (5% of peak)
-to register-tiled (70%) is the same journey every optimisation chapter in this
-book teaches: *find the bottleneck, remove it, measure, repeat*.
+Both are beyond this chapter's scope, but the progression from naive (5% of peak)
+to register-tiled (70%) follows the method used throughout this book: find the
+bottleneck, remove it, measure, repeat.
 
 ## Deeper Explanation: SGEMM Is the Book in One Kernel
 
@@ -353,15 +351,14 @@ how many registers to use, and that decision trades off occupancy (Chapter 2)
 against spills. `__launch_bounds__(256, 4)` tells the compiler the occupancy
 target explicitly, so the trade is made deliberately.
 
-The deeper lesson is that SGEMM's journey is the journey of every optimised
-kernel: identify the current bottleneck (uncoalesced reads, no reuse,
-shared-memory bandwidth, registers), remove it, and measure. The roofline
-model tells you the journey is about intensity - FLOPs per byte - and each
-stage raises intensity by moving data closer to the arithmetic units: from
-global memory, to shared memory, to registers. If you can explain every line
-of the register-tiled kernel, including why the B-tile load uses `col0 + c`
-rather than `col0 + tx*RN + c`, you have internalised not just SGEMM but the
-whole optimisation playbook of the book.
+SGEMM follows the same progression as every optimised kernel: identify the
+current bottleneck (uncoalesced reads, no reuse, shared-memory bandwidth,
+registers), remove it, and measure. The roofline shows why each stage
+matters: intensity - FLOPs per byte - and each stage raises intensity by
+moving data closer to the arithmetic units: from global memory, to shared
+memory, to registers. Explaining every line of the register-tiled kernel,
+including why the B-tile load uses `col0 + c` rather than
+`col0 + tx*RN + c`, requires the full method, not just SGEMM.
 
 ## Common Pitfalls
 

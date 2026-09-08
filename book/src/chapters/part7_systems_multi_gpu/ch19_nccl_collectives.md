@@ -1,7 +1,5 @@
 # Chapter 19: NCCL & Multi-GPU Collective Communication
 
-> *"A multi-GPU program is a distributed program wearing a shared-memory
-> costume."*
 
 Chapter 18 gave you the hardware (NVLink/NVSwitch). This chapter gives you
 the software that turns that hardware into scalable multi-GPU programs:
@@ -89,8 +87,7 @@ The algorithm splits the data into N chunks and performs two phases:
 2. **All-gather.** Each GPU sends its reduced chunk around the ring again.
    After N-1 steps, every GPU has every reduced chunk.
 
-The beauty is that every link is used in every step. For N GPUs and a message
-of size M:
+Every link is used in every step. For N GPUs and a message of size M:
 
 - data moved per GPU ≈ 2M × (N-1)/N
 - optimal bandwidth utilization for large messages
@@ -336,3 +333,11 @@ available to all - exactly an all-reduce.
    rank 0 sends its buffer, all ranks receive it. Verify with a known value.
 4. Explain how NVLink SHARP (NVLS) makes all-reduce cheaper than the ring
    algorithm, and why the switch is a natural place to do arithmetic.
+
+
+## Sources and Further Reading
+
+- NVIDIA, *NCCL User Guide*: <https://docs.nvidia.com/deeplearning/nccl/user-guide/>
+- NVIDIA, *NCCL GitHub repository*: <https://github.com/NVIDIA/nccl>
+- NVIDIA, *CUDA C++ Programming Guide*, "Peer-to-Peer" and "Streams" sections: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- Patarasuk and Yuan, "Bandwidth Optimal All-reduce Algorithms for Clusters of Workstations," *Journal of Parallel and Distributed Computing*, 2009. Source of the ring all-reduce analysis.

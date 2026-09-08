@@ -1,6 +1,5 @@
 # Appendix B - Mathematical Notation Reference
 
-> *"The notation used in this book, defined once and used everywhere."*
 
 This appendix gathers the mathematics that appears throughout the text. It is
 not a mathematics course; it is a dictionary. Every symbol below appears at

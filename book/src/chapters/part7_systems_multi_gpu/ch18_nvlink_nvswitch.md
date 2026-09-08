@@ -1,7 +1,5 @@
 # Chapter 18: NVLink & NVSwitch - The Multi-GPU Interconnect
 
-> *"One GPU is a fast computer. Two GPUs are a fast computer with a problem:
-> how do they talk to each other?"*
 
 So far the book has been single-GPU. This chapter introduces the hardware
 that makes multi-GPU programming possible: **NVLink** (NVIDIA's high-bandwidth
@@ -221,11 +219,10 @@ The surface answer is "higher bandwidth", but the deeper answer is about
   optimized for GPU memory semantics (including atomics and, on some
   architectures, coherence).
 
-The result is not just higher peak bandwidth; it is **lower latency per
-message** and **more concurrent independent streams** of communication. That
-is why NCCL (Chapter 19) prefers NVLink topologies: collective algorithms
-need many simultaneous point-to-point transfers, and NVLink can carry them all
-at once.
+The result is **lower latency per message** and **more concurrent independent
+streams** of communication, in addition to higher peak bandwidth. NCCL
+(Chapter 19) prefers NVLink topologies because collective algorithms need many
+simultaneous point-to-point transfers, and NVLink can carry them all at once.
 
 **What about NVLink-C2C?** On Grace-Hopper, NVLink-C2C connects the CPU and
 GPU with coherent memory semantics. The CPU and GPU can share a pool of
@@ -289,3 +286,10 @@ memory.
 4. In data-parallel training, gradients are all-reduced every step. Would you
    prefer NVLink or PCIe for that workload? Justify with the bandwidth/latency
    model from §18.6.
+
+
+## Sources and Further Reading
+
+- NVIDIA, *NVLink & NVSwitch* product documentation: <https://www.nvidia.com/en-us/data-center/nvlink/>
+- NVIDIA, *CUDA C++ Programming Guide*, "Peer-to-Peer Access" and "Unified Memory" sections: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- NVIDIA, *NVIDIA Multi-GPU Communication Library (NCCL)* documentation: <https://docs.nvidia.com/deeplearning/nccl/user-guide/>

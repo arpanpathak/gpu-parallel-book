@@ -1,14 +1,13 @@
 # Chapter 1: The Mathematics of Parallelism
 
-> *"A fast program is not the same thing as a parallel program. The mathematics
-> below is the difference between the two."*
+> *"The purpose of computing is insight, not numbers."*
+> — Richard Hamming, *Numerical Methods for Scientists and Engineers* (1962)
 
-Before we touch a single CUDA API, we must understand what parallelism can and
-cannot buy us. This chapter establishes the mathematical vocabulary of the
-entire book: *speedup*, *efficiency*, *Amdahl's law*, *scaling*, *Flynn's
-taxonomy*, and the *roofline model*. None of these ideas are optional context;
-they are the instruments you will use to decide, for every kernel in this book,
-whether a given optimisation is worth the effort.
+
+This chapter establishes the mathematical vocabulary used throughout the book:
+*speedup*, *efficiency*, *Amdahl's law*, *scaling*, *Flynn's taxonomy*, and the
+*roofline model*. These ideas are the instruments you will use to decide, for
+every kernel in this book, whether a given optimisation is worth the effort.
 
 ## 1.1 Latency, Throughput, and the Meaning of "Faster"
 
@@ -31,6 +30,23 @@ execution units, none of which is individually fast, but which together
 complete millions of operations per clock. The GPU hides latency not by
 predicting what happens next, but by having so many independent threads in
 flight that the hardware always has something to do while others wait.
+
+There is a quantitative relation hiding in these two definitions. In a system
+that sustains a steady flow of work, throughput is not an independent number:
+it is the ratio of the *concurrency* the machine can keep in flight to the
+*latency* of each operation:
+
+\\[ \\text{throughput} = \\frac{\\text{concurrency}}{\\text{latency}} \\]
+
+This is Little's law, imported from queueing theory. It gives a compact
+quantitative model of GPU performance. Suppose a memory access takes 500
+cycles to complete and the machine has no other work to issue during that
+window. Then the memory system delivers one access per 500 cycles regardless
+of how fast the clock is. If instead the machine keeps 1,000 independent
+accesses in flight, each still taking 500 cycles, it completes 1,000 accesses
+every 500 cycles - a 1,000-fold increase in throughput with no change in
+latency. That multiplication explains why GPUs use thousands of
+threads: *latency is not reduced, it is amortised over concurrency*.
 
 This is the first primitive of the book:
 
@@ -62,11 +78,26 @@ A perfect speedup of \\(p\\) means the \\(p\\)-fold work is done in
 
 An efficiency of 1.0 (100%) is ideal: every processing unit contributes
 proportionally. An efficiency of 0.5 means half of the processing units'
-potential is being wasted. Efficiency is the honest measure; speedup is the
+potential is being wasted. Efficiency is the conservative measure; speedup is the
 flattering one. A vendor will report "10x speedup on 64 cores" and omit that
 the efficiency is 0.156.
 
-**Why efficiency matters on a GPU.** A GPU may have tens of thousands of
+Two formal bounds follow immediately from the definitions. Since the parallel
+program cannot take negative time, \\(T_p > 0\\), and therefore:
+
+\[ S(p) = \frac{T_1}{T_p} \le p \quad \text{and} \quad 0 < E(p) \le 1 \]
+
+Equality is possible only when \\(T_p = T_1/p\\), meaning the work divides
+perfectly among processors and every processor runs at full utilisation for
+the whole execution. Anything else - load imbalance, communication,
+synchronisation, redundant work, memory contention, or idle time at
+the end of the computation - makes \\(T_p\\) larger than this ideal and
+pushes efficiency below 1. Efficiency is the more diagnostic number: speedup
+tells you how much better the parallel run is than the serial run, while
+efficiency tells you how much of the added hardware is actually being used. The same effect appears in Amdahl's law below, where the serial
+fraction creates a hard ceiling.
+
+A GPU may have tens of thousands of
 threads in flight. If the achievable efficiency is 20%, you are paying for
 five times more hardware than you are using. Almost every optimisation in this
 book is, at heart, an attempt to raise efficiency - by keeping threads busy,
@@ -102,15 +133,15 @@ cashiers are the parallel part; the manager is the serial fraction. Hiring
 more cashiers shortens the queue only up to the point where the manager
 becomes the bottleneck - and no number of cashiers removes the manager. On a
 GPU, the "manager" is anything that cannot be parallelised: host launch
-overhead, a single reduction step, a dependency chain. Amdahl's law is just
-the arithmetic of that manager's unavoidable time.
+overhead, a single reduction step, a dependency chain. Amdahl's law is the
+arithmetic of that manager's unavoidable time.
 
 **Worked example.** Consider a kernel launch pipeline: 10 microseconds of host
 overhead (serial) plus a kernel that takes 100 microseconds on one GPU and
 scales perfectly. Here \\(f = 10/110 \\approx 0.091\\). The maximum speedup is
 \\(1/0.091 \\approx 11\\). No matter how many GPUs you buy, the pipeline cannot
-be faster than 11x. This is why Chapter 6 (streams and asynchronous execution)
-is dedicated to hiding host overhead: the serial fraction is the enemy.
+be faster than 11x. Chapter 6 (streams and asynchronous execution) exists to hide host
+overhead, because the serial fraction sets the ceiling.
 
 **Why Amdahl's law is pessimistic.** Amdahl assumed the *problem size is
 fixed*. If the problem grows with the number of processing units, the
@@ -126,6 +157,27 @@ is:
 
 \\[ S(p) = p + (1 - p) \cdot s \\]
 
+The formula is worth deriving, because the derivation is where the intuition
+lives. Let \\(T_p\\) be the wall-clock time on \\(p\\) units. Split it into a
+serial part \\(s \cdot T_p\\) and a parallel part \\((1 - s) \cdot T_p\\). If
+that parallel part ran on one unit instead of \\(p\\), it would take
+\\(p \cdot (1 - s) \cdot T_p\\): each of the \\(p\\) pieces would be executed
+one after another. The serial part takes the same time either way. Therefore
+the estimated single-unit time is:
+
+\\[ T_1 = s \cdot T_p + p \cdot (1 - s) \cdot T_p \\]
+
+and the scaled speedup is:
+
+\\[ S(p) = \\frac{T_1}{T_p} = s + p \cdot (1 - s) = p + (1 - p) \cdot s \\]
+
+The term \\((1 - p) \cdot s\\) is negative for \\(p > 1\\), so the speedup is
+always somewhat less than \\(p\\); how much less depends on the serial fraction
+\\(s\\). If \\(s = 0.01\\) and \\(p = 1,000\\), the scaled speedup is about
+\\(1,000 - 9.99 \\approx 990\\) - far above Amdahl's ceiling for a fixed
+workload with 1% serial code, because the parallel workload has also grown a
+thousandfold.
+
 Unlike Amdahl's law, this grows *linearly* with \\(p\\) for fixed \\(s\\).
 The two laws answer different questions:
 
@@ -133,7 +185,7 @@ The two laws answer different questions:
 - **Gustafson:** "How much *larger* a workload can I run in the same time with
   more units?"
 
-**Why both matter for GPU programming.** When you increase the image resolution
+When you increase the image resolution
 or the matrix dimension, you are doing Gustafson scaling: the workload grows,
 and the GPU's parallel fraction grows with it. When you optimise a fixed-size
 kernel, you are fighting Amdahl's law. Knowing which regime you are in tells
@@ -196,8 +248,8 @@ combinations are:
   a hybrid of SIMD and MIMD. The hardware fetches *one* instruction per cycle
   for a *group* of threads (a **warp**, defined in Chapter 2), but each thread
   has its own registers, its own program counter, and its own data. This
-  combination - one instruction, many independent thread contexts - is the
-  single most important architectural idea in this book.
+  combination - one instruction, many independent thread contexts - is what
+  SIMT execution is.
 
 **Why SIMT is not SIMD.** In SIMD, the data elements are explicitly packed
 into a vector register, and divergence is impossible: all lanes execute the
@@ -210,10 +262,9 @@ when paths diverge.
 
 ## 1.8 Arithmetic Intensity and the Roofline Model
 
-The roofline model, introduced by Williams, Waterman and Patterson in 2009, is
-the most useful performance model in this book. It answers one question: *for
-a given computation, is the limit set by the arithmetic units or by the memory
-system?*
+The roofline model, introduced by Williams, Waterman and Patterson in 2009,
+answers one question: *for a given computation, is the limit set by the
+arithmetic units or by the memory system?*
 
 ### 1.8.1 Why "per byte"? The question the ratio answers
 
@@ -239,11 +290,11 @@ of memory, and for each byte it does some number of FLOPs. The ratio
 \\[ I = \frac{\text{FLOPs}}{\text{Bytes}} \\]
 
 is a *productivity measure*: **how much work do you get out of each byte of
-data you bother to ship?** It is exactly like fuel efficiency - miles per
+data you bother to ship?** It is analogous to fuel efficiency - miles per
 gallon. "Arithmetic intensity" is **work per byte**: FLOPs per byte moved.
 
-Why is this ratio the single most important number in GPU programming?
-Because it decides *which one of the two resources runs out first*:
+This ratio matters because it decides *which one of the two resources runs
+out first*:
 
 - A kernel with **low intensity** (few FLOPs per byte) uses up the memory
   system's byte budget long before the arithmetic units are tired. The
@@ -268,8 +319,8 @@ them. A vector add ships 12 bytes (two reads, one write) to earn a single
 FLOP - intensity 0.08, deep in memory-bound territory. A dense matrix multiply
 reuses each loaded byte for hundreds of operations - intensity ~683, deep in
 compute-bound territory. *Nothing about the machine changed; only the
-reuse.* This is why Chapter 9's matrix multiply is the book's crowning
-optimisation: it is the art of raising intensity.
+reuse.* Chapter 9's matrix multiply is a sustained exercise in raising
+intensity.
 
 ### 1.8.2 The ridge point: where the two limits meet
 
@@ -279,6 +330,17 @@ intensity \\(I\\), then while the memory system delivers bytes, the workers
 can at most produce:
 
 \\[ P \le \min(P_{\text{peak}},\; I \cdot B) \\]
+
+Where does the second term come from? It is a units bookkeeping exercise, and
+it is worth doing once. If the kernel performs \\(I\\) FLOPs for every byte it
+reads, then to sustain \\(P\\) FLOP/s the memory system must deliver
+\\(P / I\\) bytes/s. The memory system can deliver at most \\(B\\) bytes/s, so:
+
+\\[ \frac{P}{I} \le B \quad \Longrightarrow \quad P \le I \cdot B \\]
+
+This is the **bandwidth ceiling**. The arithmetic units impose the other
+ceiling, \\(P \le P_{\text{peak}}\\). Both ceilings must hold simultaneously,
+so the achievable rate is their minimum.
 
 The two limits meet at the **ridge point** - the intensity at which the
 supply line and the workers are exactly balanced:
@@ -326,9 +388,8 @@ and write one 4-byte float** - 12 bytes moved:
 That is 500× below the ridge point - deep in memory-bound territory. No
 amount of arithmetic optimisation will make a vector add faster; only
 bandwidth optimisation will (coalesced accesses, §2.7; avoiding redundant
-reads, Chapter 7). This single observation explains why Chapter 7 is devoted
-to memory: for most real kernels, *the bytes are the problem, not the
-arithmetic*.
+reads, Chapter 7). This observation motivates Chapter 7: for most real kernels, *the bytes
+are the problem, not the arithmetic*.
 
 ### 1.8.3 The wider taxonomy: CPU-bound, memory-bound, I/O-bound
 
@@ -385,15 +446,15 @@ test: pick a resource, double its capacity, re-measure, and repeat:
 | Disk / network / PCIe rate | ✓ | I/O-bound |
 | All three | ✗ | Serial-bound (Amdahl, §1.3) |
 
-**Why this matters before you write a single kernel.** Every optimisation in
+Every optimisation in
 this book is a bet that you know which resource is the wall. Coalescing
 (§2.7) is a bet that the kernel is memory-bound. Register tiling (Chapter 9)
 is a bet that it is compute-bound. Streams and asynchronous transfers
 (Chapter 6) are a bet that it is I/O-bound. The roofline's *compute-bound* is
-simply the GPU-side name for CPU-bound: the arithmetic units are the wall,
+the GPU-side term for CPU-bound: the arithmetic units are the wall,
 seen from the device side of the PCIe bus. Optimise the wrong resource and
 the wall does not move - which is why Chapter 16's profiler exists: to tell
-you which resource is actually saturated *before* you spend a week on the
+you which resource is saturated *before* you spend a week on the
 wrong fix.
 
 ## 1.9 The Cost of Synchronisation
@@ -441,15 +502,15 @@ The terms defined in this chapter are the book's working vocabulary:
 
 ## Deeper Explanation: The Two Laws Are Two Questions, Not Two Truths
 
-Students often ask "which law is correct?" The honest answer is that both are
-correct, and they are correct for different questions. Amdahl's law asks: "If
+The two laws are not competing claims; they answer different questions.
+Amdahl's law asks: "If
 I keep the problem exactly the same size and add more processors, how much
 faster can it possibly go?" It assumes a fixed workload and a fixed serial
 fraction, and it tells you that the serial part is an unremovable floor.
 Gustafson's law asks the opposite question: "If I add more processors and
 proportionally enlarge the problem, how much work can I finish in the same
 wall-clock time?" It assumes the workload grows with the hardware, which is
-how real users actually behave: when a machine gets bigger, they run bigger
+how real users behave: when a machine gets bigger, they run bigger
 models, higher-resolution images, or larger batches rather than re-running the
 same small problem faster.
 
@@ -464,7 +525,7 @@ and the parallel fraction grows with it, so scaling looks much better.
 The practical skill is knowing which question you are answering before you
 quote a number. A "10x speedup" claim is only meaningful if you also state the
 problem size, the hardware, and whether the serial fraction was measured or
-assumed. This is why Chapter 16 insists on recording the exact environment and
+assumed. Chapter 16 therefore requires recording the exact environment and
 methodology for every performance claim: without that context, a speedup
 number is not a fact, it is an anecdote.
 
@@ -492,7 +553,7 @@ book.
 ## Check Your Understanding
 
 <details>
-<summary>Why is efficiency a more honest metric than speedup?</summary>
+<summary>Why is efficiency a more informative metric than speedup?</summary>
 
 Efficiency divides speedup by the number of processing units. A vendor can
 report "10× speedup on 64 cores", but efficiency is only 10/64 ≈ 0.156: 84% of
@@ -518,7 +579,7 @@ arithmetic throughput changes nothing.
 ## Key Takeaways
 
 - Parallelism buys throughput, not latency; the GPU hides latency by keeping many warps in flight.
-- Speedup S(p) = T1 / Tp; efficiency S(p) / p is the honest metric.
+- Speedup S(p) = T1 / Tp; efficiency S(p) / p is the informative metric.
 - Amdahl's law: a serial fraction f caps speedup at 1/f, no matter how many units you add.
 - Gustafson-Barsis: when the problem grows with the hardware, scaled speedup grows linearly.
 - Arithmetic intensity I = FLOPs / bytes, compared with the ridge point P_peak / B, decides memory-bound vs compute-bound.
@@ -541,3 +602,12 @@ arithmetic throughput changes nothing.
    the CPU at 20 GB/s. Estimate the CPU utilisation. Is the program CPU-bound,
    memory-bound or I/O-bound? Which single change - a 2× faster CPU or a 2×
    faster network - speeds it up more?
+
+
+## Sources and Further Reading
+
+- Gene M. Amdahl, "Validity of the Single Processor Approach to Achieving Large-Scale Computing Capabilities," AFIPS Conference Proceedings, 1967. The paper behind Amdahl's law.
+- John L. Gustafson, "Reevaluating Amdahl's Law," Communications of the ACM 31(5), 1988. The paper behind Gustafson's scaled-speedup law.
+- Samuel Williams, Andrew Waterman, and David Patterson, "Roofline: An Insightful Visual Performance Model for Multicore Architectures," Communications of the ACM 52(4), 2009. The original roofline paper.
+- NVIDIA, *CUDA C++ Programming Guide*, "Compute Capabilities" appendix, for authoritative per-generation hardware limits: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- NVIDIA, *CUDA C++ Best Practices Guide*, for optimisation methodology: <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>

@@ -1,7 +1,5 @@
 # Chapter 12: NVRTC, Runtime Compilation & the Driver API
 
-> *"The compiler is not always your toolchain's secret. Sometimes it is your
-> program's input."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch12_nvrtc/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch12_nvrtc) in the repository.
 
 Everything so far has used the **CUDA runtime API** - the `cudaMalloc`,
@@ -115,7 +113,7 @@ devices, at the cost of portability (it will not run on older GPUs).
    architecture; the driver JITs at first use.
 
 The cost: compile time at run time (hundreds of milliseconds) and the
-complexity of the two-stage load. That is why NVRTC belongs in *this* chapter
+complexity of the two-stage load. NVRTC therefore belongs in *this* chapter
 and not Chapter 3.
 
 ## 12.4 The Driver API: Loading and Launching
@@ -218,7 +216,7 @@ current context, so device pointers obtained from `cudaMalloc` are valid for
 NVRTC+driver for the kernel - is the pragmatic sweet spot, and it is the shape
 the capstone uses in Chapter 15.
 
-## Deeper Explanation: The Driver API Is Where the Runtime's Magic Lives
+## Deeper Explanation: What the Runtime API Automates
 
 The runtime API is convenient because it makes decisions for you: it creates
 a context lazily, loads modules, manages memory, and hides the plumbing of a
@@ -318,3 +316,10 @@ pointers remain valid across the boundary.
    involved.
 4. When would you choose `-arch=compute_60` over `-arch=compute_90` for
    NVRTC, and what does each choice cost?
+
+
+## Sources and Further Reading
+
+- NVIDIA, *CUDA Runtime API* and *Driver API* reference: <https://docs.nvidia.com/cuda/cuda-runtime-api/> and <https://docs.nvidia.com/cuda/cuda-driver-api/>
+- NVIDIA, *NVRTC User Guide*: <https://docs.nvidia.com/cuda/nvrtc/>
+- NVIDIA, *CUDA C++ Programming Guide*, "Just-in-Time Compilation" and "Compute Capabilities": <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>

@@ -1,11 +1,9 @@
 # Chapter 15: Capstone - The GPU Image Processing Pipeline
 
-> *"A pipeline is a chain of kernels. A fast pipeline is a chain of kernels
-> that never waits."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch15_capstone/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch15_capstone) in the repository.
 
-This is the chapter every earlier one was building toward. The capstone is a
-complete GPU image-processing pipeline - **RGB → greyscale → Gaussian blur →
+This chapter combines the earlier material into one complete system. The
+capstone is a complete GPU image-processing pipeline - **RGB → greyscale → Gaussian blur →
 Sobel edge detection** - implemented three ways (hand-written CUDA C++,
 Thrust, and CUDA-Oxide Rust), streamed with pinned memory, verified against a
 CPU reference, and measured with CUDA events. It is deliberately small enough
@@ -106,7 +104,7 @@ __global__ void blurH(const float* in, float* out, int width, int height)
 is the correct Gaussian: the five taps `[0.06136, 0.24477, 0.38774, 0.24477,
 0.06136]` land on `[x-2, x-1, x, x+1, x+2]`. But at the edges the *inner* taps
 (x-1 and x+1) reuse the clamped outer values, so the replicated border pixel
-is weighted twice (0.06136 + 0.24477) instead of once. The *honest* version
+is weighted twice (0.06136 + 0.24477) instead of once. The *correct* version
 clamps each tap independently:
 
 ```cpp
@@ -409,7 +407,7 @@ The pipeline's performance is measured with CUDA events (Chapter 6, §6.4),
 over many frames, with warm-up excluded:
 
 ```cpp
-// Per-stage timing with events (the honest instrument, 6.4):
+// Per-stage timing with events (the reliable instrument, 6.4):
 cudaEventRecord(start, sCompute);
 rgbToGray<<<...>>>(...);
 cudaEventRecord(mid, sCompute);
@@ -435,21 +433,21 @@ is what the roofline predicts:
 | histogram | ~10 µs | - | Atomic overhead, privatised |
 | **Total compute** | **~40 µs** | - | ~25,000 FPS compute-only; transfer-limited overall |
 
-The transfer arithmetic is the punchline. A 1920×1080 RGB frame is 6.2 MB to
+A 1920×1080 RGB frame is 6.2 MB to
 upload, and the `uchar` edge map is 2.1 MB to download - about 8.3 MB of
 host↔device traffic per frame. At a pinned PCIe Gen4 rate (~20 GB/s) that is
 roughly **400 µs of transfer per frame, ten times the total compute time**.
 The pipeline is transfer-limited: even a ~2,400 FPS transfer ceiling leaves
 the kernels nowhere near the limit, and a 60 FPS target has ~40× headroom.
-This is exactly why the streaming machinery of Chapters 4 and 6 matters - not
-because the kernels are slow, but because hiding the transfers is the only
-battle worth fighting at this image size.
+This is the case for the streaming machinery in Chapters 4 and 6: the kernels
+are not slow; hiding host-device transfer is the optimisation that remains at
+this image size.
 
 The roofline (Chapter 1) *predicted* the memory-bound verdicts before any
 code ran: every stage moves a few bytes per pixel per pass with a handful of
 FLOPs - far below the ridge point. The measurement confirms the prediction.
-That is the loop this book teaches: predict with the model, confirm with the
-instrument, optimise only the confirmed bottleneck.
+The loop is: predict with the model, confirm with the instrument, optimise only
+the confirmed bottleneck.
 
 ## 15.10 The Capstone in One Paragraph
 
@@ -458,14 +456,14 @@ index arithmetic (Chapters 3, 7), synchronisation-free stages and a privatised
 histogram (Chapters 5, 8), pinned memory and streamed double buffering
 (Chapters 4, 6), library and language alternatives that must pass the same
 differential test (Chapters 11, 13, 14), and a measurement discipline that
-turns opinions into numbers (Chapter 16). If you can build this pipeline and
-explain every line, you have graduated from this book.
+turns opinions into numbers (Chapter 16). Being able to build this pipeline and explain every line is the practical
+version of the book's goal: the same reasoning transfers to new kernels.
 
 ## Deeper Explanation: The Pipeline Is a Testbed for the Book's Mental Models
 
 The capstone is deliberately more than a program. It is a small, complete
 system in which every idea from the earlier chapters has a concrete
-responsibility, and - just as importantly - a concrete way to be tested.
+responsibility and a concrete way to be tested.
 
 The roofline model from Chapter 1 makes a prediction before any code runs:
 each stage of the pipeline moves a few bytes per pixel and does very little
@@ -483,13 +481,11 @@ a fused 5×5 kernel, and the differential test tells you whether the result is
 still correct while the event timings tell you whether the roofline's
 prediction of memory-bound behaviour still holds. Change the histogram launch
 to the wrong block shape, and the histogram total immediately exposes the
-bug. This is the engineering loop of Chapter 16 made concrete: every stage of
-the pipeline is a hypothesis, and the pipeline is the experiment that tests
-it.
+bug. The pipeline turns the engineering loop of Chapter 16 into a runnable test:
+every stage is a hypothesis, and the pipeline is the experiment that tests it.
 
-There is also a deeper lesson about system design. A good system is not a
-collection of clever kernels; it is a collection of testable claims about
-where time goes and why. The kernels are the claims' implementations, the
+A good system is not a collection of clever kernels; it is a collection of
+testable claims about where time goes and why. The kernels are the claims' implementations, the
 differential test is the correctness oracle, the event timings are the
 performance oracle, and the histogram is a cheap end-to-end sanity check. When
 you build your own systems, the same structure applies: separate the

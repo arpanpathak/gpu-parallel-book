@@ -1,6 +1,5 @@
 # Chapter 8: Reduction, Scan & Histogram
 
-> *"Every parallel algorithm is a reduction, a scan, or a lie."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch08_reduction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch08_reduction) in the repository.
 
 This chapter covers the three canonical data-parallel algorithms that appear,
@@ -372,12 +371,9 @@ can skip a barrier.
 
 ## Deeper Explanation: Reduction Is a Story About Where Partial Results Live
 
-It is easy to look at a reduction and think "this is just a loop of
-additions, how hard can it be?" The reality is more subtle and more
-interesting. The addition itself is genuinely simple, but the *performance*
-of a reduction is determined by something entirely different: how partial
-results travel between threads, how often they touch memory, and how many
-times the threads must wait for one another.
+The addition in a reduction is simple. The *performance* is determined by
+something different: how partial results travel between threads, how often
+they touch memory, and how many times threads must wait for one another.
 
 Think about what a single-threaded reduction does. One thread walks through
 the array and keeps a running sum in a register. Every addition is local to
@@ -425,12 +421,11 @@ are cheaper, and then folds the private histograms into global memory once.
 Again: communicate as little as possible, and when you must communicate, do
 it in bulk at the end.
 
-The deeper lesson is that reduction, scan, and histogram are not three
-unrelated algorithms. They are three views of the same underlying problem:
-how to combine distributed data with the minimum amount of communication.
-That is why the patterns in this chapter reappear in matrix multiplication
-(Chapter 9), in library primitives (Chapter 11), and in multi-GPU collectives
-(Chapter 19). Once you can reason about where partial results live and how
+Reduction, scan, and histogram are not three unrelated algorithms. They are
+three views of the same underlying problem: how to combine distributed data
+with the minimum amount of communication. The patterns in this chapter
+reappear in matrix multiplication (Chapter 9), in library primitives
+(Chapter 11), and in multi-GPU collectives (Chapter 19). Once you can reason about where partial results live and how
 they travel, you can understand almost any parallel algorithm.
 
 ## Common Pitfalls

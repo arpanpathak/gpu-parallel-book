@@ -1,6 +1,5 @@
 # Chapter 3: The CUDA Programming Model
 
-> *"A kernel is a function that the hardware multiplies."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch03_vector_add/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch03_vector_add) in the repository.
 
 This chapter introduces the CUDA programming model: how a function becomes a
@@ -21,7 +20,7 @@ CUDA programs are divided into two worlds:
 The two worlds do not share an address space. A pointer obtained from
 `cudaMalloc` is a *device* pointer: dereferencing it on the host is undefined
 behaviour and, in practice, a crash. Data must cross the boundary explicitly
-with `cudaMemcpy`. This separation is the single most common source of
+with `cudaMemcpy`. This separation is the most common source of
 confusion for new CUDA programmers, and it is permanent: Chapter 4 introduces
 the escape hatches (pinned memory, unified memory), but the separation remains
 the mental model.
@@ -36,7 +35,7 @@ bus; the device is the whole GPU die - GPCs of SMs above a chip-wide L2 above
 DRAM. Every `cudaMemcpy` is a shipment across that bus; every kernel launch is
 a work order delivered to the SMs. The two address spaces are separate
 *because the hardware is physically separate*: different DRAM, different
-caches, different execution units. The programming model is simply refusing to
+caches, different execution units. The programming model refuses to
 pretend otherwise - and that refusal is the source of most of the API's
 apparent ceremony (Chapter 4 explains the escape hatches). Keep the die
 diagram of §2.1 in mind and none of the rules in this chapter will feel
@@ -80,9 +79,25 @@ integer (`unsigned int`).
 - **gridDim** - the number of blocks in the grid, one to three dimensions.
   Total threads in the kernel = `gridDim * blockDim` across all dimensions.
 
-**Two 3-D vectors describe the whole launch.** The key to not getting lost in
-`<<<grid, block>>>` is to see both arguments as what they literally are:
-vectors. `gridDim` is a 3-D vector that says *how many blocks exist along each
+The CUDA Programming Guide states the following launch limits for current
+architectures:
+
+| Dimension | Limit |
+|---|---|
+| Threads per block | 1,024 |
+| Block size `x` | 1,024 |
+| Block size `y` | 1,024 |
+| Block size `z` | 64 |
+| Grid size `x` | 2³¹ − 1 |
+| Grid size `y` | 65,535 |
+| Grid size `z` | 65,535 |
+
+These are *architectural* limits, not suggestions. A launch that violates them
+fails at the host before any kernel runs, so you will see the error in the
+`cudaGetLastError()` check rather than in device code.
+
+**Two 3-D vectors describe the whole launch.** Read `<<<grid, block>>>`
+as two vectors: `gridDim` is a 3-D vector that says *how many blocks exist along each
 axis*; `blockDim` is a 3-D vector that says *how many threads exist along each
 axis inside every block*. Together they describe a 3-D grid of 3-D blocks - a
 box of boxes:
@@ -106,9 +121,9 @@ Read the diagram in three steps:
 \\[ \text{gy} = \text{blockIdx.y} \times \text{blockDim.y} + \text{threadIdx.y} \\]
 \\[ \text{gz} = \text{blockIdx.z} \times \text{blockDim.z} + \text{threadIdx.z} \\]
 
-This is why the 1-D formula `blockIdx.x * blockDim.x + threadIdx.x` of §3.5 is
-not a special case - it is the x-component of a vector identity that works in
-all three dimensions. The grid and block sizes *multiply*: the total number of
+The 1-D formula `blockIdx.x * blockDim.x + threadIdx.x` of §3.5 is not a
+special case - it is the x-component of a vector identity that works in all
+three dimensions. The grid and block sizes *multiply*: the total number of
 threads is
 
 \\[ \text{gridDim.x} \cdot \text{gridDim.y} \cdot \text{gridDim.z} \cdot
@@ -121,8 +136,8 @@ and *pixels*:
 
 ![Why 2-D launches: an 8 x 8 image with a 2 x 2 grid of blocks, each a 4 x 4 tile of threads; global position = blockIdx * blockDim + threadIdx per axis](../../assets/ch03_image_tiles.svg)
 
-The image example above is the single most useful mental model in this
-chapter: **blocks tile the data, threads fill each tile.** A 2-D launch means
+The image example gives the working model: **blocks tile the data, threads
+fill each tile.** A 2-D launch means
 you never flatten coordinates yourself - the hardware linearises anyway
 (x fastest, then y, then z), but you think in the data's own shape.
 
@@ -166,7 +181,7 @@ them.
 
 ## 3.5 The Global Index Formula
 
-The most important one-liner in CUDA, for a 1-D problem:
+The core indexing expression for a 1-D problem:
 
 ```cpp
 // Global linear index of this thread, assuming a 1-D grid and 1-D blocks.
@@ -177,7 +192,7 @@ The reasoning: thread `threadIdx.x` lives in block `blockIdx.x`. Each block
 contains `blockDim.x` threads, so block number `blockIdx.x` starts at
 `blockIdx.x * blockDim.x`. Add the position within the block to get the global
 position. If you saw the 3-D picture in §3.3, this is the same formula with
-only the x-components left - a 1-D launch is just a 3-D launch where the
+only the x-components left - a 1-D launch is a 3-D launch where the
 y and z components are all 1. For a 2-D problem, the formula composes:
 
 ```cpp
@@ -214,9 +229,9 @@ would be masked by the `if (i < n)` guard in the kernel.
 
 ## 3.6 The First Kernel: Vector Addition
 
-We will now write a complete program: `c = a + b`, element-wise, for `float`
-arrays of length `n`. This is the "Hello, world" of GPU programming, and every
-line is worth understanding.
+The first complete program adds two `float` arrays element-wise: `c = a + b`
+for arrays of length `n`. This is the "Hello, world" of GPU programming, and every
+line matters, so the next section walks through it.
 
 ### 3.6.1 The kernel
 
@@ -443,7 +458,7 @@ nvcc -arch=compute_60 kernel.cu -o kernel
 > compute capability.
 
 If you have no NVIDIA GPU on your machine, `nvcc` still compiles `.cu` files;
-the resulting binary simply will not run. Every `.cu` file in this book can be
+the resulting binary will not run. Every `.cu` file in this book can be
 compiled with `nvcc -arch=compute_60 -o bin src.cu` and run on any CUDA 12.x
 GPU (Pascal or newer) through the driver's JIT.
 
@@ -463,9 +478,8 @@ GPU (Pascal or newer) through the driver's JIT.
 
 ## Deeper Explanation: Why `<<<grid, block>>>` Is a Declaration, Not a Loop
 
-One of the most important conceptual shifts in CUDA happens the moment you
-stop reading the launch syntax as a loop and start reading it as a
-*declaration of work*. A CPU `for` loop says: "execute this body, then
+The conceptual shift in CUDA is to read launch syntax as a *declaration of
+work*, not a loop. A CPU `for` loop says: "execute this body, then
 execute it again, in this exact order, until the condition fails." A CUDA
 launch says something different: "there exists this much work, shaped like
 this; please execute it as soon as possible, in whatever order the hardware
@@ -474,7 +488,7 @@ or in what order blocks execute. It specifies the *shape* of the problem:
 how many blocks exist, how many threads are in each block, and therefore how
 the work can be divided.
 
-This distinction is not philosophical; it has practical consequences. Because
+The distinction has practical consequences. Because
 the hardware is free to schedule blocks in any order, your kernel must not
 depend on block order for correctness. Two blocks that communicate must do so
 through explicit mechanisms (atomics, separate kernel launches, cooperative
@@ -482,8 +496,8 @@ groups), never through assumptions about which block runs first. Because the
 same launch configuration can run on a GPU with 10 SMs or 100 SMs, your kernel
 must not assume a particular number of SMs. The launch is a contract with the
 scheduler: you provide the work and the shape, the hardware provides the
-mapping. This is why well-written CUDA kernels are portable across the entire
-NVIDIA product line without source changes.
+mapping. Well-written CUDA kernels are therefore portable across the NVIDIA
+product line without source changes.
 
 There is a second idea hiding in the same syntax: the boundary guard.
 Rounded-up grids are the standard way to handle problem sizes that are not
@@ -556,3 +570,10 @@ execution errors (e.g., illegal memory access). Both are needed.
 4. What happens if you call `cudaMemcpy` with `cudaMemcpyHostToDevice` but
    pass a *device* pointer as the source? (Do not try it on a machine you
    care about.)
+
+
+## Sources and Further Reading
+
+- NVIDIA, *CUDA C++ Programming Guide*, "Programming Model" chapter: thread hierarchy, memory hierarchy, heterogeneous programming, kernel launch syntax: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- NVIDIA, *CUDA C++ Best Practices Guide*, for host-device transfer and launch-configuration guidance: <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>
+- NVIDIA, `deviceQuery` CUDA sample, for reading your own GPU's compute capability and resource limits.

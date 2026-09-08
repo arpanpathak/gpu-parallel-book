@@ -1,6 +1,5 @@
 # Chapter 7: Memory Optimisation Deep Dive
 
-> *"Most kernels are not too slow to compute; they are too slow to fetch."*
 
 Chapter 2 promised that this chapter would show the accounting. Here it is.
 We examine the three tools that dominate GPU memory performance - **coalescing

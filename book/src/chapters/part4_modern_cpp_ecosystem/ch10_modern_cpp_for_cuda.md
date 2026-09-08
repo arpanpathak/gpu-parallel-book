@@ -1,7 +1,8 @@
 # Chapter 10: Modern C++ for CUDA
 
-> *"CUDA is C++ with a different address space. The rules of good C++ still
-> apply - more so, because the stakes are higher."*
+> *"Within C++, there is a much smaller and cleaner language struggling to get out."*
+> — Bjarne Stroustrup, *The Design and Evolution of C++* (1994)
+
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch10_device_buffer/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch10_device_buffer) in the repository.
 
 Chapters 3-9 wrote CUDA in a C-style dialect: raw `cudaMalloc` pointers,
@@ -437,3 +438,10 @@ trivially copyable and small enough to travel through the launch.
    on the device alone.
 4. When is a capturing lambda a legal kernel argument, and what is the
    constraint on the captured state?
+
+
+## Sources and Further Reading
+
+- NVIDIA, *CUDA C++ Programming Guide*, "Programming Model" and "Memory Hierarchy": <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- NVIDIA, *CUDA C++ Best Practices Guide*, for resource management and performance guidance: <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>
+- Bjarne Stroustrup, *The C++ Programming Language* and *The Design and Evolution of C++*, for RAII, value semantics, move semantics, and templates.

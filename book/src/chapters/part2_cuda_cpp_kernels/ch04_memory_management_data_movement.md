@@ -1,7 +1,5 @@
 # Chapter 4: Memory Management & Data Movement
 
-> *"A kernel that runs at 100% efficiency but waits for a slow copy is a slow
-> kernel. Data movement is computation."*
 
 Chapter 3 moved data with `cudaMalloc`/`cudaMemcpy` and said nothing about
 *how* it moves. This chapter is about that how. The GPU's memory system is a
@@ -83,11 +81,16 @@ modern GPU (≈ 1 TB/s HBM for the RTX family, 3.35 TB/s for H100):
 | Device → host pinned | 20-25 GB/s |
 | Device → device | 1-3 TB/s (HBM) |
 
-The lesson is arithmetic: copying 1 GB host→device costs ~40 ms pinned,
-~140 ms pageable, and the kernel that *uses* that 1 GB might run for 1 ms.
-**The transfer can be 100× more expensive than the computation.** This is why
-the entire discipline of *streaming* (Chapter 6) exists: overlap the transfers
-with computation instead of serialising them.
+The underlying model is simple: for \(N\) bytes and effective bandwidth
+\(B\), a transfer takes
+
+\[ T = \frac{N}{B} \]
+
+The table turns that arithmetic into practice: copying 1 GB host→device costs
+~40 ms pinned, ~140 ms pageable, and the kernel that *uses* that 1 GB might
+run for 1 ms. A transfer can cost 100× more than the computation it feeds,
+which is why *streaming* (Chapter 6) overlaps transfers with computation
+instead of serialising them.
 
 ## 4.4 Measuring Your Own Transfer Time
 
@@ -241,10 +244,9 @@ pipeline in full; the capstone (Chapter 15) uses it for images.
 
 ## Deeper Explanation: The Memory Kind Is Part of the Algorithm
 
-There is a temptation to treat memory allocation as plumbing: pick a
-function, call it, move on. The deeper truth is that every memory kind
-embodies a different *cost model*, and the cost model determines whether your
-program runs at memory speed or at latency speed.
+Memory allocation is not plumbing. Every memory kind embodies a different
+*cost model*, and the cost model determines whether your program runs at
+memory speed or at latency speed.
 
 Consider the physical path each memory kind uses. Pageable memory lives in
 ordinary OS pages that the kernel can swap or move at any time. The GPU's DMA
@@ -254,8 +256,8 @@ staging buffer first, then DMA's from there. That extra copy is not free: it
 adds latency and consumes host memory bandwidth. Pinned memory
 (`cudaMallocHost`) locks the physical pages in place, so the DMA engine can
 touch them directly. The difference is not a micro-optimisation; it is the
-difference between one transfer and two, and it is why streaming pipelines
-always pin their buffers.
+difference between one transfer and two, and it is why streaming pipelines use pinned
+buffers.
 
 Unified memory (`cudaMallocManaged`) takes a different approach: it presents
 one virtual address that both the CPU and the GPU can use, and the driver
@@ -277,11 +279,10 @@ bulk copy.
 
 The unifying principle is that data movement is not free, and different
 memory kinds move data at different times: eagerly (copy), on demand
-(unified memory), or on every access (zero-copy). Choosing the wrong kind for
-your access pattern is not a performance nit; it can change a kernel from
-bandwidth-bound to latency-bound. That is why the memory kind belongs in the
-same design conversation as the kernel's index arithmetic, not in a separate
-"setup" phase.
+(unified memory), or on every access (zero-copy). Choosing the wrong kind for your access pattern is not a performance nit;
+it can change a kernel from bandwidth-bound to latency-bound. The memory kind
+therefore belongs in the same design conversation as the kernel's index
+arithmetic, not in a separate "setup" phase.
 
 ## Common Pitfalls
 

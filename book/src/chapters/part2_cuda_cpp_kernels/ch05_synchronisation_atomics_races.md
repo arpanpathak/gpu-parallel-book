@@ -1,7 +1,5 @@
 # Chapter 5: Synchronisation, Atomics & Race Conditions
 
-> *"Parallelism is the ability to disagree about the order of events. Most bugs
-> are disagreements you did not intend."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch05_histogram/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch05_histogram) in the repository.
 
 Chapters 3 and 4 built kernels whose threads never communicated. Real kernels
@@ -29,6 +27,16 @@ Races in CUDA are worse than races on a CPU because of two multipliers:
 
 The tools of this chapter exist to *order* accesses. Every race fix is, at
 heart, the installation of an order.
+
+Formally, two accesses *conflict* when they touch the same location and at
+least one is a write. The CUDA memory model allows a program to produce a
+defined result only when the conflicting accesses are ordered by a
+*happens-before* edge: a barrier, an atomic operation, a fence, a stream
+order, or an explicit device-wide synchronisation. If no such edge exists,
+the hardware may execute the accesses in any order, and each execution may
+produce a different value. The race is not a probabilistic glitch; it is an
+absence of ordering in the model, which is why debuggers and sanitizers
+detect it by instrumenting the missing edges.
 
 ## 5.2 Warp Divergence: Control Flow in SIMT
 
@@ -69,8 +77,8 @@ possible.
 
 **The boundary guard is fine.** The `if (i < n)` guard in Chapter 3 diverges
 only in the *last* (partial) block of the grid - at most one warp per grid.
-The cost is one extra instruction path in one block. This is why the guard is
-free in practice: divergence at block boundaries is negligible.
+The cost is one extra instruction path in one block. The guard is effectively
+free: divergence at block boundaries is negligible.
 
 ## 5.3 `__syncthreads()`: The Block Barrier
 
@@ -137,7 +145,7 @@ synchronise cheaply (they might not even be resident at the same time).
 A grid-wide barrier exists (`cooperative groups`), but it requires a
 *cooperative launch* where every block is resident simultaneously, which caps
 grid size. For cross-block communication, use atomics (§5.5) or split the work
-into two kernel launches - the classic and honest solution.
+into two kernel launches - the classic and clear solution.
 
 ## 5.4 Visibility: Caches, `volatile`, and Fences
 
@@ -303,7 +311,7 @@ before the critical-section writes are visible. `__threadfence_block()` orders
 the block's shared-memory accesses so that a thread acquiring the lock next
 sees a consistent state.
 
-**The honest engineering note.** Locks in GPU kernels are almost always a
+**Engineering note.** Locks in GPU kernels are almost always a
 design smell: they serialise work on a machine built for parallelism. The
 patterns that *avoid* locks (privatisation, partitioning, lock-free atomics)
 are uniformly faster. This example exists so you understand what the
@@ -372,9 +380,9 @@ Why are GPU races so much worse than CPU races? Two reasons, both rooted in
 scale. First, a race can involve any two of millions of threads, so the
 interleaving that exposes it may occur once in a billion executions. Second,
 the GPU reports success while the corrupted value is stored; there is no
-exception, no crash, no signal - just a wrong answer that may be subtly wrong
-in a way that passes unit tests. This is why Compute Sanitizer's `racecheck`
-(Chapter 16) is not a luxury. It instruments memory accesses and detects
+exception, no crash, no signal - a wrong answer that may be subtly wrong
+in a way that passes unit tests. Compute Sanitizer's `racecheck`
+(Chapter 16) instruments memory accesses and detects
 unsynchronised read/write pairs directly, turning a timing-dependent mystery
 into a deterministic report.
 

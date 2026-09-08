@@ -1,6 +1,5 @@
 # Chapter 6: Streams, Events & Asynchronous Execution
 
-> *"The GPU is a pipeline. Streams are how you decide what goes in it when."*
 
 Chapter 3 noted that a kernel launch is asynchronous: the host does not wait.
 This chapter makes that asynchrony *useful*. The tools are **streams** (the
@@ -36,7 +35,7 @@ overlap, serially.
 > *different* streams is unordered and may overlap. A stream is created with
 > `cudaStreamCreate` and destroyed with `cudaStreamDestroy`.
 
-The key properties:
+Stream semantics:
 
 1. **Order within a stream is guaranteed.** Operations in stream A execute in
    the order issued, never reordered.
@@ -89,14 +88,13 @@ a synchronous staging copy, silently destroying the asynchrony.
 If you launch without naming a stream, you use the **legacy default stream**
 (stream 0). Its special property: **it synchronises with all other streams**.
 Any operation in the default stream waits for *all* previously issued work in
-*every* stream to complete, and blocks other streams from starting. One
-forgotten `<<<...>>>` without a stream argument serialises your entire
+*every* stream to complete, and blocks other streams from starting. A launch without a stream argument can serialise the whole
 pipeline.
 
 The fix is either the **per-thread default stream** (compile with
 `--default-stream per-thread`, giving each host thread its own non-blocking
-default stream) or the discipline of always naming your streams. Both are
-legitimate; the discipline is safer.
+default stream) or the habit of naming every stream explicitly. Both are
+legitimate; explicit naming is safer.
 
 ## 6.4 Events: Markers and Stopwatches
 
@@ -128,7 +126,7 @@ std::printf("kernel took %.3f ms\n", ms);
 recorded by the device when the stream passes them, so they exclude host-side
 launch overhead and queueing delay. `std::chrono` around a launch measures the
 host's wall clock, which includes whatever the host was doing. For kernel
-timing, events are the honest instrument (Chapter 16 uses them for every
+timing, events are the reliable instrument (Chapter 16 uses them for every
 benchmark).
 
 **Events also order work across streams.** `cudaStreamWaitEvent(stream, event)`
@@ -293,12 +291,11 @@ reality is more interesting and more useful. The GPU contains several
 independent execution engines: copy engines for host↔device transfers, SMs
 for kernels, and other specialised units. These engines can run concurrently
 as long as they are not fighting over the same data or the same resources. A
-stream is simply an ordered sequence of work for the device; work in the same
+stream is an ordered sequence of work for the device; work in the same
 stream is guaranteed to execute in order, while work in different streams is
 unordered and may overlap.
 
-The deep insight is that a multi-stream program is a dependency graph. Each
-operation is a node; each "must wait for" relationship is an edge. When you
+A multi-stream program is a dependency graph. Each operation is a node; each "must wait for" relationship is an edge. When you
 record an event in the copy stream and make the compute stream wait on it,
 you are adding an edge to the graph: the kernels depend on the copy. When you
 use the legacy default stream, you are implicitly adding edges between
@@ -312,15 +309,14 @@ hardware can run them at the same time. Events are what keep the graph
 correct without serialising it: the compute stream waits only for the
 specific event that marks its input's copy, not for all copies.
 
-The same graph view explains CUDA Graphs. A graph is just the dependency
-structure captured once and replayed many times. The replay eliminates the
+CUDA Graphs make the same dependency structure explicit. A graph is the
+dependency structure captured once and replayed many times. The replay eliminates the
 host-side cost of issuing each operation and each dependency individually,
 which is why graphs help when you have many small kernels with a fixed
 structure. The trade-off is that the graph captures addresses and parameters;
 if your buffers move or your launch parameters change, the graph must be
-updated or re-captured. The tool is powerful precisely because it matches the
-hardware's model: the GPU does not care about your host-side loop, it cares
-about the dependency graph.
+updated or re-captured. Graphs match the hardware's model: the GPU schedules by dependencies, not
+by the host-side loop that issued them.
 
 ## Common Pitfalls
 

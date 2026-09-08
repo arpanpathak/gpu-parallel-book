@@ -1,11 +1,10 @@
 # Chapter 11: The Library Ecosystem - Thrust, CUB & cuBLAS
 
-> *"The best kernel you will ever write is the one NVIDIA already shipped."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch11_library_examples/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch11_library_examples) in the repository.
 
-Chapters 3-10 taught you to write kernels. This chapter teaches you when *not*
-to. The CUDA ecosystem ships three libraries that implement, in battle-tested
-and hardware-tuned form, most of the algorithms of Chapters 8 and 9: **Thrust**
+Chapters 3-10 covered writing kernels. This chapter covers when *not* to. The
+CUDA ecosystem ships three libraries that implement, in production-proven and
+hardware-tuned form, most of the algorithms of Chapters 8 and 9: **Thrust**
 (high-level algorithms), **CUB** (block-level primitives), and **cuBLAS**
 (dense linear algebra). A professional GPU engineer uses them first and writes
 custom kernels only where the libraries cannot express the problem - and
@@ -224,7 +223,7 @@ When faced with a GPU problem, walk this list:
    *kernel*, but use CUB's block primitives inside it. Custom is not
    synonymous with from-scratch.
 4. **Is the custom kernel the hot path, measured?** → Only now hand-roll the
-   full optimisation (Chapter 9's journey).
+   full optimisation progression (Chapter 9).
 
 The failure mode this procedure prevents is the reverse: rewriting
 `thrust::sort` because "it might be faster", while the actual bottleneck sits
@@ -349,3 +348,12 @@ known range). Measure sort time and end-to-end time before and after.
    `cublasSgemm` return if you feed row-major A and B with `CUBLAS_OP_N`?
 4. Under what measurable condition would you replace a `thrust::sort` with a
    custom radix sort? List the two measurements you would take first.
+
+
+## Sources and Further Reading
+
+- NVIDIA, *CUDA C++ Programming Guide*, "Thrust" and library sections: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- NVIDIA, *Thrust Quick Start Guide*: <https://docs.nvidia.com/cuda/thrust/>
+- NVIDIA, *CUB documentation*: <https://nvidia.github.io/cccl/>
+- NVIDIA, *cuBLAS documentation*: <https://docs.nvidia.com/cuda/cublas/>
+- NVIDIA, *CUDA C++ Best Practices Guide*, "Use Optimized Libraries": <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>

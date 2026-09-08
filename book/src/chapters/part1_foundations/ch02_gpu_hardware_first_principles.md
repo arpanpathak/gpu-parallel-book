@@ -1,11 +1,12 @@
 # Chapter 2: GPU Hardware from First Principles
 
-> *"The programming model is a fiction that the hardware honours. To write fast
-> kernels you must know where the fiction ends."*
+> *"The purpose of abstraction is not to be vague, but to create a new semantic level in which one can be absolutely precise."*
+> — Edsger W. Dijkstra, "The Humble Programmer" (1972)
+
 
 CUDA's programming model presents a pleasant abstraction: a grid of blocks, a
 block of threads, a hierarchy of memories. The hardware underneath is messier,
-and the mess is exactly where performance lives. This chapter strips the
+and performance lives in the mess. This chapter strips the
 programming model away and describes the machine: the *streaming
 multiprocessor*, the *warp*, the *memory hierarchy*, and the rules of
 *coalescing* and *occupancy*. Every term defined here is used in every later
@@ -117,8 +118,8 @@ and its *own* data:
 
 ![Anatomy of a warp: one instruction fetched once, broadcast to 32 lanes, each with its own registers and data](../../assets/ch02_warp_anatomy.svg)
 
-That is the entire idea of a warp. The scheduler does not manage 32 threads
-as 32 separate things; it manages them as *one row of 32 seats*. When it
+The scheduler does not manage 32 threads as 32 separate things; it manages
+them as *one row of 32 seats*. When it
 issues an instruction, every occupied seat executes it simultaneously, on
 whatever that seat's thread happens to be holding.
 
@@ -146,8 +147,8 @@ an instruction for the warp; the instruction is fetched once and issued to all
 32 lanes at the same time. Each lane (thread) has its **own registers**, so
 each lane can hold different data - but all lanes execute the *same*
 instruction at the *same* time. This is SIMT (Chapter 1, §1.7), and the
-difference from a CPU is the whole game: a CPU runs one instruction stream per
-core; a GPU runs one instruction stream per *32 threads*.
+difference from a CPU: a CPU runs one instruction stream per core; a GPU runs
+one instruction stream per *32 threads*.
 
 **Consequence: divergence.** If two threads in a warp take different branches
 of an `if`, the hardware cannot execute both paths simultaneously. It executes
@@ -164,7 +165,7 @@ loads. How those 32 loads are serviced by the memory system is the subject of
 hardware creates 32 warps: 31 full warps (32 × 31 = 992 threads) plus one
 partial warp of 8 threads. The remaining 24 lanes of that last warp are
 disabled but still occupy scheduling slots - dead weight that costs occupancy
-(§2.9) without doing work. This is why real kernels are launched with block
+(§2.9) without doing work. Real kernels are launched with block
 sizes that are multiples of 32 (Chapter 3).
 
 ## 2.4 Blocks, Grids, and the Hardware's View
@@ -230,8 +231,8 @@ atomics, Chapter 5).
 
 **5. Global memory.** The GPU's DRAM (HBM3), the largest and slowest level.
 This is where `cudaMalloc` puts data (Chapter 4). Bandwidth is enormous
-(3.35 TB/s), latency is enormous (hundreds of cycles). The entire optimisation
-enterprise is, mostly, keeping global traffic low.
+(3.35 TB/s), latency is enormous (hundreds of cycles). Most optimisation work
+keeps global traffic low.
 
 **6. Constant and texture memory.** Two specialised read-only paths. Constant
 memory is a small (64 KB) cache that broadcasts a single value to all threads
@@ -266,7 +267,7 @@ beside the die on an interposer; host memory is across a bus and an OS
 boundary. Every step off the SM adds distance *and* arbitration - more
 circuits competing for the same wires. The 20× gap between shared memory and
 DRAM is not a tuning detail; it is the difference between an on-chip wire and
-an off-chip trip, and it is the entire reason the optimisation chapters exist.
+an off-chip trip, and it motivates the optimisation chapters.
 
 The lesson: **one global memory access costs roughly 30 shared-memory
 accesses.** Any algorithm that can restructure itself to reuse data in shared
@@ -277,7 +278,7 @@ accounting in detail.
 
 **What it is.** Coalescing is the difference between a GPU program that uses
 its memory system well and one that wastes most of the bandwidth it buys -
-and it is the most common reason a kernel is slower than it should be.
+and a leading reason kernels run below their available bandwidth.
 
 Start with what a warp is actually doing when it reads memory. A warp is 32
 threads executing the same instruction together, and when that instruction is
@@ -297,10 +298,8 @@ of useful data.
 
 That property - the degree to which a warp's accesses can be grouped into a
 few transactions - is **coalescing**. A warp whose accesses group well is
-*coalesced*; a warp whose accesses sprawl is *uncoalesced*. Everything else
-in this section is the machinery behind this one idea: memory transactions
-are expensive, and coalescing is how you make a warp buy as few of them as
-possible.
+*coalesced*; a warp whose accesses sprawl is *uncoalesced*. The rest of this section describes that machinery: memory transactions are
+expensive, and coalescing is how you make a warp buy as few of them as possible.
 
 > **Primitive - coalescing.** A warp load is serviced at sector granularity
 > (32 bytes; four sectors per 128-byte cache line). The load is *coalesced*
@@ -315,8 +314,8 @@ roughly the same per chunk whether the chunk is full or not: addressing a
 DRAM row, decoding the address, driving the bus - that setup cost is paid
 *per transaction*, not per byte.
 
-So the only number that matters for a warp load is: **how many sectors did
-these 32 lanes touch?**
+So the relevant number for a warp load is: **how many sectors did these 32
+lanes touch?**
 
 - Thirty-two lanes reading 32 consecutive `float`s touch exactly 128 bytes -
   one cache line, one trip. The whole warp is served at once.
@@ -329,25 +328,25 @@ company that only ships full pallets. A warp is 32 customers shopping
 together. If their 32 items are stacked on one pallet, the company makes one
 trip. If the items are scattered across 32 pallets in 32 different aisles, it
 makes 32 trips - and each trip costs the same whether the pallet is full or
-half-empty. Coalescing is simply *arranging the warehouse so that a warp's 32
+half-empty. Coalescing means *arranging the warehouse so that a warp's 32
 lanes always reach for the same pallet*. Nothing else, no magic: the hardware
 does not detect access patterns or rearrange anything - it only counts which
 sectors the warp touched, and bills accordingly.
 
-**Why coalescing matters.** Global memory bandwidth is the scarcest resource
+Global memory bandwidth is the scarcest resource
 on a memory-bound kernel (Chapter 1's roofline). Coalescing is the difference
 between using 100% of that bandwidth and using roughly 3% of it: with a
 stride of 32 floats between consecutive threads, every fetched byte is 31/32
 wasted, and bandwidth is a per-second budget that does not care how it was
 wasted.
 
-**The one-sentence takeaway.** The consequence of all this - not the cause,
+The consequence of all this - not the cause,
 the consequence - is the layout habit you will see everywhere in this book:
 *arrange your data so that consecutive threads touch consecutive addresses*.
 That is what the row-major matrix of Chapter 9 does, what the thread-to-pixel
 mapping of the capstone (Chapter 15) does, and what the padded shared-memory
-arrays of Chapter 7 do. Understand the sector, and that sentence stops being
-a rule you memorised and becomes a rule you could have derived.
+arrays of Chapter 7 do. Once you understand the sector, that layout habit follows from the
+hardware's charging model instead of from a memorised rule.
 
 ## 2.8 Shared Memory Banks
 
@@ -368,6 +367,13 @@ serialises them: that is a **bank conflict**, and it costs extra cycles.
 - Threads 0-31 reading the *same* word (a broadcast): hardware broadcasts,
   one access, no conflict.
 
+Formally: if a warp's shared-memory accesses hit bank \\(b\\) exactly
+\\(n_b\\) times, the hardware must issue \\(n_b\\) accesses to that bank, and
+the warp's access is served in \\(\max_b n_b\\) cycles. A conflict-free warp
+has \\(\max_b n_b = 1\\); the worst case is \\(\max_b n_b = 32\\), when all 32
+threads hit one bank. Bank conflicts therefore multiply shared-memory latency
+by a factor between 1 and 32 without moving a single byte.
+
 Bank conflicts are a shared-memory phenomenon (Chapter 7 shows the classic
 fix: padding). Global memory has no banks; it has lines and sectors.
 
@@ -377,7 +383,7 @@ fix: padding). Global memory has no banks; it has lines and sectors.
 > number of warps the SM can hold. An SM with 64 warp slots at 100% occupancy
 > has 64 warps resident.
 
-Why does occupancy matter? **Latency hiding** (Chapter 1, §1.1). When a warp
+**Latency hiding** (Chapter 1, §1.1). When a warp
 stalls on a global load (~500 cycles), the scheduler switches to another
 resident warp. If occupancy is high, there is always another warp to switch
 to. If it is low, the SM idles.
@@ -395,6 +401,26 @@ The limits on occupancy are the SM's finite resources:
 The occupancy of a given launch configuration is the *minimum* over all these
 limits. The famous **occupancy calculator** spreadsheet (and `cudaOccupancyMaxActiveBlocksPerMultiprocessor`, Chapter 16) computes it for you.
 
+Writing the arithmetic explicitly makes the resource trade visible. Let
+\\(R_{SM}\\) be registers per SM, \\(T_{SM}\\) the hardware thread limit per SM,
+\\(B_{SM}\\) the block limit per SM, \\(S_{SM}\\) shared memory per SM, and let
+a block use \\(T_B\\) threads, \\(R_T\\) registers per thread, and \\(S_B\\)
+bytes of shared memory. The number of blocks that fit is:
+
+\[ B_{\max} = \min\left(
+\left\lfloor \frac{R_{SM}}{T_B \cdot R_T} \right\rfloor,\;
+\left\lfloor \frac{T_{SM}}{T_B} \right\rfloor,\;
+B_{SM},\;
+\left\lfloor \frac{S_{SM}}{S_B} \right\rfloor\ \text{if } S_B > 0
+\right) \]
+
+The number of resident threads is \\(B_{\max} \cdot T_B\\), and occupancy is:
+
+\[ \text{occupancy} = \frac{B_{\max} \cdot T_B}{T_{SM}} \]
+
+The four terms are not alternatives; all four budgets are consumed
+simultaneously, so the minimum is the binding one.
+
 **A worked occupancy calculation.** Suppose the SM limits are the ones used
 throughout this chapter (64 K registers, 2,048 threads per SM, 32 blocks per
 SM, 228 KB shared memory), and the kernel is launched with blocks of 256
@@ -411,8 +437,8 @@ The minimum is **8 blocks**, i.e., 64 warps resident - and since the SM holds
 at most 64 warps, this is 100% occupancy. Now repeat the register column with
 a register-heavy kernel using 64 registers per thread: 64 K / (256 × 64) = 4
 blocks - occupancy drops to 50%. The same kernel with 128 registers per
-thread: 2 blocks, 25% occupancy. This is why Chapter 9's `__launch_bounds__`
-matters: *register count is an occupancy dial.*
+thread: 2 blocks, 25% occupancy. Chapter 9's `__launch_bounds__` controls this trade: *register count is
+an occupancy dial.*
 
 ![Occupancy as warp slots: 8, 4 and 2 resident blocks of 8 warps each](../../assets/ch02_occupancy.svg)
 
@@ -421,7 +447,7 @@ is one warp slot, each row is one block's eight warps, and the dim cells are
 slots the scheduler *could* have switched to but cannot - the register file
 ran out. The difference between 100% and 25% occupancy is the difference
 between always having a ready warp when one stalls and frequently having
-none. That is why §2.10's time-slicing only works when occupancy is high.
+none. Time slicing in §2.10 works only when there are enough resident warps.
 
 **The trade.** High occupancy is not always good. A kernel that uses shared
 memory heavily may want fewer blocks to fit more shared memory per block. A
@@ -438,15 +464,28 @@ per SM. The SM hosts 8 blocks = 64 warps = 100% occupancy.
 
 At any instant, each of the four warp schedulers owns 16 warps. The scheduler
 issues an instruction from one of its warps each clock. When warp 3 issues a
-global load, it will not be ready for ~500 cycles; the scheduler simply issues
+global load, it will not be ready for ~500 cycles; the scheduler issues
 from warps 4, 5, ... meanwhile - the orange-to-blue handoff in the diagram
 above. When warp 3's load returns, the scheduler resumes issuing for it.
 
-The elegance is that **no one explicitly scheduled anything**. The hardware
-rotates among resident warps automatically. Your job as a programmer is to give
-the hardware enough warps (occupancy) and enough independent work per warp
+No thread or driver explicitly schedules the rotation. The hardware rotates
+among resident warps automatically. The programmer provides enough warps
+(occupancy) and enough independent work per warp
 (instruction-level parallelism and coalesced accesses) to keep the rotation
 from ever stalling.
+
+A useful first-order rule makes this concrete. Suppose a warp issues a global
+load and then has nothing else ready for \\(L\\) cycles. If a scheduler can
+issue at most one instruction per cycle, the scheduler needs at least \\(L\\)
+other ready warps to keep the execution units busy for the whole wait. With
+\\(L \\approx 500\\) cycles, that naive estimate would require 500 warps per
+scheduler - far more than the hardware can host. The reason the model still
+works is that real warps do not stall on every instruction, and the hardware
+pipelining of memory operations allows several loads to be outstanding at
+once. The first-order rule is therefore not a literal requirement; it is the
+reason occupancy matters at all. Every resident warp is a potential source of
+ready instructions while another warp waits, and the scheduler chooses among
+the ready ones each clock.
 
 ## 2.11 Architecture Generations: A Caution
 
@@ -473,13 +512,13 @@ only issue an instruction from a warp that is *ready*: its operands must be
 available, its previous instructions must have completed, and it must not be
 waiting on a barrier. When a warp issues a global load, that load takes
 hundreds of cycles. During those cycles, the warp is not ready. If the SM has
-many other warps, the scheduler simply issues instructions from them, and the
+many other warps, the scheduler issues instructions from them, and the
 waiting warp's latency is hidden. If the SM has few warps, the scheduler runs
 out of ready work and the execution units go idle. In this sense, occupancy
 is not a score; it is the *size of the pool of ready-to-run work* available to
 hide stalls.
 
-This explains why high occupancy is not always the right goal. A memory-bound
+High occupancy is not always the right goal. A memory-bound
 kernel with long-latency global loads benefits from a large pool of warps,
 because the pool gives the scheduler alternatives while any one warp waits. A
 compute-bound kernel whose data lives in registers rarely stalls, so a smaller
@@ -559,3 +598,10 @@ bytes useful, 32× the traffic.
    read every 32nd `int`?
 4. Why must all threads of a *block* be resident on the *same* SM? What shared
    primitive does this enable that would be impossible otherwise?
+
+
+## Sources and Further Reading
+
+- NVIDIA, *CUDA C++ Programming Guide*, "Hardware Implementation" and "Compute Capabilities": <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- NVIDIA, *H100 Tensor Core GPU Architecture* whitepaper and product page, for the generation-specific numbers quoted in this chapter.
+- David B. Kirk and Wen-mei W. Hwu, *Programming Massively Parallel Processors: A Hands-on Approach*, 3rd/4th ed., Morgan Kaufmann. Chapter-level treatment of GPU compute architecture, warp scheduling, memory coalescing, and occupancy.

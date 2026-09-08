@@ -1,7 +1,5 @@
 # Appendix C - Recommended Reading & Tools
 
-> *"A book is a beginning, not a destination. Here is where the road
-> continues."*
 
 ## C.1 Books
 

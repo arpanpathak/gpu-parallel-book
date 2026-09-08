@@ -1,13 +1,11 @@
 # Chapter 13: Rust Meets the GPU
 
-> *"Rust does not make the GPU safer. It makes the *host* safer, which is where
-> the crashes were."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch13_rust_vector_add/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch13_rust_vector_add) in the repository.
 
 This part of the book changes language but not hardware. The GPU is still the
 machine of Chapter 2; the kernels of Chapters 3-12 still run on it. What
 changes is the *host*: instead of C++ calling `cudaMalloc` and launching
-kernels, we use Rust. This chapter covers why that matters, the ecosystem
+kernels, we use Rust. This chapter covers the consequences: the ecosystem
 (`rustacuda` and `cudarc`), and a complete Rust host program that allocates
 device memory, moves data, and launches a CUDA kernel - with the safety
 properties Rust brings to each step.
@@ -29,8 +27,9 @@ system attacks exactly these:
   CudaError>`; ignoring an error is a compile-time warning (the `must_use`
   attribute), not a silent misbehaviour.
 
-The cost is what Rust always costs: the borrow checker sometimes fights you,
-and the FFI boundary (where unsafe lives) must be drawn honestly. This chapter
+The cost is the one Rust charges everywhere: the borrow checker rejects code
+it cannot prove safe, and the FFI boundary (where unsafe lives) must be drawn
+precisely. This chapter
 is about drawing that boundary well.
 
 ## 13.2 The Ecosystem: `rustacuda` and `cudarc`
@@ -173,7 +172,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 **What is *not* solved.** The kernel itself is still C++ and still
 unsafe-by-construction: an out-of-bounds write inside `vector_add` corrupts
-whatever it corrupts, and Rust cannot see it. This is the honest boundary:
+whatever it corrupts, and Rust cannot see it. This is the real boundary:
 Rust secures the host, not the device. CUDA-Oxide (Chapter 14) attacks the
 device side.
 
@@ -208,7 +207,7 @@ capstone uses.
 
 The table is the pitch: every column on the left was a class of bug; every
 entry on the right removes a class. The price - the `unsafe` block and its
-SAFETY comment - is honest and small.
+SAFETY comment - is explicit and small.
 
 ## 13.7 Lifetimes in Action: What the Borrow Checker Prevents
 
@@ -239,14 +238,14 @@ time:
 Each rejected program is a bug class that, in the C++ chapters, required a
 runtime tool (Compute Sanitizer, Chapter 16) or a discipline (the `CHECK`
 macro, Chapter 3) to catch. Rust moves the detection to the compiler, which
-runs earlier and cannot be forgotten. This is the honest summary of the
+runs earlier and cannot be forgotten. This is the clear summary of the
 chapter: *the borrow checker is the CHECK macro, promoted to a compile-time
 guarantee.*
 
-## Deeper Explanation: The Unsafe Boundary Is the Honest Contract
+## Deeper Explanation: The Unsafe Boundary Is the Explicit Contract
 
-The most important design decision in Chapter 13 is not simply "Rust is safer
-than C++." It is *where the unsafe boundary is drawn*. Rust's safety
+The design decision in Chapter 13 is *where the unsafe boundary is drawn*, not
+merely that Rust is safer than C++. Rust's safety
 guarantees are real, but they only apply to code written within the rules of
 ownership and borrowing. A CUDA kernel launch sits exactly at the edge of
 those rules: the host cannot see inside the kernel, so it cannot prove that
@@ -278,8 +277,8 @@ seam instead of a program-wide discipline.
 The philosophical point is that safety is not a property of a language; it is
 a property of the boundary between what a system can prove and what it must
 trust. Rust shrinks the trusted part to the launch and then forces you to
-write down what you are trusting. That is why the borrow checker is sometimes
-described as "the CHECK macro promoted to a compile-time guarantee": the
+write down what you are trusting. The borrow checker is often described as "the CHECK macro promoted to a
+compile-time guarantee": the
 discipline that Chapter 3 demanded by convention is now a property of the
 language, and the only remaining convention - the kernel's internal
 correctness - is isolated and named.
@@ -328,7 +327,7 @@ experimentation but fragile in production.
 - Rust secures the host: ownership kills leaks and double-frees, the borrow checker kills data races, Result kills ignored errors.
 - cudarc gives RAII device memory (CudaSlice), typed copies, and module loading from PTX.
 - extern "C" keeps kernel symbols unmangled so the driver can find them by name.
-- The unsafe launch is honest: the SAFETY comment states the kernel-side obligations the type system cannot check.
+- The unsafe launch is explicit: the SAFETY comment states the kernel-side obligations the type system cannot check.
 - include_str! embeds PTX in the binary, removing the filesystem dependency.
 
 ## 13.8 Exercises
@@ -341,3 +340,11 @@ experimentation but fragile in production.
    launch tuple, and what does the borrow checker prevent?
 4. Compare `include_str!` with a runtime filesystem read. When is the
    filesystem version the right choice?
+
+
+## Sources and Further Reading
+
+- NVIDIA, *CUDA C++ Programming Guide*: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- The Rust Book, "Ownership" and "Unsafe Rust": <https://doc.rust-lang.org/book/>
+- `rustacuda` crate documentation: <https://docs.rs/rustacuda/>
+- `cudarc` crate documentation: <https://docs.rs/cudarc/>

@@ -1,17 +1,13 @@
 # Chapter 17: GPU Systems Programming & Memory-Mapped I/O
 
-> *"A GPU is not a magic device. It is a PCIe peripheral with a very good
-> DMA engine and an even better number cruncher."*
 
 Everything in Chapters 3-16 treated the GPU as a black box with a friendly
 API: `cudaMalloc`, `cudaMemcpy`, `kernel<<<...>>>`. This chapter opens the
 box from the **systems** side. You will learn what actually happens on the
 wire when the CPU tells the GPU to do something, why device memory is not
 host memory, how data moves without the CPU, and what the words *memory-mapped
-I/O*, *BAR*, *DMA* and *IOMMU* mean in the context of a GPU. None of this is
-required to write correct CUDA, but it is required to **understand** CUDA - and
-it is exactly the material that separates someone who can copy-paste kernels
-from someone who can explain why a kernel is slow.
+I/O*, *BAR*, *DMA* and *IOMMU* mean in the context of a GPU. None of this is required to write correct CUDA, but it is required to
+explain why a kernel is slow instead of copying kernels and hoping.
 
 ## 17.1 The GPU Is a PCIe Device
 
@@ -281,9 +277,8 @@ Every CUDA API maps onto the systems concepts above:
 | `cudaMallocManaged` | Uses the CPU page fault / migration machinery (plus IOMMU and/or BAR mapping) to present one virtual address space |
 | `cudaDeviceEnablePeerAccess` | Programs the GPU's P2P DMA path (Chapter 18) |
 
-The deep lesson: **CUDA is a systems API disguised as a math API.** Every
-call you make is a transaction with a driver, a DMA engine, and a memory
-map. When performance surprises you, the answer is almost always in this
+CUDA is a systems API disguised as a math API. Every call you make is a
+transaction with a driver, a DMA engine, and a memory map. When performance surprises you, the answer is almost always in this
 chapter's model: MMIO for control, DMA for data, IOMMU for safety, pinning
 for speed.
 
@@ -370,3 +365,10 @@ explicitly mapped for it.
 4. Why is it a bad idea to expose device memory as a plain CPU-mapped BAR and
    let applications dereference device pointers directly? Give two reasons
    from this chapter.
+
+
+## Sources and Further Reading
+
+- NVIDIA, *CUDA C++ Programming Guide*, "Hardware Implementation" and "Compute Capabilities": <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- PCI-SIG, *PCI Express Base Specification* and `lspci`/`pciutils` documentation for device enumeration.
+- Linux kernel documentation, "DMA-API" and "IOMMU" sections: <https://www.kernel.org/doc/html/latest/core-api/dma-api.html>

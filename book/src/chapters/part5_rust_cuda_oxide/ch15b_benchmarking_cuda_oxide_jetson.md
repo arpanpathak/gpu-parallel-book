@@ -1,6 +1,5 @@
 # Chapter 15b: Benchmarking CUDA-Oxide on Jetson Orin
 
-> *"The GPU does not win because it has more cores. It wins when data is reused and the CPU is the bottleneck."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`arpanpathak/cuda-oxide-demo`](https://github.com/arpanpathak/cuda-oxide-demo). The article version is [`CUDA_RUST_JETSON_BENCHMARKS.md`](https://github.com/arpanpathak/cuda-oxide-demo/blob/main/CUDA_RUST_JETSON_BENCHMARKS.md).
 
 Chapter 14 showed how CUDA-Oxide compiles idiomatic Rust kernels to PTX.
@@ -34,7 +33,7 @@ system.
 
 ![CPU vs GPU speedup on Jetson Orin](../../assets/ch15b_speedup_bars.svg)
 
-The chart tells the real story:
+The chart shows:
 
 - SAXPY: 1.8x GPU speedup.
 - Dot product: roughly parity (0.7x to 1.8x across runs).
@@ -125,7 +124,7 @@ Each iteration replaces every interior cell with the average of its four
 neighbours. The top boundary is fixed at 100, the other edges at 0, and the
 iteration spreads the boundary information inward.
 
-## 15b.3 Why the Laplace equation matters
+## 15b.3 Where the Laplace Equation Appears
 
 The Laplace equation `∇²u = 0` describes equilibrium in physics:
 
@@ -209,3 +208,9 @@ cargo oxide build -- --release --bin 06_benchmark --bin 07_laplace_jacobi
 
 Reports are written to `benchmarks/benchmark_results.{md,csv}` and
 `benchmarks/jacobi_results.{md,csv}`.
+
+
+## Sources and Further Reading
+
+- NVIDIA, *Jetson Orin Developer Guide*: <https://developer.nvidia.com/embedded/learn/jetson-orin>
+- CUDA-Oxide demo repository used in this chapter: <https://github.com/arpanpathak/cuda-oxide-demo>

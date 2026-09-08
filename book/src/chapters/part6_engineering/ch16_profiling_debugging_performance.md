@@ -1,13 +1,14 @@
 # Chapter 16: Profiling, Debugging & Performance Engineering
 
-> *"A performance bug and a correctness bug are the same bug: your model of
-> the machine is wrong. The tools in this chapter find the model."*
+> *"We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil."*
+> — Donald E. Knuth, "Structured Programming with go to Statements" (1974)
+
 
 Every chapter so far has claimed "this is faster because...". This chapter is
 about *proving* it. We cover the four instruments of GPU engineering  - 
 **Nsight Systems** and **Nsight Compute** (profilers), **Compute Sanitizer**
 (debugger), and **the benchmarking discipline** - plus the verification
-techniques (differential and property testing) that keep optimisations honest.
+techniques (differential and property testing) that keep optimisations grounded.
 By the end you can take any kernel from this book and answer two questions
 reproducibly: *is it correct?* and *is it fast?*
 
@@ -108,14 +109,14 @@ compute-sanitizer --tool initcheck ./pipeline
 compute-sanitizer --tool synccheck ./pipeline
 ```
 
-**Why these tools matter more on GPUs than on CPUs.** A CPU out-of-bounds
+A CPU out-of-bounds
 write usually crashes at the instruction; a GPU out-of-bounds write corrupts
 *adjacent memory in the same allocation* - the kernel "succeeds", and the
 corruption surfaces as a wrong image three stages later. `memcheck` finds the
 write at the moment it happens, with the thread and instruction identified.
 
-The relationship to this book: **every race, bank conflict, and divergence
-you learned to reason about in Chapters 5 and 7 has a detector.** Run the
+Every race, bank conflict, and divergence
+you learned to reason about in Chapters 5 and 7 has a detector. Run the
 detector before you trust your reasoning.
 
 ## 16.5 cuda-gdb: The Kernel Debugger
@@ -266,8 +267,8 @@ The same mindset applies to Compute Sanitizer. A clean `memcheck` or
 `racecheck` run is valuable, but it is not proof of correctness; it is
 evidence that one specific class of bug was not detected on the inputs you
 ran. Races are timing-dependent, and memory errors depend on the exact
-addresses touched. That is why Chapter 16 pairs the tools with differential
-testing and property testing: the tools find classes of bugs, the tests verify
+addresses touched. Chapter 16 therefore pairs the tools with differential testing and
+property testing: the tools find classes of bugs, the tests verify
 behaviour, and the two together are what make an optimisation trustworthy.
 
 The engineering loop - measure, profile, hypothesise, change one thing,
@@ -337,3 +338,11 @@ your test cases.
 4. Your colleague optimises a kernel and reports a 30% speedup measured with
    `std::chrono` around a single launch. List the three things wrong with
    that measurement.
+
+
+## Sources and Further Reading
+
+- NVIDIA, *Nsight Systems User Guide*: <https://docs.nvidia.com/nsight-systems/>
+- NVIDIA, *Nsight Compute User Guide*: <https://docs.nvidia.com/nsight-compute/>
+- NVIDIA, *Compute Sanitizer User Guide*: <https://docs.nvidia.com/compute-sanitizer/>
+- NVIDIA, *CUDA C++ Best Practices Guide*, "Profiling" section: <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>

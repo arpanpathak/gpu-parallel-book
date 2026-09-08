@@ -4,15 +4,13 @@ Computing is entering its parallel age, and the GPU is the machine that defines 
 
 For sixty years, the default path to a faster program was a faster serial processor: a higher clock, a smarter pipeline, a larger cache. That path ran into a wall in the mid-2000s, when clock speeds stopped climbing and silicon stopped cooperating. The industry's answer was not surrender but a change of question - from "how fast can one core go?" to "how many cores can we set free at once?" The GPU is that answer, multiplied a hundred thousand times. A modern accelerator executes tens of trillions of floating-point operations per second, moves memory at terabytes per second, and keeps more threads in flight than there are people on Earth - all directed by code that you, an individual programmer, can write and understand completely.
 
-That last fact is the miracle of the age. The most powerful machine most of us will ever touch is not locked behind corporate walls. Its instruction set is documented. Its programming model is teachable. Its performance is explained by a handful of principles - the warp, the memory hierarchy, the roofline model - that fit on a single page and govern every GPU ever built. Few subjects in computer science offer this much power per hour of study. This book is an invitation to claim it.
+The instruction set is documented, the programming model is teachable, and the performance is explained by a handful of principles - the warp, the memory hierarchy, the roofline model - that fit on a single page and govern every GPU ever built. Few subjects in computer science offer this much return per hour of study.
 
-## Why This Book Exists
+## The Hardware Gap
 
-Modern software engineering has developed a strange relationship with the GPU. We treat it as a magic box: a library call here, a framework call there, and suddenly our training loop is twenty times faster. The library does the hard part, we tell ourselves, and we never look inside. And that is true - until it is not.
+A CUDA library call can hide the hardware behind it. A matrix multiply runs at 3% of peak when threads in a warp read columns instead of rows. A reduction can silently drop half of its data when threads diverge across a `__syncthreads()`. A host allocation that is pageable instead of pinned doubles transfer latency. None of these failures print an error. They produce a slow benchmark or a subtly wrong result.
 
-The abstraction leaks at the worst possible moments. Your matrix multiplication runs at 3% of peak because the threads in a warp read columns instead of rows. Your reduction silently drops half of the data because threads in the same warp diverged across a `__syncthreads()`. Your latency doubles because the memory allocation was pageable instead of pinned. None of these failures produce an error message. They produce a benchmark that is embarrassingly slow, or a result that is subtly, catastrophically wrong.
-
-This book builds the bridge between "the library works" and "I understand why it works". The bridge has three lanes: the **hardware** model, the **CUDA C++** programming model, and the modern ecosystem of **C++ idioms, Rust and CUDA-Oxide** that now surrounds the GPU. Cross it, and the magic box becomes a machine you can reason about - and reason about it is how you make it fast.
+This book covers the hardware model, the CUDA C++ programming model, and the C++ and Rust ecosystem around them, so those failures are diagnosable instead of mysterious.
 
 ## What You Will Build
 
@@ -22,7 +20,7 @@ Every chapter builds toward one project: **a complete GPU image-processing pipel
 2. with the **Thrust/CUB/cuBLAS** library ecosystem;
 3. in **pure Rust** with NVIDIA's experimental **CUDA-Oxide** compiler, which turns idiomatic Rust into PTX.
 
-You will not build a toy. You will build the same pipeline a camera vendor would ship, complete with pinned-memory transfers, streamed double buffering, an occupancy-tuned kernel configuration, and reproducible benchmarks. When you have finished, you will be able to look at any CUDA kernel - including the ones inside the libraries you already use - and explain, line by line, what it does and why it is fast.
+You will build the same kind of pipeline a camera vendor would ship: pinned-memory transfers, streamed double buffering, an occupancy-tuned kernel configuration, and reproducible benchmarks. When you have finished, you will be able to look at any CUDA kernel - including the ones inside the libraries you already use - and explain, line by line, what it does and why it is fast.
 
 ## Who This Book Is For
 
@@ -83,10 +81,12 @@ This project has a constitution. You will find it as `CODING_STANDARDS.md` in th
 
 The examples in this book target the CUDA 12.x toolkit and are written against the compute capability of modern NVIDIA GPUs (Ada and Hopper architectures, compute capability 8.x and 9.0). You do not need to own this hardware: the section "You Do Not Need to Own a GPU" lists the cloud options, and the free tiers alone are enough for everything in this book. Where a feature is architecture-specific, the book says so explicitly.
 
-This book is also honest about the tooling. NVIDIA's CUDA-Oxide is an experimental, alpha-stage compiler; its API is evolving and its syntax may change. The chapters that cover it describe the project as it exists today, with code written in the style of its documented examples. Treat those chapters as a map of the territory, not a surveyor's certificate.
+This book is also direct about the tooling. NVIDIA's CUDA-Oxide is an experimental, alpha-stage compiler; its API is evolving and its syntax may change. The chapters that cover it describe the project as it exists today, with code written in the style of its documented examples. Treat those chapters as a map of the territory, not a surveyor's certificate.
 
 If you find a bug in the book - in the prose or in the code - open an issue or submit a pull request. This is a living document. The GPU does not stop changing, and neither should the book.
 
-You are one chapter away from understanding the most important machine of our time. Let us build something fast, and understand it.
+Chapter 1 starts from the mathematics and builds the programming model from
+the hardware up. No GPU knowledge is assumed; the requirements are the C++ or
+Rust listed above and a machine that can run CUDA 12.x examples.
 
 - *Arpan Pathak*

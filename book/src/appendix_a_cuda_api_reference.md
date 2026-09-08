@@ -1,7 +1,5 @@
 # Appendix A - CUDA API Reference
 
-> *"Every primitive of the CUDA programming model, gathered in one place. When
-> a chapter says 'the primitive', this is the definition it means."*
 
 This appendix is the book's vocabulary list: every type, built-in variable,
 function and flag used in the main text, with its meaning and where it is

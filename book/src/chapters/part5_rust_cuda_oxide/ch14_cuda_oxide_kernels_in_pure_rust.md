@@ -1,7 +1,5 @@
 # Chapter 14: CUDA-Oxide - Kernels in Pure Rust
 
-> *"The kernel was the last thing keeping C++ in your program. CUDA-Oxide
-> removes even that."*
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch14_cuda_oxide/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch14_cuda_oxide) in the repository.
 
 Chapter 13 secured the host with Rust, but the kernel itself remained C++  - 
@@ -10,7 +8,7 @@ NVIDIA Labs' answer to the remaining gap: an experimental `rustc` codegen
 backend that compiles *idiomatic Rust kernels* directly to PTX. No DSL, no
 foreign-language binding, no `nvcc` - one language, one toolchain, host and
 device in the same file. This chapter describes the project as it exists
-today, with its documented example code, its pipeline, and an honest account
+today, with its documented example code, its pipeline, and an accurate account
 of what is experimental.
 
 ## 14.1 What CUDA-Oxide Is
@@ -37,7 +35,7 @@ Its design goals, from the project documentation:
 The word to notice is *"safe(ish)"*: the project's own description. CUDA-Oxide
 keeps Rust's type system and ownership on the device, but SIMT programming
 involves operations (raw launch configuration, memory ordering) that cannot
-yet be fully proven safe. The safety story is honest about this, and so is
+yet be fully proven safe. The safety story is explicit about this, and so is
 this chapter.
 
 ## 14.2 The Compilation Pipeline
@@ -47,7 +45,7 @@ representations rustc uses, replacing only the codegen:
 
 ![CUDA-Oxide compilation pipeline: Rust to MIR to Pliron to LLVM IR to PTX](../../assets/ch14_rust_to_ptx.svg)
 
-**Why this pipeline matters.** Because the *front end* is real rustc, you get
+Because the *front end* is real rustc, you get
 the real guarantees - ownership, borrowing, pattern matching, traits - before
 any GPU code is generated. A kernel that violates the borrow checker never
 becomes PTX. The experimental part is the *back end*: Pliron is a young
@@ -271,7 +269,7 @@ reason this chapter says "map", not "contract".
 | CUDA-Oxide (this chapter) | Rust | Type-checked, `safe(ish)` | Alpha, Linux, nightly |
 | `cudarc` nvrtc JIT | C++ string | Host only | Production |
 
-The honest conclusion: **CUDA-Oxide is not yet a production tool for most
+The clear conclusion: **CUDA-Oxide is not yet a production tool for most
 teams.** It is an *architecture preview* - the demonstration that Rust can
 reach the GPU without sacrificing its guarantees, and the first draft of the
 safety story SIMT programming needs. The value of learning it now is
@@ -312,13 +310,12 @@ obligation can become a checked precondition: a kernel declares its contract
 (domain, block size, resource usage), and the generated launch path validates
 the configuration against it.
 
-The deeper lesson is architectural rather than syntactic. A system is safest
-not when it has the most runtime checks, but when invalid programs cannot be
-written. CUDA-Oxide is an early, incomplete version of that idea: it moves
+The architectural point follows: a system is safest when invalid programs
+cannot be written, not when it has the most runtime checks. CUDA-Oxide is an early, incomplete version of that idea: it moves
 some conventions into types, leaves others as documented unsafe obligations,
-and is honest about the difference. That honesty is itself a lesson. The
-future of GPU programming is not "write whatever and hope the debugger finds
-it"; it is "make the compiler reject what cannot be correct."
+and is explicit about the difference. The future of GPU programming is to
+make the compiler reject what cannot be correct, rather than writing code and
+hoping the debugger finds the mistakes.
 
 ## Common Pitfalls
 
@@ -380,3 +377,10 @@ unsafe obligation becomes a checked precondition instead of a manual comment.
 4. Using the pipeline diagram in §14.2, explain which phases run on the
    *host* toolchain and which produce device code. Why is the borrow check
    upstream of any PTX generation?
+
+
+## Sources and Further Reading
+
+- NVIDIA Labs, CUDA-Oxide repository: <https://github.com/NVlabs/cuda-oxide>
+- NVIDIA, *CUDA C++ Programming Guide*, "Compute Capabilities" for PTX/SASS details: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- Rust Reference, "Inline assembly" and "Unsafe" sections: <https://doc.rust-lang.org/reference/>
