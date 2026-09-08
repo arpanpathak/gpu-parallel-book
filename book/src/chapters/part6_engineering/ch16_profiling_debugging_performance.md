@@ -108,7 +108,7 @@ compute-sanitizer --tool initcheck ./pipeline
 compute-sanitizer --tool synccheck ./pipeline
 ```
 
-**GPU debugging starts at the fault.** A CPU out-of-bounds
+**Why these tools matter more on GPUs than on CPUs.** A CPU out-of-bounds
 write usually crashes at the instruction; a GPU out-of-bounds write corrupts
 *adjacent memory in the same allocation* - the kernel "succeeds", and the
 corruption surfaces as a wrong image three stages later. `memcheck` finds the

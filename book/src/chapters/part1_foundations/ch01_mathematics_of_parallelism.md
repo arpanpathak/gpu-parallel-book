@@ -66,12 +66,11 @@ potential is being wasted. Efficiency is the honest measure; speedup is the
 flattering one. A vendor will report "10x speedup on 64 cores" and omit that
 the efficiency is 0.156.
 
-**Efficiency has direct consequences on a GPU.** A GPU may have tens of
-thousands of threads in flight. If the achievable efficiency is 20%, five times
-more hardware is being purchased than the workload actually uses. Almost every
-optimisation in this book is, at heart, an attempt to raise efficiency - by
-keeping threads busy, by keeping memory transactions full, and by removing
-serialisation points.
+**Why efficiency matters on a GPU.** A GPU may have tens of thousands of
+threads in flight. If the achievable efficiency is 20%, you are paying for
+five times more hardware than you are using. Almost every optimisation in this
+book is, at heart, an attempt to raise efficiency - by keeping threads busy,
+by keeping memory transactions full, and by removing serialisation points.
 
 ## 1.3 Amdahl's Law
 
@@ -134,7 +133,7 @@ The two laws answer different questions:
 - **Gustafson:** "How much *larger* a workload can I run in the same time with
   more units?"
 
-**Which law applies to GPU work.** When you increase the image resolution
+**Why both matter for GPU programming.** When you increase the image resolution
 or the matrix dimension, you are doing Gustafson scaling: the workload grows,
 and the GPU's parallel fraction grows with it. When you optimise a fixed-size
 kernel, you are fighting Amdahl's law. Knowing which regime you are in tells
@@ -386,7 +385,7 @@ test: pick a resource, double its capacity, re-measure, and repeat:
 | Disk / network / PCIe rate | ✓ | I/O-bound |
 | All three | ✗ | Serial-bound (Amdahl, §1.3) |
 
-**Identifying the wall before optimising.** Every optimisation in
+**Why this matters before you write a single kernel.** Every optimisation in
 this book is a bet that you know which resource is the wall. Coalescing
 (§2.7) is a bet that the kernel is memory-bound. Register tiling (Chapter 9)
 is a bet that it is compute-bound. Streams and asynchronous transfers

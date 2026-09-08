@@ -79,14 +79,14 @@ This project has a constitution. You will find it as `CODING_STANDARDS.md` in th
 - Every CUDA API call that can fail is checked.
 - Every `__syncthreads()` and every atomic carries a comment stating which data it protects and why.
 
-## A Note on Hardware and Tooling Status
+## A Note on Hardware and Honesty
 
 The examples in this book target the CUDA 12.x toolkit and are written against the compute capability of modern NVIDIA GPUs (Ada and Hopper architectures, compute capability 8.x and 9.0). You do not need to own this hardware: the section "You Do Not Need to Own a GPU" lists the cloud options, and the free tiers alone are enough for everything in this book. Where a feature is architecture-specific, the book says so explicitly.
 
-The book is equally direct about the tooling. NVIDIA's CUDA-Oxide is an experimental, alpha-stage compiler; its API is evolving and its syntax may change. The chapters that cover it describe the project as it exists today, with code written in the style of its documented examples. Treat those chapters as a map of the territory, not a surveyor's certificate.
+This book is also honest about the tooling. NVIDIA's CUDA-Oxide is an experimental, alpha-stage compiler; its API is evolving and its syntax may change. The chapters that cover it describe the project as it exists today, with code written in the style of its documented examples. Treat those chapters as a map of the territory, not a surveyor's certificate.
 
 If you find a bug in the book - in the prose or in the code - open an issue or submit a pull request. This is a living document. The GPU does not stop changing, and neither should the book.
 
-The next chapter begins with the machine itself; every later chapter builds on that foundation. Let us begin.
+You are one chapter away from understanding the most important machine of our time. Let us build something fast, and understand it.
 
 - *Arpan Pathak*
