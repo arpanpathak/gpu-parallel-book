@@ -4,7 +4,7 @@
 > 📦 **Code companion:** the complete, buildable code for this chapter lives in [`code/ch11_library_examples/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch11_library_examples) in the repository.
 
 Chapters 3-10 taught you to write kernels. This chapter teaches you when *not*
-to. The CUDA ecosystem ships three libraries that implement, in battle-tested
+to. The CUDA ecosystem ships three libraries that implement, in production-proven
 and hardware-tuned form, most of the algorithms of Chapters 8 and 9: **Thrust**
 (high-level algorithms), **CUB** (block-level primitives), and **cuBLAS**
 (dense linear algebra). A professional GPU engineer uses them first and writes

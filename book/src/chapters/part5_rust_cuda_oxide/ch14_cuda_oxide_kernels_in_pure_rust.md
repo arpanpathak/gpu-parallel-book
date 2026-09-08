@@ -47,7 +47,7 @@ representations rustc uses, replacing only the codegen:
 
 ![CUDA-Oxide compilation pipeline: Rust to MIR to Pliron to LLVM IR to PTX](../../assets/ch14_rust_to_ptx.svg)
 
-**Why this pipeline matters.** Because the *front end* is real rustc, you get
+**What the real rustc front end gives you.** Because the *front end* is real rustc, you get
 the real guarantees - ownership, borrowing, pattern matching, traits - before
 any GPU code is generated. A kernel that violates the borrow checker never
 becomes PTX. The experimental part is the *back end*: Pliron is a young

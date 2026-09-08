@@ -215,8 +215,9 @@ thread. There is no address for a register - it is named by the instruction
 (`R0`, `R1`, ...). Access is free, but there are only 64 K per SM, shared by
 all threads. Register pressure directly limits occupancy (§2.9).
 
-**2. Shared memory.** Private to a *block*; on-chip; configurable as part of
-the SM's 228 KB (H100) unified L1/shared resource. Access latency is ~20-30
+**2. Shared memory.** Private to a *block*; on-chip; part of the SM's 256 KB
+(H100) unified L1/shared resource, up to 228 KB of which can be configured as
+shared memory. Access latency is ~20-30
 cycles, versus ~400+ cycles for global memory. Shared memory is the
 programmer's explicitly managed cache - the workhorse of Chapter 7.
 
@@ -377,7 +378,7 @@ fix: padding). Global memory has no banks; it has lines and sectors.
 > number of warps the SM can hold. An SM with 64 warp slots at 100% occupancy
 > has 64 warps resident.
 
-Why does occupancy matter? **Latency hiding** (Chapter 1, §1.1). When a warp
+**Occupancy feeds latency hiding** (Chapter 1, §1.1). When a warp
 stalls on a global load (~500 cycles), the scheduler switches to another
 resident warp. If occupancy is high, there is always another warp to switch
 to. If it is low, the SM idles.
@@ -389,15 +390,15 @@ The limits on occupancy are the SM's finite resources:
 - **Threads per SM:** a hardware maximum (2,048 on most modern SMs).
 - **Threads per block and blocks per SM:** limits of 1,024 threads per block
   and 32 blocks per SM (both architecture-specific).
-- **Shared memory:** 228 KB per SM (H100); a block declaring 100 KB of shared
-  memory leaves room for only two such blocks.
+- **Shared memory:** up to 228 KB per SM (H100); a block declaring 100 KB of
+  shared memory leaves room for only two such blocks.
 
 The occupancy of a given launch configuration is the *minimum* over all these
 limits. The famous **occupancy calculator** spreadsheet (and `cudaOccupancyMaxActiveBlocksPerMultiprocessor`, Chapter 16) computes it for you.
 
 **A worked occupancy calculation.** Suppose the SM limits are the ones used
 throughout this chapter (64 K registers, 2,048 threads per SM, 32 blocks per
-SM, 228 KB shared memory), and the kernel is launched with blocks of 256
+SM, a 228 KB shared-memory budget), and the kernel is launched with blocks of 256
 threads (8 warps). We take the minimum of the four constraints:
 
 | Constraint | Equation | Blocks allowed |

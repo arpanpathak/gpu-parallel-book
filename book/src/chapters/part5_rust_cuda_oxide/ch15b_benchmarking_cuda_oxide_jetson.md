@@ -125,7 +125,7 @@ Each iteration replaces every interior cell with the average of its four
 neighbours. The top boundary is fixed at 100, the other edges at 0, and the
 iteration spreads the boundary information inward.
 
-## 15b.3 Why the Laplace equation matters
+## 15b.3 Where the Laplace Equation Appears
 
 The Laplace equation `∇²u = 0` describes equilibrium in physics:
 

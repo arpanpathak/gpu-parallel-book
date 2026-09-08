@@ -435,15 +435,15 @@ is what the roofline predicts:
 | histogram | ~10 µs | - | Atomic overhead, privatised |
 | **Total compute** | **~40 µs** | - | ~25,000 FPS compute-only; transfer-limited overall |
 
-The transfer arithmetic is the punchline. A 1920×1080 RGB frame is 6.2 MB to
+The transfer arithmetic is decisive. A 1920×1080 RGB frame is 6.2 MB to
 upload, and the `uchar` edge map is 2.1 MB to download - about 8.3 MB of
 host↔device traffic per frame. At a pinned PCIe Gen4 rate (~20 GB/s) that is
 roughly **400 µs of transfer per frame, ten times the total compute time**.
 The pipeline is transfer-limited: even a ~2,400 FPS transfer ceiling leaves
 the kernels nowhere near the limit, and a 60 FPS target has ~40× headroom.
-This is exactly why the streaming machinery of Chapters 4 and 6 matters - not
-because the kernels are slow, but because hiding the transfers is the only
-battle worth fighting at this image size.
+This is where the streaming machinery of Chapters 4 and 6 pays off: not
+because the kernels are slow, but because hiding transfers is the main
+remaining opportunity at this image size.
 
 The roofline (Chapter 1) *predicted* the memory-bound verdicts before any
 code ran: every stage moves a few bytes per pixel per pass with a handful of
