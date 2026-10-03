@@ -84,7 +84,7 @@ An efficiency near 1 means the added units did useful work; near 0 most of them 
 
 Two units give \\(S = 1.63\\) and \\(E = 0.81\\), so the second unit did most of what it could. Eight units give \\(S = 3.06\\) and \\(E = 0.38\\), so under half of the added capacity became speed. The first table explains why. The 30 microseconds of reading and writing never shrink, so they take a larger share of every shorter run. Section 1.3 turns that into a formula.
 
-The definitions also bound the result. Since \\(T_p \ge T_1/p\\), dividing by \\(T_p\\) gives \\(S(p) \le p\\), and dividing by \\(p\\) gives \\(0 < E(p) \le 1\\). Equality needs every unit busy from start to finish. Four things break that ideal. Work may not divide, the parallel version may add work, some units may finish early, and the units may compete for one shared resource.
+The definitions also bound the result. Since \\(T_p \ge T_1/p\\), dividing by \\(T_p\\) gives \\(S(p) \le p\\), and dividing by \\(p\\) gives \\(0 < E(p) \le 1\\). That bound assumes each unit does the same work at the same speed. A measured speedup can exceed the unit count, which is called **superlinear speedup**, usually because the per-unit data starts fitting in cache. Equality needs every unit busy from start to finish. Four things break that ideal. Work may not divide, the parallel version may add work, some units may finish early, and the units may compete for one shared resource.
 
 Report both numbers. A claim of "10x on 64 cores" has \\(E = 10/64 = 0.156\\), so 84% of the added capacity sat idle. The speedup alone hides that.
 
@@ -108,6 +108,8 @@ This is **Amdahl's law**, and \\(f\\) is the **serial fraction**. It caps a fixe
 <img src="../../figures/ch01-amdahl-timeline.svg" alt="Left panel, one unit, total 130 microseconds: a 20-microsecond input read, a 100-microsecond compute phase, and a 10-microsecond result write, with the serial fraction 30/130 = 0.23 and a ceiling of 4.3 times. Right panel, eight units, total 42.5 microseconds: the same read and write frame a compute phase of 12.5 microseconds, and the speedup is 3.06.">
 <figcaption><b>Figure 1.2</b> The same phases on one unit and on eight. The compute phase divides by eight, and the read and the write do not divide at all.</figcaption>
 </figure>
+
+<!-- FIGURE (section 1.4): two panels beside Figure 1.2. Left, Amdahl: the serial bar stays fixed while the parallel bar is squeezed shorter as units are added. Right, Gustafson: the parallel bar on one unit is stretched longer while the parallel run stays the same length. -->
 
 The cap rises sharply as the serial fraction falls.
 
@@ -139,7 +141,7 @@ Measure \\(f\\) before you buy units, because it hides in places that are easy t
 
 Amdahl's law holds the problem size fixed. Someone who buys a larger machine usually grows the problem instead: a bigger batch, a higher-resolution image, a longer simulation. The extra units go to extra work, and that changes the answer.
 
-Suppose a run on 1,000 units spends 1% of its time in serial work, so \\(s = 0.01\\). The run takes 1 second, of which 10 milliseconds is serial and 990 milliseconds is divisible. On one unit the serial part still takes 10 milliseconds, and the divisible part takes 1,000 times as long. One unit therefore needs \\(0.01 + 1000 \times 0.99 = 990.01\\) seconds. That gives a scaled speedup of 990, where the same serial fraction capped the fixed problem at 100.
+Suppose a run on 1,000 units spends 1% of its time in serial work, so \\(s = 0.01\\). The run takes 1 second, of which 10 milliseconds is serial and 990 milliseconds is divisible. On one unit the serial part still takes 10 milliseconds, and the divisible part takes 1,000 times as long. One unit therefore needs \\(0.01 + 1000 \times 0.99 = 990.01\\) seconds. That gives a scaled speedup of 990. Amdahl's law uses a different fraction: Gustafson's \\(s\\) is the serial share of the parallel run, while Amdahl's \\(f\\) is the serial share of the single-unit run. Here the single-unit run is 990.01 seconds and the serial part is still 0.01 seconds, so \\(f = 0.01/990.01 \approx 0.00001\\). The two laws agree because growing the problem shrinks \\(f\\), the fraction Amdahl cares about; the 100-times ceiling in section 1.3 belonged to a fixed problem with \\(f = 0.01\\).
 
 As a formula, let \\(s\\) be the serial share of the parallel run. The divisible part takes \\(p\\) times as long on one unit:
 
@@ -183,13 +185,13 @@ The three have standard names: **task parallelism**, **data parallelism**, and *
 
 ## 1.7 Flynn's taxonomy: instruction and data streams
 
-A machine can be classified by two counts. The first is how many instruction streams it runs at once. The second is how many data streams those instructions work on. Four combinations are in use, and the vector addition separates them.
+A machine can be classified by two counts. The first is how many instruction streams it runs at once. The second is how many data streams those instructions work on. Flynn defined four classes from those counts: SISD, SIMD, MISD, and MIMD. MISD is rare in practice; one use is a redundant fault-tolerant system that runs the same data through different instruction streams so a faulty stream can be outvoted. GPUs add a fifth term, SIMT, which NVIDIA introduced as a variation on SIMD. The vector addition shows how the classes differ.
 
 Run the add over eight elements on each type. A scalar unit performs eight adds in sequence. A processor with a wide vector register packs the eight numbers into one register and performs one add for all eight. A multi-core processor runs the add on one core and a different computation on another. A thread-parallel processor sends one instruction to a group of threads. Figure 1.4 draws the four side by side.
 
 <figure>
 <img src="../../figures/ch01-flynn.svg" alt="Four panels. SISD: one instruction, one value, eight adds performed in sequence on one scalar core. SIMD: one 256-bit register holding eight packed values and one add for all eight. MIMD: two cores running different code, the add on core 0 and a dot product on core 1. SIMT: one instruction sent to a group of threads, with the threads splitting at a branch.">
-<figcaption><b>Figure 1.4</b> The same vector add on four machine types. The names, in order, are SISD, SIMD, MIMD and SIMT.</figcaption>
+<figcaption><b>Figure 1.4</b> The same vector add on four machine types. The names, in order, are SISD, SIMD, MIMD and SIMT. SISD, SIMD and MIMD are Flynn's classes; SIMT is NVIDIA's extension of SIMD.</figcaption>
 </figure>
 
 Each name encodes the two counts. The first letter is the instruction count, S for single or M for multiple. The second letter is the data count, S or M, except in SIMT, where T stands for threads.
@@ -200,13 +202,13 @@ Each name encodes the two counts. The first letter is the instruction count, S f
 
 **MIMD** is multiple instruction, multiple data: each unit fetches and decodes its own instruction stream. A multi-core processor is MIMD, and so are two programs running on different cores.
 
-**SIMT** is single instruction, multiple threads. One instruction is sent to a group of threads, and each thread applies it to its own data in its own registers. The threads share an instruction stream but not their state. When the threads disagree about a branch, the group runs the two paths one after the other instead of at once. Chapter 2 describes how the hardware forms the group and charges the divergence.
+**SIMT** is not one of Flynn's classes; it is NVIDIA's extension of SIMD. SIMT is single instruction, multiple threads. One instruction is sent to a group of threads, and each thread applies it to its own data in its own registers. The threads share an instruction stream but not their state. When the threads disagree about a branch, the group runs the two paths one after the other instead of at once. Chapter 2 describes how the hardware forms the group and charges the divergence.
 
 Animation 3 runs the four designs in order.
 
 <figure class="anim">
 <video class="motion" src="../../figures/ch01-flynn.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Eight element cells under one instruction slot. SISD: one scalar core, a pill travels to one cell at a time and the instruction counter reaches 8. SIMD: a dashed register frame encloses all eight cells and one VADDPS pill covers them, one instruction. MIMD: two slots, core 0 ADD and core 1 DOT, each with its own instruction counter. SIMT: one slot sends to eight threads, one instruction, all eight cells fill. Divergence: the slot branches on a[i] > 2, the then threads fill while the others wait, then the else threads fill, two instructions." data-chapters="[[0.0, &quot;SISD&quot;], [15.77, &quot;SIMD&quot;], [26.17, &quot;MIMD&quot;], [37.08, &quot;SIMT&quot;], [50.04, &quot;diverge&quot;]]"><img src="../../figures/ch01-flynn.gif" alt="Eight element cells under one instruction slot. SISD: one scalar core, a pill travels to one cell at a time and the instruction counter reaches 8. SIMD: a dashed register frame encloses all eight cells and one VADDPS pill covers them, one instruction. MIMD: two slots, core 0 ADD and core 1 DOT, each with its own instruction counter. SIMT: one slot sends to eight threads, one instruction, all eight cells fill. Divergence: the slot branches on a[i] > 2, the then threads fill while the others wait, then the else threads fill, two instructions."></video>
-<figcaption><b>Animation 3</b> Flynn's taxonomy, one machine at a time. SISD runs eight adds. SIMD packs them into one register. MIMD runs two cores on two programs. SIMT sends one instruction to a group of threads. The failing case splits the group on a branch.</figcaption>
+<figcaption><b>Animation 3</b> Flynn's classes, one machine at a time, plus NVIDIA's SIMT. SISD runs eight adds. SIMD packs them into one register. MIMD runs two cores on two programs. SIMT sends one instruction to a group of threads. The failing case splits the group on a branch.</figcaption>
 </figure>
 
 ## 1.8 Arithmetic intensity and the roofline
@@ -238,9 +240,12 @@ The two ceilings meet at one intensity. Bandwidth caps a memory-bound program at
 
 That intensity is the **ridge point**. Below it bandwidth is the smaller cap, so the program is **memory-bound** and extra arithmetic throughput buys nothing. Above it arithmetic is the smaller cap, so the program is **compute-bound** and extra bandwidth buys nothing. On an illustrative machine with 40 TFLOP/s of FP32 and 1 TB/s of bandwidth, the ridge is 40 FLOP/byte. The vector addition reaches 0.08, so bandwidth caps it at \\(0.08 \times 1 = 0.08\\) TFLOP/s, about 0.2% of peak. Section 2.1 runs the same calculation for a specific accelerator and gets about 18 FLOP/byte.
 
-![The roofline model for the illustrative machine: a bandwidth diagonal rising to the ridge point at 40 FLOP/byte, then a flat arithmetic roof. Memory-bound operations sit below the ridge, on the diagonal; compute-bound operations sit above it, under the roof](../../assets/ch01_roofline.svg)
+<figure>
+<img src="../../assets/ch01_roofline.svg" alt="The roofline for the illustrative machine: a bandwidth diagonal rising to the ridge point at 40 FLOP/byte, then a flat arithmetic roof. Memory-bound operations sit below the ridge, on the diagonal; compute-bound operations sit above it, under the roof.">
+<figcaption><b>Figure 1.6</b> The roofline for the illustrative machine. Bandwidth caps operations on the diagonal, and the arithmetic roof caps them past the ridge point at 40 FLOP/byte.</figcaption>
+</figure>
 
-Animation 4 puts the inner loop of a matrix multiply on that plot. With no reuse the inner loop moves eight values for eight FLOPs, an intensity of 0.25. Holding a 16 by 16 tile of the output in registers reuses each loaded value 16 times. That raises the intensity to about 4, still below the ridge. The tile moves the loop sixteen times further from the bandwidth limit.
+Animation 4 puts the inner loop of a matrix multiply on that plot. With no reuse the inner loop moves eight values for eight FLOPs, an intensity of 0.25. Holding a 16 by 16 tile of the output in registers reuses each loaded value 16 times. That raises the intensity to about 4, still below the ridge. The tile raises the loop's bandwidth ceiling sixteenfold, though at 4 FLOP/byte it is still memory-bound.
 
 <figure class="anim">
 <video class="motion" src="../../figures/ch01-roofline.mp4" autoplay loop muted playsinline preload="metadata" aria-label="The inner loop of a matrix multiply on a roofline plot, one k at a time. Four k steps move eight values for eight FLOPs, which sits at 0.25 FLOP/byte on the diagonal. A 16 by 16 tile in registers reuses each value 16 times and lifts the operation to about 4 FLOP/byte. The last step removes the tile and the operation falls back to the diagonal." data-chapters="[[0.0, &quot;the loop&quot;], [18.42, &quot;reuse&quot;], [37.62, &quot;no tile&quot;]]"><img src="../../figures/ch01-roofline.gif" alt="The inner loop of a matrix multiply on a roofline plot, one k at a time. Four k steps move eight values for eight FLOPs, which sits at 0.25 FLOP/byte on the diagonal. A 16 by 16 tile in registers reuses each value 16 times and lifts the operation to about 4 FLOP/byte. The last step removes the tile and the operation falls back to the diagonal."></video>
@@ -264,11 +269,11 @@ A video encoder that spends 98% of its time in CPU arithmetic and 2% reading fra
 | CPU clock | ✓ | CPU-bound |
 | Memory bandwidth | ✓ | Memory-bound |
 | Disk or network rate | ✓ | I/O-bound |
-| All three | ✗ | Serial-bound (section 1.3) |
+| Double the number of units | ✗ | Serial-bound (section 1.3) |
 
 <figure>
 <img src="../../figures/ch01-bound.svg" alt="Three programs, each with bars for CPU, memory, and I/O utilisation. SHA-256 hashing pins the CPU at 98% and is CPU-bound. The vector add pins memory at 98% and is memory-bound. Streaming 10 GB pins I/O at 98% and is I/O-bound.">
-<figcaption><b>Figure 1.6</b> Three programs, each with one resource pinned near 100%. The bound is the pinned resource.</figcaption>
+<figcaption><b>Figure 1.7</b> Three programs, each with one resource pinned near 100%. The bound is the pinned resource.</figcaption>
 </figure>
 
 Section 2.7 uses this to explain memory access grouping for memory-bound programs, Chapter 9 for compute-bound programs, and Chapter 6 for I/O-bound programs. *Compute-bound* and *CPU-bound* name the same case: the processor is the resource that runs out first. Profiling (Chapter 16) measures which resource is saturated before you optimise.
@@ -277,7 +282,7 @@ Section 2.7 uses this to explain memory access grouping for memory-bound program
 
 Most parallel computations combine partial results, and the units cannot combine them without meeting. The meeting point is a **barrier**: every unit in the group arrives, and none continues until the last one does. The mechanism is Chapter 5's subject; the price belongs here.
 
-Suppose a group of units does 1,000 cycles of work between barriers and each barrier costs 100 cycles. The barrier occupies 100 of every 1,100 cycles, so the group waits about 9% of the time. That 9% is serial work, and Amdahl's law caps the group near 11 times no matter how many units join. The waiting is not the whole cost. A result written by one unit is not visible to another until it is published, and publication takes time of its own. A barrier also releases its units only when the slowest one arrives, so one slow unit delays every other unit.
+Suppose a group of units does 1,000 cycles of work between barriers and each barrier costs 100 cycles. The barrier occupies 100 of every 1,100 cycles, so the group waits about 9% of the time. That 9% is lost efficiency per unit. Each unit does 1,000 cycles of work in 1,100, so its efficiency is \\(1000/1100 \approx 0.91\\). In Gustafson's terms this lost share is \\(s\\), the serial share of the parallel run, so the speedup keeps growing at about \\(0.91p\\). If the total work is fixed instead, each unit's share shrinks as \\(p\\) grows while the 100-cycle barrier does not, so the barrier takes a larger share of every shorter run, the speedup flattens, and Amdahl's law applies. The waiting is not the whole cost. A result written by one unit is not visible to another until it is published, and publication takes time of its own. A barrier also releases its units only when the slowest one arrives, so one slow unit delays every other unit.
 
 A program that avoids the barrier pays none of this: give each unit its own output and combine the results once at the end. Chapter 8 uses that rule to cut the block-level barriers of a reduction from \\(\log_2 N\\) to a constant.
 
@@ -291,7 +296,7 @@ A program that avoids the barrier pays none of this: give each unit its own outp
 - Gustafson-Barsis applies when the problem grows with the machine, and it gives a scaled speedup near \\(p\\).
 - Strong scaling fixes the problem size, and weak scaling fixes the work per unit. State which one an experiment uses.
 - Work divides as tasks, data, or pipeline stages. A pipeline of \\(S\\) stages over \\(N\\) elements speeds up by \\(SN/(S + N - 1)\\).
-- Flynn's taxonomy names a machine by its instruction and data streams: SISD, SIMD, MIMD, and SIMT.
+- Flynn's taxonomy names a machine by its instruction and data streams: SISD, SIMD, MISD, and MIMD. A GPU runs SIMT, NVIDIA's variation on SIMD.
 - Arithmetic intensity against the ridge point decides whether bytes or FLOPs set the limit. A doubling test identifies the bound of a whole program.
 - A barrier costs the slowest unit's arrival plus the time to publish results. An algorithm that avoids one pays neither.
 
@@ -309,7 +314,7 @@ Chapter 2 leaves the arithmetic and describes the machine that runs these progra
 6. An \\(N \times N\\) matrix multiply has an intensity of \\(N/6\\) FLOP/byte. At what \\(N\\) does it cross a ridge point of 40 FLOP/byte?
 7. A program downloads 10 GB from the network at 2 GB/s and compresses it on the CPU at 20 GB/s. Estimate the CPU utilisation, name the bound, and say which single change helps more: a 2x faster CPU or a 2x faster network.
 8. Explain why a program whose operations form one long dependency chain gains nothing from more units, even when every unit is fast.
-9. Give the Flynn name for each of these. A scalar unit; a wide vector add; four cores each running its own program; one instruction sent to many threads.
+9. Name each of these machines. A scalar unit; a wide vector add; four cores each running its own program; one instruction sent to many threads. Which one is not a Flynn class?
 
 ## Sources and Further Reading
 
