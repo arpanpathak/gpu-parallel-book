@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 352.0" width="900" height="352.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<text x="20" y="26" font-size="14.0" fill="#1d2733" text-anchor="start"  font-weight="bold">The same 500-cycle latency at two concurrency levels</text>
+<rect x="16" y="44" width="424" height="284" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="17" y1="45" x2="439" y2="45" stroke="#d9622b" stroke-width="3"/>
+<text x="30" y="72" font-size="15.0" fill="#d9622b" text-anchor="start"  font-weight="bold">concurrency = 1: one access in flight</text>
+<rect x="30" y="94" width="350" height="30" rx="6" fill="#fbe3d6" stroke="#c9d4de" stroke-width="1.2"/>
+<text x="40" y="114" font-size="11.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">load a[i]</text>
+<line x1="386" y1="109" x2="416" y2="109" stroke="#d9622b" stroke-width="2.4"/>
+<polygon points="416,109 408.8,112.5 408.8,105.5" fill="#d9622b"/>
+<text x="30" y="142" font-size="12.0" fill="#6b7a89" text-anchor="start" >the line is idle until this access returns</text>
+<rect x="30" y="162" width="380" height="30" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="220.0" y="180.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">1 result, at cycle 500</text>
+<text x="30" y="222" font-size="12.0" fill="#6b7a89" text-anchor="start" >throughput = 1 result / 500 cycles</text>
+<rect x="460" y="44" width="424" height="284" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="461" y1="45" x2="883" y2="45" stroke="#2f7f86" stroke-width="3"/>
+<text x="474" y="72" font-size="15.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">concurrency = 250: enough to fill the line</text>
+<rect x="474" y="94" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
+<line x1="830" y1="102" x2="860" y2="102" stroke="#2f7f86" stroke-width="2.4"/>
+<polygon points="860,102 852.8,105.5 852.8,98.5" fill="#2f7f86"/>
+<rect x="474" y="116" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
+<line x1="830" y1="124" x2="860" y2="124" stroke="#2f7f86" stroke-width="2.4"/>
+<polygon points="860,124 852.8,127.5 852.8,120.5" fill="#2f7f86"/>
+<rect x="474" y="138" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
+<line x1="830" y1="146" x2="860" y2="146" stroke="#2f7f86" stroke-width="2.4"/>
+<polygon points="860,146 852.8,149.5 852.8,142.5" fill="#2f7f86"/>
+<rect x="474" y="160" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
+<line x1="830" y1="168" x2="860" y2="168" stroke="#2f7f86" stroke-width="2.4"/>
+<polygon points="860,168 852.8,171.5 852.8,164.5" fill="#2f7f86"/>
+<rect x="474" y="182" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
+<line x1="830" y1="190" x2="860" y2="190" stroke="#2f7f86" stroke-width="2.4"/>
+<polygon points="860,190 852.8,193.5 852.8,186.5" fill="#2f7f86"/>
+<text x="484" y="106" font-size="10.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">access 1</text>
+<text x="484" y="150" font-size="10.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">access 125</text>
+<text x="484" y="194" font-size="10.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">access 250</text>
+<rect x="474" y="212" width="380" height="30" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="664.0" y="230.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">one result every 2 cycles</text>
+<text x="474" y="272" font-size="12.0" fill="#6b7a89" text-anchor="start" >throughput = 250 results / 500 cycles</text>
+<text x="474" y="296" font-size="12.0" fill="#6b7a89" text-anchor="start" >every access still takes 500 cycles</text>
+</svg>

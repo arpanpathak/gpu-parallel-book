@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 352.0" width="900" height="352.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<text x="20" y="26" font-size="14.0" fill="#1d2733" text-anchor="start"  font-weight="bold">Two answers to a 500-cycle memory wait</text>
+<rect x="16" y="44" width="424" height="264" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="17" y1="45" x2="439" y2="45" stroke="#5b6b7c" stroke-width="3"/>
+<text x="30" y="72" font-size="15.0" fill="#5b6b7c" text-anchor="start"  font-weight="bold">CPU: one fast core, the stall is avoided</text>
+<rect x="30" y="94" width="150" height="34" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="105.0" y="115.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">branch predictor</text>
+<rect x="30" y="134" width="150" height="34" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="105.0" y="155.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">large cache</text>
+<rect x="30" y="174" width="150" height="34" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="105.0" y="195.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">out-of-order core</text>
+<rect x="30" y="220" width="384" height="30" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<text x="222.0" y="238.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">core 0 issues later work across a load</text>
+<text x="30" y="284" font-size="12.0" fill="#6b7a89" text-anchor="start" >the core rarely stalls on a single access</text>
+<rect x="460" y="44" width="424" height="264" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="461" y1="45" x2="883" y2="45" stroke="#2f7f86" stroke-width="3"/>
+<text x="474" y="72" font-size="15.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">GPU: many warps resident, the wait is filled</text>
+<rect x="474" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="524" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="574" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="624" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="674" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="724" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="774" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="824" y="94" width="42" height="22" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="474" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="524" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="574" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="624" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="674" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="724" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="774" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="824" y="124" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="474" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="524" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="574" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="624" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="674" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="724" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="774" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="824" y="154" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="474" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="524" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="574" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="624" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="674" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="724" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="774" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="824" y="184" width="42" height="22" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="474" y="226" font-size="10.5" fill="#d9622b" text-anchor="start" >warp 0 stalls on its load</text>
+<text x="474" y="244" font-size="10.5" fill="#2f7f86" text-anchor="start" >warps 1 to 3 have work to issue</text>
+<text x="474" y="284" font-size="12.0" fill="#6b7a89" text-anchor="start" >many warps resident: the wait is hidden under other warps</text>
+</svg>

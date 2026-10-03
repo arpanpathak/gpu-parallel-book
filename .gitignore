@@ -2,6 +2,7 @@
 .DS_Store
 target/
 *.o
+__pycache__/
 
 # Compiled example binaries (build with the commands in code/README.md)
 /code/ch03_vector_add/vector_add

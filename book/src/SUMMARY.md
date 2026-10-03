@@ -1,5 +1,8 @@
 # Summary
 
+[Cover](cover.md)
+[About the cover](about-the-cover.md)
+
 [Foreword](foreword.md)
 
 ---

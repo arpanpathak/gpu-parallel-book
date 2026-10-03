@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 352.0" width="900" height="352.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<text x="20" y="26" font-size="14.0" fill="#1d2733" text-anchor="start"  font-weight="bold">Amdahl's law: the ceiling for each serial fraction</text>
+<line x1="70.0" y1="52.0" x2="70.0" y2="292.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="70.0" y1="292.0" x2="470.0" y2="292.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="70.0" y1="292.0" x2="70.0" y2="297.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="70.0" y="311.0" font-size="10.0" fill="#6b7a89" text-anchor="middle" >1</text>
+<line x1="150.27466551039498" y1="292.0" x2="150.27466551039498" y2="297.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="150.27466551039498" y="311.0" font-size="10.0" fill="#6b7a89" text-anchor="middle" >4</text>
+<line x1="230.54933102078996" y1="292.0" x2="230.54933102078996" y2="297.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="230.54933102078996" y="311.0" font-size="10.0" fill="#6b7a89" text-anchor="middle" >16</text>
+<line x1="310.82399653118495" y1="292.0" x2="310.82399653118495" y2="297.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="310.82399653118495" y="311.0" font-size="10.0" fill="#6b7a89" text-anchor="middle" >64</text>
+<line x1="391.0986620415799" y1="292.0" x2="391.0986620415799" y2="297.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="391.0986620415799" y="311.0" font-size="10.0" fill="#6b7a89" text-anchor="middle" >256</text>
+<line x1="471.37332755197497" y1="292.0" x2="471.37332755197497" y2="297.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="471.37332755197497" y="311.0" font-size="10.0" fill="#6b7a89" text-anchor="middle" >1024</text>
+<text x="270.0" y="330.0" font-size="10.5" fill="#6b7a89" text-anchor="middle" >units (log scale)</text>
+<text x="70.0" y="40.0" font-size="10.5" fill="#6b7a89" text-anchor="start" >speedup, log scale</text>
+<line x1="65.0" y1="292.0" x2="70.0" y2="292.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="58.0" y="296.0" font-size="10.0" fill="#6b7a89" text-anchor="end" >1</text>
+<line x1="65.0" y1="243.835200693763" x2="70.0" y2="243.835200693763" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="58.0" y="247.835200693763" font-size="10.0" fill="#6b7a89" text-anchor="end" >4</text>
+<line x1="65.0" y1="195.67040138752603" x2="70.0" y2="195.67040138752603" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="58.0" y="199.67040138752603" font-size="10.0" fill="#6b7a89" text-anchor="end" >16</text>
+<line x1="65.0" y1="147.50560208128903" x2="70.0" y2="147.50560208128903" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="58.0" y="151.50560208128903" font-size="10.0" fill="#6b7a89" text-anchor="end" >64</text>
+<line x1="65.0" y1="99.34080277505205" x2="70.0" y2="99.34080277505205" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="58.0" y="103.34080277505205" font-size="10.0" fill="#6b7a89" text-anchor="end" >256</text>
+<line x1="65.0" y1="52.0" x2="70.0" y2="52.0" stroke="#c9d4de" stroke-width="1.4"/>
+<text x="58.0" y="56.0" font-size="10.0" fill="#6b7a89" text-anchor="end" >1000</text>
+<polyline points="70.0,292.0 80.6,285.7 93.5,277.9 110.1,268.0 133.6,253.9 150.3,243.9 173.8,229.9 190.4,220.0 213.9,206.0 230.5,196.2 254.0,182.4 270.7,172.6 294.2,159.1 310.8,149.6 334.3,136.6 351.0,127.6 374.4,115.4 391.1,107.2 414.6,96.5 431.2,89.6 454.7,81.0 471.4,75.7" fill="none" stroke="#b7c2cc" stroke-width="1.6"/>
+<text x="464.0" y="67.65567409047941" font-size="9.5" fill="#b7c2cc" text-anchor="end" >f = 0.001</text>
+<polyline points="70.0,292.0 80.6,285.7 93.5,278.1 110.1,268.3 133.6,254.5 150.3,244.9 173.8,231.4 190.4,222.1 213.9,209.3 230.5,200.5 254.0,188.8 270.7,181.0 294.2,170.9 310.8,164.5 334.3,156.6 351.0,151.9 374.4,146.4 391.1,143.4 414.6,140.0 431.2,138.1 454.7,136.2 471.4,135.2" fill="none" stroke="#8fa6b4" stroke-width="1.6"/>
+<text x="464.0" y="127.20638396973166" font-size="9.5" fill="#8fa6b4" text-anchor="end" >f = 0.01</text>
+<polyline points="70.0,292.0 80.6,286.0 93.5,278.8 110.1,269.6 133.6,257.1 150.3,248.7 173.8,237.5 190.4,230.2 213.9,220.9 230.5,215.1 254.0,208.2 270.7,204.1 294.2,199.5 310.8,196.9 334.3,194.2 351.0,192.7 374.4,191.2 391.1,190.4 414.6,189.6 431.2,189.2 454.7,188.8 471.4,188.6" fill="none" stroke="#6b8fa0" stroke-width="1.6"/>
+<text x="464.0" y="180.55634848981902" font-size="9.5" fill="#6b8fa0" text-anchor="end" >f = 0.05</text>
+<polyline points="70.0,292.0 80.6,286.4 93.5,279.6 110.1,271.2 133.6,260.2 150.3,253.0 173.8,243.8 190.4,238.2 213.9,231.4 230.5,227.5 254.0,223.1 270.7,220.6 294.2,218.0 310.8,216.6 334.3,215.1 351.0,214.4 374.4,213.6 391.1,213.2 414.6,212.8 431.2,212.6 454.7,212.4 471.4,212.3" fill="none" stroke="#4a7a8c" stroke-width="1.6"/>
+<text x="464.0" y="204.3040291903847" font-size="9.5" fill="#4a7a8c" text-anchor="end" >f = 0.10</text>
+<polyline points="70.0,292.0 80.6,287.2 93.5,281.7 110.1,275.1 133.6,267.0 150.3,262.1 173.8,256.4 190.4,253.2 213.9,249.6 230.5,247.6 254.0,245.6 270.7,244.5 294.2,243.4 310.8,242.8 334.3,242.2 351.0,241.9 374.4,241.7 391.1,241.5 414.6,241.4 431.2,241.3 454.7,241.2 471.4,241.2" fill="none" stroke="#d9622b" stroke-width="3.2"/>
+<text x="464.0" y="233.16714603486014" font-size="9.5" fill="#d9622b" text-anchor="end"  font-weight="bold">this program, f = 0.23</text>
+<line x1="70.0" y1="241.16714603486014" x2="470.0" y2="241.16714603486014" stroke="#d9622b" stroke-width="1.2" stroke-dasharray="6,4"/>
+<text x="76.0" y="233.16714603486014" font-size="9.5" fill="#d9622b" text-anchor="start"  font-weight="bold">ceiling 4.3x</text>
+<circle cx="110.13733275519749" cy="275.13173077480855" r="4.5" fill="#d9622b" stroke="#1d2733" stroke-width="1.4"/>
+<circle cx="150.27466551039498" cy="262.1135469749926" r="4.5" fill="#d9622b" stroke="#1d2733" stroke-width="1.4"/>
+<circle cx="190.41199826559247" cy="253.155646219478" r="4.5" fill="#d9622b" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="560" y="44" width="324" height="264" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="561" y1="45" x2="883" y2="45" stroke="#d9622b" stroke-width="3"/>
+<text x="574" y="72" font-size="15.0" fill="#d9622b" text-anchor="start"  font-weight="bold">The example run</text>
+<text x="578" y="111" font-size="11.0" fill="#6b7a89" text-anchor="start" >read and write</text>
+<text x="728" y="111" font-size="12.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">30 us of 130 us</text>
+<text x="578" y="147" font-size="11.0" fill="#6b7a89" text-anchor="start" >f</text>
+<text x="728" y="147" font-size="12.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">0.23</text>
+<text x="578" y="183" font-size="11.0" fill="#6b7a89" text-anchor="start" >ceiling 1/f</text>
+<text x="728" y="183" font-size="12.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">4.3x</text>
+<text x="578" y="219" font-size="11.0" fill="#6b7a89" text-anchor="start" >at p = 4</text>
+<text x="728" y="219" font-size="12.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">S = 2.36</text>
+<text x="578" y="255" font-size="11.0" fill="#6b7a89" text-anchor="start" >at p = 8</text>
+<text x="728" y="255" font-size="12.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">S = 3.06</text>
+<text x="578" y="292" font-size="12.0" fill="#6b7a89" text-anchor="start" >more units cannot lift the run past 4.3x</text>
+</svg>

@@ -12,7 +12,8 @@ git-repository-url = "https://github.com/arpanpathak/gpu-parallel-book"
 edit-url-template = "https://github.com/arpanpathak/gpu-parallel-book/edit/main/book/src/{path}"
 default-theme = "navy"
 preferred-dark-theme = "navy"
-additional-css = ["custom.css"]
+additional-css = ["custom.css", "theme/custom.css"]
+additional-js = ["theme/anim.js"]
 
 [output.html.print]
 enable = true

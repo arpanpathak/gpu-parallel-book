@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340.0" width="900" height="340.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<text x="20" y="26" font-size="15.0" fill="#1d2733" text-anchor="start"  font-weight="bold">Amdahl's law on the timeline of the program</text>
+<rect x="16" y="44" width="424" height="268" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="17" y1="45" x2="439" y2="45" stroke="#5b6b7c" stroke-width="3"/>
+<text x="30" y="72" font-size="15.0" fill="#5b6b7c" text-anchor="start"  font-weight="bold">1 unit: total 130 us</text>
+<text x="30" y="110" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">read</text>
+<rect x="100" y="88" width="46.800000000000004" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
+<text x="156.8" y="109" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">20 us</text>
+<text x="30" y="162" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">compute</text>
+<rect x="100" y="140" width="234.0" height="30" rx="5" fill="#e3f1ea" stroke="#2f7f86" stroke-width="1.4"/>
+<text x="344.0" y="161" font-size="12.0" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">100 us</text>
+<text x="30" y="214" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">write</text>
+<rect x="100" y="192" width="23.400000000000002" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
+<text x="133.4" y="213" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">10 us</text>
+<text x="30" y="256" font-size="12.0" fill="#6b7a89" text-anchor="start" >read and write 30 us, compute 100 us, f = 30/130 = 0.23</text>
+<text x="30" y="278" font-size="12.0" fill="#6b7a89" text-anchor="start" >ceiling 1/f = 4.3x</text>
+<text x="30" y="300" font-size="12.0" fill="#6b7a89" text-anchor="start" >the read and write are a floor under the run time</text>
+<rect x="460" y="44" width="424" height="268" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="461" y1="45" x2="883" y2="45" stroke="#2f7f86" stroke-width="3"/>
+<text x="474" y="72" font-size="15.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">8 units: total 42.5 us</text>
+<text x="474" y="110" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">read</text>
+<rect x="544" y="88" width="46.800000000000004" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
+<text x="600.8" y="109" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">20 us</text>
+<text x="474" y="162" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">compute</text>
+<rect x="544" y="140" width="29.25" height="30" rx="5" fill="#e3f1ea" stroke="#2f7f86" stroke-width="1.4"/>
+<text x="583.25" y="161" font-size="12.0" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">12.5 us</text>
+<text x="474" y="214" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">write</text>
+<rect x="544" y="192" width="23.400000000000002" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
+<text x="577.4" y="213" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">10 us</text>
+<text x="474" y="256" font-size="12.0" fill="#6b7a89" text-anchor="start" >the compute divides by 8; the read and write stay at 30 us</text>
+<text x="474" y="278" font-size="12.0" fill="#6b7a89" text-anchor="start" >speedup 130 / 42.5 = 3.06</text>
+<text x="474" y="300" font-size="12.0" fill="#6b7a89" text-anchor="start" >more units cannot pass the 4.3x ceiling</text>
+</svg>

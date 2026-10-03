@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470.0" width="900" height="470.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<text x="20" y="26" font-size="14.0" fill="#1d2733" text-anchor="start"  font-weight="bold">The bound is the resource pinned near 100%</text>
+<rect x="20" y="48" width="860" height="118" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.2"/>
+<line x1="21" y1="49" x2="879" y2="49" stroke="#d9622b" stroke-width="3"/>
+<text x="36" y="76" font-size="12.5" fill="#1d2733" text-anchor="start"  font-weight="bold">SHA-256 hashing</text>
+<text x="36" y="144" font-size="12.0" fill="#d9622b" text-anchor="start"  font-weight="bold">CPU-bound</text>
+<text x="210" y="107" font-size="10.5" fill="#6b7a89" text-anchor="start" >CPU</text>
+<rect x="280" y="92" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="92" width="411.59999999999997" height="18" rx="4" fill="#d9622b" stroke="none" stroke-width="0"/>
+<text x="716" y="107" font-size="10.5" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">98%</text>
+<text x="210" y="131" font-size="10.5" fill="#6b7a89" text-anchor="start" >memory</text>
+<rect x="280" y="116" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="116" width="21.0" height="18" rx="4" fill="#d9622b" stroke="none" stroke-width="0"/>
+<text x="716" y="131" font-size="10.5" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">5%</text>
+<text x="210" y="155" font-size="10.5" fill="#6b7a89" text-anchor="start" >I/O</text>
+<rect x="280" y="140" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="140" width="8.4" height="18" rx="4" fill="#d9622b" stroke="none" stroke-width="0"/>
+<text x="716" y="155" font-size="10.5" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">2%</text>
+<rect x="20" y="178" width="860" height="118" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.2"/>
+<line x1="21" y1="179" x2="879" y2="179" stroke="#2f7f86" stroke-width="3"/>
+<text x="36" y="206" font-size="12.5" fill="#1d2733" text-anchor="start"  font-weight="bold">vector add</text>
+<text x="36" y="274" font-size="12.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">memory-bound</text>
+<text x="210" y="237" font-size="10.5" fill="#6b7a89" text-anchor="start" >CPU</text>
+<rect x="280" y="222" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="222" width="8.4" height="18" rx="4" fill="#2f7f86" stroke="none" stroke-width="0"/>
+<text x="716" y="237" font-size="10.5" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">2%</text>
+<text x="210" y="261" font-size="10.5" fill="#6b7a89" text-anchor="start" >memory</text>
+<rect x="280" y="246" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="246" width="411.59999999999997" height="18" rx="4" fill="#2f7f86" stroke="none" stroke-width="0"/>
+<text x="716" y="261" font-size="10.5" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">98%</text>
+<text x="210" y="285" font-size="10.5" fill="#6b7a89" text-anchor="start" >I/O</text>
+<rect x="280" y="270" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="270" width="8.4" height="18" rx="4" fill="#2f7f86" stroke="none" stroke-width="0"/>
+<text x="716" y="285" font-size="10.5" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">2%</text>
+<rect x="20" y="308" width="860" height="118" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.2"/>
+<line x1="21" y1="309" x2="879" y2="309" stroke="#c89b3c" stroke-width="3"/>
+<text x="36" y="336" font-size="12.5" fill="#1d2733" text-anchor="start"  font-weight="bold">streaming 10 GB</text>
+<text x="36" y="404" font-size="12.0" fill="#c89b3c" text-anchor="start"  font-weight="bold">I/O-bound</text>
+<text x="210" y="367" font-size="10.5" fill="#6b7a89" text-anchor="start" >CPU</text>
+<rect x="280" y="352" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="352" width="8.4" height="18" rx="4" fill="#c89b3c" stroke="none" stroke-width="0"/>
+<text x="716" y="367" font-size="10.5" fill="#c89b3c" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">2%</text>
+<text x="210" y="391" font-size="10.5" fill="#6b7a89" text-anchor="start" >memory</text>
+<rect x="280" y="376" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="376" width="8.4" height="18" rx="4" fill="#c89b3c" stroke="none" stroke-width="0"/>
+<text x="716" y="391" font-size="10.5" fill="#c89b3c" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">2%</text>
+<text x="210" y="415" font-size="10.5" fill="#6b7a89" text-anchor="start" >I/O</text>
+<rect x="280" y="400" width="420" height="18" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<rect x="280" y="400" width="411.59999999999997" height="18" rx="4" fill="#c89b3c" stroke="none" stroke-width="0"/>
+<text x="716" y="415" font-size="10.5" fill="#c89b3c" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">98%</text>
+<text x="20" y="442" font-size="12.0" fill="#6b7a89" text-anchor="start" >Double one resource and re-measure. If the time halves, that resource was the limit.</text>
+</svg>

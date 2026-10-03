@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340.0" width="900" height="340.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<text x="20" y="26" font-size="14.0" fill="#1d2733" text-anchor="start"  font-weight="bold">Arithmetic intensity: FLOPs per byte moved</text>
+<rect x="16" y="44" width="424" height="256" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="17" y1="45" x2="439" y2="45" stroke="#2f7f86" stroke-width="3"/>
+<text x="30" y="72" font-size="15.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">vector add: 1 FLOP per 12 bytes</text>
+<rect x="30" y="84" width="130" height="32" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="95.0" y="103.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">read a[i]</text>
+<text x="172" y="105" font-size="11.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">4 bytes</text>
+<rect x="30" y="128" width="130" height="32" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="95.0" y="147.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">read b[i]</text>
+<text x="172" y="149" font-size="11.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">4 bytes</text>
+<rect x="30" y="172" width="130" height="32" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="95.0" y="191.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">write c[i]</text>
+<text x="172" y="193" font-size="11.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">4 bytes</text>
+<line x1="30" y1="216" x2="410" y2="216" stroke="#c9d4de" stroke-width="1.2"/>
+<text x="30" y="240" font-size="13.0" fill="#1d2733" text-anchor="start"  font-weight="bold">1 FLOP for 12 bytes</text>
+<text x="30" y="262" font-size="13.0" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve" font-weight="bold">I = 1/12 = 0.08 FLOP/byte</text>
+<text x="30" y="284" font-size="12.0" fill="#6b7a89" text-anchor="start" >the arithmetic units wait on bytes: memory-bound</text>
+<rect x="460" y="44" width="424" height="256" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="461" y1="45" x2="883" y2="45" stroke="#c89b3c" stroke-width="3"/>
+<text x="474" y="72" font-size="15.0" fill="#c89b3c" text-anchor="start"  font-weight="bold">matmul: many FLOPs per byte</text>
+<text x="474" y="92" font-size="11.5" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">C[ty][tx] = sum over k of A[ty][k] * B[k][tx]</text>
+<rect x="474" y="108" width="190" height="32" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="569.0" y="128.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">one row of A</text>
+<rect x="674" y="108" width="190" height="32" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="769.0" y="128.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">one column of B</text>
+<line x1="664" y1="124" x2="674" y2="124" stroke="#1d2733" stroke-width="2"/>
+<polygon points="674,124 666.8,127.5 666.8,120.5" fill="#1d2733"/>
+<text x="474" y="164" font-size="12.0" fill="#6b7a89" text-anchor="start" >each loaded value is reused for the whole row</text>
+<rect x="474" y="182" width="390" height="32" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="669.0" y="202.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">2N^3 FLOPs for 3N^2 values of 4 bytes</text>
+<text x="474" y="248" font-size="13.0" fill="#c89b3c" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve" font-weight="bold">I = 2N^3 / (3N^2 x 4) = N/6 FLOP/byte</text>
+<text x="474" y="272" font-size="12.0" fill="#6b7a89" text-anchor="start" >680 FLOP/byte at N = 4096: compute-bound</text>
+<text x="474" y="292" font-size="12.0" fill="#6b7a89" text-anchor="start" >the two programs reuse each loaded value differently</text>
+</svg>

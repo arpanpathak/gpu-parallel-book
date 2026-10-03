@@ -4,26 +4,26 @@
 
   <!-- Title -->
   <text x="430" y="30" text-anchor="middle" fill="#82aaff" font-size="15" font-weight="bold" letter-spacing="1">THE ROOFLINE MODEL</text>
-  <text x="430" y="50" text-anchor="middle" fill="#637777" font-size="11">achievable P = min(P_peak, I x B): the bandwidth diagonal vs the arithmetic roof</text>
+  <text x="430" y="50" text-anchor="middle" fill="#637777" font-size="11">illustrative machine: P_peak = 40 TFLOP/s, B = 1 TB/s. achievable P = min(P_peak, I x B)</text>
 
   <!-- Plot: x = intensity 0.05..10000 (log), y = fraction of peak 0.001..1 (log) -->
   <!-- Memory-bound region: below the diagonal, left of the ridge -->
-  <polygon points="140,400 140,325.5 467.9,100 467.9,400" fill="#82aaff" opacity="0.07"/>
+  <polygon points="140,400 140,390.3 512.4,100 512.4,400" fill="#82aaff" opacity="0.07"/>
   <!-- Compute-bound roof band -->
-  <rect x="467.9" y="100" width="352.1" height="28" fill="#addb67" opacity="0.15"/>
+  <rect x="512.4" y="100" width="307.6" height="28" fill="#addb67" opacity="0.15"/>
 
   <!-- Diagonal: P = I x B (bandwidth ceiling), slope 1 in log-log -->
-  <line x1="140" y1="325.5" x2="467.9" y2="100" stroke="#82aaff" stroke-width="2.5"/>
+  <line x1="140" y1="390.3" x2="512.4" y2="100" stroke="#82aaff" stroke-width="2.5"/>
   <!-- Roof: P = P_peak (arithmetic ceiling) -->
-  <line x1="467.9" y1="100" x2="820" y2="100" stroke="#addb67" stroke-width="2.5"/>
+  <line x1="512.4" y1="100" x2="820" y2="100" stroke="#addb67" stroke-width="2.5"/>
 
   <!-- Ridge guides -->
-  <line x1="467.9" y1="100" x2="467.9" y2="400" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
-  <line x1="140" y1="100" x2="467.9" y2="100" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="512.4" y1="100" x2="512.4" y2="400" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="140" y1="100" x2="512.4" y2="100" stroke="#637777" stroke-width="1" stroke-dasharray="4 4"/>
 
   <!-- Ridge point and label -->
-  <circle cx="467.9" cy="100" r="5" fill="#ecc48d" stroke="#d6deeb" stroke-width="1.5"/>
-  <text x="467.9" y="86" text-anchor="middle" fill="#ecc48d" font-size="12" font-weight="bold">ridge point: I ~ 18 FLOP/byte</text>
+  <circle cx="512.4" cy="100" r="5" fill="#ecc48d" stroke="#d6deeb" stroke-width="1.5"/>
+  <text x="512.4" y="86" text-anchor="middle" fill="#ecc48d" font-size="12" font-weight="bold">ridge point: I ~ 40 FLOP/byte</text>
 
   <!-- Region labels -->
   <text x="250" y="365" text-anchor="middle" fill="#82aaff" font-size="12" font-weight="bold">memory-bound: P = I x B</text>
@@ -56,7 +56,7 @@
   <text x="26" y="250" fill="#d6deeb" font-size="12" font-weight="bold" transform="rotate(-90 26 250)" text-anchor="middle">performance (fraction of P_peak)</text>
 
   <!-- Example kernels (dots only; the legend below explains them) -->
-  <circle cx="166" cy="335" r="5" fill="#f78c6c" stroke="#ff9d5c" stroke-width="1.5"/>
+  <circle cx="166" cy="370" r="5" fill="#f78c6c" stroke="#ff9d5c" stroke-width="1.5"/>
   <circle cx="670.5" cy="100" r="5" fill="#7fdbca" stroke="#d6deeb" stroke-width="1.5"/>
 
   <!-- Legend -->

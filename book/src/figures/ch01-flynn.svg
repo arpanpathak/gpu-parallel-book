@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 456.0" width="900" height="456.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<text x="20" y="26" font-size="14.0" fill="#1d2733" text-anchor="start"  font-weight="bold">One vector add on four machine types</text>
+<rect x="16" y="44" width="424" height="184" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="17" y1="45" x2="439" y2="45" stroke="#6b7a89" stroke-width="3"/>
+<text x="30" y="72" font-size="15.0" fill="#6b7a89" text-anchor="start"  font-weight="bold">SISD: one instruction, one value</text>
+<text x="30" y="94" font-size="11.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">c[i] = a[i] + b[i]</text>
+<rect x="30" y="106" width="68" height="26" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="64.0" y="122.6" font-size="10.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">i = 0</text>
+<line x1="102" y1="119" x2="114" y2="119" stroke="#6b7a89" stroke-width="1.4"/>
+<polygon points="114,119 106.8,122.5 106.8,115.5" fill="#6b7a89"/>
+<rect x="118" y="106" width="68" height="26" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="152.0" y="122.6" font-size="10.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">i = 1</text>
+<line x1="190" y1="119" x2="202" y2="119" stroke="#6b7a89" stroke-width="1.4"/>
+<polygon points="202,119 194.8,122.5 194.8,115.5" fill="#6b7a89"/>
+<rect x="206" y="106" width="68" height="26" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="240.0" y="122.6" font-size="10.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">i = 2</text>
+<line x1="278" y1="119" x2="290" y2="119" stroke="#6b7a89" stroke-width="1.4"/>
+<polygon points="290,119 282.8,122.5 282.8,115.5" fill="#6b7a89"/>
+<rect x="294" y="106" width="68" height="26" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="328.0" y="122.6" font-size="10.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">i = 3</text>
+<text x="30" y="156" font-size="12.0" fill="#6b7a89" text-anchor="start" >one add at a time, in program order</text>
+<text x="30" y="174" font-size="12.0" fill="#6b7a89" text-anchor="start" >8 adds need 8 instructions</text>
+<text x="30" y="202" font-size="12.0" fill="#6b7a89" text-anchor="start"  font-weight="bold">8 instructions</text>
+<rect x="460" y="44" width="424" height="184" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="461" y1="45" x2="883" y2="45" stroke="#2f7f86" stroke-width="3"/>
+<text x="474" y="72" font-size="15.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">SIMD: one instruction, eight values</text>
+<text x="474" y="94" font-size="11.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">c[0..7] = a[0..7] + b[0..7]</text>
+<rect x="474" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="489.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<rect x="510" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="525.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<rect x="546" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="561.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<rect x="582" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="597.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<rect x="618" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="633.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<rect x="654" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="669.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<rect x="690" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="705.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<rect x="726" y="106" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="741.0" y="121.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">a+b</text>
+<text x="474" y="156" font-size="12.0" fill="#6b7a89" text-anchor="start" >one 256-bit register holds eight floats</text>
+<text x="474" y="174" font-size="12.0" fill="#6b7a89" text-anchor="start" >one add instruction covers all eight</text>
+<text x="474" y="202" font-size="12.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">1 instruction</text>
+<rect x="16" y="240" width="424" height="184" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="17" y1="241" x2="439" y2="241" stroke="#d9622b" stroke-width="3"/>
+<text x="30" y="268" font-size="15.0" fill="#d9622b" text-anchor="start"  font-weight="bold">MIMD: one stream per core</text>
+<text x="30" y="290" font-size="10.5" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">core 0: c[i] = a[i] + b[i]</text>
+<text x="30" y="308" font-size="10.5" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">core 1: s += a[i] * b[i]</text>
+<rect x="30" y="322" width="180" height="28" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<text x="120.0" y="339.78" font-size="10.5" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">core 0: add</text>
+<rect x="224" y="322" width="180" height="28" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="314.0" y="339.78" font-size="10.5" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">core 1: dot product</text>
+<text x="30" y="372" font-size="12.0" fill="#6b7a89" text-anchor="start" >two instruction streams and two data streams</text>
+<text x="30" y="390" font-size="12.0" fill="#6b7a89" text-anchor="start" >the two cores run different programs</text>
+<text x="30" y="412" font-size="12.0" fill="#d9622b" text-anchor="start"  font-weight="bold">independent</text>
+<rect x="460" y="240" width="424" height="184" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
+<line x1="461" y1="241" x2="883" y2="241" stroke="#c89b3c" stroke-width="3"/>
+<text x="474" y="268" font-size="15.0" fill="#c89b3c" text-anchor="start"  font-weight="bold">SIMT: one instruction, 32 threads</text>
+<text x="474" y="290" font-size="10.5" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">if (a[t] &gt; 0) c[t] = a[t] + b[t];</text>
+<rect x="474" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="489.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="510" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="525.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="546" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="561.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="582" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="597.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="618" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="633.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="654" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="669.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="690" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="705.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="726" y="302" width="30" height="24" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="741.0" y="317.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t</text>
+<rect x="474" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="489.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<rect x="510" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="525.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<rect x="546" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="561.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<rect x="582" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="597.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<rect x="618" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="633.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<rect x="654" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="669.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<rect x="690" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="705.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<rect x="726" y="332" width="30" height="24" rx="4" fill="#f1f3f5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="741.0" y="347.24" font-size="9.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">if</text>
+<text x="474" y="372" font-size="12.0" fill="#6b7a89" text-anchor="start" >one instruction is sent to the whole group</text>
+<text x="474" y="390" font-size="12.0" fill="#6b7a89" text-anchor="start" >a branch runs the two sides in turn</text>
+<text x="474" y="412" font-size="12.0" fill="8a6a1f" text-anchor="start"  font-weight="bold">together, then split</text>
+<text x="20" y="448" font-size="12.0" fill="#6b7a89" text-anchor="start" >SIMT looks like SIMD while the threads agree, and like MIMD when they branch (Chapter 5).</text>
+</svg>

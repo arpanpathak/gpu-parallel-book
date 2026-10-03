@@ -1,0 +1,155 @@
+/* Motion-animation figures, adapted from the systems book theme for the
+   Night Owl dark palette. The frames themselves are light, so a figure reads
+   like a card on the dark page. */
+
+:root {
+    --book-pale: #0b2942;
+    --book-rust: #d9622b;
+    --book-brass: #c89b3c;
+    --book-navy: #82aaff;
+}
+
+/* Chapter plates and the cover, as in the systems book. */
+img.plate {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+    margin: 0.5em 0 1em 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+img.cover {
+    display: block;
+    max-width: 520px;
+    width: 100%;
+    margin: 1em auto;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
+.covers {
+    background: var(--book-pale);
+    border-left: 5px solid var(--book-rust);
+    padding: 0.6em 1.2em 0.2em 1.2em;
+    margin: 0 0 1.5em 0;
+}
+
+.covers > p:first-child {
+    font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--book-navy);
+    margin-bottom: 0.3em;
+}
+
+/* Plain figures: hand-drawn SVGs on a light card. */
+figure { margin: 1.6em 0; text-align: center; }
+figure img { max-width: 100%; }
+
+figure:not(.anim) img {
+    border: 2px solid #1d3b53;
+    border-radius: 6px;
+    background: #f3f5f7;
+    padding: 4px;
+}
+
+figcaption {
+    font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.82em;
+    text-align: left;
+    border-top: 1px solid #1d3b53;
+    margin-top: 0.5em;
+    padding-top: 0.3em;
+    color: #9db2c9;
+}
+
+figure.anim {
+    margin: 1.4em 0 2em 0;
+    text-align: center;
+}
+
+figure.anim img {
+    max-width: 100%;
+    border: 2px solid #1d3b53;
+    border-radius: 6px;
+    background: #f3f5f7;
+    padding: 4px;
+}
+
+/* An animation's caption says "Animation N" in teal, so a reader can tell at
+   a glance that the picture moves. */
+figure.anim figcaption {
+    text-align: left;
+    font-size: 0.82em;
+    border-top: 1px solid #1d3b53;
+    margin-top: 0.5em;
+    padding-top: 0.3em;
+    color: #9db2c9;
+}
+
+figure.anim figcaption b {
+    color: #7fdbca;
+}
+
+/* The motion animations are videos, with controls a reader can use to take
+   them at their own pace: pause, a slower speed, a jump to any step, and a
+   mode that stops at the end of each step. */
+figure.anim video.motion {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #1d3b53;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #f3f5f7;
+}
+
+.motion-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4em 0.9em;
+    margin: 0.5em 0 0.2em 0;
+    font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.8em;
+    text-align: left;
+}
+
+.motion-group { display: inline-flex; flex-wrap: wrap; gap: 0.3em; }
+
+.motion-bar button {
+    font: inherit;
+    padding: 0.25em 0.7em;
+    border: 1px solid #1d3b53;
+    border-radius: 999px;
+    background: #0b2942;
+    color: #d6deeb;
+    cursor: pointer;
+}
+
+.motion-bar button:hover { border-color: #4d6bfe; }
+.motion-bar button:focus-visible { outline: 2px solid #ecc48d; outline-offset: 2px; }
+
+.motion-bar button[aria-pressed="true"],
+.motion-bar button[aria-current="step"] {
+    background: #0b2942;
+    border-color: #7fdbca;
+    color: #7fdbca;
+    font-weight: 600;
+}
+
+.motion-bar .motion-play { min-width: 6.5em; font-weight: 600; }
+.motion-stepwise { color: #9db2c9; cursor: pointer; }
+
+/* The end-of-chapter summary, as in the systems book. */
+.summary {
+    border-top: 3px solid var(--book-navy);
+    margin-top: 2em;
+    padding-top: 0.4em;
+}
+
+.summary > h2 {
+    font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+    letter-spacing: 0.04em;
+}
