@@ -18,6 +18,7 @@ Each chapter opens with a member of the cast at work on the chapter's subject.
 | 3 | The Queen | holds up a launch, <<<4, 256>>>, beside 4 comb frames of worker bees: 1 order, carried out by every thread of every block |
 | 4 | Ferry the pelican | carries crates of bytes on a raft from the host memory bank to the device memory bank: pinned data crosses in 1 trip |
 | 5 | Whistle the meerkat | keeps watch at a gate that stays down until every bee has arrived: a barrier |
+| 6 | The otter twins | float down 2 rivers side by side, each carrying work: 2 streams at the same time |
 | 13 | Pinch the crab | one claw for `a[i]`, one for `b[i]`, the sum dropped into `c[i]`; two spare crabs doze past the end of the row |
 
 The plates are drawn by `tools/art.py`.

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 420" width="660" height="420" role="img" aria-label="Two rows. One by one: each of 1,000 empty kernels is preceded by its own launch work on the host, 3.8 microseconds per kernel on an Orin NX. Graph: 1 launch submits all 1,000 kernels, which run back to back, 0.9 microseconds per kernel.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="420" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A CUDA graph</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Capture the launches once, then replay them with 1 call.</text>
+  <rect x="16" y="104" width="628" height="120" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="232.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="150.3" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1,000 LAUNCHES, ONE BY ONE</text>
+  <rect x="16" y="248" width="628" height="120" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="237" width="295.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="181.7" y="252.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1 GRAPH OF 1,000 KERNELS, REPLAYED</text>
+  <rect x="40.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="66.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="104.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="130.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="168.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="194.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="232.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="258.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="296.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="322.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="360.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="386.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="424.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="450.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="488.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="514.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="552.0" y="146.0" width="24.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="578.0" y="146.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="40.0" y="200.0" class="sub" text-anchor="start" xml:space="preserve">launch cost, then kernel, 1,000 times: 3.8 µs per kernel on Orin NX</text>
+  <rect x="40.0" y="290.0" width="40.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="84.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="122.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="160.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="198.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="236.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="274.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="312.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="350.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="388.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="426.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="464.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="502.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="540.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="578.0" y="290.0" width="34.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="40.0" y="344.0" class="sub" text-anchor="start" xml:space="preserve">1 launch, then the kernels back to back: 0.9 µs per kernel</text>
+  <rect x="40" y="388" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="61.0" y="399.5" class="note" text-anchor="start" xml:space="preserve">host launch work</text>
+  <rect x="188.60000000000002" y="388" width="14" height="14" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="209.6" y="399.5" class="note" text-anchor="start" xml:space="preserve">kernel on the GPU</text>
+</svg>

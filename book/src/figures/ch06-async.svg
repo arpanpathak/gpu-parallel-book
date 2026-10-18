@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 370" width="660" height="370" role="img" aria-label="Two timelines. Host thread: the launch call takes 0.07 ms, then the host is free for about 10 ms, then it waits in cudaDeviceSynchronize. GPU: the kernel runs for 10.4 ms, starting just after the launch.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="370" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">An asynchronous launch</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The launch call returns long before the kernel finishes.</text>
+  <text x="136.0" y="150.0" class="name" text-anchor="end" xml:space="preserve">host thread</text>
+  <text x="136.0" y="236.0" class="name" text-anchor="end" xml:space="preserve">GPU</text>
+  <rect x="150.0" y="130.0" width="20.8" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="176.8" y="130.0" width="384.0" height="34.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="368.8" y="151.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">free for other work</text>
+  <rect x="546.0" y="130.0" width="66.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="579.0" y="151.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">wait</text>
+  <rect x="162.0" y="216.0" width="416.0" height="34.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="370.0" y="237.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">kernel, 10.4 ms</text>
+  <line x1="150.0" y1="266.0" x2="612.0" y2="266.0" stroke="#D5DBE3" stroke-width="1"/>
+  <line x1="150.0" y1="262.0" x2="150.0" y2="270.0" stroke="#5D6B7A" stroke-width="1"/>
+  <text x="150.0" y="288.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0 ms</text>
+  <line x1="230.0" y1="262.0" x2="230.0" y2="270.0" stroke="#5D6B7A" stroke-width="1"/>
+  <text x="230.0" y="288.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2 ms</text>
+  <line x1="310.0" y1="262.0" x2="310.0" y2="270.0" stroke="#5D6B7A" stroke-width="1"/>
+  <text x="310.0" y="288.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4 ms</text>
+  <line x1="390.0" y1="262.0" x2="390.0" y2="270.0" stroke="#5D6B7A" stroke-width="1"/>
+  <text x="390.0" y="288.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6 ms</text>
+  <line x1="470.0" y1="262.0" x2="470.0" y2="270.0" stroke="#5D6B7A" stroke-width="1"/>
+  <text x="470.0" y="288.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">8 ms</text>
+  <line x1="550.0" y1="262.0" x2="550.0" y2="270.0" stroke="#5D6B7A" stroke-width="1"/>
+  <text x="550.0" y="288.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10 ms</text>
+  <rect x="146.0" y="104" width="165.8" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="228.9" y="116.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">launch returns: 0.07 ms</text>
+  <rect x="450.2" y="104" width="165.8" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="533.1" y="116.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">cudaDeviceSynchronize()</text>
+  <text x="40.0" y="330.0" class="note" text-anchor="start" xml:space="preserve">The launch only puts the kernel in a queue. The host can prepare the next work</text>
+  <text x="40.0" y="348.0" class="note" text-anchor="start" xml:space="preserve">while the GPU computes, and waits only when it needs the result.</text>
+</svg>
