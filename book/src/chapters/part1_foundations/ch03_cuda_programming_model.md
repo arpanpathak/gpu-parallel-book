@@ -317,7 +317,10 @@ every element. Each step is shown in C++ first, then in Rust.
 <p class="listing"><b>Listing 3.2</b> The kernel, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch03_basics/src/main.rs">code/oxide/ch03_basics/src/main.rs</a></p>
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:24:32}}
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:25:33}}
+}
 ```
 
 In C++, each thread computes its index, checks it against `n`, and adds 1 pair of elements.
@@ -337,13 +340,21 @@ to the same address, and the threads need no coordination.
 <p class="listing"><b>Listing 3.3</b> Host and device arrays, in C++.</p>
 
 ```cpp
-{{#include ../../../../code/ch03_vector_add/vector_add.cu:29:43}}
+int main()
+{
+{{#include ../../../../code/ch03_vector_add/vector_add.cu:29:44}}
+    // ...
+}
 ```
 
 <p class="listing"><b>Listing 3.4</b> Host and device arrays, in Rust.</p>
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:46:51}}
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:47:53}}
+    // ...
+}
 ```
 
 `1 << 20` shifts 1 left by 20 bits, which is 2<sup>20</sup> = 1,048,576. Each array holds
@@ -363,13 +374,22 @@ equivalent of `cudaFree`.
 <p class="listing"><b>Listing 3.5</b> Launch, in C++.</p>
 
 ```cpp
-{{#include ../../../../code/ch03_vector_add/vector_add.cu:45:49}}
+int main()
+{
+    // ...
+{{#include ../../../../code/ch03_vector_add/vector_add.cu:46:51}}
+    // ...
+}
 ```
 
 <p class="listing"><b>Listing 3.6</b> Launch, in Rust.</p>
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:53:56}}
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:55:59}}
+    // ...
+}
 ```
 
 The block size of 256 is 8 full warps, and small enough that several blocks fit on 1 SM
@@ -416,7 +436,11 @@ of 4 threads prints its block, its position and its index.
 <p class="listing"><b>Listing 3.8</b> The same kernel, in Rust.</p>
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:15:22}}
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:15:23}}
+    // ...
+}
 ```
 
 ```console

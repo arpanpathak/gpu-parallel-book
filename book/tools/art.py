@@ -378,6 +378,26 @@ def flower(cx, base, s=1.0, petal="#f7a8c4"):
                       circle(cx, base - 34 * s, 5 * s, HONEY)])
 
 
+def pelican(cx, base, s=1.0, look=1):
+    """A standing pelican facing `look` (1 right, -1 left), its feet at `base`. 1.0 is 220 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    white, grey, beak, pouch, ink = "#f6f3ec", "#c9ccd3", "#f2a03d", "#f7c66b", "#2a1d10"
+    return "".join([
+        shadow(cx, base, 60 * s),
+        line(X(-12), Y(0), X(-12), Y(40), beak, 6 * s), line(X(12), Y(0), X(12), Y(40), beak, 6 * s),
+        ellipse(cx, Y(80), 62 * s, 46 * s, white, f'stroke="{ink}" stroke-width="{2.5 * s}"'),
+        path(f"M{X(-50)},{Y(92)} Q{X(-10)},{Y(130)} {X(40)},{Y(84)} Q{X(0)},{Y(70)} {X(-50)},{Y(92)} Z", grey, ink, 2.5 * s),
+        path(f"M{X(30)},{Y(110)} Q{X(40)},{Y(150)} {X(28)},{Y(176)}", "none", ink, 22 * s),
+        path(f"M{X(30)},{Y(110)} Q{X(40)},{Y(150)} {X(28)},{Y(176)}", "none", white, 17 * s),
+        circle(X(30), Y(184), 22 * s, white, f'stroke="{ink}" stroke-width="{2.5 * s}"'),
+        path(f"M{X(46)},{Y(188)} L{X(132)},{Y(176)} L{X(46)},{Y(176)} Z", beak, ink, 2.2 * s),
+        path(f"M{X(48)},{Y(176)} Q{X(96)},{Y(128)} {X(126)},{Y(176)} Z", pouch, ink, 2.2 * s),
+        eye(X(34), Y(190), 6 * s, look * 0.6),
+    ])
+
+
 def crate(x, y, w, h, text, fill="#c9a46a"):
     return "\n".join([rect(x, y, w, h, fill, 5, "#7a5a32", 3),
                       line(x + 6, y + 6, x + w - 6, y + h - 6, "#7a5a32", 2.5, 'opacity="0.6"'),
@@ -528,6 +548,26 @@ def ch03():
               label(278, 105, "<<<4, 256>>>", 16, "#2a1a10", font=MONO, weight=800, fit=textw("<<<4, 256>>>", 16, MONO)),
               tag(150, 30, "one order, every thread", 16, "#fff6e2", "#2a1a10", SANS, 700)]
     return parts
+
+
+@plate("ch04", "Memory Management & Data Movement", "Ferry the pelican", "Ferry, a pelican, stands on a wooden raft in the "
+       "middle of a river, its beak pouch full of crates of bytes. On the left bank crates are stacked under a sign that reads host "
+       "memory; on the right bank a sign reads device memory. A tag says pinned: 1 trip, because pinned data crosses in a single "
+       "copy.")
+def ch04():
+    river = path(f"M300,{GROUND - 30} L660,{GROUND - 30} L720,{H} L240,{H} Z", "#3c8dc5")
+    waves = [path(f"M{330 + 60 * k},{GROUND + 10 + 14 * (k % 2)} q14,-6 28,0 t28,0", stroke="#bfe3f7", sw=3, extra='opacity="0.7"')
+             for k in range(5)]
+    host = [crate(60 + 58 * (k % 3), GROUND - 52 - 48 * (k // 3), 52, 44, "") for k in range(5)]
+    return [backdrop(seed=4, **SHORE), river, *waves,
+            *host,
+            rect(60, 96, 180, 44, "#fff6e2", 10, WOOD, 3), label(150, 125, "host memory", 18, "#2a1a10", fit=textw("host memory", 18)),
+            rect(720, 96, 200, 44, "#fff6e2", 10, WOOD, 3), label(820, 125, "device memory", 18, "#2a1a10", fit=textw("device memory", 18)),
+            rect(760, GROUND - 120, 150, 120, "#7a4f16", 8, "#2a1a10", 3), rect(800, GROUND - 70, 70, 70, "#2a1a10", 4),
+            rect(380, GROUND - 6, 210, 22, WOOD, 6, "#5a3d28", 3),
+            crate(392, GROUND - 40, 40, 34, ""), crate(536, GROUND - 40, 40, 34, ""),
+            pelican(470, GROUND - 6, 0.9, look=1),
+            tag(480, 70, "pinned: 1 trip", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "

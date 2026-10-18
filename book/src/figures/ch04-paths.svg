@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 484" width="660" height="484" role="img" aria-label="Two kinds of system. Discrete: a CPU with host memory, and a GPU card with its own global memory of 1 to 3 TB/s; data between them crosses a PCIe link of about 32 GB/s. Integrated, as on Jetson boards and DGX Spark: the CPU and the GPU both use 1 shared memory, 102 GB/s on the Orin NX.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="484" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Where the bytes travel</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">A discrete GPU has its own memory across a link; an integrated GPU shares the CPU&#x27;s.</text>
+  <rect x="16" y="104" width="628" height="166" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="185.3" height="22" rx="11" fill="#1B2430"/>
+  <text x="126.7" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">DISCRETE: A GPU CARD</text>
+  <rect x="36" y="136" width="170" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M48,136.7 H42 V191.3 H48 A11.3,11.3 0 0 1 36.7,180 V148 A11.3,11.3 0 0 1 48,136.7 Z" fill="#2F6FDB"/>
+  <rect x="52" y="148.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(58.0,154.0) scale(0.8333)"><path d="M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm3.3 4.3-1.4 1.4L7.2 12l-2.3 2.3 1.4 1.4L10 12zM11 14v2h7v-2z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="94.0" y="169.0" class="name" text-anchor="start" xml:space="preserve">CPU</text>
+  <path d="M46,213 A75.0,9 0 0 1 196,213 V253 A75.0,9 0 0 1 46,253 Z" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4" filter="url(#lift)"/>
+  <ellipse cx="121.0" cy="213" rx="75.0" ry="9" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.4"/>
+  <text x="121.0" y="245.0" class="name" text-anchor="middle" xml:space="preserve">host memory</text>
+  <line x1="121.0" y1="192.0" x2="121.0" y2="204.0" stroke="#3F5873" stroke-width="1.8"/>
+  <rect x="454" y="136" width="170" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M466,136.7 H460 V191.3 H466 A11.3,11.3 0 0 1 454.7,180 V148 A11.3,11.3 0 0 1 466,136.7 Z" fill="#1F8A70"/>
+  <rect x="470" y="148.0" width="32" height="32" rx="8" fill="#E4F4EF"/>
+  <g transform="translate(476.0,154.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#1F8A70" fill-rule="evenodd"/></g>
+  <text x="512.0" y="169.0" class="name" text-anchor="start" xml:space="preserve">GPU</text>
+  <path d="M464,213 A75.0,9 0 0 1 614,213 V253 A75.0,9 0 0 1 464,253 Z" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.4" filter="url(#lift)"/>
+  <ellipse cx="539.0" cy="213" rx="75.0" ry="9" fill="#FFFFFF" stroke="#7A4FD0" stroke-width="1.4"/>
+  <text x="539.0" y="236.0" class="name" text-anchor="middle" xml:space="preserve">global memory</text>
+  <text x="539.0" y="254.0" class="sub" text-anchor="middle" xml:space="preserve">1 to 3 TB/s</text>
+  <line x1="539.0" y1="192.0" x2="539.0" y2="204.0" stroke="#3F5873" stroke-width="1.8"/>
+  <path class="wire" d="M206,164 L454,164" marker-end="url(#head)"/>
+  <rect x="260.3" y="155.0" width="139.4" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="330.0" y="167.8" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">PCIe link, ~32 GB/s</text>
+  <rect x="16" y="306" width="628" height="156" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="295" width="256.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="162.1" y="310.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">INTEGRATED: JETSON, DGX SPARK</text>
+  <rect x="36" y="338" width="170" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M48,338.7 H42 V393.3 H48 A11.3,11.3 0 0 1 36.7,382 V350 A11.3,11.3 0 0 1 48,338.7 Z" fill="#2F6FDB"/>
+  <rect x="52" y="350.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(58.0,356.0) scale(0.8333)"><path d="M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm3.3 4.3-1.4 1.4L7.2 12l-2.3 2.3 1.4 1.4L10 12zM11 14v2h7v-2z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="94.0" y="371.0" class="name" text-anchor="start" xml:space="preserve">CPU</text>
+  <rect x="454" y="338" width="170" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M466,338.7 H460 V393.3 H466 A11.3,11.3 0 0 1 454.7,382 V350 A11.3,11.3 0 0 1 466,338.7 Z" fill="#1F8A70"/>
+  <rect x="470" y="350.0" width="32" height="32" rx="8" fill="#E4F4EF"/>
+  <g transform="translate(476.0,356.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#1F8A70" fill-rule="evenodd"/></g>
+  <text x="512.0" y="371.0" class="name" text-anchor="start" xml:space="preserve">GPU</text>
+  <path d="M230,401 A100.0,9 0 0 1 430,401 V439 A100.0,9 0 0 1 230,439 Z" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4" filter="url(#lift)"/>
+  <ellipse cx="330.0" cy="401" rx="100.0" ry="9" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.4"/>
+  <text x="330.0" y="423.0" class="name" text-anchor="middle" xml:space="preserve">1 shared memory</text>
+  <text x="330.0" y="441.0" class="sub" text-anchor="middle" xml:space="preserve">102 GB/s on Orin NX</text>
+  <path class="wire" d="M121,394 L121,411 Q121,420 130,420 L230,420" marker-end="url(#head)"/>
+  <path class="wire" d="M539,394 L539,411 Q539,420 530,420 L430,420" marker-end="url(#head)"/>
+</svg>

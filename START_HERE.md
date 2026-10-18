@@ -36,6 +36,9 @@ Take from them: a character plate on every chapter, a "This chapter covers" box,
 - **Look at every picture** you make the way the reader's browser draws it: screenshot it with the headless Chromium at `~/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux-arm64/chrome-headless-shell --no-sandbox --hide-scrollbars --window-size=W,H --screenshot=out.png file:///path.svg` and Read the PNG. cairosvg uses different fonts and hides overflow.
 - Do not run `mdbook build` while `mdbook serve` is running: both write `book/book/` and the server's rebuild fails. Touch a source file instead.
 - Do not rewrite the Foreword. Keep its opening line. (See also the user's memory notes.)
+- **Code style.** No macros, few comments, a blank line between logical groups (setup, copies, launch, checks, printing). No `unwrap` or `expect` in Rust: functions return `Result<_, DriverError>` and use `?`. Keep lines short enough to fit the page (about 95 characters); split long signatures and `printf` calls.
+- **Do not overfit the author's Jetson.** Explain on any GPU first (a table across Orin NX, AGX Thor, DGX Spark, RTX 4090/5090, A100, H100, GH200 where it applies); the Jetson's measured run is 1 example, with "run it on yours".
+- **Excerpts are whole blocks.** An excerpt that starts or ends inside a function shows the enclosing header, `// ...` and the closing brace. `tools/excerpts.py` does this (see Tools).
 
 Read the "Agent conduct log" section of WORKLOG.md first: it records where an earlier agent
 overstepped, and the rules that came out of it.
@@ -98,6 +101,8 @@ Run from `book/`.
 | `mdbook build` | builds into `book/book/` |
 
 Code excerpts are mdBook line-range includes, for example `{{#include ../../../../code/oxide/vector_add/src/main.rs:19:35}}`. mdBook does not strip `// ANCHOR` lines from a whole-file include, so do not use anchors. After editing a source file, re-check that every range still starts and ends where the prose expects (print the first and last line of each range).
+
+`python3 tools/excerpts.py check | wrap | remap` keeps excerpts whole: `wrap` adds enclosing headers, `// ...` and closing braces around a partial excerpt (it owns every fence whose lines are all includes); `remap` moves ranges after a committed source changes (it diffs against `git HEAD`, so for untracked files shift the ranges by hand). Run `wrap` then `check` after any range change.
 
 ## Checks before every commit
 

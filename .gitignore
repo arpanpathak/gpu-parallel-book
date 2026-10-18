@@ -7,6 +7,7 @@ __pycache__/
 # Compiled example binaries (build with the commands in code/README.md)
 /code/ch03_vector_add/vector_add
 /code/ch03_vector_add/whoami
+/code/ch04_memory/transfers
 /code/ch05_histogram/histogram
 /code/ch08_reduction/reduction
 /code/ch09_sgemm/sgemm

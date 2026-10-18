@@ -39,20 +39,24 @@ int main()
     check(cudaMalloc(&d_a, bytes));
     check(cudaMalloc(&d_b, bytes));
     check(cudaMalloc(&d_c, bytes));
+
     check(cudaMemcpy(d_a, h_a.data(), bytes, cudaMemcpyHostToDevice));
     check(cudaMemcpy(d_b, h_b.data(), bytes, cudaMemcpyHostToDevice));
 
     const int threads = 256;
     const int blocks = (n + threads - 1) / threads;
+
     addVectors<<<blocks, threads>>>(d_a, d_b, d_c, n);
     check(cudaGetLastError());
     check(cudaDeviceSynchronize());
 
     check(cudaMemcpy(h_c.data(), d_c, bytes, cudaMemcpyDeviceToHost));
+
     double maxErr = 0;
     for (int i = 0; i < n; ++i) {
         maxErr = std::fmax(maxErr, std::fabs(h_c[i] - 3.0 * i));
     }
+
     std::printf("n = %d, %d blocks of %d threads\n", n, blocks, threads);
     std::printf("c[0] = %.0f, c[1] = %.0f, c[%d] = %.0f\n", h_c[0], h_c[1], n - 1, h_c[n - 1]);
     std::printf("max error = %g\n", maxErr);
