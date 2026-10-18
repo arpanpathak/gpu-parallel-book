@@ -1,4 +1,4 @@
-# CUDA Kernels: GPU & Parallel Programming from First Principles
+# GPU Architecture & Parallel Programming from First Principles
 
 > A comprehensive, and systematic guide to GPU and parallel programming with CUDA:
 > the hardware model, fully documented CUDA C++ kernels, modern C++ idioms,

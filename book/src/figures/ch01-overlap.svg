@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 590" width="640" height="590" role="img" aria-label="A processor that sends a new read every 2 cycles is wired to a memory that takes 10 cycles per read. Below, eight reads drawn as bars on a time axis from 0 to 26 cycles. Each bar is 10 cycles long, and each starts 2 cycles after the one before. A dashed line at cycle 10.5 crosses five bars, drawn green: five reads are in flight at that moment. A card below reads: reads in flight = 10 / 2 = 5.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="590" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Reads that overlap</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Every read takes 10 cycles, and a new read starts every 2 cycles.</text>
+  <rect x="40" y="96" width="230" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,96.7 H46 V159.3 H52 A11.3,11.3 0 0 1 40.7,148 V108 A11.3,11.3 0 0 1 52,96.7 Z" fill="#2F6FDB"/>
+  <rect x="56" y="112.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(62.0,118.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="98.0" y="115.0" class="name" text-anchor="start" xml:space="preserve">processor</text>
+  <text x="98.0" y="133.0" class="sub" text-anchor="start" xml:space="preserve">sends a new read</text>
+  <text x="98.0" y="151.0" class="sub" text-anchor="start" xml:space="preserve">every 2 cycles</text>
+  <path d="M430,101 A85.0,9 0 0 1 600,101 V155 A85.0,9 0 0 1 430,155 Z" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4" filter="url(#lift)"/>
+  <ellipse cx="515.0" cy="101" rx="85.0" ry="9" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.4"/>
+  <text x="515.0" y="131.0" class="name" text-anchor="middle" xml:space="preserve">main memory</text>
+  <text x="515.0" y="149.0" class="sub" text-anchor="middle" xml:space="preserve">10 cycles per read</text>
+  <path class="wire" d="M270,128 L430,128" marker-end="url(#head)"/>
+  <rect x="326.5" y="119.0" width="47.0" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="350.0" y="131.8" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">reads</text>
+  <text x="110.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="148.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <text x="186.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="224.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <text x="262.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">8</text>
+  <text x="300.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <text x="338.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">12</text>
+  <text x="376.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">14</text>
+  <text x="414.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <text x="452.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">18</text>
+  <text x="490.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <text x="528.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">22</text>
+  <text x="566.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <text x="604.0" y="204.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">26</text>
+  <text x="98.0" y="230.0" class="sub" text-anchor="end" xml:space="preserve">read 0</text>
+  <rect x="110.0" y="217.0" width="190.0" height="20.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="98.0" y="258.0" class="sub" text-anchor="end" xml:space="preserve">read 1</text>
+  <rect x="148.0" y="245.0" width="190.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="98.0" y="286.0" class="sub" text-anchor="end" xml:space="preserve">read 2</text>
+  <rect x="186.0" y="273.0" width="190.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="98.0" y="314.0" class="sub" text-anchor="end" xml:space="preserve">read 3</text>
+  <rect x="224.0" y="301.0" width="190.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="98.0" y="342.0" class="sub" text-anchor="end" xml:space="preserve">read 4</text>
+  <rect x="262.0" y="329.0" width="190.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="98.0" y="370.0" class="sub" text-anchor="end" xml:space="preserve">read 5</text>
+  <rect x="300.0" y="357.0" width="190.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="98.0" y="398.0" class="sub" text-anchor="end" xml:space="preserve">read 6</text>
+  <rect x="338.0" y="385.0" width="190.0" height="20.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="98.0" y="426.0" class="sub" text-anchor="end" xml:space="preserve">read 7</text>
+  <rect x="376.0" y="413.0" width="190.0" height="20.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <line x1="309.5" y1="210.0" x2="309.5" y2="444.0" stroke="#CF4526" stroke-width="2" stroke-dasharray="6 5"/>
+  <rect x="317.5" y="440" width="225.2" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="430.1" y="452.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">at cycle 10.5: 5 reads in flight</text>
+  <rect x="110" y="478" width="14" height="14" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="131.0" y="489.5" class="note" text-anchor="start" xml:space="preserve">in flight at cycle 10.5</text>
+  <rect x="304.8" y="478" width="14" height="14" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="325.8" y="489.5" class="note" text-anchor="start" xml:space="preserve">finished, or not started</text>
+  <rect x="40" y="508" width="560" height="58" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,508.7 H46 V565.3 H52 A11.3,11.3 0 0 1 40.7,554 V520 A11.3,11.3 0 0 1 52,508.7 Z" fill="#1F8A70"/>
+  <text x="60.0" y="533.0" class="name" text-anchor="start" xml:space="preserve">reads in flight = 10 / 2 = 5</text>
+  <text x="60.0" y="551.0" class="sub" text-anchor="start" xml:space="preserve">time one read takes, divided by the time between two starts</text>
+</svg>

@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 500" width="660" height="500" role="img" aria-label="A block with blockDim (4, 4, 2) drawn as 2 layers of 4 by 4 threads side by side. Layer z = 0 is numbered 0 to 15 row by row, and layer z = 1, which comes after it, 16 to 31. Thread (2, 1, 1) in layer z = 1 is highlighted: 2 + 4 × 1 + 16 × 1 = 22. 4 × 4 × 2 = 32 threads, exactly 1 warp.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="500" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A 3-D block: 2 layers of 4 × 4 threads</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Threads are numbered x first, then y, then z.</text>
+  <rect x="40" y="116" width="200" height="216" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="58" y="105" width="114.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="115.3" y="120.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">LAYER Z = 0</text>
+  <rect x="62" y="152" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="80.0" y="174.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0</text>
+  <rect x="102" y="152" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="120.0" y="174.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="142" y="152" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="160.0" y="174.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2</text>
+  <rect x="182" y="152" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="200.0" y="174.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">3</text>
+  <rect x="62" y="192" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="80.0" y="214.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4</text>
+  <rect x="102" y="192" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="120.0" y="214.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
+  <rect x="142" y="192" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="160.0" y="214.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">6</text>
+  <rect x="182" y="192" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="200.0" y="214.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">7</text>
+  <rect x="62" y="232" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="80.0" y="254.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">8</text>
+  <rect x="102" y="232" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="120.0" y="254.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">9</text>
+  <rect x="142" y="232" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="160.0" y="254.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">10</text>
+  <rect x="182" y="232" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="200.0" y="254.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">11</text>
+  <rect x="62" y="272" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="80.0" y="294.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">12</text>
+  <rect x="102" y="272" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="120.0" y="294.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">13</text>
+  <rect x="142" y="272" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="160.0" y="294.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">14</text>
+  <rect x="182" y="272" width="36" height="36" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="200.0" y="294.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">15</text>
+  <text x="80.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=0</text>
+  <text x="120.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=1</text>
+  <text x="160.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=2</text>
+  <text x="200.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=3</text>
+  <rect x="340" y="116" width="200" height="216" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="358" y="105" width="114.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="415.3" y="120.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">LAYER Z = 1</text>
+  <rect x="362" y="152" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="380.0" y="174.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
+  <rect x="402" y="152" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="420.0" y="174.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">17</text>
+  <rect x="442" y="152" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="460.0" y="174.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">18</text>
+  <rect x="482" y="152" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="500.0" y="174.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">19</text>
+  <rect x="362" y="192" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="380.0" y="214.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">20</text>
+  <rect x="402" y="192" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="420.0" y="214.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">21</text>
+  <rect x="442" y="192" width="36" height="36" rx="5" fill="#1F8A70" stroke="#1F8A70" stroke-width="1"/>
+  <text x="460.0" y="214.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">22</text>
+  <rect x="482" y="192" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="500.0" y="214.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">23</text>
+  <rect x="362" y="232" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="380.0" y="254.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">24</text>
+  <rect x="402" y="232" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="420.0" y="254.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">25</text>
+  <rect x="442" y="232" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="460.0" y="254.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">26</text>
+  <rect x="482" y="232" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="500.0" y="254.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">27</text>
+  <rect x="362" y="272" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="380.0" y="294.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">28</text>
+  <rect x="402" y="272" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="420.0" y="294.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">29</text>
+  <rect x="442" y="272" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="460.0" y="294.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">30</text>
+  <rect x="482" y="272" width="36" height="36" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="500.0" y="294.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">31</text>
+  <text x="380.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=0</text>
+  <text x="420.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=1</text>
+  <text x="460.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=2</text>
+  <text x="500.0" y="332.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=3</text>
+  <path class="wire" d="M240,230 L340,230" marker-end="url(#head)"/>
+  <rect x="269.8" y="221.0" width="40.4" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="290.0" y="233.8" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">then</text>
+  <rect x="40" y="392" width="580" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,392.7 H46 V451.3 H52 A11.3,11.3 0 0 1 40.7,440 V404 A11.3,11.3 0 0 1 52,392.7 Z" fill="#1F8A70"/>
+  <text x="60.0" y="418.0" class="name" text-anchor="start" xml:space="preserve">thread (x, y, z) = (2, 1, 1) is number 2 + 4 × 1 + 16 × 1 = 22</text>
+  <text x="60.0" y="436.0" class="sub" text-anchor="start" xml:space="preserve">x counts 1 each, a row of 4 counts 4, a layer of 16 counts 16</text>
+  <text x="40.0" y="480.0" class="note" text-anchor="start" xml:space="preserve">blockDim = (4, 4, 2): 4 × 4 × 2 = 32 threads, exactly 1 warp.</text>
+</svg>

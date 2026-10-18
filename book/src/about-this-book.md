@@ -1,10 +1,28 @@
-# Foreword
+# About this book
 
-Computing is entering its parallel age, and the GPU is the machine that defines it.
+Computing is entering its parallel age.
 
-For sixty years, the default path to a faster program was a faster serial processor: a higher clock, a smarter pipeline, a larger cache. That path ran into a wall in the mid-2000s, when clock speeds stopped climbing and silicon stopped cooperating. The industry's answer was not surrender but a change of question - from "how fast can one core go?" to "how many cores can we set free at once?" The GPU is that answer, multiplied a hundred thousand times. A modern accelerator executes tens of trillions of floating-point operations per second, moves memory at terabytes per second, and keeps more threads in flight than there are people on Earth - all directed by code that you, an individual programmer, can write and understand completely.
+For more than thirty years, from the first microprocessors to the middle of the 2000s,
+most programs became faster without being changed. Each new generation of processor ran
+at a higher clock rate, and the same code finished sooner. Around 2005 that stopped. A
+faster clock made a chip too hot to cool, so clock rates settled at a few gigahertz, and
+chip designers spent each new generation's extra transistors on more processors instead
+of faster ones. Since then, a program becomes faster mainly when it is written to do many
+things at once.
 
-The instruction set is documented, the programming model is teachable, and the performance is explained by a handful of principles - the warp, the memory hierarchy, the roofline model - that fit on a single page and govern every GPU ever built. Few subjects in computer science offer this much return per hour of study.
+The GPU is the clearest example of that change. A CPU has a few large cores, each designed
+to finish one sequence of instructions as quickly as possible. A GPU has thousands of small
+arithmetic units and keeps tens of thousands of threads ready to run, and it is designed to
+finish a great many independent pieces of work in the same time. GPUs were first built to
+colour the pixels of a screen, a task made of millions of independent pieces. The same
+design now runs scientific simulations, trains and serves machine-learning models, and
+processes images and signals.
+
+Programming a GPU well does not depend on a large body of special knowledge. A small number
+of ideas explain most of what makes a GPU program fast or slow: how threads are grouped and
+scheduled, how data moves through the levels of memory, and how much arithmetic a program
+performs for each byte it reads. This book builds those ideas from the beginning, and then
+uses them to write and measure real programs.
 
 ## The Hardware Gap
 

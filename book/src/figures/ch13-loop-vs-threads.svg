@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 290.0" width="760" height="290.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<rect x="20" y="20" width="340" height="250" rx="6" fill="#fbfcfd" stroke="#1d2733" stroke-width="1.1"/>
+<text x="30" y="36.0" font-size="10.5" fill="#5b6b7c" text-anchor="start"  font-weight="bold">One CPU core: a loop</text>
+<rect x="38" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="55.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">0</text>
+<rect x="77" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="94.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">1</text>
+<rect x="116" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="133.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">2</text>
+<rect x="155" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="172.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">3</text>
+<rect x="194" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="211.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">4</text>
+<rect x="233" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="250.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">5</text>
+<rect x="272" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="289.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">6</text>
+<rect x="311" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="328.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">7</text>
+<text x="190" y="250" font-size="12.0" fill="#5b6b7c" text-anchor="middle" >8 steps, one after another</text>
+<rect x="400" y="20" width="340" height="250" rx="6" fill="#fbfcfd" stroke="#1d2733" stroke-width="1.1"/>
+<text x="410" y="36.0" font-size="10.5" fill="#5b6b7c" text-anchor="start"  font-weight="bold">The GPU: one thread per element</text>
+<rect x="418" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="435.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">0</text>
+<rect x="457" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="474.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">1</text>
+<rect x="496" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="513.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">2</text>
+<rect x="535" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="552.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">3</text>
+<rect x="574" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="591.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">4</text>
+<rect x="613" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="630.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">5</text>
+<rect x="652" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="669.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">6</text>
+<rect x="691" y="160" width="34" height="34" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="708.0" y="181.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">7</text>
+<text x="570" y="250" font-size="12.0" fill="#5b6b7c" text-anchor="middle" >1 step, all at the same time</text>
+<rect x="38" y="62" width="52" height="30" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<text x="64.0" y="81.32" font-size="12.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">core</text>
+<line x1="64" y1="96" x2="55" y2="152" stroke="#d9622b" stroke-width="1.8"/>
+<polygon points="55,152 52.7,144.3 59.6,145.4" fill="#d9622b"/>
+<line x1="80" y1="140" x2="330" y2="140" stroke="#d9622b" stroke-width="2.0" stroke-dasharray="6,4"/>
+<polygon points="330,140 322.8,143.5 322.8,136.5" fill="#d9622b"/>
+<text data-halo="1" x="205" y="128" font-size="12.0" fill="#ffffff" text-anchor="middle" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round" font-family="Menlo, monospace" xml:space="preserve">i = 0, then 1, then 2, …</text>
+<text x="205" y="128" font-size="12.0" fill="#d9622b" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">i = 0, then 1, then 2, …</text>
+<rect x="418" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="435.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t0</text>
+<line x1="435" y1="100" x2="435" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="435,154 431.5,146.8 438.5,146.8" fill="#2f7f86"/>
+<rect x="457" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="474.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t1</text>
+<line x1="474" y1="100" x2="474" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="474,154 470.5,146.8 477.5,146.8" fill="#2f7f86"/>
+<rect x="496" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="513.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t2</text>
+<line x1="513" y1="100" x2="513" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="513,154 509.5,146.8 516.5,146.8" fill="#2f7f86"/>
+<rect x="535" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="552.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t3</text>
+<line x1="552" y1="100" x2="552" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="552,154 548.5,146.8 555.5,146.8" fill="#2f7f86"/>
+<rect x="574" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="591.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t4</text>
+<line x1="591" y1="100" x2="591" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="591,154 587.5,146.8 594.5,146.8" fill="#2f7f86"/>
+<rect x="613" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="630.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t5</text>
+<line x1="630" y1="100" x2="630" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="630,154 626.5,146.8 633.5,146.8" fill="#2f7f86"/>
+<rect x="652" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="669.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t6</text>
+<line x1="669" y1="100" x2="669" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="669,154 665.5,146.8 672.5,146.8" fill="#2f7f86"/>
+<rect x="691" y="70" width="34" height="26" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="708.0" y="86.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">t7</text>
+<line x1="708" y1="100" x2="708" y2="154" stroke="#2f7f86" stroke-width="1.6"/>
+<polygon points="708,154 704.5,146.8 711.5,146.8" fill="#2f7f86"/>
+<text x="570" y="222" font-size="12.0" fill="#2f7f86" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">each thread: c[i] = a[i] + b[i]</text>
+</svg>

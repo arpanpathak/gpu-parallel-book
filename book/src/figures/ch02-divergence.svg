@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480" role="img" aria-label="Eight lanes with x values 5, 1, 7, 2, 9, 0, 3 and 4. Step 1 runs if x &gt; 2: y = x * 2. Lanes 0, 2, 4, 6 and 7 compute 10, 14, 18, 6 and 8 while lanes 1, 3 and 5 wait. Step 2 runs else: y = 0, and lanes 1, 3 and 5 compute 0 while the others wait. Step 3, after the if, all lanes run together.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="480" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">When the lanes disagree at a branch</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The warp runs each side in turn, with the other lanes switched off.</text>
+  <text x="136.0" y="132.0" class="name" text-anchor="end" xml:space="preserve">x</text>
+  <text x="176.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 0</text>
+  <rect x="150.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="176.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
+  <text x="236.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 1</text>
+  <rect x="210.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="236.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <text x="296.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 2</text>
+  <rect x="270.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="296.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">7</text>
+  <text x="356.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 3</text>
+  <rect x="330.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="356.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2</text>
+  <text x="416.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 4</text>
+  <rect x="390.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="416.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">9</text>
+  <text x="476.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 5</text>
+  <rect x="450.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="476.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0</text>
+  <text x="536.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 6</text>
+  <rect x="510.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="536.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">3</text>
+  <text x="596.0" y="106.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 7</text>
+  <rect x="570.0" y="114.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="596.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4</text>
+  <text x="24.0" y="174.0" class="name" text-anchor="start" xml:space="preserve">step 1</text>
+  <text x="90.0" y="174.0" class="mono" text-anchor="start" xml:space="preserve">if x &gt; 2:  y = x * 2</text>
+  <rect x="150.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="176.0" y="202.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">10</text>
+  <rect x="210.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="236.0" y="202.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <rect x="270.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="296.0" y="202.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">14</text>
+  <rect x="330.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="356.0" y="202.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <rect x="390.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="416.0" y="202.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">18</text>
+  <rect x="450.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="476.0" y="202.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <rect x="510.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="536.0" y="202.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="570.0" y="184.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="596.0" y="202.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">8</text>
+  <text x="24.0" y="248.0" class="name" text-anchor="start" xml:space="preserve">step 2</text>
+  <text x="90.0" y="248.0" class="mono" text-anchor="start" xml:space="preserve">else:  y = 0</text>
+  <rect x="150.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="176.0" y="276.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <rect x="210.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="236.0" y="276.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="270.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="296.0" y="276.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <rect x="330.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="356.0" y="276.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="390.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="416.0" y="276.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <rect x="450.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="476.0" y="276.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="510.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="536.0" y="276.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <rect x="570.0" y="258.0" width="52.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="596.0" y="276.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">wait</text>
+  <text x="24.0" y="322.0" class="name" text-anchor="start" xml:space="preserve">step 3</text>
+  <text x="90.0" y="322.0" class="mono" text-anchor="start" xml:space="preserve">after the if</text>
+  <rect x="150.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="176.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="210.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="236.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="270.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="296.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="330.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="356.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="390.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="416.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="450.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="476.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="510.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="536.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="570.0" y="332.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="596.0" y="350.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">runs</text>
+  <rect x="40" y="400" width="470" height="58" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,400.7 H46 V457.3 H52 A11.3,11.3 0 0 1 40.7,446 V412 A11.3,11.3 0 0 1 52,400.7 Z" fill="#CF4526"/>
+  <text x="60.0" y="425.0" class="name" text-anchor="start" xml:space="preserve">Two sides of the branch, two steps</text>
+  <text x="60.0" y="443.0" class="sub" text-anchor="start" xml:space="preserve">while one side runs, the lanes of the other side wait</text>
+  <g transform="translate(526,392) scale(0.3333)">
+<ellipse cx="78" cy="56" rx="34" ry="24" fill="#d8ecfa" stroke="#9cc3e0" stroke-width="3" transform="rotate(-28 78 56)"/>
+<ellipse cx="162" cy="56" rx="34" ry="24" fill="#d8ecfa" stroke="#9cc3e0" stroke-width="3" transform="rotate(28 162 56)"/>
+<path d="M104,72 Q96,40 82,30" fill="none" stroke="#3a2a1e" stroke-width="4.5" stroke-linecap="round"/>
+<path d="M136,72 Q144,40 158,30" fill="none" stroke="#3a2a1e" stroke-width="4.5" stroke-linecap="round"/>
+<circle cx="82" cy="30" r="7" fill="#3a2a1e"/><circle cx="158" cy="30" r="7" fill="#3a2a1e"/>
+<path d="M206,132 L226,138 L206,144 Z" fill="#3a2a1e"/>
+<line x1="86" y1="160" x2="78" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<line x1="110" y1="160" x2="106" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<line x1="130" y1="160" x2="134" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<line x1="154" y1="160" x2="162" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<clipPath id="bee1"><ellipse cx="120" cy="124" rx="92" ry="46"/></clipPath>
+<ellipse cx="120" cy="124" rx="92" ry="46" fill="#f2b84b"/>
+<g clip-path="url(#bee1)" fill="#3a2a1e"><rect x="40" y="70" width="14" height="110"/><rect x="186" y="70" width="14" height="110"/><rect x="164" y="70" width="10" height="110"/></g>
+<ellipse cx="120" cy="152" rx="58" ry="12" fill="#d9932a" opacity="0.45"/>
+<ellipse cx="99" cy="118" rx="13" ry="17" fill="#ffffff"/><circle cx="99" cy="119.5" r="5.2" fill="#1b2430"/><circle cx="101.3" cy="116.2" r="2.1" fill="#ffffff"/>
+<ellipse cx="141" cy="118" rx="13" ry="17" fill="#ffffff"/><circle cx="141" cy="119.5" r="5.2" fill="#1b2430"/><circle cx="143.3" cy="116.2" r="2.1" fill="#ffffff"/>
+<ellipse cx="120" cy="147" rx="7" ry="10" fill="#7a1f0a"/>
+</g>
+</svg>

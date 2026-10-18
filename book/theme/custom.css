@@ -1,21 +1,57 @@
-/* Motion-animation figures, adapted from the systems book theme for the
-   Night Owl dark palette. The frames themselves are light, so a figure reads
-   like a card on the dark page. */
+/* The book's boxes, figures and type, after Democratizing Linux and Cracking
+   the Systems Programming Interview. The chapters use the same class names:
+   img.plate, .covers, .callout, .bee, .lld, .listing, figure and .summary.
+   The default theme is Night Owl ("navy", in custom.css); the light theme
+   gets the colours of the systems books. */
 
 :root {
-    --book-pale: #0b2942;
+    --book-ink: #1d2733;
+    --book-steel: #5b6b7c;
+    --book-pale: #e9eef3;
+    --book-navy: #16324f;
     --book-rust: #d9622b;
     --book-brass: #c89b3c;
-    --book-navy: #82aaff;
+    --book-teal: #2f7f86;
+    --book-rule: #c9d4de;
+    --bee-bg: #fff8e6;
+    --bee-edge: #f1d79a;
+    --content-max-width: 820px;
 }
 
-/* Chapter plates and the cover, as in the systems book. */
+.navy, .coal, .ayu {
+    --book-ink: #d6deeb;
+    --book-steel: #9db2c9;
+    --book-pale: #0b2942;
+    --book-navy: #82aaff;
+    --book-teal: #7fdbca;
+    --book-rule: #1d3b53;
+    --bee-bg: #1d1a10;
+    --bee-edge: #5c4a1c;
+}
+
+/* Type: a book face for reading, a condensed sans for headings. */
+.content main {
+    font-family: Charter, "Bitstream Charter", "Iowan Old Style", Georgia, serif;
+    font-size: 1.72rem;
+    line-height: 1.62;
+}
+
+.content h1, .content h2, .content h3, .content h4 {
+    font-family: "Avenir Next Condensed", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    color: var(--book-navy);
+    letter-spacing: 0.01em;
+}
+
+.content h1 { font-size: 2.4em; margin-top: 0.4em; }
+.content h2 { border-bottom: 1px solid var(--book-rule); padding-bottom: 0.2em; margin-top: 2em; }
+
+/* Chapter plates and the cover. */
 img.plate {
     display: block;
     width: 100%;
     border-radius: 4px;
     margin: 0.5em 0 1em 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 img.cover {
@@ -23,9 +59,10 @@ img.cover {
     max-width: 520px;
     width: 100%;
     margin: 1em auto;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
 }
 
+/* "This chapter covers". */
 .covers {
     background: var(--book-pale);
     border-left: 5px solid var(--book-rust);
@@ -33,7 +70,8 @@ img.cover {
     margin: 0 0 1.5em 0;
 }
 
-.covers > p:first-child {
+.covers > p:first-child,
+.lld > p:first-child {
     font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
     font-weight: 600;
     text-transform: uppercase;
@@ -42,67 +80,176 @@ img.cover {
     margin-bottom: 0.3em;
 }
 
-/* Plain figures: hand-drawn SVGs on a light card. */
+.sidebar {
+    border: 1px solid var(--book-rule);
+    background: var(--book-pale);
+    padding: 0.6em 1.2em;
+    margin: 1.4em 0;
+    font-size: 0.94em;
+}
+
+.content blockquote {
+    border-left: 4px solid var(--book-brass);
+    background: transparent;
+    margin: 1em 0;
+    padding: 0.2em 1em;
+    font-size: 0.95em;
+}
+
+/* NOTE, TIP and WARNING. A bee sits in the top right corner. */
+.callout {
+    position: relative;
+    border-left: 5px solid var(--book-navy);
+    background: var(--book-pale);
+    padding: 0.5em 5.4em 0.5em 1.1em;
+    margin: 1.3em 0;
+    font-size: 0.95em;
+    border-radius: 0 6px 6px 0;
+}
+.callout.tip { border-left-color: var(--book-teal); }
+.callout.warning { border-left-color: var(--book-rust); }
+.callout.note { border-left-color: var(--book-brass); }
+.callout > p:first-child strong:first-child {
+    font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+    letter-spacing: 0.06em;
+}
+.callout::after {
+    content: "";
+    position: absolute;
+    right: 0.7em;
+    top: 0.6em;
+    width: 4em;
+    height: 3.2em;
+    background: url("../art/bee-cute.svg") no-repeat center / contain;
+}
+.callout.warning::after { background-image: url("../art/bee-shocked.svg"); }
+
+/* A bee in one of 5 moods beside one fact a reader should keep. */
+.bee {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin: 1.6em 0;
+    padding: 0.5em 1.1em 0.5em 0.9em;
+    border: 1px solid var(--bee-edge);
+    border-left: 5px solid var(--book-brass);
+    border-radius: 6px;
+    background: var(--bee-bg);
+    font-size: 0.95em;
+}
+.bee::before {
+    content: "";
+    flex: 0 0 4.6em;
+    height: 3.7em;
+    background: no-repeat center / contain;
+}
+.bee > p { margin: 0.3em 0; }
+.bee-happy::before { background-image: url("../art/bee-happy.svg"); }
+.bee-cute::before { background-image: url("../art/bee-cute.svg"); }
+.bee-shocked::before { background-image: url("../art/bee-shocked.svg"); }
+.bee-sleepy::before { background-image: url("../art/bee-sleepy.svg"); }
+.bee-angry::before { background-image: url("../art/bee-angry.svg"); }
+
+/* A design box: the types, operations or numbers of one thing. */
+.lld {
+    border: 1px solid var(--book-rule);
+    border-top: 4px solid var(--book-navy);
+    background: var(--book-pale);
+    padding: 0.6em 1.2em 0.4em 1.2em;
+    margin: 1.6em 0;
+    font-size: 0.94em;
+}
+.lld > p:first-child code { text-transform: none; }
+.lld table { width: 100%; margin: 0.6em 0; background: transparent; }
+
+/* Listing captions. */
+.listing {
+    font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.82em;
+    margin: 1.6em 0 0.2em 0;
+    padding-bottom: 0.25em;
+    border-bottom: 2px solid var(--book-navy);
+}
+.listing a { float: right; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.86em; }
+.listing b, figcaption b { color: var(--book-rust); margin-right: 0.4em; }
+
+.content pre > code { font-size: 0.83em; line-height: 1.5; }
+
+/* Figures. The diagrams carry their own paper background and rounded corners. */
 figure { margin: 1.6em 0; text-align: center; }
 figure img { max-width: 100%; }
-
-figure:not(.anim) img {
-    border: 2px solid #1d3b53;
-    border-radius: 6px;
-    background: #f3f5f7;
-    padding: 4px;
+figure:not(.anim) > img { border-radius: 14px; }
+figure > img[src$=".svg"] { cursor: zoom-in; }
+.navy figure:not(.anim) > img, .coal figure:not(.anim) > img, .ayu figure:not(.anim) > img {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
 }
 
 figcaption {
     font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
     font-size: 0.82em;
     text-align: left;
-    border-top: 1px solid #1d3b53;
+    border-top: 1px solid var(--book-rule);
     margin-top: 0.5em;
     padding-top: 0.3em;
-    color: #9db2c9;
+    color: var(--book-steel);
 }
 
-figure.anim {
-    margin: 1.4em 0 2em 0;
-    text-align: center;
+.content table { font-size: 0.9em; }
+.content table thead th { background: var(--book-navy); color: #ffffff; }
+.navy .content table thead th, .coal .content table thead th, .ayu .content table thead th { color: #011627; }
+
+/* The end-of-chapter summary, with a happy bee beside its heading. */
+.summary { border-top: 3px solid var(--book-navy); margin-top: 2em; }
+.summary h2::after {
+    content: "";
+    display: inline-block;
+    width: 2.2em;
+    height: 1.7em;
+    margin-left: 0.5em;
+    vertical-align: -0.35em;
+    background: url("../art/bee-happy.svg") no-repeat center / contain;
 }
 
-figure.anim img {
-    max-width: 100%;
-    border: 2px solid #1d3b53;
-    border-radius: 6px;
-    background: #f3f5f7;
-    padding: 4px;
+/* A diagram opened full screen by theme/figures.js. */
+.figure-zoom {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(9, 11, 16, 0.94);
+    cursor: zoom-out;
+    overflow: auto;
+    touch-action: pinch-zoom;
+}
+.figure-zoom img { max-width: 96vw; max-height: 94vh; border-radius: 10px; background: #fbfaf6; }
+.figure-zoom.turned img { transform: rotate(90deg); width: 94vh; max-width: none; max-height: 96vw; }
+.figure-zoom::after {
+    content: "Tap to close";
+    position: fixed;
+    right: 12px;
+    bottom: 10px;
+    color: #a6accd;
+    font-size: 1.3rem;
 }
 
-/* An animation's caption says "Animation N" in teal, so a reader can tell at
-   a glance that the picture moves. */
-figure.anim figcaption {
-    text-align: left;
-    font-size: 0.82em;
-    border-top: 1px solid #1d3b53;
-    margin-top: 0.5em;
-    padding-top: 0.3em;
-    color: #9db2c9;
-}
+/* Animations. An animation's caption says "Animation N" in teal, so a reader
+   can tell at a glance that the picture moves. The videos have controls a
+   reader can use to take them at their own pace. */
+figure.anim { margin: 1.4em 0 2em 0; }
+figure.anim img { max-width: 100%; border: 2px solid var(--book-rule); border-radius: 6px; }
+figure.anim figcaption b { color: var(--book-teal); }
 
-figure.anim figcaption b {
-    color: #7fdbca;
-}
-
-/* The motion animations are videos, with controls a reader can use to take
-   them at their own pace: pause, a slower speed, a jump to any step, and a
-   mode that stops at the end of each step. */
 figure.anim video.motion {
     display: block;
     width: 100%;
     max-width: 100%;
     height: auto;
-    border: 2px solid #1d3b53;
+    border: 2px solid var(--book-rule);
     border-radius: 6px;
     cursor: pointer;
-    background: #f3f5f7;
+    background: #ffffff;
 }
 
 .motion-bar {
@@ -115,41 +262,78 @@ figure.anim video.motion {
     font-size: 0.8em;
     text-align: left;
 }
-
 .motion-group { display: inline-flex; flex-wrap: wrap; gap: 0.3em; }
-
 .motion-bar button {
     font: inherit;
     padding: 0.25em 0.7em;
-    border: 1px solid #1d3b53;
+    border: 1px solid var(--book-rule);
     border-radius: 999px;
-    background: #0b2942;
-    color: #d6deeb;
+    background: var(--book-pale);
+    color: var(--book-ink);
     cursor: pointer;
 }
-
-.motion-bar button:hover { border-color: #4d6bfe; }
-.motion-bar button:focus-visible { outline: 2px solid #ecc48d; outline-offset: 2px; }
-
+.motion-bar button:hover { border-color: var(--book-teal); }
+.motion-bar button:focus-visible { outline: 2px solid var(--book-brass); outline-offset: 2px; }
 .motion-bar button[aria-pressed="true"],
 .motion-bar button[aria-current="step"] {
-    background: #0b2942;
-    border-color: #7fdbca;
-    color: #7fdbca;
+    border-color: var(--book-teal);
+    color: var(--book-teal);
     font-weight: 600;
 }
-
 .motion-bar .motion-play { min-width: 6.5em; font-weight: 600; }
-.motion-stepwise { color: #9db2c9; cursor: pointer; }
+.motion-stepwise { color: var(--book-steel); cursor: pointer; }
 
-/* The end-of-chapter summary, as in the systems book. */
-.summary {
-    border-top: 3px solid var(--book-navy);
-    margin-top: 2em;
-    padding-top: 0.4em;
+/* Phones. */
+@media (max-width: 720px) {
+    .content main { font-size: 1.62rem; line-height: 1.58; }
+    .content h1 { font-size: 2em; }
+    .content h2 { font-size: 1.45em; }
+    .content pre > code { font-size: 0.74em; }
+    .listing a { float: none; display: block; margin-top: 0.2em; overflow-wrap: anywhere; }
+    .lld, .covers, .callout { padding-inline: 0.9em; }
+    .bee { gap: 0.7em; padding-inline: 0.7em; }
+    .bee::before { flex-basis: 3.6em; height: 2.9em; }
+    .callout::after { position: static; display: block; margin: 0 0 0.2em auto; width: 3.4em; height: 2.7em; float: right; }
 }
 
-.summary > h2 {
+/* A worked example: numbered steps with the numbers of the running example. */
+.example {
+    border: 1px solid var(--book-rule);
+    border-top: 4px solid var(--book-teal);
+    background: var(--book-pale);
+    padding: 0.6em 1.2em 0.3em 1.2em;
+    margin: 1.6em 0;
+    font-size: 0.95em;
+    border-radius: 0 0 6px 6px;
+}
+.example > p:first-child {
     font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
-    letter-spacing: 0.04em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--book-teal);
+    margin-bottom: 0.3em;
 }
+
+/* A question to check understanding; the answer opens on a click. */
+details.check {
+    border: 1px dashed var(--book-teal);
+    border-radius: 6px;
+    padding: 0.5em 1.1em;
+    margin: 1.4em 0;
+    font-size: 0.95em;
+}
+details.check > summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--book-navy);
+}
+details.check > summary::before {
+    content: "Check your understanding: ";
+    font-family: "Avenir Next Condensed", "Helvetica Neue", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85em;
+    color: var(--book-teal);
+}
+details.check[open] > summary { margin-bottom: 0.4em; }

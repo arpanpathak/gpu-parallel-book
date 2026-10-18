@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 444" width="640" height="444" role="img" aria-label="A roofline on logarithmic axes. The limit rises along a diagonal, intensity times 1 TB/s, until the ridge at 40 FLOP per byte, then stays flat at 40 TFLOP/s. Vector addition sits far down the diagonal at 0.08 FLOP per byte. A 64 by 64 matrix multiply sits on the diagonal at about 11. A 4,096 by 4,096 multiply sits under the flat roof at about 680.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="444" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The roofline of a 40 TFLOP/s, 1 TB/s machine</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Left of the ridge memory sets the limit; right of it, arithmetic does.</text>
+  <rect x="90" y="100" width="510" height="280" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <line x1="90.0" y1="380.0" x2="90.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="90.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1/16</text>
+  <line x1="162.9" y1="380.0" x2="162.9" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="162.9" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1/4</text>
+  <line x1="235.7" y1="380.0" x2="235.7" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="235.7" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="308.6" y1="380.0" x2="308.6" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="308.6" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <line x1="381.4" y1="380.0" x2="381.4" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="381.4" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <line x1="454.3" y1="380.0" x2="454.3" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="454.3" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">64</text>
+  <line x1="527.1" y1="380.0" x2="527.1" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="527.1" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">256</text>
+  <line x1="600.0" y1="380.0" x2="600.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="600.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1024</text>
+  <line x1="90.0" y1="380.0" x2="600.0" y2="380.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="384.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1/16</text>
+  <line x1="90.0" y1="329.1" x2="600.0" y2="329.1" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="333.1" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1/4</text>
+  <line x1="90.0" y1="278.2" x2="600.0" y2="278.2" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="282.2" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="90.0" y1="227.3" x2="600.0" y2="227.3" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="231.3" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <line x1="90.0" y1="176.4" x2="600.0" y2="176.4" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="180.4" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <line x1="90.0" y1="125.5" x2="600.0" y2="125.5" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="129.5" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">64</text>
+  <text x="345.0" y="420.0" class="sub" text-anchor="middle" xml:space="preserve">arithmetic intensity, FLOP per byte</text>
+  <text x="20.0" y="86.0" class="sub" text-anchor="start" xml:space="preserve">TFLOP/s</text>
+  <polyline points="90.0,380.0 429.6,142.7 600.0,142.7" fill="none" stroke="#1B2430" stroke-width="3"/>
+  <line x1="429.6" y1="380.0" x2="429.6" y2="142.7" stroke="#CF4526" stroke-width="1.4" stroke-dasharray="6 5"/>
+  <rect x="437.6" y="329.0909090909091" width="139.4" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="507.3" y="341.7" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">ridge: 40 FLOP/byte</text>
+  <rect x="96.85714285714286" y="155.36363636363637" width="30" height="30" rx="8" fill="#FBF1DC"/>
+  <g transform="translate(101.9,160.4) scale(0.8333)"><path d="M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z" fill="#B7791F" fill-rule="evenodd"/></g>
+  <text x="190.9" y="176.4" class="name" text-anchor="middle" xml:space="preserve">memory-bound</text>
+  <text x="190.9" y="194.4" class="sub" text-anchor="middle" xml:space="preserve">limit = I × 1 TB/s</text>
+  <rect x="407.6278126735877" y="151.7145575846853" width="30" height="30" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(412.6,156.7) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="505.6" y="172.7" class="name" text-anchor="middle" xml:space="preserve">compute-bound</text>
+  <text x="505.6" y="190.7" class="sub" text-anchor="middle" xml:space="preserve">limit = 40 TFLOP/s</text>
+  <circle cx="105.1" cy="369.4" r="6" fill="#2F6FDB" stroke="#FFFFFF" stroke-width="2"/>
+  <rect x="115.1" y="339.4354091092658" width="119.6" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="174.9" y="352.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">vector add: 0.08</text>
+  <circle cx="360.1" cy="191.3" r="6" fill="#1F8A70" stroke="#FFFFFF" stroke-width="2"/>
+  <rect x="370.1" y="201.2535909274476" width="106.4" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="423.3" y="213.9" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">matmul, N = 64</text>
+  <circle cx="578.7" cy="142.7" r="6" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <rect x="442.5" y="112.71455758468531" width="126.2" height="18" rx="9" fill="#F0EAFB"/>
+  <text x="505.6" y="125.3" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">matmul, N = 4,096</text>
+</svg>

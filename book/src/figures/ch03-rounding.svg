@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 374" width="660" height="374" role="img" aria-label="A bar of 1,024 threads in 4 blocks of 256, for n = 1,000 elements. The number of blocks is (1,000 + 255) / 256 = 4, rounded down. A green line marks indexes 0 to 999, one thread per element. A red sliver at the end marks indexes 1,000 to 1,023, 24 threads for which i &lt; n is false; the guard makes them do nothing.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="374" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Rounding the grid up</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Enough whole blocks to cover every element, and a guard for the rest.</text>
+  <text x="40.0" y="120.0" class="name" text-anchor="start" xml:space="preserve">n = 1,000 elements, 256 threads per block</text>
+  <text x="40.0" y="140.0" class="sub" text-anchor="start" xml:space="preserve">blocks = (1,000 + 255) / 256 = 1,255 / 256 = 4, rounded down</text>
+  <rect x="41.0" y="164.0" width="143.0" height="34.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="112.5" y="185.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">block 0</text>
+  <rect x="186.0" y="164.0" width="143.0" height="34.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="257.5" y="185.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">block 1</text>
+  <rect x="331.0" y="164.0" width="143.0" height="34.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="402.5" y="185.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">block 2</text>
+  <rect x="476.0" y="164.0" width="143.0" height="34.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="547.5" y="185.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">block 3</text>
+  <rect x="606.4" y="164" width="13.6" height="34" rx="3" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <line x1="40.0" y1="216.0" x2="606.4" y2="216.0" stroke="#2E8B3D" stroke-width="3"/>
+  <text x="40.0" y="236.0" class="sub" text-anchor="start" xml:space="preserve">indexes 0 to 999: one thread per element</text>
+  <rect x="341.6" y="246" width="264.8" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="474.0" y="258.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">indexes 1,000 to 1,023: i &lt; n is false</text>
+  <rect x="40" y="290" width="580" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,290.7 H46 V349.3 H52 A11.3,11.3 0 0 1 40.7,338 V302 A11.3,11.3 0 0 1 52,290.7 Z" fill="#CF4526"/>
+  <text x="60.0" y="316.0" class="name" text-anchor="start" xml:space="preserve">24 threads have no element</text>
+  <text x="60.0" y="334.0" class="sub" text-anchor="start" xml:space="preserve">the guard if (i &lt; n) makes them do nothing</text>
+</svg>

@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 486" width="660" height="486" role="img" aria-label="An 8 by 8 image, its pixels numbered 0 to 63 row by row, coloured by the 4 blocks of 4 by 4 threads that cover it. Pixel 14, at column 6 and row 1, is highlighted. It belongs to block (1, 0), where the thread is at position (2, 1). Its column is 1 × 4 + 2 = 6, its row 0 × 4 + 1 = 1, and its pixel number 1 × 8 + 6 = 14.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="486" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A 2-D launch over an 8 × 8 image</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4 blocks of 4 × 4 threads; each thread handles 1 pixel.</text>
+  <text x="77.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="111.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <text x="145.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <text x="179.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <text x="213.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="247.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">5</text>
+  <text x="281.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <text x="315.0" y="130.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <text x="48.0" y="161.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="48.0" y="195.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <text x="48.0" y="229.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <text x="48.0" y="263.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <text x="48.0" y="297.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="48.0" y="331.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">5</text>
+  <text x="48.0" y="365.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <text x="48.0" y="399.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <rect x="61" y="141" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="77.0" y="161.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="95" y="141" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="111.0" y="161.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="129" y="141" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="145.0" y="161.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="163" y="141" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="179.0" y="161.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="197" y="141" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="213.0" y="161.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">4</text>
+  <rect x="231" y="141" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="247.0" y="161.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">5</text>
+  <rect x="265" y="141" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="281.0" y="161.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">6</text>
+  <rect x="299" y="141" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="315.0" y="161.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">7</text>
+  <rect x="61" y="175" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="77.0" y="195.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">8</text>
+  <rect x="95" y="175" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="111.0" y="195.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">9</text>
+  <rect x="129" y="175" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="145.0" y="195.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">10</text>
+  <rect x="163" y="175" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="179.0" y="195.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">11</text>
+  <rect x="197" y="175" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="213.0" y="195.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">12</text>
+  <rect x="231" y="175" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="247.0" y="195.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">13</text>
+  <rect x="265" y="175" width="32" height="32" rx="4" fill="#1F8A70" stroke="#1F8A70" stroke-width="1"/>
+  <text x="281.0" y="195.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">14</text>
+  <rect x="299" y="175" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="315.0" y="195.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">15</text>
+  <rect x="61" y="209" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="77.0" y="229.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">16</text>
+  <rect x="95" y="209" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="111.0" y="229.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">17</text>
+  <rect x="129" y="209" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="145.0" y="229.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">18</text>
+  <rect x="163" y="209" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="179.0" y="229.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">19</text>
+  <rect x="197" y="209" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="213.0" y="229.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">20</text>
+  <rect x="231" y="209" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="247.0" y="229.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">21</text>
+  <rect x="265" y="209" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="281.0" y="229.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">22</text>
+  <rect x="299" y="209" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="315.0" y="229.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">23</text>
+  <rect x="61" y="243" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="77.0" y="263.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">24</text>
+  <rect x="95" y="243" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="111.0" y="263.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">25</text>
+  <rect x="129" y="243" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="145.0" y="263.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">26</text>
+  <rect x="163" y="243" width="32" height="32" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <text x="179.0" y="263.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">27</text>
+  <rect x="197" y="243" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="213.0" y="263.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">28</text>
+  <rect x="231" y="243" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="247.0" y="263.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">29</text>
+  <rect x="265" y="243" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="281.0" y="263.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">30</text>
+  <rect x="299" y="243" width="32" height="32" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1"/>
+  <text x="315.0" y="263.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">31</text>
+  <rect x="61" y="277" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="77.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">32</text>
+  <rect x="95" y="277" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="111.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">33</text>
+  <rect x="129" y="277" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="145.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">34</text>
+  <rect x="163" y="277" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="179.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">35</text>
+  <rect x="197" y="277" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="213.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">36</text>
+  <rect x="231" y="277" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="247.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">37</text>
+  <rect x="265" y="277" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="281.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">38</text>
+  <rect x="299" y="277" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="315.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">39</text>
+  <rect x="61" y="311" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="77.0" y="331.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">40</text>
+  <rect x="95" y="311" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="111.0" y="331.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">41</text>
+  <rect x="129" y="311" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="145.0" y="331.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">42</text>
+  <rect x="163" y="311" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="179.0" y="331.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">43</text>
+  <rect x="197" y="311" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="213.0" y="331.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">44</text>
+  <rect x="231" y="311" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="247.0" y="331.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">45</text>
+  <rect x="265" y="311" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="281.0" y="331.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">46</text>
+  <rect x="299" y="311" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="315.0" y="331.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">47</text>
+  <rect x="61" y="345" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="77.0" y="365.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">48</text>
+  <rect x="95" y="345" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="111.0" y="365.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">49</text>
+  <rect x="129" y="345" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="145.0" y="365.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">50</text>
+  <rect x="163" y="345" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="179.0" y="365.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">51</text>
+  <rect x="197" y="345" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="213.0" y="365.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">52</text>
+  <rect x="231" y="345" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="247.0" y="365.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">53</text>
+  <rect x="265" y="345" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="281.0" y="365.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">54</text>
+  <rect x="299" y="345" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="315.0" y="365.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">55</text>
+  <rect x="61" y="379" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="77.0" y="399.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">56</text>
+  <rect x="95" y="379" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="111.0" y="399.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">57</text>
+  <rect x="129" y="379" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="145.0" y="399.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">58</text>
+  <rect x="163" y="379" width="32" height="32" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <text x="179.0" y="399.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">59</text>
+  <rect x="197" y="379" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="213.0" y="399.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">60</text>
+  <rect x="231" y="379" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="247.0" y="399.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">61</text>
+  <rect x="265" y="379" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="281.0" y="399.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">62</text>
+  <rect x="299" y="379" width="32" height="32" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1"/>
+  <text x="315.0" y="399.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">63</text>
+  <rect x="362.0" y="140" width="93.2" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="408.6" y="152.6" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">block (1, 0)</text>
+  <text x="362.0" y="182.0" class="note" text-anchor="start" xml:space="preserve">blockIdx = (1, 0)</text>
+  <text x="362.0" y="202.0" class="note" text-anchor="start" xml:space="preserve">threadIdx = (2, 1)</text>
+  <text x="362.0" y="222.0" class="note" text-anchor="start" xml:space="preserve">blockDim = (4, 4)</text>
+  <text x="362.0" y="258.0" class="note" text-anchor="start" xml:space="preserve">ix = 1 × 4 + 2 = 6</text>
+  <text x="362.0" y="278.0" class="note" text-anchor="start" xml:space="preserve">iy = 0 × 4 + 1 = 1</text>
+  <text x="362.0" y="314.0" class="note" text-anchor="start" xml:space="preserve">pixel number</text>
+  <text x="362.0" y="334.0" class="note" text-anchor="start" xml:space="preserve">iy × width + ix</text>
+  <text x="362.0" y="354.0" class="note" text-anchor="start" xml:space="preserve">= 1 × 8 + 6 = 14</text>
+  <rect x="60" y="432" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="81.0" y="443.5" class="note" text-anchor="start" xml:space="preserve">block (0, 0)</text>
+  <rect x="182.2" y="432" width="14" height="14" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="203.2" y="443.5" class="note" text-anchor="start" xml:space="preserve">(1, 0)</text>
+  <rect x="264.79999999999995" y="432" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="285.8" y="443.5" class="note" text-anchor="start" xml:space="preserve">(0, 1)</text>
+  <rect x="347.4" y="432" width="14" height="14" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="368.4" y="443.5" class="note" text-anchor="start" xml:space="preserve">(1, 1)</text>
+  <text x="60.0" y="472.0" class="note" text-anchor="start" xml:space="preserve">Numbers above the grid are ix, the column; numbers on its left are iy, the row.</text>
+</svg>
