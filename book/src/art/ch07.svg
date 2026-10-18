@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="Inch, a caterpillar, walks along a branch laid with numbered cells, 0 to 9 in order. Each of its segments stands over the next cell, so all of them step together and none reaches past its neighbour. A tag says neighbours read neighbours: the rule of coalesced memory access.">
+<defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17324a"/><stop offset="1" stop-color="#3f7f8f"/></linearGradient><linearGradient id="glow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/><stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/></linearGradient></defs>
+<rect x="0.0" y="0.0" width="960.0" height="420.0" rx="0" fill="url(#sky1)" stroke="none" stroke-width="0" />
+<path d="M0,132 C240,56 520,160 960,94 L960,164 C520,220 240,126 0,202 Z" fill="url(#glow2)" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="371.0" cy="37.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="568.0" cy="126.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="765.0" cy="23.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="2.0" cy="112.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="199.0" cy="201.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="396.0" cy="98.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="593.0" cy="187.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="790.0" cy="84.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="27.0" cy="173.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="224.0" cy="70.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="421.0" cy="159.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="618.0" cy="56.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="815.0" cy="145.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="52.0" cy="42.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="249.0" cy="131.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="446.0" cy="28.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="643.0" cy="117.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="840.0" cy="14.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="77.0" cy="103.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="274.0" cy="192.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="471.0" cy="89.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="668.0" cy="178.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="865.0" cy="75.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="102.0" cy="164.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="299.0" cy="61.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="496.0" cy="150.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="693.0" cy="47.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="890.0" cy="136.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="127.0" cy="33.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="324.0" cy="122.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="521.0" cy="19.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="718.0" cy="108.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="915.0" cy="197.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="152.0" cy="94.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="349.0" cy="183.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="546.0" cy="80.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="743.0" cy="169.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="940.0" cy="66.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="177.0" cy="155.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="374.0" cy="52.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="571.0" cy="141.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="768.0" cy="38.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="5.0" cy="127.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="202.0" cy="24.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="399.0" cy="113.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="596.0" cy="202.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<path d="M0,296 C200,270 420,314 640,288 S900,302 960,282 L960,420 L0,420 Z" fill="#5f9a62" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M0,316 C260,296 520,330 960,308 L960,420 L0,420 Z" fill="#86bd7c" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="250.0" y="316.0" width="460.0" height="22.0" rx="10" fill="#8a6a44" stroke="#5a3d28" stroke-width="3" />
+<rect x="302.0" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="318.0" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="337.2" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="353.2" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >1</text>
+<rect x="372.4" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="388.4" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >2</text>
+<rect x="407.6" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="423.6" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >3</text>
+<rect x="442.8" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="458.8" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >4</text>
+<rect x="478.0" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="494.0" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >5</text>
+<rect x="513.2" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="529.2" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >6</text>
+<rect x="548.4" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="564.4" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >7</text>
+<rect x="583.6" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="599.6" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >8</text>
+<rect x="618.8" y="280.0" width="32.0" height="32.0" rx="6" fill="#f7d9a0" stroke="none" stroke-width="0" /><text x="634.8" y="301.8" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="16" font-weight="700" fill="#12263d" text-anchor="middle" >9</text>
+<line x1="314.0" y1="276.0" x2="312.0" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="322.0" y1="276.0" x2="324.0" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="318.0" cy="258.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="318.0" cy="262.0" r="12.1" fill="#b9e3a2" /><line x1="349.2" y1="272.0" x2="347.2" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="357.2" y1="272.0" x2="359.2" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="353.2" cy="254.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="353.2" cy="258.0" r="12.1" fill="#b9e3a2" /><line x1="384.4" y1="276.0" x2="382.4" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="392.4" y1="276.0" x2="394.4" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="388.4" cy="258.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="388.4" cy="262.0" r="12.1" fill="#b9e3a2" /><line x1="419.6" y1="272.0" x2="417.6" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="427.6" y1="272.0" x2="429.6" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="423.6" cy="254.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="423.6" cy="258.0" r="12.1" fill="#b9e3a2" /><line x1="454.8" y1="276.0" x2="452.8" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="462.8" y1="276.0" x2="464.8" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="458.8" cy="258.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="458.8" cy="262.0" r="12.1" fill="#b9e3a2" /><line x1="490.0" y1="272.0" x2="488.0" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="498.0" y1="272.0" x2="500.0" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="494.0" cy="254.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="494.0" cy="258.0" r="12.1" fill="#b9e3a2" /><line x1="525.2" y1="276.0" x2="523.2" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="533.2" y1="276.0" x2="535.2" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="529.2" cy="258.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="529.2" cy="262.0" r="12.1" fill="#b9e3a2" /><line x1="560.4" y1="272.0" x2="558.4" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="568.4" y1="272.0" x2="570.4" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="564.4" cy="254.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="564.4" cy="258.0" r="12.1" fill="#b9e3a2" /><line x1="595.6" y1="276.0" x2="593.6" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><line x1="603.6" y1="276.0" x2="605.6" y2="280.0" stroke="#24401c" stroke-width="3" stroke-linecap="round" /><circle cx="599.6" cy="258.0" r="22.0" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="599.6" cy="262.0" r="12.1" fill="#b9e3a2" /><line x1="634.8" y1="222.8" x2="626.8" y2="200.8" stroke="#24401c" stroke-width="2.5" stroke-linecap="round" /><line x1="644.8" y1="222.8" x2="650.8" y2="200.8" stroke="#24401c" stroke-width="2.5" stroke-linecap="round" /><circle cx="626.8" cy="200.8" r="4.0" fill="#f5c542" /><circle cx="650.8" cy="200.8" r="4.0" fill="#f5c542" /><circle cx="638.8" cy="244.8" r="25.3" fill="#7cc06a" stroke="#24401c" stroke-width="2.2"/><circle cx="645.8" cy="240.8" r="5.0" fill="#ffffff" />
+<circle cx="646.8" cy="241.1" r="2.6" fill="#1b2430" />
+<circle cx="647.7" cy="240.0" r="0.8" fill="#ffffff" /><path d="M642.8,253.8 q6,5 12,0" fill="none" stroke="#24401c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="340.2" y="64.7" width="279.5" height="30.6" rx="15.3" fill="#fff6e2" stroke="none" stroke-width="0" /><text x="480.0" y="86.1" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700" fill="#2a1a10" text-anchor="middle"  textLength="247.5" lengthAdjust="spacingAndGlyphs">neighbours read neighbours</text>
+<rect x="28.0" y="360.0" width="72.0" height="40.0" rx="6" fill="#d9622b" stroke="none" stroke-width="0" />
+<text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="15.4" lengthAdjust="spacingAndGlyphs">7</text>
+<rect x="100.0" y="360.0" width="466.3" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
+<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="426.3" lengthAdjust="spacingAndGlyphs">MEMORY OPTIMISATION DEEP DIVE</text>
+<rect x="709.6" y="364.0" width="222.4" height="32.0" rx="16" fill="#ffffffdd" stroke="none" stroke-width="0" />
+<text x="820.8" y="386.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#27405a" text-anchor="middle"  textLength="190.4" lengthAdjust="spacingAndGlyphs">Inch the caterpillar</text>
+</svg>

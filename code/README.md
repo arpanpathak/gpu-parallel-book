@@ -12,6 +12,7 @@ comments; each directory builds standalone.
 | [`ch04_memory/`](ch04_memory/) | Ch 4 - Memory Management & Data Movement | Pageable vs pinned copy speed, unified memory, zero-copy (Rust: `oxide/ch04_transfers`) | `nvcc -arch=native transfers.cu -o transfers` |
 | [`ch05_sync/`](ch05_sync/) | Ch 5 - Synchronisation, Atomics & Races | A race on 1 counter, global vs privatised histogram, missing barriers, divergence, float atomic sums (Rust: `oxide/ch05_sync`) | `nvcc -arch=native sync.cu -o sync` |
 | [`ch06_streams/`](ch06_streams/) | Ch 6 - Streams, Events & Asynchrony | Asynchronous launch timed with events, a pipeline of chunks on 2 streams, a CUDA graph of 1,000 launches (Rust: `oxide/ch06_streams`) | `nvcc -arch=native streams.cu -o streams` |
+| [`ch07_memory/`](ch07_memory/) | Ch 7 - Memory Optimisation | Strided reads and 32-byte sectors, `float4` copies, naive, tiled and padded transposes (Rust: `oxide/ch07_memory`) | `nvcc -arch=native memory.cu -o memory` |
 | [`ch08_reduction/`](ch08_reduction/) | Ch 8 - Reduction, Scan & Histogram | Tree/shuffle reduction, Blelloch scan, privatised histogram | `nvcc -rdc=true -arch=compute_60 reduction.cu main.cu -o reduction` |
 | [`ch09_sgemm/`](ch09_sgemm/) | Ch 9 - Optimised Matrix Multiplication | Naive, coalesced, tiled and register-tiled SGEMM kernels | `nvcc -arch=compute_60 sgemm.cu main.cu -o sgemm` |
 | [`ch10_device_buffer/`](ch10_device_buffer/) | Ch 10 - Modern C++ for CUDA | RAII `DeviceBuffer<T>` and error-handling helpers | `nvcc -std=c++20 -arch=compute_60 test.cu -o test` |
