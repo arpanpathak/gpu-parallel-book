@@ -97,6 +97,14 @@ first (clang 18 unpacked into the home folder without root, for bindgen), then `
 The backend source in `~/.cargo/cuda-oxide/src` must stay checked out at rev b7fe543; a fresh
 clone takes `main`, whose layout no longer builds. Scratch copies live in `~/gpu-book-check/`.
 
+## Measuring on the boards
+
+- **Warm up before timing.** The Jetsons raise their GPU clocks under sustained load; run the kernel for about 0.4 s first, then average many runs. Expect 10 to 20% drift between runs and say so in the text.
+- **Exceed the L2 cache.** The Thor has 32 MiB of L2; data smaller than that measures the cache, not the memory. Print `prop.l2CacheSize` and size the test beyond it.
+- **Check results, not just times.** Every program verifies its output (a total, a transpose element by element, PASSED).
+- **Run on both boards** and quote both, with the Thor's integrated-memory differences explained where they change the conclusion.
+- **One branch and PR per chapter**, stacked on the previous chapter's branch while earlier PRs are open; each chapter gets an issue first. No Claude attribution in commits, PRs or issues (user's instruction).
+
 ## Tools
 
 Run from `book/`.
