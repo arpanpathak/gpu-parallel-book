@@ -89,6 +89,14 @@ ch01 is the reference chapter in this book. Rules:
 11. When it goes wrong: real broken variants and their real output.
 12. The complete program, a summary list, one sentence on the next chapter, then exercises.
 
+## Second board: Jetson AGX Thor
+
+`ssh thor` (sm_110, CUDA 13.2, 2 copy engines; reads pageable memory through host page tables).
+Validate every chapter's code there too. C++: `nvcc -arch=native`. Rust: `. ~/.local/clang18/env.sh`
+first (clang 18 unpacked into the home folder without root, for bindgen), then `cargo oxide run`.
+The backend source in `~/.cargo/cuda-oxide/src` must stay checked out at rev b7fe543; a fresh
+clone takes `main`, whose layout no longer builds. Scratch copies live in `~/gpu-book-check/`.
+
 ## Tools
 
 Run from `book/`.
