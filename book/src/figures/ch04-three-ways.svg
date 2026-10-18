@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 440" width="660" height="440" role="img" aria-label="Three rows. Explicit copy: cudaMemcpy before the launch, data moves once, in bulk. Unified memory: pages move on first use, once per page. Zero-copy: the kernel reads host memory, data moves on every access. On a discrete GPU each crossing uses the PCIe link; on an integrated GPU the 3 differ much less.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="440" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">3 ways data reaches a kernel</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">They differ in when the bytes move.</text>
+  <text x="330.0" y="116.0" class="sub" text-anchor="middle" xml:space="preserve">when the data moves</text>
+  <rect x="40" y="130" width="300" height="62" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,130.7 H46 V191.3 H52 A11.3,11.3 0 0 1 40.7,180 V142 A11.3,11.3 0 0 1 52,130.7 Z" fill="#2F6FDB"/>
+  <rect x="56" y="145.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(62.0,151.0) scale(0.8333)"><path d="M7 4 2 9l5 5v-3.5h9V8H7zm10 6v3.5H8V16h9v3.5l5-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="98.0" y="157.0" class="name" text-anchor="start" xml:space="preserve">explicit copy</text>
+  <text x="98.0" y="175.0" class="sub" text-anchor="start" xml:space="preserve">cudaMemcpy before the launch</text>
+  <path class="wire" d="M340,161 L430,161" marker-end="url(#head)"/>
+  <rect x="440.0" y="152" width="99.8" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="489.9" y="164.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">once, in bulk</text>
+  <rect x="40" y="214" width="300" height="62" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,214.7 H46 V275.3 H52 A11.3,11.3 0 0 1 40.7,264 V226 A11.3,11.3 0 0 1 52,214.7 Z" fill="#1F8A70"/>
+  <rect x="56" y="229.0" width="32" height="32" rx="8" fill="#E4F4EF"/>
+  <g transform="translate(62.0,235.0) scale(0.8333)"><path d="M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z" fill="#1F8A70" fill-rule="evenodd"/></g>
+  <text x="98.0" y="241.0" class="name" text-anchor="start" xml:space="preserve">unified memory</text>
+  <text x="98.0" y="259.0" class="sub" text-anchor="start" xml:space="preserve">pages move on first use</text>
+  <path class="wire" d="M340,245 L430,245" marker-end="url(#head)"/>
+  <rect x="440.0" y="236" width="99.8" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="489.9" y="248.6" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">once per page</text>
+  <rect x="40" y="298" width="300" height="62" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,298.7 H46 V359.3 H52 A11.3,11.3 0 0 1 40.7,348 V310 A11.3,11.3 0 0 1 52,298.7 Z" fill="#CF4526"/>
+  <rect x="56" y="313.0" width="32" height="32" rx="8" fill="#FCEBE6"/>
+  <g transform="translate(62.0,319.0) scale(0.8333)"><path d="M12 5c5 0 8.5 3.5 10 7-1.5 3.5-5 7-10 7S3.5 15.5 2 12c1.5-3.5 5-7 10-7zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2.2a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6z" fill="#CF4526" fill-rule="evenodd"/></g>
+  <text x="98.0" y="325.0" class="name" text-anchor="start" xml:space="preserve">zero-copy</text>
+  <text x="98.0" y="343.0" class="sub" text-anchor="start" xml:space="preserve">the kernel reads host memory</text>
+  <path class="wire" d="M340,329 L430,329" marker-end="url(#head)"/>
+  <rect x="440.0" y="320" width="113.0" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="496.5" y="332.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">on every access</text>
+  <text x="40.0" y="400.0" class="note" text-anchor="start" xml:space="preserve">On a discrete GPU each crossing uses the PCIe link; on an integrated one it</text>
+  <text x="40.0" y="418.0" class="note" text-anchor="start" xml:space="preserve">stays in the shared memory, so the 3 differ much less.</text>
+</svg>

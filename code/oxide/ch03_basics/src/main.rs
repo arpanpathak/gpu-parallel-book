@@ -18,6 +18,7 @@ mod kernels {
         let block = thread::blockIdx_x();
         let position = thread::threadIdx_x();
         let index = block * thread::blockDim_x() + position;
+
         gpu_printf!("block {}, position {} -> index {}\n", block, position, index);
     }
 
@@ -46,18 +47,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Vector addition: a[i] = i, b[i] = 2i, so c[i] should be 3i.
     let a: Vec<f32> = (0..N).map(|i| i as f32).collect();
     let b: Vec<f32> = (0..N).map(|i| 2.0 * i as f32).collect();
+
     let a_dev = DeviceBuffer::from_host(&stream, &a)?;
     let b_dev = DeviceBuffer::from_host(&stream, &b)?;
     let mut c_dev = DeviceBuffer::<f32>::zeroed(&stream, N)?;
 
     let blocks = (N as u32).div_ceil(BLOCK);
     let add = module.prepare_add_vectors(LaunchConfig1D::new(blocks, BLOCK, 0))?;
+
     module.add_vectors(&stream, &add, &a_dev, &b_dev, &mut c_dev)?;
     let c = c_dev.to_host_vec(&stream)?;
 
     let max_err = (0..N).map(|i| (c[i] as f64 - 3.0 * i as f64).abs()).fold(0.0, f64::max);
+
     println!("n = {N}, {blocks} blocks of {BLOCK} threads");
     println!("c[0] = {}, c[1] = {}, c[{}] = {}", c[0], c[1], N - 1, c[N - 1]);
     println!("max error = {max_err}");
+
     Ok(())
 }

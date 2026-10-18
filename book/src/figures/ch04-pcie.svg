@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 312" width="660" height="312" role="img" aria-label="A CPU card and a GPU card joined by 16 parallel lines, the lanes of a PCIe link. Each lane carries about 2 GB/s in each direction, so PCIe 4.0 with 16 lanes carries about 32 GB/s each way, and PCIe 5.0 about 64 GB/s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="312" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A PCIe link is a bundle of lanes</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Bandwidth = lanes × rate per lane.</text>
+  <rect x="40" y="110" width="170" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,110.7 H46 V169.3 H52 A11.3,11.3 0 0 1 40.7,158 V122 A11.3,11.3 0 0 1 52,110.7 Z" fill="#2F6FDB"/>
+  <rect x="56" y="124.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(62.0,130.0) scale(0.8333)"><path d="M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm3.3 4.3-1.4 1.4L7.2 12l-2.3 2.3 1.4 1.4L10 12zM11 14v2h7v-2z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="98.0" y="136.0" class="name" text-anchor="start" xml:space="preserve">CPU</text>
+  <text x="98.0" y="154.0" class="sub" text-anchor="start" xml:space="preserve">host memory</text>
+  <rect x="450" y="110" width="170" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M462,110.7 H456 V169.3 H462 A11.3,11.3 0 0 1 450.7,158 V122 A11.3,11.3 0 0 1 462,110.7 Z" fill="#1F8A70"/>
+  <rect x="466" y="124.0" width="32" height="32" rx="8" fill="#E4F4EF"/>
+  <g transform="translate(472.0,130.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#1F8A70" fill-rule="evenodd"/></g>
+  <text x="508.0" y="136.0" class="name" text-anchor="start" xml:space="preserve">GPU card</text>
+  <text x="508.0" y="154.0" class="sub" text-anchor="start" xml:space="preserve">global memory</text>
+  <line x1="210.0" y1="100.0" x2="450.0" y2="100.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="105.0" x2="450.0" y2="105.0" stroke="#7FB5F0" stroke-width="2"/>
+  <line x1="210.0" y1="110.0" x2="450.0" y2="110.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="115.0" x2="450.0" y2="115.0" stroke="#7FB5F0" stroke-width="2"/>
+  <line x1="210.0" y1="120.0" x2="450.0" y2="120.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="125.0" x2="450.0" y2="125.0" stroke="#7FB5F0" stroke-width="2"/>
+  <line x1="210.0" y1="130.0" x2="450.0" y2="130.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="135.0" x2="450.0" y2="135.0" stroke="#7FB5F0" stroke-width="2"/>
+  <line x1="210.0" y1="140.0" x2="450.0" y2="140.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="145.0" x2="450.0" y2="145.0" stroke="#7FB5F0" stroke-width="2"/>
+  <line x1="210.0" y1="150.0" x2="450.0" y2="150.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="155.0" x2="450.0" y2="155.0" stroke="#7FB5F0" stroke-width="2"/>
+  <line x1="210.0" y1="160.0" x2="450.0" y2="160.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="165.0" x2="450.0" y2="165.0" stroke="#7FB5F0" stroke-width="2"/>
+  <line x1="210.0" y1="170.0" x2="450.0" y2="170.0" stroke="#3b6fd4" stroke-width="2"/>
+  <line x1="210.0" y1="175.0" x2="450.0" y2="175.0" stroke="#7FB5F0" stroke-width="2"/>
+  <rect x="260.0" y="186" width="284.6" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="402.3" y="198.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">16 lanes, each about 2 GB/s per direction</text>
+  <rect x="40" y="230" width="580" height="58" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,230.7 H46 V287.3 H52 A11.3,11.3 0 0 1 40.7,276 V242 A11.3,11.3 0 0 1 52,230.7 Z" fill="#2F6FDB"/>
+  <text x="60.0" y="255.0" class="name" text-anchor="start" xml:space="preserve">PCIe 4.0 × 16: 16 × 1.97 GB/s ≈ 32 GB/s each way</text>
+  <text x="60.0" y="273.0" class="sub" text-anchor="start" xml:space="preserve">PCIe 5.0 doubles the rate per lane: about 64 GB/s each way</text>
+</svg>

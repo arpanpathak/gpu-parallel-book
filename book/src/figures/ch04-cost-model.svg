@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 470" width="660" height="470" role="img" aria-label="Copy time against copy size on logarithmic axes, for pinned host-to-device copies. Measured points stay near 16 microseconds from 4 KiB to 64 KiB, then rise with size to about 2 ms at 64 MiB. A line shows the model 16 microseconds plus size divided by 30 GB/s. A dashed line at about 480 KB, where the 2 terms are equal, separates the latency-bound region on the left from the bandwidth-bound region on the right.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="470" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The cost of a copy: latency, then bandwidth</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Pinned host → device copies of 4 KiB to 64 MiB, measured by transfers.cu.</text>
+  <rect x="100" y="110" width="500" height="270" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="100" y="110" width="245.5" height="270" fill="#FCEBE6"/>
+  <line x1="100.0" y1="380.0" x2="100.0" y2="110.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="100.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4 KiB</text>
+  <line x1="242.9" y1="380.0" x2="242.9" y2="110.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="242.9" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">64 KiB</text>
+  <line x1="385.7" y1="380.0" x2="385.7" y2="110.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="385.7" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 MiB</text>
+  <line x1="528.6" y1="380.0" x2="528.6" y2="110.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="528.6" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16 MiB</text>
+  <line x1="600.0" y1="380.0" x2="600.0" y2="110.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="600.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">64 MiB</text>
+  <line x1="100.0" y1="380.0" x2="600.0" y2="380.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="92.0" y="384.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10 µs</text>
+  <line x1="100.0" y1="290.0" x2="600.0" y2="290.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="92.0" y="294.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">100 µs</text>
+  <line x1="100.0" y1="200.0" x2="600.0" y2="200.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="92.0" y="204.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1 ms</text>
+  <line x1="100.0" y1="110.0" x2="600.0" y2="110.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="92.0" y="114.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10 ms</text>
+  <polyline points="100.0,361.3 103.6,361.3 107.1,361.2 110.7,361.2 114.3,361.2 117.9,361.2 121.4,361.1 125.0,361.1 128.6,361.1 132.1,361.0 135.7,361.0 139.3,360.9 142.9,360.9 146.4,360.8 150.0,360.8 153.6,360.7 157.1,360.6 160.7,360.6 164.3,360.5 167.9,360.4 171.4,360.3 175.0,360.2 178.6,360.1 182.1,360.0 185.7,359.9 189.3,359.8 192.9,359.7 196.4,359.5 200.0,359.4 203.6,359.2 207.1,359.0 210.7,358.9 214.3,358.7 217.9,358.5 221.4,358.3 225.0,358.0 228.6,357.8 232.1,357.5 235.7,357.2 239.3,356.9 242.9,356.6 246.4,356.3 250.0,355.9 253.6,355.6 257.1,355.2 260.7,354.7 264.3,354.3 267.9,353.8 271.4,353.3 275.0,352.8 278.6,352.2 282.1,351.6 285.7,351.0 289.3,350.3 292.9,349.6 296.4,348.9 300.0,348.1 303.6,347.3 307.1,346.4 310.7,345.5 314.3,344.6 317.9,343.6 321.4,342.6 325.0,341.5 328.6,340.4 332.1,339.3 335.7,338.1 339.3,336.8 342.9,335.5 346.4,334.2 350.0,332.8 353.6,331.3 357.1,329.9 360.7,328.3 364.3,326.7 367.9,325.1 371.4,323.5 375.0,321.7 378.6,320.0 382.1,318.2 385.7,316.4 389.3,314.5 392.9,312.6 396.4,310.6 400.0,308.6 403.6,306.6 407.1,304.5 410.7,302.4 414.3,300.3 417.9,298.1 421.4,295.9 425.0,293.7 428.6,291.5 432.1,289.2 435.7,286.9 439.3,284.6 442.9,282.2 446.4,279.9 450.0,277.5 453.6,275.1 457.1,272.7 460.7,270.2 464.3,267.8 467.9,265.3 471.4,262.8 475.0,260.3 478.6,257.8 482.1,255.3 485.7,252.7 489.3,250.2 492.9,247.6 496.4,245.1 500.0,242.5 503.6,239.9 507.1,237.3 510.7,234.7 514.3,232.1 517.9,229.5 521.4,226.9 525.0,224.2 528.6,221.6 532.1,219.0 535.7,216.3 539.3,213.7 542.9,211.0 546.4,208.4 550.0,205.7 553.6,203.1 557.1,200.4 560.7,197.7 564.3,195.1 567.9,192.4 571.4,189.7 575.0,187.0 578.6,184.4 582.1,181.7 585.7,179.0 589.3,176.3 592.9,173.6 596.4,170.9 600.0,168.3" fill="none" stroke="#1B2430" stroke-width="2.4"/>
+  <circle cx="100.0" cy="355.7" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="171.4" cy="359.5" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="242.9" cy="349.5" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="314.3" cy="344.0" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="385.7" cy="301.8" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="457.1" cy="249.9" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="528.6" cy="218.9" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="600.0" cy="170.3" r="5.5" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="112.0" y="132.0" class="name" text-anchor="start" xml:space="preserve">latency-bound</text>
+  <text x="112.0" y="150.0" class="sub" text-anchor="start" xml:space="preserve">every copy costs ~16 µs</text>
+  <text x="588.0" y="132.0" class="name" text-anchor="end" xml:space="preserve">bandwidth-bound</text>
+  <text x="588.0" y="150.0" class="sub" text-anchor="end" xml:space="preserve">time grows with size</text>
+  <line x1="345.5" y1="380.0" x2="345.5" y2="110.0" stroke="#CF4526" stroke-width="1.6" stroke-dasharray="6 5"/>
+  <rect x="85.9" y="174" width="251.6" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="211.7" y="186.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">break-even: 16 µs × 30 GB/s ≈ 480 KB</text>
+  <text x="350.0" y="420.0" class="sub" text-anchor="middle" xml:space="preserve">copy size</text>
+  <rect x="100" y="434" width="14" height="14" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="121.0" y="445.5" class="note" text-anchor="start" xml:space="preserve">measured</text>
+  <line x1="230.0" y1="439.0" x2="260.0" y2="439.0" stroke="#1B2430" stroke-width="2.4"/>
+  <text x="268.0" y="445.0" class="note" text-anchor="start" xml:space="preserve">model: 16 µs + size ÷ 30 GB/s</text>
+</svg>
