@@ -1,15 +1,276 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320" width="1000" height="320">
-<rect x="0.0" y="0.0" width="1000.0" height="320.0" rx="0.0" fill="#0c1726" stroke="none" stroke-width="0.0"/>
-<text x="48.0" y="70.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="15" fill="#8fa3b8" text-anchor="start" font-weight="normal" letter-spacing="3">WARP</text>
-<rect x="48.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="64.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="80.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="96.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="112.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="128.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="144.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="160.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="176.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="192.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="208.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="224.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1d4a44" stroke="#5fc9b4" stroke-width="1.4"/><rect x="240.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#3d2118" stroke="#e2704a" stroke-width="1.4"/><rect x="256.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#3a3220" stroke="#e8c56b" stroke-width="1.4"/><rect x="272.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#3a3220" stroke="#e8c56b" stroke-width="1.4"/><rect x="288.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#3a3220" stroke="#e8c56b" stroke-width="1.4"/><rect x="304.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="320.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="336.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="352.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="368.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="384.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="400.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="416.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="432.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="448.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="464.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="480.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="496.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="512.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="528.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/><rect x="544.0" y="86.0" width="13.0" height="13.0" rx="3.0" fill="#1b3349" stroke="#2b4b66" stroke-width="1.4"/>
-<text x="48.0" y="136.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="13" fill="#8fa3b8" text-anchor="start" font-weight="normal" letter-spacing="0">32 lanes: lane 12 waits on its load, the rest ready or parked</text>
-<text x="48.0" y="196.0" font-family="DejaVu Sans Mono, Menlo, monospace" font-size="17" fill="#e8eef4" text-anchor="start" font-weight="normal" letter-spacing="0">S(p) = 1 / (f + (1 - f) / p)</text>
-<text x="48.0" y="228.0" font-family="DejaVu Sans Mono, Menlo, monospace" font-size="17" fill="#e8c56b" text-anchor="start" font-weight="normal" letter-spacing="0">ceiling = 1 / f</text>
-<line x1="600.0" y1="60.0" x2="600.0" y2="230.0" stroke="#2b4b66" stroke-width="2.0" stroke-linecap="round"/><line x1="600.0" y1="230.0" x2="950.0" y2="230.0" stroke="#2b4b66" stroke-width="2.0" stroke-linecap="round"/><line x1="620.0" y1="210.0" x2="817.0" y2="87.2" stroke="#5fc9b4" stroke-width="4.0" stroke-linecap="round"/><line x1="817.0" y1="87.2" x2="930.0" y2="87.2" stroke="#e8c56b" stroke-width="4.0" stroke-linecap="round"/><circle cx="817.0" cy="87.2" r="7.0" fill="#e2704a" stroke="#e8eef4" stroke-width="2.0"/><text x="718.5" y="200.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="14" fill="#5fc9b4" text-anchor="middle" font-weight="normal" letter-spacing="0">memory-bound</text><text x="873.5" y="71.2" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="14" fill="#e8c56b" text-anchor="middle" font-weight="normal" letter-spacing="0">compute-bound</text><text x="833.0" y="111.2" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="14" fill="#e2704a" text-anchor="start" font-weight="normal" letter-spacing="0">ridge</text><text x="775.0" y="256.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="14" fill="#8fa3b8" text-anchor="middle" font-weight="normal" letter-spacing="0">arithmetic intensity, FLOP / byte</text><text x="590.0" y="48.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="14" fill="#8fa3b8" text-anchor="end" font-weight="normal" letter-spacing="0">perf</text>
-<rect x="0.0" y="268.0" width="1000.0" height="4.0" rx="0.0" fill="#e2704a" stroke="none" stroke-width="0.0"/>
-<rect x="0.0" y="272.0" width="1000.0" height="48.0" rx="0.0" fill="#060d15" stroke="none" stroke-width="0.0"/>
-<text x="24.0" y="303.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="15" fill="#8fa3b8" text-anchor="start" font-weight="normal" letter-spacing="4">CHAPTER</text>
-<text x="150.0" y="305.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="20" fill="#e8c56b" text-anchor="start" font-weight="bold" letter-spacing="2">01</text>
-<text x="226.0" y="302.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="18" fill="#e8eef4" text-anchor="start" font-weight="normal" letter-spacing="3">RIDGE</text>
-<text x="976.0" y="303.0" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-size="13" fill="#8fa3b8" text-anchor="end" font-weight="normal" letter-spacing="1.5">READS WHERE THE ROOF MEETS THE BAND</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="Tally, an ant, leads a column of ants carrying crumbs across a meadow. The column is wide where the ground is open, and every ant walks at once. Then it narrows to a single twig bridge over a stream, where only one ant can cross at a time and the rest wait in a queue. The bridge is the serial part of the work.">
+<defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17324a"/><stop offset="1" stop-color="#3f7f8f"/></linearGradient><linearGradient id="glow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/><stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/></linearGradient></defs>
+<rect x="0.0" y="0.0" width="960.0" height="420.0" rx="0" fill="url(#sky1)" stroke="none" stroke-width="0" />
+<path d="M0,132 C240,48 520,180 960,94 L960,164 C520,240 240,118 0,202 Z" fill="url(#glow2)" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="53.0" cy="43.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="250.0" cy="132.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="447.0" cy="29.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="644.0" cy="118.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="841.0" cy="15.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="78.0" cy="104.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="275.0" cy="193.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="472.0" cy="90.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="669.0" cy="179.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="866.0" cy="76.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="103.0" cy="165.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="300.0" cy="62.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="497.0" cy="151.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="694.0" cy="48.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="891.0" cy="137.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="128.0" cy="34.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="325.0" cy="123.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="522.0" cy="20.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="719.0" cy="109.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="916.0" cy="198.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="153.0" cy="95.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="350.0" cy="184.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="547.0" cy="81.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="744.0" cy="170.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="941.0" cy="67.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="178.0" cy="156.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="375.0" cy="53.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="572.0" cy="142.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="769.0" cy="39.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="6.0" cy="128.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="203.0" cy="25.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="400.0" cy="114.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="597.0" cy="203.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="794.0" cy="100.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="31.0" cy="189.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="228.0" cy="86.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="425.0" cy="175.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="622.0" cy="72.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="819.0" cy="161.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="56.0" cy="58.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="253.0" cy="147.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="450.0" cy="44.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="647.0" cy="133.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="844.0" cy="30.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="81.0" cy="119.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="278.0" cy="16.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<path d="M0,296 C200,270 420,314 640,288 S900,302 960,282 L960,420 L0,420 Z" fill="#5f9a62" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M0,316 C260,296 520,330 960,308 L960,420 L0,420 Z" fill="#86bd7c" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M640,278 L800,278 L870,420 L590,420 Z" fill="#3c8dc5" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M640,312 q14,-6 28,0 t28,0" fill="none" stroke="#bfe3f7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+<path d="M670,334 q14,-6 28,0 t28,0" fill="none" stroke="#bfe3f7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+<path d="M700,356 q14,-6 28,0 t28,0" fill="none" stroke="#bfe3f7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+<rect x="616.0" y="270.0" width="210.0" height="12.0" rx="6" fill="#8a6a44" stroke="#5a3d28" stroke-width="2" />
+<ellipse cx="70.0" cy="261.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="65.8" y1="244.6" x2="59.9" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="65.8" y1="244.6" x2="71.7" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="72.5" y1="244.6" x2="66.6" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="72.5" y1="244.6" x2="78.4" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="78.4" y1="244.6" x2="72.5" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="78.4" y1="244.6" x2="84.3" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="52.4" cy="242.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="72.5" cy="242.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="86.8" cy="238.7" r="8.0" fill="#7a3b2e" />
+<path d="M89.3,232.0 Q93.5,219.4 101.1,220.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M85.1,232.0 Q86.8,217.7 93.5,215.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="89.3" cy="237.0" r="3.1" fill="#ffffff" />
+<circle cx="90.3" cy="237.2" r="1.6" fill="#1b2430" />
+<circle cx="90.9" cy="236.5" r="0.5" fill="#ffffff" />
+<circle cx="57.4" cy="223.6" r="9.2" fill="#e8c877" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="152.0" cy="261.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="147.8" y1="244.6" x2="141.9" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="147.8" y1="244.6" x2="153.7" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="154.5" y1="244.6" x2="148.6" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="154.5" y1="244.6" x2="160.4" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="160.4" y1="244.6" x2="154.5" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="160.4" y1="244.6" x2="166.3" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="134.4" cy="242.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="154.5" cy="242.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="168.8" cy="238.7" r="8.0" fill="#7a3b2e" />
+<path d="M171.3,232.0 Q175.5,219.4 183.1,220.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M167.1,232.0 Q168.8,217.7 175.5,215.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="171.3" cy="237.0" r="3.1" fill="#ffffff" />
+<circle cx="172.3" cy="237.2" r="1.6" fill="#1b2430" />
+<circle cx="172.9" cy="236.5" r="0.5" fill="#ffffff" />
+<circle cx="139.4" cy="223.6" r="9.2" fill="#f0b27a" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="234.0" cy="261.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="229.8" y1="244.6" x2="223.9" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="229.8" y1="244.6" x2="235.7" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="236.5" y1="244.6" x2="230.6" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="236.5" y1="244.6" x2="242.4" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="242.4" y1="244.6" x2="236.5" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="242.4" y1="244.6" x2="248.3" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="216.4" cy="242.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="236.5" cy="242.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="250.8" cy="238.7" r="8.0" fill="#7a3b2e" />
+<path d="M253.3,232.0 Q257.5,219.4 265.1,220.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M249.1,232.0 Q250.8,217.7 257.5,215.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="253.3" cy="237.0" r="3.1" fill="#ffffff" />
+<circle cx="254.3" cy="237.2" r="1.6" fill="#1b2430" />
+<circle cx="254.9" cy="236.5" r="0.5" fill="#ffffff" />
+<circle cx="221.4" cy="223.6" r="9.2" fill="#e8c877" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="316.0" cy="261.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="311.8" y1="244.6" x2="305.9" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="311.8" y1="244.6" x2="317.7" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="318.5" y1="244.6" x2="312.6" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="318.5" y1="244.6" x2="324.4" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="324.4" y1="244.6" x2="318.5" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="324.4" y1="244.6" x2="330.3" y2="258.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="298.4" cy="242.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="318.5" cy="242.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="332.8" cy="238.7" r="8.0" fill="#7a3b2e" />
+<path d="M335.3,232.0 Q339.5,219.4 347.1,220.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M331.1,232.0 Q332.8,217.7 339.5,215.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="335.3" cy="237.0" r="3.1" fill="#ffffff" />
+<circle cx="336.3" cy="237.2" r="1.6" fill="#1b2430" />
+<circle cx="336.9" cy="236.5" r="0.5" fill="#ffffff" />
+<circle cx="303.4" cy="223.6" r="9.2" fill="#f7d9a0" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="70.0" cy="319.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="65.8" y1="302.6" x2="59.9" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="65.8" y1="302.6" x2="71.7" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="72.5" y1="302.6" x2="66.6" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="72.5" y1="302.6" x2="78.4" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="78.4" y1="302.6" x2="72.5" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="78.4" y1="302.6" x2="84.3" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="52.4" cy="300.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="72.5" cy="300.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="86.8" cy="296.7" r="8.0" fill="#7a3b2e" />
+<path d="M89.3,290.0 Q93.5,277.4 101.1,278.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M85.1,290.0 Q86.8,275.7 93.5,273.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="89.3" cy="295.0" r="3.1" fill="#ffffff" />
+<circle cx="90.3" cy="295.2" r="1.6" fill="#1b2430" />
+<circle cx="90.9" cy="294.5" r="0.5" fill="#ffffff" />
+<circle cx="57.4" cy="281.6" r="9.2" fill="#e8c877" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="152.0" cy="319.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="147.8" y1="302.6" x2="141.9" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="147.8" y1="302.6" x2="153.7" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="154.5" y1="302.6" x2="148.6" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="154.5" y1="302.6" x2="160.4" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="160.4" y1="302.6" x2="154.5" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="160.4" y1="302.6" x2="166.3" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="134.4" cy="300.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="154.5" cy="300.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="168.8" cy="296.7" r="8.0" fill="#7a3b2e" />
+<path d="M171.3,290.0 Q175.5,277.4 183.1,278.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M167.1,290.0 Q168.8,275.7 175.5,273.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="171.3" cy="295.0" r="3.1" fill="#ffffff" />
+<circle cx="172.3" cy="295.2" r="1.6" fill="#1b2430" />
+<circle cx="172.9" cy="294.5" r="0.5" fill="#ffffff" />
+<circle cx="139.4" cy="281.6" r="9.2" fill="#f0b27a" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="234.0" cy="319.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="229.8" y1="302.6" x2="223.9" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="229.8" y1="302.6" x2="235.7" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="236.5" y1="302.6" x2="230.6" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="236.5" y1="302.6" x2="242.4" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="242.4" y1="302.6" x2="236.5" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="242.4" y1="302.6" x2="248.3" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="216.4" cy="300.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="236.5" cy="300.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="250.8" cy="296.7" r="8.0" fill="#7a3b2e" />
+<path d="M253.3,290.0 Q257.5,277.4 265.1,278.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M249.1,290.0 Q250.8,275.7 257.5,273.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="253.3" cy="295.0" r="3.1" fill="#ffffff" />
+<circle cx="254.3" cy="295.2" r="1.6" fill="#1b2430" />
+<circle cx="254.9" cy="294.5" r="0.5" fill="#ffffff" />
+<circle cx="221.4" cy="281.6" r="9.2" fill="#e8c877" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="316.0" cy="319.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="311.8" y1="302.6" x2="305.9" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="311.8" y1="302.6" x2="317.7" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="318.5" y1="302.6" x2="312.6" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="318.5" y1="302.6" x2="324.4" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="324.4" y1="302.6" x2="318.5" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="324.4" y1="302.6" x2="330.3" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="298.4" cy="300.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="318.5" cy="300.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="332.8" cy="296.7" r="8.0" fill="#7a3b2e" />
+<path d="M335.3,290.0 Q339.5,277.4 347.1,278.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M331.1,290.0 Q332.8,275.7 339.5,273.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="335.3" cy="295.0" r="3.1" fill="#ffffff" />
+<circle cx="336.3" cy="295.2" r="1.6" fill="#1b2430" />
+<circle cx="336.9" cy="294.5" r="0.5" fill="#ffffff" />
+<circle cx="303.4" cy="281.6" r="9.2" fill="#f7d9a0" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="420.0" cy="319.0" rx="23.9" ry="2.6" fill="#0d1a28" opacity="0.22"/>
+<line x1="416.1" y1="303.7" x2="410.8" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="416.1" y1="303.7" x2="421.5" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="422.3" y1="303.7" x2="416.9" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="422.3" y1="303.7" x2="427.7" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="427.7" y1="303.7" x2="422.3" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="427.7" y1="303.7" x2="433.1" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<ellipse cx="403.8" cy="301.4" rx="11.5" ry="8.5" fill="#7a3b2e" />
+<ellipse cx="422.3" cy="302.1" rx="6.5" ry="4.6" fill="#7a3b2e" />
+<circle cx="435.4" cy="298.3" r="7.3" fill="#7a3b2e" />
+<path d="M437.7,292.1 Q441.6,280.6 448.5,281.4" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M433.9,292.1 Q435.4,279.0 441.6,276.7" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="437.7" cy="296.8" r="2.9" fill="#ffffff" />
+<circle cx="438.6" cy="296.9" r="1.5" fill="#1b2430" />
+<circle cx="439.2" cy="296.3" r="0.5" fill="#ffffff" />
+<circle cx="408.4" cy="284.4" r="8.5" fill="#e8c877" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="486.0" cy="319.0" rx="23.9" ry="2.6" fill="#0d1a28" opacity="0.22"/>
+<line x1="482.1" y1="303.7" x2="476.8" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="482.1" y1="303.7" x2="487.5" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="488.3" y1="303.7" x2="482.9" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="488.3" y1="303.7" x2="493.7" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="493.7" y1="303.7" x2="488.3" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="493.7" y1="303.7" x2="499.1" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<ellipse cx="469.8" cy="301.4" rx="11.5" ry="8.5" fill="#7a3b2e" />
+<ellipse cx="488.3" cy="302.1" rx="6.5" ry="4.6" fill="#7a3b2e" />
+<circle cx="501.4" cy="298.3" r="7.3" fill="#7a3b2e" />
+<path d="M503.7,292.1 Q507.6,280.6 514.5,281.4" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M499.9,292.1 Q501.4,279.0 507.6,276.7" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="503.7" cy="296.8" r="2.9" fill="#ffffff" />
+<circle cx="504.6" cy="296.9" r="1.5" fill="#1b2430" />
+<circle cx="505.2" cy="296.3" r="0.5" fill="#ffffff" />
+<circle cx="474.4" cy="284.4" r="8.5" fill="#f0b27a" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="552.0" cy="319.0" rx="23.9" ry="2.6" fill="#0d1a28" opacity="0.22"/>
+<line x1="548.1" y1="303.7" x2="542.8" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="548.1" y1="303.7" x2="553.5" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="554.3" y1="303.7" x2="548.9" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="554.3" y1="303.7" x2="559.7" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="559.7" y1="303.7" x2="554.3" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="559.7" y1="303.7" x2="565.1" y2="316.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<ellipse cx="535.8" cy="301.4" rx="11.5" ry="8.5" fill="#7a3b2e" />
+<ellipse cx="554.3" cy="302.1" rx="6.5" ry="4.6" fill="#7a3b2e" />
+<circle cx="567.4" cy="298.3" r="7.3" fill="#7a3b2e" />
+<path d="M569.7,292.1 Q573.6,280.6 580.5,281.4" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M565.9,292.1 Q567.4,279.0 573.6,276.7" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="569.7" cy="296.8" r="2.9" fill="#ffffff" />
+<circle cx="570.6" cy="296.9" r="1.5" fill="#1b2430" />
+<circle cx="571.2" cy="296.3" r="0.5" fill="#ffffff" />
+<circle cx="540.5" cy="284.4" r="8.5" fill="#e8c877" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="722.0" cy="273.0" rx="23.9" ry="2.6" fill="#0d1a28" opacity="0.22"/>
+<line x1="718.1" y1="257.7" x2="712.8" y2="270.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="718.1" y1="257.7" x2="723.5" y2="270.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="724.3" y1="257.7" x2="718.9" y2="270.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="724.3" y1="257.7" x2="729.7" y2="270.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="729.7" y1="257.7" x2="724.3" y2="270.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<line x1="729.7" y1="257.7" x2="735.1" y2="270.0" stroke="#4f241b" stroke-width="2.12" stroke-linecap="round" />
+<ellipse cx="705.8" cy="255.4" rx="11.5" ry="8.5" fill="#7a3b2e" />
+<ellipse cx="724.3" cy="256.1" rx="6.5" ry="4.6" fill="#7a3b2e" />
+<circle cx="737.4" cy="252.3" r="7.3" fill="#7a3b2e" />
+<path d="M739.7,246.1 Q743.6,234.6 750.5,235.3" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M735.9,246.1 Q737.4,233.0 743.6,230.7" fill="none" stroke="#4f241b" stroke-width="1.81" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="739.7" cy="250.8" r="2.9" fill="#ffffff" />
+<circle cx="740.6" cy="250.9" r="1.5" fill="#1b2430" />
+<circle cx="741.2" cy="250.3" r="0.5" fill="#ffffff" />
+<circle cx="710.5" cy="238.4" r="8.5" fill="#e8c877" stroke="#8a6a44" stroke-width="1.5"/>
+<ellipse cx="900.0" cy="319.0" rx="26.0" ry="2.9" fill="#0d1a28" opacity="0.22"/>
+<line x1="895.8" y1="302.6" x2="889.9" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="895.8" y1="302.6" x2="901.7" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="902.5" y1="302.6" x2="896.6" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="902.5" y1="302.6" x2="908.4" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="908.4" y1="302.6" x2="902.5" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<line x1="908.4" y1="302.6" x2="914.3" y2="316.0" stroke="#4f241b" stroke-width="2.24" stroke-linecap="round" />
+<ellipse cx="882.4" cy="300.0" rx="12.6" ry="9.2" fill="#7a3b2e" />
+<ellipse cx="902.5" cy="300.9" rx="7.1" ry="5.0" fill="#7a3b2e" />
+<circle cx="916.8" cy="296.7" r="8.0" fill="#7a3b2e" />
+<path d="M919.3,290.0 Q923.5,277.4 931.1,278.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M915.1,290.0 Q916.8,275.7 923.5,273.2" fill="none" stroke="#4f241b" stroke-width="1.92" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="919.3" cy="295.0" r="3.1" fill="#ffffff" />
+<circle cx="920.3" cy="295.2" r="1.6" fill="#1b2430" />
+<circle cx="920.9" cy="294.5" r="0.5" fill="#ffffff" />
+<circle cx="887.4" cy="281.6" r="9.2" fill="#f0b27a" stroke="#8a6a44" stroke-width="1.5"/>
+<text x="722.0" y="218.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="600" fill="#ffe7a3" text-anchor="middle" >one at a time</text>
+<text x="190.0" y="172.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="600" fill="#ffe7a3" text-anchor="middle" >all at once</text>
+<rect x="420.0" y="96.0" width="400.0" height="56.0" rx="10" fill="#fff6e2" stroke="#8a6a44" stroke-width="3" />
+<text x="620.0" y="131.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="600" fill="#12263d" text-anchor="middle" >time = serial + parallel / p</text>
+<rect x="28.0" y="360.0" width="72.0" height="40.0" rx="6" fill="#d9622b" stroke="none" stroke-width="0" />
+<text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="15.4" lengthAdjust="spacingAndGlyphs">1</text>
+<rect x="100.0" y="360.0" width="481.0" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
+<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="441.0" lengthAdjust="spacingAndGlyphs">THE MATHEMATICS OF PARALLELISM</text>
+<rect x="776.2" y="364.0" width="155.8" height="32.0" rx="16" fill="#ffffffdd" stroke="none" stroke-width="0" />
+<text x="854.1" y="386.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#27405a" text-anchor="middle"  textLength="123.8" lengthAdjust="spacingAndGlyphs">Tally the ant</text>
 </svg>

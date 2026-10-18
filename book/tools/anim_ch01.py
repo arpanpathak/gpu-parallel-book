@@ -2,7 +2,7 @@
 
 Each builder scripts one run of the chapter's example and paints every frame from
 the timeline's sampled values, in the manner of `anim_async.py`. Values travel
-between panels as pills, a worker is drawn as a robot that sleeps while a read is
+between panels as pills, a thread is drawn as a robot that sleeps while a read is
 in flight and wakes when the value lands, and each run ends on a failing case.
 
     python3 tools/animations.py wait amdahl-multi flynn roofline
@@ -16,7 +16,7 @@ from motion import Timeline, render
 CODE_Y = 330
 
 WAIT_CODE = [
-    "i = this worker's element",
+    "i = this thread's element",
     "load a[i], load b[i]",
     "c[i] = a[i] + b[i]",
 ]
@@ -73,8 +73,8 @@ def route(points, u):
 
 
 def wait():
-    """Two units and one scheduler. Unit 0 asks for its operands and waits; the
-    scheduler runs unit 1 in the gap; unit 0 resumes when its values arrive."""
+    """Two groups of threads and one scheduler. Group 0 asks for its operands and waits; the
+    scheduler runs group 1 in the gap; group 0 resumes when its values arrive."""
     tl = Timeline(
         code=-1.0,
         u=0.0, a=0.0, label="", color=TEAL, fill=TEAL_LT,
@@ -94,29 +94,29 @@ def wait():
 
     tl.chapter("stall")
     tl.to(0.3, code=0.0)
-    tl.say("Unit 0 asks for a[] and b[]. The add needs those values, so unit 0 waits.")
+    tl.say("Group 0 asks for a[] and b[]. The add needs those values, so group 0 waits.")
     tl.wait(2.6)
     tl.set(w0wait=1.0, runs=0.0)
     trip(PANEL_R, ROW_A + 14, ROW_CX, WARP0_Y - 70, "load a[]", TEAL, TEAL_LT, dur=1.5)
     trip(PANEL_R, ROW_B + 14, ROW_CX, WARP0_Y - 70, "load b[]", TEAL, TEAL_LT, dur=1.3)
     tl.to(0.5, cycles=500)
-    tl.say("Five hundred cycles pass before the values return. Unit 0 has nothing else to run "
+    tl.say("Five hundred cycles pass before the values return. Group 0 has nothing else to run "
            "in that time.")
     tl.wait(2.2)
 
     tl.chapter("switch")
     tl.set(runs=1.0, w1work=1.0)
-    tl.say("The scheduler runs unit 1 instead. Unit 1 has independent work, so the arithmetic "
-           "units keep running while unit 0 waits.")
+    tl.say("The scheduler runs group 1 instead. Group 1 has independent work, so the arithmetic "
+           "units keep running while group 0 waits.")
     tl.to(2.2, in_out, w1done=4.0)
-    tl.say("Unit 1 finishes four operations during the wait. Unit 0's read still takes its "
+    tl.say("Group 1 finishes four operations during the wait. Group 0's read still takes its "
            "500 cycles.")
     tl.wait(2.4)
 
     tl.chapter("resume")
     tl.set(w0wait=0.0, runs=0.0, w1work=0.0)
     tl.to(0.3, code=2.0)
-    tl.say("The values arrive. The scheduler returns to unit 0, which adds them and writes c[i].")
+    tl.say("The values arrive. The scheduler returns to group 0, which adds them and writes c[i].")
     tl.wait(1.0)
     trip(ROW_CX, WARP0_Y - 70, ROW_CX, CROW_Y + 14, "sums", BRASS, BRASS_LT, dur=1.2)
     tl.set(results=4)
@@ -125,7 +125,7 @@ def wait():
     tl.chapter("bad index")
     tl.set(broken=1.0, results=0, writes=0)
     tl.to(0.3, code=0.0)
-    tl.say("Now the index is wrong, and every worker of unit 0 takes element 0.", "fail")
+    tl.say("Now the index is wrong, and every thread of group 0 takes element 0.", "fail")
     tl.wait(1.4)
     for k in range(4):
         pace = 1.0 if k == 0 else 0.45
@@ -133,7 +133,7 @@ def wait():
              "%d" % (A_VALS[0] + B_VALS[0]), RUST, RUST_LT, dur=0.5 * pace)
         tl.set(writes=tl._at("writes", tl.now) + 1)
         if k in (0, 3):
-            tl.say("Worker %d writes c[0] as well. %d writes have gone to the same cell."
+            tl.say("Thread %d writes c[0] as well. %d writes have gone to the same cell."
                    % (k, k + 1), "fail")
         else:
             tl.wait(0.4)
@@ -156,7 +156,7 @@ def wait():
         which = int(round(s.runs))
         edge = TEAL if which == 0 else BRASS
         p.rect(612, 97, 98, 18, TEAL_LT if which == 0 else BRASS_LT, edge, 6, 1.2)
-        p.text(661, 110, "unit %d" % which, 11, edge, 700, "middle", mono=True)
+        p.text(661, 110, "group %d" % which, 11, edge, 700, "middle", mono=True)
 
         # Two units. Unit 0 sleeps while its read is out; unit 1 keeps computing,
         # and the row of markers beside it records the work it finishes.
@@ -168,7 +168,7 @@ def wait():
             for k in range(4):
                 robot(p, LANE_X[k], dy, body=body, awake=1.0 - waiting, lit=active, bob=bob)
                 zzz(p, LANE_X[k] + 26, dy - 70, t, waiting)
-            p.text(744, dy - 46, "unit %d" % row, 12.5, body, 700, "start")
+            p.text(744, dy - 46, "group %d" % row, 12.5, body, 700, "start")
             if row == 1:
                 done = int(round(s.w1done))
                 for i in range(4):
@@ -204,8 +204,8 @@ def wait():
                        ("writes to c[0]", s.writes if s.broken > 0.5 else 0, RUST)])
         meter(p, 26, 84, 186, min(1.0, s.cycles / 2000.0), TEAL, "cycles elapsed", str(cycles))
 
-        furniture(p, tl, t, total, "the operation", "Two units, one scheduler",
-                  "Unit 0 waits on its read while unit 1 keeps the arithmetic units busy.",
+        furniture(p, tl, t, total, "the operation", "Two groups, one scheduler",
+                  "Group 0 waits on its read while group 1 keeps the arithmetic units busy.",
                   s.code, WAIT_CODE, cap_y, rail_y, tint=RUST if s.broken > 0.5 else TEAL,
                   code_y=WAIT_CODE_Y)
 
@@ -341,7 +341,7 @@ def amdahl_s(p, f):
 
 
 def amdahl_multi():
-    """Amdahl's law as a family of curves: speedup against unit count, one
+    """Amdahl's law as a family of curves: speedup against processor count, one
     curve per serial fraction, with the example run climbing its own curve."""
     tl = Timeline(code=-1.0, family=0.0, f=30.0 / 130.0, p=1.0, slow=0.0)
     tl.chapter("the curves")
@@ -363,16 +363,16 @@ def amdahl_multi():
     tl.say("This program: the read and write are 30 of 130 microseconds, so f = 0.23 and the "
            "ceiling is 4.3x.", "insight")
     tl.wait(2.6)
-    tl.say("On one unit S = 1.00.")
+    tl.say("On one processor S = 1.00.")
     tl.wait(0.8)
     tl.to(1.0, in_out, p=2.0)
-    tl.say("Two units halve the parallel work: S = 1.63, not 2.")
+    tl.say("Two processors halve the parallel work: S = 1.63, not 2.")
     tl.wait(1.2)
     tl.to(0.9, in_out, p=4.0)
-    tl.say("Four units: S = 2.36.")
+    tl.say("Four processors: S = 2.36.")
     tl.wait(1.0)
     tl.to(0.9, in_out, p=8.0)
-    tl.say("Eight units: S = 3.06 against the 4.3 ceiling.")
+    tl.say("Eight processors: S = 3.06 against the 4.3 limit.")
     tl.wait(1.8)
     tl.chapter("slow read")
     tl.set(slow=1.0)
@@ -382,7 +382,7 @@ def amdahl_multi():
     tl.say("The serial part is 60 of 160 microseconds, so f = 0.375 and the ceiling falls "
            "to 2.7x.", "fail")
     tl.to(0.9, in_out, p=8.0)
-    tl.say("Eight units now reach 2.2x. The read and write set the pace.", "fail")
+    tl.say("Eight processors now reach 2.2x. The read and write set the pace.", "fail")
     tl.wait(2.4)
 
     def draw(p, s, total):
@@ -400,7 +400,7 @@ def amdahl_multi():
         for v in (1, 4, 16, 64, 256, 1024):
             p.line(X(v), y1, X(v), y1 + 5, FAINT, 1.2)
             p.text(X(v), y1 + 19, str(v), 10.5, FAINT, 400, "middle", mono=True)
-        p.text((x0 + x1) / 2, y1 + 40, "units, log scale", 12, MUTED, 600, "middle")
+        p.text((x0 + x1) / 2, y1 + 40, "processors, log scale", 12, MUTED, 600, "middle")
         for v in (1, 4, 16, 64, 256, 1000):
             p.line(x0 - 5, Y(v), x0, Y(v), FAINT, 1.2)
             p.text(x0 - 10, Y(v) + 4, str(v), 10.5, FAINT, 400, "end", mono=True)
@@ -447,7 +447,7 @@ def amdahl_multi():
         meter(p, rx, ry + 52, 196, min(1.0, speedup / ceiling), TEAL, "share of the ceiling",
               "%.0f%%" % (100 * speedup / ceiling))
 
-        scoreboard(p, [("units", "%g" % s.p, TEAL), ("S(p)", "%.2f" % speedup, INK)])
+        scoreboard(p, [("p", "%g" % s.p, TEAL), ("S(p)", "%.2f" % speedup, INK)])
         furniture(p, tl, t, total, "the law", "Amdahl's law",
                   "The serial fraction f sets the ceiling. Only the divisible part shrinks.",
                   s.code, AMD_CODE, cap_y, rail_y, tint=RUST if s.slow > 0.5 else TEAL)

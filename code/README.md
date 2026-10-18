@@ -1,4 +1,4 @@
-# Code Companion for "CUDA Kernels: GPU & Parallel Programming from First Principles"
+# Code Companion for "GPU Architecture & Parallel Programming from First Principles"
 
 Every runnable code block in the book lives here, organised by chapter. The
 files are the exact code printed in the book, including the line-by-line
@@ -8,7 +8,7 @@ comments; each directory builds standalone.
 
 | Directory | Chapter | What it contains | Build with |
 |---|---|---|---|
-| [`ch03_vector_add/`](ch03_vector_add/) | Ch 3 - The CUDA Programming Model | The first complete program: vector addition | `nvcc -arch=compute_60 vector_add.cu -o vector_add` |
+| [`ch03_vector_add/`](ch03_vector_add/) | Ch 3 - The CUDA Programming Model | Vector addition, and `whoami` (each thread prints its index) | `nvcc -arch=native vector_add.cu -o vector_add` and `nvcc -arch=native whoami.cu -o whoami` |
 | [`ch05_histogram/`](ch05_histogram/) | Ch 5 - Synchronisation, Atomics & Races | Privatised histogram + a shared-memory spinlock | `nvcc -arch=compute_60 histogram.cu main.cu -o histogram` |
 | [`ch08_reduction/`](ch08_reduction/) | Ch 8 - Reduction, Scan & Histogram | Tree/shuffle reduction, Blelloch scan, privatised histogram | `nvcc -rdc=true -arch=compute_60 reduction.cu main.cu -o reduction` |
 | [`ch09_sgemm/`](ch09_sgemm/) | Ch 9 - Optimised Matrix Multiplication | Naive, coalesced, tiled and register-tiled SGEMM kernels | `nvcc -arch=compute_60 sgemm.cu main.cu -o sgemm` |

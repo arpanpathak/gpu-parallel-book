@@ -1,5 +1,5 @@
 [book]
-title = "CUDA Kernels: GPU & Parallel Programming from First Principles"
+title = "GPU Architecture & Parallel Programming from First Principles"
 authors = ["Arpan Pathak"]
 language = "en"
 description = "A comprehensive, first-principles guide to GPU and parallel programming with CUDA. Understand the hardware model, write fully documented CUDA C++ kernels, apply modern C++ idioms, and write GPU kernels in pure Rust with CUDA-Oxide - all wrapped around a complete image-processing capstone project."
@@ -13,7 +13,7 @@ edit-url-template = "https://github.com/arpanpathak/gpu-parallel-book/edit/main/
 default-theme = "navy"
 preferred-dark-theme = "navy"
 additional-css = ["custom.css", "theme/custom.css"]
-additional-js = ["theme/anim.js"]
+additional-js = ["theme/anim.js", "theme/figures.js"]
 
 [output.html.print]
 enable = true

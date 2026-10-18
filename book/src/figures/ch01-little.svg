@@ -1,41 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 352.0" width="900" height="352.0" font-family="Helvetica, Arial, sans-serif">
-<rect width="100%" height="100%" fill="#ffffff"/>
-
-<text x="20" y="26" font-size="14.0" fill="#1d2733" text-anchor="start"  font-weight="bold">The same 500-cycle latency at two concurrency levels</text>
-<rect x="16" y="44" width="424" height="284" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
-<line x1="17" y1="45" x2="439" y2="45" stroke="#d9622b" stroke-width="3"/>
-<text x="30" y="72" font-size="15.0" fill="#d9622b" text-anchor="start"  font-weight="bold">concurrency = 1: one access in flight</text>
-<rect x="30" y="94" width="350" height="30" rx="6" fill="#fbe3d6" stroke="#c9d4de" stroke-width="1.2"/>
-<text x="40" y="114" font-size="11.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">load a[i]</text>
-<line x1="386" y1="109" x2="416" y2="109" stroke="#d9622b" stroke-width="2.4"/>
-<polygon points="416,109 408.8,112.5 408.8,105.5" fill="#d9622b"/>
-<text x="30" y="142" font-size="12.0" fill="#6b7a89" text-anchor="start" >the line is idle until this access returns</text>
-<rect x="30" y="162" width="380" height="30" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
-<text x="220.0" y="180.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">1 result, at cycle 500</text>
-<text x="30" y="222" font-size="12.0" fill="#6b7a89" text-anchor="start" >throughput = 1 result / 500 cycles</text>
-<rect x="460" y="44" width="424" height="284" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
-<line x1="461" y1="45" x2="883" y2="45" stroke="#2f7f86" stroke-width="3"/>
-<text x="474" y="72" font-size="15.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">concurrency = 250: enough to fill the line</text>
-<rect x="474" y="94" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
-<line x1="830" y1="102" x2="860" y2="102" stroke="#2f7f86" stroke-width="2.4"/>
-<polygon points="860,102 852.8,105.5 852.8,98.5" fill="#2f7f86"/>
-<rect x="474" y="116" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
-<line x1="830" y1="124" x2="860" y2="124" stroke="#2f7f86" stroke-width="2.4"/>
-<polygon points="860,124 852.8,127.5 852.8,120.5" fill="#2f7f86"/>
-<rect x="474" y="138" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
-<line x1="830" y1="146" x2="860" y2="146" stroke="#2f7f86" stroke-width="2.4"/>
-<polygon points="860,146 852.8,149.5 852.8,142.5" fill="#2f7f86"/>
-<rect x="474" y="160" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
-<line x1="830" y1="168" x2="860" y2="168" stroke="#2f7f86" stroke-width="2.4"/>
-<polygon points="860,168 852.8,171.5 852.8,164.5" fill="#2f7f86"/>
-<rect x="474" y="182" width="350" height="16" rx="4" fill="#eef3f7" stroke="#2f7f86" stroke-width="1"/>
-<line x1="830" y1="190" x2="860" y2="190" stroke="#2f7f86" stroke-width="2.4"/>
-<polygon points="860,190 852.8,193.5 852.8,186.5" fill="#2f7f86"/>
-<text x="484" y="106" font-size="10.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">access 1</text>
-<text x="484" y="150" font-size="10.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">access 125</text>
-<text x="484" y="194" font-size="10.0" fill="#1d2733" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">access 250</text>
-<rect x="474" y="212" width="380" height="30" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
-<text x="664.0" y="230.96" font-size="11.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">one result every 2 cycles</text>
-<text x="474" y="272" font-size="12.0" fill="#6b7a89" text-anchor="start" >throughput = 250 results / 500 cycles</text>
-<text x="474" y="296" font-size="12.0" fill="#6b7a89" text-anchor="start" >every access still takes 500 cycles</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 490" width="640" height="490" role="img" aria-label="Two panels. Top, 1 read in flight: two reads of 500 cycles run one after the other, and a value arrives every 500 cycles. Bottom, 250 reads in flight: the reads are drawn as staggered bars that start 2 cycles apart, each still 500 cycles long, and after the first 500 cycles a value arrives every 2 cycles.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="490" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">One read in flight, or 250</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each read takes 500 cycles in both panels. Only the number in flight changes.</text>
+  <rect x="24" y="104" width="592" height="128" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="42" y="93" width="153.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="118.9" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1 READ IN FLIGHT</text>
+  <rect x="48.0" y="140.0" width="246.0" height="26.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="171.0" y="157.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read 0: 500 cycles</text>
+  <rect x="298.0" y="140.0" width="246.0" height="26.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="421.0" y="157.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read 1: 500 cycles</text>
+  <rect x="228.0" y="176" width="60.2" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="258.1" y="188.6" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">value 1</text>
+  <rect x="474.0" y="176" width="60.2" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="504.1" y="188.6" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">value 2</text>
+  <text x="48.0" y="218.0" class="note" text-anchor="start" xml:space="preserve">one value every 500 cycles</text>
+  <rect x="24" y="268" width="592" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="42" y="257" width="177.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="130.7" y="272.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">250 READS IN FLIGHT</text>
+  <rect x="48.0" y="296.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="64.0" y="310.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="80.0" y="324.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="96.0" y="338.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="112.0" y="352.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="128.0" y="366.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="144.0" y="380.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="160.0" y="394.0" width="246.0" height="12.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="430.0" y="330.0" class="note" text-anchor="start" xml:space="preserve">8 of the 250 reads</text>
+  <text x="430.0" y="348.0" class="note" text-anchor="start" xml:space="preserve">are drawn</text>
+  <text x="48.0" y="430.0" class="note" text-anchor="start" xml:space="preserve">a new read starts every 2 cycles, so after the first 500 cycles</text>
+  <text x="48.0" y="448.0" class="note" text-anchor="start" xml:space="preserve">one value arrives every 2 cycles: 250 times as many</text>
+  <g transform="translate(526,372) scale(0.3167)">
+<ellipse cx="78" cy="56" rx="34" ry="24" fill="#d8ecfa" stroke="#9cc3e0" stroke-width="3" transform="rotate(-28 78 56)"/>
+<ellipse cx="162" cy="56" rx="34" ry="24" fill="#d8ecfa" stroke="#9cc3e0" stroke-width="3" transform="rotate(28 162 56)"/>
+<path d="M104,72 Q96,40 82,30" fill="none" stroke="#3a2a1e" stroke-width="4.5" stroke-linecap="round"/>
+<path d="M136,72 Q144,40 158,30" fill="none" stroke="#3a2a1e" stroke-width="4.5" stroke-linecap="round"/>
+<circle cx="82" cy="30" r="7" fill="#3a2a1e"/><circle cx="158" cy="30" r="7" fill="#3a2a1e"/>
+<path d="M206,132 L226,138 L206,144 Z" fill="#3a2a1e"/>
+<line x1="86" y1="160" x2="78" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<line x1="110" y1="160" x2="106" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<line x1="130" y1="160" x2="134" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<line x1="154" y1="160" x2="162" y2="178" stroke="#3a2a1e" stroke-width="6" stroke-linecap="round"/>
+<clipPath id="bee2"><ellipse cx="120" cy="124" rx="92" ry="46"/></clipPath>
+<ellipse cx="120" cy="124" rx="92" ry="46" fill="#f2b84b"/>
+<g clip-path="url(#bee2)" fill="#3a2a1e"><rect x="40" y="70" width="14" height="110"/><rect x="186" y="70" width="14" height="110"/><rect x="164" y="70" width="10" height="110"/></g>
+<ellipse cx="120" cy="152" rx="58" ry="12" fill="#d9932a" opacity="0.45"/>
+<ellipse cx="99" cy="118" rx="12" ry="15" fill="#ffffff"/><circle cx="99" cy="119.5" r="6.4" fill="#1b2430"/><circle cx="101.3" cy="116.2" r="2.1" fill="#ffffff"/>
+<ellipse cx="141" cy="118" rx="12" ry="15" fill="#ffffff"/><circle cx="141" cy="119.5" r="6.4" fill="#1b2430"/><circle cx="143.3" cy="116.2" r="2.1" fill="#ffffff"/>
+<ellipse cx="78" cy="138" rx="10" ry="6" fill="#f4a6b6" opacity="0.8"/><ellipse cx="162" cy="138" rx="10" ry="6" fill="#f4a6b6" opacity="0.8"/>
+<path d="M106,140 Q120,160 134,140 Z" fill="#7a1f0a"/>
+</g>
 </svg>

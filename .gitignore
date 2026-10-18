@@ -6,6 +6,7 @@ __pycache__/
 
 # Compiled example binaries (build with the commands in code/README.md)
 /code/ch03_vector_add/vector_add
+/code/ch03_vector_add/whoami
 /code/ch05_histogram/histogram
 /code/ch08_reduction/reduction
 /code/ch09_sgemm/sgemm
@@ -18,3 +19,7 @@ __pycache__/
 /code/ch14_cuda_oxide/host_closure.ptx
 /code/ch14_cuda_oxide/*.ll
 /code/ch14_cuda_oxide/*.opt.ll
+
+# cuda-oxide build by-products (never part of the book)
+/code/oxide/*/*.ptx
+/code/oxide/*/*.ll

@@ -1,35 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340.0" width="900" height="340.0" font-family="Helvetica, Arial, sans-serif">
-<rect width="100%" height="100%" fill="#ffffff"/>
-
-<text x="20" y="26" font-size="15.0" fill="#1d2733" text-anchor="start"  font-weight="bold">Amdahl's law on the timeline of the program</text>
-<rect x="16" y="44" width="424" height="268" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
-<line x1="17" y1="45" x2="439" y2="45" stroke="#5b6b7c" stroke-width="3"/>
-<text x="30" y="72" font-size="15.0" fill="#5b6b7c" text-anchor="start"  font-weight="bold">1 unit: total 130 us</text>
-<text x="30" y="110" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">read</text>
-<rect x="100" y="88" width="46.800000000000004" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
-<text x="156.8" y="109" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">20 us</text>
-<text x="30" y="162" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">compute</text>
-<rect x="100" y="140" width="234.0" height="30" rx="5" fill="#e3f1ea" stroke="#2f7f86" stroke-width="1.4"/>
-<text x="344.0" y="161" font-size="12.0" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">100 us</text>
-<text x="30" y="214" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">write</text>
-<rect x="100" y="192" width="23.400000000000002" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
-<text x="133.4" y="213" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">10 us</text>
-<text x="30" y="256" font-size="12.0" fill="#6b7a89" text-anchor="start" >read and write 30 us, compute 100 us, f = 30/130 = 0.23</text>
-<text x="30" y="278" font-size="12.0" fill="#6b7a89" text-anchor="start" >ceiling 1/f = 4.3x</text>
-<text x="30" y="300" font-size="12.0" fill="#6b7a89" text-anchor="start" >the read and write are a floor under the run time</text>
-<rect x="460" y="44" width="424" height="268" rx="8" fill="#fdfefe" stroke="#c9d4de" stroke-width="1.4"/>
-<line x1="461" y1="45" x2="883" y2="45" stroke="#2f7f86" stroke-width="3"/>
-<text x="474" y="72" font-size="15.0" fill="#2f7f86" text-anchor="start"  font-weight="bold">8 units: total 42.5 us</text>
-<text x="474" y="110" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">read</text>
-<rect x="544" y="88" width="46.800000000000004" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
-<text x="600.8" y="109" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">20 us</text>
-<text x="474" y="162" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">compute</text>
-<rect x="544" y="140" width="29.25" height="30" rx="5" fill="#e3f1ea" stroke="#2f7f86" stroke-width="1.4"/>
-<text x="583.25" y="161" font-size="12.0" fill="#2f7f86" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">12.5 us</text>
-<text x="474" y="214" font-size="12.0" fill="#6b7a89" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">write</text>
-<rect x="544" y="192" width="23.400000000000002" height="30" rx="5" fill="#fbe3d6" stroke="#d9622b" stroke-width="1.4"/>
-<text x="577.4" y="213" font-size="12.0" fill="#d9622b" text-anchor="start" font-family="Menlo, monospace" xml:space="preserve">10 us</text>
-<text x="474" y="256" font-size="12.0" fill="#6b7a89" text-anchor="start" >the compute divides by 8; the read and write stay at 30 us</text>
-<text x="474" y="278" font-size="12.0" fill="#6b7a89" text-anchor="start" >speedup 130 / 42.5 = 3.06</text>
-<text x="474" y="300" font-size="12.0" fill="#6b7a89" text-anchor="start" >more units cannot pass the 4.3x ceiling</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 424" width="640" height="424" role="img" aria-label="Top, one processor: a 20 microsecond read, a 100 microsecond compute phase and a 10 microsecond write, 130 microseconds in all. Bottom, eight processors: the same read and write, and between them eight short compute bars of 12.5 microseconds that run side by side, 42.5 microseconds in all.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="424" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The same program on 1 processor and on 8</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The compute phase divides by 8. The read and the write do not divide.</text>
+  <rect x="48" y="88" width="28" height="28" rx="7" fill="#EAF1FD"/>
+  <g transform="translate(53.0,93.0) scale(0.7500)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="84.0" y="108.0" class="name" text-anchor="start" xml:space="preserve">1 processor</text>
+  <rect x="48.0" y="120.0" width="72.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="84.0" y="141.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">read 20</text>
+  <rect x="120.0" y="120.0" width="360.0" height="34.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="300.0" y="141.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">compute 100 µs</text>
+  <rect x="480.0" y="120.0" width="36.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="498.0" y="141.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">10</text>
+  <rect x="526.0" y="128" width="53.6" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="552.8" y="140.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">130 µs</text>
+  <rect x="48" y="182" width="28" height="28" rx="7" fill="#EAF1FD"/>
+  <g transform="translate(53.0,187.0) scale(0.7500)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="84.0" y="202.0" class="name" text-anchor="start" xml:space="preserve">8 processors</text>
+  <rect x="48.0" y="263.0" width="70.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="83.0" y="284.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">read 20</text>
+  <rect x="120.0" y="214.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="120.0" y="231.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="120.0" y="248.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="120.0" y="265.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="120.0" y="282.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="120.0" y="299.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="120.0" y="316.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="120.0" y="333.0" width="43.0" height="14.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="165.0" y="263.0" width="36.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="183.0" y="284.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">10</text>
+  <rect x="211.0" y="271" width="60.2" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="241.1" y="283.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">42.5 µs</text>
+  <text x="291.0" y="238.0" class="note" text-anchor="start" xml:space="preserve">the compute phase: 12.5 µs</text>
+  <text x="291.0" y="256.0" class="note" text-anchor="start" xml:space="preserve">on each of the 8 processors,</text>
+  <text x="291.0" y="274.0" class="note" text-anchor="start" xml:space="preserve">all at the same time</text>
+  <rect x="48" y="386" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="69.0" y="397.5" class="note" text-anchor="start" xml:space="preserve">serial: one processor at a time</text>
+  <rect x="295.6" y="386" width="14" height="14" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="316.6" y="397.5" class="note" text-anchor="start" xml:space="preserve">parallel: divides by p</text>
 </svg>

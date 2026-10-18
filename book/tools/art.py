@@ -1,187 +1,584 @@
 #!/usr/bin/env python3
-"""Draw the cover and chapter plates for the GPU book.
+"""Draw the cover and the chapter-opener plates.
 
-The design is deliberately minimal: a dark board, one warp of lane cells, and
-one roofline schematic. Every coordinate is fixed and checked, so nothing
-overlaps. The SVG is written to src/art/ and rasterised to PNG with ffmpeg.
+The cast lives in a hive. The GPU is a honeycomb of streaming multiprocessors,
+its threads are bees that fly in warps of 32, and the Rust chapters are worked
+by a crew of crabs. Each chapter opens with one member of the cast at work on
+the chapter's subject. The SVG goes to src/art/, a PNG beside it (for the PDF),
+and plates.json holds the descriptions the chapters use as alternative text.
 
-    python3 tools/art.py
+    python3 tools/art.py              # every plate
+    python3 tools/art.py cover ch13   # some of them
 """
 
-from __future__ import annotations
+import json
+import math
+import sys
+from pathlib import Path
+from xml.sax.saxutils import escape
 
-import pathlib
-import subprocess
+OUT = Path(__file__).resolve().parent.parent / "src" / "art"
+W, H = 960, 420
+GROUND = 322
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "src" / "art"
+INK, SNOW, CREAM = "#1b2430", "#ffffff", "#f6efe0"
+RUST, BRASS, TEAL, STEEL, WOOD = "#d9622b", "#c89b3c", "#2f7f86", "#5b6b7c", "#8a6a44"
+HONEY, HONEY_DARK, NIGHT = "#f5c542", "#c98f12", "#12263d"
+SANS = "Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif"
+MONO = "JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace"
+SERIF = "Georgia, Iowan Old Style, Times New Roman, serif"
 
-BG = "#0c1726"
-PANEL = "#101f2e"
-EDGE = "#2b4b66"
-BAND = "#060d15"
-INK_LIGHT = "#e8eef4"
-MUTED = "#8fa3b8"
-BRASS = "#e8c56b"
-TEAL = "#5fc9b4"
-TEAL_DIM = "#1d4a44"
-RUST = "#e2704a"
-RUST_DIM = "#3d2118"
-LANE_OFF = "#1b3349"
+PLATES = {}
+_ids = [0]
 
-SERIF = "Liberation Serif, Georgia, serif"
-SANS = "Liberation Sans, DejaVu Sans, Arial, sans-serif"
-MONO = "DejaVu Sans Mono, Menlo, monospace"
+
+def uid(prefix):
+    _ids[0] += 1
+    return f"{prefix}{_ids[0]}"
+
+
+def plate(name, title, crew, description, size=(W, H)):
+    """Registers a function that returns the parts of one plate."""
+
+    def register(draw):
+        PLATES[name] = (title, crew, description, draw, size)
+        return draw
+
+    return register
 
 
 # ---------------------------------------------------------------- primitives
 
-
-def rect(x: float, y: float, w: float, h: float, fill: str, stroke: str = "none",
-         width: float = 0, rx: float = 0) -> str:
-    return ('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="%.1f" fill="%s" '
-            'stroke="%s" stroke-width="%.1f"/>' % (x, y, w, h, rx, fill, stroke, width))
+def rect(x, y, w, h, fill, rx=0, stroke="none", sw=0, extra=""):
+    return (f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" fill="{fill}"'
+            f' stroke="{stroke}" stroke-width="{sw}" {extra}/>')
 
 
-def line(x1: float, y1: float, x2: float, y2: float, stroke: str, width: float = 2) -> str:
-    return ('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%.1f" '
-            'stroke-linecap="round"/>' % (x1, y1, x2, y2, stroke, width))
+def ellipse(cx, cy, rx, ry, fill, extra=""):
+    return f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" fill="{fill}" {extra}/>'
 
 
-def circle(cx: float, cy: float, r: float, fill: str, stroke: str = "none",
-           width: float = 0) -> str:
-    return ('<circle cx="%.1f" cy="%.1f" r="%.1f" fill="%s" stroke="%s" stroke-width="%.1f"/>'
-            % (cx, cy, r, fill, stroke, width))
+def circle(cx, cy, r, fill, extra=""):
+    return f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" fill="{fill}" {extra}/>'
 
 
-def text(x: float, y: float, body: str, size: float, fill: str, family: str = SANS,
-         anchor: str = "start", weight: str = "normal", spacing: float = 0) -> str:
-    body = body.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    return ('<text x="%.1f" y="%.1f" font-family="%s" font-size="%s" fill="%s" text-anchor="%s" '
-            'font-weight="%s" letter-spacing="%s">%s</text>'
-            % (x, y, family, size, fill, anchor, weight, spacing, body))
+def path(d, fill="none", stroke="none", sw=0, extra=""):
+    return (f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}" stroke-linecap="round"'
+            f' stroke-linejoin="round" {extra}/>')
 
 
-# ---------------------------------------------------------------- components
+def line(x1, y1, x2, y2, stroke, sw=3, extra=""):
+    return (f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{stroke}" stroke-width="{sw}"'
+            f' stroke-linecap="round" {extra}/>')
 
 
-def lane_row(x: float, y: float, cell: float, gap: float, n: int = 32) -> str:
-    """One row of lane cells. Lanes 0-11 ready, 12 stalled, 13-15 running,
-    the rest parked."""
-    out = ""
-    for k in range(n):
-        cx = x + k * (cell + gap) + cell / 2
-        if k < 12:
-            fill, edge = TEAL_DIM, TEAL
-        elif k == 12:
-            fill, edge = RUST_DIM, RUST
-        elif k < 16:
-            fill, edge = "#3a3220", BRASS
-        else:
-            fill, edge = LANE_OFF, EDGE
-        out += rect(cx - cell / 2, y, cell, cell, fill, edge, 1.4, rx=3)
-    return out
+def textw(body, size, font=SANS):
+    """The width a label is drawn at. Fonts differ between machines, so every label that sits
+    in a box is forced to this width with textLength: it can never spill out of its box."""
+    if font == MONO:
+        ratio = 0.60
+    elif body.upper() == body:
+        ratio = 0.70
+    else:
+        ratio = 0.56
+    return len(body) * size * ratio
 
 
-def roofline(x0: float, y0: float, x1: float, y1: float, big: bool = False) -> str:
-    """A roofline: bandwidth ramp, flat compute roof, and a ridge point."""
-    size = 20 if big else 14
-    axis = 3 if big else 2
-    rx, ry = x0 + 0.62 * (x1 - x0), y0 + 0.16 * (y1 - y0)
-    out = line(x0, y0, x0, y1, EDGE, axis)
-    out += line(x0, y1, x1, y1, EDGE, axis)
-    out += line(x0 + 20, y1 - 20, rx, ry, TEAL, 6 if big else 4)
-    out += line(rx, ry, x1 - 20, ry, BRASS, 6 if big else 4)
-    out += circle(rx, ry, 10 if big else 7, RUST, INK_LIGHT, 2)
-    out += text((x0 + 20 + rx) / 2, y1 - 40 if big else y1 - 30, "memory-bound",
-                size, TEAL, SANS, "middle")
-    out += text((rx + x1 - 20) / 2, ry - 20 if big else ry - 16, "compute-bound",
-                size, BRASS, SANS, "middle")
-    out += text(rx + 16, ry + 28 if big else ry + 24, "ridge", size, RUST, SANS, "start")
-    out += text((x0 + x1) / 2, y1 + 34 if big else y1 + 26,
-                "arithmetic intensity, FLOP / byte", size, MUTED, SANS, "middle")
-    out += text(x0 - 10, y0 - 12, "perf", size, MUTED, SANS, "end")
-    return out
+def label(x, y, body, size=20, fill=SNOW, anchor="middle", font=SANS, weight=700, extra="", fit=None):
+    """A line of text. `fit` forces its width in units, so it lands the same in every font."""
+    if fit:
+        extra += f' textLength="{fit:.1f}" lengthAdjust="spacingAndGlyphs"'
+    return (f'<text x="{x:.1f}" y="{y:.1f}" font-family="{font}" font-size="{size}" font-weight="{weight}"'
+            f' fill="{fill}" text-anchor="{anchor}" {extra}>{escape(body)}</text>')
 
 
-# ------------------------------------------------------------------- plates
+def tag(cx, cy, body, size=17, fill="#ffffffdd", ink="#27405a", font=SANS, weight=700, pad=16, rx=None):
+    """A label in a rounded box sized to the text, centred on (cx, cy)."""
+    w = textw(body, size, font)
+    h = size * 1.8
+    return (rect(cx - w / 2 - pad, cy - h / 2, w + 2 * pad, h, fill, h / 2 if rx is None else rx)
+            + label(cx, cy + size * 0.36, body, size, ink, font=font, weight=weight, fit=w))
 
 
-def plate_ch01() -> str:
-    width, height = 1000, 320
-    out = [
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d">'
-        % (width, height, width, height),
-        rect(0, 0, width, height, BG),
-        text(48, 70, "WARP", 15, MUTED, SANS, "start", spacing=3),
-        lane_row(48, 86, 13, 3, 32),
-        text(48, 136, "32 lanes: lane 12 waits on its load, the rest ready or parked",
-             13, MUTED, SANS, "start"),
-        text(48, 196, "S(p) = 1 / (f + (1 - f) / p)", 17, INK_LIGHT, MONO, "start"),
-        text(48, 228, "ceiling = 1 / f", 17, BRASS, MONO, "start"),
-        roofline(600, 60, 950, 230),
-        rect(0, 268, width, 4, RUST),
-        rect(0, 272, width, 48, BAND),
-        text(24, 303, "CHAPTER", 15, MUTED, SANS, "start", spacing=4),
-        text(150, 305, "01", 20, BRASS, SANS, "start", "bold", spacing=2),
-        text(226, 302, "RIDGE", 18, INK_LIGHT, SANS, "start", spacing=3),
-        text(width - 24, 303, "READS WHERE THE ROOF MEETS THE BAND", 13, MUTED, SANS, "end",
-             spacing=1.5),
-        "</svg>",
+def rot(angle, cx, cy):
+    return f'transform="rotate({angle} {cx:.1f} {cy:.1f})"'
+
+
+def shadow(cx, base, rx):
+    return ellipse(cx, base + 3, rx, rx * 0.11, "#0d1a28", 'opacity="0.22"')
+
+
+def eye(cx, cy, r, look=0.0, pupil=0.52):
+    return "\n".join([circle(cx, cy, r, SNOW), circle(cx + look * r * 0.32, cy + r * 0.06, r * pupil, INK),
+                      circle(cx + look * r * 0.32 + r * 0.18, cy - r * 0.16, r * 0.16, SNOW)])
+
+
+def hexagon(cx, cy, r, fill, stroke="none", sw=0, extra=""):
+    pts = " ".join(f"{cx + r * math.cos(math.radians(60 * k + 30)):.1f},{cy + r * math.sin(math.radians(60 * k + 30)):.1f}"
+                   for k in range(6))
+    return f'<polygon points="{pts}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {extra}/>'
+
+
+def sparkle(cx, cy, r, fill=SNOW, opacity=0.9):
+    return path(f"M{cx},{cy - r} Q{cx},{cy} {cx + r},{cy} Q{cx},{cy} {cx},{cy + r} Q{cx},{cy} {cx - r},{cy} Q{cx},{cy} {cx},{cy - r} Z",
+                fill, extra=f'opacity="{opacity}"')
+
+
+def cell(x, y, text, fill="#e8c877", ink=NIGHT, size=34, font_size=17):
+    """A numbered square: one element of an array."""
+    return rect(x - size / 2, y - size / 2, size, size, fill, 6) + label(x, y + font_size * 0.36, text, font_size, ink, font=MONO)
+
+
+# ------------------------------------------------------------------ the cast
+
+def bee(cx, cy, s=1.0, look=1.0, face=1, wings=True, hat=None):
+    """A worker bee seen from the side, flying, centred on (cx, cy). `face` 1 looks right, -1 left."""
+    h = 100 * s
+    x = lambda f: cx + face * f * h
+    clip = uid("bee")
+    body_rx, body_ry = 0.40 * h, 0.27 * h
+    parts = []
+
+    if wings:
+        parts += [ellipse(x(-0.06), cy - 0.36 * h, 0.17 * h, 0.27 * h, "#dff3ff", f'opacity="0.78" {rot(-face * 22, x(-0.06), cy - 0.36 * h)}'),
+                  ellipse(x(0.12), cy - 0.34 * h, 0.14 * h, 0.23 * h, "#eef9ff", f'opacity="0.85" {rot(face * 16, x(0.12), cy - 0.34 * h)}')]
+
+    parts += [
+        path(f"M{x(-0.38):.1f},{cy - 0.06 * h:.1f} L{x(-0.56):.1f},{cy + 0.02 * h:.1f} L{x(-0.38):.1f},{cy + 0.08 * h:.1f} Z", INK),
+        f'<clipPath id="{clip}"><ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{body_rx:.1f}" ry="{body_ry:.1f}"/></clipPath>',
+        ellipse(cx, cy, body_rx, body_ry, HONEY),
+        f'<g clip-path="url(#{clip})">' + "".join(rect(x(f) - 0.05 * h, cy - h, 0.10 * h, 2 * h, INK) for f in (-0.22, -0.02)) + "</g>",
+        ellipse(cx, cy, body_rx, body_ry, "none", f'stroke="{HONEY_DARK}" stroke-width="{1.2 * s + 0.6:.1f}"'),
+        circle(x(0.42), cy - 0.04 * h, 0.21 * h, INK),
+        path(f"M{x(0.46):.1f},{cy - 0.22 * h:.1f} Q{x(0.52):.1f},{cy - 0.48 * h:.1f} {x(0.66):.1f},{cy - 0.50 * h:.1f}", stroke=INK, sw=2.2 * s + 0.6),
+        path(f"M{x(0.38):.1f},{cy - 0.22 * h:.1f} Q{x(0.40):.1f},{cy - 0.50 * h:.1f} {x(0.30):.1f},{cy - 0.58 * h:.1f}", stroke=INK, sw=2.2 * s + 0.6),
+        circle(x(0.66), cy - 0.50 * h, 0.04 * h, HONEY), circle(x(0.30), cy - 0.58 * h, 0.04 * h, HONEY),
+        eye(x(0.48), cy - 0.07 * h, 0.085 * h, face * look),
+        path(f"M{x(0.44):.1f},{cy + 0.07 * h:.1f} q{face * 0.05 * h:.1f},{0.04 * h:.1f} {face * 0.10 * h:.1f},0", stroke="#f0a35a", sw=1.6 * s + 0.6),
     ]
-    return "\n".join(out)
+
+    if hat == "hard":
+        hx, hy = x(0.42), cy - 0.20 * h
+        parts += [path(f"M{hx - 0.20 * h:.1f},{hy:.1f} A{0.20 * h:.1f},{0.15 * h:.1f} 0 0 1 {hx + 0.20 * h:.1f},{hy:.1f} Z", BRASS),
+                  rect(hx - 0.25 * h, hy - 0.02 * h, 0.50 * h, 0.04 * h, "#a57f2c", 3)]
+
+    return "\n".join(parts)
 
 
-def cover() -> str:
-    w, h = 1400, 1750
-    lanes_w = 32 * 34 + 31 * 8
-    lane_x = (w - lanes_w) / 2
-    out = [
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d">'
-        % (w, h, w, h),
-        rect(0, 0, w, h, BG),
-        text(90, 200, "CUDA Kernels", 100, INK_LIGHT, SANS, "start", "bold"),
-        text(90, 330, "GPU & Parallel", 100, INK_LIGHT, SANS, "start", "bold"),
-        text(90, 460, "Programming", 100, BRASS, SANS, "start", "bold"),
-        text(94, 530, "From the warp to the roofline, one kernel at a time", 32, "#9fc1d6",
-             SERIF, "start"),
-        rect(0, 580, w, 12, RUST),
-        lane_row(lane_x, 700, 34, 8, 32),
-        text(w / 2, 830, "one warp: 32 lanes", 26, INK_LIGHT, SANS, "middle", "bold"),
-        text(w / 2, 866, "lane 12 waits on its load; the other lanes run", 20, RUST, SANS,
-             "middle"),
-        roofline(150, 950, 1250, 1300, big=True),
-        rect(150, 1380, 180, 60, PANEL, EDGE, 2, rx=6),
-        text(240, 1418, "HBM", 20, MUTED, MONO, "middle"),
-        rect(1070, 1380, 180, 60, PANEL, EDGE, 2, rx=6),
-        text(1160, 1418, "PTX", 20, BRASS, MONO, "middle"),
-        text(90, 1690, "Arpan Pathak", 50, INK_LIGHT, SANS, "start", "bold"),
-        rect(1010, 1610, 300, 80, PANEL, EDGE, 2, rx=8),
-        text(1160, 1662, "IN CUDA", 34, BRASS, SANS, "middle", spacing=8),
-        "</svg>",
+def ant(cx, base=GROUND, s=1.0, face=1, look=1.0, carry=None):
+    """An ant walking, facing right (`face` 1) or left. `carry` is the colour of a crumb on its back."""
+    h = 70 * s
+    x = lambda f: cx + face * f * h
+    coat, leg = "#7a3b2e", "#4f241b"
+    legs = [line(x(dx), base - 0.32 * h, x(dx + 0.14 * k), base, leg, 2.4 * s + 0.8) for dx in (-0.10, 0.06, 0.20) for k in (-1, 1)]
+    parts = [shadow(cx, base, 0.62 * h), *legs,
+             ellipse(x(-0.42), base - 0.38 * h, 0.30 * h, 0.22 * h, coat),
+             ellipse(x(0.06), base - 0.36 * h, 0.17 * h, 0.12 * h, coat),
+             circle(x(0.40), base - 0.46 * h, 0.19 * h, coat),
+             path(f"M{x(0.46):.1f},{base - 0.62 * h:.1f} Q{x(0.56):.1f},{base - 0.92 * h:.1f} {x(0.74):.1f},{base - 0.90 * h:.1f}", stroke=leg, sw=2.2 * s + 0.6),
+             path(f"M{x(0.36):.1f},{base - 0.62 * h:.1f} Q{x(0.40):.1f},{base - 0.96 * h:.1f} {x(0.56):.1f},{base - 1.02 * h:.1f}", stroke=leg, sw=2.2 * s + 0.6),
+             eye(x(0.46), base - 0.50 * h, 0.075 * h, face * look)]
+
+    if carry:
+        parts += [circle(x(-0.30), base - 0.82 * h, 0.22 * h, carry, f'stroke="{WOOD}" stroke-width="1.5"')]
+
+    return "\n".join(parts)
+
+
+def crab(cx, base=GROUND, s=1.0, mood="happy", look=0.0, shade=True, hat=None):
+    """A crab in the orange of Rust, in one of 5 moods: happy, cute, angry, sleepy or shocked."""
+    h, coat, dark = 120 * s, "#f46a35", "#c2441a"
+    y = lambda f: base - f * h
+    up = 0.98 if mood in ("happy", "angry", "shocked") else 0.70
+    parts = [shadow(cx, base, 0.62 * h)] if shade else []
+    parts += [line(cx + side * (0.30 + 0.12 * k) * h, y(0.24), cx + side * (0.44 + 0.16 * k) * h, y(0.0), dark, 5 * s + 1.5)
+              for side in (-1, 1) for k in range(3)]
+
+    for side in (-1, 1):
+        tip = (cx + side * 0.80 * h, y(up))
+        parts += [path(f"M{cx + side * 0.46 * h:.1f},{y(0.46):.1f} Q{cx + side * 0.80 * h:.1f},{y(0.44):.1f} {tip[0]:.1f},{tip[1] + 0.10 * h:.1f}", stroke=coat, sw=0.09 * h),
+                  circle(tip[0], tip[1], 0.15 * h, coat),
+                  path(f"M{tip[0]:.1f},{tip[1]:.1f} l{side * 0.02 * h:.1f},{-0.19 * h:.1f} l{-side * 0.13 * h:.1f},{0.08 * h:.1f} Z", "#fff1e6")]
+
+    parts += [
+        path(f"M{cx - 0.56 * h:.1f},{y(0.40):.1f} L{cx - 0.50 * h:.1f},{y(0.70):.1f} L{cx - 0.34 * h:.1f},{y(0.66):.1f} L{cx - 0.22 * h:.1f},{y(0.82):.1f}"
+             f" L{cx:.1f},{y(0.74):.1f} L{cx + 0.22 * h:.1f},{y(0.82):.1f} L{cx + 0.34 * h:.1f},{y(0.66):.1f} L{cx + 0.50 * h:.1f},{y(0.70):.1f} L{cx + 0.56 * h:.1f},{y(0.40):.1f} Z", coat),
+        ellipse(cx, y(0.38), 0.58 * h, 0.30 * h, coat),
+        ellipse(cx, y(0.24), 0.36 * h, 0.12 * h, "#ffb08a", 'opacity="0.55"'),
     ]
-    return "\n".join(out)
+
+    for side in (-1, 1):
+        ex, ey = cx + side * 0.17 * h, y(0.50)
+
+        if mood == "sleepy":
+            parts.append(path(f"M{ex - 0.08 * h:.1f},{ey:.1f} q{0.08 * h:.1f},{0.07 * h:.1f} {0.16 * h:.1f},0", stroke=INK, sw=3 * s + 1.5))
+            continue
+
+        parts.append(ellipse(ex, ey, 0.10 * h, 0.13 * h, SNOW))
+        size = {"cute": 0.085, "shocked": 0.035}.get(mood, 0.055) * h
+        parts += [circle(ex + look * 0.03 * h, ey + 0.01 * h, size, INK), circle(ex + look * 0.03 * h + size * 0.35, ey - size * 0.3, size * 0.32, SNOW)]
+
+        if mood == "cute":
+            parts += [circle(ex + look * 0.03 * h - size * 0.3, ey + size * 0.4, size * 0.18, SNOW), ellipse(ex + side * 0.16 * h, y(0.34), 0.07 * h, 0.04 * h, "#ff9aa8", 'opacity="0.8"')]
+
+        if mood == "angry":
+            parts.append(line(ex - side * 0.12 * h, y(0.62), ex + side * 0.10 * h, y(0.70), INK, 4 * s + 1.5))
+
+    parts.append({
+        "happy": path(f"M{cx - 0.12 * h:.1f},{y(0.30):.1f} Q{cx:.1f},{y(0.12):.1f} {cx + 0.12 * h:.1f},{y(0.30):.1f} Z", "#7a1f0a"),
+        "cute": path(f"M{cx - 0.07 * h:.1f},{y(0.30):.1f} q{0.035 * h:.1f},{0.05 * h:.1f} {0.07 * h:.1f},0 q{0.035 * h:.1f},{0.05 * h:.1f} {0.07 * h:.1f},0", stroke="#7a1f0a", sw=2.5 * s + 1),
+        "angry": path(f"M{cx - 0.11 * h:.1f},{y(0.22):.1f} Q{cx:.1f},{y(0.34):.1f} {cx + 0.11 * h:.1f},{y(0.22):.1f}", stroke="#7a1f0a", sw=3 * s + 1.5),
+        "sleepy": ellipse(cx, y(0.27), 0.035 * h, 0.03 * h, "#7a1f0a"),
+        "shocked": ellipse(cx, y(0.25), 0.06 * h, 0.08 * h, "#7a1f0a"),
+    }[mood])
+
+    if mood == "sleepy":
+        parts += [label(cx + (0.46 + 0.14 * k) * h, y(0.86 + 0.16 * k), "z", (14 + 6 * k) * s + 4, "#cfe1f0", weight=800) for k in range(3)]
+
+    if hat == "hard":
+        parts += [path(f"M{cx - 0.30 * h:.1f},{y(0.80):.1f} A{0.30 * h:.1f},{0.22 * h:.1f} 0 0 1 {cx + 0.30 * h:.1f},{y(0.80):.1f} Z", BRASS),
+                  rect(cx - 0.36 * h, y(0.82), 0.72 * h, 0.05 * h, "#a57f2c", 3)]
+
+    return "\n".join(parts)
 
 
-def rasterise(svg: pathlib.Path, width: int) -> None:
-    png = svg.with_suffix(".png")
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(svg),
-                    "-vf", "scale=%d:-1" % width, "-frames:v", "1", str(png)], check=True)
+def honeybee(cx, base, s=1.0, look=0.0, role="worker", arms="down", hat=None, carry=None):
+    """A bee facing the reader, standing (or hovering) with its feet at `base`. 1.0 is 200 units tall.
+
+    `role` is "worker" or "queen". The queen is longer, wears a crown and a sash, and holds a sceptre.
+    `arms` is "down", "up" or "hold"; `carry` puts a honey drop in a worker's hands.
+    """
+    h = 200 * s
+    y = lambda f: base - f * h
+    queen = role == "queen"
+    body_y, body_rx, body_ry = (0.34, 0.25, 0.32) if queen else (0.30, 0.24, 0.25)
+    clip = uid("hb")
+    fur, dark, line_w = "#ffd23f", "#2a1d10", 2.2 * s + 1.2
+    parts = [shadow(cx, base, 0.32 * h)]
+
+    for side in (-1, 1):
+        wx, wy = cx + side * 0.30 * h, y(0.66 if not queen else 0.70)
+        parts += [ellipse(wx, wy, 0.22 * h, 0.13 * h, "#e3f4ff", f'opacity="0.82" stroke="#a9cfe8" stroke-width="{line_w:.1f}" {rot(side * -32, wx, wy)}'),
+                  ellipse(cx + side * 0.25 * h, y(0.50), 0.14 * h, 0.08 * h, "#eef9ff", f'opacity="0.75" stroke="#a9cfe8" stroke-width="{line_w:.1f}" {rot(side * -12, cx + side * 0.25 * h, y(0.50))}')]
+
+    parts += [ellipse(cx - 0.09 * h, y(0.02), 0.07 * h, 0.035 * h, dark), ellipse(cx + 0.09 * h, y(0.02), 0.07 * h, 0.035 * h, dark),
+              line(cx - 0.08 * h, y(0.05), cx - 0.09 * h, y(0.10), dark, line_w * 1.4), line(cx + 0.08 * h, y(0.05), cx + 0.09 * h, y(0.10), dark, line_w * 1.4)]
+
+    by = y(body_y)
+    stripes = [rect(cx - h, by + f * h - 0.04 * h, 2 * h, 0.08 * h, dark) for f in ((-0.04, 0.12) if not queen else (-0.08, 0.06, 0.20))]
+    parts += [f'<clipPath id="{clip}"><ellipse cx="{cx:.1f}" cy="{by:.1f}" rx="{body_rx * h:.1f}" ry="{body_ry * h:.1f}"/></clipPath>',
+              ellipse(cx, by, body_rx * h, body_ry * h, fur),
+              f'<g clip-path="url(#{clip})">' + "".join(stripes) + ellipse(cx - 0.08 * h, by - 0.10 * h, 0.06 * h, 0.10 * h, SNOW, 'opacity="0.25"') + "</g>",
+              ellipse(cx, by, body_rx * h, body_ry * h, "none", f'stroke="{dark}" stroke-width="{line_w:.1f}"')]
+
+    if queen:
+        parts.append(path(f"M{cx - 0.22 * h:.1f},{y(0.52):.1f} L{cx + 0.20 * h:.1f},{y(0.16):.1f} L{cx + 0.24 * h:.1f},{y(0.24):.1f} L{cx - 0.16 * h:.1f},{y(0.58):.1f} Z", "#8e4fd1", dark, line_w * 0.6))
+        parts.append(circle(cx - 0.02 * h, y(0.38), 0.035 * h, BRASS, f'stroke="{dark}" stroke-width="{line_w * 0.6:.1f}"'))
+
+    # Arms, with a round hand at the end of each.
+    pose = {"down": ((-0.30, 0.30), (0.30, 0.30)), "up": ((-0.34, 0.66), (0.34, 0.66)), "hold": ((-0.12, 0.34), (0.12, 0.34))}[arms]
+    if queen:
+        pose = ((-0.32, 0.36), (0.34, 0.50))
+
+    for (hx, hy), side in zip(pose, (-1, 1)):
+        sx, sy = cx + side * 0.20 * h, y(0.44)
+        ex, ey = cx + hx * h, y(hy)
+        parts += [path(f"M{sx:.1f},{sy:.1f} Q{(sx + ex) / 2 + side * 0.05 * h:.1f},{(sy + ey) / 2:.1f} {ex:.1f},{ey:.1f}", stroke=dark, sw=line_w * 1.5),
+                  circle(ex, ey, 0.035 * h, dark)]
+
+    if queen:
+        tx, ty = cx + 0.34 * h, y(0.50)
+        parts += [line(tx, ty + 0.30 * h, tx, ty - 0.34 * h, "#a57f2c", line_w * 1.6),
+                  hexagon(tx, ty - 0.40 * h, 0.07 * h, "#ffcf4d", dark, line_w * 0.7), circle(tx, ty - 0.40 * h, 0.025 * h, "#e2704a")]
+
+    if carry:
+        dx, dy = cx, y(0.30)
+        parts += [path(f"M{dx:.1f},{dy - 0.10 * h:.1f} C{dx + 0.08 * h:.1f},{dy - 0.01 * h:.1f} {dx + 0.06 * h:.1f},{dy + 0.06 * h:.1f} {dx:.1f},{dy + 0.06 * h:.1f}"
+                       f" C{dx - 0.06 * h:.1f},{dy + 0.06 * h:.1f} {dx - 0.08 * h:.1f},{dy - 0.01 * h:.1f} {dx:.1f},{dy - 0.10 * h:.1f} Z", carry, dark, line_w * 0.6),
+                  ellipse(dx - 0.02 * h, dy - 0.01 * h, 0.012 * h, 0.022 * h, SNOW, 'opacity="0.7"')]
+
+    # Head, face and antennae.
+    hx, hy, hr = cx, y(0.72 if not queen else 0.78), 0.20 * h
+    for side in (-1, 1):
+        tip = (cx + side * 0.17 * h, hy - 0.34 * h)
+        parts += [path(f"M{cx + side * 0.06 * h:.1f},{hy - 0.16 * h:.1f} Q{cx + side * 0.06 * h:.1f},{hy - 0.30 * h:.1f} {tip[0]:.1f},{tip[1]:.1f}", stroke=dark, sw=line_w),
+                  circle(tip[0], tip[1], 0.035 * h, dark)]
+
+    parts += [circle(hx, hy, hr, fur, f'stroke="{dark}" stroke-width="{line_w:.1f}"'),
+              eye(hx - 0.075 * h, hy + 0.01 * h, 0.06 * h, look), eye(hx + 0.075 * h, hy + 0.01 * h, 0.06 * h, look),
+              ellipse(hx - 0.13 * h, hy + 0.08 * h, 0.035 * h, 0.022 * h, "#ff8fa3", 'opacity="0.8"'),
+              ellipse(hx + 0.13 * h, hy + 0.08 * h, 0.035 * h, 0.022 * h, "#ff8fa3", 'opacity="0.8"'),
+              path(f"M{hx - 0.05 * h:.1f},{hy + 0.09 * h:.1f} Q{hx:.1f},{hy + 0.14 * h:.1f} {hx + 0.05 * h:.1f},{hy + 0.09 * h:.1f}", stroke=dark, sw=line_w)]
+
+    if queen:
+        top = hy - hr * 0.80
+        crown = (f"M{hx - 0.15 * h:.1f},{top:.1f} L{hx - 0.17 * h:.1f},{top - 0.14 * h:.1f} L{hx - 0.08 * h:.1f},{top - 0.06 * h:.1f}"
+                 f" L{hx:.1f},{top - 0.17 * h:.1f} L{hx + 0.08 * h:.1f},{top - 0.06 * h:.1f} L{hx + 0.17 * h:.1f},{top - 0.14 * h:.1f} L{hx + 0.15 * h:.1f},{top:.1f} Z")
+        parts += [path(crown, "#ffcf4d", dark, line_w),
+                  circle(hx, top - 0.05 * h, 0.022 * h, "#e2704a"), circle(hx - 0.10 * h, top - 0.03 * h, 0.016 * h, "#5fc9b4"),
+                  circle(hx + 0.10 * h, top - 0.03 * h, 0.016 * h, "#5fc9b4")]
+
+    if hat == "hard":
+        top = hy - hr * 0.62
+        parts += [path(f"M{hx - 0.17 * h:.1f},{top:.1f} A{0.17 * h:.1f},{0.13 * h:.1f} 0 0 1 {hx + 0.17 * h:.1f},{top:.1f} Z", "#f08a3c", dark, line_w * 0.8),
+                  rect(hx - 0.21 * h, top - 0.015 * h, 0.42 * h, 0.035 * h, "#d9622b", 3, dark, line_w * 0.6)]
+
+    return "\n".join(parts)
 
 
-def main() -> None:
+# ----------------------------------------------------------------- background
+
+def backdrop(sky=("#12263d", "#2c5c86"), ground=("#5f9a62", "#86bd7c"), seed=0, size=(W, H), stars=True):
+    """A sky with stars and a band of light, over ground of 2 tones."""
+    width, height = size
+    base = height - (H - GROUND)
+    sid, gid = uid("sky"), uid("glow")
+    dots = [circle((k * 197 + seed * 53) % width, (k * 89 + seed * 31) % (base - 130) + 12, 1.1 + (k % 3) * 0.6, SNOW,
+                   f'opacity="{0.35 + (k % 4) * 0.15:.2f}"') for k in range(46 if stars else 0)]
+
+    return "\n".join([
+        f'<defs><linearGradient id="{sid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{sky[0]}"/>'
+        f'<stop offset="1" stop-color="{sky[1]}"/></linearGradient>'
+        f'<linearGradient id="{gid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/>'
+        '<stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/>'
+        '</linearGradient></defs>',
+        rect(0, 0, width, height, f"url(#{sid})"),
+        path(f"M0,{120 + seed % 3 * 12} C240,{40 + seed % 5 * 8} 520,{190 - seed % 4 * 10} {width},{80 + seed % 3 * 14} L{width},{150 + seed % 3 * 14}"
+             f" C520,{250 - seed % 4 * 10} 240,{110 + seed % 5 * 8} 0,{190 + seed % 3 * 12} Z", f"url(#{gid})"),
+        *dots,
+        path(f"M0,{base - 26} C200,{base - 52} 420,{base - 8} 640,{base - 34} S900,{base - 20} {width},{base - 40} L{width},{height} L0,{height} Z", ground[0]),
+        path(f"M0,{base - 6} C260,{base - 26} 520,{base + 8} {width},{base - 14} L{width},{height} L0,{height} Z", ground[1]),
+    ])
+
+
+MEADOW = dict(sky=("#17324a", "#3f7f8f"), ground=("#5f9a62", "#86bd7c"))
+SAND = dict(sky=("#1d2f4d", "#b7684a"), ground=("#d6b47c", "#ecd4a4"))
+DUSK = dict(sky=("#1b2540", "#6a4a7a"), ground=("#a58e6a", "#c9b48e"))
+SHORE = dict(sky=("#102a44", "#2f6f9a"), ground=("#d9c08e", "#efdcb2"))
+
+
+def ribbon(number, title, crew, size=(W, H)):
+    """The plate's caption: the chapter and the name of the character."""
+    height = size[1]
+    words = textw(title.upper(), 21)
+    name = textw(crew, 17)
+
+    return "\n".join([
+        rect(28, height - 60, 72, 40, RUST, 6), label(64, height - 32, number, 22, fit=textw(number, 22)),
+        rect(100, height - 60, words + 40, 40, NIGHT, 6),
+        label(120, height - 33, title.upper(), 21, anchor="start", fit=words),
+        rect(size[0] - 60 - name, height - 56, name + 32, 32, "#ffffffdd", 16),
+        label(size[0] - 44 - name / 2, height - 34, crew, 17, "#27405a", weight=600, fit=name),
+    ])
+
+
+def flower(cx, base, s=1.0, petal="#f7a8c4"):
+    return "\n".join([line(cx, base, cx, base - 34 * s, "#3f7a4a", 3),
+                      *[circle(cx + 8 * s * math.cos(k * 1.2566), base - 34 * s + 8 * s * math.sin(k * 1.2566), 6 * s, petal) for k in range(5)],
+                      circle(cx, base - 34 * s, 5 * s, HONEY)])
+
+
+def crate(x, y, w, h, text, fill="#c9a46a"):
+    return "\n".join([rect(x, y, w, h, fill, 5, "#7a5a32", 3),
+                      line(x + 6, y + 6, x + w - 6, y + h - 6, "#7a5a32", 2.5, 'opacity="0.6"'),
+                      line(x + w - 6, y + 6, x + 6, y + h - 6, "#7a5a32", 2.5, 'opacity="0.6"'),
+                      rect(x + 10, y + h / 2 - 15, w - 20, 30, "#fff6e2", 4, "#7a5a32", 1.5),
+                      label(x + w / 2, y + h / 2 + 7, text, 18, NIGHT, font=MONO)])
+
+
+# --------------------------------------------------------------------- plates
+
+COVER_W, COVER_H = 960, 1280
+
+
+@plate("cover", "", "", "The cover of GPU Architecture & Parallel Programming from First Principles. Inside a glowing hive, the queen bee, wearing a crown and holding a sceptre, "
+       "gives one order to the whole colony: c[i] = a[i] + b[i]. Below her, 32 worker bees in hard hats stand in 4 rows of 8, one warp, "
+       "each in front of its own honeycomb cell and each filling it with honey at the same moment. One worker in the third row has "
+       "wandered off on a branch of its own, with a question mark over its head. A crab in a hard hat waves from the corner, because "
+       "the second half of the book writes kernels in Rust.", size=(COVER_W, COVER_H))
+def cover():
+    defs = '''<defs>
+<radialGradient id="hiveglow" cx="0.5" cy="0.45" r="0.75"><stop offset="0" stop-color="#5a3a12"/><stop offset="0.55" stop-color="#2a1a10"/>
+<stop offset="1" stop-color="#0d0a0a"/></radialGradient>
+<linearGradient id="honey" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe17a"/><stop offset="1" stop-color="#f0a020"/></linearGradient>
+<linearGradient id="title" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7d6"/><stop offset="1" stop-color="#ffc83d"/></linearGradient>
+<radialGradient id="spot" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffd25e" stop-opacity="0.55"/><stop offset="1" stop-color="#ffd25e" stop-opacity="0"/></radialGradient>
+<linearGradient id="band" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140e0a" stop-opacity="0"/><stop offset="0.35" stop-color="#140e0a"/></linearGradient>
+</defs>'''
+    parts = [defs, rect(0, 0, COVER_W, COVER_H, "url(#hiveglow)")]
+
+    # The walls of the hive: a faint honeycomb over the whole page.
+    r = 46
+    for row in range(-1, 19):
+        for col in range(-1, 13):
+            hx = col * r * 1.732 + (row % 2) * r * 0.866
+            hy = row * r * 1.5
+            parts.append(hexagon(hx, hy, r - 3, "#3a2610", "#1a1008", 4, 'opacity="0.55"'))
+
+    parts += [circle(480, 560, 360, "url(#spot)")]
+
+    # The title.
+    parts += [
+        label(480, 132, "GPU ARCHITECTURE", 92, "url(#title)", weight=900, fit=860, extra=f'stroke="#2a1a10" stroke-width="3" paint-order="stroke"'),
+        label(480, 214, "& PARALLEL PROGRAMMING", 60, "#ffc83d", weight=900, fit=860, extra=f'stroke="#2a1a10" stroke-width="2" paint-order="stroke"'),
+        label(480, 290, "from First Principles", 44, "#ffe7a3", font=SERIF, weight=700, fit=600, extra='font-style="italic"'),
+    ]
+
+    # The queen on her platform, and her one order.
+    parts += [hexagon(300, 610, 70, "#7a4f16", "#2a1a10", 4), hexagon(300, 610, 54, "url(#honey)", "#2a1a10", 3),
+              honeybee(300, 600, 1.15, look=1, role="queen"),
+              path("M454,436 L412,470 L454,466", "#fff6e2", "#2a1a10", 4),
+              rect(450, 380, 440, 132, "#fff6e2", 22, "#2a1a10", 4), rect(450, 438, 10, 26, "#fff6e2"),
+              label(670, 424, "Every bee, at once:", 22, "#5a421a", weight=700, fit=textw("Every worker, at once:", 22)),
+              label(670, 478, "c[i] = a[i] + b[i]", 34, "#2a1a10", font=MONO, weight=800, fit=textw("c[i] = a[i] + b[i]", 34, MONO))]
+
+    # One warp: 32 workers in 4 rows of 8, each at its own cell.
+    for i in range(32):
+        row, col = divmod(i, 8)
+        cx, base = 96 + col * 110, 770 + row * 96
+
+        if i == 21:
+            parts += [hexagon(cx, base - 34, 40, "#2a1a10", "#ffc83d", 3, 'stroke-dasharray="6 6"')]
+            continue
+
+        clip = uid("cell")
+        fill = 0.35 + 0.65 * ((i * 7) % 5) / 4
+        parts += [hexagon(cx, base - 34, 40, "#2a1a10", "#ffc83d", 3),
+                  f'<clipPath id="{clip}"><rect x="{cx - 40:.1f}" y="{base - 34 + 40 - 80 * fill:.1f}" width="80" height="{80 * fill:.1f}"/></clipPath>',
+                  f'<g clip-path="url(#{clip})">' + hexagon(cx, base - 34, 37, "url(#honey)") + "</g>",
+                  honeybee(cx, base + 14, 0.40, look=0, hat="hard", arms="hold", carry="#ffb21f")]
+
+    parts += [honeybee(700, 680, 0.40, look=1, hat="hard", arms="up"),
+              circle(752, 588, 20, SNOW), label(752, 598, "?", 28, RUST, weight=900),
+              tag(212, 680, "one warp · 32 threads", 18, "#ffc83d", "#2a1a10", MONO, 800)]
+
+    # The bottom band: subtitle, author, and the crab.
+    parts += [rect(0, 1110, COVER_W, 170, "url(#band)"),
+              rect(0, 1150, COVER_W, 4, "#ffc83d", extra='opacity="0.8"'),
+              label(48, 1248, "Arpan Pathak", 40, SNOW, "start", SERIF, 700, fit=textw("Arpan Pathak", 40)),
+              rect(640, 1214, 290, 46, "#ffc83d", 10), label(785, 1244, "IN CUDA C++ AND RUST", 19, "#2a1a10", weight=800, fit=250),
+              crab(785, 1208, 0.42, "happy", look=-1, hat="hard", shade=False)]
+
+    return parts
+
+
+@plate("ch01", "The Mathematics of Parallelism", "Tally the ant", "Tally, an ant, leads a column of ants carrying crumbs across a "
+       "meadow. The column is wide where the ground is open, and every ant walks at once. Then it narrows to a single twig "
+       "bridge over a stream, where only one ant can cross at a time and the rest wait in a queue. The bridge is the serial "
+       "part of the work.")
+def ch01():
+    crumbs = ["#e8c877", "#f0b27a", "#e8c877", "#f7d9a0"]
+    field = [ant(70 + 82 * (k % 4), GROUND - 64 + 58 * (k // 4), 0.6, carry=crumbs[k % 4]) for k in range(8)]
+    queue = [ant(420 + 66 * k, GROUND - 6, 0.55, carry=crumbs[k % 4]) for k in range(3)]
+
+    return [backdrop(seed=1, **MEADOW),
+            path(f"M640,{GROUND - 44} L800,{GROUND - 44} L870,{H} L590,{H} Z", "#3c8dc5"),
+            *[path(f"M{640 + 30 * k},{GROUND - 10 + 22 * k} q14,-6 28,0 t28,0", stroke="#bfe3f7", sw=3, extra='opacity="0.7"') for k in range(3)],
+            rect(616, GROUND - 52, 210, 12, WOOD, 6, "#5a3d28", 2),
+            *field, *queue, ant(722, GROUND - 52, 0.55, carry="#e8c877"),
+            ant(900, GROUND - 6, 0.6, carry="#f0b27a"),
+            label(722, GROUND - 104, "one at a time", 17, "#ffe7a3", font=MONO, weight=600),
+            label(190, GROUND - 150, "all at once", 17, "#ffe7a3", font=MONO, weight=600),
+            rect(420, 96, 400, 56, "#fff6e2", 10, WOOD, 3),
+            label(620, 131, "time = serial + parallel / p", 17, NIGHT, font=MONO, weight=600)]
+
+
+@plate("ch02", "GPU Hardware from First Principles", "Comb the worker bee", "Comb, a worker bee in a hard hat, stands beside a "
+       "hive with its side cut away. Inside hang three wooden comb frames, labelled SM 0, SM 1 and SM 2. On each frame small worker "
+       "bees stand in straight rows that move together, a formation called a warp. Comb points at the frames like a guide on a tour.")
+def ch02():
+    parts = [backdrop(seed=2, **DUSK),
+             rect(292, 34, 640, 300, "#7a4f16", 18, "#2a1a10", 4),
+             rect(308, 50, 608, 268, "#2a1a10", 10)]
+
+    for k in range(3):
+        fx = 324 + k * 198
+        parts += [rect(fx, 76, 180, 228, "#c9a46a", 6, "#5a3d28", 3), rect(fx + 10, 86, 160, 208, "#e8b84a", 3)]
+        for r in range(5):
+            for c in range(6 - r % 2):
+                hexagon_x = fx + 24 + c * 26 + (r % 2) * 13
+                parts.append(hexagon(hexagon_x, 104 + r * 24, 12, "#f5c542", "#c98f12", 1.5, 'opacity="0.55"'))
+        for row in range(2):
+            for c in range(6):
+                parts.append(honeybee(fx + 27 + c * 25, 190 + row * 80, 0.20, look=0))
+        parts.append(tag(fx + 90, 64, "SM %d" % k, 16, "#fff6e2", "#2a1a10", MONO, 800))
+
+    parts += [honeybee(160, 330, 1.0, look=1, arms="up", hat="hard"),
+              tag(160, 70, "a warp moves as one", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+    return parts
+
+
+@plate("ch03", "The CUDA Programming Model", "The Queen", "The Queen bee, in her crown and sash, holds up a scroll that "
+       "reads <<<4, 256>>>: a launch of 4 blocks of 256 threads. Beside her a wooden board holds 4 comb frames, labelled block 0 "
+       "to block 3, and on each frame rows of worker bees wait for the order. The Queen gives one order and every bee on every "
+       "frame carries it out.")
+def ch03():
+    parts = [backdrop(seed=3, **MEADOW),
+             rect(368, 40, 572, 282, "#7a4f16", 18, "#2a1a10", 4),
+             rect(382, 54, 544, 254, "#2a1a10", 10)]
+    for k in range(4):
+        fx = 394 + k * 132
+        parts += [rect(fx, 78, 122, 218, "#c9a46a", 6, "#5a3d28", 3), rect(fx + 8, 86, 106, 202, "#e8b84a", 3)]
+        for r in range(3):
+            for c in range(4):
+                parts.append(honeybee(fx + 25 + c * 24, 140 + r * 64, 0.165, look=0))
+        parts.append(tag(fx + 61, 66, "block %d" % k, 15, "#fff6e2", "#2a1a10", MONO, 800))
+    parts += [honeybee(150, 332, 1.0, look=1, role="queen"),
+              rect(200, 72, 156, 52, "#fff6e2", 10, WOOD, 3),
+              label(278, 105, "<<<4, 256>>>", 16, "#2a1a10", font=MONO, weight=800, fit=textw("<<<4, 256>>>", 16, MONO)),
+              tag(150, 30, "one order, every thread", 16, "#fff6e2", "#2a1a10", SANS, 700)]
+    return parts
+
+
+@plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
+       "cells. Each claw picks up one input, a[i] in one and b[i] in the other, and the sum goes into the row c below. At the "
+       "end of the row two small crabs have no cell to fill: they are the spare threads of the last block, and they doze.")
+def ch13():
+    a = ["0", "1", "2", "3", "4"]
+    b = ["0", "2", "4", "6", "8"]
+    c = ["0", "3", "6", "9", "12"]
+    rows = []
+
+    for k in range(5):
+        x = 380 + 70 * k
+        rows += [cell(x, 104, a[k], "#bfe3f7"), cell(x, 158, b[k], "#f7d9a0"), cell(x, 222, c[k], "#c8f0d0" if k < 4 else "#ffe7a3")]
+
+    rows += [label(330, 110, "a", 22, SNOW, font=MONO), label(330, 164, "b", 22, SNOW, font=MONO), label(330, 228, "c", 22, SNOW, font=MONO),
+             path("M660,124 C690,150 690,190 660,214", stroke=SNOW, sw=3, extra='stroke-dasharray="5 6" opacity="0.8"'),
+             label(706, 176, "+", 34, HONEY, weight=900)]
+
+    return [backdrop(seed=13, **SHORE),
+            rect(350, 76, 330, 186, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.55"'),
+            *rows,
+            crab(190, s=1.15, mood="happy", look=1, hat="hard"),
+            crab(790, s=0.42, mood="sleepy", shade=True), crab(880, s=0.42, mood="sleepy", shade=True),
+            rect(752, 222, 168, 30, "#ffffffcc", 15), label(836, 243, "i ≥ N: no work", 16, "#27405a", font=MONO, weight=600)]
+
+
+def main(names):
     OUT.mkdir(parents=True, exist_ok=True)
 
-    target = OUT / "cover.svg"
-    target.write_text(cover(), encoding="utf-8")
-    rasterise(target, 1400)
+    for name in names or list(PLATES):
+        title, crew, description, draw, size = PLATES[name]
+        parts = draw()
 
-    target = OUT / "ch01.svg"
-    target.write_text(plate_ch01(), encoding="utf-8")
-    rasterise(target, 2000)
+        if name.startswith("ch"):
+            parts.append(ribbon(str(int(name[2:])), title, crew, size))
 
-    print("wrote cover and chapter plate to %s" % OUT.relative_to(ROOT))
+        svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size[0]} {size[1]}" width="{size[0]}" height="{size[1]}" role="img"'
+               f' aria-label="{escape(description)}">\n' + "\n".join(parts) + "\n</svg>\n")
+        (OUT / (name + ".svg")).write_text(svg)
+
+        try:
+            import cairosvg
+            cairosvg.svg2png(bytestring=svg.encode(), write_to=str(OUT / (name + ".png")), output_width=size[0] * 2)
+        except ImportError:
+            pass
+
+        print("  " + name)
+
+    (OUT / "plates.json").write_text(json.dumps({name: p[2] for name, p in PLATES.items()}, indent=2) + "\n")
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

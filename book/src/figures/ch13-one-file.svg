@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 280.0" width="760" height="280.0" font-family="Helvetica, Arial, sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<rect x="20" y="115" width="120" height="46" rx="4" fill="#fdf6e8" stroke="#1d2733" stroke-width="1.4"/>
+<text x="80.0" y="143.04" font-size="14.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">main.rs</text>
+<rect x="180" y="108" width="170" height="60" rx="4" fill="#eef3f7" stroke="#1d2733" stroke-width="1.4"/>
+<text x="265.0" y="134.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >rustc with the</text>
+<text x="265.0" y="150.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >cuda-oxide backend</text>
+<rect x="400" y="40" width="170" height="50" rx="4" fill="#fbe3d6" stroke="#1d2733" stroke-width="1.4"/>
+<text x="485.0" y="61.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >host code:</text>
+<text x="485.0" y="77.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >main, buffers, launch</text>
+<rect x="400" y="190" width="170" height="50" rx="4" fill="#e3f1ea" stroke="#1d2733" stroke-width="1.4"/>
+<text x="485.0" y="211.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >#[kernel] code:</text>
+<text x="485.0" y="227.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >vector_add</text>
+<rect x="610" y="105" width="135" height="66" rx="4" fill="#c89b3c" stroke="#1d2733" stroke-width="1.4"/>
+<text x="677.5" y="126.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >one executable,</text>
+<text x="677.5" y="142.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >GPU code</text>
+<text x="677.5" y="158.0" font-size="12.0" fill="#1d2733" text-anchor="middle" >inside</text>
+<line x1="145.0" y1="138.0" x2="174.0" y2="138.0" stroke="#1d2733" stroke-width="1.6"/>
+<polygon points="174.0,138.0 166.8,141.5 166.8,134.5" fill="#1d2733"/>
+<line x1="354.7455691529331" y1="108.22078841743583" x2="403.96285126305554" y2="91.88959935362247" stroke="#1d2733" stroke-width="1.6"/>
+<polygon points="403.96285126305554,91.88959935362247 398.2,97.5 396.0,90.9" fill="#1d2733"/>
+<text data-halo="1" x="365.35421020799436" y="94.05519388552915" font-size="10.0" fill="#ffffff" text-anchor="middle" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round" font-family="Menlo, monospace" xml:space="preserve">CPU</text>
+<text x="365.35421020799436" y="94.05519388552915" font-size="10.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">CPU</text>
+<line x1="354.71929178183007" y1="169.40175212364053" x2="407.90827843323245" y2="188.01789745163137" stroke="#1d2733" stroke-width="1.6"/>
+<polygon points="407.90827843323245,188.01789745163137 400.0,188.9 402.3,182.4" fill="#1d2733"/>
+<text data-halo="1" x="367.31378510753126" y="188.70982478763597" font-size="10.0" fill="#ffffff" text-anchor="middle" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round" font-family="Menlo, monospace" xml:space="preserve">GPU</text>
+<text x="367.31378510753126" y="188.70982478763597" font-size="10.0" fill="#1d2733" text-anchor="middle" font-family="Menlo, monospace" xml:space="preserve">GPU</text>
+<line x1="555.5997840028987" y1="91.77290510239793" x2="604.3898482376175" y2="110.27511127971988" stroke="#1d2733" stroke-width="1.6"/>
+<polygon points="604.3898482376175,110.27511127971988 596.4,111.0 598.9,104.5" fill="#1d2733"/>
+<line x1="552.1423834544263" y1="188.14304661822948" x2="604.4291398546884" y2="167.22834405812463" stroke="#1d2733" stroke-width="1.6"/>
+<polygon points="604.4291398546884,167.22834405812463 599.0,173.1 596.4,166.7" fill="#1d2733"/>
+<text x="380" y="270" font-size="11.0" fill="#5b6b7c" text-anchor="middle" >cargo oxide run builds both halves from one file; kernels::load hands the GPU half to the driver</text>
+</svg>

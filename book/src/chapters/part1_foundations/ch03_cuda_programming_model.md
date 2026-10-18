@@ -1,536 +1,599 @@
+<img class="plate" src="../../art/ch03.svg" alt="The Queen bee, in her crown and sash, holds up a scroll that reads <<<4, 256>>>: a launch of 4 blocks of 256 threads. Beside her a wooden board holds 4 comb frames, labelled block 0 to block 3, and on each frame rows of worker bees wait for the order. The Queen gives one order and every bee on every frame carries it out.">
+
 # Chapter 3: The CUDA Programming Model
 
-> **Code companion:** the complete, buildable code for this chapter lives in
-> [`code/ch03_vector_add/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch03_vector_add)
-> in the repository.
+*CUDA* is NVIDIA's platform for running general-purpose programs on its GPUs. Its
+programming model is C++ with a small number of additions: a way to mark a function as a
+kernel, a syntax to launch it as a grid of blocks, built-in variables that tell each thread
+who it is, and library functions that move data between the CPU's memory and the GPU's.
+Chapter 2 described the hardware that runs these programs. This chapter writes the first
+complete program, vector addition, and runs it.
 
-This chapter introduces the CUDA programming model: how a function becomes a
-kernel, how a launch describes a grid of work, and how data moves between the
-CPU (the *host*) and the GPU (the *device*). The first complete program, a
-vector addition, is presented with line-by-line commentary.
+Every program in the chapter appears twice: in CUDA C++, and in Rust with **cuda-oxide**,
+NVIDIA's compiler that turns Rust functions into GPU kernels. The 2 versions take the same
+steps, so each idea is seen from both sides. Part V of the book uses cuda-oxide throughout.
 
-## 3.1 Host and Device
+<div class="covers" markdown="1">
 
-CUDA programs are divided into two worlds:
+This chapter covers
 
-- **Host** - the CPU and its memory. The host launches kernels and moves data.
-- **Device** - the GPU and its memory (global memory, §2.5). The device
-  executes kernels.
+- host and device: the 2 processors and 2 memories of a CUDA program
+- the function qualifiers `__global__`, `__device__` and `__host__`
+- launching a kernel as a grid of blocks, in 1, 2 or 3 dimensions
+- the built-in variables `threadIdx`, `blockIdx`, `blockDim` and `gridDim`
+- the global index formula, and rounding a grid up with a guard
+- the first complete program: vector addition, with its real output
+- allocating and copying memory with `cudaMalloc` and `cudaMemcpy`
+- why a launch is asynchronous, and how to check for errors
+- how `nvcc` compiles a `.cu` file, and how `cargo oxide` builds the Rust version
 
-The two worlds do not share an address space. A pointer returned by
-`cudaMalloc` is a device pointer: dereferencing it on the host is undefined
-behaviour and, in practice, a crash. Data crosses the boundary explicitly with
-`cudaMemcpy`. This separation is the most common source of confusion for new
-CUDA programmers, and it remains the mental model even after Chapter 4
-introduces pinned memory and unified memory.
+</div>
 
-> **Primitive - host.** The CPU side of a CUDA program.
-> **Primitive - device.** The GPU side of a CUDA program.
-> **Primitive - kernel.** A function that runs on the device, launched by the
-> host, and executed by many threads.
+The complete code of the chapter is in
+[`code/ch03_vector_add/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch03_vector_add)
+for C++ and in
+[`code/oxide/ch03_basics/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch03_basics)
+for Rust.
 
-The separation corresponds to physical reality. The host is a CPU across a bus;
-the device is the GPU die with its GPCs of SMs, chip-wide L2, and DRAM. Every
-`cudaMemcpy` crosses that bus; every kernel launch delivers work to the SMs.
-The two address spaces are separate because the hardware is physically
-separate: different DRAM, different caches, different execution units. The
-programming model does not hide that boundary, and most of the CUDA API's
-"ceremony" follows from it.
+## 3.1 Host and device
 
-## 3.2 Function Qualifiers
+A CUDA program runs on 2 processors. CUDA calls the CPU and its memory the **host**, and
+the GPU and its memory the **device** (figure 3.1). The program's `main` function runs on
+the host. Kernels run on the device.
 
-CUDA extends C++ with three function qualifiers:
+<figure>
+<img src="../../figures/ch03-host-device.svg" alt="Two zones. Host: a CPU card that runs main and launches the kernel, above host memory holding h_a, h_b and h_c. Device: a GPU card that runs the kernel's threads, above global memory holding d_a, d_b and d_c. An arrow labelled launch runs from the CPU to the GPU. An arrow labelled copy in runs from host memory to global memory, and one labelled copy out runs back.">
+<figcaption><b>Figure 3.1</b> Host and device. The host launches kernels and copies data; the device runs the kernels.</figcaption>
+</figure>
 
-- `__global__` - the kernel qualifier. The function runs on the device and is
-  called from the host (or from the device in cooperative launch on later CUDA
-  generations). A `__global__` function must return `void`. Its arguments are
-  copied from host memory to the device before launch.
-- `__device__` - the function runs on the device and can be called only from
-  device code (from a kernel or from another `__device__` function).
-- `__host__` - the default: a normal host function. It can be combined as
-  `__host__ __device__` to compile one function for both sides, a common
-  pattern in modern CUDA (Chapter 10).
+Each side has its own **address space**: the set of memory addresses its code can use. An
+address on 1 side means nothing on the other. A **pointer** is a variable that holds an
+address, so a pointer to device memory, a **device pointer**, must not be read on the host,
+and a host pointer must not be read on the device. Data crosses between the 2 memories
+only when the program copies it. This book names host arrays `h_a`, `h_b`, and device
+arrays `d_a`, `d_b`, so the side each pointer belongs to is always visible.
 
-A `__device__` function cannot call a `__host__` function because the device
-has no host runtime. A `__global__` function cannot be called recursively on
-most architectures and cannot take a variable number of arguments.
+The separation follows the hardware. On a discrete GPU, such as an RTX 4090 or an H100,
+global memory is a separate set of chips on the GPU's card, and every copy crosses a link
+between the card and the CPU (Chapter 2, section 2.1.4).
 
-## 3.3 The Launch Configuration: Grids and Blocks
+<div class="callout note" markdown="1">
 
-A kernel launch has the form:
+**NOTE:** On integrated systems such as Jetson modules and DGX Spark, host and device share
+1 set of memory chips. The programs in this chapter still allocate device memory and copy
+data explicitly, so they run unchanged on every NVIDIA GPU. Chapter 4 shows how integrated
+systems can avoid the copies.
+
+</div>
+
+## 3.2 Function qualifiers
+
+A C++ compiler needs to know which functions to compile for the CPU and which for the GPU.
+CUDA marks them with a **function qualifier**, a keyword written before the function's
+return type.
+
+| Qualifier | Runs on | Called from | Typical use |
+|---|---|---|---|
+| `__global__` | device | host | a kernel |
+| `__device__` | device | device code | a helper called by a kernel |
+| `__host__` | host | host code | an ordinary function; the default |
+
+A `__global__` function is a kernel. It must return `void`, because thousands of threads
+run it at once and there is no single caller to receive a return value; a kernel delivers
+its results by writing to memory. The 2 qualifiers `__host__ __device__` together compile
+1 function for both sides, which suits small helpers such as a function that clamps a value
+to a range (Chapter 10).
 
 ```cpp
-myKernel<<<gridDim, blockDim>>>(args...);
+__device__ float square(float x) { return x * x; }        // helper, GPU only
+
+__global__ void squares(float* out, const float* in, int n) // kernel, launched from the host
+{
+    // ... each thread computes 1 element, using square() ...
+}
 ```
 
-The double-angle-bracket expression is the **execution configuration**. It
-describes the shape of the work. Both arguments have type `dim3`, a
-three-component vector type with fields `x`, `y`, and `z`, each an unsigned
-integer.
+In Rust with cuda-oxide, an attribute plays the part of the qualifier. `#[kernel]` marks a
+kernel and `#[device]` a helper that runs on the GPU, and both live in a module marked
+`#[cuda_module]`, which cuda-oxide compiles for the GPU.
 
-- **blockDim** is the number of threads per block, with one to three
-  dimensions. The total number of threads per block is
-  `blockDim.x * blockDim.y * blockDim.z` and must not exceed 1,024 on modern
-  hardware.
-- **gridDim** is the number of blocks in the grid, with one to three
-  dimensions. The total number of threads in the kernel is the product of
-  `gridDim` and `blockDim` over all dimensions.
+```rust
+#[cuda_module]
+mod kernels {
+    #[device]
+    fn square(x: f32) -> f32 { x * x }               // helper, GPU only
 
-The CUDA Programming Guide states the following launch limits for current
-architectures:
+    #[kernel]
+    pub fn squares(input: &[f32], mut out: DisjointSlice<f32>) {
+        // ... each thread computes 1 element, using square() ...
+    }
+}
+```
 
-| Dimension | Limit |
-|---|---|
-| Threads per block | 1,024 |
-| Block size `x` | 1,024 |
-| Block size `y` | 1,024 |
-| Block size `z` | 64 |
-| Grid size `x` | 2³¹ − 1 |
-| Grid size `y` | 65,535 |
-| Grid size `z` | 65,535 |
+## 3.3 Launching a kernel: grids and blocks
 
-These are architectural limits, not suggestions. A launch that violates them
-fails on the host before any kernel runs, so the error appears in a
-`cudaGetLastError()` check rather than in device code.
+### 3.3.1 A 1-dimensional launch
 
-Two 3-D vectors therefore describe the entire launch. `gridDim` specifies the
-number of blocks along each axis; `blockDim` specifies the number of threads
-along each axis inside every block. Together they describe a 3-D grid of 3-D
-blocks.
+A launch names the kernel, then the shape of the work between triple angle brackets, then
+the kernel's arguments:
 
-![The launch hierarchy in 3-D: the grid is a 3-D array of blocks, each block a 3-D array of threads; global position = blockIdx * blockDim + threadIdx](../../assets/ch03_grid_block_3d.svg)
+```cpp
+addVectors<<<blocks, threadsPerBlock>>>(d_a, d_b, d_c, n);
+```
 
-The diagram has three parts:
+The part between `<<<` and `>>>` is the **execution configuration**. Its first number is
+the number of blocks in the grid, and its second the number of threads in each block. The
+launch `kernel<<<3, 8>>>` therefore starts 3 × 8 = 24 threads (figure 3.2).
 
-1. **The grid** is a 3-D array of blocks. `gridDim = (3, 2, 2)` means 3 blocks
-   along x, 2 along y, and 2 along z: 12 blocks. Each cube is a block with
-   coordinates `blockIdx = (x, y, z)`.
-2. **Each block** is itself a 3-D array of threads. `blockDim = (4, 4, 2)`
-   means 4 threads along x, 4 along y, and 2 along z: 4 x 4 x 2 = 32 threads,
-   which is exactly one warp (§2.3). Each thread has coordinates `threadIdx =
-   (x, y, z)` inside its block.
-3. **The global position of a thread** is the block's position times the
-   block's size plus the thread's position inside the block:
+In Rust, a launch takes 2 calls: `prepare_` checks the configuration against what the kernel
+declares, and the second call runs it. `LaunchConfig1D::new(blocks, threads, 0)` holds the
+same 2 numbers as `<<<blocks, threads>>>`; its last argument, 0 here, is the shared memory
+each block asks for (Chapter 7).
 
-\\[ \text{gx} = \text{blockIdx.x} \times \text{blockDim.x} + \text{threadIdx.x} \\]
-\\[ \text{gy} = \text{blockIdx.y} \times \text{blockDim.y} + \text{threadIdx.y} \\]
-\\[ \text{gz} = \text{blockIdx.z} \times \text{blockDim.z} + \text{threadIdx.z} \\]
+```rust
+let add = module.prepare_add_vectors(LaunchConfig1D::new(blocks, BLOCK, 0))?;
+module.add_vectors(&stream, &add, &a_dev, &b_dev, &mut c_dev)?;
+```
 
-The 1-D formula used in §3.5, `blockIdx.x * blockDim.x + threadIdx.x`, is the
-x-component of this vector identity. The total number of threads is:
+<figure>
+<img src="../../figures/ch03-launch-1d.svg" alt="Three zones, block 0, 1 and 2, each with 8 threads. In each block a row shows threadIdx.x from 0 to 7 and a row below shows the index i: 0 to 7 in block 0, 8 to 15 in block 1, 16 to 23 in block 2. Thread 5 of block 2, index 21, is highlighted. A card reads i = blockIdx.x × blockDim.x + threadIdx.x, and for the highlighted thread 2 × 8 + 5 = 21.">
+<figcaption><b>Figure 3.2</b> The launch <code>kernel&lt;&lt;&lt;3, 8&gt;&gt;&gt;</code>: 3 blocks of 8 threads, with each thread's position in its block and its index.</figcaption>
+</figure>
 
-\\[ \text{gridDim.x} \cdot \text{gridDim.y} \cdot \text{gridDim.z} \cdot
-\text{blockDim.x} \cdot \text{blockDim.y} \cdot \text{blockDim.z} \\]
+A launch states how much work there is and how it is grouped. It does not state an order.
+The GPU decides which SM runs which block, and when, so blocks may run in any order and
+must not depend on each other. Section 3.6 shows a real run in which block 1 printed before
+block 0.
 
-Three dimensions exist because real data is often two- or three-dimensional
-(images, volumes, grids). A 2-D launch lets a kernel index an image as `(x, y)`
-instead of flattening it by hand:
+### 3.3.2 2 and 3 dimensions
 
-![Why 2-D launches: an 8 x 8 image with a 2 x 2 grid of blocks, each a 4 x 4 tile of threads; global position = blockIdx * blockDim + threadIdx per axis](../../assets/ch03_image_tiles.svg)
+Many kinds of data have 2 or 3 dimensions: an image has rows and columns, and a medical
+scan or a simulated volume has layers as well. CUDA lets a grid and its blocks have the same
+shape. Both numbers of the execution configuration can be a `dim3`, a small type with 3
+fields, `x`, `y` and `z`; a field that is not given is 1.
 
-The image example gives the working model: **blocks tile the data; threads
-fill each tile.** The hardware linearises thread IDs (x fastest, then y, then
-z), but the kernel thinks in the data's own shape.
+```cpp
+dim3 threadsPerBlock(4, 4);     // 4 × 4 = 16 threads per block, z = 1
+dim3 blocks(2, 2);              // 2 × 2 = 4 blocks
+kernel<<<blocks, threadsPerBlock>>>(...);
+```
 
-The hardware view (from Chapter 2) is: blocks are assigned to SMs, each block
-is partitioned into warps of 32 consecutive threads, and warps execute in
-lockstep.
+The 4 blocks of 4 × 4 threads cover an image of 8 × 8 pixels, 1 thread per pixel (figure
+3.3). Each thread computes its column and row with the same formula as in 1 dimension, once
+for x and once for y.
 
-The launch is a declaration, not a loop. `<<<grid, block>>>` does not describe
-an order of execution. It states how much work exists and how it is shaped; the
-hardware decides which SM runs which block and when. The launch is therefore a
-contract with the machine: enough blocks to fill every SM, blocks small enough
-to fit SM resources (registers, shared memory, the 1,024-thread cap), and a
-shape that maps to the data's natural dimensions.
+<figure>
+<img src="../../figures/ch03-image-2d.svg" alt="An 8 by 8 image, its pixels numbered 0 to 63 row by row, coloured by the 4 blocks of 4 by 4 threads that cover it. Pixel 14, at column 6 and row 1, is highlighted. It belongs to block (1, 0), where the thread is at position (2, 1). Its column is 1 × 4 + 2 = 6, its row 0 × 4 + 1 = 1, and its pixel number 1 × 8 + 6 = 14.">
+<figcaption><b>Figure 3.3</b> A 2-dimensional launch over an 8 × 8 image. The highlighted thread computes its column, its row and the pixel's number.</figcaption>
+</figure>
 
-The following figure shows a small launch, `kernel<<<3, 8>>>` (3 blocks of 8
-threads):
+A block can have depth too. Figure 3.4 shows a block of `dim3(4, 4, 2)`: 2 layers of 4 × 4
+threads. The hardware numbers a block's threads with x changing fastest, then y, then z, and
+cuts that numbering into warps of 32 (Chapter 2, section 2.4). A row of 4 threads therefore
+counts 4, and a layer of 16 counts 16, so the thread at (2, 1, 1) is number
+2 + 4 × 1 + 16 × 1 = 22. This block holds 4 × 4 × 2 = 32 threads, exactly 1 warp.
 
-![Launch hierarchy: a grid of three blocks of eight threads, and the global index formula](../../assets/ch03_launch_hierarchy.svg)
+<figure>
+<img src="../../figures/ch03-block-3d.svg" alt="A block with blockDim (4, 4, 2) drawn as 2 layers of 4 by 4 threads side by side. Layer z = 0 is numbered 0 to 15 row by row, and layer z = 1, which comes after it, 16 to 31. Thread (2, 1, 1) in layer z = 1 is highlighted: 2 + 4 × 1 + 16 × 1 = 22. 4 × 4 × 2 = 32 threads, exactly 1 warp.">
+<figcaption><b>Figure 3.4</b> A 3-dimensional block of 4 × 4 × 2 threads, numbered x first, then y, then z.</figcaption>
+</figure>
 
-## 3.4 Built-in Variables
+Stacked, the layers form a cube (figure 3.5). A block of `dim3(4, 4, 4)` holds 64 threads,
+2 warps. 1 layer holds 16 threads, half a warp, so warp 0 is layers z = 0 and 1, and warp 1
+is layers z = 2 and 3. The thread at (2, 0, 3), on top of the back layer, is number
+2 + 4 × 0 + 16 × 3 = 50, and 50 ÷ 32 = 1 remainder 18 places it in warp 1, lane 18.
 
-Inside a kernel, four read-only built-in variables describe the launch:
+<figure>
+<img src="../../figures/ch03-cube.svg" alt="A block of 4 by 4 by 4 threads drawn as a cube of 64 small cubes, with x to the right, y downward and z going back. The front layer z = 0 is numbered 0 to 15. Layers z = 0 and 1 are coloured blue, warp 0, and layers z = 2 and 3 orange, warp 1. The thread at (2, 0, 3), on the top face at the back, is highlighted and numbered 50: 2 + 4 × 0 + 16 × 3 = 50, which is warp 1, lane 18.">
+<figcaption><b>Figure 3.5</b> A block of 4 × 4 × 4 threads as a cube. Each warp is a slab of 2 layers.</figcaption>
+</figure>
 
-| Variable | Type | Meaning |
+### 3.3.3 Launch limits
+
+A launch must stay within limits that NVIDIA documents for every current GPU.
+
+| Quantity | Limit | Where the number comes from |
 |---|---|---|
-| `threadIdx` | `dim3` | The thread's position within its block: `threadIdx.x`, `.y`, `.z` |
-| `blockIdx` | `dim3` | The block's position within the grid: `blockIdx.x`, `.y`, `.z` |
-| `blockDim` | `dim3` | Threads per block (the `blockDim` passed at launch) |
-| `gridDim` | `dim3` | Blocks per grid (the `gridDim` passed at launch) |
+| threads per block | 1,024 | 32 warps; NVIDIA's limit, which keeps a whole block small enough for 1 SM (Chapter 2, section 2.4) |
+| block size in x, in y | 1,024 each | no axis can exceed the block total |
+| block size in z | 64 | NVIDIA's documented limit |
+| blocks in a grid, in x | 2<sup>31</sup> − 1 | the largest positive 32-bit signed integer |
+| blocks in a grid, in y and in z | 65,535 | the largest 16-bit unsigned integer |
 
-These are provided by the hardware, not declared by the program. `blockIdx`
-identifies the block, `threadIdx` identifies the thread within the block, and
-`blockDim`/`gridDim` give the sizes of the two containers. The global formula
-`blockIdx * blockDim + threadIdx` translates thread identity into a position in
-the data.
+A launch that breaks a limit does not run. The launch itself reports no error; the program
+learns of the failure from `cudaGetLastError`, as section 3.8 explains.
 
-## 3.5 The Global Index Formula
+## 3.4 Built-in variables
 
-The core indexing expression for a 1-D problem is:
+Inside a kernel, 4 variables describe the launch and the thread's place in it. Every thread
+can read them, and no program declares them.
 
-```cpp
-// Global linear index of this thread, assuming a 1-D grid and 1-D blocks.
-unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
-```
+| C++ | Rust (cuda-oxide) | Meaning |
+|---|---|---|
+| `threadIdx.x` | `thread::threadIdx_x()` | the thread's position in its block |
+| `blockIdx.x` | `thread::blockIdx_x()` | the block's position in the grid |
+| `blockDim.x` | `thread::blockDim_x()` | the number of threads in a block |
+| `gridDim.x` | `thread::gridDim_x()` | the number of blocks in the grid |
 
-The derivation is direct: thread `threadIdx.x` lives in block `blockIdx.x`.
-Each block contains `blockDim.x` threads, so block number `blockIdx.x` starts
-at `blockIdx.x * blockDim.x`. Adding the position inside the block gives the
-global position. A 1-D launch is the general 3-D launch with the y and z
-components equal to one. For a 2-D problem the formula composes per axis:
+Each has `.y` and `.z` forms as well (`threadIdx_y()` and so on in Rust). In C++,
+`threadIdx` and `blockIdx` have type `uint3` and `blockDim` and `gridDim` type `dim3`; both
+hold 3 unsigned integers.
 
-```cpp
-// 2-D indexing: x and y are independent linear indices in their dimension.
-unsigned int ix = blockIdx.x * blockDim.x + threadIdx.x;  // column
-unsigned int iy = blockIdx.y * blockDim.y + threadIdx.y;  // row
-// Row-major flattening of a width x height image:
-unsigned int idx = iy * width + ix;                        // linear memory index
-```
+`threadIdx` is the position of Chapter 2, section 2.1.2, and `blockIdx` is the block number.
 
-In row-major layout, consecutive `ix` values are consecutive in memory. Because
-consecutive threads have consecutive `threadIdx.x`, and therefore consecutive
-`ix`, this indexing scheme is coalesced by construction (§2.7).
+## 3.5 The global index formula
 
-**Worked example.** Launch `kernel<<<4, 256>>>` (4 blocks of 256 threads,
-covering 1,024 global indices). For the thread with `blockIdx.x = 2` and
-`threadIdx.x = 137`:
-
-```
-global index = blockIdx.x * blockDim.x + threadIdx.x
-             = 2 * 256 + 137
-             = 512 + 137
-             = 649
-```
-
-That thread owns element 649. Block `blockIdx.x = 2` covers global indices
-512..767. Its warp 0 contains threads 0..31, or global indices 512..543: 32
-consecutive addresses, coalesced by construction. If the array has 900 elements
-rather than a multiple of 1,024, the threads owning indices 900..1,023 are
-masked by the `if (i < n)` guard in the kernel.
-
-## 3.6 The First Kernel: Vector Addition
-
-The first complete program adds two `float` arrays element-wise: `c = a + b`
-for arrays of length `n`.
-
-### 3.6.1 The Kernel
+Chapter 2 found a thread's index by counting the threads of the blocks before it, then
+adding its position. In CUDA's names:
 
 ```cpp
-// kernel.cu
-// ---------------------------------------------------------------------------
-// __global__ : this function runs on the DEVICE, launched from the host.
-// Return type must be void. The argument is a device pointer to n floats.
-// ---------------------------------------------------------------------------
-__global__ void addVectors(const float* a, const float* b, float* c, int n)
-{
-    // --- Thread identity ---------------------------------------------------
-    // blockIdx.x : index of this block within the grid (0-based).
-    // blockDim.x : number of threads in this block (set at launch).
-    // threadIdx.x: index of this thread within its block (0-based).
-    // The product blockIdx.x * blockDim.x is the first global thread index
-    // covered by this block; adding threadIdx.x gives the global index.
-    const int i = blockIdx.x * blockDim.x + threadIdx.x;
-
-    // --- Boundary guard ----------------------------------------------------
-    // The grid may cover more threads than n because the host rounds the grid
-    // size up. Threads whose index is >= n must do nothing. Without this guard
-    // the kernel would read and write past the end of the arrays.
-    if (i < n)
-    {
-        // Each thread owns exactly one output element, so no two threads write
-        // the same address and no race is possible.
-        c[i] = a[i] + b[i];
-    }
-}
+const int i = blockIdx.x * blockDim.x + threadIdx.x;
 ```
 
-### 3.6.2 The Host Code
+`blockIdx.x * blockDim.x` counts the threads of all earlier blocks: block 2 of a launch with
+8 threads per block starts after 2 × 8 = 16 threads. Adding `threadIdx.x`, the position in
+the block, gives the index. In figure 3.2, thread 5 of block 2 has index 2 × 8 + 5 = 21.
+
+<div class="example" markdown="1">
+
+Worked example: the launch `kernel<<<4, 256>>>`
+
+| Thread | `blockIdx.x` | `threadIdx.x` | Index |
+|---|---|---|---|
+| first thread of block 0 | 0 | 0 | 0 × 256 + 0 = 0 |
+| thread 137 of block 2 | 2 | 137 | 2 × 256 + 137 = 649 |
+| last thread of block 3 | 3 | 255 | 3 × 256 + 255 = 1,023 |
+
+Block 2 covers indexes 512 to 767. Its warp 0 holds positions 0 to 31, indexes 512 to 543:
+32 consecutive indexes.
+
+</div>
+
+For a 2-dimensional launch the same formula is applied to each axis, and the pixel's place
+in memory follows from its row and column (figure 3.3):
 
 ```cpp
-#include <cstdio>
-#include <cuda_runtime.h>   // All CUDA runtime API declarations live here.
-
-// ---------------------------------------------------------------------------
-// Error-checking helper (see 3.8). Every CUDA call that can fail is routed
-// through CHECK, which prints the file and line on failure and aborts.
-// ---------------------------------------------------------------------------
-#define CHECK(call)                                                       \
-    do {                                                                  \
-        const cudaError_t err = (call);                                   \
-        if (err != cudaSuccess) {                                         \
-            std::fprintf(stderr, "CUDA error at %s:%d: %s\n",             \
-                         __FILE__, __LINE__, cudaGetErrorString(err));    \
-            std::exit(EXIT_FAILURE);                                      \
-        }                                                                 \
-    } while (0)
-
-int main()
-{
-    // --- Problem size -----------------------------------------------------
-    // n is the number of elements; nBytes is the byte size of each array.
-    // size_t is used because array sizes can exceed the range of int.
-    const int    n      = 1 << 20;      // 1,048,576 elements (a power of two)
-    const size_t nBytes = n * sizeof(float);
-
-    // --- Host allocations (pageable memory, see Chapter 4) ---------------
-    float* h_a = new float[n];   // host input A
-    float* h_b = new float[n];   // host input B
-    float* h_c = new float[n];   // host output C
-
-    // Fill the inputs with a deterministic pattern so the result is verifiable.
-    for (int i = 0; i < n; ++i) { h_a[i] = 1.0f * i;  h_b[i] = 2.0f * i; }
-
-    // --- Device allocations ----------------------------------------------
-    // cudaMalloc allocates in GLOBAL MEMORY on the device. The returned
-    // pointers are valid only on the device (see 3.1).
-    float* d_a = nullptr;   // device input A
-    float* d_b = nullptr;   // device input B
-    float* d_c = nullptr;   // device output C
-    CHECK(cudaMalloc((void**)&d_a, nBytes));
-    CHECK(cudaMalloc((void**)&d_b, nBytes));
-    CHECK(cudaMalloc((void**)&d_c, nBytes));
-
-    // --- Host -> device copy ----------------------------------------------
-    // cudaMemcpy(dst, src, bytes, kind). The kind cudaMemcpyHostToDevice
-    // tells the runtime the direction of the copy (see 3.7).
-    CHECK(cudaMemcpy(d_a, h_a, nBytes, cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_b, h_b, nBytes, cudaMemcpyHostToDevice));
-
-    // --- Launch configuration --------------------------------------------
-    // Block size: 256 threads per block. This is a multiple of the warp size
-    // (32), so every warp is full, and small enough that several blocks fit
-    // per SM (see occupancy, 2.9). Values of 128-512 are typical.
-    const int threadsPerBlock = 256;
-    // Grid size: ceil(n / threadsPerBlock). The + (threadsPerBlock - 1)
-    // rounds up so that the grid covers every element. Some threads will
-    // therefore have i >= n and hit the boundary guard in the kernel.
-    const int blocksPerGrid  = (n + threadsPerBlock - 1) / threadsPerBlock;
-
-    // --- Launch ------------------------------------------------------------
-    // Kernel launches are asynchronous: the host does not wait for the kernel
-    // to finish and control returns to the host immediately (Chapter 6).
-    addVectors<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, n);
-
-    // Kernel launches do not report errors synchronously. Check the last
-    // error now; if the launch itself failed (bad configuration or pointer),
-    // this call catches it.
-    CHECK(cudaGetLastError());
-
-    // --- Synchronise --------------------------------------------------------
-    // cudaDeviceSynchronize blocks the host until all device work issued so
-    // far has completed. This is required before copying the results back.
-    CHECK(cudaDeviceSynchronize());
-
-    // --- Device -> host copy ------------------------------------------------
-    CHECK(cudaMemcpy(h_c, d_c, nBytes, cudaMemcpyDeviceToHost));
-
-    // --- Verify -------------------------------------------------------------
-    // The expected value is h_c[i] == 3*i. Check all elements and report the
-    // largest error.
-    double maxErr = 0.0;
-    for (int i = 0; i < n; ++i)
-    {
-        const double err = std::abs(static_cast<double>(h_c[i]) - 3.0 * i);
-        if (err > maxErr) maxErr = err;
-    }
-    std::printf("max error = %g\n", maxErr);
-
-    // --- Cleanup ------------------------------------------------------------
-    delete[] h_a;  delete[] h_b;  delete[] h_c;
-    CHECK(cudaFree(d_a));  CHECK(cudaFree(d_b));  CHECK(cudaFree(d_c));
-    return 0;
-}
+const int ix = blockIdx.x * blockDim.x + threadIdx.x;   // column
+const int iy = blockIdx.y * blockDim.y + threadIdx.y;   // row
+const int pixel = iy * width + ix;                      // rows are stored 1 after another
 ```
 
-### 3.6.3 Design Rationale
+An image stored row after row puts a row's pixels at consecutive addresses. Neighbouring
+threads of a warp have consecutive `threadIdx.x`, so they read consecutive pixels of 1 row:
+the coalesced pattern of Chapter 2, section 2.7.
 
-- **One thread per element.** The work is perfectly partitioned, no thread
-  depends on another, and coalescing is automatic because the global index
-  increases with `threadIdx.x`.
-- **Rounded-up grid with a boundary guard.** Rounding the grid up to a multiple
-  of the block size means the guard `if (i < n)` is required. The guard costs
-  one comparison per thread and makes any problem size safe; computing an exact
-  grid adds complexity without a performance benefit.
-- **Power-of-two size in the example.** `n = 1 << 20` is used for simplicity.
-  Production code uses arbitrary sizes and relies on the boundary guard.
+### 3.5.1 Rounding the grid up
 
-## 3.7 Memory API Primitives
+A grid must have a whole number of blocks, but the number of elements need not be a
+multiple of the block size. For n = 1,000 elements and 256 threads per block, 3 blocks
+cover only 768 elements, and 4 blocks start 1,024 threads. A program launches 4 blocks and
+lets the 24 extra threads do nothing (figure 3.6).
 
-The runtime API functions used above appear throughout the book:
+<figure>
+<img src="../../figures/ch03-rounding.svg" alt="A bar of 1,024 threads in 4 blocks of 256, for n = 1,000 elements. The number of blocks is (1,000 + 255) / 256 = 4, rounded down. A green line marks indexes 0 to 999, one thread per element. A red sliver at the end marks indexes 1,000 to 1,023, 24 threads for which i < n is false; the guard makes them do nothing.">
+<figcaption><b>Figure 3.6</b> 4 blocks of 256 threads for 1,000 elements. The guard <code>if (i &lt; n)</code> stops the last 24 threads.</figcaption>
+</figure>
 
-| Function | Behaviour |
+C++ integer division rounds down: 1,000 / 256 = 3. Adding 255, 1 less than the block size,
+before dividing makes any remainder reach the next multiple: (1,000 + 255) / 256 =
+1,255 / 256 = 4. In general,
+
+```cpp
+const int blocks = (n + threadsPerBlock - 1) / threadsPerBlock;
+```
+
+gives the smallest number of blocks that covers n. When n is already a multiple, the
+added 255 does not reach the next multiple, and no extra block is launched. Every kernel
+then needs a **guard**, a test that stops threads whose index is past the end of the data:
+
+```cpp
+if (i < n) { c[i] = a[i] + b[i]; }
+```
+
+Without the guard, threads 1,000 to 1,023 would read and write outside the arrays. The guard
+costs 1 comparison per thread, and only the last block contains threads that fail it.
+
+<details class="check">
+<summary>A program adds 1,000,000 elements with 256 threads per block. How many blocks does it launch, and how many threads are stopped by the guard?</summary>
+
+(1,000,000 + 255) / 256 = 3,907 blocks, which is 3,907 × 256 = 1,000,192 threads. The guard
+stops 1,000,192 − 1,000,000 = 192 of them, all in the last block.
+
+</details>
+
+## 3.6 The first program: vector addition
+
+The program adds 2 arrays of 1,048,576 floats on the GPU, copies the result back, and checks
+every element. Each step is shown in C++ first, then in Rust.
+
+### 3.6.1 The kernel
+
+<p class="listing"><b>Listing 3.1</b> The kernel, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch03_vector_add/vector_add.cu">code/ch03_vector_add/vector_add.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch03_vector_add/vector_add.cu:19:25}}
+```
+
+<p class="listing"><b>Listing 3.2</b> The kernel, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch03_basics/src/main.rs">code/oxide/ch03_basics/src/main.rs</a></p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:24:32}}
+```
+
+In C++, each thread computes its index, checks it against `n`, and adds 1 pair of elements.
+
+The Rust kernel does the same with 2 helpers. `thread::index_1d()` computes the same index,
+`blockIdx.x × blockDim.x + threadIdx.x`. `DisjointSlice` is an output array in which each
+thread can reach only its own element: `c.get_mut(idx)` returns that element, or `None` when
+the index is past the end. The guard is therefore part of the type, and a kernel that forgot
+it would not compile. `#[launch_contract(domain = 1, block = (256, 1, 1))]` states that the
+kernel expects 1-dimensional blocks of 256 threads; the host checks every launch against it.
+
+In both versions, each thread writes a different element of `c`, so no 2 threads ever write
+to the same address, and the threads need no coordination.
+
+### 3.6.2 Memory on both sides
+
+<p class="listing"><b>Listing 3.3</b> Host and device arrays, in C++.</p>
+
+```cpp
+{{#include ../../../../code/ch03_vector_add/vector_add.cu:29:43}}
+```
+
+<p class="listing"><b>Listing 3.4</b> Host and device arrays, in Rust.</p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:46:51}}
+```
+
+`1 << 20` shifts 1 left by 20 bits, which is 2<sup>20</sup> = 1,048,576. Each array holds
+1,048,576 floats of 4 bytes, so `bytes` is 4,194,304, 4 MiB.
+
+In C++, `cudaMalloc` allocates that many bytes of global memory and stores the new device
+pointer in its first argument, which is why it receives the pointer's address, `&d_a`.
+`cudaMemcpy` then copies each input from host to device.
+
+In Rust, `DeviceBuffer::from_host` allocates device memory and copies a host array into it
+in 1 call, and `DeviceBuffer::zeroed` allocates the output, filled with zeros. A
+`DeviceBuffer` frees its memory when it goes out of scope, so the Rust program has no
+equivalent of `cudaFree`.
+
+### 3.6.3 Launch and wait
+
+<p class="listing"><b>Listing 3.5</b> Launch, in C++.</p>
+
+```cpp
+{{#include ../../../../code/ch03_vector_add/vector_add.cu:45:49}}
+```
+
+<p class="listing"><b>Listing 3.6</b> Launch, in Rust.</p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:53:56}}
+```
+
+The block size of 256 is 8 full warps, and small enough that several blocks fit on 1 SM
+(Chapter 2, section 2.9); sizes from 128 to 512 are common. With n = 1,048,576, the grid has
+1,048,576 / 256 = 4,096 blocks, and no thread fails the guard. Rust's `div_ceil` divides and
+rounds up, the same as `(n + threads - 1) / threads` in C++.
+
+C++ waits for the kernel with `cudaDeviceSynchronize`. In Rust, `to_host_vec` copies the
+result back into a new `Vec`, and the copy waits for the kernel first.
+
+### 3.6.4 Building and running
+
+```console
+$ nvcc -arch=native vector_add.cu -o vector_add
+$ ./vector_add
+n = 1048576, 4096 blocks of 256 threads
+c[0] = 0, c[1] = 3, c[1048575] = 3145725
+max error = 0
+```
+
+```console
+$ cargo oxide run
+...
+n = 1048576, 4096 blocks of 256 threads
+c[0] = 0, c[1] = 3, c[1048575] = 3145725
+max error = 0
+```
+
+Both outputs come from runs on a Jetson Orin NX with CUDA 12.6; any NVIDIA GPU prints the same
+numbers. The inputs were `a[i] = i` and `b[i] = 2i`, so `c[i]` should be `3i`: `c[1048575]`
+is 3 × 1,048,575 = 3,145,725, and the maximum error over all 1,048,576 elements is 0.
+
+### 3.6.5 Which thread runs first?
+
+A second, tiny kernel makes the index formula visible. Every thread of a launch of 2 blocks
+of 4 threads prints its block, its position and its index.
+
+<p class="listing"><b>Listing 3.7</b> Every thread prints who it is, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch03_vector_add/whoami.cu">code/ch03_vector_add/whoami.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch03_vector_add/whoami.cu:7:18}}
+```
+
+<p class="listing"><b>Listing 3.8</b> The same kernel, in Rust.</p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:15:22}}
+```
+
+```console
+$ ./whoami
+block 1, position 0 -> index 4
+block 1, position 1 -> index 5
+block 1, position 2 -> index 6
+block 1, position 3 -> index 7
+block 0, position 0 -> index 0
+block 0, position 1 -> index 1
+block 0, position 2 -> index 2
+block 0, position 3 -> index 3
+```
+
+The Rust program printed the same 8 lines in the same order. Each index is the block number ×
+4 + the position, as section 3.5 says. On these runs block 1 printed before block 0. Another
+GPU, or another run, may print them in a different order: the order of blocks is not
+defined, and a correct kernel never depends on it.
+
+### 3.6.6 The complete programs
+
+<p class="listing"><b>Listing 3.9</b> The complete <code>vector_add.cu</code>.</p>
+
+```cpp
+{{#include ../../../../code/ch03_vector_add/vector_add.cu}}
+```
+
+<p class="listing"><b>Listing 3.10</b> The complete Rust program.</p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs}}
+```
+
+## 3.7 The memory functions
+
+| Function | What it does |
 |---|---|
-| `cudaMalloc(void** p, size_t bytes)` | Allocate `bytes` of device global memory and store the device pointer in `*p`. Returns `cudaSuccess` or an error code. |
-| `cudaFree(void* p)` | Free a device allocation made by `cudaMalloc`. |
-| `cudaMemcpy(dst, src, bytes, kind)` | Copy `bytes` between host and device. `kind` is one of `cudaMemcpyHostToDevice`, `cudaMemcpyDeviceToHost`, `cudaMemcpyDeviceToDevice`, or `cudaMemcpyHostToHost`. The copy is synchronous and completes before the call returns. |
-| `cudaGetLastError()` | Return and clear the last asynchronous error recorded for the calling thread. |
-| `cudaGetErrorString(err)` | Return human-readable text for a `cudaError_t`. |
-| `cudaDeviceSynchronize()` | Block the host until all preceding device work completes. |
+| `cudaMalloc(&p, bytes)` | allocates `bytes` of global memory and stores the device pointer in `p` |
+| `cudaFree(p)` | frees memory allocated by `cudaMalloc` |
+| `cudaMemcpy(dst, src, bytes, kind)` | copies `bytes`; `kind` is `cudaMemcpyHostToDevice`, `cudaMemcpyDeviceToHost` or `cudaMemcpyDeviceToDevice`; waits for earlier device work, and in most cases returns when the copy is complete (Chapter 4 gives the exceptions) |
+| `cudaDeviceSynchronize()` | waits until all work launched so far on the device has finished |
+| `cudaGetLastError()` | returns, and clears, the last error recorded by the runtime |
+| `cudaGetErrorString(err)` | returns a readable description of an error code |
 
-`cudaMalloc` takes `void**` because it is a C-style output-parameter function:
-it must write a pointer into the caller's variable. In C++, an allocation
-function would return a pointer; CUDA's C heritage writes through a
-pointer-to-pointer. The explicit `(void**)` cast is required because C++ does
-not allow an implicit conversion from `float**` to `void**`; only `T*` to
-`void*` is implicit.
+`cudaMalloc` writes its result through a pointer to the caller's pointer, as C functions do,
+and returns an error code instead of the pointer. `cudaMemcpy` needs the direction because a
+host address and a device address are both plain numbers, and the same number can be valid
+on both sides.
 
-`cudaMemcpy` needs a direction argument because a host pointer and a device
-pointer cannot be distinguished by address alone. On some platforms the two
-address ranges overlap numerically. The direction flag removes the ambiguity.
+## 3.8 Errors and asynchronous launches
 
-## 3.8 Error Handling
+Every CUDA runtime function returns a value of type `cudaError_t`: `cudaSuccess`, which is
+0, or a code that names what went wrong. Errors arrive in 2 ways.
 
-CUDA runtime functions return a `cudaError_t`, an enum in which `cudaSuccess`
-is 0 and every other value is an error code. There are two failure modes:
+1. **Immediately.** A call with a bad argument, such as a copy from a null pointer, returns
+   an error code at once.
+2. **Later.** A launch returns before its kernel runs. The host carries on while the GPU
+   works (figure 3.7), so an error inside the kernel, such as a read outside an array,
+   cannot be reported by the launch. It is reported by the next call that waits for the
+   kernel, such as `cudaDeviceSynchronize`.
 
-1. **Synchronous errors** are detected by the call itself, such as an invalid
-   argument or an illegal `cudaMemcpy` kind. The call returns the error code.
-2. **Asynchronous errors** are detected after the call, such as an invalid
-   kernel launch or an illegal memory access inside a kernel. The launch
-   returns `cudaSuccess`; the error surfaces on the next CUDA API call from the
-   same thread. This is why `cudaGetLastError()` is called immediately after
-   the launch.
+<figure>
+<img src="../../figures/ch03-async.svg" alt="Two timelines. Host: copy in, a short launch, other host work, a dashed wait in cudaDeviceSynchronize, copy out. Device: copy in, then the kernel runs, starting just after the launch and ending when the host's wait ends, then copy out. The launch returns at once; the host waits only in cudaDeviceSynchronize, where errors inside the kernel are reported.">
+<figcaption><b>Figure 3.7</b> A launch returns at once. The host waits only where it calls <code>cudaDeviceSynchronize</code>.</figcaption>
+</figure>
 
-The `CHECK` macro reports the offending source line through
-`cudaGetErrorString`. Production code should do something more graceful than
-`std::exit`, but the discipline of checking every call is not optional. An
-unchecked CUDA error can produce a silently wrong answer or a corrupt image.
+The program in section 3.6 checks both kinds. Right after the launch, `cudaGetLastError`
+reports whether the launch was accepted, for example whether a block of more than 1,024
+threads was requested. `cudaDeviceSynchronize` then waits for the kernel and reports any
+error that happened while it ran.
 
-## 3.9 Compilation and the Build Pipeline
+Every CUDA call in the C++ program goes through `check`, which prints the error's
+description and stops the program. In Rust, every call returns a `Result`, and the `?`
+operator passes an error up to `main`, which reports it. An unchecked error does not stop
+anything: the program goes on with wrong data and prints wrong results.
 
-CUDA source files use the `.cu` extension and are compiled by `nvcc`, NVIDIA's
-compiler driver. The pipeline has two phases:
+<details class="check">
+<summary>A kernel reads outside its array. Which call in listing 3.5 reports the error?</summary>
 
-1. **Host pass.** `nvcc` separates the host code, compiles it with the host C++
-   compiler (`g++` or `clang++`), and replaces each kernel launch
-   (`kernel<<<...>>>`) with runtime-API calls that package the arguments and
-   launch the kernel.
-2. **Device pass.** `nvcc` compiles the `__global__` and `__device__`
-   functions to **PTX** (Parallel Thread Execution), NVIDIA's portable virtual
-   instruction set, and then to **SASS**, the machine code of the target GPU,
-   via `ptxas`.
+`cudaDeviceSynchronize`. The launch was valid, so `cudaGetLastError` right after it returns
+`cudaSuccess`; the bad read happens while the kernel runs, and the wait reports it.
 
-```bash
-# Compile for a specific architecture. This book's portable default is
-# compute_60 (Pascal-class PTX): the driver JIT-compiles it to any CUDA 12.x
-# GPU, from T4 and P100 to A100, Jetson Orin, and H100.
-nvcc -arch=compute_60 kernel.cu -o kernel
-# Native SASS alternatives (faster startup, less portable):
-#   Jetson Orin : nvcc -arch=sm_87 kernel.cu -o kernel
-#   A100        : nvcc -arch=sm_80 kernel.cu -o kernel
-#   H100        : nvcc -arch=sm_90 kernel.cu -o kernel
+</details>
+
+## 3.9 Compiling with nvcc
+
+A `.cu` file holds code for 2 processors. **nvcc**, NVIDIA's compiler driver, splits it in 2
+(figure 3.8).
+
+<figure>
+<img src="../../figures/ch03-nvcc.svg" alt="vector_add.cu, holding host code and kernels, goes into nvcc, which splits it in 2. The host code is compiled by g++. The kernels are compiled to PTX, a portable form, and then to SASS for sm_87, the machine code of this GPU. Both parts end up in 1 executable, vector_add.">
+<figcaption><b>Figure 3.8</b> nvcc sends the host code to the host's C++ compiler and compiles the kernels for the GPU, then joins both in 1 executable.</figcaption>
+</figure>
+
+- The host code goes to the host's ordinary C++ compiler, such as `g++`. Each launch
+  `<<<...>>>` becomes a call into the CUDA runtime library.
+- The kernels are compiled first to **PTX**, an instruction set that NVIDIA keeps stable
+  across GPU generations, then to **SASS**, the machine code of 1 particular GPU. SASS is
+  specific to a compute capability; `sm_87` names compute capability 8.7.
+
+The `-arch` option chooses the GPU to compile for:
+
+```console
+$ nvcc -arch=native vector_add.cu -o vector_add    # the GPU in this machine
+$ nvcc -arch=sm_90  vector_add.cu -o vector_add    # an H100
 ```
 
-> **Primitive - PTX.** The intermediate virtual ISA (Chapter 12 covers it in
-> detail). PTX is portable across GPU generations and is translated to SASS by
-> the driver at load time when no SASS is embedded.
-> **Primitive - SASS.** The GPU's machine code, tied to a specific compute
-> capability.
+An executable compiled with `-arch=sm_90` also carries PTX for compute capability 9.0, and a
+newer GPU's driver can compile that PTX for itself when the program starts. This book never
+shows PTX or SASS: the kernels are read in C++ and in Rust.
 
-`nvcc` can compile `.cu` files on a machine without an NVIDIA GPU; the resulting
-binary will not run there. Every `.cu` file in this book can be compiled with
-`nvcc -arch=compute_60 -o bin src.cu` and run on any CUDA 12.x GPU (Pascal or
-newer) through the driver's JIT.
+The Rust version is built with `cargo oxide run`. cuda-oxide compiles the `#[cuda_module]`
+for the GPU, rustc compiles the host code, and both end up in 1 executable, as with `nvcc`.
 
-## 3.10 Summary
+## Common mistakes
 
-- The launch configuration is a declaration of parallelism, not a loop. The
-  hardware schedules the grid onto SMs and the blocks onto warp slots.
-- `threadIdx`, `blockIdx`, `blockDim`, and `gridDim` are hardware-provided
-  primitives. The global index formula `blockIdx.x * blockDim.x + threadIdx.x`
-  maps thread identity to data address.
-- Host and device have separate address spaces. Transfers are explicit
-  (`cudaMemcpy`) and allocations are explicit (`cudaMalloc`/`cudaFree`).
-- Check every CUDA call. Kernel launches are asynchronous, so
-  `cudaGetLastError()` after the launch and `cudaDeviceSynchronize()` before
-  reading results are both required.
+- **Reading a device pointer on the host.** `d_c[0]` in `main` reads an address that means
+  nothing to the CPU. Copy the data back first.
+- **Forgetting the guard.** A rounded-up grid has threads past the end of the data. Without
+  `if (i < n)` they read and write outside the arrays.
+- **Reading results before the kernel has finished.** A launch returns at once. Synchronize,
+  or copy with `cudaMemcpy`, which waits for earlier work, before reading the output.
+- **Assuming an order of blocks.** Blocks run in any order (section 3.6.6), and a kernel's
+  result must not depend on it.
+- **Using `int` for byte counts.** Sizes in bytes can exceed 2<sup>31</sup> − 1; use
+  `size_t`.
 
-## Launch Semantics: Declaration, Not Order
+<div class="summary" markdown="1">
 
-The conceptual shift in CUDA is to read launch syntax as a declaration of work
-rather than a loop. A CPU `for` loop specifies an order of execution. A CUDA
-launch specifies how much work exists, shaped in a particular way, and leaves
-the mapping to blocks, SMs, and issue order to the hardware.
+## Summary
 
-This has practical consequences. Because the hardware may schedule blocks in
-any order, a kernel must not depend on block order for correctness. Two blocks
-that need to exchange data must do so through explicit mechanisms: atomics,
-separate kernel launches, or cooperative groups. Because the same launch can
-run on a GPU with 10 or 100 SMs, a kernel must not assume a particular SM
-count. Well-written CUDA kernels are portable across the NVIDIA product line
-without source changes for this reason.
+- The **host** is the CPU and its memory; the **device** is the GPU and its memory. Each has
+  its own address space, and data moves between them with `cudaMemcpy`.
+- `__global__` marks a kernel, which runs on the device and is launched from the host.
+  `__device__` marks a helper that runs on the device.
+- `kernel<<<blocks, threadsPerBlock>>>` launches a grid of blocks. Grids and blocks can have
+  1, 2 or 3 dimensions, and blocks run in no fixed order.
+- A thread's index is `blockIdx.x * blockDim.x + threadIdx.x`.
+- `(n + threadsPerBlock - 1) / threadsPerBlock` rounds the grid up, and `if (i < n)` stops
+  the extra threads.
+- A launch is asynchronous. Check `cudaGetLastError` after it and the result of
+  `cudaDeviceSynchronize`, and check every other CUDA call.
+- `nvcc` compiles host code with the host's compiler and kernels to PTX and SASS.
+- In Rust with cuda-oxide, `#[kernel]` marks a kernel, `thread::index_1d()` gives the index,
+  `DisjointSlice` builds the guard into the type, and `DeviceBuffer` allocates, copies and
+  frees device memory.
 
-The boundary guard is a second consequence of the same design. Rounded-up grids
-are the standard way to handle problem sizes that are not multiples of the
-block size. The guard `if (i < n)` turns extra threads into no-ops. Its
-performance cost is small: at most one warp in the last block diverges. It
-prevents out-of-bounds accesses that could otherwise corrupt adjacent memory
-and produce silently wrong results.
+</div>
 
-## Common Pitfalls
+Chapter 4 looks closely at the copies between host and device: how fast they are, and how
+pinned and unified memory make them faster or remove them.
 
-- Using `int` for sizes that can exceed 2 billion bytes or indices. `nBytes`
-  should be `size_t`; grid and block dimensions are unsigned and have hardware
-  limits.
-- Launching a grid that does not cover all elements and omitting the boundary
-  guard. Rounding up plus `if (i < n)` is the safe pattern.
-- Forgetting that the launch is asynchronous. Checking errors immediately after
-  the launch is necessary but not sufficient; the host must synchronise before
-  reading device results.
-- Assuming blocks execute in order. Block scheduling order is not defined and
-  must never affect correctness.
+## Exercises
 
-## Check Your Understanding
+1. A launch `kernel<<<5, 64>>>` starts how many threads? What is the index of thread 10 of
+   block 3?
+2. Write the 2-dimensional index formulas for an image of `width × height` pixels, and show
+   that the 32 threads of a warp in a block of 32 × 8 threads read 32 consecutive pixels.
+3. For n = 1,000,000 and 512 threads per block, how many blocks are launched, and how many
+   threads fail the guard?
+4. A block has `blockDim = (8, 4, 2)`. How many threads does it hold, how many warps, and what
+   is the number of the thread at (3, 2, 1)?
+5. Why must a `__global__` function return `void`? What would a return value mean for
+   1,000,000 threads?
+6. Change `whoami.cu` to launch 4 blocks of 2 threads. Predict the indexes before running it,
+   then run it 3 times. Does the order of the lines change?
+7. Remove the guard from the kernel of listing 3.1 and run it with n = 1,000. What happens?
+   Use a machine where a crash does no harm.
+8. In the Rust kernel of listing 3.2, try to write `c[i] = a[i] + b[i]` directly instead of
+   going through `c.get_mut(idx)`. What does the compiler say, and why?
 
-<details>
-<summary>Why must a __global__ function return void?</summary>
+## Sources and further reading
 
-A kernel is launched for thousands of threads and has no single caller to
-receive a return value. Its output consists of the memory writes it performs.
-Results are communicated through output buffers rather than return values.
-</details>
-
-<details>
-<summary>For n = 1,000,000 and 256 threads per block, how many blocks are launched and how many threads are masked?</summary>
-
-blocks = ceil(1,000,000 / 256) = 3,907. Total threads = 3,907 x 256 =
-1,000,192, so 192 threads in the last block are masked by `if (i < n)`.
-</details>
-
-<details>
-<summary>What does cudaGetLastError() catch that cudaDeviceSynchronize() does not?</summary>
-
-`cudaGetLastError()` returns launch-configuration errors recorded
-asynchronously (for example, an invalid block size or kernel pointer) before
-the host synchronises. `cudaDeviceSynchronize()` waits for completion and
-surfaces execution errors such as illegal memory accesses. Both are needed.
-</details>
-
-## Key Takeaways
-
-- Host and device have separate address spaces; every transfer is an explicit cudaMemcpy.
-- Function qualifiers: __global__ (kernel called from host), __device__ (device only), __host__ (host).
-- The launch configuration `<<<grid, block>>>` is a declaration of parallelism, not a loop.
-- threadIdx, blockIdx, blockDim, and gridDim are hardware-provided primitives; the global index is blockIdx.x * blockDim.x + threadIdx.x.
-- Boundary guards make rounded-up grids safe; they diverge only in the last partial block.
-- Check every CUDA call: cudaGetLastError() after the launch, cudaDeviceSynchronize() before copying results back.
-
-## 3.11 Exercises
-
-1. Write the 2-D global index formula for a `width x height` image and show
-   that consecutive threads in a warp read consecutive memory addresses when
-   the block covers a contiguous row segment.
-2. Why must a `__global__` function return `void`? What would a return value
-   mean for 1,000,000 threads?
-3. Compute `blocksPerGrid` for `n = 1,000,000` and `threadsPerBlock = 256`.
-   How many threads in the last block are masked by the boundary guard?
-4. What happens if `cudaMemcpy` is called with `cudaMemcpyHostToDevice` but a
-   device pointer is passed as the source? Do not try it on a machine you care
-   about.
-
-## Sources and Further Reading
-
-- NVIDIA, *CUDA C++ Programming Guide*, "Programming Model" chapter: thread hierarchy, memory hierarchy, heterogeneous programming, and kernel launch syntax: <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
-- NVIDIA, *CUDA C++ Best Practices Guide*, for host-device transfer and launch-configuration guidance: <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>
-- NVIDIA, `deviceQuery` CUDA sample, for reading a GPU's compute capability and resource limits.
+- NVIDIA, *CUDA C++ Programming Guide*, "Programming Model" and "Programming Interface":
+  <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- NVIDIA, *CUDA C++ Best Practices Guide*: <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/>
+- NVIDIA, *NVCC* documentation, for `-arch` and the compilation flow:
+  <https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/>
+- David B. Kirk, Wen-mei W. Hwu and Izzat El Hajj, *Programming Massively Parallel
+  Processors*, 4th ed., chapters 2 and 3.

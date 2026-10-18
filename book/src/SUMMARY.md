@@ -1,9 +1,8 @@
 # Summary
 
 [Cover](cover.md)
+[About this book](about-this-book.md)
 [About the cover](about-the-cover.md)
-
-[Foreword](foreword.md)
 
 ---
 
@@ -31,12 +30,17 @@
 - [Chapter 11: The Library Ecosystem  -  Thrust, CUB & cuBLAS](chapters/part4_modern_cpp_ecosystem/ch11_library_ecosystem_thrust_cub_cublas.md)
 - [Chapter 12: NVRTC, Runtime Compilation & the Driver API](chapters/part4_modern_cpp_ecosystem/ch12_nvrtc_runtime_compilation_driver_api.md)
 
-# Part V  -  Rust, CUDA-Oxide & Safe GPU Programming
+# Part V  -  GPU Kernels in Rust with cuda-oxide
 
-- [Chapter 13: Rust Meets the GPU](chapters/part5_rust_cuda_oxide/ch13_rust_meets_the_gpu.md)
-- [Chapter 14: CUDA-Oxide  -  Kernels in Pure Rust](chapters/part5_rust_cuda_oxide/ch14_cuda_oxide_kernels_in_pure_rust.md)
-- [Chapter 15: Capstone  -  The GPU Image Processing Pipeline](chapters/part5_rust_cuda_oxide/ch15_capstone_gpu_image_processing_pipeline.md)
-- [Chapter 15b: Benchmarking CUDA-Oxide on Jetson Orin](chapters/part5_rust_cuda_oxide/ch15b_benchmarking_cuda_oxide_jetson.md)
+- [Chapter 13: Your First Rust Kernel](chapters/part5_oxide/ch13_your_first_rust_kernel.md)
+- [Coming next: Map, SAXPY and Closures]()
+- [Coming next: Reductions and the Dot Product]()
+- [Coming next: Matrix Multiplication, One Thread per Output]()
+- [Coming next: Tiled Matrix Multiplication in Shared Memory]()
+- [Coming next: Stencils and the Laplace Solver]()
+- [Coming next: Scan and Histogram]()
+- [Coming next: Softmax and Layer Norm]()
+- [Coming next: Capstone, an Image Pipeline in Rust]()
 
 # Part VI  -  The Engineering Mindset
 
@@ -47,6 +51,13 @@
 - [Chapter 17: GPU Systems Programming & Memory-Mapped I/O](chapters/part7_systems_multi_gpu/ch17_gpu_systems_mmio.md)
 - [Chapter 18: NVLink & NVSwitch - The Multi-GPU Interconnect](chapters/part7_systems_multi_gpu/ch18_nvlink_nvswitch.md)
 - [Chapter 19: NCCL & Multi-GPU Collective Communication](chapters/part7_systems_multi_gpu/ch19_nccl_collectives.md)
+
+# Earlier drafts (being replaced by Part V)
+
+- [Chapter 13: Rust Meets the GPU](chapters/part5_rust_cuda_oxide/ch13_rust_meets_the_gpu.md)
+- [Chapter 14: CUDA-Oxide  -  Kernels in Pure Rust](chapters/part5_rust_cuda_oxide/ch14_cuda_oxide_kernels_in_pure_rust.md)
+- [Chapter 15: Capstone  -  The GPU Image Processing Pipeline](chapters/part5_rust_cuda_oxide/ch15_capstone_gpu_image_processing_pipeline.md)
+- [Chapter 15b: Benchmarking CUDA-Oxide on Jetson Orin](chapters/part5_rust_cuda_oxide/ch15b_benchmarking_cuda_oxide_jetson.md)
 
 ---
 

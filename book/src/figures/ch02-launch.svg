@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 548" width="660" height="548" role="img" aria-label="A program on the CPU launches the kernel vec_add as 1,024 threads in 4 blocks of 256. The grid holds block 0 with threads 0 to 255, block 1 with threads 256 to 511, block 2 with 512 to 767 and block 3 with 768 to 1,023. Inside block 1, threads 296 to 304 are drawn, and thread 300 is highlighted; an arrow runs from it to element c[300] of the array c. Thread 300 computes c[300] = a[300] + b[300].">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="548" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A launch of vector addition</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1,024 threads in 4 blocks of 256; each thread computes 1 element.</text>
+  <rect x="40" y="96" width="250" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,96.7 H46 V155.3 H52 A11.3,11.3 0 0 1 40.7,144 V108 A11.3,11.3 0 0 1 52,96.7 Z" fill="#2F6FDB"/>
+  <rect x="56" y="110.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(62.0,116.0) scale(0.8333)"><path d="M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm3.3 4.3-1.4 1.4L7.2 12l-2.3 2.3 1.4 1.4L10 12zM11 14v2h7v-2z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="98.0" y="122.0" class="name" text-anchor="start" xml:space="preserve">program on the CPU</text>
+  <text x="98.0" y="140.0" class="sub" text-anchor="start" xml:space="preserve">launches the kernel vec_add</text>
+  <rect x="400" y="96" width="220" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M412,96.7 H406 V155.3 H412 A11.3,11.3 0 0 1 400.7,144 V108 A11.3,11.3 0 0 1 412,96.7 Z" fill="#1F8A70"/>
+  <rect x="416" y="110.0" width="32" height="32" rx="8" fill="#E4F4EF"/>
+  <g transform="translate(422.0,116.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#1F8A70" fill-rule="evenodd"/></g>
+  <text x="458.0" y="122.0" class="name" text-anchor="start" xml:space="preserve">1,024 threads</text>
+  <text x="458.0" y="140.0" class="sub" text-anchor="start" xml:space="preserve">4 blocks of 256</text>
+  <path class="wire" d="M290,126 L400,126" marker-end="url(#head)"/>
+  <rect x="318.2" y="117.0" width="53.6" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="345.0" y="129.8" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">launch</text>
+  <rect x="16" y="196" width="628" height="108" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="185" width="90.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="79.5" y="200.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">THE GRID</text>
+  <rect x="32" y="224" width="140" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,224.7 H38 V283.3 H44 A11.3,11.3 0 0 1 32.7,272 V236 A11.3,11.3 0 0 1 44,224.7 Z" fill="#1F8A70"/>
+  <text x="52.0" y="250.0" class="name" text-anchor="start" xml:space="preserve">block 0</text>
+  <text x="52.0" y="268.0" class="sub" text-anchor="start" xml:space="preserve">threads 0–255</text>
+  <rect x="184" y="224" width="140" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M196,224.7 H190 V283.3 H196 A11.3,11.3 0 0 1 184.7,272 V236 A11.3,11.3 0 0 1 196,224.7 Z" fill="#7A4FD0"/>
+  <text x="204.0" y="250.0" class="name" text-anchor="start" xml:space="preserve">block 1</text>
+  <text x="204.0" y="268.0" class="sub" text-anchor="start" xml:space="preserve">threads 256–511</text>
+  <rect x="336" y="224" width="140" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M348,224.7 H342 V283.3 H348 A11.3,11.3 0 0 1 336.7,272 V236 A11.3,11.3 0 0 1 348,224.7 Z" fill="#1F8A70"/>
+  <text x="356.0" y="250.0" class="name" text-anchor="start" xml:space="preserve">block 2</text>
+  <text x="356.0" y="268.0" class="sub" text-anchor="start" xml:space="preserve">threads 512–767</text>
+  <rect x="488" y="224" width="140" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M500,224.7 H494 V283.3 H500 A11.3,11.3 0 0 1 488.7,272 V236 A11.3,11.3 0 0 1 500,224.7 Z" fill="#1F8A70"/>
+  <text x="508.0" y="250.0" class="name" text-anchor="start" xml:space="preserve">block 3</text>
+  <text x="508.0" y="268.0" class="sub" text-anchor="start" xml:space="preserve">threads 768–1023</text>
+  <rect x="98" y="326" width="476" height="44" rx="10" fill="none" stroke="#7A4FD0" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <path d="M254,284 V323" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="32.0" y="352.0" class="name" text-anchor="start" xml:space="preserve">block 1</text>
+  <rect x="103.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="126.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">296</text>
+  <rect x="155.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="178.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">297</text>
+  <rect x="207.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="230.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">298</text>
+  <rect x="259.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="282.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">299</text>
+  <rect x="311.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#7A4FD0" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="334.0" y="352.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">300</text>
+  <rect x="363.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="386.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">301</text>
+  <rect x="415.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="438.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">302</text>
+  <rect x="467.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="490.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">303</text>
+  <rect x="519.0" y="334.0" width="46.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="542.0" y="352.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">304</text>
+  <text x="32.0" y="380.0" class="note" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">thread index</text>
+  <path d="M334,362 V407" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="32.0" y="432.0" class="name" text-anchor="start" xml:space="preserve">array c</text>
+  <rect x="102.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="154.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="206.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="258.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="310.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="334.0" y="430.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">c[300]</text>
+  <rect x="362.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="414.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="466.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="518.0" y="412.0" width="48.0" height="28.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect x="40" y="468" width="580" height="58" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,468.7 H46 V525.3 H52 A11.3,11.3 0 0 1 40.7,514 V480 A11.3,11.3 0 0 1 52,468.7 Z" fill="#7A4FD0"/>
+  <text x="60.0" y="493.0" class="name" text-anchor="start" xml:space="preserve">thread 300 computes c[300] = a[300] + b[300]</text>
+  <text x="60.0" y="511.0" class="sub" text-anchor="start" xml:space="preserve">every thread uses its own index to choose its element</text>
+</svg>
