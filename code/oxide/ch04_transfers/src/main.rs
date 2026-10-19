@@ -60,7 +60,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let ms = time_copy(200, || part.copy_from_host(&stream, src))?;
         let size = len * size_of::<f32>();
-        println!("  {:8} KiB  {:8.1} us  {:5.1} GB/s", size >> 10, ms * 1e3, gb_per_s(size, ms));
+        let (kib, us) = (size >> 10, ms * 1e3);
+        println!("  {kib:8} KiB  {us:8.1} us  {:5.1} GB/s", gb_per_s(size, ms));
 
         len *= 4;
     }

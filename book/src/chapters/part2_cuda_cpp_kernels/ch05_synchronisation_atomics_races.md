@@ -475,6 +475,20 @@ ask what orders them. If nothing does, the program has a race, even if every tes
 passed. Compute Sanitizer's `racecheck` tool (Chapter 16) finds unordered accesses to shared
 memory automatically.
 
+## 5.8 The complete programs
+
+<p class="listing"><b>Listing 5.10</b> The complete <code>sync.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch05_sync/sync.cu}}
+```
+
+<p class="listing"><b>Listing 5.11</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a></p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs}}
+```
+
 ## Common mistakes
 
 - **Updating a shared counter with `+=`.** Use `atomicAdd`, or in Rust an atomic type.
