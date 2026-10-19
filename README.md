@@ -1,19 +1,21 @@
 # GPU Architecture & Parallel Programming from First Principles
 
-> A comprehensive, and systematic guide to GPU and parallel programming with CUDA:
-> the hardware model, fully documented CUDA C++ kernels, modern C++ idioms,
-> and GPU kernels in pure Rust with CUDA-Oxide - all wrapped around a complete
-> image-processing capstone project.
+> A systematic guide to GPU and parallel programming from first principles:
+> the mathematics of parallelism, the hardware model, and CUDA kernels written
+> side by side in C++ and in pure Rust with cuda-oxide, run on real hardware
+> with their real output.
 
 <div align="center">
 
-[![NVIDIA CUDA](https://img.shields.io/badge/CUDA-12.x-76B900?logo=nvidia&logoColor=white&style=for-the-badge)](https://developer.nvidia.com/cuda-toolkit)
-[![NVIDIA GPU](https://img.shields.io/badge/NVIDIA-GPU-76B900?logo=nvidia&logoColor=white&style=for-the-badge)](https://www.nvidia.com/)
+[![CUDA 12.6 | 13.2](https://img.shields.io/badge/CUDA-12.6%20%7C%2013.2-76B900?logo=nvidia&logoColor=white&style=for-the-badge)](https://developer.nvidia.com/cuda-toolkit)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C?logo=cplusplus&logoColor=white&style=for-the-badge)](https://en.cppreference.com/w/cpp/20)
-[![Rust](https://img.shields.io/badge/Rust-2021-B7410E?logo=rust&logoColor=white&style=for-the-badge)](https://www.rust-lang.org/)
-[![CUDA-Oxide](https://img.shields.io/badge/CUDA--Oxide-alpha-82aaff?logo=nvidia&logoColor=white&style=for-the-badge)](https://github.com/NVlabs/cuda-oxide)
+[![Rust 2024](https://img.shields.io/badge/Rust-2024%20edition-B7410E?logo=rust&logoColor=white&style=for-the-badge)](https://doc.rust-lang.org/edition-guide/rust-2024/)
+[![cuda-oxide](https://img.shields.io/badge/cuda--oxide-b7fe543-82aaff?logo=nvidia&logoColor=white&style=for-the-badge)](https://github.com/NVlabs/cuda-oxide)
 
-[![mdBook](https://img.shields.io/badge/mdBook-v0.5.x-3B7DD8?logo=rust&logoColor=white)](https://rust-lang.github.io/mdBook/)
+[![Jetson AGX Thor](https://img.shields.io/badge/tested%20on-Jetson%20AGX%20Thor%20%28sm__110%29-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/embedded/jetson-thor)
+[![Jetson Orin NX](https://img.shields.io/badge/tested%20on-Jetson%20Orin%20NX%20%28sm__87%29-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/embedded/jetson-orin)
+[![Rust nightly](https://img.shields.io/badge/Rust-nightly--2026--04--03-B7410E?logo=rust&logoColor=white)](code/oxide/ch04_transfers/rust-toolchain.toml)
+[![mdBook](https://img.shields.io/badge/mdBook-v0.5.4-3B7DD8?logo=mdbook&logoColor=white)](https://rust-lang.github.io/mdBook/)
 [![GitHub Pages](https://img.shields.io/github/deployments/arpanpathak/gpu-parallel-book/github-pages?label=GitHub%20Pages&logo=githubpages&logoColor=white)](https://arpanpathak.github.io/gpu-parallel-book/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
@@ -39,10 +41,11 @@
 - **Part IV - Modern C++ & The CUDA Ecosystem** (Chapters 10-12): RAII and
   modern C++ idioms, the Thrust/CUB/cuBLAS libraries, and NVRTC runtime
   compilation with the driver API.
-- **Part V - Rust, CUDA-Oxide & Safe GPU Programming** (Chapters 13-15b):
-  Rust host code with `cudarc`, NVIDIA's experimental CUDA-Oxide Rust-to-CUDA
-  compiler, the image-processing capstone, and a Jetson Orin CPU-vs-GPU
-  benchmark study with a Laplace/Jacobi solver.
+- **Part V - GPU Kernels in Rust with cuda-oxide** (Chapter 13 onward): kernels
+  and host code in pure Rust with NVIDIA's cuda-oxide, from a first vector
+  addition to reductions, tiled matrix multiplication, stencils, scan and an
+  image-processing capstone. Chapters 1 to 4 already show every C++ program
+  next to its Rust counterpart.
 - **Part VI - The Engineering Mindset** (Chapter 16): profiling with Nsight
   Compute, debugging with Compute Sanitizer, and reproducible performance
   engineering.
@@ -56,10 +59,13 @@ mathematical notation, recommended reading).
 
 ## Highlights
 
-- Every concept explained from first principles; every primitive (type,
-  built-in variable, API call) defined before use.
-- Every code block fully commented, with the reasoning for each design
-  decision.
+- Every concept explained from first principles; every term defined before
+  use, and every number given with its reason.
+- Every program in CUDA C++ and in cuda-oxide Rust, side by side: lean code,
+  errors propagated with `?` instead of `unwrap`, built and run on real boards
+  with the real output in the text.
+- Figures for each new idea and animations of data in motion (warps, copies,
+  page faults), with a chapter plate for every chapter.
 - A complete capstone: an RGB -> greyscale -> Gaussian blur -> Sobel pipeline,
   implemented three ways (hand-written CUDA C++, Thrust, CUDA-Oxide Rust),
   streamed with pinned memory and verified against a CPU reference.
@@ -68,7 +74,7 @@ mathematical notation, recommended reading).
 
 ## Cloud GPUs: learn without owning hardware
 
-Every kernel in this book runs on any NVIDIA GPU with CUDA 12.x - including
+Every kernel in this book runs on any NVIDIA GPU with CUDA 12 or later - including
 the free ones. If you do not own a GPU, start in the cloud; most providers
 give away enough free compute to finish the entire book.
 
@@ -107,24 +113,30 @@ gpu-parallel-book/
 ├── CODING_STANDARDS.md          # The book's constitution
 ├── .github/workflows/
 │   └── deploy-pages.yml         # GitHub Actions -> GitHub Pages
+├── code/                        # every program in the book, C++ and Rust
+│   ├── chNN_*/                  # CUDA C++, one folder per chapter
+│   └── oxide/                   # cuda-oxide Rust crates, one per chapter
 └── book/
     ├── book.toml                # mdBook configuration
     ├── custom.css               # Night Owl dark theme
+    ├── theme/                   # boxes, figures and animation player
+    ├── tools/                   # figure, animation, plate and excerpt scripts
     └── src/                     # Markdown source of the book
 ```
 
 ## Building locally
 
-Requires [mdBook](https://rust-lang.github.io/mdBook/) v0.5.x:
+Requires [mdBook](https://rust-lang.github.io/mdBook/) v0.5.4:
 
 ```bash
 mdbook build book       # compile to book/book/
 mdbook serve book       # live preview at http://localhost:3000
 ```
 
-The `code/` companion has been validated on Jetson Orin (sm_87) with CUDA
-12.6. Use `-arch=sm_87` for native SASS on Jetson, or `-arch=compute_60` for
-portable PTX that runs on any CUDA 12.x GPU via the driver's JIT.
+The `code/` companion is built and run on a Jetson Orin NX 16 GB (sm_87, CUDA
+12.6) and a Jetson AGX Thor (sm_110, CUDA 13.2). Build the C++ programs for
+the GPU in your machine with `nvcc -arch=native`, and the Rust crates with
+`cargo oxide run` (each crate pins its toolchain in `rust-toolchain.toml`).
 
 ## Contributing
 

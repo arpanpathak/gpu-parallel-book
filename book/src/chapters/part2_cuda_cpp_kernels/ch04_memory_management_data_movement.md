@@ -156,6 +156,12 @@ Figure 4.3 shows the same 2 paths as a still picture.
 <figcaption><b>Figure 4.3</b> A copy from pageable memory goes through a staging buffer; a copy from pinned memory goes straight to the device.</figcaption>
 </figure>
 
+Some newer systems do without the staging buffer. On Jetson AGX Thor and Grace Hopper, the GPU
+translates addresses through the CPU's own page tables, so it finds a pageable page wherever
+the operating system has put it. CUDA reports this as the device attribute
+`pageableMemoryAccessUsesHostPageTables`: 1 on a Thor, 0 on an Orin NX. On a Thor, a copy from
+pageable memory runs as fast as one from pinned memory (section 4.4).
+
 ### 4.2.3 Allocating pinned memory
 
 | | Allocate | Free |
@@ -282,7 +288,7 @@ The C++ version lists the 4 cases in a table and runs 1 loop over it. In Rust,
 ```rust,ignore
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:54:66}}
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:54:67}}
     // ...
 }
 ```
@@ -291,9 +297,9 @@ Each size is 4 times the last, from 4 KiB to 64 MiB, and each is copied 200 time
 small copies, which take microseconds, can be timed reliably: 200 copies of 4 KiB take about
 3.6 ms in all.
 
-### 4.4.4 Results on 1 machine
+### 4.4.4 Results on 2 boards
 
-These are runs on a Jetson Orin NX. Run the programs on your own GPU and compare: on a
+The first 2 runs are on a Jetson Orin NX, the third on a Jetson AGX Thor. Run the programs on your own GPU and compare: on a
 discrete GPU the pinned figures approach the PCIe rates of section 4.1.
 
 ```console
@@ -333,9 +339,31 @@ pinned host -> device, by size
      65536 KiB    2215.4 us   30.3 GB/s
 ```
 
+```console
+$ ./transfers                     # on a Jetson AGX Thor
+GPU: NVIDIA Thor, integrated, 2 copy engine(s)
+copies of 64 MiB
+  pageable host -> device    0.57 ms  118.4 GB/s
+  pinned   host -> device    0.57 ms  118.4 GB/s
+  device -> pageable host    0.68 ms   99.4 GB/s
+  device -> pinned   host    0.62 ms  108.9 GB/s
+pinned host -> device, by size
+         4 KiB      23.2 us    0.2 GB/s
+        16 KiB      23.2 us    0.7 GB/s
+        64 KiB      23.9 us    2.7 GB/s
+       256 KiB      28.0 us    9.4 GB/s
+      1024 KiB      32.1 us   32.7 GB/s
+      4096 KiB      55.6 us   75.5 GB/s
+     16384 KiB     167.0 us  100.5 GB/s
+     65536 KiB     573.8 us  117.0 GB/s
+```
+
 **Pinned against pageable.** Pinned copies ran 2.1 to 3.5 times as fast as pageable ones
 (19.8 / 5.7 = 3.5 and 16.3 / 7.8 = 2.1 in the C++ run), because they skip the CPU's copy into
-the staging buffer (figure 4.4).
+the staging buffer (figure 4.4). On the Thor both kinds ran at the same speed, because its GPU
+reads pageable memory through the CPU's page tables (section 4.2.2). Its largest copies reached
+117 GB/s, close to the 137 GB/s limit for a copy within its 273 GB/s memory, with \\(t_0\\) about
+23 µs.
 
 <figure>
 <img src="../../figures/ch04-bandwidth.svg" alt="Bars of copy speed for 64 MiB on a Jetson Orin NX: pageable host to device 5.7 GB/s, pinned host to device 19.8 GB/s, device to pageable host 7.8 GB/s, device to pinned host 16.3 GB/s. Pinned copies are 2 to 3.5 times as fast.">
@@ -390,7 +418,7 @@ page run at full speed.
 <p class="listing"><b>Listing 4.7</b> Unified memory, in C++.</p>
 
 ```cpp
-{{#include ../../../../code/ch04_memory/transfers.cu:88:104}}
+{{#include ../../../../code/ch04_memory/transfers.cu:88:106}}
 ```
 
 The host writes every element, a kernel that doubles every element runs 11 times, and the
@@ -438,7 +466,7 @@ or store a kernel makes to it crosses the link.
 <p class="listing"><b>Listing 4.8</b> Zero-copy memory, in C++.</p>
 
 ```cpp
-{{#include ../../../../code/ch04_memory/transfers.cu:106:121}}
+{{#include ../../../../code/ch04_memory/transfers.cu:108:124}}
 ```
 
 <div class="example" markdown="1">
@@ -479,7 +507,7 @@ kernel by when the bytes move.
 | Situation | Choice | Reason |
 |---|---|---|
 | data copied once, at start-up | pageable memory and `cudaMemcpy` | simplest; the slower copy happens once |
-| data copied again and again | pinned memory (`cudaMallocHost`, `PinnedHostBuffer`) | 1 copy instead of 2, 2 to 3.5 times as fast |
+| data copied again and again | pinned memory (`cudaMallocHost`, `PinnedHostBuffer`) | 1 copy instead of 2, 2 to 3.5 times as fast unless the GPU uses the CPU's page tables |
 | many small pieces of data | 1 pinned buffer, copied once | pays the copy latency \\(t_0\\) once instead of many times |
 | pointer-heavy data structures | unified memory and `cudaMemPrefetchAsync` | 1 pointer on both sides; no copying by hand |
 | small data, or data read once | zero-copy memory (`cudaHostAllocMapped`) | no copy at all |
@@ -507,6 +535,20 @@ kernel. A GPU with 2 copy engines, as `transfers` reported for the Orin NX, can 
 results back to the host while it copies the next inputs in. Double buffering needs pinned
 memory and asynchronous copies; Chapter 6 builds it.
 
+## 4.9 The complete programs
+
+<p class="listing"><b>Listing 4.9</b> The complete <code>transfers.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch04_memory/transfers.cu">code/ch04_memory/transfers.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch04_memory/transfers.cu}}
+```
+
+<p class="listing"><b>Listing 4.10</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch04_transfers/src/main.rs">code/oxide/ch04_transfers/src/main.rs</a></p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs}}
+```
+
 ## Common mistakes
 
 - **Copying often from pageable memory.** Pin the buffers that are copied repeatedly.
@@ -530,8 +572,8 @@ memory and asynchronous copies; Chapter 6 builds it.
   5.0 at about 64 GB/s, NVLink-C2C at 450 GB/s. An integrated GPU shares the CPU's memory, and
   a copy within it can use at most half of that memory's bandwidth.
 - The operating system may move pageable pages, so CUDA copies them through a pinned staging
-  buffer. Pinned memory goes straight to a copy engine, 2 to 3.5 times as fast in the
-  measurements.
+  buffer. Pinned memory goes straight to a copy engine, 2 to 3.5 times as fast on the Orin
+  NX. A GPU that uses the CPU's page tables, as on Thor, copies pageable memory as fast.
 - A copy costs \\(T = t_0 + N/B\\). Below the break-even size \\(t_0 B\\), a copy is
   latency-bound, so many small copies should become 1 large one.
 - Unified memory gives host and device 1 pointer; its pages move on first use, or ahead of
