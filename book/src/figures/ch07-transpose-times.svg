@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 460" width="660" height="460" role="img" aria-label="Bars of transpose bandwidth for a 4096 by 4096 matrix. Orin NX: copy 78 GB/s, naive 17, tiled 29, tiled and padded 45. Thor: copy 231 GB/s, naive 81, tiled 96, tiled and padded 143.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="460" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Transpose speed, measured on 2 boards</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4096 × 4096 floats, average of 20 runs, by memory.cu.</text>
+  <line x1="170.0" y1="104.0" x2="170.0" y2="372.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="170.0" y="390.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <line x1="253.3" y1="104.0" x2="253.3" y2="372.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="253.3" y="390.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">50</text>
+  <line x1="336.7" y1="104.0" x2="336.7" y2="372.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="336.7" y="390.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">100</text>
+  <line x1="420.0" y1="104.0" x2="420.0" y2="372.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="420.0" y="390.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">150</text>
+  <line x1="503.3" y1="104.0" x2="503.3" y2="372.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="503.3" y="390.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">200</text>
+  <text x="156.0" y="142.0" class="sub" text-anchor="end" xml:space="preserve">copy</text>
+  <rect x="170" y="116" width="130.5" height="20" rx="5" fill="#2F6FDB"/>
+  <text x="308.5" y="131.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">78.3 GB/s</text>
+  <rect x="170" y="140" width="384.3" height="20" rx="5" fill="#7A4FD0"/>
+  <text x="562.3" y="155.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">230.6 GB/s</text>
+  <text x="156.0" y="206.0" class="sub" text-anchor="end" xml:space="preserve">naive</text>
+  <rect x="170" y="180" width="27.5" height="20" rx="5" fill="#2F6FDB"/>
+  <text x="205.5" y="195.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">16.5 GB/s</text>
+  <rect x="170" y="204" width="134.5" height="20" rx="5" fill="#7A4FD0"/>
+  <text x="312.5" y="219.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">80.7 GB/s</text>
+  <text x="156.0" y="270.0" class="sub" text-anchor="end" xml:space="preserve">tiled</text>
+  <rect x="170" y="244" width="48.7" height="20" rx="5" fill="#2F6FDB"/>
+  <text x="226.7" y="259.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">29.2 GB/s</text>
+  <rect x="170" y="268" width="160.7" height="20" rx="5" fill="#7A4FD0"/>
+  <text x="338.7" y="283.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">96.4 GB/s</text>
+  <text x="156.0" y="334.0" class="sub" text-anchor="end" xml:space="preserve">tiled, padded</text>
+  <rect x="170" y="308" width="74.7" height="20" rx="5" fill="#2F6FDB"/>
+  <text x="252.7" y="323.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">44.8 GB/s</text>
+  <rect x="170" y="332" width="238.5" height="20" rx="5" fill="#7A4FD0"/>
+  <text x="416.5" y="347.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">143.1 GB/s</text>
+  <rect x="170" y="406" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="191.0" y="417.5" class="note" text-anchor="start" xml:space="preserve">Jetson Orin NX</text>
+  <rect x="305.4" y="406" width="14" height="14" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="326.4" y="417.5" class="note" text-anchor="start" xml:space="preserve">Jetson AGX Thor</text>
+</svg>

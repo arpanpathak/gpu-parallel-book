@@ -450,6 +450,24 @@ def otter(cx, cy, s=1.0, look=1, carry=True):
     ])
 
 
+def caterpillar(x0, base, segments=8, r=18, look=1):
+    """A caterpillar walking to the right along `base`: `segments` body circles and a head."""
+    body, belly, ink = "#7cc06a", "#b9e3a2", "#24401c"
+    stroke = f'stroke="{ink}" stroke-width="2.2"'
+    parts = []
+    for k in range(segments):
+        cx = x0 + k * 1.6 * r
+        cy = base - r - (4 if k % 2 else 0)
+        parts += [line(cx - 4, cy + r - 4, cx - 6, base, ink, 3), line(cx + 4, cy + r - 4, cx + 6, base, ink, 3),
+                  circle(cx, cy, r, body, stroke), circle(cx, cy + 4, r * 0.55, belly)]
+    hx, hy = x0 + segments * 1.6 * r + 4, base - 1.6 * r
+    parts += [line(hx - 4, hy - r, hx - 12, hy - 2 * r, ink, 2.5), line(hx + 6, hy - r, hx + 12, hy - 2 * r, ink, 2.5),
+              circle(hx - 12, hy - 2 * r, 4, "#f5c542"), circle(hx + 12, hy - 2 * r, 4, "#f5c542"),
+              circle(hx, hy, r * 1.15, body, stroke), eye(hx + 7, hy - 4, 5, look * 0.6),
+              path(f"M{hx + 4},{hy + 9} q6,5 12,0", "none", ink, 2.2)]
+    return "".join(parts)
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -669,6 +687,20 @@ def ch06():
             rect(16, 96, 132, 40, "#fff6e2", 10, WOOD, 3), label(82, 123, "stream 0", 17, "#2a1a10", font=MONO, fit=textw("stream 0", 17, MONO)),
             rect(16, 312, 132, 40, "#fff6e2", 10, WOOD, 3), label(82, 339, "stream 1", 17, "#2a1a10", font=MONO, fit=textw("stream 1", 17, MONO)),
             tag(620, 70, "2 streams, at the same time", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch07", "Memory Optimisation Deep Dive", "Inch the caterpillar", "Inch, a caterpillar, walks along a branch "
+       "laid with numbered cells, 0 to 9 in order. Each of its segments stands over the next cell, so all of them step "
+       "together and none reaches past its neighbour. A tag says neighbours read neighbours: the rule of coalesced "
+       "memory access.")
+def ch07():
+    r, x0 = 22, 318
+    cells = [cell(x0 + 1.6 * r * k, GROUND - 26, str(k), "#f7d9a0", NIGHT, 32, 16) for k in range(10)]
+    return [backdrop(seed=7, **MEADOW),
+            rect(250, GROUND - 6, 460, 22, WOOD, 10, "#5a3d28", 3),
+            *cells,
+            caterpillar(x0, GROUND - 42, segments=9, r=r),
+            tag(480, 80, "neighbours read neighbours", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
