@@ -104,7 +104,7 @@ clone takes `main`, whose layout no longer builds. Scratch copies live in `~/gpu
 - **Exceed the L2 cache.** The Thor has 32 MiB of L2; data smaller than that measures the cache, not the memory. Print `prop.l2CacheSize` and size the test beyond it.
 - **Check results, not just times.** Every program verifies its output (a total, a transpose element by element, PASSED).
 - **Run on both boards** and quote both, with the Thor's integrated-memory differences explained where they change the conclusion.
-- **One branch and PR per chapter**, stacked on the previous chapter's branch while earlier PRs are open; each chapter gets an issue first. No Claude attribution in commits, PRs or issues (user's instruction).
+- **One issue, then one PR per chapter, always into `main`.** Build each chapter's branch on the previous one so the history is linear, but never set a PR's base to another chapter's branch: GitHub then merges it there and it never reaches `main` (this happened to PRs #7, #9 and #11). State the merge order in each PR. No Claude attribution in commits, PRs or issues (user's instruction).
 
 ## Tools
 
