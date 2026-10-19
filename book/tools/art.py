@@ -360,13 +360,15 @@ SHORE = dict(sky=("#102a44", "#2f6f9a"), ground=("#d9c08e", "#efdcb2"))
 def ribbon(number, title, crew, size=(W, H)):
     """The plate's caption: the chapter and the name of the character."""
     height = size[1]
-    words = textw(title.upper(), 21)
     name = textw(crew, 17)
+    room = size[0] - 60 - name - 12 - 140      # space left of the name tag, after the box padding
+    font = min(21, 21 * room / textw(title.upper(), 21))
+    words = textw(title.upper(), font)
 
     return "\n".join([
         rect(28, height - 60, 72, 40, RUST, 6), label(64, height - 32, number, 22, fit=textw(number, 22)),
         rect(100, height - 60, words + 40, 40, NIGHT, 6),
-        label(120, height - 33, title.upper(), 21, anchor="start", fit=words),
+        label(120, height - 33, title.upper(), font, anchor="start", fit=words),
         rect(size[0] - 60 - name, height - 56, name + 32, 32, "#ffffffdd", 16),
         label(size[0] - 44 - name / 2, height - 34, crew, 17, "#27405a", weight=600, fit=name),
     ])
@@ -395,6 +397,33 @@ def pelican(cx, base, s=1.0, look=1):
         path(f"M{X(46)},{Y(188)} L{X(132)},{Y(176)} L{X(46)},{Y(176)} Z", beak, ink, 2.2 * s),
         path(f"M{X(48)},{Y(176)} Q{X(96)},{Y(128)} {X(126)},{Y(176)} Z", pouch, ink, 2.2 * s),
         eye(X(34), Y(190), 6 * s, look * 0.6),
+    ])
+
+
+def meerkat(cx, base, s=1.0, look=1):
+    """A meerkat standing upright on its hind legs, facing `look`, with a whistle. 1.0 is 200 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    fur, dark, belly, ink = "#d6ad74", "#6b4a2b", "#f2dfb8", "#2a1d10"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    return "".join([
+        shadow(cx, base, 46 * s),
+        path(f"M{X(-22)},{Y(18)} Q{X(-60)},{Y(10)} {X(-70)},{Y(-2)}", "none", ink, 9 * s),
+        path(f"M{X(-22)},{Y(18)} Q{X(-60)},{Y(10)} {X(-70)},{Y(-2)}", "none", fur, 5.5 * s),
+        ellipse(X(-12), Y(4), 16 * s, 6 * s, fur, stroke), ellipse(X(14), Y(4), 16 * s, 6 * s, fur, stroke),
+        ellipse(cx, Y(68), 34 * s, 64 * s, fur, stroke),
+        ellipse(X(8), Y(64), 19 * s, 46 * s, belly),
+        path(f"M{X(14)},{Y(104)} q{f * 18 * s},{4 * s} {f * 20 * s},{-14 * s}", "none", ink, 7 * s),
+        path(f"M{X(14)},{Y(104)} q{f * 18 * s},{4 * s} {f * 20 * s},{-14 * s}", "none", fur, 4 * s),
+        ellipse(X(6), Y(150), 27 * s, 23 * s, fur, stroke),
+        ellipse(X(30), Y(144), 15 * s, 10 * s, fur, stroke),
+        circle(X(44), Y(147), 4 * s, ink),
+        circle(X(-14), Y(166), 6.5 * s, dark, stroke),
+        ellipse(X(12), Y(155), 9 * s, 7 * s, dark),
+        eye(X(13), Y(155), 4.2 * s, look * 0.6),
+        rect(min(X(40), X(58)), Y(138), 18 * s, 8 * s, "#c9d3de", 3 * s, ink, 1.6 * s),
+        line(X(30), Y(136), X(10), Y(116), "#c94a3b", 2 * s),
     ])
 
 
@@ -568,6 +597,29 @@ def ch04():
             crate(392, GROUND - 40, 40, 34, ""), crate(536, GROUND - 40, 40, 34, ""),
             pelican(470, GROUND - 6, 0.9, look=1),
             tag(480, 70, "pinned: 1 trip", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch05", "Synchronisation, Atomics & Race Conditions", "Whistle the meerkat", "Whistle, a meerkat with a whistle, "
+       "stands on watch beside a striped gate across a path. 3 worker bees have reached the gate and wait in a row; a 4th is "
+       "still flying in from the left. The gate stays down until every bee has arrived. A sign on the gate reads "
+       "__syncthreads(), and a tag says all arrive, then all go.")
+def ch05():
+    gate_x = 600
+    waiting = [honeybee(370 + 70 * k, GROUND - 4, 0.42, look=1) for k in range(3)]
+    return [backdrop(seed=5, **SAND),
+            path(f"M0,{GROUND - 20} L{W},{GROUND - 20} L{W},{GROUND + 30} L0,{GROUND + 30} Z", "#c9a46a", extra='opacity="0.55"'),
+            rect(gate_x - 8, GROUND - 150, 16, 150, WOOD, 4, "#2a1a10", 3),
+            rect(gate_x - 300, GROUND - 120, 300, 16, "#f6efe0", 8, "#2a1a10", 3),
+            *[rect(gate_x - 290 + 50 * k, GROUND - 119, 24, 14, RUST, 2) for k in range(6)],
+            rect(gate_x - 220, GROUND - 196, 210, 44, "#fff6e2", 10, WOOD, 3),
+            label(gate_x - 115, GROUND - 167, "__syncthreads()", 17, "#2a1a10", font=MONO, weight=700,
+                  fit=textw("__syncthreads()", 17, MONO)),
+            *waiting,
+            bee(150, GROUND - 120, 0.9, look=1),
+            path(f"M40,{GROUND - 104} q30,-18 60,-6 t50,-4", stroke=SNOW, sw=2.5, extra='stroke-dasharray="4 7" opacity="0.7"'),
+            meerkat(720, GROUND - 4, 1.05, look=-1),
+            tag(480, 60, "all arrive, then all go", 17, "#fff6e2", "#2a1a10", SANS, 700),
+            tag(150, GROUND - 170, "still on its way", 15, "#ffffffdd", "#27405a", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
