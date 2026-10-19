@@ -288,7 +288,7 @@ The C++ version lists the 4 cases in a table and runs 1 loop over it. In Rust,
 ```rust,ignore
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:54:66}}
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:54:67}}
     // ...
 }
 ```
@@ -418,7 +418,7 @@ page run at full speed.
 <p class="listing"><b>Listing 4.7</b> Unified memory, in C++.</p>
 
 ```cpp
-{{#include ../../../../code/ch04_memory/transfers.cu:88:104}}
+{{#include ../../../../code/ch04_memory/transfers.cu:88:106}}
 ```
 
 The host writes every element, a kernel that doubles every element runs 11 times, and the
@@ -466,7 +466,7 @@ or store a kernel makes to it crosses the link.
 <p class="listing"><b>Listing 4.8</b> Zero-copy memory, in C++.</p>
 
 ```cpp
-{{#include ../../../../code/ch04_memory/transfers.cu:106:121}}
+{{#include ../../../../code/ch04_memory/transfers.cu:108:124}}
 ```
 
 <div class="example" markdown="1">
@@ -534,6 +534,20 @@ sequence and 1 + 3 + 1 = 5 units overlapped. After the first copy, copies cost n
 kernel. A GPU with 2 copy engines, as `transfers` reported for the Orin NX, can also copy
 results back to the host while it copies the next inputs in. Double buffering needs pinned
 memory and asynchronous copies; Chapter 6 builds it.
+
+## 4.9 The complete programs
+
+<p class="listing"><b>Listing 4.9</b> The complete <code>transfers.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch04_memory/transfers.cu">code/ch04_memory/transfers.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch04_memory/transfers.cu}}
+```
+
+<p class="listing"><b>Listing 4.10</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch04_transfers/src/main.rs">code/oxide/ch04_transfers/src/main.rs</a></p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs}}
+```
 
 ## Common mistakes
 

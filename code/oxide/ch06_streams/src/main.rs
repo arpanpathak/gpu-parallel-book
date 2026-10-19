@@ -1,4 +1,4 @@
-//! Chapter 6 in Rust: an asynchronous launch timed with events, and a pipeline on 2 streams.
+//! Chapter 6 in Rust: a launch timed with events, and a pipeline on 2 streams.
 //!
 //!     cargo oxide run
 
@@ -63,7 +63,8 @@ fn pipeline(
     parts: &mut [Chunk],
 ) -> Result<f64, Box<dyn std::error::Error>> {
     let len = parts[0].host.len();
-    let launch = module.prepare_work(LaunchConfig1D::new(len.div_ceil(256) as u32, 256, 0))?;
+    let blocks = len.div_ceil(256) as u32;
+    let launch = module.prepare_work(LaunchConfig1D::new(blocks, 256, 0))?;
     let start = Instant::now();
 
     for _ in 0..5 {
@@ -116,8 +117,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 2. The same work in 1 chunk on 1 stream, and in 8 chunks on 2 streams.
     println!("copy in, kernel, copy out over 128 MiB");
-    println!("  1 stream, 1 chunk        {:7.2} ms", pipeline(&module, &streams[..1], &mut whole)?);
-    println!("  2 streams, 8 chunks      {:7.2} ms", pipeline(&module, &streams, &mut eighths)?);
+    let one = pipeline(&module, &streams[..1], &mut whole)?;
+    let eight = pipeline(&module, &streams, &mut eighths)?;
+    println!("  1 stream, 1 chunk        {one:7.2} ms");
+    println!("  2 streams, 8 chunks      {eight:7.2} ms");
 
     Ok(())
 }

@@ -162,7 +162,7 @@ them.
 ```rust,ignore
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:98:115}}
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:99:116}}
     // ...
 }
 ```
@@ -219,7 +219,7 @@ able to see which data each stream uses.
 ```rust,ignore
 {{#include ../../../../code/oxide/ch06_streams/src/main.rs:35:39}}
 
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:58:86}}
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:58:87}}
 ```
 
 The asynchronous copies are `unsafe`, and for a reason the borrow checker cannot see. A copy
@@ -370,6 +370,20 @@ uses C++ only.
 `cudaStreamWaitEvent` deserves a note: it makes 1 stream wait for work in another without stopping
 the host. A stream that must not start a kernel until another stream's copy has landed records an
 event after the copy in the first stream and waits for that event in the second.
+
+## 6.9 The complete programs
+
+<p class="listing"><b>Listing 6.8</b> The complete <code>streams.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch06_streams/streams.cu}}
+```
+
+<p class="listing"><b>Listing 6.9</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a></p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs}}
+```
 
 ## Common mistakes
 

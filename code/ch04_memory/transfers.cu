@@ -96,8 +96,10 @@ void unifiedMemory(int n)
     }
 
     std::printf("unified memory, kernel over %d MiB\n", int(n * sizeof(float) >> 20));
-    std::printf("  1st launch, after the host wrote it  %6.2f ms\n", timeScale(managed, n, 1));
-    std::printf("  next 10 launches, average            %6.2f ms\n", timeScale(managed, n, 10));
+    double first = timeScale(managed, n, 1);
+    double next = timeScale(managed, n, 10);
+    std::printf("  1st launch, after the host wrote it  %6.2f ms\n", first);
+    std::printf("  next 10 launches, average            %6.2f ms\n", next);
     std::printf("  host reads managed[0] = %g\n", managed[0]);
 
     check(cudaFree(managed));
@@ -113,7 +115,8 @@ void zeroCopy(float* device, int n)
     std::memset(mapped, 0, n * sizeof(float));
 
     timeScale(device, n, 1);                  // warm up the kernel itself
-    std::printf("kernel over %d MiB, average of 10 launches\n", int(n * sizeof(float) >> 20));
+    int mib = int(n * sizeof(float) >> 20);
+    std::printf("kernel over %d MiB, average of 10 launches\n", mib);
     std::printf("  in device memory      %6.2f ms\n", timeScale(device, n, 10));
     std::printf("  in zero-copy memory   %6.2f ms\n", timeScale(mappedOnDevice, n, 10));
 

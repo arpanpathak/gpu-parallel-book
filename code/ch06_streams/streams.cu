@@ -183,14 +183,17 @@ int main()
     check(cudaStreamCreate(&streams[0]));
     check(cudaStreamCreate(&streams[1]));
 
-    pipeline(host, d, n, steps, 8, streams);            // warm up: the clocks rise under load
+    pipeline(host, d, n, steps, 8, streams);            // warm up: clocks rise under load
     asyncLaunch(d, n, steps);
 
     std::printf("copy in, kernel, copy out over 128 MiB\n");
     stages(host, d, n, steps, streams[0]);
-    std::printf("  1 stream, 1 chunk        %7.2f ms\n", pipeline(host, d, n, steps, 1, streams));
-    std::printf("  2 streams, 8 chunks      %7.2f ms\n", pipeline(host, d, n, steps, 8, streams));
-    std::printf("  2 streams, 32 chunks     %7.2f ms\n", pipeline(host, d, n, steps, 32, streams));
+    double one = pipeline(host, d, n, steps, 1, streams);
+    double eight = pipeline(host, d, n, steps, 8, streams);
+    double many = pipeline(host, d, n, steps, 32, streams);
+    std::printf("  1 stream, 1 chunk        %7.2f ms\n", one);
+    std::printf("  2 streams, 8 chunks      %7.2f ms\n", eight);
+    std::printf("  2 streams, 32 chunks     %7.2f ms\n", many);
 
     graphs(streams[0]);
 
