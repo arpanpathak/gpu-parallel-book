@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 466" width="660" height="466" role="img" aria-label="Phase 1: blocks 0, 1 and so on to 1,023 each count their 65,536 bytes into 256 bins in shared memory. Phase 2: each block adds its 256 counts to the 256 global bins. The global atomics drop from 67,108,864 to 262,144.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="466" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A privatised histogram</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each block counts in its own shared memory, then adds its bins once.</text>
+  <rect x="16" y="104" width="300" height="290" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="271.8" height="22" rx="11" fill="#1B2430"/>
+  <text x="169.9" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">PHASE 1: COUNT IN SHARED MEMORY</text>
+  <rect x="36" y="140" width="260" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M48,140.7 H42 V195.3 H48 A11.3,11.3 0 0 1 36.7,184 V152 A11.3,11.3 0 0 1 48,140.7 Z" fill="#2F6FDB"/>
+  <rect x="52" y="152.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(58.0,158.0) scale(0.8333)"><path d="M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="94.0" y="164.0" class="name" text-anchor="start" xml:space="preserve">block 0</text>
+  <text x="94.0" y="182.0" class="sub" text-anchor="start" xml:space="preserve">256 shared bins</text>
+  <rect x="36" y="216" width="260" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M48,216.7 H42 V271.3 H48 A11.3,11.3 0 0 1 36.7,260 V228 A11.3,11.3 0 0 1 48,216.7 Z" fill="#2F6FDB"/>
+  <rect x="52" y="228.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(58.0,234.0) scale(0.8333)"><path d="M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="94.0" y="240.0" class="name" text-anchor="start" xml:space="preserve">block 1</text>
+  <text x="94.0" y="258.0" class="sub" text-anchor="start" xml:space="preserve">256 shared bins</text>
+  <rect x="36" y="292" width="260" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M48,292.7 H42 V347.3 H48 A11.3,11.3 0 0 1 36.7,336 V304 A11.3,11.3 0 0 1 48,292.7 Z" fill="#2F6FDB"/>
+  <rect x="52" y="304.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(58.0,310.0) scale(0.8333)"><path d="M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="94.0" y="316.0" class="name" text-anchor="start" xml:space="preserve">block 1,023</text>
+  <text x="94.0" y="334.0" class="sub" text-anchor="start" xml:space="preserve">256 shared bins</text>
+  <rect x="344" y="104" width="300" height="290" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="362" y="93" width="232.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="478.3" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">PHASE 2: ADD THE BINS ONCE</text>
+  <rect x="374" y="216" width="240" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M386,216.7 H380 V271.3 H386 A11.3,11.3 0 0 1 374.7,260 V228 A11.3,11.3 0 0 1 386,216.7 Z" fill="#B7791F"/>
+  <rect x="390" y="228.0" width="32" height="32" rx="8" fill="#FBF1DC"/>
+  <g transform="translate(396.0,234.0) scale(0.8333)"><path d="M6 2h8l5 5v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm7 1.5V8h4.5zM8 11v1.6h8V11zm0 3.2v1.6h8v-1.6zm0 3.2V19h5v-1.6z" fill="#B7791F" fill-rule="evenodd"/></g>
+  <text x="432.0" y="240.0" class="name" text-anchor="start" xml:space="preserve">global bins</text>
+  <text x="432.0" y="258.0" class="sub" text-anchor="start" xml:space="preserve">256 counters</text>
+  <path class="wire" d="M296,168 L325,168 Q334,168 334,177 L334,225 Q334,234 343,234 L374,234" marker-end="url(#head)"/>
+  <path class="wire" d="M296,244 L374,244" marker-end="url(#head)"/>
+  <path class="wire" d="M296,320 L325,320 Q334,320 334,311 L334,263 Q334,254 343,254 L374,254" marker-end="url(#head)"/>
+  <text x="16.0" y="426.0" class="note" text-anchor="start" xml:space="preserve">Each block counts its 65,536 bytes with shared-memory atomics, then adds 256 totals.</text>
+  <text x="16.0" y="444.0" class="note" text-anchor="start" xml:space="preserve">Global atomics fall from 67,108,864 to 1,024 × 256 = 262,144.</text>
+</svg>
