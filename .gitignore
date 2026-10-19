@@ -9,6 +9,7 @@ __pycache__/
 /code/ch03_vector_add/whoami
 /code/ch04_memory/transfers
 /code/ch05_sync/sync
+/code/ch06_streams/streams
 /code/ch05_histogram/histogram
 /code/ch08_reduction/reduction
 /code/ch09_sgemm/sgemm

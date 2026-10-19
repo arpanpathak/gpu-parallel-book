@@ -427,6 +427,36 @@ def meerkat(cx, base, s=1.0, look=1):
     ])
 
 
+def otter(cx, cy, s=1.0, look=1, carry=True):
+    """An otter floating on its back, head towards `look`, a crate on its belly. 1.0 is 170 units long."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: cy - dy * s
+    coat, belly, ink = "#7b5233", "#d8b48a", "#2a1d10"
+    stroke = f'stroke="{ink}" stroke-width="{2.2 * s}"'
+    return "".join([
+        path(f"M{X(-60)},{Y(0)} Q{X(-100)},{Y(4)} {X(-112)},{Y(18)}", "none", ink, 13 * s),
+        path(f"M{X(-60)},{Y(0)} Q{X(-100)},{Y(4)} {X(-112)},{Y(18)}", "none", coat, 9 * s),
+        ellipse(cx, Y(0), 68 * s, 22 * s, coat, stroke),
+        ellipse(X(4), Y(6), 48 * s, 12 * s, belly),
+        circle(X(68), Y(8), 21 * s, coat, stroke),
+        ellipse(X(80), Y(4), 11 * s, 8 * s, belly),
+        circle(X(89), Y(6), 3.5 * s, ink),
+        circle(X(58), Y(26), 5 * s, coat, stroke),
+        eye(X(72), Y(14), 3.6 * s, look * 0.5),
+        line(X(84), Y(2), X(100), Y(-2), "#3a2a1e", 1.2 * s), line(X(84), Y(4), X(101), Y(6), "#3a2a1e", 1.2 * s),
+        plain_crate(X(-18) - (16 * s if f > 0 else 0), Y(48), 36 * s, 30 * s) if carry else "",
+        ellipse(X(30), Y(22), 7 * s, 5 * s, coat, stroke), ellipse(X(-30), Y(22), 7 * s, 5 * s, coat, stroke),
+    ])
+
+
+def plain_crate(x, y, w, h, fill="#c9a46a"):
+    """A small crate with no label: a box and its 2 diagonal straps."""
+    return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
+                      line(x + 4, y + 4, x + w - 4, y + h - 4, "#7a5a32", 2, 'opacity="0.6"'),
+                      line(x + w - 4, y + 4, x + 4, y + h - 4, "#7a5a32", 2, 'opacity="0.6"')])
+
+
 def crate(x, y, w, h, text, fill="#c9a46a"):
     return "\n".join([rect(x, y, w, h, fill, 5, "#7a5a32", 3),
                       line(x + 6, y + 6, x + w - 6, y + h - 6, "#7a5a32", 2.5, 'opacity="0.6"'),
@@ -620,6 +650,25 @@ def ch05():
             meerkat(720, GROUND - 4, 1.05, look=-1),
             tag(480, 60, "all arrive, then all go", 17, "#fff6e2", "#2a1a10", SANS, 700),
             tag(150, GROUND - 170, "still on its way", 15, "#ffffffdd", "#27405a", SANS, 700)]
+
+
+@plate("ch06", "Streams, Events & Asynchronous Execution", "The otter twins", "The otter twins float on their backs "
+       "down 2 rivers that run side by side, each with a crate on its belly. Crates bob along both rivers at staggered "
+       "places, so both streams carry work at the same time. Signs on the bank read stream 0 and stream 1, and a tag "
+       "says 2 streams, at the same time.")
+def ch06():
+    rivers = []
+    for k, top in enumerate((150, 240)):
+        rivers += [rect(0, top, W, 64, "#3c8dc5", 0, "none", 0, 'opacity="0.95"'),
+                   *[path(f"M{40 + 120 * j + 60 * k},{top + 18 + 22 * (j % 2)} q14,-6 28,0 t28,0", stroke="#bfe3f7", sw=3,
+                          extra='opacity="0.7"') for j in range(8)]]
+    floats = [plain_crate(250 + 190 * j, 166, 34, 28) for j in range(3)] + \
+             [plain_crate(330 + 190 * j, 256, 34, 28) for j in range(3)]
+    return [backdrop(seed=6, **MEADOW), *rivers, *floats,
+            otter(150, 182, 0.75, look=1), otter(230, 272, 0.75, look=1),
+            rect(16, 96, 132, 40, "#fff6e2", 10, WOOD, 3), label(82, 123, "stream 0", 17, "#2a1a10", font=MONO, fit=textw("stream 0", 17, MONO)),
+            rect(16, 312, 132, 40, "#fff6e2", 10, WOOD, 3), label(82, 339, "stream 1", 17, "#2a1a10", font=MONO, fit=textw("stream 1", 17, MONO)),
+            tag(620, 70, "2 streams, at the same time", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
