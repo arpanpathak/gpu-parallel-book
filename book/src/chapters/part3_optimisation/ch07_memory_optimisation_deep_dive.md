@@ -396,6 +396,20 @@ For a memory-bound kernel, check in this order, and measure after each change:
 8. **Transfers.** Is the kernel fed by copies that take longer than it does? Pinned memory and
    streams come first (Chapters 4 and 6).
 
+## 7.10 The complete programs
+
+<p class="listing"><b>Listing 7.7</b> The complete <code>memory.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch07_memory/memory.cu">code/ch07_memory/memory.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch07_memory/memory.cu}}
+```
+
+<p class="listing"><b>Listing 7.8</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch07_memory/src/main.rs">code/oxide/ch07_memory/src/main.rs</a></p>
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs}}
+```
+
 ## Common mistakes
 
 - **Indexing 2-D data with `threadIdx.x` down a column.** Neighbouring threads then sit `width`

@@ -120,7 +120,8 @@ fn main() -> Result<(), Error> {
         Ok(module.transpose_tiled(&stream, &tiled, &input, &mut out)?)
     })?;
 
-    let (gb_naive, gb_tiled) = (gb_per_s(2 * N * 4, ms_naive), gb_per_s(2 * N * 4, ms_tiled));
+    let gb_naive = gb_per_s(2 * N * 4, ms_naive);
+    let gb_tiled = gb_per_s(2 * N * 4, ms_tiled);
     println!("transpose of a {WIDTH} x {WIDTH} matrix");
     println!("  naive                 {ms_naive:6.2} ms   {gb_naive:6.1} GB/s");
     println!("  tiled and padded      {ms_tiled:6.2} ms   {gb_tiled:6.1} GB/s");

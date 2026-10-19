@@ -103,13 +103,14 @@ double gbps(double bytes, double ms)
 
 void coalescing(const float* in, float* out)
 {
-    const int n = 16 << 20;                   // 16,777,216 threads, 64 MiB read and 64 MiB written
+    const int n = 16 << 20;                   // 16,777,216 threads, 64 MiB each way
     std::printf("each thread reads 1 float, neighbours `stride` floats apart\n");
 
     for (int stride = 1; stride <= 32; stride *= 2) {
         double ms = timeKernel([&] { strided<<<n / 256, 256>>>(in, out, n, stride); });
         double useful = 2.0 * n * sizeof(float);
-        std::printf("  stride %2d   %7.3f ms   %6.1f GB/s useful\n", stride, ms, gbps(useful, ms));
+        std::printf("  stride %2d   %7.3f ms   %6.1f GB/s useful\n", stride, ms,
+                    gbps(useful, ms));
     }
 }
 
@@ -121,8 +122,9 @@ void vectors(const float* in, float* out, int n)
     });
 
     std::printf("copy of %d MiB\n", int(n * sizeof(float) >> 20));
-    std::printf("  1 float per thread    %6.2f ms   %6.1f GB/s\n", ms1, gbps(2.0 * n * 4, ms1));
-    std::printf("  4 floats per thread   %6.2f ms   %6.1f GB/s\n", ms4, gbps(2.0 * n * 4, ms4));
+    double bytes = 2.0 * n * sizeof(float);
+    std::printf("  1 float per thread    %6.2f ms   %6.1f GB/s\n", ms1, gbps(bytes, ms1));
+    std::printf("  4 floats per thread   %6.2f ms   %6.1f GB/s\n", ms4, gbps(bytes, ms4));
 }
 
 void transposes(const float* in, float* out, int width)
@@ -130,21 +132,26 @@ void transposes(const float* in, float* out, int width)
     dim3 grid(width / TILE, width / TILE), block(TILE, TILE);
     double bytes = 2.0 * width * width * sizeof(float);
 
-    double copy = timeKernel([&] { copy1<<<width * width / 256, 256>>>(in, out, width * width); });
+    int n = width * width;
+    double copy = timeKernel([&] { copy1<<<n / 256, 256>>>(in, out, n); });
     double naive = timeKernel([&] { transposeNaive<<<grid, block>>>(in, out, width); });
     double tiled = timeKernel([&] { transposeTiled<0><<<grid, block>>>(in, out, width); });
     double padded = timeKernel([&] { transposeTiled<1><<<grid, block>>>(in, out, width); });
 
     std::printf("transpose of a %d x %d matrix\n", width, width);
     std::printf("  copy, for reference   %6.2f ms   %6.1f GB/s\n", copy, gbps(bytes, copy));
-    std::printf("  naive                 %6.2f ms   %6.1f GB/s\n", naive, gbps(bytes, naive));
-    std::printf("  tiled                 %6.2f ms   %6.1f GB/s\n", tiled, gbps(bytes, tiled));
-    std::printf("  tiled and padded      %6.2f ms   %6.1f GB/s\n", padded, gbps(bytes, padded));
+    const char* names[] = {"naive", "tiled", "tiled and padded"};
+    double times[] = {naive, tiled, padded};
+    for (int k = 0; k < 3; ++k) {
+        double gb = gbps(bytes, times[k]);
+        std::printf("  %-20s  %6.2f ms   %6.1f GB/s\n", names[k], times[k], gb);
+    }
 }
 
 bool isTranspose(const float* in, float* out, int width)
 {
-    transposeTiled<1><<<dim3(width / TILE, width / TILE), dim3(TILE, TILE)>>>(in, out, width);
+    dim3 grid(width / TILE, width / TILE), block(TILE, TILE);
+    transposeTiled<1><<<grid, block>>>(in, out, width);
 
     std::vector<float> a(width * width), b(width * width);
     check(cudaMemcpy(a.data(), in, a.size() * sizeof(float), cudaMemcpyDeviceToHost));
@@ -168,20 +175,21 @@ int main()
     const int width = 4096;
     const int n = width * width;              // 16,777,216 floats, 64 MiB
 
-    const size_t inLen = (size_t)32 * n;      // 2 GiB: room for stride 32, too big for any L2
+    const size_t inLen = (size_t)32 * n;      // 2 GiB: room for stride 32, beyond any L2
 
     float *in, *out;
     check(cudaMalloc(&in, inLen * sizeof(float)));
     check(cudaMalloc(&out, n * sizeof(float)));
     fill<<<(inLen + 255) / 256, 256>>>(in, inLen);
 
-    for (int k = 0; k < 10; ++k) {            // warm up: the clocks rise under sustained load
+    for (int k = 0; k < 10; ++k) {            // warm up: clocks rise under sustained load
         timeKernel([&] { copy1<<<n / 256, 256>>>(in, out, n); });
     }
     coalescing(in, out);
     vectors(in, out, n);
     transposes(in, out, width);
-    std::printf("tiled transpose correct: %s\n", isTranspose(in, out, width) ? "yes" : "no");
+    bool correct = isTranspose(in, out, width);
+    std::printf("tiled transpose correct: %s\n", correct ? "yes" : "no");
 
     check(cudaFree(in));
     check(cudaFree(out));
