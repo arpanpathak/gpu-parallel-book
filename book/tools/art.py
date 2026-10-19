@@ -468,6 +468,43 @@ def caterpillar(x0, base, segments=8, r=18, look=1):
     return "".join(parts)
 
 
+def acorn(cx, cy, r=12):
+    """An acorn: a brown nut under a textured cap with a stalk, centred on (cx, cy)."""
+    ink = "#3a2410"
+    return "".join([ellipse(cx, cy + r * 0.25, r * 0.82, r, "#b8732e", f'stroke="{ink}" stroke-width="1.8"'),
+                    ellipse(cx - r * 0.25, cy + r * 0.1, r * 0.2, r * 0.45, "#d99a52"),
+                    path(f"M{cx - r},{cy - r * 0.35} Q{cx},{cy - r * 1.3} {cx + r},{cy - r * 0.35} Z", "#7a5a32", ink, 1.8),
+                    line(cx, cy - r * 0.95, cx + r * 0.25, cy - r * 1.4, ink, 2.2)])
+
+
+def squirrel(cx, base, s=1.0, look=1):
+    """A red squirrel sitting up, facing `look`, holding an acorn. 1.0 is 200 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    fur, dark, belly, ink = "#c8642a", "#8a3f17", "#f3d9b4", "#2a1d10"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    return "".join([
+        shadow(cx, base, 60 * s),
+        path(f"M{X(-30)},{Y(20)} C{X(-110)},{Y(10)} {X(-120)},{Y(120)} {X(-70)},{Y(170)} "
+             f"C{X(-40)},{Y(200)} {X(-100)},{Y(230)} {X(-60)},{Y(232)} "
+             f"C{X(-20)},{Y(236)} {X(-20)},{Y(180)} {X(-50)},{Y(140)} "
+             f"C{X(-74)},{Y(100)} {X(-50)},{Y(50)} {X(-10)},{Y(40)} Z", fur, ink, 2.4 * s),
+        path(f"M{X(-62)},{Y(160)} C{X(-46)},{Y(186)} {X(-70)},{Y(206)} {X(-58)},{Y(222)}", "none", dark, 4 * s),
+        ellipse(X(-4), Y(8), 22 * s, 8 * s, fur, stroke), ellipse(X(26), Y(8), 18 * s, 7 * s, fur, stroke),
+        ellipse(X(6), Y(60), 36 * s, 56 * s, fur, stroke),
+        ellipse(X(16), Y(56), 20 * s, 40 * s, belly),
+        ellipse(X(20), Y(132), 28 * s, 24 * s, fur, stroke),
+        path(f"M{X(4)},{Y(150)} L{X(0)},{Y(178)} L{X(20)},{Y(156)} Z", fur, ink, 2.2 * s),
+        path(f"M{X(6)},{Y(154)} L{X(4)},{Y(170)} L{X(15)},{Y(157)} Z", "#f0a3a0"),
+        ellipse(X(40), Y(126), 12 * s, 9 * s, belly, f'stroke="{ink}" stroke-width="{1.6 * s}"'),
+        circle(X(50), Y(128), 3.6 * s, ink),
+        eye(X(28), Y(138), 5 * s, look * 0.6),
+        acorn(X(40), Y(92), 13 * s),
+        ellipse(X(30), Y(86), 9 * s, 6 * s, fur, stroke), ellipse(X(46), Y(80), 9 * s, 6 * s, fur, stroke),
+    ])
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -701,6 +738,26 @@ def ch07():
             *cells,
             caterpillar(x0, GROUND - 42, segments=9, r=r),
             tag(480, 80, "neighbours read neighbours", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch08", "Reduction, Scan & Histogram", "Stash the squirrel", "Stash, a red squirrel, sits on a tree stump "
+       "beside a pyramid of acorns. The bottom row holds 8 acorns, the row above 4, then 2, then 1 at the top: each acorn "
+       "stands for the 2 below it, so 8 values become 1 in 3 steps. Stash holds 1 more acorn in its paws. A tag says pairs, "
+       "then pairs of pairs: the tree of a reduction.")
+def ch08():
+    acorns = []
+    for row, count in enumerate((8, 4, 2, 1)):
+        gap = 40 * 2 ** row
+        x0 = 480 - gap * (count - 1) / 2
+        y = GROUND - 22 - row * 46
+        acorns += [acorn(x0 + gap * k, y, 15) for k in range(count)]
+    return [backdrop(seed=8, **DUSK),
+            rect(300, GROUND - 4, 360, 20, WOOD, 8, "#5a3d28", 3),
+            *acorns,
+            rect(720, GROUND - 56, 140, 56, "#8a6a44", 10, "#5a3d28", 3),
+            ellipse(790, GROUND - 56, 70, 12, "#c9a46a", 'stroke="#5a3d28" stroke-width="3"'),
+            squirrel(780, GROUND - 60, 0.9, look=-1),
+            tag(480, 64, "pairs, then pairs of pairs", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "

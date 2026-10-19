@@ -101,6 +101,7 @@ clone takes `main`, whose layout no longer builds. Scratch copies live in `~/gpu
 ## Measuring on the boards
 
 - **Warm up before timing.** The Jetsons raise their GPU clocks under sustained load; run the kernel for about 0.4 s first, then average many runs. Expect 10 to 20% drift between runs and say so in the text.
+- **Check the boards are idle.** Both are shared with the user's other work (the Thor may be serving vLLM). Run `nvidia-smi --query-gpu=utilization.gpu --format=csv` first, run each program 3 times, and quote a quiet run. Never stop the user's processes.
 - **Exceed the L2 cache.** The Thor has 32 MiB of L2; data smaller than that measures the cache, not the memory. Print `prop.l2CacheSize` and size the test beyond it.
 - **Check results, not just times.** Every program verifies its output (a total, a transpose element by element, PASSED).
 - **Run on both boards** and quote both, with the Thor's integrated-memory differences explained where they change the conclusion.

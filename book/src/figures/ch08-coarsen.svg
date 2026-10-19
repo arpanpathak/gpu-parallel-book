@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 464" width="660" height="464" role="img" aria-label="The array of 67,108,864 floats as 256 passes of 262,144 elements, 1 per thread. Thread 5 reads element 5 of every pass and adds them in a register. At the end, 1 tree per block combines the 256 register sums of its threads.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="464" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Thread coarsening</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1,024 blocks of 256 threads walk the array in a grid-stride loop.</text>
+  <text x="40.0" y="124.0" class="sub" text-anchor="start" xml:space="preserve">the array: 67,108,864 floats, read in 256 passes of 262,144</text>
+  <rect x="40.0" y="136.0" width="112.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="96.0" y="155.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">pass 1</text>
+  <rect x="48" y="140" width="8" height="22" rx="2" fill="#2F6FDB"/>
+  <line x1="52.0" y1="166.0" x2="52.0" y2="206.0" stroke="#2F6FDB" stroke-width="1.6"/>
+  <rect x="156.0" y="136.0" width="112.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="212.0" y="155.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">pass 2</text>
+  <rect x="164" y="140" width="8" height="22" rx="2" fill="#2F6FDB"/>
+  <line x1="168.0" y1="166.0" x2="168.0" y2="206.0" stroke="#2F6FDB" stroke-width="1.6"/>
+  <rect x="272.0" y="136.0" width="112.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="328.0" y="155.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">pass 3</text>
+  <rect x="280" y="140" width="8" height="22" rx="2" fill="#2F6FDB"/>
+  <line x1="284.0" y1="166.0" x2="284.0" y2="206.0" stroke="#2F6FDB" stroke-width="1.6"/>
+  <rect x="388.0" y="136.0" width="112.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="444.0" y="155.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">…</text>
+  <rect x="504.0" y="136.0" width="112.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="560.0" y="155.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">pass 256</text>
+  <rect x="512" y="140" width="8" height="22" rx="2" fill="#2F6FDB"/>
+  <line x1="516.0" y1="166.0" x2="516.0" y2="206.0" stroke="#2F6FDB" stroke-width="1.6"/>
+  <line x1="52.0" y1="206.0" x2="516.0" y2="206.0" stroke="#2F6FDB" stroke-width="1.6"/>
+  <path class="wire" d="M330,206 L330,240" marker-end="url(#head)"/>
+  <rect x="170" y="240" width="320" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M182,240.7 H176 V295.3 H182 A11.3,11.3 0 0 1 170.7,284 V252 A11.3,11.3 0 0 1 182,240.7 Z" fill="#2F6FDB"/>
+  <text x="190.0" y="264.0" class="name" text-anchor="start" xml:space="preserve">thread 5: 1 register</text>
+  <text x="190.0" y="282.0" class="sub" text-anchor="start" xml:space="preserve">sum of elements 5, 5 + 262,144, …</text>
+  <path class="wire" d="M330,296 L330,330" marker-end="url(#head)"/>
+  <rect x="170" y="330" width="320" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M182,330.7 H176 V385.3 H182 A11.3,11.3 0 0 1 170.7,374 V342 A11.3,11.3 0 0 1 182,330.7 Z" fill="#1F8A70"/>
+  <text x="190.0" y="354.0" class="name" text-anchor="start" xml:space="preserve">1 tree per block</text>
+  <text x="190.0" y="372.0" class="sub" text-anchor="start" xml:space="preserve">over 256 register sums, at the end</text>
+  <text x="40.0" y="424.0" class="note" text-anchor="start" xml:space="preserve">Thread i reads element i of every pass, so neighbouring threads still read</text>
+  <text x="40.0" y="442.0" class="note" text-anchor="start" xml:space="preserve">neighbouring floats. Each thread adds 256 values before it touches shared memory.</text>
+</svg>

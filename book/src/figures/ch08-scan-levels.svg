@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 464" width="660" height="464" role="img" aria-label="Twelve values in 3 blocks of 4: 3, 1, 4, 1; 5, 9, 2, 6; 5, 3, 5, 8. Step 1 scans each block: 3, 4, 8, 9; 5, 14, 16, 22; 5, 8, 13, 21, with totals 9, 22 and 21. Step 2 scans the totals: 9, 31, 52. Step 3 adds 0, 9 and 31 to the 3 blocks, giving 3, 4, 8, 9, 14, 23, 25, 31, 36, 39, 44, 52.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="464" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A scan of many blocks</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Scan each block, scan the block totals, add each block&#x27;s offset.</text>
+  <text x="138.0" y="146.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">values</text>
+  <rect x="150.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="167.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">3</text>
+  <rect x="188.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="205.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="226.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="243.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4</text>
+  <rect x="264.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="281.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="322.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="339.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
+  <rect x="360.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="377.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">9</text>
+  <rect x="398.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="415.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2</text>
+  <rect x="436.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="453.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">6</text>
+  <rect x="494.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="511.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
+  <rect x="532.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="549.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">3</text>
+  <rect x="570.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="587.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
+  <rect x="608.0" y="128.0" width="34.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="625.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">8</text>
+  <text x="138.0" y="214.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1. scan blocks</text>
+  <rect x="150.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="167.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="188.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="205.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
+  <rect x="226.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="243.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">8</text>
+  <rect x="264.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="281.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">9</text>
+  <rect x="322.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="339.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">5</text>
+  <rect x="360.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="377.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">14</text>
+  <rect x="398.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="415.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">16</text>
+  <rect x="436.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="453.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">22</text>
+  <rect x="494.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="511.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">5</text>
+  <rect x="532.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="549.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">8</text>
+  <rect x="570.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="587.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">13</text>
+  <rect x="608.0" y="196.0" width="34.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="625.0" y="213.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">21</text>
+  <text x="138.0" y="282.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">2. scan totals</text>
+  <rect x="150.0" y="264.0" width="34.0" height="26.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="167.0" y="281.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">9</text>
+  <rect x="340.0" y="264.0" width="34.0" height="26.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="357.0" y="281.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">9</text>
+  <rect x="188.0" y="264.0" width="34.0" height="26.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="205.0" y="281.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">22</text>
+  <rect x="378.0" y="264.0" width="34.0" height="26.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="395.0" y="281.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">31</text>
+  <rect x="226.0" y="264.0" width="34.0" height="26.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="243.0" y="281.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">21</text>
+  <rect x="416.0" y="264.0" width="34.0" height="26.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="433.0" y="281.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">52</text>
+  <path class="wire" d="M270,277 L334,277" marker-end="url(#head)"/>
+  <rect x="150.0" y="326" width="33.8" height="18" rx="9" fill="#F0EAFB"/>
+  <text x="166.9" y="338.6" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">+ 0</text>
+  <rect x="322.0" y="326" width="33.8" height="18" rx="9" fill="#F0EAFB"/>
+  <text x="338.9" y="338.6" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">+ 9</text>
+  <rect x="494.0" y="326" width="40.4" height="18" rx="9" fill="#F0EAFB"/>
+  <text x="514.2" y="338.6" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">+ 31</text>
+  <text x="138.0" y="370.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">3. add offsets</text>
+  <rect x="150.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="167.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">3</text>
+  <rect x="188.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="205.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="226.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="243.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">8</text>
+  <rect x="264.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="281.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">9</text>
+  <rect x="322.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="339.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">14</text>
+  <rect x="360.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="377.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">23</text>
+  <rect x="398.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="415.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">25</text>
+  <rect x="436.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="453.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">31</text>
+  <rect x="494.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="511.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">36</text>
+  <rect x="532.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="549.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">39</text>
+  <rect x="570.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="587.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">44</text>
+  <rect x="608.0" y="352.0" width="34.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="625.0" y="369.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">52</text>
+  <text x="40.0" y="424.0" class="note" text-anchor="start" xml:space="preserve">Each block scans its own values and writes its total. The totals are scanned the same</text>
+  <text x="40.0" y="442.0" class="note" text-anchor="start" xml:space="preserve">way, and block b adds the scanned total of blocks 0 to b − 1 to each of its values.</text>
+</svg>

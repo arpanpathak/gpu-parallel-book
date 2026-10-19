@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 482" width="660" height="482" role="img" aria-label="Four rows of 8 values. Values 3, 1, 4, 1, 5, 9, 2, 6. After offset 1: 3, 4, 5, 5, 6, 14, 11, 8. After offset 2: 3, 4, 8, 9, 11, 19, 17, 22. After offset 4: 3, 4, 8, 9, 14, 23, 25, 31, the running sums. Arrows show lane 7 receiving from lanes 6, 5 and 3.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="482" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A scan in 3 steps</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each lane adds the value d lanes to its left, for d = 1, 2, 4.</text>
+  <text x="138.0" y="146.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">values</text>
+  <rect x="150.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="176.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">3</text>
+  <rect x="210.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="236.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="270.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="296.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4</text>
+  <rect x="330.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="356.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="390.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="416.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
+  <rect x="450.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="476.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">9</text>
+  <rect x="510.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="536.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2</text>
+  <rect x="570.0" y="128.0" width="52.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="596.0" y="145.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">6</text>
+  <text x="138.0" y="222.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">offset 1</text>
+  <rect x="150.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="176.0" y="221.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
+  <rect x="210.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="236.0" y="221.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
+  <rect x="270.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="296.0" y="221.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">5</text>
+  <rect x="330.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="356.0" y="221.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">5</text>
+  <rect x="390.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="416.0" y="221.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">6</text>
+  <rect x="450.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="476.0" y="221.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">14</text>
+  <rect x="510.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="536.0" y="221.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">11</text>
+  <rect x="570.0" y="204.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="596.0" y="221.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">8</text>
+  <path d="M536.0,154.0 V179.0 H596.0 V201.0" fill="none" stroke="#3F5873" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>
+  <text x="138.0" y="298.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">offset 2</text>
+  <rect x="150.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="176.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
+  <rect x="210.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="236.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
+  <rect x="270.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="296.0" y="297.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">8</text>
+  <rect x="330.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="356.0" y="297.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">9</text>
+  <rect x="390.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="416.0" y="297.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">11</text>
+  <rect x="450.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="476.0" y="297.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">19</text>
+  <rect x="510.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="536.0" y="297.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">17</text>
+  <rect x="570.0" y="280.0" width="52.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="596.0" y="297.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">22</text>
+  <path d="M476.0,230.0 V255.0 H596.0 V277.0" fill="none" stroke="#3F5873" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>
+  <text x="138.0" y="374.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">offset 4</text>
+  <rect x="150.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="176.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">3</text>
+  <rect x="210.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="236.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="270.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="296.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">8</text>
+  <rect x="330.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="356.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">9</text>
+  <rect x="390.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="416.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">14</text>
+  <rect x="450.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="476.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">23</text>
+  <rect x="510.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="536.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">25</text>
+  <rect x="570.0" y="356.0" width="52.0" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="596.0" y="373.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">31</text>
+  <path d="M356.0,306.0 V331.0 H596.0 V353.0" fill="none" stroke="#3F5873" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>
+  <text x="40.0" y="442.0" class="note" text-anchor="start" xml:space="preserve">At offset d, lane i adds the value lane i − d held after the step before; lanes</text>
+  <text x="40.0" y="460.0" class="note" text-anchor="start" xml:space="preserve">below d keep theirs. After offsets 1, 2 and 4, lane i holds the sum of lanes 0 to i.</text>
+</svg>

@@ -13,6 +13,7 @@ __pycache__/
 /code/ch07_memory/memory
 /code/ch05_histogram/histogram
 /code/ch08_reduction/reduction
+/code/ch08_reduction/reduce
 /code/ch09_sgemm/sgemm
 /code/ch10_device_buffer/test
 /code/ch11_library_examples/thrust_example
