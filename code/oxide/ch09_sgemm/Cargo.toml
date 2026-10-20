@@ -1,0 +1,15 @@
+[package]
+name = "ch09_sgemm"
+version = "0.1.0"
+edition = "2024"
+
+# A standalone crate: not part of any parent workspace.
+[workspace]
+
+[dependencies]
+# Device side: #[kernel], thread indexing, DisjointSlice.
+cuda-device = { git = "https://github.com/NVlabs/cuda-oxide.git", rev = "b7fe543b863cdef46362e5f69797906b84d499c7" }
+# Host side: the #[cuda_module] macro that generates the typed launcher.
+cuda-host = { git = "https://github.com/NVlabs/cuda-oxide.git", rev = "b7fe543b863cdef46362e5f69797906b84d499c7" }
+# Host runtime: context, stream, device buffers, launch configurations.
+cuda-core = { git = "https://github.com/NVlabs/cuda-oxide.git", rev = "b7fe543b863cdef46362e5f69797906b84d499c7" }

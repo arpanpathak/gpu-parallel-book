@@ -38,7 +38,7 @@ run "ch08_reduction" \
     bash -c 'cd ch08_reduction && nvcc -arch="$1" reduce.cu -o reduce && ./reduce' _ "$ARCH"
 
 run "ch09_sgemm" \
-    bash -c 'cd ch09_sgemm && nvcc -arch="$1" sgemm.cu main.cu -o sgemm && ./sgemm' _ "$ARCH"
+    bash -c 'cd ch09_sgemm && nvcc -arch="$1" sgemm.cu -o sgemm -lcublas && ./sgemm' _ "$ARCH"
 
 run "ch10_device_buffer" \
     bash -c 'cd ch10_device_buffer && nvcc -std=c++20 -arch="$1" test.cu -o test && ./test' _ "$ARCH"

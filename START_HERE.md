@@ -39,6 +39,7 @@ Take from them: a character plate on every chapter, a "This chapter covers" box,
 - **Code style.** No macros, few comments, a blank line between logical groups (setup, copies, launch, checks, printing). No `unwrap` or `expect` in Rust: functions return `Result<_, DriverError>` and use `?`. Keep lines short enough to fit the page (about 95 characters); split long signatures and `printf` calls.
 - **Do not overfit the author's Jetson.** Explain on any GPU first (a table across Orin NX, AGX Thor, DGX Spark, RTX 4090/5090, A100, H100, GH200 where it applies); the Jetson's measured run is 1 example, with "run it on yours".
 - **Every chapter ends with its complete programs.** After the last numbered section comes "N.M The complete programs": the whole C++ file and the whole Rust `main.rs`, as listings, so a reader can see each excerpt in place. Keep every source line at 92 characters or fewer so whole files fit the page.
+- **cuda-oxide loops.** Write fixed-count device loops as `while` loops with `#[unroll]`; `for` over a range is not unrolled, and small arrays indexed in it stay in local memory (the ch09 register tile ran 33% slower).
 - **Excerpts are whole blocks.** An excerpt that starts or ends inside a function shows the enclosing header, `// ...` and the closing brace. `tools/excerpts.py` does this (see Tools).
 
 Read the "Agent conduct log" section of WORKLOG.md first: it records where an earlier agent

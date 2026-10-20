@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 400" width="660" height="400" role="img" aria-label="Three bars of 65,536 registers each. At 80 registers per thread, a block of 256 threads uses 20,480 registers and 3 blocks fit. At 64, 16,384 per block and 4 fit. At 40, 10,240 per block and 6 fit.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="400" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Registers and occupancy</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Registers per thread set the number of resident blocks.</text>
+  <text x="180.0" y="124.0" class="sub" text-anchor="start" xml:space="preserve">65,536 registers per SM, blocks of 256 threads</text>
+  <text x="166.0" y="164.0" class="sub" text-anchor="end" xml:space="preserve">80 registers</text>
+  <rect x="180.0" y="144.0" width="109.5" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="234.8" y="163.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">20,480</text>
+  <rect x="292.5" y="144.0" width="109.5" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="347.2" y="163.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">20,480</text>
+  <rect x="405.0" y="144.0" width="109.5" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="459.8" y="163.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">20,480</text>
+  <rect x="180.0" y="144.0" width="360.0" height="30.0" rx="6" fill="none" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="552.0" y="164.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">3 blocks</text>
+  <text x="166.0" y="224.0" class="sub" text-anchor="end" xml:space="preserve">64 registers</text>
+  <rect x="180.0" y="204.0" width="87.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="223.5" y="223.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">16,384</text>
+  <rect x="270.0" y="204.0" width="87.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="313.5" y="223.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">16,384</text>
+  <rect x="360.0" y="204.0" width="87.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="403.5" y="223.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">16,384</text>
+  <rect x="450.0" y="204.0" width="87.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="493.5" y="223.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">16,384</text>
+  <rect x="180.0" y="204.0" width="360.0" height="30.0" rx="6" fill="none" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="552.0" y="224.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">4 blocks</text>
+  <text x="166.0" y="284.0" class="sub" text-anchor="end" xml:space="preserve">40 registers</text>
+  <rect x="180.0" y="264.0" width="53.2" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="236.2" y="264.0" width="53.2" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="292.5" y="264.0" width="53.2" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="348.8" y="264.0" width="53.2" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="405.0" y="264.0" width="53.2" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="461.2" y="264.0" width="53.2" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="180.0" y="264.0" width="360.0" height="30.0" rx="6" fill="none" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="552.0" y="284.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">6 blocks</text>
+  <text x="40.0" y="342.0" class="note" text-anchor="start" xml:space="preserve">A block of 256 threads at 80 registers each takes 20,480 registers, so 3 fit in</text>
+  <text x="40.0" y="360.0" class="note" text-anchor="start" xml:space="preserve">65,536. At 64, 4 fit. At 40, 6 fit, the limit of 1,536 threads, but the compiler</text>
+  <text x="40.0" y="378.0" class="note" text-anchor="start" xml:space="preserve">had to spill values to local memory to stay under 40 on the Orin NX.</text>
+</svg>

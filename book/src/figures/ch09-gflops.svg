@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 458" width="660" height="458" role="img" aria-label="Bars of SGEMM speed for N = 4096 on 2 boards, each bar&#x27;s full width the board&#x27;s FP32 peak. Orin NX, peak 2,400 GFLOP/s: by column 34, by row 180, tiles of 16 278, tiles of 32 219, 4 by 4 per thread 954, cuBLAS 1,518. Thor, peak 8,100: 118, 594, 945, 774, 3,273 and 6,173.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="458" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">SGEMM speed, measured on 2 boards</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">From 1 thread per element to register tiles, and cuBLAS.</text>
+  <text x="170.0" y="112.0" class="name" text-anchor="start" xml:space="preserve">Jetson Orin NX</text>
+  <text x="156.0" y="146.0" class="sub" text-anchor="end" xml:space="preserve">by column</text>
+  <rect x="170.0" y="128.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="170" y="128" width="3.1" height="24" rx="5" fill="#2F6FDB"/>
+  <text x="384.0" y="145.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">34</text>
+  <text x="156.0" y="186.0" class="sub" text-anchor="end" xml:space="preserve">by row</text>
+  <rect x="170.0" y="168.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="170" y="168" width="16.5" height="24" rx="5" fill="#2F6FDB"/>
+  <text x="384.0" y="185.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">180</text>
+  <text x="156.0" y="226.0" class="sub" text-anchor="end" xml:space="preserve">tiles 16 × 16</text>
+  <rect x="170.0" y="208.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="170" y="208" width="25.5" height="24" rx="5" fill="#2F6FDB"/>
+  <text x="384.0" y="225.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">278</text>
+  <text x="156.0" y="266.0" class="sub" text-anchor="end" xml:space="preserve">tiles 32 × 32</text>
+  <rect x="170.0" y="248.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="170" y="248" width="20.1" height="24" rx="5" fill="#2F6FDB"/>
+  <text x="384.0" y="265.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">219</text>
+  <text x="156.0" y="306.0" class="sub" text-anchor="end" xml:space="preserve">4 × 4, 4 blocks</text>
+  <rect x="170.0" y="288.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="170" y="288" width="87.5" height="24" rx="5" fill="#2F6FDB"/>
+  <text x="384.0" y="305.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">954</text>
+  <text x="156.0" y="346.0" class="sub" text-anchor="end" xml:space="preserve">cuBLAS</text>
+  <rect x="170.0" y="328.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="170" y="328" width="139.1" height="24" rx="5" fill="#2E8B3D"/>
+  <text x="384.0" y="345.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">1,518</text>
+  <text x="170.0" y="382.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">bar = peak, 2,400 GFLOP/s</text>
+  <text x="410.0" y="112.0" class="name" text-anchor="start" xml:space="preserve">Jetson AGX Thor</text>
+  <rect x="410.0" y="128.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="410" y="128" width="3.2" height="24" rx="5" fill="#7A4FD0"/>
+  <text x="624.0" y="145.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">118</text>
+  <rect x="410.0" y="168.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="410" y="168" width="16.1" height="24" rx="5" fill="#7A4FD0"/>
+  <text x="624.0" y="185.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">594</text>
+  <rect x="410.0" y="208.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="410" y="208" width="25.7" height="24" rx="5" fill="#7A4FD0"/>
+  <text x="624.0" y="225.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">945</text>
+  <rect x="410.0" y="248.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="410" y="248" width="21.0" height="24" rx="5" fill="#7A4FD0"/>
+  <text x="624.0" y="265.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">774</text>
+  <rect x="410.0" y="288.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="410" y="288" width="88.9" height="24" rx="5" fill="#7A4FD0"/>
+  <text x="624.0" y="305.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">3,272</text>
+  <rect x="410.0" y="328.0" width="220.0" height="24.0" rx="5" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="410" y="328" width="167.7" height="24" rx="5" fill="#2E8B3D"/>
+  <text x="624.0" y="345.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">6,173</text>
+  <text x="410.0" y="382.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">bar = peak, 8,100 GFLOP/s</text>
+  <text x="40.0" y="418.0" class="note" text-anchor="start" xml:space="preserve">GFLOP/s for N = 4,096. Each bar&#x27;s full width is the board&#x27;s FP32 peak; the best</text>
+  <text x="40.0" y="436.0" class="note" text-anchor="start" xml:space="preserve">kernel of the chapter reached 40% of it on both boards, cuBLAS 63% and 76%.</text>
+</svg>
