@@ -21,6 +21,7 @@ Each chapter opens with a member of the cast at work on the chapter's subject.
 | 6 | The otter twins | float down 2 rivers side by side, each carrying work: 2 streams at the same time |
 | 7 | Inch the caterpillar | walks with each segment over the next numbered cell: neighbouring threads read neighbouring addresses |
 | 8 | Stash the squirrel | beside a pyramid of 8, 4, 2 and 1 acorns, each standing for the 2 below it: the tree of a reduction |
+| 9 | Shell the tortoise | carries a shell laid with square tiles past stacks marked A and B: load a tile once, use it many times |
 | 13 | Pinch the crab | one claw for `a[i]`, one for `b[i]`, the sum dropped into `c[i]`; two spare crabs doze past the end of the row |
 
 The plates are drawn by `tools/art.py`.

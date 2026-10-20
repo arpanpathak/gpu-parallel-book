@@ -505,6 +505,39 @@ def squirrel(cx, base, s=1.0, look=1):
     ])
 
 
+def tortoise(cx, base, s=1.0, look=1):
+    """A tortoise walking towards `look`, its domed shell laid with square tiles. 1.0 is 300 units long."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    skin, shell, rim, ink = "#9cc27a", "#c9a24a", "#8a6a2a", "#2a2410"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    sid = uid("shell")
+    tiles = []
+    for r in range(4):
+        for c in range(6):
+            tx, ty = cx - 105 * s + c * 35 * s, base - 150 * s + r * 26 * s
+            tone = ("#e3c26a", "#d4ad52", "#b98f3a")[(r + c) % 3]
+            tiles.append(rect(tx + 2 * s, ty + 2 * s, 31 * s, 22 * s, tone, 4 * s, ink, 1.6 * s,
+                              f'clip-path="url(#{sid})"'))
+    dome = f"M{cx - 120 * s},{base - 44 * s} Q{cx - 116 * s},{base - 160 * s} {cx},{base - 162 * s} Q{cx + 116 * s},{base - 160 * s} {cx + 120 * s},{base - 44 * s} Z"
+    return "".join([
+        shadow(cx, base, 140 * s),
+        *[ellipse(X(dx), Y(14), 18 * s, 22 * s, skin, stroke) for dx in (-80, -30, 40, 88)],
+        path(f"M{X(-118)},{Y(56)} L{X(-150)},{Y(40)} L{X(-118)},{Y(42)} Z", skin, ink, 2.2 * s),
+        path(f"M{X(110)},{Y(70)} Q{X(150)},{Y(110)} {X(178)},{Y(96)}", "none", ink, 30 * s),
+        path(f"M{X(110)},{Y(70)} Q{X(150)},{Y(110)} {X(178)},{Y(96)}", "none", skin, 25 * s),
+        ellipse(X(184), Y(98), 30 * s, 24 * s, skin, stroke),
+        eye(X(194), Y(106), 6 * s, look * 0.6),
+        path(f"M{X(196)},{Y(88)} q{f * 10 * s},{4 * s} {f * 18 * s},{-2 * s}", "none", ink, 2.2 * s),
+        f'<defs><clipPath id="{sid}"><path d="{dome}"/></clipPath></defs>',
+        path(dome, shell, ink, 2.8 * s),
+        *tiles,
+        path(dome, "none", ink, 2.8 * s),
+        rect(cx - 126 * s, base - 50 * s, 252 * s, 14 * s, rim, 7 * s, ink, 2.2 * s),
+    ])
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -758,6 +791,24 @@ def ch08():
             ellipse(790, GROUND - 56, 70, 12, "#c9a46a", 'stroke="#5a3d28" stroke-width="3"'),
             squirrel(780, GROUND - 60, 0.9, look=-1),
             tag(480, 64, "pairs, then pairs of pairs", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch09", "Optimised Matrix Multiplication", "Shell the tortoise", "Shell, a tortoise, walks across a meadow. "
+       "Its domed shell is laid with square tiles in rows, like a matrix cut into blocks. Ahead of it lie 2 stacks of "
+       "tiles, 1 marked A and 1 marked B, and behind it a finished row of tiles marked C. A tag says load a tile once, "
+       "use it many times: the idea of a tiled matrix multiplication.")
+def ch09():
+    stacks = []
+    for k, name in enumerate(("A", "B")):
+        x = 640 + k * 130
+        stacks += [rect(x, GROUND - 22 - 18 * j, 90, 16, ("#e3c26a", "#d4ad52", "#b98f3a")[j % 3], 4, "#2a2410", 2)
+                   for j in range(4)]
+        stacks.append(tag(x + 45, GROUND - 110, name, 18, "#fff6e2", "#2a1a10", MONO, 700))
+    done = [rect(40 + 34 * k, GROUND - 22, 30, 20, "#c8f0d0", 4, "#2a2410", 2) for k in range(5)]
+    return [backdrop(seed=9, **MEADOW), *stacks, *done,
+            tag(120, GROUND - 60, "C", 18, "#fff6e2", "#2a1a10", MONO, 700),
+            tortoise(380, GROUND - 2, 0.95, look=1),
+            tag(480, 64, "load a tile once, use it many times", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
