@@ -2,170 +2,321 @@
 
     python3 tools/draw_ch09.py
 
-The speeds in figure 9.6 are the ones measured with code/ch09_sgemm/sgemm.cu on a Jetson
+The speeds in the last figure are the ones measured with code/ch09_sgemm/sgemm.cu on a Jetson
 Orin NX and a Jetson AGX Thor (the runs quoted in the chapter).
 """
 from figkit import width_of
-from figparts import (EDGE, INK, KINDS, MUTED, PAPER, WIRE, bar, card, legend, line, mono, note,
-                      save, tag, text, wire, zone)
+from figparts import (EDGE, INK, KINDS, MUTED, PAPER, WIRE, arrow, card, fan, legend, line, mono,
+                      note, save, tag, text, wire, zone)
 
 OUT = "src/figures/"
 
+# GFLOP/s for N = 4,096, from the runs quoted in the chapter: (Orin NX, Thor).
+PEAKS = (2400, 8100)
+SPEEDS = [("by column", 34.2, 116.2), ("by row", 185.9, 596.2), ("tiles 16 × 16", 273.9, 949.9),
+          ("tiles 32 × 32", 222.1, 783.4), ("4 × 4 per thread", 901.4, 3222.0),
+          ("4 × 4, best bounds", 931.9, 3264.2), ("cuBLAS", 1495.3, 6176.5)]
 
-def rect(x, y, w, h, fill, stroke="none", sw=1.2, rx=3):
-    return (f'  <rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" '
-            f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}"/>')
+
+def box(x, y, w, h, kind, label="", on=True, cls="mono"):
+    """A matrix cell: tinted with an accent edge when `on`, white with a grey edge when not."""
+    accent, tint = KINDS[kind]
+    parts = [f'  <rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="4" '
+             f'fill="{tint if on else "#FFFFFF"}" stroke="{accent if on else EDGE}" stroke-width="1.2"/>']
+    if label:
+        parts.append(text(x + w / 2, y + h / 2 + 4, label, cls, "middle", accent if on else MUTED))
+    return "\n".join(parts)
 
 
-def grid(x, y, n, cell, hot=(), kind="client", labels=None):
-    """An n x n matrix of cells; `hot` cells take the colours of `kind`."""
-    out = []
-    for r in range(n):
-        for c in range(n):
-            on = (r, c) in hot
-            out.append(rect(x + c * cell, y + r * cell, cell - 2, cell - 2,
-                            KINDS[kind][1] if on else "#FFFFFF", KINDS[kind][0] if on else EDGE))
-            if labels:
-                out.append(mono(x + c * cell + (cell - 2) / 2, y + r * cell + cell / 2 + 2,
-                                labels[r][c], "middle", INK))
-    return out
+def matrix(x, y, values, cell, hot, kind):
+    """A small matrix of numbers; the cells in `hot` take the colours of `kind`."""
+    return [box(x + c * cell, y + r * cell, cell - 3, cell - 3, kind, str(v), (r, c) in hot)
+            for r, row in enumerate(values) for c, v in enumerate(row)]
+
+
+def gather(xs, y, bus, x, bottom):
+    """Several sources joined into 1: a drop from each to the bus line, then 1 arrow down."""
+    left, right = min(xs + [x]), max(xs + [x])
+    parts = [f'  <path d="M{left},{bus} H{right}" fill="none" stroke="{WIRE}" stroke-width="1.8"/>']
+    parts += [f'  <path d="M{sx},{y} V{bus}" fill="none" stroke="{WIRE}" stroke-width="1.6"/>'
+              for sx in xs]
+    parts += [f'  <circle cx="{x}" cy="{bus}" r="3" fill="{WIRE}"/>', arrow(x, bus, bottom)]
+    return "\n".join(parts)
+
+
+def squares(x, y, count, kind, side=10, gap=3):
+    """`count` small squares in a row; a fraction draws the last one half full."""
+    accent, tint = KINDS[kind]
+    parts, whole = [], int(count)
+    for k in range(whole):
+        parts.append(f'  <rect x="{x + k * (side + gap):.1f}" y="{y}" width="{side}" height="{side}" '
+                     f'rx="2.5" fill="{tint}" stroke="{accent}" stroke-width="1.1"/>')
+    if count > whole:
+        at = x + whole * (side + gap)
+        parts += [f'  <rect x="{at:.1f}" y="{y}" width="{side}" height="{side}" rx="2.5" fill="#FFFFFF" '
+                  f'stroke="{accent}" stroke-width="1.1" stroke-dasharray="2 2"/>',
+                  f'  <rect x="{at:.1f}" y="{y}" width="{side / 2}" height="{side}" rx="1.5" fill="{accent}" '
+                  f'opacity="0.45"/>']
+    return "\n".join(parts)
 
 
 # 9.1  An element of C is the dot product of a row of A and a column of B.
 A = [[1, 2, 0, 1], [0, 1, 3, 2], [2, 0, 1, 1], [1, 1, 0, 2]]
 B = [[2, 1, 0, 1], [1, 0, 2, 1], [0, 3, 1, 0], [1, 2, 1, 1]]
 C = [[sum(A[i][k] * B[k][j] for k in range(4)) for j in range(4)] for i in range(4)]
-cell = 30
-s = lambda m: [[str(v) for v in row] for row in m]
-parts = [text(40, 120, "A", "name"), text(240, 120, "B", "name"), text(440, 120, "C = A B", "name")]
-parts += grid(40, 132, 4, cell, {(1, k) for k in range(4)}, "client", s(A))
-parts += grid(240, 132, 4, cell, {(k, 2) for k in range(4)}, "outside", s(B))
-parts += grid(440, 132, 4, cell, {(1, 2)}, "good", s(C))
-parts += [mono(184, 196, "×", "middle", INK), mono(384, 196, "=", "middle", INK),
-          note(40, 290, "C[1][2] = 0 × 0 + 1 × 2 + 3 × 1 + 2 × 1 = 7: row 1 of A against column 2 of B.", room=600),
-          note(40, 316, "Each of the N² elements of C takes N multiplications and N additions, so the", room=600),
-          note(40, 334, "product makes 2N³ operations; it reads 2N² values and writes N².", room=600)]
-save(OUT + "ch09-matmul.svg", 660, 356,
-     "Three 4 by 4 matrices A, B and C. Row 1 of A, 0 1 3 2, and column 2 of B, 0 2 1 1, are highlighted; "
-     "their dot product 0 + 2 + 3 + 2 = 7 is element C[1][2].",
-     "Matrix multiplication", "Element (i, j) of C is row i of A times column j of B.", parts)
+cell = 32
+parts = [text(40, 118, "A", "name"), text(250, 118, "B", "name"), text(460, 118, "C = A B", "name")]
+parts += matrix(40, 130, A, cell, {(1, k) for k in range(4)}, "client")
+parts += matrix(250, 130, B, cell, {(k, 2) for k in range(4)}, "outside")
+parts += matrix(460, 130, C, cell, {(1, 2)}, "good")
+parts += [mono(203, 196, "×", "middle", INK), mono(413, 196, "=", "middle", INK)]
+xs = []
+for k in range(4):
+    a, b = A[1][k], B[k][2]
+    x = 70 + k * 130
+    parts += [mono(x + 52, 284, f"k = {k}", "middle", MUTED),
+              box(x, 292, 104, 30, "idle", f"{a} × {b} = {a * b}")]
+    xs.append(x + 52)
+parts += [gather(xs, 322, 344, 330, 368),
+          box(220, 368, 220, 32, "good", "C[1][2] = 0 + 2 + 3 + 2 = 7"),
+          note(40, 434, "Row 1 of A meets column 2 of B 1 pair at a time: 4 multiplications and 4", room=600),
+          note(40, 452, "additions into a running sum. Every element of C is 1 such sum.", room=600)]
+save(OUT + "ch09-matmul.svg", 660, 474,
+     "Three 4 by 4 matrices A, B and C. Row 1 of A, 0 1 3 2, and column 2 of B, 0 2 1 1, are highlighted. "
+     "Below, their 4 products 0 times 0, 1 times 2, 3 times 1 and 2 times 1 are joined into the sum "
+     "0 + 2 + 3 + 2 = 7, which is element C[1][2].",
+     "1 element of C", "C[1][2] is row 1 of A times column 2 of B, pair by pair.", parts)
 
 
-# 9.2  Which addresses 1 warp reads: threadIdx.x down a column of C, or along a row.
-cell = 13
-parts = [zone(16, 104, 300, 300, "threadIdx.x down a column"), zone(344, 104, 300, 300, "threadIdx.x along a row")]
-for z, (x0, by_row) in enumerate([(40, False), (368, True)]):
-    a_hot = {(r, 0) for r in range(16)} if not by_row else {(0, 0), (1, 0)}
-    parts.append(text(x0, 146, "A, at step k = 0", "sub"))
-    parts += grid(x0, 156, 16, cell, a_hot, "danger" if not by_row else "good")
-    parts.append(text(x0, 384, "16 rows: 16 sectors" if not by_row else "2 elements, each broadcast",
-                      "sub"))
-parts += [note(16, 436, "A warp is 16 values of threadIdx.x for 2 of threadIdx.y. As the row index, x puts", room=628),
-          note(16, 454, "the warp on 16 rows of A, 16 sectors. As the column index, the warp covers only", room=628),
-          note(16, 472, "2 rows, and the 16 lanes of each row read the same element of A.", room=628)]
-save(OUT + "ch09-mapping.svg", 660, 494,
-     "Two panels showing the part of matrix A that 1 warp reads at step k = 0. Left, with threadIdx.x down a "
-     "column of C, the lanes read 16 elements of A in 16 different rows, 1 sector each. Right, with "
-     "threadIdx.x along a row of C, the warp reads 2 elements of A, each broadcast to 16 lanes.",
-     "A warp's reads of A", "The same kernel with x and y swapped reads A very differently.", parts)
-
-
-# 9.3  Tiling: a block's tile of C needs a strip of A and a strip of B, walked 1 tile at a time.
-cell = 16
-parts = [text(40, 124, "A", "name"), text(280, 124, "B", "name"), text(480, 124, "C", "name")]
-n = 8
-rowband = {(r, c) for r in (2, 3) for c in range(n)}
-colband = {(r, c) for r in range(n) for c in (4, 5)}
-tileA = {(r, c) for r in (2, 3) for c in (2, 3)}
-tileB = {(r, c) for r in (2, 3) for c in (4, 5)}
-parts += grid(40, 136, n, cell, rowband, "idle") + grid(280, 136, n, cell, colband, "idle")
-parts += grid(480, 136, n, cell, {(r, c) for r in (2, 3) for c in (4, 5)}, "good")
-for (r, c) in tileA:
-    parts.append(rect(40 + c * cell, 136 + r * cell, cell - 2, cell - 2, KINDS["client"][1], KINDS["client"][0]))
-for (r, c) in tileB:
-    parts.append(rect(280 + c * cell, 136 + r * cell, cell - 2, cell - 2, KINDS["outside"][1], KINDS["outside"][0]))
-parts += [mono(232, 204, "×", "middle", INK), mono(456, 204, "=", "middle", INK),
-          legend(40, 300, [("client", "tile of A at step k0"), ("outside", "tile of B at step k0"),
-                           ("good", "the block's tile of C")]),
-          note(40, 342, "The block's T × T tile of C needs a strip of T rows of A and a strip of T columns", room=600),
-          note(40, 360, "of B. At each step k0 the block copies 1 T × T tile of each into shared memory;", room=600),
-          note(40, 378, "every value copied is then read by T threads, so global reads fall T times.", room=600)]
-save(OUT + "ch09-tiles.svg", 660, 400,
-     "Matrices A, B and C as 8 by 8 grids of cells. A block's 2 by 2 tile of C, highlighted, needs rows 2 "
-     "and 3 of A and columns 4 and 5 of B. At the step shown, 1 2 by 2 tile of each strip is in shared memory.",
-     "Tiles of A and B", "A block walks its strips of A and B 1 tile at a time.", parts)
-
-
-# 9.4  A thread's 4 x 4 patch: 4 values of A and 4 of B give 16 products.
-cell = 34
-x0, y0 = 250, 170
-parts = [text(x0, 128, "4 values of B: b0 … b3, from 1 row of tileB", "sub")]
+# 9.2  1 value of A is used by a whole row of C: reuse, and how much of it a GPU needs.
+parts = [zone(16, 104, 340, 340, "1 value, 4 uses"), zone(372, 104, 272, 340, "uses needed")]
+targets = [66 + j * 76 for j in range(4)]
+parts += [box(126, 140, 100, 34, "client", "A[1][1] = 1"),
+          fan(176, 174, targets, 214, 246)]
 for j in range(4):
-    parts.append(bar(x0 + j * cell, 140, cell - 4, 24, "outside", f"b{j}"))
+    parts += [box(targets[j] - 33, 246, 66, 40, "good", f"C[1][{j}]"),
+              mono(targets[j], 310, f"+ 1 × {B[1][j]}", "middle", INK)]
+parts += [note(40, 352, "A[1][1] multiplies each value of row 1 of B,", room=300),
+          note(40, 370, "1, 0, 2 and 1, and joins all 4 sums of row 1", room=300),
+          note(40, 388, "of C. With N = 4, every value has 4 uses.", room=300),
+          card(392, 136, 232, 64, "client", "N = 4,096", "every value: 4,096 uses"),
+          card(392, 220, 232, 80, "store", "Orin NX: 94 FLOP", ["per float from memory", "to reach the FP32 peak"]),
+          card(392, 320, 232, 80, "outside", "Thor: 119 FLOP", ["per float from memory", "to reach the FP32 peak"]),
+          note(392, 426, "peak FLOP/s ÷ floats per second", room=232)]
+save(OUT + "ch09-reuse.svg", 660, 466,
+     "Left: in a 4 by 4 product, element A[1][1] = 1 is multiplied by each value of row 1 of B, "
+     "1, 0, 2 and 1, and joins all 4 sums of row 1 of C. Right: for N = 4,096 each value has 4,096 uses; "
+     "to reach the FP32 peak, each float fetched from memory must feed 94 operations on the Orin NX and "
+     "119 on the Thor.",
+     "Reuse", "Every value of A and B is needed N times.", parts)
+
+
+# 9.3  Which sectors 1 warp touches at 1 step k: threadIdx.x down a column of C, or along a row.
+parts = [zone(16, 104, 304, 400, "x down a column of C"), zone(340, 104, 304, 400, "x along a row of C")]
+sw = 30
+
+
+def sector(x, y, on, kind):
+    accent, tint = KINDS[kind]
+    return (f'  <rect x="{x:.1f}" y="{y}" width="{sw - 3}" height="10" rx="2" '
+            f'fill="{tint if on else "#FFFFFF"}" stroke="{accent if on else EDGE}" stroke-width="1"/>')
+
+
+for x0, by_row in ((40, False), (364, True)):
+    kind = "good" if by_row else "danger"
+    a_rows, b_sectors = (2, 2) if by_row else (16, 1)
+    total = a_rows + b_sectors
+    parts.append(text(x0, 142, "A: rows 0 to 15, first 8 sectors", "sub"))
+    for r in range(16):
+        for s in range(8):
+            parts.append(sector(x0 + s * sw, 152 + r * 13, s == 0 and r < a_rows, kind))
+    parts.append(text(x0, 386, "B: row k, first 8 sectors", "sub"))
+    for s in range(8):
+        parts.append(sector(x0 + s * sw, 396, s < b_sectors, kind))
+    parts += [tag(x0, 428, f"A {a_rows} + B {b_sectors} = {total} sectors", kind),
+              mono(x0, 474, f"{total} × 32 bytes = {total * 32} bytes", "start", INK)]
+parts += [note(16, 534, "1 sector is 32 bytes, 8 floats. A warp is 16 values of x for 2 of y. Down a column,", room=628),
+          note(16, 552, "x lands on 16 rows of A. Along a row, the 16 lanes of each y share 1 element of A", room=628),
+          note(16, 570, "and read 16 neighbouring elements of B: 64 bytes, 2 sectors.", room=628)]
+save(OUT + "ch09-mapping.svg", 660, 592,
+     "Two panels, each showing the 32-byte sectors 1 warp touches at 1 step of k. Left, with threadIdx.x down "
+     "a column of C: 1 sector in each of 16 rows of A and 1 sector of B, 17 sectors, 544 bytes. Right, with "
+     "threadIdx.x along a row of C: 1 sector in each of 2 rows of A and 2 sectors of B, 4 sectors, 128 bytes.",
+     "Sectors per step of k", "The same kernel with x and y swapped touches 17 or 4 sectors.", parts)
+
+
+# 9.4  Tiling: global memory to shared memory to the block's tile of C.
+n, cell = 8, 13
+ax, ay, by = 66, 150, 300
+parts = [zone(16, 104, 222, 356, "global memory"), zone(258, 104, 170, 356, "shared memory"),
+         zone(448, 104, 196, 356, "the block")]
+parts += [text(40, ay + 4 * cell + 4, "A", "name"), text(40, by + 4 * cell + 4, "B", "name"),
+          note(40, ay + 8 * cell + 22, "strip: rows 2 and 3", room=190),
+          note(40, by + 8 * cell + 22, "strip: columns 4 and 5", room=190)]
+for r in range(n):
+    for c in range(n):
+        in_a, in_b = r in (2, 3), c in (4, 5)
+        parts += [box(ax + c * cell, ay + r * cell, cell - 2, cell - 2,
+                      "client" if in_a and c in (2, 3) else "idle", on=in_a),
+                  box(ax + c * cell, by + r * cell, cell - 2, cell - 2,
+                      "outside" if in_b and r in (2, 3) else "idle", on=in_b)]
+for r in range(2):
+    for c in range(2):
+        parts += [box(298 + c * 40, 160 + r * 40, 36, 36, "client", "×2"),
+                  box(298 + c * 40, 318 + r * 40, 36, 36, "outside", "×2")]
+cy = 217
+for r in range(n):
+    for c in range(n):
+        parts.append(box(476 + c * 18, cy + r * 18, 15, 15, "good", on=r in (2, 3) and c in (4, 5)))
+parts += [text(298, 152, "tileA", "mono"), text(298, 310, "tileB", "mono"), text(476, cy - 10, "C", "name"),
+          wire([(ax + 8 * cell + 2, ay + 2.5 * cell), (296, ay + 2.5 * cell)]),
+          wire([(ax + 8 * cell + 2, by + 2.5 * cell), (296, by + 2.5 * cell)]),
+          wire([(376, 198), (406, 198), (406, cy + 54)], arrow=False),
+          wire([(376, 356), (406, 356), (406, cy + 54)], arrow=False),
+          wire([(406, cy + 54), (473, cy + 54)]),
+          f'  <circle cx="406" cy="{cy + 54}" r="3" fill="{WIRE}"/>',
+          note(476, cy + 8 * 18 + 20, "2 × 2 threads,", room=160),
+          note(476, cy + 8 * 18 + 38, "1 sum each", room=160),
+          note(16, 492, "At step k0 = 2 the block copies 1 tile of A and 1 tile of B, 4 values each. Every", room=628),
+          note(16, 510, "value in shared memory is then read by 2 threads (×2): by T threads for a T × T tile.",
+               room=628)]
+save(OUT + "ch09-tiles.svg", 660, 532,
+     "Three zones. Global memory holds A and B as 8 by 8 grids; the block needs rows 2 and 3 of A and columns "
+     "4 and 5 of B, and at the step shown a 2 by 2 tile of each is copied into shared memory. There each value "
+     "is marked times 2: it is read by 2 threads. The block's 2 by 2 tile of C sits in rows 2 and 3, "
+     "columns 4 and 5 of C.",
+     "Tiles through shared memory", "Copy a tile once, read it T times.", parts)
+
+
+# 9.5  The reads behind 16 multiply-adds of 1 thread, in each kernel.
+rows = [("1 per thread, by row", "by row", 32, 0), ("tiles of 16 × 16", "tiles 16 × 16", 2, 32),
+        ("4 × 4 per thread", "4 × 4 per thread", 0.5, 8)]
+speed = {name: orin for name, orin, _ in SPEEDS}
+parts = [legend(186, 120, [("store", "1 float from global memory"), ("client", "1 float from shared memory")])]
+for g, (name, key, glob, shared) in enumerate(rows):
+    y = 150 + g * 96
+    orin = speed[key]
+    parts += [f'  <rect x="24" y="{y}" width="612" height="82" rx="12" fill="#FFFFFF" stroke="{EDGE}" '
+              f'stroke-width="1.2" filter="url(#lift)"/>',
+              text(40, y + 26, name, "name"),
+              tag(620, y + 13, f"{orin:,.0f} GFLOP/s on the Orin NX", "good", "end"),
+              text(40, y + 52, f"{glob:g} from global", "sub"),
+              text(40, y + 70, f"{shared:g} from shared", "sub"),
+              squares(186, y + 42, glob, "store"), squares(186, y + 60, shared, "client")]
+parts += [note(24, 456, "Each multiply-add needs 2 operands. 1 thread per element fetches both from global memory;", room=612),
+          note(24, 474, "a tile fetches 2 of every 32 from global memory and the rest from shared memory; a 4 × 4", room=612),
+          note(24, 492, "patch keeps the sums in registers and fetches 8 operands for 16 multiply-adds.", room=612)]
+save(OUT + "ch09-reads.svg", 660, 514,
+     "Three cards, 1 per kernel, counting the floats 1 thread reads for 16 multiply-adds. 1 per thread: 32 "
+     "from global memory. Tiles of 16 by 16: 2 from global memory and 32 from shared memory. 4 by 4 per "
+     "thread: half a float from global memory and 8 from shared memory.",
+     "The reads behind 16 multiply-adds", "Fewer reads per multiply-add, from closer memory, at each stage.",
+     parts)
+
+
+# 9.6  From C to a block's 64 x 64 tile to a thread's 4 x 4 patch.
+parts = [zone(16, 104, 196, 320, "C, 4,096 × 4,096"), zone(232, 104, 214, 320, "1 block: 64 × 64"),
+         zone(466, 104, 178, 320, "1 thread: 4 × 4")]
+for r in range(8):
+    for c in range(8):
+        parts.append(box(40 + c * 19, 150 + r * 19, 16, 16, "client", on=(r, c) == (2, 7)))
+for r in range(16):
+    for c in range(16):
+        parts.append(box(256 + c * 11, 150 + r * 11, 9, 9, "outside", on=(r, c) == (6, 15)))
+for r in range(4):
+    for c in range(4):
+        parts.append(box(490 + c * 34, 150 + r * 34, 30, 30, "good", f"{r}{c}"))
+parts += [wire([(40 + 8 * 19, 150 + 2.5 * 19), (252, 150 + 2.5 * 19)]),
+          wire([(256 + 16 * 11, 150 + 6.5 * 11), (486, 150 + 6.5 * 11)]),
+          note(40, 352, "64 blocks per side", room=160), note(40, 370, "64 × 64 = 4,096 blocks", room=160),
+          note(256, 352, "64 ÷ 4 = 16 threads a side", room=180),
+          note(256, 370, "16 × 16 = 256 threads", room=180),
+          note(490, 352, "acc[0][0] … acc[3][3]", room=140), note(490, 370, "16 sums in registers", room=140),
+          note(16, 456, "A block of 256 threads owns a 64 × 64 tile of C; thread (tx, ty) owns rows 4ty to 4ty + 3", room=628),
+          note(16, 474, "and columns 4tx to 4tx + 3 of that tile. The shaded thread is tx = 15, ty = 6.", room=628)]
+save(OUT + "ch09-zoom.svg", 660, 496,
+     "Three zones zooming in. C, 4,096 by 4,096, is cut into 64 by 64 tiles, 1 per block, 4,096 blocks. A "
+     "block's tile is cut into 16 by 16 patches of 4 by 4, 1 per thread. A thread's patch holds 16 sums, "
+     "acc[0][0] to acc[3][3], in registers.",
+     "Who computes what", "A block owns a 64 × 64 tile; each of its 256 threads a 4 × 4 patch.", parts)
+
+
+# 9.7  A thread's 4 x 4 patch for 1 value of k: 4 values of A and 4 of B give 16 products.
+av, bv = [1, 2, 0, 3], [2, 1, 0, 1]
+cell, x0, y0 = 40, 300, 176
+parts = [text(x0, 130, "b = tileB[k][4tx … 4tx + 3]", "mono")]
+for j in range(4):
+    parts.append(box(x0 + j * cell, 140, cell - 4, 28, "outside", str(bv[j])))
+parts.append(text(x0 - 64, y0 - 10, "a", "mono"))
 for i in range(4):
-    parts.append(bar(x0 - cell - 10, y0 + i * cell, cell - 4, 24, "client", f"a{i}"))
+    parts.append(box(x0 - 64, y0 + i * cell, cell - 4, cell - 4, "client", str(av[i])))
     for j in range(4):
-        parts.append(bar(x0 + j * cell, y0 + i * cell, cell - 4, 24, "good", f"{i}{j}"))
-parts += [text(x0 - cell - 22, y0 + 60, "4 values of A", "sub", "end"),
-          text(x0 - cell - 22, y0 + 78, "from 1 column", "sub", "end"),
-          text(x0 + 4 * cell + 14, y0 + 60, "acc[i][j] += a[i] × b[j]", "mono"),
-          text(x0 + 4 * cell + 14, y0 + 78, "16 sums, in registers", "sub"),
-          note(40, 344, "For each k, a thread reads 8 values from shared memory and makes 16 multiply-adds.", room=600),
-          note(40, 362, "With 1 element per thread it read 2 values for 1. Shared-memory reads fall 4 times.", room=600)]
-save(OUT + "ch09-outer.svg", 660, 384,
-     "A 4 by 4 grid of accumulators, acc 0 0 to acc 3 3. To its left a column of 4 values a0 to a3 from the "
-     "A tile; above it a row of 4 values b0 to b3 from the B tile. Each accumulator adds a[i] times b[j].",
-     "A 4 × 4 patch per thread", "8 reads from shared memory feed 16 multiply-adds.", parts)
+        parts.append(box(x0 + j * cell, y0 + i * cell, cell - 4, cell - 4, "good", str(av[i] * bv[j])))
+parts += [text(x0 - 80, y0 + 60, "tileA[4ty … 4ty + 3][k]", "mono", "end"),
+          text(x0 + 4 * cell + 16, y0 + 54, "acc[i][j] += a[i] × b[j]", "mono"),
+          text(x0 + 4 * cell + 16, y0 + 76, "16 multiply-adds", "sub"),
+          text(x0 + 4 * cell + 16, y0 + 94, "from 8 reads", "sub"),
+          note(40, 376, "For each k, a thread reads 4 values of A and 4 of B from shared memory and adds all", room=600),
+          note(40, 394, "16 products a[i] × b[j] into its 16 sums. Row 3 of the patch adds 6, 3, 0 and 3.",
+               room=600)]
+save(OUT + "ch09-outer.svg", 660, 416,
+     "A thread's 4 by 4 patch for 1 value of k. The 4 values of A, 1, 2, 0 and 3, run down the left; the 4 "
+     "values of B, 2, 1, 0 and 1, run across the top. Each cell holds the product a[i] times b[j], from 2, 1, "
+     "0, 1 in row 0 to 6, 3, 0, 3 in row 3.",
+     "A 4 × 4 patch for 1 value of k", "8 reads from shared memory feed 16 multiply-adds.", parts)
 
 
-# 9.5  Registers per thread decide how many blocks fit on an SM.
+# 9.8  Registers per thread decide how many blocks fit on an SM.
 total = 65536
-x0, wide = 180, 360
-parts = [text(x0, 124, "65,536 registers per SM, blocks of 256 threads", "sub")]
-for k, (label, regs, spill) in enumerate([("80 registers", 80, False), ("64 registers", 64, False),
-                                          ("40 registers", 40, True)]):
-    y = 144 + k * 60
+x0, wide = 196, 300
+parts = [text(x0, 124, "65,536 registers in 1 SM", "sub")]
+for k, (regs, spill) in enumerate([(80, 0), (64, 0), (40, 16)]):
+    y = 144 + k * 64
     per = regs * 256
     count = min(total // per, 6)
-    parts.append(text(x0 - 14, y + 20, label, "sub", "end"))
+    parts += [text(x0 - 14, y + 15, f"{regs} registers", "name", "end"),
+              text(x0 - 14, y + 33, f"× 256 = {per:,}", "sub", "end")]
     for b in range(count):
-        parts.append(bar(x0 + b * per / total * wide, y, per / total * wide - 3, 30,
-                         "danger" if spill else "client", f"{regs * 256:,}" if per / total * wide > 60 else ""))
-    parts.append(rect(x0, y, wide, 30, "none", EDGE, 1.2, 6))
-    parts.append(mono(x0 + wide + 12, y + 20, f"{count} blocks", "start", INK))
-parts += [note(40, 342, "A block of 256 threads at 80 registers each takes 20,480 registers, so 3 fit in", room=600),
-          note(40, 360, "65,536. At 64, 4 fit. At 40, 6 fit, the limit of 1,536 threads, but the compiler", room=600),
-          note(40, 378, "had to spill values to local memory to stay under 40 on the Orin NX.", room=600)]
-save(OUT + "ch09-occupancy.svg", 660, 400,
-     "Three bars of 65,536 registers each. At 80 registers per thread, a block of 256 threads uses 20,480 "
-     "registers and 3 blocks fit. At 64, 16,384 per block and 4 fit. At 40, 10,240 per block and 6 fit.",
-     "Registers and occupancy", "Registers per thread set the number of resident blocks.", parts)
+        parts.append(box(x0 + b * per / total * wide, y, per / total * wide - 3, 36,
+                         "danger" if spill else "client", "block" if per / total * wide > 50 else "",
+                         cls="pill"))
+    parts += [f'  <rect x="{x0}" y="{y}" width="{wide}" height="36" rx="6" fill="none" stroke="{EDGE}" '
+              f'stroke-width="1.2"/>',
+              text(x0 + wide + 14, y + 15, f"{count} blocks", "name"),
+              text(x0 + wide + 14, y + 33, f"{count * 256:,} threads" + (", spills" if spill else ""), "sub")]
+parts += [note(40, 358, "1 block of 256 threads at 80 registers each needs 80 × 256 = 20,480 registers, and", room=600),
+          note(40, 376, "65,536 ÷ 20,480 = 3.2, so 3 blocks fit. At 40 registers 6 blocks fit, the limit of", room=600),
+          note(40, 394, "1,536 threads, but on the Orin NX the compiler spilled 16 bytes per thread to stay at 40.",
+               room=600)]
+save(OUT + "ch09-occupancy.svg", 660, 416,
+     "Three bars of 65,536 registers each, filled with blocks of 256 threads. At 80 registers per thread a "
+     "block needs 20,480 registers and 3 blocks fit, 768 threads. At 64, 16,384 per block and 4 fit, 1,024 "
+     "threads. At 40, 10,240 per block and 6 fit, 1,536 threads, with values spilled to memory.",
+     "Registers decide how many blocks fit", "Blocks of 256 threads on 1 SM of the Orin NX.", parts)
 
 
-# 9.6  Measured speeds on 2 boards, against cuBLAS and the FP32 peak.
-rows = [("by column", 33.6, 117.7), ("by row", 179.6, 594.0), ("tiles 16 × 16", 277.7, 945.3),
-        ("tiles 32 × 32", 219.0, 773.8), ("4 × 4, 4 blocks", 954.2, 3272.5), ("cuBLAS", 1517.9, 6172.6)]
-x0 = 170
-parts = []
-for b, (board, peak, kind, top) in enumerate([("Jetson Orin NX", 2400, "client", 104),
-                                              ("Jetson AGX Thor", 8100, "outside", 104)]):
-    left = x0 + b * 240
-    scale = 220 / peak
-    parts.append(text(left, top + 8, board, "name"))
-    for k, (label, orin, thor) in enumerate(rows):
-        v = (orin, thor)[b]
-        y = top + 24 + k * 40
-        if b == 0:
-            parts.append(text(x0 - 14, y + 18, label, "sub", "end"))
-        parts += [rect(left, y, 220, 24, "none", EDGE, 1, 5),
-                  f'  <rect x="{left}" y="{y}" width="{v * scale:.1f}" height="24" rx="5" '
-                  f'fill="{KINDS["good" if label == "cuBLAS" else kind][0]}"/>',
-                  mono(left + 220 - 6, y + 17, f"{v:,.0f}", "end", INK)]
-    parts.append(mono(left, top + 24 + 6 * 40 + 14, f"bar = peak, {peak:,} GFLOP/s", "start", MUTED))
-parts += [note(40, 418, "GFLOP/s for N = 4,096. Each bar's full width is the board's FP32 peak; the best", room=600),
-          note(40, 436, "kernel of the chapter reached 40% of it on both boards, cuBLAS 63% and 76%.", room=600)]
-save(OUT + "ch09-gflops.svg", 660, 458,
-     "Bars of SGEMM speed for N = 4096 on 2 boards, each bar's full width the board's FP32 peak. Orin NX, "
-     "peak 2,400 GFLOP/s: by column 34, by row 180, tiles of 16 278, tiles of 32 219, 4 by 4 per thread "
-     "954, cuBLAS 1,518. Thor, peak 8,100: 118, 594, 945, 774, 3,273 and 6,173.",
-     "SGEMM speed, measured on 2 boards", "From 1 thread per element to register tiles, and cuBLAS.", parts)
+# 9.9  Measured speeds on 2 boards, as a share of each board's FP32 peak.
+x0, wide = 176, 360
+parts = [legend(x0, 104, [("client", "Jetson Orin NX, peak 2,400 GFLOP/s")]),
+         legend(x0 + 260, 104, [("outside", "Jetson AGX Thor, peak 8,100")])]
+for g in range(0, 101, 25):
+    x = x0 + wide * g / 100
+    parts += [line(x, 132, x, 132 + 7 * 54, EDGE, 1), mono(x, 132 + 7 * 54 + 18, f"{g}%", "middle", MUTED)]
+for k, (name, orin, thor) in enumerate(SPEEDS):
+    y = 140 + k * 54
+    parts.append(text(x0 - 14, y + 24, name, "sub", "end"))
+    for b, (v, kind) in enumerate(((orin, "client"), (thor, "outside"))):
+        share = v / PEAKS[b]
+        colour = KINDS[kind][0]
+        w = max(wide * share, 3)
+        parts += [f'  <rect x="{x0}" y="{y + b * 20}" width="{w:.1f}" height="16" rx="4" fill="{colour}"/>',
+                  mono(x0 + w + 8, y + b * 20 + 12.5, f"{v:,.0f} GFLOP/s", "start", INK)]
+parts += [text(x0 - 14, 132 + 7 * 54 + 18, "of FP32 peak", "sub", "end"),
+          note(40, 552, "N = 4,096. Each bar is the measured speed as a share of its board's FP32 peak. The", room=600),
+          note(40, 570, "best kernel of the chapter reached 39% and 40% of peak, cuBLAS 62% and 76%.", room=600)]
+save(OUT + "ch09-gflops.svg", 660, 592,
+     "Horizontal bars of SGEMM speed for N = 4,096 as a share of each board's FP32 peak. Orin NX, peak "
+     "2,400 GFLOP/s: by column 34, by row 186, tiles of 16 274, tiles of 32 222, 4 by 4 per thread 901, "
+     "4 by 4 with the best launch bounds 932, cuBLAS 1,495 GFLOP/s. Thor, peak 8,100: 116, 596, 950, 783, "
+     "3,222, 3,264 and 6,177 GFLOP/s.",
+     "Every stage, measured on 2 boards", "GFLOP/s as a share of each board's FP32 peak.", parts)
