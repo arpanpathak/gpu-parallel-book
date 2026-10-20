@@ -35,7 +35,7 @@ run "ch05_histogram" \
     bash -c 'cd ch05_histogram && nvcc -arch="$1" histogram.cu main.cu -o histogram && ./histogram' _ "$ARCH"
 
 run "ch08_reduction" \
-    bash -c 'cd ch08_reduction && nvcc -rdc=true -arch="$1" reduction.cu main.cu -o reduction && ./reduction' _ "$ARCH"
+    bash -c 'cd ch08_reduction && nvcc -arch="$1" reduce.cu -o reduce && ./reduce' _ "$ARCH"
 
 run "ch09_sgemm" \
     bash -c 'cd ch09_sgemm && nvcc -arch="$1" sgemm.cu main.cu -o sgemm && ./sgemm' _ "$ARCH"
