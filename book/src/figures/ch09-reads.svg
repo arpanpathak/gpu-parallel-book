@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 514" width="660" height="514" role="img" aria-label="Three cards, 1 per kernel, counting the floats 1 thread reads for 16 multiply-adds. 1 per thread: 32 from global memory. Tiles of 16 by 16: 2 from global memory and 32 from shared memory. 4 by 4 per thread: half a float from global memory and 8 from shared memory.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="514" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The reads behind 16 multiply-adds</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Fewer reads per multiply-add, from closer memory, at each stage.</text>
+  <rect x="186" y="110" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="207.0" y="121.5" class="note" text-anchor="start" xml:space="preserve">1 float from global memory</text>
+  <rect x="400.6" y="110" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="421.6" y="121.5" class="note" text-anchor="start" xml:space="preserve">1 float from shared memory</text>
+  <rect x="24" y="150" width="612" height="82" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="40.0" y="176.0" class="name" text-anchor="start" xml:space="preserve">1 per thread, by row</text>
+  <rect x="434.4" y="163" width="185.6" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="527.2" y="175.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">186 GFLOP/s on the Orin NX</text>
+  <text x="40.0" y="202.0" class="sub" text-anchor="start" xml:space="preserve">32 from global</text>
+  <text x="40.0" y="220.0" class="sub" text-anchor="start" xml:space="preserve">0 from shared</text>
+  <rect x="186.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="199.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="212.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="225.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="238.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="251.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="264.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="277.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="290.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="303.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="316.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="329.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="342.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="355.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="368.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="381.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="394.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="407.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="420.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="433.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="446.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="459.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="472.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="485.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="498.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="511.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="524.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="537.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="550.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="563.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="576.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="589.0" y="192" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+
+  <rect x="24" y="246" width="612" height="82" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="40.0" y="272.0" class="name" text-anchor="start" xml:space="preserve">tiles of 16 × 16</text>
+  <rect x="434.4" y="259" width="185.6" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="527.2" y="271.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">274 GFLOP/s on the Orin NX</text>
+  <text x="40.0" y="298.0" class="sub" text-anchor="start" xml:space="preserve">2 from global</text>
+  <text x="40.0" y="316.0" class="sub" text-anchor="start" xml:space="preserve">32 from shared</text>
+  <rect x="186.0" y="288" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="199.0" y="288" width="10" height="10" rx="2.5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.1"/>
+  <rect x="186.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="199.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="212.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="225.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="238.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="251.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="264.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="277.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="290.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="303.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="316.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="329.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="342.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="355.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="368.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="381.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="394.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="407.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="420.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="433.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="446.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="459.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="472.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="485.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="498.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="511.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="524.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="537.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="550.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="563.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="576.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="589.0" y="306" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="24" y="342" width="612" height="82" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="40.0" y="368.0" class="name" text-anchor="start" xml:space="preserve">4 × 4 per thread</text>
+  <rect x="434.4" y="355" width="185.6" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="527.2" y="367.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">901 GFLOP/s on the Orin NX</text>
+  <text x="40.0" y="394.0" class="sub" text-anchor="start" xml:space="preserve">0.5 from global</text>
+  <text x="40.0" y="412.0" class="sub" text-anchor="start" xml:space="preserve">8 from shared</text>
+  <rect x="186.0" y="384" width="10" height="10" rx="2.5" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.1" stroke-dasharray="2 2"/>
+  <rect x="186.0" y="384" width="5.0" height="10" rx="1.5" fill="#B7791F" opacity="0.45"/>
+  <rect x="186.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="199.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="212.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="225.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="238.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="251.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="264.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <rect x="277.0" y="402" width="10" height="10" rx="2.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="24.0" y="456.0" class="note" text-anchor="start" xml:space="preserve">Each multiply-add needs 2 operands. 1 thread per element fetches both from global memory;</text>
+  <text x="24.0" y="474.0" class="note" text-anchor="start" xml:space="preserve">a tile fetches 2 of every 32 from global memory and the rest from shared memory; a 4 × 4</text>
+  <text x="24.0" y="492.0" class="note" text-anchor="start" xml:space="preserve">patch keeps the sums in registers and fetches 8 operands for 16 multiply-adds.</text>
+</svg>

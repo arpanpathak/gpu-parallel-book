@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 466" width="660" height="466" role="img" aria-label="Left: in a 4 by 4 product, element A[1][1] = 1 is multiplied by each value of row 1 of B, 1, 0, 2 and 1, and joins all 4 sums of row 1 of C. Right: for N = 4,096 each value has 4,096 uses; to reach the FP32 peak, each float fetched from memory must feed 94 operations on the Orin NX and 119 on the Thor.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="466" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Reuse</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Every value of A and B is needed N times.</text>
+  <rect x="16" y="104" width="340" height="340" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="146.0" height="22" rx="11" fill="#1B2430"/>
+  <text x="107.0" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1 VALUE, 4 USES</text>
+  <rect x="372" y="104" width="272" height="340" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="390" y="93" width="114.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="447.3" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">USES NEEDED</text>
+  <rect x="126.0" y="140.0" width="100.0" height="34.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="176.0" y="161.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">A[1][1] = 1</text>
+  <path d="M176,174 V214 M66,214 H294" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="176" cy="214" r="3" fill="#3F5873"/>
+  <path d="M66,214 V243" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M142,214 V243" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M218,214 V243" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M294,214 V243" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="33.0" y="246.0" width="66.0" height="40.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="66.0" y="270.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">C[1][0]</text>
+  <text x="66.0" y="310.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">+ 1 × 1</text>
+  <rect x="109.0" y="246.0" width="66.0" height="40.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="142.0" y="270.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">C[1][1]</text>
+  <text x="142.0" y="310.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">+ 1 × 0</text>
+  <rect x="185.0" y="246.0" width="66.0" height="40.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="218.0" y="270.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">C[1][2]</text>
+  <text x="218.0" y="310.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">+ 1 × 2</text>
+  <rect x="261.0" y="246.0" width="66.0" height="40.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="294.0" y="270.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">C[1][3]</text>
+  <text x="294.0" y="310.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">+ 1 × 1</text>
+  <text x="40.0" y="352.0" class="note" text-anchor="start" xml:space="preserve">A[1][1] multiplies each value of row 1 of B,</text>
+  <text x="40.0" y="370.0" class="note" text-anchor="start" xml:space="preserve">1, 0, 2 and 1, and joins all 4 sums of row 1</text>
+  <text x="40.0" y="388.0" class="note" text-anchor="start" xml:space="preserve">of C. With N = 4, every value has 4 uses.</text>
+  <rect x="392" y="136" width="232" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M404,136.7 H398 V199.3 H404 A11.3,11.3 0 0 1 392.7,188 V148 A11.3,11.3 0 0 1 404,136.7 Z" fill="#2F6FDB"/>
+  <text x="412.0" y="164.0" class="name" text-anchor="start" xml:space="preserve">N = 4,096</text>
+  <text x="412.0" y="182.0" class="sub" text-anchor="start" xml:space="preserve">every value: 4,096 uses</text>
+  <rect x="392" y="220" width="232" height="80" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M404,220.7 H398 V299.3 H404 A11.3,11.3 0 0 1 392.7,288 V232 A11.3,11.3 0 0 1 404,220.7 Z" fill="#B7791F"/>
+  <text x="412.0" y="247.0" class="name" text-anchor="start" xml:space="preserve">Orin NX: 94 FLOP</text>
+  <text x="412.0" y="265.0" class="sub" text-anchor="start" xml:space="preserve">per float from memory</text>
+  <text x="412.0" y="283.0" class="sub" text-anchor="start" xml:space="preserve">to reach the FP32 peak</text>
+  <rect x="392" y="320" width="232" height="80" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M404,320.7 H398 V399.3 H404 A11.3,11.3 0 0 1 392.7,388 V332 A11.3,11.3 0 0 1 404,320.7 Z" fill="#7A4FD0"/>
+  <text x="412.0" y="347.0" class="name" text-anchor="start" xml:space="preserve">Thor: 119 FLOP</text>
+  <text x="412.0" y="365.0" class="sub" text-anchor="start" xml:space="preserve">per float from memory</text>
+  <text x="412.0" y="383.0" class="sub" text-anchor="start" xml:space="preserve">to reach the FP32 peak</text>
+  <text x="392.0" y="426.0" class="note" text-anchor="start" xml:space="preserve">peak FLOP/s ÷ floats per second</text>
+</svg>
