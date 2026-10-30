@@ -19,16 +19,13 @@ becomes faster on a newer chip only if it divides its work among those processor
 contains thousands of simple arithmetic units
 and depends entirely on parallel programs to keep them busy.
 
-This chapter develops the quantitative tools that we use throughout the book to reason about
+In this chapter we develop the quantitative tools that we use throughout the book to reason about
 the performance of such programs. They do not depend on any particular machine. A
-*processor* here is any unit that executes instructions: a core of a CPU, or one of the
-threads of a GPU that section 1.1.5 introduces. We begin with the time that individual
+*processor* here is any unit that executes instructions: a core of a CPU, or one of the threads of a GPU, which we introduce in section 1.1.5. We begin with the time that individual
 operations take and the way in which overlapping them hides that time (section 1.1). We then
 ask how much faster a program can become on more processors, and find that the answer
 depends on the part of it that cannot be divided (sections 1.2 to 1.5). Sections 1.6 and 1.7
-classify the ways in which work divides and the machines that execute it. Section 1.8
-introduces the model that decides whether memory or arithmetic limits a computation, which
-later chapters use to judge every kernel. Sections 1.9 and 1.10 account for
+classify the ways in which work divides and the machines that execute it. In section 1.8 we introduce the model that decides whether memory or arithmetic limits a computation, and we use it in later chapters to judge every kernel. Sections 1.9 and 1.10 account for
 the costs that parallel execution adds: waiting at barriers, and performing more operations
 than a sequential program would.
 
@@ -84,10 +81,8 @@ that lack it.
 ## 1.1 Latency, throughput, and concurrency
 
 A sequential program on a modern processor spends most of its time waiting for data, and
-very little of it computing. This section measures that waiting, and shows how a machine
-can hide it by keeping many operations under way at once. The argument introduces 3
-quantities, latency, throughput and concurrency, and one law that connects them. The same law gives the number of threads a GPU must hold, which section 1.1.5 works out for
-an H100.
+very little of it computing. In this section we measure that waiting and show how a machine can hide it by keeping many operations under way at once. The argument introduces 3
+quantities, latency, throughput and concurrency, and one law that connects them. The same law gives the number of threads a GPU must hold, which we work out for an H100 in section 1.1.5.
 
 ### 1.1.1 Cycles
 
@@ -102,7 +97,7 @@ it.
 ### 1.1.2 Latency
 
 The **latency** of an operation is the time from the moment it starts to the moment its
-result can be used. The 2 operations of vector addition have very different latencies.
+result can be used. The latencies of the 2 operations of vector addition differ by a factor of more than 100.
 
 | Operation | Latency |
 |---|---|
@@ -131,8 +126,7 @@ take tens of nanoseconds, which is tens to hundreds of cycles of a processor tha
 1 to 2 GHz. The process could be made faster with larger capacitors that hold more charge.
 DRAM makers have done the opposite: they have shrunk the capacitors in each generation to
 fit more bits on a chip. As a result, the capacity and the bandwidth of DRAM have grown by
-large factors over the decades, while its latency has changed little. Chapter 2 describes
-how DRAM delivers many bytes from each opened row, which is the property that GPUs exploit.
+large factors over the decades, while its latency has changed little. In Chapter 2 we describe how DRAM delivers many bytes from each opened row, which is the property that GPUs exploit.
 
 </div>
 
@@ -140,7 +134,7 @@ how DRAM delivers many bytes from each opened row, which is the property that GP
 
 **NOTE:** The latencies in this chapter, and the 40 TFLOP/s machine of section 1.8, are
 round figures chosen to keep the arithmetic easy. They have the right order of magnitude,
-and Chapter 2 replaces them with measured values for real GPUs.
+and in Chapter 2 we replace them with measured values for real GPUs.
 
 </div>
 
@@ -173,8 +167,7 @@ It may seem that a faster adder would shorten this run. It would not: the adder 
 long because the processor waits for each read before it asks for the next one, so the reads
 take place one after another and their latencies add up. The latency of a memory read is a
 property of the hardware, and the program cannot shorten it. What the program can change is
-how many reads it has under way at the same time, which is the subject of the next 3
-sections.
+how many reads it has under way at the same time. We treat that number in sections 1.1.3 to 1.1.5.
 
 <div class="bee bee-shocked" markdown="1">
 
@@ -196,15 +189,14 @@ electronic system, such as a memory system, can transfer in a given amount of ti
 Bandwidth is a capacity of the hardware. Throughput is the rate that a stream of operations
 actually achieves, and it can be anything up to that capacity. A memory system with a
 bandwidth of 1 TB/s that receives one read at a time achieves a small fraction of it, as the
-processor of figure 1.2 does. Section 1.8 uses the bandwidth of a GPU's memory.
+processor of figure 1.2 does. We use the bandwidth of a GPU's memory in section 1.8.
 
 If a system worked on only one operation at a time, its throughput would follow from its
 latency: with reads that take 10 cycles, it would complete one read every 10 cycles. Many
 systems instead accept a new operation before the earlier ones have finished, and their
 throughput can then be much higher than one operation per latency. Memory systems work
 this way. A memory is divided into many independent parts, called channels and banks, and
-each part can work on a different read at the same time; Chapter 2 describes these parts in
-a GPU.
+each part can work on a different read at the same time; we describe these parts of a GPU in Chapter 2.
 
 Consider a simplified memory system in which every read takes 10 cycles, and which
 accepts a new read every 2 cycles. Figure 1.3 shows 8 reads sent to it, one every 2
@@ -234,7 +226,7 @@ number is the **concurrency** of the system. The dashed line in figure 1.3, at c
 10.5, crosses reads 1 to 5, so 5 reads are in flight at that moment. A line drawn at
 any later cycle, until the stream of reads ends, also crosses 5.
 
-The number 5 is not an accident of the drawing. Each read stays in flight for 10
+The count of 5 follows from the 2 rates. Each read stays in flight for 10
 cycles, and while it does, a new read starts every 2 cycles, so 10 / 2 = 5 reads start
 during its lifetime. When it completes, those 5 are the reads still in flight.
 
@@ -312,7 +304,7 @@ law gives the number of groups that keeps it busy: \\(C = 8 \times \tfrac{1}{2} 
 GPU applies the same arithmetic with latencies of hundreds of cycles, which is why it
 holds thousands of threads at once.
 
-The same law, applied to bytes, gives the scale of a real GPU. Little's law holds for any
+Applied to bytes instead of reads, the same law gives the number of threads that a real GPU needs. Little's law holds for any
 unit of work, so the number of bytes that must be in flight is the bandwidth multiplied by
 the latency.
 
@@ -354,15 +346,13 @@ requires faster circuits, which cost disproportionately more area and power. Per
 area and power, throughput costs less than latency, provided the program supplies the
 threads. A GPU therefore performs poorly on a program with one
 thread or a few, and a CPU performs poorly on a program with many; most applications that use
-a GPU run their sequential parts on the CPU and their data-parallel parts on the GPU. Section
-2.1.1 compares the 2 designs in hardware.
+a GPU run their sequential parts on the CPU and their data-parallel parts on the GPU. We compare the 2 designs in hardware in section 2.1.1.
 
 </div>
 
 ## 1.2 Speedup and efficiency
 
-Section 1.1 made one processor faster by overlapping its reads. The other way to finish sooner is to share the work among several processors. This section
-defines the 2 measures of the result. We write \\(p\\) for the number of processors,
+Section 1.1 made one processor faster by overlapping its reads. The other way to finish sooner is to share the work among several processors. In this section we define the 2 measures of the result. We write \\(p\\) for the number of processors,
 \\(T_1\\) for the running time on one processor and \\(T_p\\) for the running time on
 \\(p\\).
 
@@ -433,8 +423,7 @@ worth using.
 
 ## 1.3 Amdahl's law
 
-The table of section 1.2 showed the speedup levelling off as processors were added. This
-section explains why, and gives the limit a formula. In 1967 Gene Amdahl, the chief architect
+The table of section 1.2 showed the speedup levelling off as processors were added. In this section we explain why and give the limit a formula. In 1967 Gene Amdahl, the chief architect
 of IBM's System/360, used a short argument to show that machines with many processors would
 gain less than their designers hoped. Part of every program, he observed, can only be
 executed by one processor at a time, and that part limits what the rest of the machine can
@@ -546,7 +535,7 @@ programming effort goes into the small amount of code where the time is spent.
 Amdahl's formula is also optimistic in one respect: it assumes that the parallel part
 divides for free. In practice, handing out work and collecting results take time, and that
 time grows with the number of processors, so measured speedup curves bend over earlier than
-the formula predicts. Section 1.9 calculates one such cost.
+the formula predicts. We calculate one such cost in section 1.9.
 
 ### 1.3.3 When the parallel part has a speedup of its own
 
@@ -607,8 +596,8 @@ original run, here 2 / 100 = 0.02:
 | \\(t\\) | copy time as a fraction of the 1-core run | 0.02 in case 3 |
 | \\(S\\) | speedup of the whole program | 50, 9.2 and 25 |
 
-Chapter 4 measures what copies cost and shows that a GPU sharing the CPU's memory, as on a
-Jetson board, can skip them. Chapter 6 runs copies at the same time as computation, which
+In Chapter 4 we measure what copies cost and show that a GPU sharing the CPU's memory, as on a
+Jetson board, can skip them. In Chapter 6 we run copies at the same time as computation, which
 removes most of \\(t\\) from the formula.
 
 <div class="bee bee-shocked" markdown="1">
@@ -628,8 +617,7 @@ and the limit is \\(1 / 0.1 = 10\\).
 
 ## 1.4 Gustafson's law
 
-Amdahl's law was derived for a computation of fixed size. This section shows that the
-conclusion changes when the size of the computation grows with the machine, as it usually
+Amdahl's law was derived for a computation of fixed size. In this section we show that the conclusion changes when the size of the computation grows with the machine, as it usually
 does in practice. For 2 decades Amdahl's law was read as a verdict against large parallel
 machines. In 1988 John Gustafson and his colleagues at Sandia National Laboratories ran 3
 scientific programs on a machine with 1,024 processors. They measured speedups of 1,021,
@@ -637,7 +625,7 @@ scientific programs on a machine with 1,024 processors. They measured speedups o
 formula, a serial fraction of 0.4 percent allows a speedup of about 200 on 1,024 processors.
 The measured speedups were 5 times higher, and the arithmetic of both results was correct.
 
-The difference lay in the question being asked. Amdahl asked how much faster a fixed
+The 2 results answer different questions. Amdahl asked how much faster a fixed
 computation runs on more processors. Gustafson's group did what users of large machines
 usually do: they enlarged the problem to fill the machine, and asked how much more work
 could be done in the same time. A larger machine renders a larger image, trains on a
@@ -676,7 +664,7 @@ which is **Gustafson's law**. For the example, \\(0.1 + 4 \times 0.9 = 3.7\\). F
 Sandia programs, with \\(s = 0.004\\) and \\(p = 1{,}024\\), it gives 1,020, the speedup
 they measured.
 
-The 2 laws do not contradict each other. They measure the serial fraction against
+The 2 laws are consistent with each other. They measure the serial fraction against
 different running times, and answer different questions.
 
 | | Amdahl | Gustafson |
@@ -725,8 +713,7 @@ cover most programs.
 
 **Task parallelism** runs different computations at the same time: one processor decodes
 the next video frame while another filters the current one. Programs rarely have more than
-a handful of separate tasks, so task parallelism occupies a few processors, not thousands.
-Chapter 6 uses it to overlap data transfers with computation.
+a handful of separate tasks, so task parallelism occupies a few processors at most. In Chapter 6 we use it to overlap data transfers with computation.
 
 **Data parallelism** runs the same computation on different parts of the data at the same
 time. Vector addition is data parallel: every row runs the same instructions, and each
@@ -734,7 +721,7 @@ processor takes some of the rows. The number of parts grows with the data, which
 machine with thousands of processors needs. Data parallelism is also easier to reason about
 than task parallelism, because every processor executes the same code, and a programmer can
 understand the whole computation by understanding one part of it. GPUs are built for data
-parallelism, and most of this book uses it.
+parallelism, and we use it in most of this book.
 
 **Pipeline parallelism** splits the work on each item into stages, such as load, compute
 and store, and lets different items occupy different stages at the same time, like an
@@ -760,8 +747,7 @@ Chapter 6, where the stages are a copy to the GPU, a kernel and a copy back.
 
 ## 1.7 Flynn's taxonomy
 
-The patterns of section 1.6 describe programs. This section classifies the machines that run
-them, by the way in which their processors receive instructions. In 1966 Michael Flynn sorted
+The patterns of section 1.6 describe programs. In this section we classify the machines that run them, by the way in which their processors receive instructions. In 1966 Michael Flynn sorted
 computers by 2 counts: the number of **instruction streams** a machine follows at once, and
 the number of **data streams** those instructions work on. With one or many of each there
 are 4 classes. Figure 1.10 shows one computation, adding 8 pairs of numbers, on each kind of
@@ -786,20 +772,17 @@ A GPU fits none of the 4 exactly. NVIDIA calls its design **SIMT**, for single
 instruction, multiple threads. As in SIMD, one instruction is issued to a whole group of
 threads, so the cost of fetching and decoding the instruction is shared among them; this
 sharing is what lets a GPU devote most of its area to arithmetic units. Unlike SIMD, every
-thread has its own registers, so the programmer writes an ordinary sequential program for
-one thread and the hardware runs it for many. A SIMD programmer must arrange the data into
+thread has its own registers, so a programmer writes an ordinary sequential program for one thread and the hardware runs it for many. A SIMD programmer must arrange the data into
 vector registers by hand; a SIMT programmer does not.
 
 The difference becomes visible at a branch. When some threads of a group take the `if`
 side and others the `else` side, the group cannot do both at once. It runs one side while
 the threads of the other side wait, and then runs the other side. The program remains
-correct, but the group spends time on both sides. Chapter 2 shows how the hardware forms
-these groups and what such a split costs.
+correct, but the group spends time on both sides. In Chapter 2 we show how the hardware forms these groups and what such a split costs.
 
 ## 1.8 Arithmetic intensity and the roofline
 
-The previous sections asked how many processors a program can use. This section asks a
-different question: given a machine, which of its resources limits a computation. An NVIDIA H100 can perform
+The previous sections asked how many processors a program can use. In this section we ask a different question: given a machine, which of its resources limits a computation. An NVIDIA H100 can perform
 67 trillion additions of 32-bit numbers per second. Given 2 long arrays to add, element by
 element, it performs about 0.28 trillion, less than half of one percent of its peak. The GPU
 is working correctly: its arithmetic units spend almost all of their time waiting for
@@ -848,8 +831,7 @@ For \\(N = 2\\) this is the \\(1/3\\) we counted. For \\(N = 4{,}096\\) it is ab
 (figure 1.11). The number of times a byte is used after it arrives is its **reuse**.
 Vector addition uses every byte once, and a large matrix product uses each one thousands
 of times. The count above assumes that each number is fetched from memory only once, which a
-program achieves only if it keeps the numbers close to the processor between uses; whether
-it does is the subject of Chapter 9.
+program achieves only if it keeps the numbers close to the processor between uses; we examine whether it does in Chapter 9.
 
 <figure>
 <img src="../../figures/ch01-intensity.svg" alt="2 rows of squares. Vector addition: 12 bytes moved, drawn as 12 small squares, against 1 FLOP, an intensity of 1/12, about 0.08. A 2 by 2 matrix multiply: 48 bytes moved against 16 FLOPs, an intensity of 1/3. A card below gives the general case: for N by N matrices the intensity is N/6, about 680 at N = 4,096.">
@@ -900,8 +882,7 @@ picture in 2009 and named it the **roofline** (figure 1.12).
 The H100 delivers 3.35 TB/s from its memory, so its ridge is at 67 / 3.35 = 20 FLOP per
 byte. Vector addition, at 1/12, sits far down the slope, and
 \\(\tfrac{1}{12} \times 3.35 = 0.28\\) TFLOP/s is the speed quoted at the start of this
-section. Section 2.1 repeats the calculation for the Jetson board used in this
-book.
+section. In section 2.1.5 we repeat the calculation for 7 current GPUs.
 
 The roofline is an upper bound, and a program can sit well below it. The most common reason is the one of section 1.1. The memory delivers \\(B\\) bytes per second only if
 enough reads are in flight to satisfy Little's law; a program that offers too few
@@ -921,9 +902,8 @@ A computation moves to the right on the roofline when each byte it loads is used
 often. In the inner loop of a straightforward matrix product, each step reads 2 numbers,
 8 bytes, for 2 FLOPs, an intensity of 0.25. If a 16 × 16 block of the result is kept in
 registers, every number read is used 16 times and the intensity rises to about 4. The
-technique is called **tiling**, and Chapter 9 builds it step by step (animation 3). Vector
-addition offers nothing to reuse, so it can only become faster by moving its bytes more
-efficiently, the subject of section 2.7 and Chapter 7.
+technique is called **tiling**, and we build it step by step in Chapter 9 (animation 3). Vector
+addition offers nothing to reuse, so it can only become faster by moving its bytes more efficiently, which we treat in section 2.7 and Chapter 7.
 
 <figure class="anim">
 <video class="motion" src="../../figures/ch01-roofline.mp4" autoplay loop muted playsinline preload="metadata" aria-label="The inner loop of a matrix product on a roofline plot, one k at a time. 4 k steps move 8 values for 8 FLOPs, which sits at 0.25 FLOP per byte on the diagonal. A 16 by 16 tile in registers reuses each value 16 times and lifts the loop to about 4 FLOP per byte. The last step removes the tile and the loop falls back to the diagonal." data-chapters="[[0.0, &quot;the loop&quot;], [18.42, &quot;reuse&quot;], [37.62, &quot;no tile&quot;]]"><img src="../../figures/ch01-roofline.gif" alt="The inner loop of a matrix product on a roofline plot, one k at a time. 4 k steps move 8 values for 8 FLOPs, which sits at 0.25 FLOP per byte on the diagonal. A 16 by 16 tile in registers reuses each value 16 times and lifts the loop to about 4 FLOP per byte. The last step removes the tile and the loop falls back to the diagonal."></video>
@@ -956,9 +936,7 @@ An experiment confirms the bound: make one resource twice as fast and measure ag
 A video encoder that spends 98% of its time computing and 2% reading frames is CPU-bound:
 a faster disk changes nothing, and a processor twice as fast nearly halves its running
 time. The bound of a program is the first thing to establish before optimising it, because
-an optimisation aimed at a resource that is not the bound cannot help. Chapter 7 treats
-memory-bound GPU programs, Chapter 9 compute-bound ones and Chapter 6 programs that wait for
-data transfers. Chapter 16 shows how a profiler measures the bound instead of guessing it.
+an optimisation aimed at a resource that is not the bound cannot help. We treat memory-bound GPU programs in Chapter 7, compute-bound ones in Chapter 9 and programs that wait for data transfers in Chapter 6. In Chapter 16 we show how a profiler measures the bound instead of guessing it.
 
 ## 1.9 The cost of synchronization
 
@@ -967,7 +945,7 @@ from start to finish. Real parallel computations must also coordinate. Many of t
 combining the results of their processors, for example by adding partial sums, and the
 results cannot be combined until every processor has finished. The usual mechanism is a
 **barrier**: a point in the program at which each processor stops until all the others have
-reached it. Chapter 5 shows how barriers are built; this section calculates what they cost.
+reached it. We show how barriers are built in Chapter 5; here we calculate what they cost.
 
 If 4 processors each perform 1,000 cycles of work and then spend 100 cycles at a
 barrier, each works for 1,000 of every 1,100 cycles, an efficiency of 0.91. Work is
@@ -1010,7 +988,7 @@ result, and the results are combined once, at the end.
 
 </div>
 
-Chapter 8 applies this to the sum of \\(N\\) numbers and reduces the number of barriers from
+In Chapter 8 we apply this to the sum of \\(N\\) numbers and reduce the number of barriers from
 about \\(\log_2 N\\) to a small constant.
 
 ## 1.10 Work, steps and work efficiency
@@ -1018,14 +996,13 @@ about \\(\log_2 N\\) to a small constant.
 The laws of this chapter compare a parallel program with a sequential one as if both
 performed the same operations. That assumption often fails. Many parallel algorithms perform
 more operations than the best sequential algorithm, and for large inputs the extra operations
-can make them slower than the program they replace. This section measures a parallel
-algorithm by 2 counts that expose the problem, and derives bounds on its running time from
+can make them slower than the program they replace. In this section we measure a parallel algorithm by 2 counts that expose the problem, and derive bounds on its running time from
 them.
 
 Section 1.1.5 showed that the operations of a dependency chain cannot overlap. The 2 counts
 turn that observation into numbers. The **work** \\(W\\) of an algorithm is the number of
 operations it performs. Its **steps** \\(D\\), also called its depth or span, is the number of
-operations in its longest dependency chain. Chapter 8 uses the same 2 counts for sums. In
+operations in its longest dependency chain. We use the same 2 counts for sums in Chapter 8. In
 this section we count time in units of 1 operation, and assume that every operation takes 1
 unit.
 
@@ -1123,9 +1100,8 @@ scan's 10 beat the tree scan's 20 (figure 1.15).
 
 Neither scan is better in general; the choice depends on how many processors the scan
 actually has. A warp of 32 GPU threads executes every step of the shifted scan together,
-whether a thread adds or not, so its extra work costs no time there, and section 8.7.2 uses
-the shifted scan inside a warp for that reason. Across a whole block, each step usually ends
-at a barrier. \\(D\\) then counts barriers too, and section 1.9 gives the price of each.
+whether a thread adds or not, so its extra work costs no time there, and for that reason we use the shifted scan inside a warp in section 8.7.2. Across a whole block, each step usually ends
+at a barrier. \\(D\\) then counts barriers too, and the price of each is calculated in section 1.9.
 
 <div class="bee bee-happy" markdown="1">
 
@@ -1179,9 +1155,7 @@ processors beyond about 1,000 wait.
 
 </div>
 
-Chapter 2 opens up the GPU: how its processors are organised, how it keeps hundreds of
-memory reads in flight, and where the ridge point of the Jetson board used in this book
-lies.
+In Chapter 2 we describe the organisation of the GPU: how its processors are arranged, how it keeps hundreds of memory reads in flight, and where the ridge points of current GPUs lie.
 
 ## Exercises
 
