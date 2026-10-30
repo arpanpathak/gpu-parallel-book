@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 580" width="640" height="580" role="img" aria-label="A program with 1 second of serial work and 99 seconds of parallel work, drawn to scale. a: on 1 core, 100 seconds. b: the parallel part runs 100 times faster, 1.99 seconds, a speedup of 50. c: the parallel part runs 10 times faster, 10.9 seconds, a speedup of 9.2. d: 100 times faster, but with 2 seconds of copies, 3.99 seconds, a speedup of 25. An enlarged view shows that in b the serial second is half of the run, and in d the copies are half of the run.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="580" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Amdahl&#x27;s law with a parallel part of limited speedup</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1 s serial and 99 s parallel. Rows b to d speed up only the 99 s.</text>
+  <rect x="16" y="100" width="608" height="250" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="89" width="224.6" height="22" rx="11" fill="#1B2430"/>
+  <text x="146.3" y="104.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">TO SCALE: 5 PX PER SECOND</text>
+  <text x="48.0" y="134.0" class="name" text-anchor="start" xml:space="preserve">a  1 core</text>
+  <rect x="48.0" y="142.0" width="5.0" height="22.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="53.0" y="142.0" width="495.0" height="22.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="300.5" y="157.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">parallel part 99 s</text>
+  <rect x="558.0" y="144" width="73.4" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="594.7" y="156.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">100 s: 1x</text>
+  <text x="48.0" y="186.0" class="name" text-anchor="start" xml:space="preserve">b  parallel part 100x faster</text>
+  <rect x="48.0" y="194.0" width="5.0" height="22.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="53.0" y="194.0" width="5.0" height="22.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="68.0" y="196" width="86.6" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="111.2" y="208.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">1.99 s: 50x</text>
+  <text x="48.0" y="238.0" class="name" text-anchor="start" xml:space="preserve">c  parallel part 10x faster</text>
+  <rect x="48.0" y="246.0" width="5.0" height="22.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="53.0" y="246.0" width="49.5" height="22.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="112.5" y="248" width="93.2" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="159.1" y="260.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">10.9 s: 9.2x</text>
+  <text x="48.0" y="290.0" class="name" text-anchor="start" xml:space="preserve">d  100x, plus 2 s of copies</text>
+  <rect x="48.0" y="298.0" width="5.0" height="22.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="53.0" y="298.0" width="5.0" height="22.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="58.0" y="298.0" width="10.0" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="78.0" y="300" width="86.6" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="121.2" y="312.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3.99 s: 25x</text>
+  <rect x="16" y="380" width="608" height="150" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="369" width="413.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="240.7" y="384.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">ROWS B AND D ENLARGED 20 TIMES: 100 PX PER SECOND</text>
+  <text x="48.0" y="414.0" class="name" text-anchor="start" xml:space="preserve">b  1.99 s</text>
+  <rect x="48.0" y="422.0" width="100.0" height="24.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="98.0" y="438.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">serial 1 s</text>
+  <rect x="148.0" y="422.0" width="99.0" height="24.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="197.5" y="438.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0.99 s</text>
+  <text x="48.0" y="470.0" class="name" text-anchor="start" xml:space="preserve">d  3.99 s</text>
+  <rect x="48.0" y="478.0" width="100.0" height="24.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="98.0" y="494.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">serial 1 s</text>
+  <rect x="148.0" y="478.0" width="99.0" height="24.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="197.5" y="494.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0.99 s</text>
+  <rect x="247.0" y="478.0" width="200.0" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="347.0" y="494.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">copies 2 s</text>
+  <rect x="48" y="546" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="69.0" y="557.5" class="note" text-anchor="start" xml:space="preserve">serial</text>
+  <rect x="130.6" y="546" width="14" height="14" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="151.6" y="557.5" class="note" text-anchor="start" xml:space="preserve">parallel part</text>
+  <rect x="259.4" y="546" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="280.4" y="557.5" class="note" text-anchor="start" xml:space="preserve">copies to and from</text>
+</svg>

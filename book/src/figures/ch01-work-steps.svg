@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460" width="640" height="460" role="img" aria-label="A log-log plot of time in steps against the number of processors, for 3 scans of 1,024 values. The serial scan is a flat dashed line at 1,023 steps. The tree scan, work 2,046 and 20 steps, falls as 2,046 / p, crosses the serial line at p = 2 and flattens at 20 steps. The shifted scan, work 9,217 and 10 steps, starts at 9,217, crosses the serial line at p = 9, and flattens at 10 steps, below the tree scan from p = 461.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="460" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Work sets the time on few processors, steps on many</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">3 scans of 1,024 values. Each curve is max(W / p, D).</text>
+  <rect x="84" y="100" width="386" height="300" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <line x1="84.0" y1="400.0" x2="84.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="84.0" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="161.2" y1="400.0" x2="161.2" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="161.2" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <line x1="238.4" y1="400.0" x2="238.4" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="238.4" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <line x1="315.6" y1="400.0" x2="315.6" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="315.6" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">64</text>
+  <line x1="392.8" y1="400.0" x2="392.8" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="392.8" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">256</text>
+  <line x1="470.0" y1="400.0" x2="470.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="470.0" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1,024</text>
+  <line x1="84.0" y1="400.0" x2="470.0" y2="400.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="76.0" y="404.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="84.0" y1="325.0" x2="470.0" y2="325.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="76.0" y="329.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <line x1="84.0" y1="250.0" x2="470.0" y2="250.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="76.0" y="254.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">100</text>
+  <line x1="84.0" y1="175.0" x2="470.0" y2="175.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="76.0" y="179.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1,000</text>
+  <line x1="84.0" y1="100.0" x2="470.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="76.0" y="104.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10,000</text>
+  <text x="277.0" y="440.0" class="sub" text-anchor="middle" xml:space="preserve">processors p</text>
+  <text x="28.0" y="86.0" class="sub" text-anchor="start" xml:space="preserve">time in steps</text>
+  <line x1="84.0" y1="174.3" x2="470.0" y2="174.3" stroke="#7F8EA0" stroke-width="2.4" stroke-dasharray="7 5"/>
+  <polyline points="84.0,151.7 86.4,153.1 88.8,154.5 91.2,155.9 93.6,157.3 96.1,158.7 98.5,160.1 100.9,161.6 103.3,163.0 105.7,164.4 108.1,165.8 110.5,167.2 112.9,168.6 115.4,170.0 117.8,171.4 120.2,172.8 122.6,174.3 125.0,175.7 127.4,177.1 129.8,178.5 132.2,179.9 134.7,181.3 137.1,182.7 139.5,184.1 141.9,185.5 144.3,187.0 146.7,188.4 149.1,189.8 151.6,191.2 154.0,192.6 156.4,194.0 158.8,195.4 161.2,196.8 163.6,198.2 166.0,199.7 168.4,201.1 170.8,202.5 173.3,203.9 175.7,205.3 178.1,206.7 180.5,208.1 182.9,209.5 185.3,210.9 187.7,212.4 190.2,213.8 192.6,215.2 195.0,216.6 197.4,218.0 199.8,219.4 202.2,220.8 204.6,222.2 207.0,223.6 209.4,225.1 211.9,226.5 214.3,227.9 216.7,229.3 219.1,230.7 221.5,232.1 223.9,233.5 226.3,234.9 228.8,236.3 231.2,237.8 233.6,239.2 236.0,240.6 238.4,242.0 240.8,243.4 243.2,244.8 245.6,246.2 248.1,247.6 250.5,249.0 252.9,250.5 255.3,251.9 257.7,253.3 260.1,254.7 262.5,256.1 264.9,257.5 267.4,258.9 269.8,260.3 272.2,261.7 274.6,263.2 277.0,264.6 279.4,266.0 281.8,267.4 284.2,268.8 286.6,270.2 289.1,271.6 291.5,273.0 293.9,274.4 296.3,275.9 298.7,277.3 301.1,278.7 303.5,280.1 305.9,281.5 308.4,282.9 310.8,284.3 313.2,285.7 315.6,287.1 318.0,288.6 320.4,290.0 322.8,291.4 325.2,292.8 327.7,294.2 330.1,295.6 332.5,297.0 334.9,298.4 337.3,299.8 339.7,301.3 342.1,302.4 344.6,302.4 347.0,302.4 349.4,302.4 351.8,302.4 354.2,302.4 356.6,302.4 359.0,302.4 361.4,302.4 363.9,302.4 366.3,302.4 368.7,302.4 371.1,302.4 373.5,302.4 375.9,302.4 378.3,302.4 380.7,302.4 383.1,302.4 385.6,302.4 388.0,302.4 390.4,302.4 392.8,302.4 395.2,302.4 397.6,302.4 400.0,302.4 402.4,302.4 404.9,302.4 407.3,302.4 409.7,302.4 412.1,302.4 414.5,302.4 416.9,302.4 419.3,302.4 421.8,302.4 424.2,302.4 426.6,302.4 429.0,302.4 431.4,302.4 433.8,302.4 436.2,302.4 438.6,302.4 441.1,302.4 443.5,302.4 445.9,302.4 448.3,302.4 450.7,302.4 453.1,302.4 455.5,302.4 457.9,302.4 460.4,302.4 462.8,302.4 465.2,302.4 467.6,302.4 470.0,302.4" fill="none" stroke="#B7791F" stroke-width="2.6"/>
+  <polyline points="84.0,102.7 86.4,104.1 88.8,105.5 91.2,106.9 93.6,108.3 96.1,109.7 98.5,111.1 100.9,112.5 103.3,113.9 105.7,115.4 108.1,116.8 110.5,118.2 112.9,119.6 115.4,121.0 117.8,122.4 120.2,123.8 122.6,125.2 125.0,126.6 127.4,128.1 129.8,129.5 132.2,130.9 134.7,132.3 137.1,133.7 139.5,135.1 141.9,136.5 144.3,137.9 146.7,139.3 149.1,140.8 151.6,142.2 154.0,143.6 156.4,145.0 158.8,146.4 161.2,147.8 163.6,149.2 166.0,150.6 168.4,152.0 170.8,153.5 173.3,154.9 175.7,156.3 178.1,157.7 180.5,159.1 182.9,160.5 185.3,161.9 187.7,163.3 190.2,164.7 192.6,166.2 195.0,167.6 197.4,169.0 199.8,170.4 202.2,171.8 204.6,173.2 207.0,174.6 209.4,176.0 211.9,177.4 214.3,178.9 216.7,180.3 219.1,181.7 221.5,183.1 223.9,184.5 226.3,185.9 228.8,187.3 231.2,188.7 233.6,190.1 236.0,191.6 238.4,193.0 240.8,194.4 243.2,195.8 245.6,197.2 248.1,198.6 250.5,200.0 252.9,201.4 255.3,202.8 257.7,204.3 260.1,205.7 262.5,207.1 264.9,208.5 267.4,209.9 269.8,211.3 272.2,212.7 274.6,214.1 277.0,215.5 279.4,217.0 281.8,218.4 284.2,219.8 286.6,221.2 289.1,222.6 291.5,224.0 293.9,225.4 296.3,226.8 298.7,228.2 301.1,229.7 303.5,231.1 305.9,232.5 308.4,233.9 310.8,235.3 313.2,236.7 315.6,238.1 318.0,239.5 320.4,240.9 322.8,242.4 325.2,243.8 327.7,245.2 330.1,246.6 332.5,248.0 334.9,249.4 337.3,250.8 339.7,252.2 342.1,253.6 344.6,255.1 347.0,256.5 349.4,257.9 351.8,259.3 354.2,260.7 356.6,262.1 359.0,263.5 361.4,264.9 363.9,266.3 366.3,267.8 368.7,269.2 371.1,270.6 373.5,272.0 375.9,273.4 378.3,274.8 380.7,276.2 383.1,277.6 385.6,279.0 388.0,280.5 390.4,281.9 392.8,283.3 395.2,284.7 397.6,286.1 400.0,287.5 402.4,288.9 404.9,290.3 407.3,291.7 409.7,293.2 412.1,294.6 414.5,296.0 416.9,297.4 419.3,298.8 421.8,300.2 424.2,301.6 426.6,303.0 429.0,304.4 431.4,305.9 433.8,307.3 436.2,308.7 438.6,310.1 441.1,311.5 443.5,312.9 445.9,314.3 448.3,315.7 450.7,317.1 453.1,318.6 455.5,320.0 457.9,321.4 460.4,322.8 462.8,324.2 465.2,325.0 467.6,325.0 470.0,325.0" fill="none" stroke="#CF4526" stroke-width="2.6"/>
+  <line x1="122.6" y1="174.3" x2="122.6" y2="352.0" stroke="#B7791F" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <circle cx="122.6" cy="174.3" r="4.5" fill="#B7791F"/>
+  <rect x="128.6" y="343" width="47.0" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="152.1" y="355.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">p = 2</text>
+  <line x1="206.4" y1="174.3" x2="206.4" y2="374.0" stroke="#CF4526" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <circle cx="206.4" cy="174.3" r="4.5" fill="#CF4526"/>
+  <rect x="212.4" y="365" width="47.0" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="235.9" y="377.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">p = 9</text>
+  <text x="484.0" y="130.0" class="name" text-anchor="start" xml:space="preserve">lower bound on time:</text>
+  <text x="484.0" y="150.0" class="mono" text-anchor="start" xml:space="preserve">max(W / p, D)</text>
+  <rect x="484" y="180" width="14" height="14" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="505.0" y="191.5" class="note" text-anchor="start" xml:space="preserve">serial</text>
+  <rect x="484" y="204" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="505.0" y="215.5" class="note" text-anchor="start" xml:space="preserve">tree scan</text>
+  <rect x="484" y="228" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="505.0" y="239.5" class="note" text-anchor="start" xml:space="preserve">shifted scan</text>
+  <text x="484.0" y="276.0" class="note" text-anchor="start" xml:space="preserve">W = work, D = steps</text>
+  <text x="484.0" y="300.0" class="note" text-anchor="start" xml:space="preserve">the dots: equal to</text>
+  <text x="484.0" y="318.0" class="note" text-anchor="start" xml:space="preserve">the serial scan</text>
+  <text x="484.0" y="356.0" class="note" text-anchor="start" xml:space="preserve">past p = 461 the</text>
+  <text x="484.0" y="374.0" class="note" text-anchor="start" xml:space="preserve">shifted scan is</text>
+  <text x="484.0" y="392.0" class="note" text-anchor="start" xml:space="preserve">faster: 10 &lt; 20</text>
+</svg>

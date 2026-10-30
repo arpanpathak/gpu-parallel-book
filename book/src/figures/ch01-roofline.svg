@@ -86,8 +86,8 @@
   <rect x="115.1" y="339.4354091092658" width="119.6" height="18" rx="9" fill="#EAF1FD"/>
   <text x="174.9" y="352.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">vector add: 0.08</text>
   <circle cx="360.1" cy="191.3" r="6" fill="#1F8A70" stroke="#FFFFFF" stroke-width="2"/>
-  <rect x="370.1" y="201.2535909274476" width="106.4" height="18" rx="9" fill="#E4F4EF"/>
-  <text x="423.3" y="213.9" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">matmul, N = 64</text>
+  <rect x="241.7" y="163.2535909274476" width="106.4" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="294.9" y="175.9" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">matmul, N = 64</text>
   <circle cx="578.7" cy="142.7" r="6" fill="#7A4FD0" stroke="#FFFFFF" stroke-width="2"/>
   <rect x="442.5" y="112.71455758468531" width="126.2" height="18" rx="9" fill="#F0EAFB"/>
   <text x="505.6" y="125.3" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">matmul, N = 4,096</text>

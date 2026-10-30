@@ -110,10 +110,14 @@ for k in range(4):
     left = x0 + k * (wait_w + add_w + gap)
     parts.append(bar(left, top, wait_w, 40, "idle", f"row {k}: waiting"))
     parts.append(bar(left + wait_w, top, add_w, 40, "danger", solid=True))
+parts.append(line(x0, top + 56, x0 + 560, top + 56, MUTED, 1))
+for k in range(5):
+    tx = x0 + k * (wait_w + add_w + gap) - (gap if 0 < k < 4 else 0) + (0 if k < 4 else -gap * 0)
+    tx = min(tx, x0 + 560)
+    parts += [line(tx, top + 52, tx, top + 60, MUTED, 1.2),
+              mono(tx, top + 76, f"{504 * k:,}" + (" cycles" if k == 4 else ""),
+                   "start" if k == 0 else ("end" if k == 4 else "middle"), MUTED)]
 parts += [
-    line(x0, top + 56, x0 + 560, top + 56, MUTED, 1),
-    mono(x0, top + 74, "0", "start", MUTED),
-    mono(x0 + 560, top + 74, "2,016 cycles", "end", MUTED),
     legend(x0, top + 110, [("idle", "waiting for a[i] and b[i]: 500 cycles"), ("danger", "add: 4 cycles")]),
     card(x0, top + 134, 470, 58, "danger", "The adder works 16 of 2,016 cycles",
          "under 1% of the time; add bars drawn wider than to scale"),
@@ -154,57 +158,81 @@ save(OUT + "ch01-overlap.svg", 640, bottom + 152,
      "Reads that overlap", "Every read takes 10 cycles, and a new read starts every 2 cycles.", parts)
 
 
-# 1.3  The same 500-cycle read, with 1 in flight and with 250 in flight.
-s = 0.5                                         # pixels per cycle
-parts = [zone(24, 104, 592, 128, "1 read in flight")]
-for k in range(2):
-    parts.append(bar(48 + k * 500 * s, 140, 500 * s - 4, 26, "idle", f"read {k}: 500 cycles"))
-parts += [
-    tag(48 + 500 * s - 70, 176, "value 1", "service"),
-    tag(48 + 1000 * s - 74, 176, "value 2", "service"),
-    note(48, 218, "one value every 500 cycles", room=540),
-    zone(24, 268, 592, 196, "250 reads in flight"),
-]
-for k in range(8):
-    parts.append(bar(48 + k * 16, 296 + k * 14, 500 * s - 4, 12, "good"))
-parts += [
-    note(48 + 8 * 16 + 500 * s + 4, 330, "8 of the 250 reads"),
-    note(48 + 8 * 16 + 500 * s + 4, 348, "are drawn"),
-    note(48, 430, "a new read starts every 2 cycles, so after the first 500 cycles", room=540),
-    note(48, 448, "one value arrives every 2 cycles: 250 times as many", room=540),
-    mascot(526, 372, 76, "happy"),
-]
-save(OUT + "ch01-little.svg", 640, 490,
-     "Two panels. Top, 1 read in flight: two reads of 500 cycles run one after the other, and a value "
-     "arrives every 500 cycles. Bottom, 250 reads in flight: the reads are drawn as staggered bars that "
-     "start 2 cycles apart, each still 500 cycles long, and after the first 500 cycles a value arrives "
-     "every 2 cycles.",
+# 1.3  The same 500-cycle read, with 1 in flight and with 250 in flight, on one time axis.
+X0, sc = 60, 0.34                               # pixels per cycle; 1,500 cycles = 510 px
+cx = lambda c: X0 + c * sc
+def axis(y):
+    out = [line(X0, y, cx(1500), y, MUTED, 1)]
+    for c in range(0, 1501, 250):
+        out += [line(cx(c), y - 4, cx(c), y + 4, MUTED, 1.2),
+                mono(cx(c), y + 18, f"{c:,}", "middle", MUTED)]
+    return out
+parts = [zone(24, 100, 592, 150, "1 read in flight: each read waits for the one before")]
+for k in range(3):
+    parts.append(bar(cx(500 * k) + 1, 128, 500 * sc - 2, 26, "idle", f"read {k}: 500 cycles"))
+    parts.append(f'  <circle cx="{cx(500 * (k + 1)):.1f}" cy="172" r="5" fill="{KINDS["service"][0]}"/>')
+parts += axis(190)
+parts += [tag(cx(1500), 216, "by cycle 1,500: 3 values", "service", "end"),
+          note(X0, 230, "a dot is a value arriving", room=300)]
+# Bottom: read k starts at cycle 2k and ends at 2k + 500; 500 reads stacked, 1 slice each.
+top, h = 300, 120
+poly = [(cx(0), top), (cx(500), top), (cx(1500), top + h), (cx(1000), top + h)]
+parts += [zone(24, 272, 592, 282, "250 reads in flight: a new read every 2 cycles"),
+          '  <polygon points="' + " ".join(f"{x:.1f},{y:.1f}" for x, y in poly)
+          + f'" fill="{KINDS["good"][1]}" stroke="{KINDS["good"][0]}" stroke-width="1.4"/>']
+for k, name in ((0, "read 0: cycles 0 to 500"), (499, "read 499: cycles 998 to 1,498")):
+    y = top + h * k / 500
+    parts.append(line(cx(2 * k), y, cx(2 * k + 500), y, KINDS["good"][0], 2.6))
+parts += [note(cx(0), top - 8, "read 0: cycles 0 to 500"),
+          note(cx(1000), top + h + 18, "read 499: cycles 998 to 1,498", "middle"),
+          note(cx(1000), top + 14, "each horizontal slice of the band"),
+          note(cx(1000), top + 32, "is 1 read of 500 cycles"),
+          line(cx(750), top - 8, cx(750), top + h + 8, KINDS["danger"][0], 2, "6 5"),
+          tag(cx(750) + 6, top + h / 2 - 9, "cycle 750: 250 in flight", "danger")]
+rug = top + h + 38
+parts += [f'  <rect x="{cx(500):.1f}" y="{rug - 7}" width="{1000 * sc:.1f}" height="14" fill="{KINDS["service"][0]}"'
+          ' opacity="0.85"/>']
+parts += axis(rug + 22)
+parts += [tag(cx(1500), rug + 48, "by cycle 1,500: 501 values", "service", "end"),
+          note(X0, rug + 48 + 13, "the solid band: a value every 2 cycles", room=300)]
+save(OUT + "ch01-little.svg", 640, 576,
+     "2 panels on the same time axis, 0 to 1,500 cycles. Top, 1 read in flight: 3 reads of 500 cycles run "
+     "one after another, and a value arrives at cycles 500, 1,000 and 1,500: 3 values. Bottom, a new read "
+     "starts every 2 cycles: 500 reads, each a thin slice 500 cycles long, form a slanted band from read 0 "
+     "(cycles 0 to 500) to read 499 (cycles 998 to 1,498). A dashed line at cycle 750 crosses 250 slices: "
+     "250 reads in flight. From cycle 500 on a value arrives every 2 cycles, 501 values by cycle 1,500.",
      "One read in flight, or 250", "Each read takes 500 cycles in both panels. Only the number in flight changes.",
      parts)
 
 
 # 1.4  Amdahl on a timeline: 20 + 100 + 10 microseconds on 1 processor and on 8.
-s, x0 = 3.6, 48                                 # pixels per microsecond
+s, x0 = 3.8, 40                                 # pixels per microsecond
 parts = [
     tile(x0, 88, "chip"), text(x0 + 36, 108, "1 processor", "name"),
-    bar(x0, 120, 20 * s, 34, "danger", "read 20"),
+    bar(x0, 120, 20 * s, 34, "danger", "read 20 µs"),
     bar(x0 + 20 * s, 120, 100 * s, 34, "good", "compute 100 µs"),
-    bar(x0 + 120 * s, 120, 10 * s, 34, "danger", "10"),
+    bar(x0 + 120 * s, 120, 10 * s, 34, "danger"),
+    mono(x0 + 125 * s, 170, "write 10 µs", "middle", MUTED),
     tag(x0 + 130 * s + 10, 128, "130 µs", "idle"),
     tile(x0, 182, "chip"), text(x0 + 36, 202, "8 processors", "name"),
-    bar(x0, 263, 20 * s - 2, 34, "danger", "read 20"),
+    bar(x0, 263, 20 * s - 2, 34, "danger", "read 20 µs"),
 ]
 for lane in range(8):
     parts.append(bar(x0 + 20 * s, 214 + lane * 17, 12.5 * s - 2, 14, "good"))
 parts += [
-    bar(x0 + 32.5 * s, 263, 10 * s, 34, "danger", "10"),
+    bar(x0 + 32.5 * s, 263, 10 * s, 34, "danger"),
     tag(x0 + 42.5 * s + 10, 271, "42.5 µs", "idle"),
-    note(x0 + 42.5 * s + 90, 238, "the compute phase: 12.5 µs"),
-    note(x0 + 42.5 * s + 90, 256, "on each of the 8 processors,"),
-    note(x0 + 42.5 * s + 90, 274, "all at the same time"),
-    legend(x0, 396, [("danger", "serial: one processor at a time"), ("good", "parallel: divides by p")]),
+    note(x0 + 42.5 * s + 90, 238, "compute: 8 × 12.5 µs, side by side"),
+    note(x0 + 42.5 * s + 90, 256, "read and write: 30 µs, unchanged"),
+    note(x0 + 42.5 * s + 90, 274, "speedup 130 / 42.5 = 3.06"),
+    line(x0, 360, x0 + 130 * s, 360, MUTED, 1),
+    legend(x0, 404, [("danger", "serial: one processor at a time"), ("good", "parallel: divides by p")]),
 ]
-save(OUT + "ch01-amdahl-timeline.svg", 640, 424,
+for t in (0, 20, 32.5, 42.5, 130):
+    parts += [line(x0 + t * s, 356, x0 + t * s, 364, MUTED, 1.2),
+              mono(x0 + t * s, 380, f"{t:g}" + (" µs" if t == 130 else ""), "end" if t == 130 else "middle", MUTED)]
+parts.append(line(x0 + 42.5 * s, 214, x0 + 42.5 * s, 352, MUTED, 1, "3 4"))
+save(OUT + "ch01-amdahl-timeline.svg", 640, 432,
      "Top, one processor: a 20 microsecond read, a 100 microsecond compute phase and a 10 microsecond "
      "write, 130 microseconds in all. Bottom, eight processors: the same read and write, and between "
      "them eight short compute bars of 12.5 microseconds that run side by side, 42.5 microseconds in all.",
@@ -249,22 +277,22 @@ parts = [zone(16, 104, 316, 300, "Amdahl: the same job")]
 s = 1.9
 for k, (p, par) in enumerate(((1, 100), (4, 25), (8, 12.5))):
     y = 136 + k * 74
-    parts += [text(32, y, f"{p} processor" + ("s" if p > 1 else ""), "name"),
+    parts += [text(32, y, f"{p} processor" + ("s" if p > 1 else "") + f": {30 + par:g} µs", "name"),
               bar(32, y + 10, 30 * s, 30, "danger", "30 µs"),
               bar(32 + 30 * s, y + 10, par * s, 30, "good", f"{par:g} µs" if par > 20 else "")]
-    if par < 20:
-        parts.append(note(32 + 30 * s + par * s + 8, y + 30, f"{par:g} µs"))
+    parts.append(note(32 + 30 * s + par * s + 8, y + 30,
+                      (f"{par:g} µs" if par < 20 else "") + ("" if p == 1 else f"{' ' if par < 20 else ''}on each of {p}")))
 parts += [note(32, 372, "the 30 µs never shrinks, so no run", room=290),
           note(32, 390, "can be shorter than 30 µs", room=290),
           zone(348, 104, 316, 300, "Gustafson: the same time")]
 parts.append(text(364, 136, "4 processors, a 10 s run", "name"))
-parts.append(bar(364, 146, 26, 4 * 24 - 4, "danger", "1"))
+parts.append(bar(364, 146, 30, 4 * 24 - 4, "danger", "1 s"))
 for lane in range(4):
-    parts.append(bar(394, 146 + lane * 24, 130, 20, "good", "9 s"))
+    parts.append(bar(398, 146 + lane * 24, 130, 20, "good", "9 s"))
 parts += [text(364, 278, "the same work on 1 processor", "name"),
-          bar(364, 288, 26, 30, "danger", "1")]
+          bar(364, 288, 30, 30, "danger", "1 s")]
 for k in range(4):
-    parts.append(bar(394 + k * 62, 288, 58, 30, "good", "9 s"))
+    parts.append(bar(398 + k * 62, 288, 58, 30, "good", "9 s"))
 parts += [note(364, 350, "1 + 4 × 9 = 37 s on 1 processor", room=290),
           note(364, 370, "4 processors: 37 / 10 = 3.7 times faster", room=290),
           note(364, 390, "(bars not to scale)", room=290)]
@@ -425,7 +453,7 @@ parts += [f'  <polyline points="{points}" fill="none" stroke="{INK}" stroke-widt
           tile(lx(170) - 98, ly(40) + 9, "chip", "client", 30),
           text(lx(170), ly(40) + 30, "compute-bound", "name", "middle"),
           text(lx(170), ly(40) + 48, "limit = 40 TFLOP/s", "sub", "middle")]
-for i, kind, label, dx, dy in ((1 / 12, "client", "vector add: 0.08", 10, -30), (64 / 6, "service", "matmul, N = 64", 10, 10),
+for i, kind, label, dx, dy in ((1 / 12, "client", "vector add: 0.08", 10, -30), (64 / 6, "service", "matmul, N = 64", -12, -28),
                                (4096 / 6, "outside", "matmul, N = 4,096", -10, -30)):
     p = min(i, 40)
     parts.append(f'  <circle cx="{lx(i):.1f}" cy="{ly(p):.1f}" r="6" fill="{KINDS[kind][0]}" stroke="#FFFFFF" stroke-width="2"/>')
@@ -471,7 +499,7 @@ for u, w in enumerate(work):
     y = 104 + u * 44
     parts.append(text(gx - 12, y + 21, f"processor {u}", "sub", "end"))
     parts.append(tile(16, y + 3, "chip", "good", 24))
-    parts.append(bar(gx, y, w * s, 30, "good", f"work {w:,}"))
+    parts.append(bar(gx, y, w * s, 30, "good", f"work {w:,} cycles"))
     if w < 1200:
         parts.append(bar(gx + w * s, y, (1200 - w) * s, 30, "idle", "wait" if 1200 - w >= 150 else "", dashed=True))
     parts.append(bar(gx + 1200 * s, y, 100 * s, 30, "danger", "100"))
@@ -479,10 +507,14 @@ bx = gx + 1200 * s
 parts += [line(bx, 96, bx, 104 + 4 * 44 - 6, KINDS["danger"][0], 2.4),
           tag(bx - 34, 72, "barrier at cycle 1,200", "danger", "end"),
           tile(bx - 26, 67, "lock", "danger", 26),
-          note(gx, 300, "the barrier opens when processor 3, the slowest, arrives", room=480),
-          card(40, 318, 560, 58, "danger", "useful work 4,050 of 4 × 1,300 = 5,200",
+          line(gx, 290, gx + 1300 * s, 290, MUTED, 1)]
+for t in (0, 900, 1200, 1300):
+    parts += [line(gx + t * s, 286, gx + t * s, 294, MUTED, 1.2),
+              mono(gx + t * s, 307, f"{t:,}", "end" if t == 1200 else ("start" if t == 1300 else "middle"), MUTED)]
+parts += [note(gx, 326, "cycles; the barrier opens when processor 3 arrives, then takes 100", room=480),
+          card(40, 344, 560, 58, "danger", "useful: 4,050 of 4 × 1,300 = 5,200 processor-cycles",
                "efficiency 4,050 / 5,200 = 0.78")]
-save(OUT + "ch01-barrier.svg", 640, 400,
+save(OUT + "ch01-barrier.svg", 640, 426,
      "Four processors on a time line. Processor 0 works 900 cycles, processor 1 works 1,000, processor 2 "
      "works 950 and processor 3 works 1,200. A vertical barrier line stands at 1,200 cycles. Processors "
      "0, 1 and 2 wait in dashed boxes until 1,200. Then all four spend 100 cycles at the barrier. Useful "
@@ -491,13 +523,97 @@ save(OUT + "ch01-barrier.svg", 640, 400,
      parts)
 
 
-# The chapter map: five questions, in the order the chapter answers them.
+# 1.3.3  Amdahl with an accelerator: 1 s serial + 99 s parallel, the parallel part sped up 100x or 10x.
+x0, s = 48, 5.0                                 # pixels per second, to scale
+rows = [("1 core", 1, 99, 0, "100 s", "1x"),
+        ("parallel part 100x faster", 1, 0.99, 0, "1.99 s", "50x"),
+        ("parallel part 10x faster", 1, 9.9, 0, "10.9 s", "9.2x"),
+        ("100x, plus 2 s of copies", 1, 0.99, 2, "3.99 s", "25x")]
+parts = [zone(16, 100, 608, 250, "To scale: 5 px per second")]
+for k, (name, ser, par, copy, total, speedup) in enumerate(rows):
+    y = 134 + k * 52
+    end = x0 + (ser + par + copy) * s
+    parts += [text(x0, y, f"{chr(97 + k)}  {name}", "name"),
+              bar(x0, y + 8, ser * s, 22, "danger"),
+              bar(x0 + ser * s, y + 8, par * s, 22, "good", "parallel part 99 s" if k == 0 else "")]
+    if copy:
+        parts.append(bar(x0 + (ser + par) * s, y + 8, copy * s, 22, "store"))
+    parts.append(tag(end + 10, y + 10, f"{total}: {speedup}", "idle"))
+parts.append(zone(16, 380, 608, 150, "Rows b and d enlarged 20 times: 100 px per second"))
+s = 100.0
+for k, (name, ser, par, copy, total, speedup) in enumerate((rows[1], rows[3])):
+    y = 414 + k * 56
+    parts += [text(x0, y, f"{'bd'[k]}  {total}", "name"),
+              bar(x0, y + 8, ser * s, 24, "danger", "serial 1 s"),
+              bar(x0 + ser * s, y + 8, par * s, 24, "good", "0.99 s")]
+    if copy:
+        parts.append(bar(x0 + (ser + par) * s, y + 8, copy * s, 24, "store", "copies 2 s"))
+parts.append(legend(x0, 556, [("danger", "serial"), ("good", "parallel part"), ("store", "copies to and from")]))
+save(OUT + "ch01-accelerator.svg", 640, 580,
+     "A program with 1 second of serial work and 99 seconds of parallel work, drawn to scale. a: on 1 core, "
+     "100 seconds. b: the parallel part runs 100 times faster, 1.99 seconds, a speedup of 50. c: the "
+     "parallel part runs 10 times faster, 10.9 seconds, a speedup of 9.2. d: 100 times faster, but with 2 "
+     "seconds of copies, 3.99 seconds, a speedup of 25. An enlarged view shows that in b the serial second "
+     "is half of the run, and in d the copies are half of the run.",
+     "Amdahl's law with a parallel part of limited speedup", "1 s serial and 99 s parallel. Rows b to d speed up only the 99 s.",
+     parts)
+
+
+# 1.10  Work, steps and processors: time bounds for 3 scans of 1,024 values.
+px0, px1, py0, py1 = 84, 470, 400, 100          # plot box: left, right, bottom, top
+lx = lambda p: px0 + (px1 - px0) * math.log2(p) / 10           # p from 1 to 1,024
+ly = lambda t: py0 - (py0 - py1) * math.log10(t) / 4           # steps from 1 to 10,000
+parts = [f'  <rect x="{px0}" y="{py1}" width="{px1 - px0}" height="{py0 - py1}" fill="#FFFFFF" stroke="{EDGE}"/>']
+for k in range(0, 11, 2):
+    parts += [line(lx(2 ** k), py0, lx(2 ** k), py1, EDGE, 1), mono(lx(2 ** k), py0 + 18, f"{2 ** k:,}", "middle", MUTED)]
+for k in range(5):
+    parts += [line(px0, ly(10 ** k), px1, ly(10 ** k), EDGE, 1), mono(px0 - 8, ly(10 ** k) + 4, f"{10 ** k:,}", "end", MUTED)]
+parts += [text((px0 + px1) / 2, py0 + 40, "processors p", "sub", "middle"),
+          text(px0 - 56, py1 - 14, "time in steps", "sub")]
+scans = [("idle", 1023, 1023, "serial: W = 1,023, D = 1,023"),
+         ("store", 2046, 20, "tree scan: W = 2,046, D = 20"),
+         ("danger", 9217, 10, "shifted scan: W = 9,217, D = 10")]
+for kind, work, steps, label in scans:
+    if work == steps:
+        parts.append(line(px0, ly(work), px1, ly(work), KINDS[kind][0], 2.4, "7 5"))
+    else:
+        points = " ".join(f"{lx(2 ** (i / 16)):.1f},{ly(max(work / 2 ** (i / 16), steps)):.1f}" for i in range(161))
+        parts.append(f'  <polyline points="{points}" fill="none" stroke="{KINDS[kind][0]}" stroke-width="2.6"/>')
+for p, kind, body, y in ((2, "store", "p = 2", 352), (9.01, "danger", "p = 9", 374)):
+    colour = KINDS[kind][0]
+    parts += [line(lx(p), ly(1023), lx(p), y, colour, 1.2, "4 4"),
+              f'  <circle cx="{lx(p):.1f}" cy="{ly(1023):.1f}" r="4.5" fill="{colour}"/>',
+              tag(lx(p) + 6, y - 9, body, kind)]
+parts += [
+          text(px1 + 14, py1 + 30, "lower bound on time:", "name"),
+          mono(px1 + 14, py1 + 50, "max(W / p, D)"),
+          legend(px1 + 14, py1 + 90, [("idle", "serial")]),
+          legend(px1 + 14, py1 + 114, [("store", "tree scan")]),
+          legend(px1 + 14, py1 + 138, [("danger", "shifted scan")]),
+          note(px1 + 14, py1 + 176, "W = work, D = steps", room=150),
+          note(px1 + 14, py1 + 200, "the dots: equal to", room=150),
+          note(px1 + 14, py1 + 218, "the serial scan", room=150),
+          note(px1 + 14, py1 + 256, "past p = 461 the", room=150),
+          note(px1 + 14, py1 + 274, "shifted scan is", room=150),
+          note(px1 + 14, py1 + 292, "faster: 10 < 20", room=150)]
+save(OUT + "ch01-work-steps.svg", 640, 460,
+     "A log-log plot of time in steps against the number of processors, for 3 scans of 1,024 values. The "
+     "serial scan is a flat dashed line at 1,023 steps. The tree scan, work 2,046 and 20 steps, falls as "
+     "2,046 / p, crosses the serial line at p = 2 and flattens at 20 steps. The shifted scan, work 9,217 and "
+     "10 steps, starts at 9,217, crosses the serial line at p = 9, and flattens at 10 steps, below the tree "
+     "scan from p = 461.",
+     "Work sets the time on few processors, steps on many", "3 scans of 1,024 values. Each curve is max(W / p, D).",
+     parts)
+
+
+# The chapter map: six questions, in the order the chapter answers them.
 questions = [
     ("client", "clock", "Why is one processor slow on vector addition?", "1.1  latency, throughput, Little's law"),
     ("service", "chip", "How much faster can p processors be?", "1.2 to 1.5  speedup, Amdahl, Gustafson"),
     ("store", "stack", "How does work divide, and on which machines?", "1.6 and 1.7  task, data, pipeline; Flynn"),
     ("outside", "curve", "Does memory or arithmetic set the limit?", "1.8  arithmetic intensity, the roofline"),
     ("danger", "lock", "What does it cost for processors to wait?", "1.9  barriers"),
+    ("good", "gear", "Does the parallel algorithm do extra work?", "1.10  work, steps, work efficiency"),
 ]
 parts, y = [], 100
 for k, (kind, glyph, name, sub) in enumerate(questions):
@@ -506,10 +622,11 @@ for k, (kind, glyph, name, sub) in enumerate(questions):
         parts.append(arrow(320, y + 60, y + 84))
     y += 84
 save(OUT + "ch01-map.svg", 640, y + 8,
-     "Five cards, one below the other, joined by arrows. 1: why is one processor slow on vector "
+     "Six cards, one below the other, joined by arrows. 1: why is one processor slow on vector "
      "addition? Section 1.1. 2: how much faster can p processors be? Sections 1.2 to 1.5. 3: how does "
      "work divide, and on which machines? Sections 1.6 and 1.7. 4: does memory or arithmetic set the "
-     "limit? Section 1.8. 5: what does it cost for processors to wait? Section 1.9.",
+     "limit? Section 1.8. 5: what does it cost for processors to wait? Section 1.9. 6: does the parallel "
+     "algorithm do extra work? Section 1.10.",
      "The questions of this chapter", "Each card names the sections that answer it.", parts)
 
 print("wrote chapter 1 figures")
