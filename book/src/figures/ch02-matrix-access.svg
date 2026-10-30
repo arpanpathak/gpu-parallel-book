@@ -1,0 +1,336 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 630" width="680" height="630" role="img" aria-label="2 panels, each showing a matrix of 4 rows and 8 columns of floats, numbered by address in row-major order, and the same 32 floats laid out in memory as 4 sectors of 8. Top: 8 lanes read row 1, elements 8 to 15, which fill sector 1 exactly: 1 sector fetched, 32 bytes, all used. Bottom: 4 lanes read column 5, elements 5, 13, 21 and 29, which lie 8 floats apart in 4 different sectors: 4 sectors fetched, 128 bytes, for 16 useful bytes.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="680" height="630" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A row and a column of the same matrix</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Neighbours in a row are neighbours in memory; neighbours in a column are 8 floats apart.</text>
+  <rect x="16" y="100" width="648" height="238" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="89" width="208.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="138.5" y="104.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">LANES 0 TO 7 READ ROW 1</text>
+  <text x="40.0" y="132.0" class="sub" text-anchor="start" xml:space="preserve">the matrix, 4 rows × 8 columns</text>
+  <rect x="40" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="52.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="66" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="78.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <rect x="92" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="104.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <rect x="118" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="130.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <rect x="144" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="156.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <rect x="170" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="182.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">5</text>
+  <rect x="196" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <rect x="222" y="140" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="234.0" y="155.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <rect x="40" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="52.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">8</text>
+  <rect x="66" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="78.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">9</text>
+  <rect x="92" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="104.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">10</text>
+  <rect x="118" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="130.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">11</text>
+  <rect x="144" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="156.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">12</text>
+  <rect x="170" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="182.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">13</text>
+  <rect x="196" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="208.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">14</text>
+  <rect x="222" y="164" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="234.0" y="179.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">15</text>
+  <rect x="40" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="52.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <rect x="66" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="78.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">17</text>
+  <rect x="92" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="104.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">18</text>
+  <rect x="118" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="130.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">19</text>
+  <rect x="144" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="156.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <rect x="170" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="182.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">21</text>
+  <rect x="196" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">22</text>
+  <rect x="222" y="188" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="234.0" y="203.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">23</text>
+  <rect x="40" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="52.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <rect x="66" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="78.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">25</text>
+  <rect x="92" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="104.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">26</text>
+  <rect x="118" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="130.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">27</text>
+  <rect x="144" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="156.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">28</text>
+  <rect x="170" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="182.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">29</text>
+  <rect x="196" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">30</text>
+  <rect x="222" y="212" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="234.0" y="227.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">31</text>
+  <text x="266.0" y="154.0" class="note" text-anchor="start" xml:space="preserve">8 lanes read the green elements,</text>
+  <text x="266.0" y="172.0" class="note" text-anchor="start" xml:space="preserve">row 1, columns 0 to 7</text>
+  <text x="266.0" y="198.0" class="note" text-anchor="start" xml:space="preserve">each number is the element&#x27;s address</text>
+  <text x="266.0" y="216.0" class="note" text-anchor="start" xml:space="preserve">in floats: row × 8 + column</text>
+  <text x="40.0" y="260.0" class="sub" text-anchor="start" xml:space="preserve">the same 32 floats in memory, as 4 sectors of 8 floats</text>
+  <rect x="37" y="267" width="156" height="28" rx="6" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="40" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="48.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="59" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="67.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <rect x="78" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="86.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <rect x="97" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="105.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <rect x="116" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="124.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <rect x="135" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="143.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">5</text>
+  <rect x="154" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="162.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <rect x="173" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="181.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <text x="116.0" y="312.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">sector 0</text>
+  <rect x="197" y="267" width="156" height="28" rx="6" fill="none" stroke="#CF4526" stroke-width="1.8"/>
+  <rect x="200" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="208.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">8</text>
+  <rect x="219" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="227.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">9</text>
+  <rect x="238" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="246.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">10</text>
+  <rect x="257" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="265.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">11</text>
+  <rect x="276" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="284.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">12</text>
+  <rect x="295" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="303.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">13</text>
+  <rect x="314" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="322.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">14</text>
+  <rect x="333" y="270" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="341.5" y="285.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">15</text>
+  <text x="276.0" y="312.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">sector 1</text>
+  <rect x="357" y="267" width="156" height="28" rx="6" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="360" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="368.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <rect x="379" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="387.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">17</text>
+  <rect x="398" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="406.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">18</text>
+  <rect x="417" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="425.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">19</text>
+  <rect x="436" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="444.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <rect x="455" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="463.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">21</text>
+  <rect x="474" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="482.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">22</text>
+  <rect x="493" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="501.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">23</text>
+  <text x="436.0" y="312.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">sector 2</text>
+  <rect x="517" y="267" width="156" height="28" rx="6" fill="none" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="520" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="528.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <rect x="539" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="547.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">25</text>
+  <rect x="558" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="566.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">26</text>
+  <rect x="577" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="585.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">27</text>
+  <rect x="596" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="604.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">28</text>
+  <rect x="615" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="623.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">29</text>
+  <rect x="634" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="642.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">30</text>
+  <rect x="653" y="270" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="661.5" y="285.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">31</text>
+  <text x="596.0" y="312.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">sector 3</text>
+  <rect x="40.0" y="324" width="317.6" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="198.8" y="336.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1 sector fetched: 32 bytes for 32 useful bytes</text>
+  <rect x="16" y="368" width="648" height="238" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="357" width="232.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="150.3" y="372.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">LANES 0 TO 3 READ COLUMN 5</text>
+  <text x="40.0" y="400.0" class="sub" text-anchor="start" xml:space="preserve">the matrix, 4 rows × 8 columns</text>
+  <rect x="40" y="408" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="52.0" y="423.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="66" y="408" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="78.0" y="423.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <rect x="92" y="408" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="104.0" y="423.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <rect x="118" y="408" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="130.0" y="423.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <rect x="144" y="408" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="156.0" y="423.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <rect x="170" y="408" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="182.0" y="423.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <rect x="196" y="408" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.0" y="423.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <rect x="222" y="408" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="234.0" y="423.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <rect x="40" y="432" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="52.0" y="447.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">8</text>
+  <rect x="66" y="432" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="78.0" y="447.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">9</text>
+  <rect x="92" y="432" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="104.0" y="447.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <rect x="118" y="432" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="130.0" y="447.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">11</text>
+  <rect x="144" y="432" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="156.0" y="447.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">12</text>
+  <rect x="170" y="432" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="182.0" y="447.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">13</text>
+  <rect x="196" y="432" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.0" y="447.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">14</text>
+  <rect x="222" y="432" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="234.0" y="447.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">15</text>
+  <rect x="40" y="456" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="52.0" y="471.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <rect x="66" y="456" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="78.0" y="471.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">17</text>
+  <rect x="92" y="456" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="104.0" y="471.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">18</text>
+  <rect x="118" y="456" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="130.0" y="471.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">19</text>
+  <rect x="144" y="456" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="156.0" y="471.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <rect x="170" y="456" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="182.0" y="471.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">21</text>
+  <rect x="196" y="456" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.0" y="471.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">22</text>
+  <rect x="222" y="456" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="234.0" y="471.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">23</text>
+  <rect x="40" y="480" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="52.0" y="495.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <rect x="66" y="480" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="78.0" y="495.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">25</text>
+  <rect x="92" y="480" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="104.0" y="495.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">26</text>
+  <rect x="118" y="480" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="130.0" y="495.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">27</text>
+  <rect x="144" y="480" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="156.0" y="495.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">28</text>
+  <rect x="170" y="480" width="24" height="22" rx="4" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="182.0" y="495.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">29</text>
+  <rect x="196" y="480" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.0" y="495.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">30</text>
+  <rect x="222" y="480" width="24" height="22" rx="4" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="234.0" y="495.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">31</text>
+  <text x="266.0" y="422.0" class="note" text-anchor="start" xml:space="preserve">4 lanes read the green elements,</text>
+  <text x="266.0" y="440.0" class="note" text-anchor="start" xml:space="preserve">column 5, rows 0 to 3</text>
+  <text x="266.0" y="466.0" class="note" text-anchor="start" xml:space="preserve">each number is the element&#x27;s address</text>
+  <text x="266.0" y="484.0" class="note" text-anchor="start" xml:space="preserve">in floats: row × 8 + column</text>
+  <text x="40.0" y="528.0" class="sub" text-anchor="start" xml:space="preserve">the same 32 floats in memory, as 4 sectors of 8 floats</text>
+  <rect x="37" y="535" width="156" height="28" rx="6" fill="none" stroke="#CF4526" stroke-width="1.8"/>
+  <rect x="40" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="48.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="59" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="67.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <rect x="78" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="86.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <rect x="97" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="105.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <rect x="116" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="124.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <rect x="135" y="538" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="143.5" y="553.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <rect x="154" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="162.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <rect x="173" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="181.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <text x="116.0" y="580.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">sector 0</text>
+  <rect x="197" y="535" width="156" height="28" rx="6" fill="none" stroke="#CF4526" stroke-width="1.8"/>
+  <rect x="200" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="208.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">8</text>
+  <rect x="219" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="227.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">9</text>
+  <rect x="238" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="246.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <rect x="257" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="265.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">11</text>
+  <rect x="276" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="284.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">12</text>
+  <rect x="295" y="538" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="303.5" y="553.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">13</text>
+  <rect x="314" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="322.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">14</text>
+  <rect x="333" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="341.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">15</text>
+  <text x="276.0" y="580.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">sector 1</text>
+  <rect x="357" y="535" width="156" height="28" rx="6" fill="none" stroke="#CF4526" stroke-width="1.8"/>
+  <rect x="360" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="368.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <rect x="379" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="387.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">17</text>
+  <rect x="398" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="406.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">18</text>
+  <rect x="417" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="425.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">19</text>
+  <rect x="436" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="444.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <rect x="455" y="538" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="463.5" y="553.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">21</text>
+  <rect x="474" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="482.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">22</text>
+  <rect x="493" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="501.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">23</text>
+  <text x="436.0" y="580.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">sector 2</text>
+  <rect x="517" y="535" width="156" height="28" rx="6" fill="none" stroke="#CF4526" stroke-width="1.8"/>
+  <rect x="520" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="528.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <rect x="539" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="547.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">25</text>
+  <rect x="558" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="566.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">26</text>
+  <rect x="577" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="585.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">27</text>
+  <rect x="596" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="604.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">28</text>
+  <rect x="615" y="538" width="17" height="22" rx="3" fill="#E7F5E9" stroke="#2E8B3D"/>
+  <text x="623.5" y="553.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">29</text>
+  <rect x="634" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="642.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">30</text>
+  <rect x="653" y="538" width="17" height="22" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <text x="661.5" y="553.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">31</text>
+  <text x="596.0" y="580.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">sector 3</text>
+  <rect x="40.0" y="592" width="330.8" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="205.4" y="604.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">4 sectors fetched: 128 bytes for 16 useful bytes</text>
+</svg>
