@@ -2,32 +2,32 @@
 
 # Chapter 2: GPU Hardware from First Principles
 
-In Chapter 1 we saw that a processor reading from main memory waits hundreds of cycles for
-each value, and that the wait can be hidden only by keeping many independent operations in
-flight. A *graphics processing unit*, or GPU, is a processor designed around that
-observation. It runs the same instructions on a large number of data elements at the
-same time, and holds enough threads to keep its arithmetic units busy while many of them
-wait for memory.
+In Chapter 1 we saw that a processor that reads its operands from DRAM waits hundreds of
+cycles for each of them, and that the wait can be hidden only by keeping many independent
+operations in flight. A *graphics processing unit*, or GPU, is designed around this
+observation. It executes the same instructions on many data elements at once, and it holds
+enough threads that its arithmetic units remain busy while many of those threads wait for
+memory.
 
-The programs in this book run on NVIDIA GPUs and are written with **CUDA**, NVIDIA's
-platform for general-purpose computing on its GPUs, first released in 2007. CUDA consists of
-3 parts. Its programming model extends C++: the programmer writes a function for 1 thread
-and launches it on many threads at once. Its compiler, `nvcc`, translates that function into
-instructions for the GPU. Its runtime library lets a program on the CPU allocate the GPU's
-memory, copy data to and from it, and start work on the GPU. Before CUDA, a general
-computation could run on a GPU only if it was expressed as a graphics operation, such as
-drawing the pixels of an image. This book writes every program both in CUDA C++ and in Rust,
-with NVIDIA's cuda-oxide. Chapter 3 writes the first CUDA program.
+In this book we program NVIDIA GPUs with **CUDA**, the platform for general-purpose GPU
+computing that NVIDIA introduced in 2007. Before CUDA, a general computation could run on a
+GPU only if it was expressed through a graphics interface, for example as an operation that
+colours the pixels of an image. CUDA C++ extends C++ with a small amount of syntax for
+marking and launching functions that run on the GPU; its compiler, `nvcc`, generates GPU code
+from those functions; and its runtime library lets code on the CPU allocate GPU memory,
+transfer data and start work on the GPU. We present each program both in CUDA C++ and in Rust,
+using NVIDIA's cuda-oxide compiler and libraries. In Chapter 3 we write the first of these
+programs.
 
-This chapter presents the parts of a GPU that a CUDA programmer needs in order to reason
-about the performance of a GPU program. We start with the terms in which a program hands work to
-a GPU, and with the published figures of 7 current GPUs. We then describe the streaming
-multiprocessor, the warp, and the way blocks of threads are assigned to streaming
-multiprocessors and divided into warps. The second half of the chapter covers the memory
-hierarchy, the access patterns that decide whether memory delivers its full bandwidth, and
-occupancy, which decides how well a streaming multiprocessor hides the latency of memory.
-The limits differ between generations of GPUs, so every number in the chapter is given for
-a named GPU.
+In this chapter we describe the GPU hardware that a CUDA programmer must understand in order
+to reason about the performance of a GPU program. We begin with the terms in which work is
+handed to a GPU and with the published characteristics of 7 current GPUs. We then examine the
+streaming multiprocessor, the warp, and the assignment of thread blocks to streaming
+multiprocessors. The remainder of the chapter covers the memory hierarchy, the access
+patterns that determine whether memory delivers its full bandwidth, and occupancy, which
+determines how well a streaming multiprocessor hides the latency of memory. Because these
+limits differ between generations of GPUs, every number in the chapter is given for a named
+GPU.
 
 <div class="covers" markdown="1">
 
@@ -52,22 +52,23 @@ This chapter covers
 
 ### 2.1.1 How a CPU and a GPU deal with memory latency
 
-In section 1.1.5 we saw 2 responses to a slow memory: avoiding the wait, with caches that
-keep data close to the processor, and filling the wait with the work of other threads. A CPU
-is built for the first and a GPU for the second. Figure 2.1 shows how each divides its chip
-area accordingly.
+A CPU and a GPU read from the same kind of DRAM and wait the same hundreds of cycles for
+each read. They differ in what they do during that wait, and the difference determines how
+each divides its chip area (figure 2.1).
 
 A CPU core runs 1 sequence of instructions as fast as possible, and spends much of its area
 on avoiding waits. Large **caches**, small fast memories near a core that keep copies of
 recently used data, answer most reads without a trip to main memory. Prediction logic starts
 the likely next instructions early, so that a branch rarely stalls the core. A desktop CPU
-has 4 to 32 such cores.
+has 4 to 32 such cores. This approach is called **latency-oriented design**: it shortens the
+time that each thread waits.
 
 A GPU accepts that a read from main memory takes hundreds of cycles. It spends its area on
 thousands of simple arithmetic units and on room to hold tens of thousands of threads at
 once. A **thread**, as in Chapter 1, is 1 sequence of instructions with its own working
-values. While some threads wait for memory, others compute. In the terms of Chapter 1, a CPU
-core is built for low latency and a GPU for high throughput.
+values. While some threads wait for memory, others compute. This approach is called
+**throughput-oriented design**: each thread may wait a long time, but the GPU as a whole
+completes more operations per second (section 1.1.3).
 
 <figure>
 <img src="../../figures/ch02-cpu-gpu.svg" alt="2 panels. A CPU: 4 large cores, each fast for 1 thread, above a large cache that keeps data near the cores. A GPU: a field of 128 small squares standing for thousands of simple arithmetic units, above small caches; most of its area goes to arithmetic.">
@@ -113,7 +114,7 @@ threads write the same element.
 <figcaption><b>Figure 2.3</b> A thread's index is its block's starting index plus its position in the block.</figcaption>
 </figure>
 
-Chapter 3 shows how a kernel reads its block number and position in code, and how blocks and
+In Chapter 3 we show how a kernel reads its block number and position in code, and how blocks and
 grids can also be laid out in 2 or 3 dimensions, which suits images and volumes.
 
 ### 2.1.3 From the chip to one thread
@@ -164,7 +165,7 @@ CC is the compute capability, and "shared" marks memory that the GPU shares with
 The figures are NVIDIA's published specifications, with peak arithmetic at the highest clock
 rate. The SM counts of the Thor and the DGX Spark follow from their published numbers of
 arithmetic units, 2,560 and 6,144, at 128 units per SM. The Orin NX figures were also read
-from a board with `cudaGetDeviceProperties`, a CUDA function that section 2.9.4 introduces.
+from a board with `cudaGetDeviceProperties`, a CUDA function described in section 2.9.4.
 
 The memory column shows 2 kinds of system. The Jetson modules and the DGX Spark are
 **integrated**: the CPU and the GPU share one set of memory chips. The graphics cards and
@@ -250,7 +251,7 @@ Worked example: the speed of light for vector addition on a Jetson Orin NX
 </div>
 
 A memory-bound kernel at 90% of its speed of light has little left to gain from tuning, and
-further speed must come from moving fewer bytes. Chapter 7 measures about 68 GB/s for well-ordered reads on the Orin NX, 67% of its
+further speed must come from moving fewer bytes. In Chapter 7 we measure about 68 GB/s for well-ordered reads on the Orin NX, 67% of its
 rated bandwidth.
 
 ## 2.2 The streaming multiprocessor
@@ -272,8 +273,8 @@ the register file, and the 4 processing blocks share 256 KB of on-chip memory.
   next instruction is ready and sends that instruction to its 32 units.
 - **Registers.** 65,536 registers of 4 bytes each, 65,536 × 4 = 262,144 bytes or 256 KB,
   split into 4 parts of 65,536 ÷ 4 = 16,384, 1 per group. Each thread on the SM gets its own
-  registers from this file. Section 2.9 shows how the registers a thread needs limit the
-  number of threads that fit.
+  registers from this file. As we will see in section 2.9, the registers a thread needs limit the number of threads
+  that fit.
 - **Shared memory and L1 cache.** 1 pool of 256 KB serves 2 purposes. **Shared memory** is
   memory that all threads of a block can read and write, so threads of a block exchange data
   through it. The **L1 cache** keeps copies of data the SM has read from main memory. On an
@@ -290,13 +291,13 @@ RTX 4090, 2 × 128 × 128 × 2.52 GHz = 82.6 TFLOP/s.
 The SM holds far more threads than it has units to run them. An H100 SM can keep 2,048
 threads resident, 16 for each of its 128 arithmetic units, and in any one cycle at most 128
 of them execute. The other threads supply the independent work that a processor needs while
-its reads are in flight (section 1.1.5); section 2.10 shows how a scheduler uses them.
+its reads are in flight (section 1.1.5). We show in section 2.10 how a scheduler uses them.
 
 <div class="callout note" markdown="1">
 
 **NOTE:** SMs of other generations differ in detail. An A100 SM has 64 units for 32-bit
 floating-point numbers instead of 128. The number of threads and blocks an SM can hold, and
-its shared memory, depend on the compute capability; section 2.9 lists them.
+its shared memory, depend on the compute capability; they are listed in section 2.9.
 
 </div>
 
@@ -314,8 +315,7 @@ lane 1 the next, and so on.
 </figure>
 
 Figure 2.7 draws 8 lanes instead of 32, to keep the values readable. A single instruction,
-`c = a + b`, gives 8 different results, because each lane holds its own `a` and `b`. Chapter
-1 called this design SIMT (section 1.7).
+`c = a + b`, gives 8 different results, because each lane holds its own `a` and `b`. In Chapter 1 we called this design SIMT (section 1.7).
 
 The reason for executing threads in groups lies in the way any processor executes an
 instruction. A register called the **program counter** holds the address of the next
@@ -336,7 +336,7 @@ each with 1 control unit, 1 warp scheduler and 32 arithmetic units.
 
 CPUs apply the same idea in their vector instructions, such as AVX on x86 processors
 (section 1.7). There the programmer, or the compiler, must place the data in vector registers
-explicitly. On a GPU the programmer writes the kernel for 1 thread, and the SM forms the warps
+explicitly. On a GPU, a programmer writes kernel code for 1 thread, and the SM forms the warps
 and executes them on its shared control units.
 
 ### 2.3.2 Why 32
@@ -345,8 +345,7 @@ NVIDIA GPUs have used warps of 32 threads since the first CUDA GPUs. The size ba
 effects:
 
 - A wider warp shares each instruction's cost among more threads.
-- 32 threads reading 4 bytes each read 128 bytes, the size of 1 cache line. Section 2.7
-  shows why this match helps.
+- 32 threads reading 4 bytes each read 128 bytes, the size of 1 cache line. We explain in section 2.7 why this match helps.
 - A wider warp loses more when its threads need to do different things (section 2.3.3).
 
 The warp size is a property of the hardware and is reported by `cudaGetDeviceProperties`
@@ -400,8 +399,7 @@ together. From Volta (compute capability 7.0) on, each thread has its own progra
 and the scheduler may interleave the 2 sides of a branch. The results of a correct program
 are the same, but a kernel can no longer assume that the lanes of a warp are back together
 at any particular point after a branch. Code that relies on lanes exchanging data must say
-where they meet, with `__syncwarp()` or with the `_sync` forms of the warp functions that
-Chapter 8 uses.
+where they meet, with `__syncwarp()` or with the `_sync` forms of the warp functions that we use in Chapter 8.
 
 </div>
 
@@ -460,7 +458,7 @@ a grid of 1,056 blocks would finish in about the same time as one of 1,100. Real
 differ in duration, and a new block starts as soon as any place frees up, so measured tails
 are softer than this calculation; the effect is still large when a grid has only 1 or 2
 waves. A grid of many waves, or a block count that is a multiple of the GPU's places, avoids
-it. Section 2.9.4 shows how a program reads the number of SMs it runs on.
+it. We show in section 2.9.4 how a program reads the number of SMs it runs on.
 
 ### 2.4.2 Dividing a block into warps
 
@@ -489,8 +487,7 @@ In a 16 × 16 block, the thread at (x = 5, y = 3) has linear number 5 + 3 × 16 
 in warp 1. Each warp of this block covers 2 rows of 16: warp 0 holds rows 0 and 1, warp 1
 rows 2 and 3. In an 8 × 8 block, the 64 threads form 2 warps, rows 0 to 3 and rows 4 to 7.
 The 32 lanes of a warp read memory together, so this numbering decides which addresses a
-warp reads at once (sections 2.7 and 2.8). Chapter 3 draws the
-numbering for 3-dimensional blocks.
+warp reads at once (sections 2.7 and 2.8). In Chapter 3 we draw the numbering for 3-dimensional blocks.
 
 | | Block | Warp |
 |---|---|---|
@@ -520,12 +517,12 @@ values the compiler moves out of registers when it runs short, called a **spill*
 that the thread indexes with values known only at run time. Despite its name, local memory
 lies in global memory, the slowest level on the GPU, and is local only in the sense that each
 thread sees its own part of it. A spill therefore turns a 1-cycle register access into a
-read that may take hundreds of cycles. Chapter 7 shows how to detect one.
+read that may take hundreds of cycles. In Chapter 7 we show how to detect one.
 
 **Shared memory** belongs to 1 block and sits on the SM. Any thread of a block can read what
 another thread of it wrote, so threads of a block cooperate through shared memory. A read
 takes 20 to 30 cycles, about 20 times less than a read from main memory. A program decides
-what goes into shared memory and when; Chapters 7 to 9 rely on it.
+what goes into shared memory and when; we rely on it in Chapters 7 to 9.
 
 **L1 cache** uses the same on-chip memory as shared memory, but hardware manages it: data read
 from main memory stays there in case it is read again soon. Caches store data in fixed-size
@@ -545,12 +542,11 @@ CPU also uses. Every array a program allocates for the GPU lives there (Chapter 
 optimisation in Chapters 7 to 9 reduces the number of reads from it.
 
 **Host memory** is the CPU's memory; CUDA calls the CPU the **host**. A request for host
-memory leaves the GPU and crosses a link to the CPU, so it is the slowest level. Chapter 4
-covers moving data across that link efficiently.
+memory leaves the GPU and crosses a link to the CPU, so it is the slowest level. In Chapter 4 we cover moving data across that link efficiently.
 
 2 read-only paths complete the hierarchy. **Constant memory** is fast when every thread of a
 warp reads the same value, such as a kernel's parameters. **Texture memory** is designed for
-reading 2-dimensional images. Chapter 7 covers both.
+reading 2-dimensional images. We cover both in Chapter 7.
 
 The place where a variable lives is decided by how it is declared. Each kind of declaration
 also fixes the variable's **scope**, the threads that can see it, and its **lifetime**, the
@@ -593,7 +589,7 @@ saves energy as well as time.
 ## 2.6 The latency table
 
 The table gives each level's read time. Values are typical for a recent GPU and rounded;
-Chapter 7 measures real ones.
+we measure real ones in Chapter 7.
 
 | Where the data is | Time to read it | Location |
 |---|---|---|
@@ -606,8 +602,7 @@ Chapter 7 measures real ones.
 
 Read time grows with distance. A signal needs time to travel, and data further from the
 arithmetic units passes through more circuits on its way. Leaving the SM is the largest step:
-a read from global memory costs about 20 times a read from shared memory. Chapter 1 explained
-the remaining part of the cost of global memory, the time a DRAM chip needs to read its own
+a read from global memory costs about 20 times a read from shared memory. In Chapter 1 we explained the remaining part of the cost of global memory, the time a DRAM chip needs to read its own
 cells (section 1.1.2).
 
 <div class="example" markdown="1">
@@ -620,7 +615,7 @@ A kernel needs the same value 20 times.
 2. Reading it once from global memory into shared memory, then 20 times from shared memory,
    costs 500 + 20 × 25 = 1,000 cycles.
 
-The second way is 10 times cheaper. Chapter 9 builds a matrix multiplication on this trade.
+The second way is 10 times cheaper. In Chapter 9 we build a matrix multiplication on this trade.
 
 </div>
 
@@ -679,8 +674,8 @@ Neighbouring threads should read neighbouring addresses.
 </div>
 
 A memory-bound kernel runs at the rate its bytes arrive, so the uncoalesced read above, which
-moves 8 times the bytes, runs several times slower. On the Orin NX, Chapter 7 measures 68 GB/s
-of useful bandwidth for reads 4 bytes apart and 21 GB/s for reads 32 bytes apart.
+moves 8 times the bytes, runs several times slower. In Chapter 7 we measure, on the Orin NX, 68 GB/s of useful
+bandwidth for reads 4 bytes apart and 21 GB/s for reads 32 bytes apart.
 
 ### 2.7.4 Rows and columns of a matrix
 
@@ -708,7 +703,7 @@ columns, with sectors of 8 floats as in figure 2.12.
 The rule follows from the index expression: the variable that changes from lane to lane must
 be the one that is multiplied by 1, the column. In a matrix of 4,096 columns, a warp reading
 down a column touches addresses 4,096 floats, 16 KB, apart: 32 sectors for 32 floats, 8 times
-the bytes it uses. Chapter 7 shows how a kernel that must read columns, such as a matrix
+the bytes it uses. In Chapter 7 we show how a kernel that must read columns, such as a matrix
 transpose, reads a tile by rows into shared memory and then reads the columns from there.
 
 2 further details complete the rule. A warp's read is fully efficient only if it starts at
@@ -757,7 +752,7 @@ deliver.
 
 The middle case appears whenever threads read down a column of a 32 × 32 table of floats in
 shared memory. Element (row r, column c) is word 32r + c, and (32r + c) mod 32 = c: the row
-drops out, so every element of column c lies in bank c. Chapter 7 shows the usual fix. With 1
+drops out, so every element of column c lies in bank c. We apply the usual fix in Chapter 7. With 1
 unused word added to each row, element (r, c) becomes word 33r + c, whose bank is
 (r + c) mod 32. That bank differs from row to row, so the column spreads across all 32
 banks.
@@ -837,8 +832,7 @@ The thread and block limits depend on the block size in 2 ways.
 
 Worked example: the register budget, blocks of 256 threads on an H100 SM
 
-A compiler decides how many registers each thread of a kernel needs; Chapter 9 shows how to
-see that number and how to cap it. The SM hands out registers to each warp in units of 256,
+A compiler decides how many registers each thread of a kernel needs; in Chapter 9 we show how to see that number and how to cap it. The SM hands out registers to each warp in units of 256,
 so a thread's count is rounded up to a multiple of 256 / 32 = 8.
 
 | Registers per thread | Allocated | Registers per block | Blocks that fit | Resident threads | Occupancy |
@@ -884,7 +878,7 @@ scheduler more chances to find 1 that is ready. High occupancy is not a goal in 
 - A kernel keeping a large tile of data in shared memory may run fewer blocks per SM on
   purpose, because each block then does more work per byte it reads.
 
-A kernel needs enough ready warps to keep the schedulers busy, and no more. Chapter 9 measures the trade
+A kernel needs enough ready warps to keep the schedulers busy, and no more. In Chapter 9 we measure the trade
 between registers and occupancy on a matrix multiplication.
 
 ### 2.9.4 Reading the limits of a GPU
@@ -910,7 +904,7 @@ bytes: 228 × 1,024 = 233,472. For a particular kernel, the function
 `cudaOccupancyMaxActiveBlocksPerMultiprocessor` applies all 4 limits, with the kernel's real
 register and shared-memory use, and returns the number of blocks that fit on an SM.
 Multiplied by `multiProcessorCount`, it gives the number of places in a wave (section 2.4.1).
-Chapter 9 calls it in a complete program, and Chapter 16 returns to both functions.
+We call it in a complete program in Chapter 9 and return to both functions in Chapter 16.
 
 ## 2.10 The SM in action: time slicing
 
@@ -970,7 +964,7 @@ capability**, a version number of the form *major.minor*.
 Each generation changes the number of SMs, the size of shared memory, the tensor cores and
 many of the limits of section 2.9. A performance figure is only meaningful together with the
 compute capability on which it was measured. The `deviceQuery` sample that ships with CUDA
-prints the limits of the GPU it runs on; Chapter 16 shows how to read its output.
+prints the limits of the GPU it runs on; in Chapter 16 we show how to read its output.
 
 ## Common mistakes
 
@@ -1020,7 +1014,7 @@ prints the limits of the GPU it runs on; Chapter 16 shows how to read its output
 
 </div>
 
-Chapter 3 turns from the hardware to the code: how a kernel is written, how a grid of blocks
+In Chapter 3 we turn from the hardware to the code: how a kernel is written, how a grid of blocks
 is described, and how each thread finds its own piece of work.
 
 ## Exercises
