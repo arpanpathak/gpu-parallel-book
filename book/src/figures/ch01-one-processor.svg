@@ -66,8 +66,16 @@
   <text x="527.4" y="230.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">row 3: waiting</text>
   <rect x="591.0" y="206.0" width="9.0" height="40.0" rx="6" fill="#CF4526" stroke="#CF4526" stroke-width="1.3"/>
   <line x1="40.0" y1="262.0" x2="600.0" y2="262.0" stroke="#5D6B7A" stroke-width="1"/>
-  <text x="40.0" y="280.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">0</text>
-  <text x="600.0" y="280.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">2,016 cycles</text>
+  <line x1="40.0" y1="258.0" x2="40.0" y2="266.0" stroke="#5D6B7A" stroke-width="1.2"/>
+  <text x="40.0" y="282.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <line x1="176.2" y1="258.0" x2="176.2" y2="266.0" stroke="#5D6B7A" stroke-width="1.2"/>
+  <text x="176.2" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">504</text>
+  <line x1="317.5" y1="258.0" x2="317.5" y2="266.0" stroke="#5D6B7A" stroke-width="1.2"/>
+  <text x="317.5" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1,008</text>
+  <line x1="458.8" y1="258.0" x2="458.8" y2="266.0" stroke="#5D6B7A" stroke-width="1.2"/>
+  <text x="458.8" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1,512</text>
+  <line x1="600.0" y1="258.0" x2="600.0" y2="266.0" stroke="#5D6B7A" stroke-width="1.2"/>
+  <text x="600.0" y="282.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">2,016 cycles</text>
   <rect x="40" y="306" width="14" height="14" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
   <text x="61.0" y="317.5" class="note" text-anchor="start" xml:space="preserve">waiting for a[i] and b[i]: 500 cycles</text>
   <rect x="327.20000000000005" y="306" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
