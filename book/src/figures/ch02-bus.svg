@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 500" width="660" height="500" role="img" aria-label="4 horizontal bars, one per GPU, whose length is the width of its memory bus. Jetson Orin NX, LPDDR5: 128 bits, 16 bytes per transfer at 6.4 billion transfers per second, 102 GB/s. Jetson AGX Thor, LPDDR5X: 256 bits, 32 bytes at 8.53 billion, 273 GB/s. GeForce RTX 4090, GDDR6X: 384 bits, 48 bytes at 21 billion, 1,008 GB/s. H100 SXM, HBM3: 5,120 bits, 640 bytes at 5.23 billion, 3,350 GB/s; its bar is 40 times as long as the Orin&#x27;s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="500" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Memory bandwidth = bus width × transfer rate</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The H100 moves 640 bytes per transfer; the Orin NX moves 16.</text>
+  <text x="40.0" y="118.0" class="name" text-anchor="start" xml:space="preserve">Jetson Orin NX: LPDDR5</text>
+  <text x="620.0" y="118.0" class="name" text-anchor="end" xml:space="preserve">102 GB/s</text>
+  <rect x="40.0" y="128.0" width="14.5" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="40.0" y="170.0" class="note" text-anchor="start" xml:space="preserve">16 bytes per transfer × 6.4 billion transfers/s = 102 GB/s</text>
+  <text x="62.5" y="144.0" class="note" text-anchor="start" xml:space="preserve">128 bits</text>
+  <text x="40.0" y="210.0" class="name" text-anchor="start" xml:space="preserve">Jetson AGX Thor: LPDDR5X</text>
+  <text x="620.0" y="210.0" class="name" text-anchor="end" xml:space="preserve">273 GB/s</text>
+  <rect x="40.0" y="220.0" width="29.0" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="40.0" y="262.0" class="note" text-anchor="start" xml:space="preserve">32 bytes per transfer × 8.53 billion transfers/s = 273 GB/s</text>
+  <text x="77.0" y="236.0" class="note" text-anchor="start" xml:space="preserve">256 bits</text>
+  <text x="40.0" y="302.0" class="name" text-anchor="start" xml:space="preserve">GeForce RTX 4090: GDDR6X</text>
+  <text x="620.0" y="302.0" class="name" text-anchor="end" xml:space="preserve">1,008 GB/s</text>
+  <rect x="40.0" y="312.0" width="43.5" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="40.0" y="354.0" class="note" text-anchor="start" xml:space="preserve">48 bytes per transfer × 21 billion transfers/s = 1,008 GB/s</text>
+  <text x="91.5" y="328.0" class="note" text-anchor="start" xml:space="preserve">384 bits</text>
+  <text x="40.0" y="394.0" class="name" text-anchor="start" xml:space="preserve">H100 SXM: HBM3</text>
+  <text x="620.0" y="394.0" class="name" text-anchor="end" xml:space="preserve">3,350 GB/s</text>
+  <rect x="40.0" y="404.0" width="580.0" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="330.0" y="419.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5,120 bits</text>
+  <text x="40.0" y="446.0" class="note" text-anchor="start" xml:space="preserve">640 bytes per transfer × 5.23 billion transfers/s = 3,350 GB/s</text>
+  <text x="40.0" y="476.0" class="note" text-anchor="start" xml:space="preserve">Bar length: the width of the memory bus, in bits carried by 1 transfer.</text>
+</svg>

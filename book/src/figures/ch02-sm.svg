@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 540" width="660" height="540" role="img" aria-label="One SM of an H100, divided into 4 groups. Each group has a scheduler, 32 arithmetic units drawn as small squares, and 16,384 registers. Below the 4 groups, one pool of 256 KB serves as shared memory and L1 cache for the whole SM.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 640" width="660" height="640" role="img" aria-label="One SM of an H100, divided into 4 groups. Each group has a scheduler, 32 arithmetic units drawn as small squares, and 16,384 registers. Below the 4 groups, one pool of 256 KB serves as shared memory and L1 cache for the whole SM.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -36,10 +36,10 @@
       <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
     </marker>
   </defs>
-  <rect width="660" height="540" rx="14" fill="#FBFAF6"/>
+  <rect width="660" height="640" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Inside one SM of an H100</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4 groups of 32 arithmetic units, each with its own scheduler and registers.</text>
-  <rect x="16" y="104" width="628" height="418" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="16" y="104" width="628" height="516" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="34" y="93" width="75.2" height="22" rx="11" fill="#1B2430"/>
   <text x="71.6" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">ONE SM</text>
   <rect x="36" y="134" width="284" height="150" rx="12" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
@@ -207,4 +207,10 @@
   <rect x="52" y="474.0" width="32" height="32" rx="8" fill="#FBF1DC"/>
   <g transform="translate(58.0,480.0) scale(0.8333)"><path d="M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z" fill="#B7791F" fill-rule="evenodd"/></g>
   <text x="94.0" y="495.0" class="name" text-anchor="start" xml:space="preserve">shared memory and L1 cache: 256 KB, used by all 4 groups</text>
+  <rect x="36" y="532" width="588" height="58" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M48,532.7 H42 V589.3 H48 A11.3,11.3 0 0 1 36.7,578 V544 A11.3,11.3 0 0 1 48,532.7 Z" fill="#1F8A70"/>
+  <rect x="52" y="545.0" width="32" height="32" rx="8" fill="#E4F4EF"/>
+  <g transform="translate(58.0,551.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#1F8A70" fill-rule="evenodd"/></g>
+  <text x="94.0" y="557.0" class="name" text-anchor="start" xml:space="preserve">holds up to 2,048 threads: 64 warps, 16 per scheduler</text>
+  <text x="94.0" y="575.0" class="sub" text-anchor="start" xml:space="preserve">2,048 threads / 128 arithmetic units = 16 threads waiting for each unit</text>
 </svg>
