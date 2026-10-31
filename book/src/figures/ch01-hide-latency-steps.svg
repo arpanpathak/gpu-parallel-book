@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 668" width="640" height="668" role="img" aria-label="3 timelines of 24 cycles. Each group of threads reads for 6 cycles and then adds for 2, and the groups share 1 arithmetic unit; group k starts 2k cycles after group 0. With 1 group the unit is busy 6 of 24 cycles, 2 of every 8. With 2 groups it is busy 10 of 24, 4 of every 8. With 4 groups it is busy 18 of 24: from cycle 6 on, some group always has its values ready, and the unit never waits.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="668" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">4 groups keep the unit busy</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">A round takes 8 cycles and an add 2, so 8 / 2 = 4 groups fill every cycle.</text>
+  <rect x="16" y="100" width="608" height="124" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="89" width="83.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="75.5" y="104.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1 GROUP</text>
+  <text x="150.0" y="132.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="226.0" y="132.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="302.0" y="132.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">8</text>
+  <text x="378.0" y="132.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">12</text>
+  <text x="454.0" y="132.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <text x="530.0" y="132.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <text x="606.0" y="132.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <text x="138.0" y="156.0" class="sub" text-anchor="end" xml:space="preserve">group 0</text>
+  <rect x="150.0" y="142.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="206.0" y="154.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="264.0" y="142.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="282.0" y="154.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="302.0" y="142.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="358.0" y="154.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="416.0" y="142.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="434.0" y="154.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="454.0" y="142.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="510.0" y="154.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="568.0" y="142.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="586.0" y="154.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <text x="138.0" y="182.0" class="name" text-anchor="end" xml:space="preserve">unit</text>
+  <rect x="150.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="169.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="188.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="207.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="226.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="245.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="264.0" y="168" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="283.0" y="168" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="302.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="321.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="340.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="359.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="378.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="397.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="416.0" y="168" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="435.0" y="168" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="454.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="473.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="492.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="511.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="530.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="549.0" y="168" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="568.0" y="168" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="587.0" y="168" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <text x="150.0" y="208.0" class="note" text-anchor="start" xml:space="preserve">unit busy 6 of 24 cycles: 2 of every 8 cycles</text>
+  <rect x="16" y="250" width="608" height="146" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="239" width="90.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="79.5" y="254.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">2 GROUPS</text>
+  <text x="150.0" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="226.0" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="302.0" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">8</text>
+  <text x="378.0" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">12</text>
+  <text x="454.0" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <text x="530.0" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <text x="606.0" y="282.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <text x="138.0" y="306.0" class="sub" text-anchor="end" xml:space="preserve">group 0</text>
+  <rect x="150.0" y="292.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="206.0" y="304.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="264.0" y="292.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="282.0" y="304.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="302.0" y="292.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="358.0" y="304.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="416.0" y="292.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="434.0" y="304.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="454.0" y="292.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="510.0" y="304.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="568.0" y="292.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="586.0" y="304.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <text x="138.0" y="328.0" class="sub" text-anchor="end" xml:space="preserve">group 1</text>
+  <rect x="188.0" y="314.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="244.0" y="326.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="302.0" y="314.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="320.0" y="326.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="340.0" y="314.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="396.0" y="326.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="454.0" y="314.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="472.0" y="326.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="492.0" y="314.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="548.0" y="326.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <text x="138.0" y="354.0" class="name" text-anchor="end" xml:space="preserve">unit</text>
+  <rect x="150.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="169.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="188.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="207.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="226.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="245.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="264.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="283.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="302.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="321.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="340.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="359.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="378.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="397.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="416.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="435.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="454.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="473.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="492.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="511.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="530.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="549.0" y="340" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="568.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="587.0" y="340" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <text x="150.0" y="380.0" class="note" text-anchor="start" xml:space="preserve">unit busy 10 of 24 cycles: 4 of every 8 cycles</text>
+  <rect x="16" y="422" width="608" height="190" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="411" width="90.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="79.5" y="426.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">4 GROUPS</text>
+  <text x="150.0" y="454.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="226.0" y="454.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="302.0" y="454.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">8</text>
+  <text x="378.0" y="454.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">12</text>
+  <text x="454.0" y="454.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <text x="530.0" y="454.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <text x="606.0" y="454.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">24</text>
+  <text x="138.0" y="478.0" class="sub" text-anchor="end" xml:space="preserve">group 0</text>
+  <rect x="150.0" y="464.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="206.0" y="476.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="264.0" y="464.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="282.0" y="476.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="302.0" y="464.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="358.0" y="476.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="416.0" y="464.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="434.0" y="476.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="454.0" y="464.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="510.0" y="476.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="568.0" y="464.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="586.0" y="476.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <text x="138.0" y="500.0" class="sub" text-anchor="end" xml:space="preserve">group 1</text>
+  <rect x="188.0" y="486.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="244.0" y="498.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="302.0" y="486.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="320.0" y="498.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="340.0" y="486.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="396.0" y="498.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="454.0" y="486.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="472.0" y="498.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="492.0" y="486.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="548.0" y="498.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <text x="138.0" y="522.0" class="sub" text-anchor="end" xml:space="preserve">group 2</text>
+  <rect x="226.0" y="508.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="282.0" y="520.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="340.0" y="508.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="358.0" y="520.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="378.0" y="508.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="434.0" y="520.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="492.0" y="508.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="510.0" y="520.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="530.0" y="508.0" width="74.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="567.0" y="520.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <text x="138.0" y="544.0" class="sub" text-anchor="end" xml:space="preserve">group 3</text>
+  <rect x="264.0" y="530.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="320.0" y="542.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="378.0" y="530.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="396.0" y="542.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="416.0" y="530.0" width="112.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="472.0" y="542.5" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">read</text>
+  <rect x="530.0" y="530.0" width="36.0" height="17.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="548.0" y="542.5" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">add</text>
+  <rect x="568.0" y="530.0" width="36.0" height="17.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="138.0" y="570.0" class="name" text-anchor="end" xml:space="preserve">unit</text>
+  <rect x="150.0" y="556" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="169.0" y="556" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="188.0" y="556" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="207.0" y="556" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="226.0" y="556" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="245.0" y="556" width="17" height="17" rx="3" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <rect x="264.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="283.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="302.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="321.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="340.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="359.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="378.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="397.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="416.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="435.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="454.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="473.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="492.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="511.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="530.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="549.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="568.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <rect x="587.0" y="556" width="17" height="17" rx="3" fill="#2E8B3D" stroke="#2E8B3D"/>
+  <text x="150.0" y="596.0" class="note" text-anchor="start" xml:space="preserve">unit busy 18 of 24 cycles: every cycle from cycle 6 on</text>
+  <rect x="150" y="632" width="14" height="14" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="171.0" y="643.5" class="note" text-anchor="start" xml:space="preserve">read: 6 cycles</text>
+  <rect x="285.4" y="632" width="14" height="14" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="306.4" y="643.5" class="note" text-anchor="start" xml:space="preserve">add: 2 cycles</text>
+</svg>

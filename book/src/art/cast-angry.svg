@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 190" width="240" height="190" role="img" aria-hidden="true">
+<ellipse cx="120.0" cy="189.0" rx="50.9" ry="7.5" fill="url(#d3-shadow)" />
+<ellipse cx="72.3" cy="83.9" rx="44.3" ry="17.0" fill="#e6f1f8" opacity="0.8" stroke="#9fbcd2" stroke-width="2.8" transform="rotate(38 72.3 83.9)"/>
+<ellipse cx="79.2" cy="107.7" rx="28.9" ry="11.1" fill="#eef6fb" opacity="0.75" stroke="#9fbcd2" stroke-width="2.8" transform="rotate(16 79.2 107.7)"/>
+<ellipse cx="167.7" cy="83.9" rx="44.3" ry="17.0" fill="#e6f1f8" opacity="0.8" stroke="#9fbcd2" stroke-width="2.8" transform="rotate(-38 167.7 83.9)"/>
+<ellipse cx="160.8" cy="107.7" rx="28.9" ry="11.1" fill="#eef6fb" opacity="0.75" stroke="#9fbcd2" stroke-width="2.8" transform="rotate(-16 160.8 107.7)"/>
+<line x1="109.8" y1="169.0" x2="103.0" y2="186.0" stroke="#2b1a12" stroke-width="3.9592" stroke-linecap="round" />
+<ellipse cx="101.3" cy="186.0" rx="10.2" ry="4.3" fill="#2b1a12" />
+<line x1="130.2" y1="169.0" x2="137.0" y2="186.0" stroke="#2b1a12" stroke-width="3.9592" stroke-linecap="round" />
+<ellipse cx="138.7" cy="186.0" rx="10.2" ry="4.3" fill="#2b1a12" />
+<clipPath id="hn2"><ellipse cx="120.0" cy="145.2" rx="28.9" ry="34.0"/></clipPath>
+<ellipse cx="120.0" cy="145.2" rx="28.9" ry="34.0" fill="url(#d3-d07a32)" />
+<g clip-path="url(#hn2)"><rect x="-50.2" y="128.1" width="340.4" height="9.4" rx="0" fill="#2b1a12" stroke="none" stroke-width="0" /><rect x="-50.2" y="145.2" width="340.4" height="9.4" rx="0" fill="#2b1a12" stroke="none" stroke-width="0" /><rect x="-50.2" y="162.2" width="340.4" height="9.4" rx="0" fill="#2b1a12" stroke="none" stroke-width="0" /></g>
+<ellipse cx="120.0" cy="145.2" rx="28.9" ry="34.0" fill="none" stroke="#2b1a12" stroke-width="2.8"/>
+<ellipse cx="120.0" cy="107.7" rx="8.5" ry="6.8" fill="#2b1a12" />
+<ellipse cx="120.0" cy="94.1" rx="22.1" ry="15.3" fill="#2b1a12" />
+<ellipse cx="113.2" cy="89.0" rx="6.8" ry="4.3" fill="#ffffff" opacity="0.2"/>
+<path d="M103.0,94.1 Q94.5,102.6 103.0,111.1" fill="none" stroke="#2b1a12" stroke-width="3.9592" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="103.0" cy="111.1" r="5.1" fill="#2b1a12" />
+<path d="M137.0,94.1 Q145.5,102.6 137.0,111.1" fill="none" stroke="#2b1a12" stroke-width="3.9592" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="137.0" cy="111.1" r="5.1" fill="#2b1a12" />
+<path d="M111.5,39.6 Q113.2,15.8 94.5,9.0" fill="none" stroke="#2b1a12" stroke-width="2.8280000000000003" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="94.5" cy="9.0" r="4.3" fill="#2b1a12" />
+<path d="M128.5,39.6 Q126.8,15.8 145.5,9.0" fill="none" stroke="#2b1a12" stroke-width="2.8280000000000003" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="145.5" cy="9.0" r="4.3" fill="#2b1a12" />
+<ellipse cx="120.0" cy="60.1" rx="25.5" ry="27.6" fill="url(#d3-e6b25c)" stroke="#2b1a12" stroke-width="2.8"/>
+<ellipse cx="120.0" cy="46.0" rx="23.0" ry="11.5" fill="url(#d3-d07a32)" stroke="#2b1a12" stroke-width="2.3"/>
+<ellipse cx="107.2" cy="60.1" rx="8.5" ry="11.1" fill="#2b1a12" />
+<circle cx="109.3" cy="55.8" r="2.4" fill="#ffffff" />
+<line x1="116.6" y1="45.6" x2="101.3" y2="49.0" stroke="#2b1a12" stroke-width="3.3936" stroke-linecap="round" />
+<ellipse cx="132.8" cy="60.1" rx="8.5" ry="11.1" fill="#2b1a12" />
+<circle cx="130.7" cy="55.8" r="2.4" fill="#ffffff" />
+<line x1="123.4" y1="45.6" x2="138.7" y2="49.0" stroke="#2b1a12" stroke-width="3.3936" stroke-linecap="round" />
+<path d="M113.2,75.4 Q120.0,80.5 126.8,75.4" fill="none" stroke="#2b1a12" stroke-width="2.8280000000000003" stroke-linecap="round" stroke-linejoin="round" />
+<line x1="114.9" y1="82.2" x2="116.6" y2="87.3" stroke="#2b1a12" stroke-width="2.8280000000000003" stroke-linecap="round" />
+<line x1="125.1" y1="82.2" x2="123.4" y2="87.3" stroke="#2b1a12" stroke-width="2.8280000000000003" stroke-linecap="round" />
+<defs><radialGradient id="d3-d07a32" cx="0.36" cy="0.30" r="0.78"><stop offset="0" stop-color="#e4b288"/><stop offset="0.5" stop-color="#d07a32"/><stop offset="1" stop-color="#8d5322"/></radialGradient><radialGradient id="d3-e6b25c" cx="0.36" cy="0.30" r="0.78"><stop offset="0" stop-color="#f0d2a0"/><stop offset="0.5" stop-color="#e6b25c"/><stop offset="1" stop-color="#9c793f"/></radialGradient><radialGradient id="d3-shadow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#0d1a28" stop-opacity="0.38"/><stop offset="1" stop-color="#0d1a28" stop-opacity="0"/></radialGradient></defs>
+</svg>

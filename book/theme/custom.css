@@ -13,8 +13,8 @@
     --book-brass: #c89b3c;
     --book-teal: #2f7f86;
     --book-rule: #c9d4de;
-    --bee-bg: #fff8e6;
-    --bee-edge: #f1d79a;
+    --bee-bg: #f3f6f8;
+    --bee-edge: #d8e0e7;
     --content-max-width: 820px;
 }
 
@@ -120,11 +120,11 @@ img.cover {
     top: 0.6em;
     width: 4em;
     height: 3.2em;
-    background: url("../art/bee-cute.svg") no-repeat center / contain;
+    background: url("../art/cast-note.svg") no-repeat center / contain;
 }
-.callout.warning::after { background-image: url("../art/bee-shocked.svg"); }
+.callout.warning::after { background-image: url("../art/cast-angry.svg"); }
 
-/* A bee in one of 5 moods beside one fact a reader should keep. */
+/* A member of the cast, one per mood, beside one fact a reader should keep. */
 .bee {
     display: flex;
     align-items: center;
@@ -132,7 +132,7 @@ img.cover {
     margin: 1.6em 0;
     padding: 0.5em 1.1em 0.5em 0.9em;
     border: 1px solid var(--bee-edge);
-    border-left: 5px solid var(--book-brass);
+    border-left: 5px solid var(--book-teal);
     border-radius: 6px;
     background: var(--bee-bg);
     font-size: 0.95em;
@@ -144,11 +144,11 @@ img.cover {
     background: no-repeat center / contain;
 }
 .bee > p { margin: 0.3em 0; }
-.bee-happy::before { background-image: url("../art/bee-happy.svg"); }
-.bee-cute::before { background-image: url("../art/bee-cute.svg"); }
-.bee-shocked::before { background-image: url("../art/bee-shocked.svg"); }
-.bee-sleepy::before { background-image: url("../art/bee-sleepy.svg"); }
-.bee-angry::before { background-image: url("../art/bee-angry.svg"); }
+.bee-happy::before { background-image: url("../art/cast-happy.svg"); }
+.bee-cute::before { background-image: url("../art/cast-cute.svg"); }
+.bee-shocked::before { background-image: url("../art/cast-shocked.svg"); }
+.bee-sleepy::before { background-image: url("../art/cast-sleepy.svg"); }
+.bee-angry::before { background-image: url("../art/cast-angry.svg"); }
 
 /* A design box: the types, operations or numbers of one thing. */
 .lld {
