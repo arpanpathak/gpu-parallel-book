@@ -646,74 +646,102 @@ def crate(x, y, w, h, text, fill="#c9a46a"):
 COVER_W, COVER_H = 960, 1280
 
 
-@plate("cover", "", "", "The cover of GPU Architecture & Parallel Programming from First Principles, on a night-blue "
-       "honeycomb. On the left the queen bee, in a crown, gives one order to her colony: c[i] = a[i] + b[i]. On the right "
-       "stand 4 hornets, large and fast, each beside one big cell: the few strong cores of a CPU. Below, 32 worker bees in hard "
-       "hats stand in 4 rows of 8 at their own honeycomb cells, one warp of the GPU, all filling their cells at the same "
-       "moment. One bee in the third row has wandered off on a branch of its own, with a question mark over its head. A crab "
-       "in a hard hat waves from the corner, because the book writes every program in CUDA C++ and in Rust.",
+def iso_cube(sx, sy, a, top, left, right, edge="#0b1520", extra=""):
+    """An isometric cube whose top face has its upper corner at (sx, sy) and edge length a."""
+    w, h = a * 0.866, a * 0.5
+    pts = lambda ps: " ".join(f"{x:.1f},{y:.1f}" for x, y in ps)
+    return "".join([
+        f'<polygon points="{pts([(sx - w, sy + h), (sx, sy + 2 * h), (sx, sy + 2 * h + a), (sx - w, sy + h + a)])}" fill="{left}" stroke="{edge}" stroke-width="1.2" {extra}/>',
+        f'<polygon points="{pts([(sx, sy + 2 * h), (sx + w, sy + h), (sx + w, sy + h + a), (sx, sy + 2 * h + a)])}" fill="{right}" stroke="{edge}" stroke-width="1.2" {extra}/>',
+        f'<polygon points="{pts([(sx, sy), (sx + w, sy + h), (sx, sy + 2 * h), (sx - w, sy + h)])}" fill="{top}" stroke="{edge}" stroke-width="1.2" {extra}/>'])
+
+
+@plate("cover", "", "", "The cover of GPU Architecture & Parallel Programming from First Principles. A glowing perspective "
+       "grid runs to the horizon under a night sky. In the middle stands an isometric 3D grid of thread blocks, 8 cubes wide, 4 "
+       "deep and 3 high; on its top layer 31 worker bees in hard hats, one warp, each stand on their own amber cube, and 1 cube "
+       "is empty because its bee has wandered off on a branch with a question mark. On the left the queen bee, on a pillar, "
+       "gives the one order c[i] = a[i] + b[i]. On the right 4 large cubes carry 4 hornets: the few fast cores of a CPU. A "
+       "crab in a hard hat waves from the corner, because the book writes every program in CUDA C++ and in Rust.",
        size=(COVER_W, COVER_H))
 def cover():
     FUR, HONEY_SOFT, CREAM_T, AMBER, NAVY = "#e7bf5f", "#d9a441", "#f1e6cc", "#d6a85a", "#0f1d2b"
     defs = """<defs>
-<radialGradient id="night" cx="0.5" cy="0.42" r="0.8"><stop offset="0" stop-color="#22405a"/><stop offset="0.6" stop-color="#14283a"/>
-<stop offset="1" stop-color="#0b1520"/></radialGradient>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1420"/><stop offset="0.45" stop-color="#16304a"/>
+<stop offset="0.62" stop-color="#1d4363"/><stop offset="1" stop-color="#08121c"/></linearGradient>
+<radialGradient id="halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#5fb3c9" stop-opacity="0.35"/><stop offset="1" stop-color="#5fb3c9" stop-opacity="0"/></radialGradient>
+<radialGradient id="warm" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#e9c47a" stop-opacity="0.30"/><stop offset="1" stop-color="#e9c47a" stop-opacity="0"/></radialGradient>
+<linearGradient id="band" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#08121c" stop-opacity="0"/><stop offset="0.4" stop-color="#08121c"/></linearGradient>
 <linearGradient id="honey" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ecc777"/><stop offset="1" stop-color="#c98f32"/></linearGradient>
-<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#e9c47a" stop-opacity="0.22"/><stop offset="1" stop-color="#e9c47a" stop-opacity="0"/></radialGradient>
-<linearGradient id="band" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1520" stop-opacity="0"/><stop offset="0.35" stop-color="#0b1520"/></linearGradient>
 </defs>"""
-    parts = [defs, rect(0, 0, COVER_W, COVER_H, "url(#night)")]
+    parts = [defs, rect(0, 0, COVER_W, COVER_H, "url(#sky)")]
 
-    r = 46
-    for row in range(-1, 19):
-        for col in range(-1, 13):
-            hx = col * r * 1.732 + (row % 2) * r * 0.866
-            hy = row * r * 1.5
-            parts.append(hexagon(hx, hy, r - 3, "#16304a", "#0d1b28", 4, 'opacity="0.6"'))
-    parts += [circle(300, 520, 300, "url(#glow)"), circle(480, 930, 420, "url(#glow)")]
+    # Stars, then the perspective floor grid running to a horizon at y = 560.
+    for k in range(70):
+        x, y = (k * 137) % COVER_W, 20 + (k * 89) % 520
+        parts.append(circle(x, y, 0.8 + (k % 3) * 0.5, "#cfe3f0", f'opacity="{0.25 + 0.15 * (k % 4):.2f}"'))
+    hz, vx = 560, 480
+    parts.append(ellipse(vx, hz, 560, 90, "url(#halo)"))
+    for k in range(-14, 15):
+        parts.append(line(vx, hz, vx + k * 140, COVER_H, "#4ea3bd", 1.4, 'opacity="0.45"'))
+    for k in range(1, 16):
+        y = hz + (COVER_H - hz) * (k / 15) ** 2.2
+        parts.append(line(0, y, COVER_W, y, "#4ea3bd", 1.2, f'opacity="{0.15 + 0.35 * k / 15:.2f}"'))
 
     parts += [
-        label(480, 132, "GPU ARCHITECTURE", 92, CREAM_T, weight=900, fit=860, extra='stroke="#0b1520" stroke-width="3" paint-order="stroke"'),
-        label(480, 212, "& PARALLEL PROGRAMMING", 60, AMBER, weight=900, fit=860, extra='stroke="#0b1520" stroke-width="2" paint-order="stroke"'),
-        label(480, 286, "from First Principles", 44, "#d8cbb0", font=SERIF, weight=700, fit=600, extra='font-style="italic"'),
+        label(480, 128, "GPU ARCHITECTURE", 92, CREAM_T, weight=900, fit=860, extra='stroke="#08121c" stroke-width="3" paint-order="stroke"'),
+        label(480, 206, "& PARALLEL PROGRAMMING", 60, AMBER, weight=900, fit=860, extra='stroke="#08121c" stroke-width="2" paint-order="stroke"'),
+        label(480, 278, "from First Principles", 44, "#d8cbb0", font=SERIF, weight=700, fit=600, extra='font-style="italic"'),
     ]
 
-    # The queen and her one order to the warp.
-    parts += [hexagon(170, 600, 64, "#5c4220", "#0b1520", 4), hexagon(170, 600, 49, "url(#honey)", "#0b1520", 3),
-              honeybee(170, 590, 1.0, look=1, role="queen", fur=FUR),
-              path("M300,452 L268,478 L304,476", "#f4ecdc", "#0b1520", 4),
-              rect(296, 396, 300, 112, "#f4ecdc", 20, "#0b1520", 4), rect(296, 452, 10, 24, "#f4ecdc"),
-              label(446, 434, "One order, every bee:", 20, "#5a4a30", weight=700, fit=250),
-              label(446, 482, "c[i] = a[i] + b[i]", 30, NAVY, font=MONO, weight=800, fit=270)]
+    # The GPU: an isometric grid of thread blocks, 8 x 4 x 3, with a warp of bees on its top layer.
+    a, ox, oy = 40, 470, 640
+    w, h = a * 0.866, a * 0.5
+    parts.append(ellipse(ox, oy + 330, 330, 60, "url(#warm)"))
+    cubes = [(i, j, k) for k in range(3) for i in range(8) for j in range(4)]
+    cubes.sort(key=lambda c: (c[2], c[0] + c[1]))
+    bees = []
+    for i, j, k in cubes:
+        sx, sy = ox + (i - j) * w - 2 * w, oy + (i + j) * h - k * a + 2 * a
+        top_layer = k == 2
+        if top_layer:
+            parts.append(iso_cube(sx, sy, a, "#e8bf62", "#b9852c", "#94661c"))
+            if (i, j) != (5, 2):
+                bees.append((sx, sy + h))
+            else:
+                parts.append(f'<polygon points="{sx:.1f},{sy + 4:.1f} {sx + w - 6:.1f},{sy + h:.1f} {sx:.1f},{sy + 2 * h - 4:.1f} {sx - w + 6:.1f},{sy + h:.1f}" fill="#0b1520" stroke="{AMBER}" stroke-width="2" stroke-dasharray="4 4"/>')
+        else:
+            parts.append(iso_cube(sx, sy, a, "#3d7393", "#26506d", "#173a52"))
+    for bx, by in sorted(bees, key=lambda b: b[1]):
+        parts.append(honeybee(bx, by + 4, 0.20, look=0, hat="hard", arms="hold", carry=HONEY_SOFT, fur=FUR))
+    # The bee that took the other branch.
+    ex, ey = ox + (5 - 2) * w - 2 * w, oy + (5 + 2) * h - 2 * a + 2 * a
+    parts += [path(f"M{ex + 10:.1f},{ey:.1f} Q{ex + 120:.1f},{ey - 90:.1f} {ex + 205:.1f},{ey - 70:.1f}", stroke=AMBER, sw=2.5, extra='stroke-dasharray="5 6" opacity="0.85"'),
+              honeybee(ex + 230, ey - 40, 0.30, look=-1, hat="hard", arms="up", fur=FUR),
+              circle(ex + 262, ey - 120, 16, "#f4ecdc"), label(ex + 262, ey - 111, "?", 24, RUST, weight=900)]
+    parts.append(tag(380, 1040, "the GPU: a grid of blocks, a warp of 32", 18, "#f4ecdc", NAVY, MONO, 800))
 
-    # The CPU: 4 hornets, each with 1 big cell.
-    for k in range(4):
-        cx = 650 + (k % 2) * 150
-        base = 470 + (k // 2) * 170
-        parts += [hexagon(cx + 52, base - 52, 34, "#0b1520", AMBER, 3),
-                  hexagon(cx + 52, base - 52, 30, "url(#honey)"),
-                  hornet(cx - 6, base, 0.50, look=1 if k % 2 == 0 else -1, arms="fold")]
-    parts.append(tag(800, 660, "the CPU: 4 fast hornets", 18, "#f4ecdc", NAVY, MONO, 800))
+    # The queen on a pillar, with her one order.
+    parts += [iso_cube(150, 640, 64, "#e8bf62", "#b9852c", "#94661c"),
+              iso_cube(150, 704, 64, "#3d7393", "#26506d", "#173a52"),
+              honeybee(150, 676, 0.95, look=1, role="queen", fur=FUR),
+              path("M230,452 L206,488 L244,474", "#f4ecdc", "#08121c", 4),
+              rect(196, 374, 300, 104, "#f4ecdc", 20, "#08121c", 4), rect(208, 458, 34, 18, "#f4ecdc"),
+              label(346, 410, "One order, every bee:", 20, "#5a4a30", weight=700, fit=250),
+              label(346, 456, "c[i] = a[i] + b[i]", 30, NAVY, font=MONO, weight=800, fit=270)]
 
-    # The GPU: one warp of 32 workers in 4 rows of 8, each at its own cell.
-    for i in range(32):
-        row, col = divmod(i, 8)
-        cx, base = 70 + col * 106, 800 + row * 92
-        if i == 21:
-            parts.append(hexagon(cx, base - 34, 38, "#0b1520", AMBER, 3, 'stroke-dasharray="6 6"'))
-            continue
-        clip = uid("cell")
-        fill = 0.35 + 0.65 * ((i * 7) % 5) / 4
-        parts += [hexagon(cx, base - 34, 38, "#0b1520", AMBER, 3),
-                  f'<clipPath id="{clip}"><rect x="{cx - 38:.1f}" y="{base - 34 + 38 - 76 * fill:.1f}" width="76" height="{76 * fill:.1f}"/></clipPath>',
-                  f'<g clip-path="url(#{clip})">' + hexagon(cx, base - 34, 35, "url(#honey)") + "</g>",
-                  honeybee(cx, base + 12, 0.38, look=0, hat="hard", arms="hold", carry=HONEY_SOFT, fur=FUR)]
-    parts += [path("M832,962 Q872,944 900,968", stroke=AMBER, sw=3, extra='stroke-dasharray="5 6" opacity="0.8"'),
-              honeybee(905, 998, 0.34, look=-1, hat="hard", arms="up", fur=FUR),
-              circle(936, 902, 17, "#f4ecdc"), label(936, 911, "?", 25, RUST, weight=900),
-              tag(236, 712, "the GPU: one warp · 32 threads", 18, "#f4ecdc", NAVY, MONO, 800)]
+    # The CPU: 4 large cubes, each with a hornet.
+    big, cx0, cy0 = 88, 806, 770
+    W2, H2 = big * 0.866, big * 0.5
+    spots = [(0, 0), (1, 0), (0, 1), (1, 1)]
+    for i, j in sorted(spots, key=lambda c: c[0] + c[1]):
+        sx, sy = cx0 + (i - j) * W2, cy0 + (i + j) * H2
+        parts.append(iso_cube(sx, sy, big, "#c9733a", "#9c5222", "#7a3d17"))
+    for i, j in sorted(spots, key=lambda c: c[0] + c[1]):
+        sx, sy = cx0 + (i - j) * W2, cy0 + (i + j) * H2
+        parts.append(hornet(sx, sy + H2 + 6, 0.29, look=-1 if i else 1, arms="fold"))
+    parts.append(tag(806, 1080, "the CPU: 4 fast hornets", 18, "#f4ecdc", NAVY, MONO, 800))
 
-    parts += [rect(0, 1120, COVER_W, 160, "url(#band)"),
+    parts += [rect(0, 1110, COVER_W, 170, "url(#band)"),
               rect(0, 1158, COVER_W, 3, AMBER, extra='opacity="0.7"'),
               label(48, 1248, "Arpan Pathak", 40, CREAM_T, "start", SERIF, 700, fit=textw("Arpan Pathak", 40)),
               rect(640, 1214, 290, 46, AMBER, 10), label(785, 1244, "IN CUDA C++ AND RUST", 19, NAVY, weight=800, fit=250),
