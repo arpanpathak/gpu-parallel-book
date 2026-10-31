@@ -34,13 +34,15 @@ parts.append(tile(276, 120, "chip", "client", 28))
 for r in range(4):
     for c in range(8):
         parts.append(bar(40 + c * 32, 160 + r * 32, 26, 26, "client", "SM"))
-parts += [note(40, 306, "H100: 132 SMs.  Jetson Orin NX: 8 SMs.", room=260)]
+parts += [note(40, 296, "32 of an H100's 132 SMs drawn;", room=260),
+          note(40, 314, "a Jetson Orin NX has 8", room=260)]
 for k in range(4):
     y = 140 + k * 36
     parts.append(text(364, y + 17, f"scheduler {k}", "sub"))
     for w in range(4):
         parts.append(bar(448 + w * 44, y + 2, 38, 22, "service", f"w{k + 4 * w}"))
-parts += [note(364, 306, "each scheduler looks after its own warps", room=270)]
+parts += [note(364, 296, "up to 16 warps per scheduler,", room=270),
+          note(364, 314, "64 per SM; 4 per scheduler drawn", room=270)]
 for r in range(4):
     for c in range(8):
         parts.append(dot(384 + c * 30, 430 + r * 28, 9))
@@ -55,23 +57,25 @@ save(OUT + "ch02-zoom.svg", 660, 632,
      "has 132 and the Jetson Orin NX has 8. One SM: four schedulers, each looking after its own warps. One "
      "warp: 32 threads that carry out each instruction together. One thread: its own registers r0, r1 and "
      "r2, holding a[i], b[i] and their sum.",
-     "From the whole GPU to one thread", "Each panel enlarges one part of the panel before it.", parts)
+     "From the whole GPU to one thread", "H100: 132 SMs, 4 schedulers per SM, 32 threads per warp.", parts)
 
 
-# 2.2  One instruction reaches every lane of a warp.
+# 2.2  One instruction reaches every lane of a warp: 1 control unit, 8 lanes with their own registers.
 A, B = [1, 4, 0, 3, 2, 7, 5, 6], [2, 2, 5, 1, 8, 0, 3, 3]
 x0, w, gap = 36, 64, 8
 centres = [x0 + k * (w + gap) + w / 2 for k in range(8)]
-parts = [pill(320, 100, "c = a + b"), fan(320, 126, centres, 150, 178)]
+parts = [card(130, 96, 380, 58, "client", "control unit: fetch and decode once",
+              "instruction c = a + b, sent to all 8 lanes", glyph="gear"),
+         fan(320, 154, centres, 176, 204)]
 for k in range(8):
     x = x0 + k * (w + gap)
-    parts += [f'  <rect x="{x}" y="178" width="{w}" height="118" rx="10" fill="#FFFFFF" stroke="{EDGE}" filter="url(#lift)"/>',
-              text(x + w / 2, 198, f"lane {k}", "pill", "middle", MUTED),
-              mono(x + w / 2, 222, f"a = {A[k]}", "middle"), mono(x + w / 2, 242, f"b = {B[k]}", "middle"),
-              bar(x + 6, 256, w - 12, 28, "good", f"c = {A[k] + B[k]}")]
-parts += [note(36, 330, "One instruction, eight lanes, eight different answers in one step.", room=580),
-          note(36, 350, "Drawn with 8 lanes; a real warp has 32.", room=580)]
-save(OUT + "ch02-lockstep.svg", 640, 376,
+    parts += [f'  <rect x="{x}" y="204" width="{w}" height="118" rx="10" fill="#FFFFFF" stroke="{EDGE}" filter="url(#lift)"/>',
+              text(x + w / 2, 224, f"lane {k}", "pill", "middle", MUTED),
+              mono(x + w / 2, 248, f"a = {A[k]}", "middle"), mono(x + w / 2, 268, f"b = {B[k]}", "middle"),
+              bar(x + 6, 282, w - 12, 28, "good", f"c = {A[k] + B[k]}")]
+parts += [note(36, 350, "Each lane reads a and b from its own registers: 1 instruction, 8 different sums.", room=580),
+          note(36, 370, "Drawn with 8 lanes; a real warp has 32.", room=580)]
+save(OUT + "ch02-lockstep.svg", 640, 396,
      "One instruction, c = a + b, fanned out to eight lanes. Lane 0 has a = 1 and b = 2 and gets c = 3; "
      "lane 1 has a = 4, b = 2, c = 6; lane 2 has a = 0, b = 5, c = 5; and so on to lane 7, a = 6, b = 3, "
      "c = 9. Same instruction, different data in each lane. Drawn with 8 lanes; a real warp has 32.",
@@ -218,24 +222,25 @@ save(OUT + "ch02-banks.svg", 640, 476,
 
 
 # 2.8  The register file as a fixed budget.
-rows = [(32, 8, "100%"), (64, 4, "50%"), (128, 2, "25%")]
+rows = [(32, 8, "100%", 32), (33, 6, "75%", 40), (64, 4, "50%", 64), (128, 2, "25%", 128)]
 parts = []
-for k, (regs, blocks, occ) in enumerate(rows):
+for k, (regs, blocks, occ, alloc) in enumerate(rows):
     y = 112 + k * 92
     parts += [tile(32, y - 6, "chip", "client", 26),
-              text(66, y + 12, f"{regs} registers per thread", "name"),
-              text(66, y + 30, f"a block of 256 threads needs {256 * regs:,}", "sub")]
-    seg = 560 / (65536 / (256 * regs))
+              text(66, y + 12, f"{regs} registers per thread" + (f", allocated as {alloc}" if alloc != regs else ""), "name"),
+              text(66, y + 30, f"a block of 256 threads needs {256 * alloc:,}", "sub")]
+    seg = 560 / (65536 / (256 * alloc))
     for b in range(blocks):
         parts.append(bar(40 + b * seg, y + 42, seg - 3, 28, "service", "block" if seg > 50 else ""))
     used = blocks * seg
     if used < 559:
         parts.append(bar(40 + used, y + 42, 560 - used, 28, "idle", "", dashed=True))
     parts.append(tag(600, y - 2, f"{blocks} blocks, {blocks * 256:,} threads, {occ}", "service", "end"))
-parts.append(note(40, 390, "The bar is the SM's 65,536 registers in every row.", room=560))
-save(OUT + "ch02-occupancy-budget.svg", 640, 414,
+parts.append(note(40, 482, "Each bar is the SM's 65,536 registers; dashed: registers left unused.", room=560))
+save(OUT + "ch02-occupancy-budget.svg", 640, 506,
      "One SM has 65,536 registers, and each block has 256 threads. With 32 registers per thread a block "
-     "needs 8,192, so 8 blocks fit: 2,048 threads, 100 percent occupancy. With 64 registers per thread a "
+     "needs 8,192, so 8 blocks fit: 2,048 threads, 100 percent occupancy. With 33 registers per thread, "
+     "allocated as 40, a block needs 10,240, so 6 blocks fit: 1,536 threads, 75 percent. With 64 registers per thread a "
      "block needs 16,384, so 4 blocks fit: 1,024 threads, 50 percent. With 128 registers per thread a block "
      "needs 32,768, so 2 blocks fit: 512 threads, 25 percent.",
      "The register file is a fixed budget", "Blocks of 256 threads on one SM with 65,536 registers.", parts)
@@ -261,10 +266,11 @@ parts.append(text(46, y + 19, "issued", "name"))
 parts.append(bar(gx + 2, y, cw - 4, 30, "danger", "w0", solid=True))
 for c, wid in order.items():
     parts.append(bar(gx + c * cw + 2, y, cw - 4, 30, kinds[wid], f"w{wid}", solid=True))
-parts += [card(40, y + 56, 470, 58, "service", "An instruction is issued in every cycle",
+parts.append(note(gx, y + 46, "i: an instruction that does not need the data warp 0 is waiting for", room=500))
+parts += [card(40, y + 64, 470, 58, "service", "An instruction is issued in every cycle",
                "while warp 0 waits, warps 1 to 3 fill the gaps"),
-          mascot(526, y + 48, 80, "happy")]
-save(OUT + "ch02-time-slicing.svg", 640, y + 140,
+          mascot(526, y + 56, 80, "happy")]
+save(OUT + "ch02-time-slicing.svg", 640, y + 148,
      "A timeline of cycles 0 to 12 for warps 0 to 3. In cycle 0 warp 0 issues a load, then waits for its "
      "data in cycles 1 to 8. Meanwhile the scheduler issues an instruction from warp 1 in cycle 1, warp 2 in "
      "cycle 2, warp 3 in cycle 3, warp 1 again in cycle 4, and so on. In cycle 9 warp 0's data has arrived "
@@ -325,23 +331,25 @@ save(OUT + "ch02-launch.svg", 660, 548,
 
 
 # 2.2  Inside one SM of an H100.
-parts = [zone(16, 104, 628, 418, "one SM")]
+parts = [zone(16, 104, 628, 516, "one SM")]
 for q in range(4):
     x, y = 36 + (q % 2) * 304, 134 + (q // 2) * 166
     parts.append(f'  <rect x="{x}" y="{y}" width="284" height="150" rx="12" fill="#FFFFFF" stroke="{EDGE}" filter="url(#lift)"/>')
-    parts += [tile(x + 14, y + 12, "gear", "client", 26), text(x + 48, y + 30, f"scheduler {q}", "name")]
+    parts += [tile(x + 14, y + 12, "gear", "client", 26), text(x + 48, y + 30, f"processing block {q}", "name")]
     for r in range(4):
         for c in range(8):
             parts.append(f'  <rect x="{x + 14 + c * 20:.1f}" y="{y + 50 + r * 18}" width="15" height="13" rx="3"'
                          f' fill="{KINDS["good"][1]}" stroke="{KINDS["good"][0]}" stroke-width="1"/>')
     parts += [note(x + 182, y + 66, "32 arithmetic"), note(x + 182, y + 84, "units"),
               bar(x + 14, y + 124, 256, 18, "client", "16,384 registers")]
-parts += [card(36, 468, 588, 44, "store", "shared memory and L1 cache: 256 KB, used by all 4 groups", glyph="stack")]
-save(OUT + "ch02-sm.svg", 660, 540,
-     "One SM of an H100, divided into 4 groups. Each group has a scheduler, 32 arithmetic units drawn as "
-     "small squares, and 16,384 registers. Below the 4 groups, one pool of 256 KB serves as shared memory "
+parts += [card(36, 468, 588, 44, "store", "shared memory and L1 cache: 256 KB, used by all 4 processing blocks", glyph="stack"),
+          card(36, 532, 588, 58, "service", "holds up to 2,048 threads: 64 warps, 16 per processing block",
+               "2,048 threads / 128 arithmetic units = 16 threads for each unit", glyph="chip")]
+save(OUT + "ch02-sm.svg", 660, 640,
+     "One SM of an H100, divided into 4 processing blocks. Each has its own control logic, 32 arithmetic units drawn as "
+     "small squares, and 16,384 registers. Below the 4 processing blocks, one pool of 256 KB serves as shared memory "
      "and L1 cache for the whole SM.",
-     "Inside one SM of an H100", "4 groups of 32 arithmetic units, each with its own scheduler and registers.", parts)
+     "Inside one SM of an H100", "4 processing blocks of 32 arithmetic units, each with its own control logic.", parts)
 
 
 # 2.1.2  Where a thread's index comes from: block number × block size + position in the block.
@@ -375,3 +383,120 @@ save(OUT + "ch02-index.svg", 660, 476,
      "Where a thread's index comes from", "Block 1 starts after the 256 threads of block 0.", parts)
 
 print("wrote chapter 2 figures")
+
+
+# 2.4  Blocks reach the SMs in waves: 20 blocks on 4 SMs and on 8 SMs, 2 places per SM.
+def waves(y0, sms, label):
+    places = sms * 2
+    lane, sm_gap, wave_w, x0 = 19, 8, 150, 120
+    out = [zone(16, y0, 628, 46 + sms * (2 * lane + 2 + sm_gap) + 50, label)]
+    top = y0 + 40
+    nwaves = -(-20 // places)
+    for w in range(nwaves + 1):
+        out.append(line(x0 + w * wave_w, top - 6, x0 + w * wave_w, top + sms * (2 * lane + 2 + sm_gap) - 4, EDGE, 1, "3 4"))
+    for w in range(nwaves):
+        out.append(mono(x0 + w * wave_w + wave_w / 2, top - 10, f"wave {w + 1}", "middle", MUTED))
+    for m in range(sms):
+        y = top + m * (2 * lane + 2 + sm_gap)
+        out.append(text(x0 - 12, y + lane + 6, f"SM {m}", "sub", "end"))
+        for slot in range(2):
+            for w in range(nwaves):
+                b = w * places + m * 2 + slot
+                yy = y + slot * (lane + 2)
+                if b < 20:
+                    out.append(bar(x0 + w * wave_w + 3, yy, wave_w - 6, lane, "service", f"block {b}"))
+                else:
+                    out.append(bar(x0 + w * wave_w + 3, yy, wave_w - 6, lane, "idle", "idle", dashed=True))
+    bottom = top + sms * (2 * lane + 2 + sm_gap) + 8
+    last = 20 - (nwaves - 1) * places
+    out.append(note(x0, bottom + 14, f"20 blocks / {places} places = {20 / places:g} waves; the last wave fills "
+                    f"{last} of {places} places", room=500))
+    out.append(note(x0, bottom + 32, f"busy: 20 of {nwaves} × {places} = {nwaves * places} block-times, "
+                    f"{100 * 20 / (nwaves * places):.1f}%", room=500))
+    return out, y0 + 46 + sms * (2 * lane + 2 + sm_gap) + 50
+parts, y = waves(100, 4, "4 SMs, 2 blocks each: 8 places")
+more, y = waves(y + 30, 8, "8 SMs, 2 blocks each: 16 places")
+parts += more
+save(OUT + "ch02-waves.svg", 660, y + 14,
+     "The same grid of 20 equal blocks on 2 GPUs whose SMs each hold 2 blocks at a time. Top, 4 SMs, 8 places: "
+     "blocks 0 to 7 run in wave 1, 8 to 15 in wave 2, and 16 to 19 in wave 3 on SMs 0 and 1 while SMs 2 and 3 "
+     "are idle; 20 blocks in 3 waves of 8 places, 83.3 percent busy. Bottom, 8 SMs, 16 places: blocks 0 to 15 run "
+     "in wave 1 and 16 to 19 in wave 2 on SMs 0 and 1 while 6 SMs are idle; 20 blocks in 2 waves of 16 places, "
+     "62.5 percent busy.",
+     "20 blocks on 4 SMs and on 8 SMs", "Each SM holds 2 blocks at a time; every block takes the same time.", parts)
+
+
+# 2.1.4  Memory bandwidth = bytes per transfer x transfers per second, for 4 GPUs.
+gpus = [("Jetson Orin NX", "LPDDR5", 128, 6.4, 102),
+        ("Jetson AGX Thor", "LPDDR5X", 256, 8.53, 273),
+        ("GeForce RTX 4090", "GDDR6X", 384, 21.0, 1008),
+        ("H100 SXM", "HBM3", 5120, 5.23, 3350)]
+x0, full = 40, 580
+parts = []
+for k, (name, kind, bits, rate, bw) in enumerate(gpus):
+    y = 104 + k * 92
+    wbar = max(6, full * bits / 5120)
+    parts += [text(x0, y + 14, f"{name}: {kind}", "name"),
+              text(x0 + full, y + 14, f"{bw:,} GB/s", "name", "end"),
+              bar(x0, y + 24, wbar, 22, "store", f"{bits:,} bits" if wbar > 80 else ""),
+              note(x0, y + 66, f"{bits // 8:,} bytes per transfer × {rate:g} billion transfers/s"
+                   f" = {bw:,} GB/s", room=full)]
+    if wbar <= 80:
+        parts.append(note(x0 + wbar + 8, y + 40, f"{bits:,} bits"))
+parts.append(note(x0, 104 + 4 * 92 + 4, "Bar length: the width of the memory bus, in bits carried by 1 transfer.",
+                  room=full))
+save(OUT + "ch02-bus.svg", 660, 104 + 4 * 92 + 28,
+     "4 horizontal bars, one per GPU, whose length is the width of its memory bus. Jetson Orin NX, LPDDR5: 128 bits, "
+     "16 bytes per transfer at 6.4 billion transfers per second, 102 GB/s. Jetson AGX Thor, LPDDR5X: 256 bits, 32 "
+     "bytes at 8.53 billion, 273 GB/s. GeForce RTX 4090, GDDR6X: 384 bits, 48 bytes at 21 billion, 1,008 GB/s. H100 "
+     "SXM, HBM3: 5,120 bits, 640 bytes at 5.23 billion, 3,350 GB/s; its bar is 40 times as long as the Orin's.",
+     "Memory bandwidth = bus width × transfer rate", "The H100 moves 640 bytes per transfer; the Orin NX moves 16.", parts)
+
+
+# 2.7.4  A row-major matrix of 4 x 8 floats: a warp reading a row, and reading a column.
+CW, CH = 19, 22
+def matrix_panel(y0, label, picked, lanes):
+    out = [zone(16, y0, 648, 238, label)]
+    gx, gy = 40, y0 + 40
+    out.append(text(gx, gy - 8, "the matrix, 4 rows × 8 columns", "sub"))
+    for r in range(4):
+        for c in range(8):
+            n = r * 8 + c
+            hot = n in picked
+            out.append(f'  <rect x="{gx + c * 26}" y="{gy + r * 24}" width="24" height="{CH}" rx="4"'
+                       f' fill="{KINDS["good"][1] if hot else "#FFFFFF"}" stroke="{KINDS["good"][0] if hot else EDGE}"/>')
+            out.append(mono(gx + c * 26 + 12, gy + r * 24 + 15, str(n), "middle", KINDS["good"][0] if hot else MUTED))
+    nx = gx + 8 * 26 + 18
+    out += [note(nx, gy + 14, f"{len(picked)} lanes read the green elements,"),
+            note(nx, gy + 32, lanes),
+            note(nx, gy + 58, "each number is the element's address"),
+            note(nx, gy + 76, "in floats: row × 8 + column")]
+    sy = gy + 4 * 24 + 34
+    out.append(text(40, sy - 10, "the same 32 floats in memory, as 4 sectors of 8 floats", "sub"))
+    touched = sorted({n // 8 for n in picked})
+    for sec in range(4):
+        sx = 40 + sec * (8 * CW + 8)
+        hot = sec in touched
+        out.append(f'  <rect x="{sx - 3}" y="{sy - 3}" width="{8 * CW + 4}" height="{CH + 6}" rx="6" fill="none"'
+                   f' stroke="{KINDS["danger"][0] if hot else EDGE}" stroke-width="{1.8 if hot else 1}"/>')
+        for c in range(8):
+            n = sec * 8 + c
+            green = n in picked
+            out.append(f'  <rect x="{sx + c * CW}" y="{sy}" width="{CW - 2}" height="{CH}" rx="3"'
+                       f' fill="{KINDS["good"][1] if green else "#FFFFFF"}" stroke="{KINDS["good"][0] if green else EDGE}"/>')
+            out.append(mono(sx + c * CW + (CW - 2) / 2, sy + 15, str(n), "middle", KINDS["good"][0] if green else MUTED))
+        out.append(text(sx + 4 * CW, sy + CH + 20, f"sector {sec}", "pill", "middle", KINDS["danger"][0] if hot else MUTED))
+    kind = "good" if len(touched) == 1 else "danger"
+    plural = "s" if len(touched) > 1 else ""
+    out.append(tag(40, sy + CH + 32, f"{len(touched)} sector{plural} fetched: {32 * len(touched)} bytes "
+                   f"for {4 * len(picked)} useful bytes", kind))
+    return out
+parts = matrix_panel(100, "lanes 0 to 7 read row 1", list(range(8, 16)), "row 1, columns 0 to 7")
+parts += matrix_panel(368, "lanes 0 to 3 read column 5", [5, 13, 21, 29], "column 5, rows 0 to 3")
+save(OUT + "ch02-matrix-access.svg", 680, 630,
+     "2 panels, each showing a matrix of 4 rows and 8 columns of floats, numbered by address in row-major order, and "
+     "the same 32 floats laid out in memory as 4 sectors of 8. Top: 8 lanes read row 1, elements 8 to 15, which "
+     "fill sector 1 exactly: 1 sector fetched, 32 bytes, all used. Bottom: 4 lanes read column 5, elements 5, 13, 21 "
+     "and 29, which lie 8 floats apart in 4 different sectors: 4 sectors fetched, 128 bytes, for 16 useful bytes.",
+     "A row and a column of the same matrix", "Neighbours in a row are neighbours in memory; neighbours in a column are 8 floats apart.",
+     parts)

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 444" width="660" height="444" role="img" aria-label="A roofline for 40 TFLOP/s and 1 TB/s on logarithmic axes, ridge at 40 FLOP per byte. The inner loop of a matrix product without reuse sits on the slope at 0.25 FLOP per byte, 0.25 TFLOP/s. With a 16 by 16 tile in registers each value is used 16 times and the loop moves up the slope to 4 FLOP per byte, 4 TFLOP/s; both points lie below the ridge, so the loop is still memory-bound.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="444" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Reuse moves the inner loop up the slope</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">A 16 × 16 tile raises the intensity 16 times, from 0.25 to 4 FLOP per byte.</text>
+  <rect x="90" y="100" width="330" height="280" fill="#FFFFFF" stroke="#D5DBE3"/>
+  <line x1="90.0" y1="380.0" x2="90.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="90.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1/16</text>
+  <line x1="145.0" y1="380.0" x2="145.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="145.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1/4</text>
+  <line x1="200.0" y1="380.0" x2="200.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="200.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="255.0" y1="380.0" x2="255.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="255.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <line x1="310.0" y1="380.0" x2="310.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="310.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <line x1="365.0" y1="380.0" x2="365.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="365.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">64</text>
+  <line x1="420.0" y1="380.0" x2="420.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="420.0" y="398.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">256</text>
+  <line x1="90.0" y1="380.0" x2="420.0" y2="380.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="384.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1/16</text>
+  <line x1="90.0" y1="324.0" x2="420.0" y2="324.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="328.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1/4</text>
+  <line x1="90.0" y1="268.0" x2="420.0" y2="268.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="272.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="90.0" y1="212.0" x2="420.0" y2="212.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="216.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <line x1="90.0" y1="156.0" x2="420.0" y2="156.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="160.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">16</text>
+  <line x1="90.0" y1="100.0" x2="420.0" y2="100.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="82.0" y="104.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">64</text>
+  <text x="255.0" y="420.0" class="sub" text-anchor="middle" xml:space="preserve">arithmetic intensity, FLOP per byte</text>
+  <text x="20.0" y="86.0" class="sub" text-anchor="start" xml:space="preserve">TFLOP/s</text>
+  <polyline points="90.0,380.0 346.4,119.0 420.0,119.0" fill="none" stroke="#1B2430" stroke-width="3"/>
+  <line x1="346.4" y1="380.0" x2="346.4" y2="119.0" stroke="#CF4526" stroke-width="1.4" stroke-dasharray="6 5"/>
+  <rect x="201.0" y="352.0" width="139.4" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="270.7" y="364.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">ridge: 40 FLOP/byte</text>
+  <line x1="145.0" y1="380.0" x2="145.0" y2="324.0" stroke="#7F8EA0" stroke-width="1.2" stroke-dasharray="3 4"/>
+  <circle cx="145.0" cy="324.0" r="6" fill="#7F8EA0" stroke="#FFFFFF" stroke-width="2"/>
+  <rect x="28.6" y="294.0" width="106.4" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="81.8" y="306.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">no reuse: 0.25</text>
+  <line x1="255.0" y1="380.0" x2="255.0" y2="212.0" stroke="#2E8B3D" stroke-width="1.2" stroke-dasharray="3 4"/>
+  <circle cx="255.0" cy="212.0" r="6" fill="#2E8B3D" stroke="#FFFFFF" stroke-width="2"/>
+  <rect x="132.0" y="182.0" width="113.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="188.5" y="194.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">16 × 16 tile: 4</text>
+  <text x="434.0" y="124.0" class="name" text-anchor="start" xml:space="preserve">inner loop of C = A × B</text>
+  <text x="434.0" y="146.0" class="note" text-anchor="start" xml:space="preserve">no reuse: 8 bytes per 2 FLOPs</text>
+  <text x="434.0" y="164.0" class="note" text-anchor="start" xml:space="preserve">0.25 FLOP/byte, 0.25 TFLOP/s</text>
+  <text x="434.0" y="198.0" class="note" text-anchor="start" xml:space="preserve">16 × 16 tile in registers:</text>
+  <text x="434.0" y="216.0" class="note" text-anchor="start" xml:space="preserve">each value used 16 times</text>
+  <text x="434.0" y="234.0" class="note" text-anchor="start" xml:space="preserve">4 FLOP/byte, 4 TFLOP/s</text>
+  <text x="434.0" y="268.0" class="note" text-anchor="start" xml:space="preserve">both below the ridge:</text>
+  <text x="434.0" y="286.0" class="note" text-anchor="start" xml:space="preserve">still memory-bound</text>
+</svg>

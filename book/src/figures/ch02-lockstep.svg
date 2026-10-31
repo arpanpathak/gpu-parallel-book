@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 376" width="640" height="376" role="img" aria-label="One instruction, c = a + b, fanned out to eight lanes. Lane 0 has a = 1 and b = 2 and gets c = 3; lane 1 has a = 4, b = 2, c = 6; lane 2 has a = 0, b = 5, c = 5; and so on to lane 7, a = 6, b = 3, c = 9. Same instruction, different data in each lane. Drawn with 8 lanes; a real warp has 32.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 396" width="640" height="396" role="img" aria-label="One instruction, c = a + b, fanned out to eight lanes. Lane 0 has a = 1 and b = 2 and gets c = 3; lane 1 has a = 4, b = 2, c = 6; lane 2 has a = 0, b = 5, c = 5; and so on to lane 7, a = 6, b = 3, c = 9. Same instruction, different data in each lane. Drawn with 8 lanes; a real warp has 32.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -36,69 +36,73 @@
       <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
     </marker>
   </defs>
-  <rect width="640" height="376" rx="14" fill="#FBFAF6"/>
+  <rect width="640" height="396" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">One instruction, every lane at once</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each lane applies the instruction to its own registers.</text>
-  <rect x="274.1" y="100" width="91.9" height="26" rx="13" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.4"/>
-  <text x="320.0" y="117.5" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">c = a + b</text>
-  <path d="M320,126 V150 M68.0,150 H572.0" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round"/>
-  <circle cx="320" cy="150" r="3" fill="#3F5873"/>
-  <path d="M68.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <path d="M140.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <path d="M212.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <path d="M284.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <path d="M356.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <path d="M428.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <path d="M500.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <path d="M572.0,150 V175" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
-  <rect x="36" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="68.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 0</text>
-  <text x="68.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 1</text>
-  <text x="68.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 2</text>
-  <rect x="42.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="68.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 3</text>
-  <rect x="108" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="140.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 1</text>
-  <text x="140.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 4</text>
-  <text x="140.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 2</text>
-  <rect x="114.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="140.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 6</text>
-  <rect x="180" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="212.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 2</text>
-  <text x="212.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 0</text>
-  <text x="212.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 5</text>
-  <rect x="186.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="212.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 5</text>
-  <rect x="252" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="284.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 3</text>
-  <text x="284.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 3</text>
-  <text x="284.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 1</text>
-  <rect x="258.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="284.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 4</text>
-  <rect x="324" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="356.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 4</text>
-  <text x="356.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 2</text>
-  <text x="356.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 8</text>
-  <rect x="330.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="356.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 10</text>
-  <rect x="396" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="428.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 5</text>
-  <text x="428.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 7</text>
-  <text x="428.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 0</text>
-  <rect x="402.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="428.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 7</text>
-  <rect x="468" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="500.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 6</text>
-  <text x="500.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 5</text>
-  <text x="500.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 3</text>
-  <rect x="474.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="500.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 8</text>
-  <rect x="540" y="178" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
-  <text x="572.0" y="198.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 7</text>
-  <text x="572.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">a = 6</text>
-  <text x="572.0" y="242.0" class="mono" text-anchor="middle" xml:space="preserve">b = 3</text>
-  <rect x="546.0" y="256.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="572.0" y="274.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 9</text>
-  <text x="36.0" y="330.0" class="note" text-anchor="start" xml:space="preserve">One instruction, eight lanes, eight different answers in one step.</text>
-  <text x="36.0" y="350.0" class="note" text-anchor="start" xml:space="preserve">Drawn with 8 lanes; a real warp has 32.</text>
+  <rect x="130" y="96" width="380" height="58" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M142,96.7 H136 V153.3 H142 A11.3,11.3 0 0 1 130.7,142 V108 A11.3,11.3 0 0 1 142,96.7 Z" fill="#2F6FDB"/>
+  <rect x="146" y="109.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(152.0,115.0) scale(0.8333)"><path d="M10.3 2h3.4l.5 2.6 1.7.7 2.2-1.5 2.4 2.4-1.5 2.2.7 1.7 2.6.5v3.4l-2.6.5-.7 1.7 1.5 2.2-2.4 2.4-2.2-1.5-1.7.7-.5 2.6h-3.4l-.5-2.6-1.7-.7-2.2 1.5-2.4-2.4 1.5-2.2-.7-1.7L2 13.7v-3.4l2.6-.5.7-1.7-1.5-2.2 2.4-2.4 2.2 1.5 1.7-.7zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="188.0" y="121.0" class="name" text-anchor="start" xml:space="preserve">control unit: fetch and decode once</text>
+  <text x="188.0" y="139.0" class="sub" text-anchor="start" xml:space="preserve">instruction c = a + b, sent to all 8 lanes</text>
+  <path d="M320,154 V176 M68.0,176 H572.0" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="320" cy="176" r="3" fill="#3F5873"/>
+  <path d="M68.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M140.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M212.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M284.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M356.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M428.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M500.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M572.0,176 V201" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="36" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="68.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 0</text>
+  <text x="68.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 1</text>
+  <text x="68.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 2</text>
+  <rect x="42.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="68.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 3</text>
+  <rect x="108" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="140.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 1</text>
+  <text x="140.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 4</text>
+  <text x="140.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 2</text>
+  <rect x="114.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="140.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 6</text>
+  <rect x="180" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="212.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 2</text>
+  <text x="212.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 0</text>
+  <text x="212.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 5</text>
+  <rect x="186.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="212.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 5</text>
+  <rect x="252" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="284.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 3</text>
+  <text x="284.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 3</text>
+  <text x="284.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 1</text>
+  <rect x="258.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="284.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 4</text>
+  <rect x="324" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="356.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 4</text>
+  <text x="356.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 2</text>
+  <text x="356.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 8</text>
+  <rect x="330.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="356.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 10</text>
+  <rect x="396" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="428.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 5</text>
+  <text x="428.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 7</text>
+  <text x="428.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 0</text>
+  <rect x="402.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="428.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 7</text>
+  <rect x="468" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="500.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 6</text>
+  <text x="500.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 5</text>
+  <text x="500.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 3</text>
+  <rect x="474.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="500.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 8</text>
+  <rect x="540" y="204" width="64" height="118" rx="10" fill="#FFFFFF" stroke="#D5DBE3" filter="url(#lift)"/>
+  <text x="572.0" y="224.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">lane 7</text>
+  <text x="572.0" y="248.0" class="mono" text-anchor="middle" xml:space="preserve">a = 6</text>
+  <text x="572.0" y="268.0" class="mono" text-anchor="middle" xml:space="preserve">b = 3</text>
+  <rect x="546.0" y="282.0" width="52.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="572.0" y="300.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c = 9</text>
+  <text x="36.0" y="350.0" class="note" text-anchor="start" xml:space="preserve">Each lane reads a and b from its own registers: 1 instruction, 8 different sums.</text>
+  <text x="36.0" y="370.0" class="note" text-anchor="start" xml:space="preserve">Drawn with 8 lanes; a real warp has 32.</text>
 </svg>

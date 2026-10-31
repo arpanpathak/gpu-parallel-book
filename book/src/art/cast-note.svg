@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 190" width="240" height="190" role="img" aria-hidden="true">
+<ellipse cx="112.0" cy="161.0" rx="72.4" ry="10.7" fill="url(#d3-shadow)" />
+<line x1="101.8" y1="125.5" x2="87.6" y2="158.0" stroke="#4f241b" stroke-width="4.28" stroke-linecap="round" />
+<line x1="101.8" y1="125.5" x2="116.1" y2="158.0" stroke="#4f241b" stroke-width="4.28" stroke-linecap="round" />
+<line x1="118.1" y1="125.5" x2="103.9" y2="158.0" stroke="#4f241b" stroke-width="4.28" stroke-linecap="round" />
+<line x1="118.1" y1="125.5" x2="132.3" y2="158.0" stroke="#4f241b" stroke-width="4.28" stroke-linecap="round" />
+<line x1="132.3" y1="125.5" x2="118.1" y2="158.0" stroke="#4f241b" stroke-width="4.28" stroke-linecap="round" />
+<line x1="132.3" y1="125.5" x2="146.5" y2="158.0" stroke="#4f241b" stroke-width="4.28" stroke-linecap="round" />
+<ellipse cx="69.4" cy="119.4" rx="30.4" ry="22.3" fill="url(#d3-7a3b2e)" />
+<ellipse cx="118.1" cy="121.5" rx="17.3" ry="12.2" fill="url(#d3-7a3b2e)" />
+<circle cx="152.6" cy="111.3" r="19.3" fill="url(#d3-7a3b2e)" />
+<path d="M158.7,95.1 Q168.8,64.6 187.1,66.6" fill="none" stroke="#4f241b" stroke-width="3.79" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M148.5,95.1 Q152.6,60.6 168.8,54.5" fill="none" stroke="#4f241b" stroke-width="3.79" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="158.7" cy="107.2" r="7.6" fill="#ffffff" />
+<circle cx="161.1" cy="107.7" r="4.0" fill="#1b2430" />
+<circle cx="162.5" cy="106.0" r="1.2" fill="#ffffff" />
+<circle cx="81.5" cy="74.8" r="22.3" fill="url(#d3-e8c877)" stroke="#8a6a44" stroke-width="1.5"/>
+<defs><radialGradient id="d3-7a3b2e" cx="0.36" cy="0.30" r="0.78"><stop offset="0" stop-color="#b28d86"/><stop offset="0.5" stop-color="#7a3b2e"/><stop offset="1" stop-color="#53281f"/></radialGradient><radialGradient id="d3-e8c877" cx="0.36" cy="0.30" r="0.78"><stop offset="0" stop-color="#f2dfb0"/><stop offset="0.5" stop-color="#e8c877"/><stop offset="1" stop-color="#9e8851"/></radialGradient><radialGradient id="d3-shadow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#0d1a28" stop-opacity="0.38"/><stop offset="1" stop-color="#0d1a28" stop-opacity="0"/></radialGradient></defs>
+</svg>

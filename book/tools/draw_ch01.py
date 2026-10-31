@@ -145,20 +145,20 @@ for r in range(8):
 bottom = top + 8 * pitch
 parts += [
     line(cut, top - 4, cut, bottom + 6, KINDS["danger"][0], 2, "6 5"),
-    tag(cut + 8, bottom + 2, "at cycle 10.5: 5 reads in flight", "danger"),
-    legend(gx, bottom + 50, [("good", "in flight at cycle 10.5"), ("idle", "finished, or not started")]),
-    card(40, bottom + 70, 560, 58, "service", "reads in flight = 10 / 2 = 5",
+    tag(cut + 8, bottom + 2, "at cycle 10.5: 5 reads under way", "danger"),
+    legend(gx, bottom + 50, [("good", "under way at cycle 10.5"), ("idle", "finished, or not started")]),
+    card(40, bottom + 70, 560, 58, "service", "reads under way = 10 / 2 = 5",
          "time one read takes, divided by the time between two starts"),
 ]
 save(OUT + "ch01-overlap.svg", 640, bottom + 152,
      "A processor that sends a new read every 2 cycles is wired to a memory that takes 10 cycles per "
      "read. Below, eight reads drawn as bars on a time axis from 0 to 26 cycles. Each bar is 10 cycles long, and "
      "each starts 2 cycles after the one before. A dashed line at cycle 10.5 crosses five bars, drawn "
-     "green: five reads are in flight at that moment. A card below reads: reads in flight = 10 / 2 = 5.",
+     "green: five reads are under way at that moment. A card below reads: reads under way = 10 / 2 = 5.",
      "Reads that overlap", "Every read takes 10 cycles, and a new read starts every 2 cycles.", parts)
 
 
-# 1.3  The same 500-cycle read, with 1 in flight and with 250 in flight, on one time axis.
+# 1.3  The same 500-cycle read, with 1 under way and with 250 under way, on one time axis.
 X0, sc = 60, 0.34                               # pixels per cycle; 1,500 cycles = 510 px
 cx = lambda c: X0 + c * sc
 def axis(y):
@@ -167,7 +167,7 @@ def axis(y):
         out += [line(cx(c), y - 4, cx(c), y + 4, MUTED, 1.2),
                 mono(cx(c), y + 18, f"{c:,}", "middle", MUTED)]
     return out
-parts = [zone(24, 100, 592, 150, "1 read in flight: each read waits for the one before")]
+parts = [zone(24, 100, 592, 150, "1 read under way: each read waits for the one before")]
 for k in range(3):
     parts.append(bar(cx(500 * k) + 1, 128, 500 * sc - 2, 26, "idle", f"read {k}: 500 cycles"))
     parts.append(f'  <circle cx="{cx(500 * (k + 1)):.1f}" cy="172" r="5" fill="{KINDS["service"][0]}"/>')
@@ -177,7 +177,7 @@ parts += [tag(cx(1500), 216, "by cycle 1,500: 3 values", "service", "end"),
 # Bottom: read k starts at cycle 2k and ends at 2k + 500; 500 reads stacked, 1 slice each.
 top, h = 300, 120
 poly = [(cx(0), top), (cx(500), top), (cx(1500), top + h), (cx(1000), top + h)]
-parts += [zone(24, 272, 592, 282, "250 reads in flight: a new read every 2 cycles"),
+parts += [zone(24, 272, 592, 282, "250 reads under way: a new read every 2 cycles"),
           '  <polygon points="' + " ".join(f"{x:.1f},{y:.1f}" for x, y in poly)
           + f'" fill="{KINDS["good"][1]}" stroke="{KINDS["good"][0]}" stroke-width="1.4"/>']
 for k, name in ((0, "read 0: cycles 0 to 500"), (499, "read 499: cycles 998 to 1,498")):
@@ -188,7 +188,7 @@ parts += [note(cx(0), top - 8, "read 0: cycles 0 to 500"),
           note(cx(1000), top + 14, "each horizontal slice of the band"),
           note(cx(1000), top + 32, "is 1 read of 500 cycles"),
           line(cx(750), top - 8, cx(750), top + h + 8, KINDS["danger"][0], 2, "6 5"),
-          tag(cx(750) + 6, top + h / 2 - 9, "cycle 750: 250 in flight", "danger")]
+          tag(cx(750) + 6, top + h / 2 - 9, "cycle 750: 250 under way", "danger")]
 rug = top + h + 38
 parts += [f'  <rect x="{cx(500):.1f}" y="{rug - 7}" width="{1000 * sc:.1f}" height="14" fill="{KINDS["service"][0]}"'
           ' opacity="0.85"/>']
@@ -196,12 +196,12 @@ parts += axis(rug + 22)
 parts += [tag(cx(1500), rug + 48, "by cycle 1,500: 501 values", "service", "end"),
           note(X0, rug + 48 + 13, "the solid band: a value every 2 cycles", room=300)]
 save(OUT + "ch01-little.svg", 640, 576,
-     "2 panels on the same time axis, 0 to 1,500 cycles. Top, 1 read in flight: 3 reads of 500 cycles run "
+     "2 panels on the same time axis, 0 to 1,500 cycles. Top, 1 read under way: 3 reads of 500 cycles run "
      "one after another, and a value arrives at cycles 500, 1,000 and 1,500: 3 values. Bottom, a new read "
      "starts every 2 cycles: 500 reads, each a thin slice 500 cycles long, form a slanted band from read 0 "
      "(cycles 0 to 500) to read 499 (cycles 998 to 1,498). A dashed line at cycle 750 crosses 250 slices: "
-     "250 reads in flight. From cycle 500 on a value arrives every 2 cycles, 501 values by cycle 1,500.",
-     "One read in flight, or 250", "Each read takes 500 cycles in both panels. Only the number in flight changes.",
+     "250 reads under way. From cycle 500 on a value arrives every 2 cycles, 501 values by cycle 1,500.",
+     "One read under way, or 250", "Each read takes 500 cycles in both panels. Only the number under way changes.",
      parts)
 
 
@@ -630,3 +630,123 @@ save(OUT + "ch01-map.svg", 640, y + 8,
      "The questions of this chapter", "Each card names the sections that answer it.", parts)
 
 print("wrote chapter 1 figures")
+
+
+# Print versions of the 3 animations: each shows its steps side by side.
+
+# 1.1.5  Threads share 1 arithmetic unit: reads take 6 cycles, adds 2.
+def latency_panel(y0, groups, label):
+    x0, cw, rh = 150, 19, 22
+    rows = groups + 1
+    out = [zone(16, y0, 608, 46 + rows * rh + 34, label)]
+    top = y0 + 36
+    out += [mono(x0 + c * cw, top - 4, str(c), "middle", MUTED) for c in range(0, 25, 4)]
+    busy = [False] * 24
+    for g in range(groups):
+        y = top + 6 + g * rh
+        out.append(text(x0 - 12, y + 14, f"thread {g}", "sub", "end"))
+        t = 2 * g
+        while t < 24:
+            r_end = min(t + 6, 24)
+            out.append(bar(x0 + t * cw, y, (r_end - t) * cw - 2, rh - 5, "idle", "read" if r_end - t >= 3 else ""))
+            if t + 6 < 24:
+                a_end = min(t + 8, 24)
+                out.append(bar(x0 + (t + 6) * cw, y, (a_end - t - 6) * cw - 2, rh - 5, "good", "add" if a_end - t - 6 == 2 else ""))
+                for c in range(t + 6, a_end):
+                    busy[c] = True
+            t += 8
+    y = top + 6 + groups * rh + 4
+    out.append(text(x0 - 12, y + 14, "unit", "name", "end"))
+    for c in range(24):
+        out.append(f'  <rect x="{x0 + c * cw:.1f}" y="{y}" width="{cw - 2}" height="{rh - 5}" rx="3"'
+                   f' fill="{KINDS["good"][0] if busy[c] else "#FFFFFF"}" stroke="{KINDS["good"][0] if busy[c] else EDGE}"/>')
+    steady = {1: "2 of every 8 cycles", 2: "4 of every 8 cycles", 4: "every cycle from cycle 6 on"}[groups]
+    out.append(note(x0, y + rh + 18, f"unit busy {sum(busy)} of 24 cycles: {steady}", room=470))
+    return out, y0 + 46 + rows * rh + 34
+parts, y = [], 100
+for groups, label in ((1, "1 thread"), (2, "2 threads"), (4, "4 threads")):
+    more, y = latency_panel(y, groups, label)
+    parts += more
+    y += 26
+parts.append(legend(150, y + 4, [("idle", "read: 6 cycles"), ("good", "add: 2 cycles")]))
+save(OUT + "ch01-hide-latency-steps.svg", 640, y + 30,
+     "3 timelines of 24 cycles. Each thread reads for 6 cycles and then adds for 2, and the threads "
+     "share 1 arithmetic unit; thread k starts 2k cycles after thread 0. With 1 thread the unit is busy 6 of 24 "
+     "cycles, 2 of every 8. With 2 threads it is busy 10 of 24, 4 of every 8. With 4 threads it is busy 18 of 24: "
+     "from cycle 6 on, some thread always has its values ready, and the unit never waits.",
+     "4 threads keep the unit busy", "A round takes 8 cycles and an add 2, so 8 / 2 = 4 threads fill every cycle.", parts)
+
+
+# 1.3.1  The example on its Amdahl curve, before and after the read slows from 20 to 50 µs.
+px0, px1, py0, py1 = 84, 470, 392, 110
+lx = lambda p: px0 + (px1 - px0) * math.log2(p) / 10
+ly = lambda v: py0 - (py0 - py1) * math.log2(v) / 3                 # speedup from 1 to 8
+speed = lambda f, p: 1 / (f + (1 - f) / p)
+parts = [f'  <rect x="{px0}" y="{py1}" width="{px1 - px0}" height="{py0 - py1}" fill="#FFFFFF" stroke="{EDGE}"/>']
+for k in range(0, 11, 2):
+    parts += [line(lx(2 ** k), py0, lx(2 ** k), py1, EDGE, 1), mono(lx(2 ** k), py0 + 18, f"{2 ** k:,}", "middle", MUTED)]
+for v in (1, 2, 4, 8):
+    parts += [line(px0, ly(v), px1, ly(v), EDGE, 1), mono(px0 - 8, ly(v) + 4, str(v), "end", MUTED)]
+parts += [text((px0 + px1) / 2, py0 + 40, "processors p", "sub", "middle"), text(px0 - 56, py1 - 14, "speedup S", "sub")]
+for f, kind, limit in ((30 / 130, "danger", 4.33), (60 / 160, "store", 2.67)):
+    pts = " ".join(f"{lx(2 ** (i / 8)):.1f},{ly(speed(f, 2 ** (i / 8))):.1f}" for i in range(81))
+    parts += [f'  <polyline points="{pts}" fill="none" stroke="{KINDS[kind][0]}" stroke-width="2.6"/>',
+              line(px0, ly(limit), px1, ly(limit), KINDS[kind][0], 1.2, "6 5"),
+              f'  <circle cx="{lx(8):.1f}" cy="{ly(speed(f, 8)):.1f}" r="5" fill="{KINDS[kind][0]}"/>']
+parts += [tag(lx(8) + 10, ly(speed(30 / 130, 8)) - 24, "p = 8: S = 3.06", "danger"),
+          tag(lx(8) + 10, ly(speed(60 / 160, 8)) + 6, "p = 8: S = 2.21", "store"),
+          text(px1 + 14, py1 + 24, "read 20 µs", "name"),
+          note(px1 + 14, py1 + 42, "serial 30 of 130 µs"),
+          note(px1 + 14, py1 + 60, "f = 0.23, limit 4.3"),
+          text(px1 + 14, py1 + 104, "read 50 µs", "name"),
+          note(px1 + 14, py1 + 122, "serial 60 of 160 µs"),
+          note(px1 + 14, py1 + 140, "f = 0.375, limit 2.7"),
+          legend(px1 + 14, py1 + 186, [("danger", "read 20 µs")]),
+          legend(px1 + 14, py1 + 210, [("store", "read 50 µs")]),
+          note(px1 + 14, py1 + 250, "dashed: the limit 1 / f")]
+save(OUT + "ch01-amdahl-slowread.svg", 640, 456,
+     "Speedup against processors on logarithmic axes, for the example program. With a read of 20 microseconds the "
+     "serial part is 30 of 130 microseconds, f = 0.23, and the curve flattens at 4.3; at 8 processors the speedup is "
+     "3.06. With a read of 50 microseconds the serial part is 60 of 160, f = 0.375, the limit falls to 2.7 and the "
+     "speedup at 8 processors to 2.21.",
+     "A slower read lowers the whole curve", "Lengthening the serial part from 30 to 60 µs lowers the limit from 4.3 to 2.7.",
+     parts)
+
+
+# 1.8.2  The inner loop of a matrix product on the roofline, without and with a 16 x 16 tile.
+px0, px1, py0, py1 = 90, 420, 380, 100
+lo_i, hi_i, lo_p, hi_p = -4, 8, -4, 6
+lx = lambda i: px0 + (px1 - px0) * (math.log2(i) - lo_i) / (hi_i - lo_i)
+ly = lambda v: py0 - (py0 - py1) * (math.log2(v) - lo_p) / (hi_p - lo_p)
+parts = [f'  <rect x="{px0}" y="{py1}" width="{px1 - px0}" height="{py0 - py1}" fill="#FFFFFF" stroke="{EDGE}"/>']
+for k in range(lo_i, hi_i + 1, 2):
+    lab = f"{2 ** k:g}" if k >= 0 else f"1/{2 ** -k}"
+    parts += [line(lx(2 ** k), py0, lx(2 ** k), py1, EDGE, 1), mono(lx(2 ** k), py0 + 18, lab, "middle", MUTED)]
+for k in range(lo_p, hi_p + 1, 2):
+    lab = f"{2 ** k:g}" if k >= 0 else f"1/{2 ** -k}"
+    parts += [line(px0, ly(2 ** k), px1, ly(2 ** k), EDGE, 1), mono(px0 - 8, ly(2 ** k) + 4, lab, "end", MUTED)]
+parts += [text((px0 + px1) / 2, py0 + 40, "arithmetic intensity, FLOP per byte", "sub", "middle"),
+          text(px0 - 70, py1 - 14, "TFLOP/s", "sub")]
+roof = [(2 ** lo_p, 2 ** lo_p), (40, 40), (2 ** hi_i, 40)]
+parts += [f'  <polyline points="{" ".join(f"{lx(i):.1f},{ly(p):.1f}" for i, p in roof)}" fill="none" stroke="{INK}" stroke-width="3"/>',
+          line(lx(40), py0, lx(40), ly(40), KINDS["danger"][0], 1.4, "6 5"),
+          tag(lx(40) - 6, ly(1 / 8), "ridge: 40 FLOP/byte", "danger", "end")]
+for i, kind, lab in ((0.25, "idle", "no reuse: 0.25"), (4, "good", "16 × 16 tile: 4")):
+    parts += [line(lx(i), py0, lx(i), ly(i), KINDS[kind][0], 1.2, "3 4"),
+              f'  <circle cx="{lx(i):.1f}" cy="{ly(i):.1f}" r="6" fill="{KINDS[kind][0]}" stroke="#FFFFFF" stroke-width="2"/>',
+              tag(lx(i) - 10, ly(i) - 30, lab, kind, "end")]
+parts += [text(px1 + 14, py1 + 24, "inner loop of C = A × B", "name"),
+          note(px1 + 14, py1 + 46, "no reuse: 8 bytes per 2 FLOPs"),
+          note(px1 + 14, py1 + 64, "0.25 FLOP/byte, 0.25 TFLOP/s"),
+          note(px1 + 14, py1 + 98, "16 × 16 tile in registers:"),
+          note(px1 + 14, py1 + 116, "each value used 16 times"),
+          note(px1 + 14, py1 + 134, "4 FLOP/byte, 4 TFLOP/s"),
+          note(px1 + 14, py1 + 168, "both below the ridge:"),
+          note(px1 + 14, py1 + 186, "still memory-bound")]
+save(OUT + "ch01-roofline-tile.svg", 660, 444,
+     "A roofline for 40 TFLOP/s and 1 TB/s on logarithmic axes, ridge at 40 FLOP per byte. The inner loop of a "
+     "matrix product without reuse sits on the slope at 0.25 FLOP per byte, 0.25 TFLOP/s. With a 16 by 16 tile in "
+     "registers each value is used 16 times and the loop moves up the slope to 4 FLOP per byte, 4 TFLOP/s; both "
+     "points lie below the ridge, so the loop is still memory-bound.",
+     "Reuse moves the inner loop up the slope", "A 16 × 16 tile raises the intensity 16 times, from 0.25 to 4 FLOP per byte.",
+     parts)
