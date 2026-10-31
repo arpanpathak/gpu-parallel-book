@@ -295,12 +295,12 @@ already have theirs and keep the arithmetic units busy (animation 1).
 
 <figure class="anim">
 <video class="motion" src="../../figures/ch01-hide-latency.mp4" autoplay loop muted playsinline preload="metadata" aria-label="A chart that grows cycle by cycle from 0 to 24. Groups of threads share one arithmetic unit; each group reads for 6 cycles, then adds for 2. With 1 group the unit is busy 6 of 24 cycles. With 2 groups the unit works 4 cycles of every 8. With 4 groups, some group always has its values ready from cycle 6 on, and the unit never waits. A round takes 8 cycles and an add 2, so 8 / 2 = 4 groups keep the unit busy: Little's law." data-chapters="[[0.0, &quot;1 group&quot;], [11.64, &quot;2 groups&quot;], [26.88, &quot;4 groups&quot;], [38.52, &quot;why 4&quot;]]"><img src="../../figures/ch01-hide-latency.gif" alt="A chart that grows cycle by cycle from 0 to 24. Groups of threads share one arithmetic unit; each group reads for 6 cycles, then adds for 2. With 1 group the unit is busy 6 of 24 cycles. With 2 groups the unit works 4 cycles of every 8. With 4 groups, some group always has its values ready from cycle 6 on, and the unit never waits. A round takes 8 cycles and an add 2, so 8 / 2 = 4 groups keep the unit busy: Little's law."></video>
-<figcaption><b>Animation 1</b> Groups of threads share one arithmetic unit. Each read takes 6 cycles and each add 2. With 4 groups the unit never waits.</figcaption>
+<figcaption><b>Animation 1</b> Threads share one arithmetic unit. Each read takes 6 cycles and each add 2. With 4 threads the unit never waits.</figcaption>
 </figure>
 
-The animation uses small numbers so that every cycle is visible. A group needs 8 cycles
+The animation uses small numbers so that every cycle is visible. A thread needs 8 cycles
 for one round, a read and an add, and the unit finishes an add every 2 cycles. Little's
-law gives the number of groups that keeps it busy: \\(C = 8 \times \tfrac{1}{2} = 4\\). A
+law gives the number of threads that keeps it busy: \\(C = 8 \times \tfrac{1}{2} = 4\\). A
 GPU applies the same arithmetic with latencies of hundreds of cycles, which is why it
 holds thousands of threads at once.
 
@@ -626,7 +626,7 @@ formula, a serial fraction of 0.4 percent allows a speedup of about 200 on 1,024
 The measured speedups were 5 times higher, and the arithmetic of both results was correct.
 
 The 2 results answer different questions. Amdahl asked how much faster a fixed
-computation runs on more processors. Gustafson's group did what users of large machines
+computation runs on more processors. Gustafson and his colleagues did what users of large machines
 usually do: they enlarged the problem to fill the machine, and asked how much more work
 could be done in the same time. A larger machine renders a larger image, trains on a
 larger batch or simulates a finer grid. In such programs the serial part, typically the
@@ -769,16 +769,15 @@ machine.
 </figure>
 
 A GPU fits none of the 4 exactly. NVIDIA calls its design **SIMT**, for single
-instruction, multiple threads. As in SIMD, one instruction is issued to a whole group of
-threads, so the cost of fetching and decoding the instruction is shared among them; this
+instruction, multiple threads. As in SIMD, one instruction is issued to many threads at once, so the cost of fetching and decoding the instruction is shared among them; this
 sharing is what lets a GPU devote most of its area to arithmetic units. Unlike SIMD, every
 thread has its own registers, so a programmer writes an ordinary sequential program for one thread and the hardware runs it for many. A SIMD programmer must arrange the data into
 vector registers by hand; a SIMT programmer does not.
 
-The difference becomes visible at a branch. When some threads of a group take the `if`
-side and others the `else` side, the group cannot do both at once. It runs one side while
-the threads of the other side wait, and then runs the other side. The program remains
-correct, but the group spends time on both sides. In Chapter 2 we show how the hardware forms these groups and what such a split costs.
+The difference becomes visible at a branch. When some of these threads take the `if` side and others the `else` side, the hardware cannot
+run both sides at once. It runs one side while the threads of the other side wait, and then
+runs the other side. The program remains correct, but time is spent on both sides. In Chapter 2
+we show how the hardware forms warps of 32 threads and what such a split costs.
 
 ## 1.8 Arithmetic intensity and the roofline
 
@@ -1143,7 +1142,7 @@ processors beyond about 1,000 wait.
 - Computations divide by task, by data, or into pipeline stages. GPUs are built for data
   parallelism.
 - **Flynn's taxonomy** classifies machines as SISD, SIMD, MISD or MIMD. A GPU uses
-  **SIMT**: one instruction issued to a group of threads that each have their own
+  **SIMT**: one instruction issued to many threads that each have their own
   registers.
 - **Arithmetic intensity**, FLOPs per byte, compared with the machine's **ridge point**,
   shows whether memory or arithmetic limits a computation. The roofline is reached only with

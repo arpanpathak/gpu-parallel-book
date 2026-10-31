@@ -646,6 +646,82 @@ def crate(x, y, w, h, text, fill="#c9a46a"):
 COVER_W, COVER_H = 960, 1280
 
 
+GLOW, CELL, CELL_EDGE, CELL_INK = "#5fb3c9", "#12384f", "#5fb3c9", "#d7f0f7"
+
+
+def holo(x, y, w, h, title):
+    """A glowing panel floating above the scene, with a small title."""
+    return [rect(x - 3, y - 3, w + 6, h + 6, "none", 14, GLOW, 6, 'opacity="0.18"'),
+            rect(x, y, w, h, "#0c2233", 12, GLOW, 1.6, 'opacity="0.9"'),
+            label(x + 14, y + 22, title, 15, GLOW, "start", MONO, 800, fit=textw(title, 15, MONO))]
+
+
+def holo_cell(cx, cy, w, h, value, hot=False):
+    fill, ink = ("#e8bf62", "#0f1d2b") if hot else (CELL, CELL_INK)
+    return [rect(cx - w / 2, cy - h / 2, w, h, fill, 4, CELL_EDGE, 1),
+            label(cx, cy + 4.5, str(value), 12, ink, font=MONO, weight=700)]
+
+
+def algorithm_panels():
+    parts = []
+    # Reduction: 8 values summed by a tree in 3 steps.
+    x, y, w, h = 28, 308, 286, 158
+    parts += holo(x, y, w, h, "reduce: 3 steps")
+    levels = [[3, 1, 4, 1, 5, 9, 2, 6], [4, 5, 14, 8], [9, 22], [31]]
+    pitch = 33
+    xs = [[x + 26 + k * pitch for k in range(8)]]
+    for lev in levels[1:]:
+        prev = xs[-1]
+        xs.append([(prev[2 * k] + prev[2 * k + 1]) / 2 for k in range(len(lev))])
+    ys = [y + 128, y + 98, y + 68, y + 38]
+    for li in range(1, 4):
+        for k, cx in enumerate(xs[li]):
+            for c in (2 * k, 2 * k + 1):
+                parts.append(line(xs[li - 1][c], ys[li - 1] - 10, cx, ys[li] + 10, GLOW, 1.3, 'opacity="0.8"'))
+    for li, lev in enumerate(levels):
+        for k, v in enumerate(lev):
+            parts += holo_cell(xs[li][k], ys[li], 28, 20, v, hot=(li == 3))
+
+    # Scan: running sums by adding values 1, 2, then 4 places to the left.
+    x, y = 337, 308
+    parts += holo(x, y, w, h, "scan: offsets 1, 2, 4")
+    rows = [[3, 1, 4, 1, 5, 9, 2, 6], [3, 4, 5, 5, 6, 14, 11, 8], [3, 4, 8, 9, 11, 19, 17, 22], [3, 4, 8, 9, 14, 23, 25, 31]]
+    ry = [y + 46, y + 74, y + 102, y + 130]
+    cxs = [x + 26 + k * pitch for k in range(8)]
+    for r, d in enumerate((1, 2, 4)):
+        for k in range(d, 8, 3 if d == 1 else 2):
+            parts.append(line(cxs[k - d], ry[r] + 9, cxs[k], ry[r + 1] - 9, GLOW, 1.1, 'opacity="0.6"'))
+    for r, row in enumerate(rows):
+        for k, v in enumerate(row):
+            parts += holo_cell(cxs[k], ry[r], 28, 18, v, hot=(r == 3))
+
+    # Tiled matrix multiplication: 1 tile of C from a strip of A and a strip of B.
+    x, y = 646, 308
+    parts += holo(x, y, w, h, "tiled matmul")
+    c = 13
+    def grid(gx, gy, hot):
+        out = []
+        for i in range(4):
+            for j in range(4):
+                lit = hot(i, j)
+                out.append(rect(gx + j * c, gy + i * c, c - 2, c - 2, "#e8bf62" if lit else CELL, 2, CELL_EDGE, 0.8))
+        return out
+    ax, ay = x + 34, y + 88           # A, left
+    bx, by = x + 100, y + 32          # B, above C
+    cx, cy = x + 100, y + 88          # C
+    parts += grid(bx, by, lambda i, j: j == 2)
+    parts += grid(ax, ay, lambda i, j: i == 1)
+    parts += grid(cx, cy, lambda i, j: (i, j) == (1, 2))
+    parts += [label(ax + 26, ay - 8, "A", 14, CELL_INK, font=MONO, weight=800),
+              label(bx - 12, by + 30, "B", 14, CELL_INK, font=MONO, weight=800),
+              label(cx + 26, cy + 4 * c + 15, "C", 14, CELL_INK, font=MONO, weight=800),
+              label(x + 172, y + 74, "C = A × B", 13, CELL_INK, "start", MONO, 700),
+              label(x + 172, y + 100, "1 tile of C:", 11, GLOW, "start", MONO, 600),
+              label(x + 172, y + 116, "row strip of A", 11, GLOW, "start", MONO, 600),
+              label(x + 172, y + 132, "× column of B", 11, GLOW, "start", MONO, 600)]
+    return parts
+
+
 def iso_cube(sx, sy, a, top, left, right, edge="#0b1520", extra=""):
     """An isometric cube whose top face has its upper corner at (sx, sy) and edge length a."""
     w, h = a * 0.866, a * 0.5
@@ -656,11 +732,11 @@ def iso_cube(sx, sy, a, top, left, right, edge="#0b1520", extra=""):
         f'<polygon points="{pts([(sx, sy), (sx + w, sy + h), (sx, sy + 2 * h), (sx - w, sy + h)])}" fill="{top}" stroke="{edge}" stroke-width="1.2" {extra}/>'])
 
 
-@plate("cover", "", "", "The cover of GPU Architecture & Parallel Programming from First Principles. A glowing perspective "
-       "grid runs to the horizon under a night sky. In the middle stands an isometric 3D grid of thread blocks, 8 cubes wide, 4 "
+@plate("cover", "", "", "The cover of GPU Architecture & Parallel Programming from First Principles. Under a night sky, 3 glowing panels show algorithms from the book: a reduction tree that sums "
+       "3 1 4 1 5 9 2 6 to 31 in 3 steps, a scan built from shifted additions, and a tiled matrix multiplication. A glowing perspective "
+       "grid runs to the horizon. In the middle stands an isometric 3D grid of thread blocks, 8 cubes wide, 4 "
        "deep and 3 high; on its top layer 31 worker bees in hard hats, one warp, each stand on their own amber cube, and 1 cube "
-       "is empty because its bee has wandered off on a branch with a question mark. On the left the queen bee, on a pillar, "
-       "gives the one order c[i] = a[i] + b[i]. On the right 4 large cubes carry 4 hornets: the few fast cores of a CPU. A "
+       "is empty because its bee has wandered off on a branch with a question mark. On the left the queen bee stands on a pillar. On the right 4 large cubes carry 4 hornets: the few fast cores of a CPU. A "
        "crab in a hard hat waves from the corner, because the book writes every program in CUDA C++ and in Rust.",
        size=(COVER_W, COVER_H))
 def cover():
@@ -724,10 +800,8 @@ def cover():
     parts += [iso_cube(150, 640, 64, "#e8bf62", "#b9852c", "#94661c"),
               iso_cube(150, 704, 64, "#3d7393", "#26506d", "#173a52"),
               honeybee(150, 676, 0.95, look=1, role="queen", fur=FUR),
-              path("M230,452 L206,488 L244,474", "#f4ecdc", "#08121c", 4),
-              rect(196, 374, 300, 104, "#f4ecdc", 20, "#08121c", 4), rect(208, 458, 34, 18, "#f4ecdc"),
-              label(346, 410, "One order, every bee:", 20, "#5a4a30", weight=700, fit=250),
-              label(346, 456, "c[i] = a[i] + b[i]", 30, NAVY, font=MONO, weight=800, fit=270)]
+              ]
+    parts += algorithm_panels()
 
     # The CPU: 4 large cubes, each with a hornet.
     big, cx0, cy0 = 88, 806, 770

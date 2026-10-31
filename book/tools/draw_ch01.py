@@ -634,7 +634,7 @@ print("wrote chapter 1 figures")
 
 # Print versions of the 3 animations: each shows its steps side by side.
 
-# 1.1.5  Groups of threads share 1 arithmetic unit: reads take 6 cycles, adds 2.
+# 1.1.5  Threads share 1 arithmetic unit: reads take 6 cycles, adds 2.
 def latency_panel(y0, groups, label):
     x0, cw, rh = 150, 19, 22
     rows = groups + 1
@@ -644,7 +644,7 @@ def latency_panel(y0, groups, label):
     busy = [False] * 24
     for g in range(groups):
         y = top + 6 + g * rh
-        out.append(text(x0 - 12, y + 14, f"group {g}", "sub", "end"))
+        out.append(text(x0 - 12, y + 14, f"thread {g}", "sub", "end"))
         t = 2 * g
         while t < 24:
             r_end = min(t + 6, 24)
@@ -664,17 +664,17 @@ def latency_panel(y0, groups, label):
     out.append(note(x0, y + rh + 18, f"unit busy {sum(busy)} of 24 cycles: {steady}", room=470))
     return out, y0 + 46 + rows * rh + 34
 parts, y = [], 100
-for groups, label in ((1, "1 group"), (2, "2 groups"), (4, "4 groups")):
+for groups, label in ((1, "1 thread"), (2, "2 threads"), (4, "4 threads")):
     more, y = latency_panel(y, groups, label)
     parts += more
     y += 26
 parts.append(legend(150, y + 4, [("idle", "read: 6 cycles"), ("good", "add: 2 cycles")]))
 save(OUT + "ch01-hide-latency-steps.svg", 640, y + 30,
-     "3 timelines of 24 cycles. Each group of threads reads for 6 cycles and then adds for 2, and the groups "
-     "share 1 arithmetic unit; group k starts 2k cycles after group 0. With 1 group the unit is busy 6 of 24 "
-     "cycles, 2 of every 8. With 2 groups it is busy 10 of 24, 4 of every 8. With 4 groups it is busy 18 of 24: "
-     "from cycle 6 on, some group always has its values ready, and the unit never waits.",
-     "4 groups keep the unit busy", "A round takes 8 cycles and an add 2, so 8 / 2 = 4 groups fill every cycle.", parts)
+     "3 timelines of 24 cycles. Each thread reads for 6 cycles and then adds for 2, and the threads "
+     "share 1 arithmetic unit; thread k starts 2k cycles after thread 0. With 1 thread the unit is busy 6 of 24 "
+     "cycles, 2 of every 8. With 2 threads it is busy 10 of 24, 4 of every 8. With 4 threads it is busy 18 of 24: "
+     "from cycle 6 on, some thread always has its values ready, and the unit never waits.",
+     "4 threads keep the unit busy", "A round takes 8 cycles and an add 2, so 8 / 2 = 4 threads fill every cycle.", parts)
 
 
 # 1.3.1  The example on its Amdahl curve, before and after the read slows from 20 to 50 µs.

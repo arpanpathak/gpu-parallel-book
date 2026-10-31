@@ -234,20 +234,22 @@ rated bandwidth.
 
 ## 2.2 The streaming multiprocessor
 
-Figure 2.5 shows 1 SM of an H100. Its 128 arithmetic units are divided into 4 groups of 32.
-Each group has its own control logic and a quarter of the register file, and the 4 groups
+Figure 2.5 shows 1 SM of an H100. Its 128 arithmetic units are divided into 4 **processing blocks** of 32, NVIDIA's name for a set
+of arithmetic units that share 1 control unit. Each processing block has its own control logic
+and a quarter of the register file, and the 4 processing blocks
 share 256 KB of on-chip memory.
 
 <figure>
-<img src="../../figures/ch02-sm.svg" alt="One SM of an H100, divided into 4 groups. Each group has its own control logic, 32 arithmetic units drawn as small squares, and 16,384 registers. Below the 4 groups, one pool of 256 KB serves as shared memory and L1 cache for the whole SM. A card at the bottom: the SM holds up to 2,048 threads, 64 warps, 16 per group; 2,048 threads divided by 128 arithmetic units is 16 threads for each unit.">
-<figcaption><b>Figure 2.5</b> Inside 1 SM of an H100: 4 groups of 32 arithmetic units, each with its own control logic and 16,384 registers, above a shared pool of fast memory. The SM holds up to 2,048 threads, 64 warps: 16 threads for each arithmetic unit.</figcaption>
+<img src="../../figures/ch02-sm.svg" alt="One SM of an H100, divided into 4 processing blocks. Each processing block has its own control logic, 32 arithmetic units drawn as small squares, and 16,384 registers. Below the 4 processing blocks, one pool of 256 KB serves as shared memory and L1 cache for the whole SM. A card at the bottom: the SM holds up to 2,048 threads, 64 warps, 16 per processing block; 2,048 threads divided by 128 arithmetic units is 16 threads for each unit.">
+<figcaption><b>Figure 2.5</b> Inside 1 SM of an H100: 4 processing blocks of 32 arithmetic units, each with its own control logic and 16,384 registers, above a shared pool of fast memory. The SM holds up to 2,048 threads, 64 warps: 16 threads for each arithmetic unit.</figcaption>
 </figure>
 
-- **Arithmetic units.** 4 groups of 32, 128 per SM. A group has 32 units, 1 for each thread of a
-  warp, the group of 32 threads that executes each instruction together (section 2.3). Each
+- **Arithmetic units.** 4 processing blocks of 32, 128 per SM. A processing block has 32 units,
+  1 for each thread of a warp, the 32 threads that execute each instruction together (section
+  2.3). Each
   unit performs 1 **fused multiply-add** per cycle: it computes \\(a \times b + c\\) in 1 step, which counts as 2 FLOPs.
 - **Registers.** 65,536 registers of 4 bytes each, 65,536 × 4 = 262,144 bytes or 256 KB,
-  split into 4 parts of 65,536 ÷ 4 = 16,384, 1 per group. Each thread on the SM gets its own
+  split into 4 parts of 65,536 ÷ 4 = 16,384, 1 per processing block. Each thread on the SM gets its own
   registers from this file, so the registers a thread needs limit the number of threads that
   fit (section 2.9).
 - **Shared memory and L1 cache.** 1 pool of 256 KB serves 2 purposes. **Shared memory** is
@@ -280,14 +282,14 @@ its shared memory, depend on the compute capability; they are listed in section 
 
 ### 2.3.1 One instruction, 32 lanes
 
-Each group of 32 units in figure 2.5 has a single control unit. In every cycle the
+Each processing block in figure 2.5 has a single control unit. In every cycle the
 control unit fetches 1 instruction, decodes it, and sends the same control signals to all 32
 units; each unit applies the instruction to operands in its own registers. For the instruction
 `add r1, r2, r3`, all 32 units add, but the values in `r2` and `r3` differ from unit to unit,
 so the 32 sums differ (figure 2.6). A control unit is a complex circuit: it reads instructions
 from an instruction cache, decodes them and tracks which operands are ready. Sharing 1 of them
 among 32 arithmetic units saves chip area and power, which the SM spends on more arithmetic
-units. NVIDIA calls each such group a **processing block**; an H100 SM has 4.
+units. An H100 SM has 4 processing blocks.
 
 <figure>
 <img src="../../figures/ch02-lockstep.svg" alt="One instruction, c = a + b, fanned out to 8 lanes. Lane 0 has a = 1 and b = 2 and gets c = 3; lane 1 has a = 4, b = 2, c = 6; lane 2 has a = 0, b = 5, c = 5; and so on to lane 7, a = 6, b = 3, c = 9. Same instruction, different data in each lane. Drawn with 8 lanes; a real warp has 32.">
