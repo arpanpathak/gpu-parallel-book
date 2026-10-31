@@ -250,8 +250,8 @@ proportion, however high the bandwidth printed on the data sheet.
 
 <div class="bee bee-happy" markdown="1">
 
-A latency that cannot be shortened can still be hidden, by keeping enough operations in
-flight.
+A latency that cannot be shortened can still be hidden, by keeping enough operations under
+way.
 
 </div>
 
