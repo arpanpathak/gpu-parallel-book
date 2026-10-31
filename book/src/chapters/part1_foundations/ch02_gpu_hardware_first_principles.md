@@ -4,7 +4,7 @@
 
 In Chapter 1 we saw that a processor that reads its operands from DRAM waits hundreds of
 cycles for each of them, and that the wait can be hidden only by keeping many independent
-operations in flight. A *graphics processing unit*, or GPU, is designed around this
+operations under way at the same time. A *graphics processing unit*, or GPU, is designed around this
 observation. It executes the same instructions on many data elements at once, and it holds
 enough threads that its arithmetic units remain busy while many of those threads wait for
 memory.
@@ -266,7 +266,7 @@ RTX 4090, 2 × 128 × 128 × 2.52 GHz = 82.6 TFLOP/s.
 The SM holds far more threads than it has units to run them. An H100 SM can keep 2,048
 threads resident, 16 for each of its 128 arithmetic units, and in any one cycle at most 128
 of them execute. The other threads supply the independent work that a processor needs while
-its reads are in flight (section 1.1.5).
+its reads are under way (section 1.1.5).
 
 <div class="callout note" markdown="1">
 
@@ -908,11 +908,11 @@ about 2/3 of its 50 MB L2 cache, because they hold the state of every resident w
 
 Little's law (section 1.1.4) gives the number of warps needed. A scheduler issuing 1
 instruction per cycle against a latency of 500 cycles needs about 500 independent
-instructions in flight to stay busy. No SM holds 500 warps per scheduler, and none needs to:
+instructions under way to stay busy. No SM holds 500 warps per scheduler, and none needs to:
 a warp usually has several independent instructions between reads, and can have several
-reads in flight at once. In practice, a few dozen warps per SM cover the wait. The worked
+reads under way at once. In practice, a few dozen warps per SM cover the wait. The worked
 example of section 1.1.5 reached the same conclusion from the side of memory: an H100 needs
-about 106,000 threads in flight for vector addition, 40% of the 270,336 it can hold.
+about 106,000 threads under way for vector addition, 40% of the 270,336 it can hold.
 
 ## 2.11 Architecture generations
 

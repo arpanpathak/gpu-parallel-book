@@ -145,20 +145,20 @@ for r in range(8):
 bottom = top + 8 * pitch
 parts += [
     line(cut, top - 4, cut, bottom + 6, KINDS["danger"][0], 2, "6 5"),
-    tag(cut + 8, bottom + 2, "at cycle 10.5: 5 reads in flight", "danger"),
-    legend(gx, bottom + 50, [("good", "in flight at cycle 10.5"), ("idle", "finished, or not started")]),
-    card(40, bottom + 70, 560, 58, "service", "reads in flight = 10 / 2 = 5",
+    tag(cut + 8, bottom + 2, "at cycle 10.5: 5 reads under way", "danger"),
+    legend(gx, bottom + 50, [("good", "under way at cycle 10.5"), ("idle", "finished, or not started")]),
+    card(40, bottom + 70, 560, 58, "service", "reads under way = 10 / 2 = 5",
          "time one read takes, divided by the time between two starts"),
 ]
 save(OUT + "ch01-overlap.svg", 640, bottom + 152,
      "A processor that sends a new read every 2 cycles is wired to a memory that takes 10 cycles per "
      "read. Below, eight reads drawn as bars on a time axis from 0 to 26 cycles. Each bar is 10 cycles long, and "
      "each starts 2 cycles after the one before. A dashed line at cycle 10.5 crosses five bars, drawn "
-     "green: five reads are in flight at that moment. A card below reads: reads in flight = 10 / 2 = 5.",
+     "green: five reads are under way at that moment. A card below reads: reads under way = 10 / 2 = 5.",
      "Reads that overlap", "Every read takes 10 cycles, and a new read starts every 2 cycles.", parts)
 
 
-# 1.3  The same 500-cycle read, with 1 in flight and with 250 in flight, on one time axis.
+# 1.3  The same 500-cycle read, with 1 under way and with 250 under way, on one time axis.
 X0, sc = 60, 0.34                               # pixels per cycle; 1,500 cycles = 510 px
 cx = lambda c: X0 + c * sc
 def axis(y):
@@ -167,7 +167,7 @@ def axis(y):
         out += [line(cx(c), y - 4, cx(c), y + 4, MUTED, 1.2),
                 mono(cx(c), y + 18, f"{c:,}", "middle", MUTED)]
     return out
-parts = [zone(24, 100, 592, 150, "1 read in flight: each read waits for the one before")]
+parts = [zone(24, 100, 592, 150, "1 read under way: each read waits for the one before")]
 for k in range(3):
     parts.append(bar(cx(500 * k) + 1, 128, 500 * sc - 2, 26, "idle", f"read {k}: 500 cycles"))
     parts.append(f'  <circle cx="{cx(500 * (k + 1)):.1f}" cy="172" r="5" fill="{KINDS["service"][0]}"/>')
@@ -177,7 +177,7 @@ parts += [tag(cx(1500), 216, "by cycle 1,500: 3 values", "service", "end"),
 # Bottom: read k starts at cycle 2k and ends at 2k + 500; 500 reads stacked, 1 slice each.
 top, h = 300, 120
 poly = [(cx(0), top), (cx(500), top), (cx(1500), top + h), (cx(1000), top + h)]
-parts += [zone(24, 272, 592, 282, "250 reads in flight: a new read every 2 cycles"),
+parts += [zone(24, 272, 592, 282, "250 reads under way: a new read every 2 cycles"),
           '  <polygon points="' + " ".join(f"{x:.1f},{y:.1f}" for x, y in poly)
           + f'" fill="{KINDS["good"][1]}" stroke="{KINDS["good"][0]}" stroke-width="1.4"/>']
 for k, name in ((0, "read 0: cycles 0 to 500"), (499, "read 499: cycles 998 to 1,498")):
@@ -188,7 +188,7 @@ parts += [note(cx(0), top - 8, "read 0: cycles 0 to 500"),
           note(cx(1000), top + 14, "each horizontal slice of the band"),
           note(cx(1000), top + 32, "is 1 read of 500 cycles"),
           line(cx(750), top - 8, cx(750), top + h + 8, KINDS["danger"][0], 2, "6 5"),
-          tag(cx(750) + 6, top + h / 2 - 9, "cycle 750: 250 in flight", "danger")]
+          tag(cx(750) + 6, top + h / 2 - 9, "cycle 750: 250 under way", "danger")]
 rug = top + h + 38
 parts += [f'  <rect x="{cx(500):.1f}" y="{rug - 7}" width="{1000 * sc:.1f}" height="14" fill="{KINDS["service"][0]}"'
           ' opacity="0.85"/>']
@@ -196,12 +196,12 @@ parts += axis(rug + 22)
 parts += [tag(cx(1500), rug + 48, "by cycle 1,500: 501 values", "service", "end"),
           note(X0, rug + 48 + 13, "the solid band: a value every 2 cycles", room=300)]
 save(OUT + "ch01-little.svg", 640, 576,
-     "2 panels on the same time axis, 0 to 1,500 cycles. Top, 1 read in flight: 3 reads of 500 cycles run "
+     "2 panels on the same time axis, 0 to 1,500 cycles. Top, 1 read under way: 3 reads of 500 cycles run "
      "one after another, and a value arrives at cycles 500, 1,000 and 1,500: 3 values. Bottom, a new read "
      "starts every 2 cycles: 500 reads, each a thin slice 500 cycles long, form a slanted band from read 0 "
      "(cycles 0 to 500) to read 499 (cycles 998 to 1,498). A dashed line at cycle 750 crosses 250 slices: "
-     "250 reads in flight. From cycle 500 on a value arrives every 2 cycles, 501 values by cycle 1,500.",
-     "One read in flight, or 250", "Each read takes 500 cycles in both panels. Only the number in flight changes.",
+     "250 reads under way. From cycle 500 on a value arrives every 2 cycles, 501 values by cycle 1,500.",
+     "One read under way, or 250", "Each read takes 500 cycles in both panels. Only the number under way changes.",
      parts)
 
 

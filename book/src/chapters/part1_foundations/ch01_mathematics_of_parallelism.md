@@ -203,7 +203,7 @@ accepts a new read every 2 cycles. Figure 1.3 shows 8 reads sent to it, one ever
 cycles.
 
 <figure>
-<img src="../../figures/ch01-overlap.svg" alt="8 reads drawn as bars on a time axis from 0 to 26 cycles. Each bar is 10 cycles long, and each starts 2 cycles after the one before. A dashed line at cycle 10.5 crosses 5 bars, drawn green: 5 reads are in flight at that moment. A card below reads: reads in flight = 10 / 2 = 5.">
+<img src="../../figures/ch01-overlap.svg" alt="8 reads drawn as bars on a time axis from 0 to 26 cycles. Each bar is 10 cycles long, and each starts 2 cycles after the one before. A dashed line at cycle 10.5 crosses 5 bars, drawn green: 5 reads are under way at that moment. A card below reads: reads under way = 10 / 2 = 5.">
 <figcaption><b>Figure 1.3</b> Reads that take 10 cycles each, started 2 cycles apart.</figcaption>
 </figure>
 
@@ -221,14 +221,14 @@ operations, and leave the latency of each operation as it was.
 
 ### 1.1.4 Concurrency and Little's law
 
-The reads that have started and not yet completed are said to be **in flight**, and their
+Reads that have started but not yet completed are **under way**, and their
 number is the **concurrency** of the system. The dashed line in figure 1.3, at cycle
-10.5, crosses reads 1 to 5, so 5 reads are in flight at that moment. A line drawn at
+10.5, crosses reads 1 to 5, so 5 reads are under way at that moment. A line drawn at
 any later cycle, until the stream of reads ends, also crosses 5.
 
-The count of 5 follows from the 2 rates. Each read stays in flight for 10
+The count of 5 follows from the 2 rates. Each read stays under way for 10
 cycles, and while it does, a new read starts every 2 cycles, so 10 / 2 = 5 reads start
-during its lifetime. When it completes, those 5 are the reads still in flight.
+during its lifetime. When it completes, those 5 are the reads still under way.
 
 We write \\(L\\) for the latency (10 cycles here), \\(X\\) for the throughput (0.5 reads per
 cycle) and \\(C\\) for the concurrency (5 reads). The same argument holds for any system
@@ -243,9 +243,9 @@ number we counted.
 
 The second form, \\(X = C / L\\), is the one that matters for performance. When the latency
 is fixed by the hardware, the only way to raise the throughput is to raise the concurrency:
-twice as many reads in flight complete twice as many reads per cycle. The law also works in
+twice as many reads under way complete twice as many reads per cycle. The law also works in
 the other direction. A memory system that can deliver a certain throughput only delivers it
-if the program keeps \\(X \times L\\) reads in flight; with fewer, the throughput falls in
+if the program keeps \\(X \times L\\) reads under way; with fewer, the throughput falls in
 proportion, however high the bandwidth printed on the data sheet.
 
 <div class="bee bee-happy" markdown="1">
@@ -256,7 +256,7 @@ flight.
 </div>
 
 <details class="check">
-<summary>A memory read takes 400 cycles, and the memory accepts a new read every 4 cycles. How many reads must be in flight to keep it busy?</summary>
+<summary>A memory read takes 400 cycles, and the memory accepts a new read every 4 cycles. How many reads must be under way to keep it busy?</summary>
 
 The throughput is \\(X = 1/4\\) read per cycle and the latency \\(L = 400\\) cycles, so
 \\(C = 400 / 4 = 100\\) reads.
@@ -270,13 +270,13 @@ read every 2 cycles. To keep it busy, Little's law asks for
 
 \\[ C = X \times L = 0.5 \times 500 = 250 \\]
 
-reads in flight at all times. The processor of figure 1.2 has at most 2 in flight. It
+reads under way at all times. The processor of figure 1.2 has at most 2 under way. It
 receives 2 values every 500 cycles from a memory that could have delivered 250 in the same
 time (figure 1.4).
 
 <figure>
-<img src="../../figures/ch01-little.svg" alt="2 panels on the same time axis, 0 to 1,500 cycles. Top, 1 read in flight: 3 reads of 500 cycles run one after another, and a value arrives at cycles 500, 1,000 and 1,500: 3 values. Bottom, a new read starts every 2 cycles: 500 reads, each a thin slice 500 cycles long, form a slanted band from read 0 (cycles 0 to 500) to read 499 (cycles 998 to 1,498). A dashed line at cycle 750 crosses 250 slices: 250 reads in flight. From cycle 500 on a value arrives every 2 cycles, 501 values by cycle 1,500.">
-<figcaption><b>Figure 1.4</b> The same 500-cycle read latency with 1 read in flight and with 250.</figcaption>
+<img src="../../figures/ch01-little.svg" alt="2 panels on the same time axis, 0 to 1,500 cycles. Top, 1 read under way: 3 reads of 500 cycles run one after another, and a value arrives at cycles 500, 1,000 and 1,500: 3 values. Bottom, a new read starts every 2 cycles: 500 reads, each a thin slice 500 cycles long, form a slanted band from read 0 (cycles 0 to 500) to read 499 (cycles 998 to 1,498). A dashed line at cycle 750 crosses 250 slices: 250 reads under way. From cycle 500 on a value arrives every 2 cycles, 501 values by cycle 1,500.">
+<figcaption><b>Figure 1.4</b> The same 500-cycle read latency with 1 read under way and with 250.</figcaption>
 </figure>
 
 The 250 reads must come from the computation, and its structure decides how many it can
@@ -305,7 +305,7 @@ GPU applies the same arithmetic with latencies of hundreds of cycles, which is w
 holds thousands of threads at once.
 
 Applied to bytes instead of reads, the same law gives the number of threads that a real GPU needs. Little's law holds for any
-unit of work, so the number of bytes that must be in flight is the bandwidth multiplied by
+unit of work, so the number of bytes that must be under way is the bandwidth multiplied by
 the latency.
 
 <div class="example" markdown="1">
@@ -315,16 +315,16 @@ Worked example: how many threads an H100 needs for vector addition
 1. The H100's memory delivers \\(X\\) = 3.35 TB/s (section 1.8).
 2. A read from its memory takes about 500 cycles (section 2.6). At its clock rate of
    1.98 GHz (section 2.2), 500 cycles last 500 / (1.98 × 10<sup>9</sup>) s = 253 ns.
-3. Bytes in flight: \\(C = X \times L\\) = 3.35 × 10<sup>12</sup> B/s × 253 × 10<sup>-9</sup> s
+3. Bytes under way: \\(C = X \times L\\) = 3.35 × 10<sup>12</sup> B/s × 253 × 10<sup>-9</sup> s
    = 848,000 bytes, about 0.85 MB.
 4. One row of vector addition reads `a[i]` and `b[i]`, 8 bytes. A thread that works on one
-   row at a time has 8 bytes in flight, so the memory stays busy only with
+   row at a time has 8 bytes under way, so the memory stays busy only with
    848,000 / 8 = **106,000 threads** waiting at every moment.
 
 </div>
 
 An H100 can hold 132 SMs × 2,048 threads = 270,336 threads at once (section 2.9). Vector
-addition needs about 40% of them in flight just to keep the memory busy. A kernel that holds
+addition needs about 40% of them under way just to keep the memory busy. A kernel that holds
 fewer threads, or gives each thread a long dependency chain, runs below the memory's
 bandwidth however simple its arithmetic. A CPU core keeps only a few reads outstanding and
 relies on its caches to make most reads short. The number of threads a GPU holds follows from
@@ -885,8 +885,8 @@ byte. Vector addition, at 1/12, sits far down the slope, and
 section. In section 2.1.5 we repeat the calculation for 7 current GPUs.
 
 The roofline is an upper bound, and a program can sit well below it. The most common reason is the one of section 1.1. The memory delivers \\(B\\) bytes per second only if
-enough reads are in flight to satisfy Little's law; a program that offers too few
-independent reads reaches a fraction of \\(B\\), and therefore a fraction of its roof. A measured point far below the roof means that the program has too few reads in flight, or
+enough reads are under way to satisfy Little's law; a program that offers too few
+independent reads reaches a fraction of \\(B\\), and therefore a fraction of its roof. A measured point far below the roof means that the program has too few reads under way, or
 moves
 more bytes than the count of section 1.8.1 assumed.
 
@@ -1147,7 +1147,7 @@ processors beyond about 1,000 wait.
   registers.
 - **Arithmetic intensity**, FLOPs per byte, compared with the machine's **ridge point**,
   shows whether memory or arithmetic limits a computation. The roofline is reached only with
-  enough reads in flight.
+  enough reads under way.
 - A **barrier** costs the wait for the slowest processor plus the barrier itself.
 - **Work** \\(W\\) counts operations and **steps** \\(D\\) the longest chain;
   \\(\max(W/p, D) \le T_p \le W/p + D\\). A **work-efficient** parallel algorithm does no more
@@ -1155,12 +1155,12 @@ processors beyond about 1,000 wait.
 
 </div>
 
-In Chapter 2 we describe the organisation of the GPU: how its processors are arranged, how it keeps hundreds of memory reads in flight, and where the ridge points of current GPUs lie.
+In Chapter 2 we describe the organisation of the GPU: how its processors are arranged, how it keeps hundreds of memory reads under way, and where the ridge points of current GPUs lie.
 
 ## Exercises
 
 1. A memory read has a latency of 600 cycles, and the memory accepts a new read every 3
-   cycles. How many reads must be in flight to reach its highest throughput?
+   cycles. How many reads must be under way to reach its highest throughput?
 2. A program takes 10.0 s on one processor, 5.5 s on 2 and 4.0 s on 4. Compute the
    speedup and efficiency for each number of processors.
 3. A program spends 10 µs reading its input, 100 µs computing and 10 µs writing its output,
@@ -1190,8 +1190,8 @@ In Chapter 2 we describe the organisation of the GPU: how its processors are arr
 13. A report compares a GPU kernel with the same parallel code run on 1 CPU thread. Explain
     why the speedup it quotes is larger than the speedup over the best sequential program.
 14. A memory system has a bandwidth of 1 TB/s and a read latency of 500 ns. Each read returns
-    32 bytes. How many reads must be in flight for a program to reach the bandwidth, and what
-    fraction of it does a program reach with 1,000 reads in flight?
+    32 bytes. How many reads must be under way for a program to reach the bandwidth, and what
+    fraction of it does a program reach with 1,000 reads under way?
 
 ## Sources and further reading
 
