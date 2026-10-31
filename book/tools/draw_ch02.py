@@ -335,7 +335,7 @@ parts = [zone(16, 104, 628, 516, "one SM")]
 for q in range(4):
     x, y = 36 + (q % 2) * 304, 134 + (q // 2) * 166
     parts.append(f'  <rect x="{x}" y="{y}" width="284" height="150" rx="12" fill="#FFFFFF" stroke="{EDGE}" filter="url(#lift)"/>')
-    parts += [tile(x + 14, y + 12, "gear", "client", 26), text(x + 48, y + 30, f"scheduler {q}", "name")]
+    parts += [tile(x + 14, y + 12, "gear", "client", 26), text(x + 48, y + 30, f"group {q}", "name")]
     for r in range(4):
         for c in range(8):
             parts.append(f'  <rect x="{x + 14 + c * 20:.1f}" y="{y + 50 + r * 18}" width="15" height="13" rx="3"'
@@ -343,13 +343,13 @@ for q in range(4):
     parts += [note(x + 182, y + 66, "32 arithmetic"), note(x + 182, y + 84, "units"),
               bar(x + 14, y + 124, 256, 18, "client", "16,384 registers")]
 parts += [card(36, 468, 588, 44, "store", "shared memory and L1 cache: 256 KB, used by all 4 groups", glyph="stack"),
-          card(36, 532, 588, 58, "service", "holds up to 2,048 threads: 64 warps, 16 per scheduler",
-               "2,048 threads / 128 arithmetic units = 16 threads waiting for each unit", glyph="chip")]
+          card(36, 532, 588, 58, "service", "holds up to 2,048 threads: 64 warps, 16 per group",
+               "2,048 threads / 128 arithmetic units = 16 threads for each unit", glyph="chip")]
 save(OUT + "ch02-sm.svg", 660, 640,
-     "One SM of an H100, divided into 4 groups. Each group has a scheduler, 32 arithmetic units drawn as "
+     "One SM of an H100, divided into 4 groups. Each group has its own control logic, 32 arithmetic units drawn as "
      "small squares, and 16,384 registers. Below the 4 groups, one pool of 256 KB serves as shared memory "
      "and L1 cache for the whole SM.",
-     "Inside one SM of an H100", "4 groups of 32 arithmetic units, each with its own scheduler and registers.", parts)
+     "Inside one SM of an H100", "4 groups of 32 arithmetic units, each with its own control logic and registers.", parts)
 
 
 # 2.1.2  Where a thread's index comes from: block number × block size + position in the block.

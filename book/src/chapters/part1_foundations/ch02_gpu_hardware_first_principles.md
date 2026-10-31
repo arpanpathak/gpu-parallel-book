@@ -19,15 +19,11 @@ transfer data and start work on the GPU. We present each program both in CUDA C+
 using NVIDIA's cuda-oxide compiler and libraries. In Chapter 3 we write the first of these
 programs.
 
-In this chapter we describe the GPU hardware that a CUDA programmer must understand in order
-to reason about the performance of a GPU program. We begin with the terms in which work is
-handed to a GPU and with the published characteristics of 7 current GPUs. We then examine the
-streaming multiprocessor, the warp, and the assignment of thread blocks to streaming
-multiprocessors. The remainder of the chapter covers the memory hierarchy, the access
-patterns that determine whether memory delivers its full bandwidth, and occupancy, which
-determines how well a streaming multiprocessor hides the latency of memory. Because these
-limits differ between generations of GPUs, every number in the chapter is given for a named
-GPU.
+In this chapter we describe those parts of a GPU that determine how fast a CUDA program
+runs: streaming multiprocessors and their warps, how blocks of threads are assigned to
+hardware, a GPU's memory hierarchy, and access patterns and occupancy, which decide whether
+memory latency is hidden. Limits differ between GPU generations, so every number is given for
+a named GPU.
 
 <div class="covers" markdown="1">
 
@@ -35,7 +31,7 @@ This chapter covers
 
 - kernels, threads, blocks and grids: how work is handed to a GPU
 - the parts of a GPU, from the whole chip down to a single thread
-- the streaming multiprocessor (SM) and its schedulers
+- the streaming multiprocessor (SM)
 - the warp, a group of 32 threads that carry out each instruction together, and what
   happens when its threads take different sides of a branch or loop
 - how blocks are assigned to SMs in waves, and how a block is divided into warps
@@ -119,37 +115,21 @@ grids can also be laid out in 2 or 3 dimensions, which suits images and volumes.
 
 ### 2.1.3 From the chip to one thread
 
-A GPU chip is organised in levels, each built from copies of the level below it (figure 2.4).
-
-- **Streaming multiprocessor (SM).** The processor of a GPU that executes threads. An SM
-  contains arithmetic units, the circuits that fetch and decode instructions for them, a
-  register file that holds the working values of its threads, and a fast on-chip memory. A
-  GPU chip consists mostly of identical SMs: 132 on an H100, 8 on a Jetson Orin NX. Each
-  block of a launch runs on 1 SM from start to finish.
-- **Arithmetic unit.** A circuit that performs 1 operation on 32-bit floating-point numbers
-  per cycle, for 1 thread. NVIDIA calls these units *CUDA cores*. An H100 SM has 128 of them.
-- **Warp.** A group of 32 threads of the same block that execute together. The SM fetches
-  and decodes each instruction of a warp once, and 32 arithmetic units execute it at the
-  same time, 1 for each thread, each on that thread's own values (section 2.3). The position
-  of a thread in its warp, 0 to 31, is its **lane**.
-- **Warp scheduler.** The circuit that chooses, in every cycle, which of the warps on its
-  part of the SM executes its next instruction. An H100 SM has 4 warp schedulers, each
-  serving 32 arithmetic units and up to 16 warps.
-- **Registers.** The storage locations that hold a thread's working values. Each register
-  belongs to 1 thread. An H100 SM has 65,536 registers of 4 bytes, divided among all its
-  threads.
-
-<figure>
-<img src="../../figures/ch02-zoom.svg" alt="4 panels joined by arrows. The GPU: a grid of identical streaming multiprocessors, SMs; 32 of an H100's 132 are drawn, and a Jetson Orin NX has 8. One SM: 4 schedulers, each with its own warps; up to 16 warps per scheduler, 64 per SM, 4 per scheduler drawn. One warp: 32 threads that carry out each instruction together. One thread: its own registers r0, r1 and r2, holding a[i], b[i] and their sum.">
-<figcaption><b>Figure 2.4</b> From the whole GPU down to 1 thread, for an H100.</figcaption>
-</figure>
+A GPU chip is organised as an array of **streaming multiprocessors**, or SMs. An SM is a
+processor that executes the threads of the blocks assigned to it. It contains a set of
+arithmetic units, which NVIDIA calls *CUDA cores*, together with the control logic that fetches
+and issues their instructions, a register file that holds the working values of its threads,
+and a small on-chip memory. Each arithmetic unit performs 1 operation on 32-bit floating-point
+numbers per cycle, for 1 thread. An H100 has 132 SMs of 128 arithmetic units each, 16,896 in
+all; a Jetson Orin NX has 8 SMs of 128, 1,024 in all. An H100 SM has 65,536 registers of 4
+bytes, divided among all its threads. Each block of a launch runs on 1 SM from start to
+finish, and all SMs share the GPU's main memory.
 
 ### 2.1.4 GPUs in numbers
 
-GPUs are built in sizes from modules for robots to cards for data centres, with the same
-design. The table compares 7 of them. The **compute
-capability**, CC in the table, is NVIDIA's version number for each generation of the design
-(section 2.11).
+GPUs of one design are built in sizes from robot modules to data-centre cards. Our table
+compares 7 of them. **Compute capability**, CC in the table, is NVIDIA's version number for
+each generation of this design (section 2.11).
 
 | GPU | Kind | CC | SMs | Memory | Bandwidth | FP32 peak |
 |---|---|---|---|---|---|---|
@@ -161,21 +141,20 @@ capability**, CC in the table, is NVIDIA's version number for each generation of
 | A100 SXM 80 GB | data centre | 8.0 | 108 | 80 GB | 2,039 GB/s | 19.5 TFLOP/s |
 | H100 SXM | data centre | 9.0 | 132 | 80 GB | 3,350 GB/s | 67 TFLOP/s |
 
-CC is the compute capability, and "shared" marks memory that the GPU shares with the CPU.
-The figures are NVIDIA's published specifications, with peak arithmetic at the highest clock
-rate. The SM counts of the Thor and the DGX Spark follow from their published numbers of
-arithmetic units, 2,560 and 6,144, at 128 units per SM. The Orin NX figures were also read
-from a board with `cudaGetDeviceProperties`, a CUDA function described in section 2.9.4.
+All figures are NVIDIA's published specifications, with peak arithmetic at each GPU's highest
+clock rate; "shared" marks memory shared with a CPU. SM counts for Thor and DGX Spark follow
+from their published unit counts, 2,560 and 6,144, at 128 units per SM. We also read Orin NX
+figures from a board with `cudaGetDeviceProperties`, a CUDA function described in section
+2.9.4.
 
-The memory column shows 2 kinds of system. The Jetson modules and the DGX Spark are
-**integrated**: the CPU and the GPU share one set of memory chips. The graphics cards and
-data-centre GPUs are **discrete**: the GPU has memory chips of its own, beside it on the
-card, and data moves to it from the CPU's memory over a link (Chapter 4).
+Its memory column shows 2 kinds of system. Jetson modules and DGX Spark are
+**integrated**: CPU and GPU share one set of memory chips. Graphics cards and data-centre GPUs
+are **discrete**: each GPU has memory chips of its own on its card, and data reaches them from
+CPU memory over a link (Chapter 4).
 
-The bandwidth column follows from 2 numbers of each memory system: the width of its
-**memory bus**, the number of bits that move between the GPU and its memory chips in 1
-transfer, and the number of transfers per second. Their product, in bytes per second, is the
-bandwidth (figure 2.5).
+Each bandwidth follows from 2 numbers: the width of a GPU's **memory bus**, meaning how many
+bits move between GPU and memory chips in 1 transfer, and how many transfers occur per
+second. Their product, in bytes per second, is the bandwidth (figure 2.4).
 
 | GPU | Memory | Bus width | Transfers per second | Bandwidth |
 |---|---|---|---|---|
@@ -196,7 +175,7 @@ a higher rate on each wire.
 
 <figure>
 <img src="../../figures/ch02-bus.svg" alt="4 horizontal bars, one per GPU, whose length is the width of its memory bus. Jetson Orin NX, LPDDR5: 128 bits, 16 bytes per transfer at 6.4 billion transfers per second, 102 GB/s. Jetson AGX Thor, LPDDR5X: 256 bits, 32 bytes at 8.53 billion, 273 GB/s. GeForce RTX 4090, GDDR6X: 384 bits, 48 bytes at 21 billion, 1,008 GB/s. H100 SXM, HBM3: 5,120 bits, 640 bytes at 5.23 billion, 3,350 GB/s; its bar is 40 times as long as the Orin's.">
-<figcaption><b>Figure 2.5</b> Bandwidth is bus width × transfer rate. The H100's HBM3 bus is 5,120 bits wide, 40 times the Orin NX's.</figcaption>
+<figcaption><b>Figure 2.4</b> Bandwidth is bus width × transfer rate. The H100's HBM3 bus is 5,120 bits wide, 40 times the Orin NX's.</figcaption>
 </figure>
 
 ### 2.1.5 The ridge point of each GPU
@@ -233,10 +212,9 @@ Vector addition, at 1/12 of a FLOP per byte, is memory-bound on every GPU in the
 
 </div>
 
-For a memory-bound kernel, the bandwidth also gives a lower bound on the running time, which
-the measured time can be compared against. The comparison is often called a **speed-of-light**
-check: the bytes a kernel must move, divided by the bandwidth, is the time it would take if
-memory never paused.
+For a memory-bound kernel, bandwidth also sets a lower bound on running time, against which a
+measured time can be compared. Such a comparison is called a **speed-of-light** check: bytes
+moved, divided by bandwidth, give the time a kernel would take if memory never paused.
 
 <div class="example" markdown="1">
 
@@ -256,25 +234,22 @@ rated bandwidth.
 
 ## 2.2 The streaming multiprocessor
 
-Figure 2.6 shows the organisation of 1 SM of an H100. Its 128 arithmetic units form 4
-processing blocks of 32. Each processing block has its own warp scheduler and a quarter of
-the register file, and the 4 processing blocks share 256 KB of on-chip memory.
+Figure 2.5 shows 1 SM of an H100. Its 128 arithmetic units are divided into 4 groups of 32.
+Each group has its own control logic and a quarter of the register file, and the 4 groups
+share 256 KB of on-chip memory.
 
 <figure>
-<img src="../../figures/ch02-sm.svg" alt="One SM of an H100, divided into 4 groups. Each group has a scheduler, 32 arithmetic units drawn as small squares, and 16,384 registers. Below the 4 groups, one pool of 256 KB serves as shared memory and L1 cache for the whole SM. A card at the bottom: the SM holds up to 2,048 threads, 64 warps, 16 per scheduler; 2,048 threads divided by 128 arithmetic units is 16 threads for each unit.">
-<figcaption><b>Figure 2.6</b> Inside 1 SM of an H100: 4 groups of 32 arithmetic units, each with a scheduler and 16,384 registers, above a shared pool of fast memory. The SM holds 16 threads for each arithmetic unit.</figcaption>
+<img src="../../figures/ch02-sm.svg" alt="One SM of an H100, divided into 4 groups. Each group has its own control logic, 32 arithmetic units drawn as small squares, and 16,384 registers. Below the 4 groups, one pool of 256 KB serves as shared memory and L1 cache for the whole SM. A card at the bottom: the SM holds up to 2,048 threads, 64 warps, 16 per group; 2,048 threads divided by 128 arithmetic units is 16 threads for each unit.">
+<figcaption><b>Figure 2.5</b> Inside 1 SM of an H100: 4 groups of 32 arithmetic units, each with its own control logic and 16,384 registers, above a shared pool of fast memory. The SM holds up to 2,048 threads, 64 warps: 16 threads for each arithmetic unit.</figcaption>
 </figure>
 
-- **Arithmetic units.** 4 groups of 32 units for 32-bit floating-point numbers, 128 per SM,
-  often called *CUDA cores*. A group has 32 units because a warp has 32 lanes (section 2.3):
-  1 instruction keeps a whole group busy. Each unit performs 1 **fused multiply-add** per
-  cycle: it computes \\(a \times b + c\\) in 1 step, which counts as 2 FLOPs.
-- **Warp schedulers.** Each group has 1 warp scheduler. In every cycle a scheduler picks 1 warp whose
-  next instruction is ready and sends that instruction to its 32 units.
+- **Arithmetic units.** 4 groups of 32, 128 per SM. A group has 32 units, 1 for each thread of a
+  warp, the group of 32 threads that executes each instruction together (section 2.3). Each
+  unit performs 1 **fused multiply-add** per cycle: it computes \\(a \times b + c\\) in 1 step, which counts as 2 FLOPs.
 - **Registers.** 65,536 registers of 4 bytes each, 65,536 × 4 = 262,144 bytes or 256 KB,
   split into 4 parts of 65,536 ÷ 4 = 16,384, 1 per group. Each thread on the SM gets its own
-  registers from this file. As we will see in section 2.9, the registers a thread needs limit the number of threads
-  that fit.
+  registers from this file, so the registers a thread needs limit the number of threads that
+  fit (section 2.9).
 - **Shared memory and L1 cache.** 1 pool of 256 KB serves 2 purposes. **Shared memory** is
   memory that all threads of a block can read and write, so threads of a block exchange data
   through it. The **L1 cache** keeps copies of data the SM has read from main memory. On an
@@ -291,7 +266,7 @@ RTX 4090, 2 × 128 × 128 × 2.52 GHz = 82.6 TFLOP/s.
 The SM holds far more threads than it has units to run them. An H100 SM can keep 2,048
 threads resident, 16 for each of its 128 arithmetic units, and in any one cycle at most 128
 of them execute. The other threads supply the independent work that a processor needs while
-its reads are in flight (section 1.1.5). We show in section 2.10 how a scheduler uses them.
+its reads are in flight (section 1.1.5).
 
 <div class="callout note" markdown="1">
 
@@ -305,51 +280,45 @@ its shared memory, depend on the compute capability; they are listed in section 
 
 ### 2.3.1 One instruction, 32 lanes
 
-A warp scheduler issues 1 instruction to a warp (section 2.1.3), and all 32 lanes carry it
-out together, each on values in its own registers. Lane 0 holds the warp's first thread,
-lane 1 the next, and so on.
+Each group of 32 units in figure 2.5 has a single control unit. In every cycle the
+control unit fetches 1 instruction, decodes it, and sends the same control signals to all 32
+units; each unit applies the instruction to operands in its own registers. For the instruction
+`add r1, r2, r3`, all 32 units add, but the values in `r2` and `r3` differ from unit to unit,
+so the 32 sums differ (figure 2.6). A control unit is a complex circuit: it reads instructions
+from an instruction cache, decodes them and tracks which operands are ready. Sharing 1 of them
+among 32 arithmetic units saves chip area and power, which the SM spends on more arithmetic
+units. NVIDIA calls each such group a **processing block**; an H100 SM has 4.
 
 <figure>
 <img src="../../figures/ch02-lockstep.svg" alt="One instruction, c = a + b, fanned out to 8 lanes. Lane 0 has a = 1 and b = 2 and gets c = 3; lane 1 has a = 4, b = 2, c = 6; lane 2 has a = 0, b = 5, c = 5; and so on to lane 7, a = 6, b = 3, c = 9. Same instruction, different data in each lane. Drawn with 8 lanes; a real warp has 32.">
-<figcaption><b>Figure 2.7</b> One instruction reaches every lane of a warp. Each lane has its own values, so one step gives one answer per lane.</figcaption>
+<figcaption><b>Figure 2.6</b> One instruction reaches every lane of a warp. Each lane has its own values, so one step gives one answer per lane.</figcaption>
 </figure>
 
-Figure 2.7 draws 8 lanes instead of 32, to keep the values readable. A single instruction,
-`c = a + b`, gives 8 different results, because each lane holds its own `a` and `b`. In Chapter 1 we called this design SIMT (section 1.7).
+A **warp** is a group of 32 threads of one block whose instructions a processing block
+executes together. A thread's position in its warp, 0 to 31, is its **lane**. Because 1 instruction serves all 32 lanes, a programmer writes kernel code
+for 1 thread and the hardware forms the warps. In Chapter 1 we called this design SIMT (section
+1.7). CPUs share instructions in the same way through vector instructions such as AVX, but
+there the programmer or the compiler must place the data in vector registers explicitly.
 
-The reason for executing threads in groups lies in the way any processor executes an
-instruction. A register called the **program counter** holds the address of the next
-instruction. A **control unit** fetches the instruction at that address, decodes it, and
-sends the resulting control signals to an arithmetic unit: which operation to perform, which
-registers hold its operands, and which register receives its result. In a CPU core, 1
-control unit serves 1 thread. In an SM, the control signals of 1 control unit go to 32
-arithmetic units at once, and each of the 32 has its own registers (figure 2.7). For the
-instruction `add r1, r2, r3`, all 32 units add, but the values in `r2` and `r3` differ from
-unit to unit, so the 32 sums differ. The 32 sets of registers belong to the 32 threads of a
-warp.
+A processing block holds the registers of many warps at once, up to 16 warps on an H100, which is
+64 warps or 2,048 threads per SM, so that it has other work when a warp waits for memory. The part of its control unit that chooses, in
+every cycle, which of these warps issues its next instruction is the **warp scheduler**. We
+return to it in section 2.10, where it hides the latency of memory. Figure 2.7 summarises the
+levels from the whole GPU down to a single thread.
 
-A control unit is a complex circuit. It reads instructions from an instruction cache,
-decodes them, and tracks which operands are ready. Sharing 1 control unit among 32
-arithmetic units saves chip area and power, and the SM spends what it saves on more
-arithmetic units. An H100 SM is divided into 4 such groups, called **processing blocks**,
-each with 1 control unit, 1 warp scheduler and 32 arithmetic units.
-
-CPUs apply the same idea in their vector instructions, such as AVX on x86 processors
-(section 1.7). There the programmer, or the compiler, must place the data in vector registers
-explicitly. On a GPU, a programmer writes kernel code for 1 thread, and the SM forms the warps
-and executes them on its shared control units.
+<figure>
+<img src="../../figures/ch02-zoom.svg" alt="4 panels joined by arrows. The GPU: a grid of identical streaming multiprocessors, SMs; 32 of an H100's 132 are drawn, and a Jetson Orin NX has 8. One SM: 4 schedulers, each with its own warps; up to 16 warps per scheduler, 64 per SM, 4 per scheduler drawn. One warp: 32 threads that carry out each instruction together. One thread: its own registers r0, r1 and r2, holding a[i], b[i] and their sum.">
+<figcaption><b>Figure 2.7</b> From the whole GPU down to 1 thread, for an H100.</figcaption>
+</figure>
 
 ### 2.3.2 Why 32
 
-NVIDIA GPUs have used warps of 32 threads since the first CUDA GPUs. The size balances 3
-effects:
-
-- A wider warp shares each instruction's cost among more threads.
-- 32 threads reading 4 bytes each read 128 bytes, the size of 1 cache line. We explain in section 2.7 why this match helps.
-- A wider warp loses more when its threads need to do different things (section 2.3.3).
-
-The warp size is a property of the hardware and is reported by `cudaGetDeviceProperties`
-(section 2.9.4). A kernel whose correctness depends on the number 32 should read it there.
+NVIDIA GPUs have used warps of 32 threads since the first CUDA GPUs. A wider warp would share
+each instruction among more threads, but it would lose more time whenever its threads take
+different paths (section 2.3.3). 32 threads reading 4 bytes each read 32 × 4 = 128 bytes, exactly 1 cache line, and section 2.7
+shows why that match matters. A program
+should read the warp size from `cudaGetDeviceProperties` (section 2.9.4) instead of assuming
+it.
 
 ### 2.3.3 Divergence
 
@@ -364,9 +333,9 @@ turn (figure 2.8).
 
 In figure 2.8 the condition `x > 2` holds in 5 lanes and fails in 3.
 
-1. Step 1 runs the `if` side. 5 lanes compute `y = x * 2`; the other 3 are switched off.
-2. Step 2 runs the `else` side. 3 lanes compute `y = 0`; the other 5 are switched off.
-3. Step 3 comes after the branch, and all 8 lanes run together again.
+1. Step 1 runs the `if` side: 5 lanes compute `y = x * 2`, and 3 are switched off.
+2. Step 2 runs the `else` side: 3 lanes compute `y = 0`, and 5 are switched off.
+3. Step 3 follows the branch, and all 8 lanes run together again.
 
 A branch on which lanes of a warp disagree is called **divergence**. The results remain
 correct, because a switched-off lane does not write its registers or memory. The cost is
@@ -405,9 +374,9 @@ where they meet, with `__syncwarp()` or with the `_sync` forms of the warp funct
 
 ## 2.4 Blocks, grids, and warps
 
-When a kernel is launched, the hardware assigns its blocks to SMs and divides each block
-into warps. The program controls neither step, but the rules of both affect how well a
-launch uses the GPU.
+When a kernel is launched, hardware assigns its blocks to SMs and divides each block into
+warps. A program controls neither step, but both follow rules that affect how well a launch
+uses a GPU.
 
 ### 2.4.1 Assigning blocks to SMs
 
@@ -425,11 +394,11 @@ other. Because of this restriction, the same compiled kernel runs on 8 SMs or on
 with more SMs runs more blocks at the same time. The property is called
 **transparent scalability**.
 
-The blocks that run at the same time form a **wave**, and a grid runs as a sequence of waves.
-When the blocks take about equal time, the last wave decides how well the grid uses the GPU
-(figure 2.9). If the number of blocks is not a multiple of the number of places, the last
-wave is partly empty, and the GPU spends a whole wave's time on a fraction of a wave's work.
-The effect is called the **tail effect**.
+Blocks that run at the same time form a **wave**, and a grid runs as a sequence of waves.
+When all blocks take about equal time, its final wave decides how well a grid uses a GPU
+(figure 2.9). If a grid's block count is not a multiple of the GPU's places, its final wave is
+partly empty, and a whole wave's time buys only a fraction of a wave's work. This loss is
+called the **tail effect**.
 
 <figure>
 <img src="../../figures/ch02-waves.svg" alt="The same grid of 20 equal blocks on 2 GPUs whose SMs each hold 2 blocks at a time. Top, 4 SMs, 8 places: blocks 0 to 7 run in wave 1, 8 to 15 in wave 2, and 16 to 19 in wave 3 on SMs 0 and 1 while SMs 2 and 3 are idle; 20 blocks in 3 waves of 8 places, 83.3 percent busy. Bottom, 8 SMs, 16 places: blocks 0 to 15 run in wave 1 and 16 to 19 in wave 2 on SMs 0 and 1 while 6 SMs are idle; 20 blocks in 2 waves of 16 places, 62.5 percent busy.">
@@ -535,22 +504,22 @@ guarantee that the cache does not.
 Every SM goes through it, so blocks on different SMs see each other's writes there (Chapter
 5).
 
-**Global memory** is the GPU's main memory, built from DRAM chips outside the GPU chip. On
-an H100 it is 80 GB of HBM3, stacked in the same package as the GPU chip. On an RTX 4090 it
+**Global memory** is a GPU's main memory, built from DRAM chips outside its processor chip.
+On an H100 it is 80 GB of HBM3, stacked inside its package. On an RTX 4090 it
 is 24 GB of GDDR6X chips on the card. On a Jetson Orin NX it is the 16 GB of LPDDR5 that the
 CPU also uses. Every array a program allocates for the GPU lives there (Chapter 4). An H100 reads it at 3.35 TB/s, but a single read takes about 500 cycles, and much of the
 optimisation in Chapters 7 to 9 reduces the number of reads from it.
 
-**Host memory** is the CPU's memory; CUDA calls the CPU the **host**. A request for host
-memory leaves the GPU and crosses a link to the CPU, so it is the slowest level. In Chapter 4 we cover moving data across that link efficiently.
+**Host memory** is CPU memory; CUDA calls a CPU its **host**. A request for host memory
+leaves the GPU and crosses a link, so this level is slowest of all. In Chapter 4 we move data
+across that link efficiently.
 
 2 read-only paths complete the hierarchy. **Constant memory** is fast when every thread of a
 warp reads the same value, such as a kernel's parameters. **Texture memory** is designed for
 reading 2-dimensional images. We cover both in Chapter 7.
 
-The place where a variable lives is decided by how it is declared. Each kind of declaration
-also fixes the variable's **scope**, the threads that can see it, and its **lifetime**, the
-part of the program's run during which it exists.
+How a variable is declared decides where it lives. Its declaration also fixes its **scope**,
+meaning which threads can see it, and its **lifetime**, meaning how long it exists.
 
 | Declaration in CUDA C++ | Lives in | Scope | Lifetime |
 |---|---|---|---|
@@ -776,9 +745,8 @@ can, so each access needs 1 more addition.
 <details class="check">
 <summary>A warp reads a shared-memory table of floats with 32 columns, each lane reading one element of the same column. How many steps does the read take, and why?</summary>
 
-32 steps. Rows of 32 floats are 32 words long, so every element of a column has the same
-word number modulo 32 and lies in the same bank. The bank delivers the 32 different words
-one at a time.
+32 steps. A row of 32 floats is 32 words long, so all elements of a column have one word
+number modulo 32 and lie in one bank, which delivers its 32 different words one at a time.
 
 </details>
 
@@ -842,9 +810,9 @@ so a thread's count is rounded up to a multiple of 256 / 32 = 8.
 | 64 | 64 | 16,384 | 4 | 1,024 | 50% |
 | 128 | 128 | 32,768 | 2 | 512 | 25% |
 
-Each row divides the SM's 65,536 registers by 1 block's need: the register file has enough
-for 8, 6, 4 or 2 blocks. The thread limit allows 2,048 / 256 = 8 blocks and the block limit
-32, and this kernel uses no shared memory, so registers set the limit in every row.
+Each row divides an SM's 65,536 registers by 1 block's need, which leaves room for 8, 6, 4
+or 2 blocks. Thread places allow 2,048 / 256 = 8 blocks and block places 32, and this kernel
+uses no shared memory, so registers set the limit in every row.
 
 </div>
 
@@ -854,7 +822,7 @@ variable in the kernel, moves the allocation from 32 to 40 and the occupancy fro
 
 <figure>
 <img src="../../figures/ch02-occupancy-budget.svg" alt="One SM has 65,536 registers, and each block has 256 threads. With 32 registers per thread a block needs 8,192, so 8 blocks fit: 2,048 threads, 100 percent occupancy. With 33 registers per thread, allocated as 40, a block needs 10,240, so 6 blocks fit: 1,536 threads, 75 percent. With 64 registers per thread a block needs 16,384, so 4 blocks fit: 1,024 threads, 50 percent. With 128 registers per thread a block needs 32,768, so 2 blocks fit: 512 threads, 25 percent.">
-<figcaption><b>Figure 2.15</b> The register file is a fixed budget: the more registers each thread needs, the fewer blocks fit. 1 register more than 32 costs 2 of 8 blocks.</figcaption>
+<figcaption><b>Figure 2.15</b> A register file is a fixed budget: more registers per thread means fewer blocks. 1 register more than 32 costs 2 of 8 blocks.</figcaption>
 </figure>
 
 As a formula, with \\(T_B\\) threads per block and \\(R_T\\) registers per thread after
@@ -927,15 +895,14 @@ enough warps (occupancy) and enough independent work in each warp.
 
 <div class="callout note" markdown="1">
 
-**Why switching warps costs nothing.** A CPU that switches from 1 thread to another, for
-example when the operating system shares a core between 2 programs, must save the registers
-of the outgoing thread to memory and load those of the incoming one. The switch costs
-hundreds of cycles or more, which is why a CPU core does not switch threads to cover a
-single memory read. An SM avoids the copy entirely: the registers of every resident warp stay
-in the register file for as long as the warp is resident, and a switch only changes which
-warp's registers the next instruction uses. The cost is size. An H100 SM's register file
-holds 256 KB, so the 132 SMs together hold 132 × 256 KB = 33 MB of registers, about 2/3 of
-the size of the chip's 50 MB L2 cache. The register file is that large because it holds the state of every resident warp.
+**Why switching warps costs nothing.** A CPU that switches from 1 thread to another, for example when an operating system shares a
+core between 2 programs, must save an outgoing thread's registers to memory and load an
+incoming thread's. Each switch costs hundreds of cycles or more, which is why a CPU core does
+not switch threads to cover a single memory read. An SM avoids this copy: every resident
+warp's registers stay in its register file for as long as that warp is resident, and a switch
+only changes which warp's registers its next instruction uses. Size is the cost. An H100 SM's
+register file holds 256 KB, so its 132 SMs together hold 132 × 256 KB = 33 MB of registers,
+about 2/3 of its 50 MB L2 cache, because they hold the state of every resident warp.
 
 </div>
 
@@ -961,10 +928,9 @@ capability**, a version number of the form *major.minor*.
 | 9.0 | Hopper | H100 |
 | 10.0, 11.0, 12.0, 12.1 | Blackwell | B200 (10.0), Jetson AGX Thor (11.0), GeForce RTX 50 series (12.0), DGX Spark (12.1) |
 
-Each generation changes the number of SMs, the size of shared memory, the tensor cores and
-many of the limits of section 2.9. A performance figure is only meaningful together with the
-compute capability on which it was measured. The `deviceQuery` sample that ships with CUDA
-prints the limits of the GPU it runs on; in Chapter 16 we show how to read its output.
+Each generation changes SM counts, shared-memory sizes, tensor cores and many limits of
+section 2.9, so a performance figure means little without its compute capability. CUDA's
+`deviceQuery` sample prints these limits for any GPU; in Chapter 16 we read its output.
 
 ## Common mistakes
 
