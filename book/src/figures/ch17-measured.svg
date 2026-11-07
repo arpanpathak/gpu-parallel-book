@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 392" width="660" height="392" role="img" aria-label="2 panels for n = 4,096 on the Orin NX. Left, the rate in GFLOP/s of each kernel in C++ and in Rust: direct 184.5 and 138.0, T = 8 139.8 and 136.8, T = 16 272.1 and 258.5, T = 32 215.5 and 205.5, with a dashed line at 300 GFLOP/s, the limit set by 2 shared-memory reads per multiply-add. Right, the requested fetch rate of the C++ kernels in GB/s: direct 738.0, T = 8 69.9, T = 16 68.0, T = 32 26.9, with a dashed line at 102 GB/s, the bandwidth of global memory.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="392" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The tiled kernels, measured</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">16 times fewer fetches, 1.5 times the speed.</text>
+  <text x="40.0" y="108.0" text-anchor="start" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">Rate, GFLOP/s</text>
+  <line x1="355.0" y1="118.0" x2="355.0" y2="330.0" stroke="#CF4526" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="120.0" y="150.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">direct</text>
+  <rect x="130.0" y="128.0" width="138.4" height="18.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <text x="274.4" y="142.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#5B6BD6">184.5</text>
+  <rect x="130.0" y="149.0" width="103.5" height="18.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="239.5" y="163.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#1F8A70">138.0</text>
+  <text x="120.0" y="202.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">T = 8</text>
+  <rect x="130.0" y="180.0" width="104.9" height="18.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <text x="240.9" y="194.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#5B6BD6">139.8</text>
+  <rect x="130.0" y="201.0" width="102.6" height="18.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="238.6" y="215.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#1F8A70">136.8</text>
+  <text x="120.0" y="254.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">T = 16</text>
+  <rect x="130.0" y="232.0" width="204.1" height="18.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <text x="340.1" y="246.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#5B6BD6">272.1</text>
+  <rect x="130.0" y="253.0" width="193.9" height="18.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="329.9" y="267.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#1F8A70">258.5</text>
+  <text x="120.0" y="306.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">T = 32</text>
+  <rect x="130.0" y="284.0" width="161.6" height="18.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <text x="297.6" y="298.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#5B6BD6">215.5</text>
+  <rect x="130.0" y="305.0" width="154.1" height="18.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="290.1" y="319.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#1F8A70">205.5</text>
+  <text x="359.0" y="346.0" text-anchor="end" xml:space="preserve" style="font-size:11.5px;font-weight:700;fill:#CF4526">shared-memory limit, 300</text>
+  <rect x="40" y="360" width="12" height="12" rx="3" fill="#DDE3FB" stroke="#5B6BD6"/>
+  <text x="58.0" y="370.0" text-anchor="start" xml:space="preserve" style="font-size:12px;fill:#1B2430">C++</text>
+  <rect x="100" y="360" width="12" height="12" rx="3" fill="#D7F0E6" stroke="#1F8A70"/>
+  <text x="118.0" y="370.0" text-anchor="start" xml:space="preserve" style="font-size:12px;fill:#1B2430">Rust</text>
+  <text x="380.0" y="108.0" text-anchor="start" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">Requested fetches, GB/s (C++)</text>
+  <line x1="479.1" y1="118.0" x2="479.1" y2="330.0" stroke="#CF4526" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="450.0" y="146.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">direct</text>
+  <rect x="460.0" y="134.0" width="138.4" height="18.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="604.4" y="148.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#B7791F">738.0</text>
+  <text x="450.0" y="198.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">T = 8</text>
+  <rect x="460.0" y="186.0" width="13.1" height="18.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="479.1" y="200.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#B7791F">69.9</text>
+  <text x="450.0" y="250.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">T = 16</text>
+  <rect x="460.0" y="238.0" width="12.8" height="18.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="478.8" y="252.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#B7791F">68.0</text>
+  <text x="450.0" y="302.0" text-anchor="end" xml:space="preserve" style="font-size:12.5px;fill:#1B2430">T = 32</text>
+  <rect x="460.0" y="290.0" width="5.0" height="18.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="471.0" y="304.0" text-anchor="start" xml:space="preserve" style="stroke:#FBFAF6;stroke-width:4px;paint-order:stroke;font-size:11.5px;font-weight:700;fill:#B7791F">26.9</text>
+  <text x="475.1" y="346.0" text-anchor="start" xml:space="preserve" style="font-size:11.5px;font-weight:700;fill:#CF4526">global memory, 102</text>
+</svg>

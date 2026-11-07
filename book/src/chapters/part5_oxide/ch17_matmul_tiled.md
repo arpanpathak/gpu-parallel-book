@@ -1,681 +1,838 @@
 <img class="plate" src="../../art/ch17.svg" alt="Tiler, a hermit crab, walks along a beach under a shell built of square tiles. Behind it on the sand lie 2 tall stacks of tiles, marked A and B: the matrices in global memory. Ahead lies a small tide pool marked shared memory, where 2 tiles already rest, 1 from each stack. A tag says copy a tile once, read it 16 times: the idea of a tiled matrix multiplication.">
 
-# Chapter 17: Tiled Matrix Multiplication in Shared Memory
+# Chapter 17: Tiled Matrix Multiplication
 
-<div class="covers" markdown="1">
+A GPU computes quickly but fetches data from its global memory slowly. Tiling is the standard
+remedy: a group of threads copies a small block of data into fast on-chip memory once, and then
+every thread of the group works from the copy. The direct kernel of Chapter 16 fetched every
+input value once for every thread that used it, 1 fetch for every floating-point operation. The
+tiled kernel removes most of these fetches, and the matrix product is the classic first example,
+because every input value is needed by many threads and the saving is easy to count.
+
+In this chapter we derive the tiled kernel step by step on the 4 × 4 matrices of Chapter 16. We
+start from the values that 1 block needs, split each dot product into phases, let the threads of
+a block copy the pieces they need into shared memory together, and count the fetches again. We
+then remove each of the kernel's 2 barriers in turn, follow the wrong values that appear on the
+example, and prove the kernel correct with a loop invariant. Finally we implement the kernel in
+Rust and in CUDA C++, measure it, and explain why the measured speedup is much smaller than the
+reduction in fetches.
+
+<div class="covers">
 
 This chapter covers
 
-- the tiled matrix multiplication of Chapter 9, restated for a Rust kernel
-- shared-memory tiles declared as `static mut SharedArray`, 1 copy per block
-- why every access to a shared tile is `unsafe`, and the 3 conditions that make it correct
-- the 2 barriers of the tiled kernel, and the results without each of them
-- `while` loops with `#[unroll]` and `for` loops in the inner product
-- a tile size given as a const generic parameter, with the tiles in dynamic shared memory
-- generic device functions, and what calling one on the hot path costs
-- measured speeds for tiles of 8, 16 and 32, against the naive kernel and against cuBLAS
+- the values 1 block of the direct kernel needs, and how often it fetches them
+- splitting a dot product into phases, and tiles in shared memory
+- the barrier, and the tiled algorithm with its 2 barriers
+- the fetches of the tiled kernel: \\(2MNK/T\\) instead of \\(2MNK\\)
+- each barrier removed, with the wrong values 7 and 15 on the example
+- a proof of correctness by a loop invariant, and matrices of any size
+- shared memory in Rust (`SharedArray`, `DynamicSharedArray`, `unsafe` with `// SAFETY:`) and in
+  CUDA C++ (`__shared__` arrays sized by a template parameter)
+- measured speeds, and why the speedup is not \\(T\\)
 
 </div>
 
-The naive kernel of Chapter 16 computes each element of a matrix product with 1 thread, and that
-thread reads every operand it needs from global memory. Each value of the 2 input matrices is
-therefore requested many times, once for every element of the result that uses it. Chapter 9
-showed, in CUDA C++, how a block of threads can copy a square piece of each input matrix into
-shared memory once and then read it many times, and how this divides the traffic to global memory
-by the width of the piece.
-
-In this chapter, we write the same tiled kernel in Rust with cuda-oxide. The algorithm is the one
-of Section 9.4, so we restate it only briefly. Most of the chapter concerns the Rust side: how
-shared memory is declared, why the compiler treats every access to it as `unsafe`, which
-conditions the programmer must establish in place of the compiler, and how a const generic
-parameter lets 1 kernel source serve several tile sizes. We measure each version, including
-versions in which 1 of the conditions is broken.
-
 The code of the chapter is in
-[`code/oxide/ch17_matmul_tiled/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch17_matmul_tiled).
+[`code/oxide/ch17_matmul_tiled/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch17_matmul_tiled)
+for Rust and in
+[`code/cuda/ch17_matmul_tiled/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/cuda/ch17_matmul_tiled)
+for C++. We use the notation of Chapter 16: \\(A\\) is \\(M \times K\\), \\(B\\) is
+\\(K \times N\\), \\(C = AB\\), all stored in row-major order, and \\([a, b)\\) is the range of
+integers from \\(a\\) to \\(b - 1\\).
 
-## 17.1 Background
+## 17.1 Values needed by 1 block
 
-We compute \\(C = AB\\) for square matrices of \\(N \times N\\) floats, stored row by row, with
-\\(N\\) = 4,096. Element \\((i, j)\\) of \\(C\\) is the dot product of row \\(i\\) of \\(A\\) and
-column \\(j\\) of \\(B\\). The product consists of \\(N^3\\) multiply-adds, and each multiply-add is
-2 floating-point operations, so it performs \\(2N^3\\) = 2 × 4,096<sup>3</sup> =
-137.4 × 10<sup>9</sup> FLOP.
-
-In the naive kernel, the thread that computes \\(C_{ij}\\) requests \\(A_{ik}\\) and \\(B_{kj}\\) from
-global memory for every \\(k\\). It performs 2 FLOP for every 2 floats it requests, a ratio of
-1 FLOP per float. Section 9.1.3 showed that a GPU needs about 100 FLOP for every float it reads
-from memory to reach its arithmetic peak, so the naive kernel is limited by memory, and only the
-caches keep it from being slower still.
-
-The tiled kernel divides the work as follows. A block of \\(T \times T\\) threads computes a
-\\(T \times T\\) tile of \\(C\\), 1 element per thread. The block needs \\(T\\) full rows of \\(A\\)
-and \\(T\\) full columns of \\(B\\), and it walks along them in steps of \\(T\\). At each step, every
-thread copies 1 element of \\(A\\) and 1 element of \\(B\\) into shared memory, so that together
-the threads of the block hold a \\(T \times T\\) tile of each matrix. Every thread then adds the
-\\(T\\) products of its row of the A tile and its column of the B tile to its sum.
-
-```text
-KERNEL tiled, blocks of T × T threads; thread (x, y) owns C[row][col]:
-    sum ← 0
-    for k0 ← 0, T, 2T, …, N − T:
-        tileA[y][x] ← A[row][k0 + x]          # each thread copies 1 value of A
-        tileB[y][x] ← B[k0 + y][col]          # and 1 value of B
-        wait until every thread of the block has copied        # barrier 1
-        for k ← 0 to T − 1:
-            sum ← sum + tileA[y][k] × tileB[k][x]
-        wait until every thread of the block has read          # barrier 2
-    C[row][col] ← sum
-```
-
-At each step the block copies \\(2T^2\\) floats from global memory and performs
-\\(T^2 \times T = T^3\\) multiply-adds, which is \\(2T^3\\) FLOP. The ratio is
-\\(2T^3 / 2T^2 = T\\) FLOP per float. With \\(T\\) = 16, each float copied from global memory feeds
-16 FLOP instead of 1.
-
-The ratio sets an upper limit on the speed of the kernel when memory bandwidth is the only
-constraint. The measurements in this chapter come from a Jetson Orin NX, an integrated GPU with
-8 SMs, 102 GB/s of memory bandwidth and an FP32 peak of 2,400 GFLOP/s. At 4 bytes per float,
-102 GB/s delivers 102 / 4 = 25.5 × 10<sup>9</sup> floats per second, and at \\(T\\) FLOP per float
-the kernel can perform at most \\(25.5\,T\\) GFLOP/s.
-
-| Tile width \\(T\\) | FLOP per float | Memory limit on the measured GPU |
-|---|---|---|
-| 1 (naive) | 1 | 25.5 GFLOP/s |
-| 8 | 8 | 204 GFLOP/s |
-| 16 | 16 | 408 GFLOP/s |
-| 32 | 32 | 816 GFLOP/s |
-
-The naive kernel runs much faster than its limit of 25.5 GFLOP/s, because the L1 and L2 caches
-serve most of its repeated requests, while the limit assumes that every float comes from memory.
-The tiled kernel places the reuse under the control of the program instead of leaving it to the
-caches.
-
-## 17.2 Shared memory in Rust
-
-### 17.2.1 Declaring a tile
-
-In cuda-oxide, a kernel declares shared memory as a `static mut` variable of type
-`SharedArray<T, N>` inside the kernel function. The type parameter `T` is the element type, and the
-const parameter `N` is the number of elements; both must be known when the kernel is compiled. The
-initial value `SharedArray::UNINIT` states that the contents are undefined when the block starts.
-Shared memory is not cleared between blocks, so it holds whatever the previous block on the same
-SM left there.
-
-<p class="listing"><b>Listing 17.1</b> The 2 tiles of the 16 × 16 kernel. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch17_matmul_tiled/src/main.rs">code/oxide/ch17_matmul_tiled/src/main.rs</a></p>
-
-```rust,ignore
-pub fn tiled16(a: &[f32], b: &[f32], mut c: DisjointSlice<f32, Index2D<N>>) {
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:46:47}}
-    // ...
-}
-```
-
-A `static` in ordinary Rust is a single variable for the whole program. Inside a kernel,
-cuda-oxide gives `SharedArray` a different meaning: the compiler places the array in the shared
-memory of the SM, and every block that runs the kernel receives its own copy. The 256 threads of
-a block see the same `TILE_A`, and the threads of another block see a different one. Figure 17.1
-shows 2 neighbouring blocks with \\(T\\) = 4. Both need rows 0 to 3 of \\(A\\), and each copies them
-into its own `TILE_A`.
+We turn the key observation of Section 16.4.3 into an algorithm, starting with block \\((0, 0)\\)
+of the grid of Figure 16.5. Its 4 threads compute the top-left 2 × 2 square of \\(C\\):
+\\(c_{00} = 11\\), \\(c_{01} = 13\\), \\(c_{10} = 27\\) and \\(c_{11} = 29\\). Together they need
+rows 0 and 1 of \\(A\\) and columns 0 and 1 of \\(B\\): 8 values from each matrix, 16 in all
+(Figure 17.1).
 
 <figure>
-<img src="../../figures/ch17-copies.svg" alt="2 zones, block (0, 0) and block (1, 0), each holding its own TILE_A and TILE_B as 4 by 4 grids. Both blocks load rows 0 to 3 of A, each into its own copy; block (0, 0) loads columns 0 to 3 of B and block (1, 0) columns 4 to 7. Each copy is seen by the 16 threads of its block only.">
-<figcaption><b>Figure 17.1</b> Each block has its own copy of every shared array.</figcaption>
+<img src="../../figures/ch17-block-needs.svg" alt="Matrices A, B and C of the 4 by 4 example. Rows 0 and 1 of A (1 2 3 4 and 5 6 7 8) are outlined in blue, columns 0 and 1 of B (1 0 2 1 and 0 1 1 2) in amber, and the other cells are faded. In C, the top-left 2 by 2 square is block (0, 0), its 4 cells coloured for threads (0,0), (0,1), (1,0) and (1,1). The note: block (0, 0) needs 16 values, and the direct kernel fetches them 32 times.">
+<figcaption><b>Figure 17.1</b> The values needed by block (0, 0): 2 rows of A and 2 columns of B.</figcaption>
 </figure>
 
-With \\(T\\) = 16, a tile holds 256 floats of 4 bytes, 1,024 bytes, and the 2 tiles of a block
-occupy 2,048 bytes. An SM of the measured GPU has 164 KiB of shared memory, so shared memory does
-not limit how many blocks of this kernel an SM can hold at once.
+The direct kernel fetches these 16 values 32 times. Thread \\((0, 0)\\) fetches row 0 of \\(A\\)
+and column 0 of \\(B\\), thread \\((0, 1)\\) fetches row 0 of \\(A\\) again with column 1 of
+\\(B\\), and so on: each of the 4 threads makes 8 fetches, and each value is fetched by 2 threads
+of the block. The plan follows: the block should copy each of the 16 values into shared memory
+once, and its threads should then work from the copy.
 
-### 17.2.2 Why access to a tile is `unsafe`
+There is 1 obstacle. Shared memory is small. A block can use at most 48 KB of it by default, and
+an SM has between 48 and 228 KB in total, shared by all the blocks it runs. In a real problem a
+row of \\(A\\) may hold thousands of values; for \\(K = 4{,}096\\), the 16 rows of \\(A\\) and the 16
+columns of \\(B\\) that a block of 16 × 16 threads needs hold \\(2 \cdot 16 \cdot 4{,}096 =
+131{,}072\\) floats, 512 KB. A whole strip of rows does not fit.
 
-Every read and every write of `TILE_A` in the kernel stands inside an `unsafe` block. There are
-3 separate reasons for this.
+## 17.2 Splitting the sum
 
-The first reason is a rule of the Rust language. Any use of a `static mut` requires `unsafe`, on
-the CPU as well as on the GPU, because a mutable static can be reached from several threads at
-once and the compiler cannot see which threads access it, or when. In a kernel this is exactly the
-situation: all threads of a block share the array.
-
-The second reason is the type itself. `SharedArray` is deliberately not `Sync`, the marker trait
-which promises that a value may be shared between threads without further care. Whether 2 threads
-may touch the same element depends on the barriers between their accesses, and a barrier is a
-function call that the type system cannot connect to the memory it protects.
-
-The third reason is that an index into a `SharedArray` is not checked. An index into a slice such
-as `a` is compared with the length of the slice, and a thread whose index is too large stops the
-kernel with an error. An index into a `SharedArray` compiles directly into an access to shared
-memory, without a comparison. Section 17.4 runs a kernel that writes past the end of a tile, and
-the GPU reports nothing.
-
-### 17.2.3 The conditions that make the accesses correct
-
-Since the compiler cannot check these accesses, the programmer must establish 3 conditions, and the
-`// SAFETY:` comments of the kernel state which condition each `unsafe` block relies on.
-
-1. **Every index is less than the length of the array.** For the 16 × 16 kernel, the launch
-   contract `block = (16, 16, 1)` makes the host refuse any launch with another block shape, so
-   `x` and `y` lie between 0 and 15. The largest slot a thread writes is 15 × 16 + 15 = 255, the
-   last element of a 256-element array.
-2. **Each element has 1 writer in each step.** Thread \\((x, y)\\) writes slot \\(16y + x\\).
-   Different pairs \\((x, y)\\) give different slots, so the 256 threads of a block write the 256
-   slots exactly once.
-3. **No element is read while another thread writes it.** The barriers before and after the inner
-   product separate the writes of a step from the reads of the same step, and those reads from the
-   writes of the next step.
-
-Figure 17.2 checks the second condition by hand for \\(T\\) = 4. Thread (3, 1) writes slot
-1 × 4 + 3 = 7, and no other pair \\((x, y)\\) with \\(x, y < 4\\) gives 7. In general the largest
-slot is \\((T-1)T + (T-1) = T^2 - 1\\), so the slots of a \\(T \times T\\) block fill a
-\\(T^2\\)-element tile exactly once.
+A thread does not need its whole row and column at once. The entry \\(c_{00}\\) is a sum, and we
+may add up a sum in any grouping we like. Grouping the 4 terms of \\(c_{00}\\) in pairs gives
+Figure 17.2: the first pair, \\(1 \cdot 1 + 2 \cdot 0 = 1\\), and the second,
+\\(3 \cdot 2 + 4 \cdot 1 = 10\\), add up to 11.
 
 <figure>
-<img src="../../figures/ch17-slots.svg" alt="Left, a 4 by 4 tile with its slots numbered 0 to 15 row by row; slot 7 is highlighted, written by thread x = 3, y = 1, because 1 times 4 plus 3 is 7. Right, 3 cards for T = 16: 256 threads with x and y from 0 to 15; the largest slot is 15 times 16 plus 15, 255, less than 256; 256 distinct slots, 1 writer each.">
-<figcaption><b>Figure 17.2</b> Thread (x, y) writes slot y × T + x, and no other thread writes it.</figcaption>
+<img src="../../figures/ch17-split.svg" alt="Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are coloured in 2 groups: columns 0 and 1 of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), and 1 + 10 = 11, the entry c00.">
+<figcaption><b>Figure 17.2</b> c<sub>00</sub> in 2 groups: phase 0 (blue) uses columns 0 and 1 of A and rows 0 and 1 of B, phase 1 (amber) the rest.</figcaption>
 </figure>
 
-Figure 17.3 collects the 3 conditions and records which part of the program establishes each one.
-The launch contract contributes to the first condition: the bound on the index is a
-property of the launch, and the contract turns it into a check that the host performs before every
-launch.
+The first group touches only a 2 × 2 piece of \\(A\\) (rows 0 and 1, columns 0 and 1, if we include
+the needs of the other 3 threads) and a 2 × 2 piece of \\(B\\), and so does the second. The block
+can therefore work in 2 rounds: in each round it copies 1 small piece of \\(A\\) and 1 small piece
+of \\(B\\) into shared memory, and every thread adds the matching group of terms to its sum.
+
+<div class="definition">
+
+<span class="box-label">Definition 17.1</span> **Tile and phase.** A **tile** is a \\(T \times T\\)
+piece of \\(A\\) or \\(B\\) that a block holds in shared memory. A **phase** is 1 round of the
+tiled kernel: the block copies 1 tile of \\(A\\) and 1 tile of \\(B\\), and every thread adds \\(T\\)
+terms to its sum.
+
+*Example.* With \\(T = 2\\), block \\((0, 0)\\) runs 2 phases. In phase 0 it uses the tile of
+\\(A\\) in rows 0 to 1 and columns 0 to 1; in phase 1, the tile in rows 0 to 1 and columns 2 to 3.
+
+</div>
+
+In general we cut the range \\([0, K)\\) into segments of length \\(T\\) and write each index as
+\\(s = tT + u\\), where \\(t\\) numbers the segment and \\(u\\) is the position inside it.
+Definition 16.1 then becomes
+
+\\[ c_{ij} = \sum_{t \in [0, \lceil K/T \rceil)} \\;
+\underbrace{\sum_{u \in [0, T)} a_{i,\\, tT + u}\\; b_{tT + u,\\, j}}_{\text{phase } t}, \\]
+
+where we treat entries beyond the edge of a matrix as 0, so that a short final segment still adds
+up correctly. From 1 phase to the next, the tile of \\(A\\) moves 1 step to the right and the tile
+of \\(B\\) 1 step down. Each thread still uses its entire row of \\(A\\) and column of \\(B\\); it
+receives them 1 tile at a time.
+
+## 17.3 Loading a tile together
+
+A tile holds \\(T^2\\) values and a block holds \\(T^2\\) threads, so the copying divides evenly:
+each thread copies exactly 1 value of each tile. In phase \\(t\\), thread \\((ty, tx)\\) copies the
+value that belongs at its own position:
+
+\\[ \textit{tileA}[ty][tx] = a_{\textit{row},\\; tT + tx}, \qquad
+\textit{tileB}[ty][tx] = b_{tT + ty,\\; \textit{col}}. \\]
+
+As \\((ty, tx)\\) runs over the block, these assignments fill every position of both tiles exactly
+once, so no value is copied twice. The threads with the same \\(ty\\) share 1 row and copy
+\\(T\\) neighbouring values of it, which lie next to each other in memory. In Figure 17.3 we watch
+block \\((0, 0)\\) at work; each colour belongs to 1 thread, and marks both the values that the
+thread copies and the sum that it accumulates.
 
 <figure>
-<img src="../../figures/ch17-obligations.svg" alt="3 cards. 1: every index is less than 256; shared memory is not bounds-checked, and the launch contract fixes x and y below 16. 2: each slot has 1 writer per step, because y times 16 plus x differs for every thread. 3: no slot is read while it is written, which the 2 calls of sync_threads ensure.">
-<figcaption><b>Figure 17.3</b> The 3 conditions behind the <code>unsafe</code> blocks of the tiled kernel.</figcaption>
+<img src="../../figures/ch17-phases.svg" alt="Block (0, 0) in 2 phases, 1 colour per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is coloured by the thread that copies it into the same slot of tileA or tileB in shared memory; the 4 sums are then 1, 2, 5 and 6. Phase 1: the tile of A moves to columns 2 and 3 (3 4, 7 8) and the tile of B to rows 2 and 3 (2 1, 1 2); the sums become 11, 13, 27 and 29, the top-left square of C.">
+<figcaption><b>Figure 17.3</b> Block (0, 0) in 2 phases. Each colour marks 1 thread: the values it copies, the shared-memory slots it fills, and the sum it accumulates.</figcaption>
 </figure>
 
-## 17.3 The tiled kernel
+Let us follow thread \\((0, 0)\\). In phase 0 it copies \\(a_{00} = 1\\) and \\(b_{00} = 1\\), while
+its 3 neighbours copy the other 6 values. It then multiplies row 0 of *tileA* by column 0 of
+*tileB*: \\(1 \cdot 1 + 2 \cdot 0 = 1\\). In phase 1 the tiles hold the next pieces, and it adds
+\\(3 \cdot 2 + 4 \cdot 1 = 10\\), arriving at \\(c_{00} = 11\\). Thread \\((0, 1)\\) follows the
+same steps with column 1 of each tile of \\(B\\): \\(1 \cdot 0 + 2 \cdot 1 = 2\\) in phase 0, and
+\\(2 + 3 \cdot 1 + 4 \cdot 2 = 13\\) after phase 1.
 
-### 17.3.1 Loading the tiles
-
-Listing 17.2 shows the complete 16 × 16 kernel. Lines 46 and 47 declare the 2 tiles. Lines 49 and
-50 read the position of the thread inside its block, which selects its slot in each tile, and
-lines 51 and 52 read the row and the column of \\(C\\) that the thread computes. These are the same
-values as in the naive kernel: `index_2d_row()` is `blockIdx.y × 16 + y`, and `index_2d_col()` is
-`blockIdx.x × 16 + x`.
-
-<p class="listing"><b>Listing 17.2</b> The tiled kernel with 16 × 16 tiles.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:42:81}}
-    // ...
-}
-```
-
-The loop of line 56 runs over the steps. In step `k0`, line 59 copies element
-\\(A_{\text{row},\,k_0 + x}\\) into slot \\(16y + x\\) of `TILE_A`, and line 60 copies element
-\\(B_{k_0 + y,\,\text{col}}\\) into slot \\(16y + x\\) of `TILE_B`. Let us check that the block
-copies the tiles it needs. The 16 threads with the same `y` share the same `row` and differ in `x`,
-so together they copy 16 consecutive elements of 1 row of \\(A\\), from column \\(k_0\\) to
-\\(k_0 + 15\\). The 16 values of `y` give 16 such rows, which is the \\(16 \times 16\\) tile of
-\\(A\\) at columns \\(k_0\\) to \\(k_0 + 15\\). In the same way, the threads with the same `y` copy 16
-consecutive elements of row \\(k_0 + y\\) of \\(B\\), and the block copies the tile of \\(B\\) at rows
-\\(k_0\\) to \\(k_0 + 15\\). Both copies are coalesced, since consecutive values of `x` read
-consecutive addresses.
-
-The global reads `a[row * N + k0 + x]` and `b[(k0 + y) * N + col]` are ordinary slice accesses,
-and they are bounds-checked. Only the shared-memory side of each line needs `unsafe`.
-
-### 17.3.2 Barriers and the dependences they enforce
-
-The call `thread::sync_threads()` in line 62 is a barrier: no thread of the block continues past it
-until every thread of the block has reached it. Recall from Chapter 5 that the barrier also makes
-the shared-memory writes made before it visible to every thread of the block after it.
-
-The 2 barriers of the kernel enforce 2 different kinds of dependence between threads, shown in
-Figure 17.4. The first is a **read-after-write** dependence. In line 68, thread (0, 0) reads the
-whole of row 0 of `TILE_A`, including slot 5, which thread (5, 0) wrote in line 59. The read must
-come after the write, and the barrier in line 62 ensures that it does. This dependence is called a
-true dependence, because the reading thread needs the value that the writing thread produces.
-
-The second is a **write-after-read** dependence. In the next step, thread (5, 0) overwrites slot 5
-with a new value. If it did so while thread (0, 0) was still in the loop of line 66, thread (0, 0)
-would read a value of the wrong step. The barrier in line 71 keeps every overwrite after every read
-of the old value. This dependence is called a false dependence: the writer needs nothing from the
-reader, and the conflict exists only because both use the same location in consecutive steps.
+Where does the saving come from? Look at thread \\((0, 1)\\) in phase 0 (Figure 17.4). It uses 4
+values but copied only 2 of them, \\(a_{01}\\) and \\(b_{01}\\); its neighbours copied the other 2.
+Each value that the block copies is used by 2 threads, \\(T\\) threads in general: a value of
+*tileA* by the \\(T\\) threads of its row of the block, and a value of *tileB* by the \\(T\\)
+threads of its column.
 
 <figure>
-<img src="../../figures/ch17-barriers.svg" alt="A timeline of 2 threads over 1 step and the start of the next. Each step is write slot, barrier 1, read, barrier 2. An arrow labelled read after write runs from thread (5, 0)'s write of slot 5 to thread (0, 0)'s read, across barrier 1. An arrow labelled write after read runs from thread (0, 0)'s read to thread (5, 0)'s next write, across barrier 2.">
-<figcaption><b>Figure 17.4</b> Barrier 1 orders the write before the read; barrier 2 orders the read before the next write.</figcaption>
+<img src="../../figures/ch17-operands.svg" alt="The shared tiles of block (0, 0) in phase 0: tileA holds 1 2 and 5 6, tileB holds 1 0 and 0 1. Row 0 of tileA and column 1 of tileB are coloured by the threads that wrote them: 1 by thread (0,0), 2 by thread (0,1), 0 by thread (0,1) and 1 by thread (1,1). Thread (0, 1) computes 1 times 0 plus 2 times 1 = 2. It copied 2 of its 4 operands; its neighbours copied the other 2.">
+<figcaption><b>Figure 17.4</b> The operands of thread (0, 1) in phase 0. Other threads of the block copied 2 of the 4 operands.</figcaption>
 </figure>
 
-### 17.3.3 The inner product and the result
+<div class="exercises">
 
-Lines 64 to 70 add the 16 products of row `y` of `TILE_A` and column `x` of `TILE_B` to `sum`.
-`TILE_A[y * 16 + k]` walks along a row of the A tile, and `TILE_B[k * 16 + x]` walks down a column
-of the B tile. The loop is a `while` loop with the attribute `#[unroll]`, for the reason given in
-Section 17.5. The variable `sum` is local to the thread, so it stays in a register for the whole
-kernel.
+Exercises
 
-After 4,096 / 16 = 256 steps, each `sum` holds the complete dot product. Lines 76 to 80 write it
-through the `DisjointSlice` exactly as the naive kernel does: `index_2d::<N>()` returns the index of
-the thread's element, or `None` for a thread outside the matrix, and `get_mut` gives the thread a
-mutable reference to its own element only.
+17.1 Carry out both phases of block \\((0, 1)\\), which computes \\(c_{02}\\), \\(c_{03}\\),
+\\(c_{12}\\) and \\(c_{13}\\). Which values does thread \\((1, 0)\\) copy in each phase?<br>
+17.2 With \\(T = 4\\), the whole example is a single block. How many phases does it run, and which
+values does thread \\((2, 3)\\) copy?<br>
+17.3 In phase \\(t\\), which thread of block \\((by, bx)\\) copies \\(a_{i, s}\\)? Express \\(ty\\)
+and \\(tx\\) in terms of \\(i\\), \\(s\\), \\(by\\), \\(t\\) and \\(T\\).
 
-## 17.4 Errors in the use of shared memory
+</div>
 
-We now break the conditions of Section 17.2.3 one at a time and run the result. The broken kernels
-are copies of `tiled16` with 1 change each, run on matrices with \\(N\\) = 512 so that every element
-of \\(C\\) can be compared with a product computed on the CPU in double precision. An element counts
-as wrong when it differs from the exact value by more than 10<sup>−3</sup>.
+## 17.4 The algorithm
 
-The first copy omits the barrier of line 62, so a thread may read a tile before the other threads
-have written it. The second omits the barrier of line 71, so a fast thread may overwrite a tile in
-step \\(k_0 + 16\\) while a slower one still reads it in step \\(k_0\\). Each copy ran 3 times:
+### 17.4.1 The barrier
 
-```console
-correct      0 of 262144 wrong
-no barrier 1 260639 of 262144 wrong
-no barrier 1 260441 of 262144 wrong
-no barrier 1 260369 of 262144 wrong
-no barrier 2 45016 of 262144 wrong
-no barrier 2 44704 of 262144 wrong
-no barrier 2 40940 of 262144 wrong
-```
+In Figure 17.4, thread \\((0, 1)\\) reads values that other threads wrote. The threads of a block
+do not move in lockstep: 1 thread may run ahead while another falls behind, because their warps
+are scheduled independently and their memory reads finish at different times. When threads
+exchange data through shared memory, they need a meeting point where all of them wait for one
+another.
 
-Without the first barrier, 99.4% of the 262,144 elements are wrong. The reads of a step follow the
-writes immediately, and almost every dot product meets at least 1 slot that another thread has not
-filled yet. Without the second barrier, about 17% are wrong. That barrier is needed only when a
-thread runs a whole step ahead of another, which happens less often. In both cases the number of
-wrong elements changes from run to run, because the count is set by the order in which the warps of a
-block happen to run. Neither program reported an error, and both compiled without a warning,
-because a missing barrier breaks no rule that the compiler checks.
+<div class="definition">
 
-The third copy declares `TILE_A` with 240 elements instead of 256, so that the 16 threads with
-`y` = 15 write slots 240 to 255, past the end of the array:
+<span class="box-label">Definition 17.2</span> **Barrier.** A **barrier** is a point in a kernel
+that no thread of a block may pass until every thread of the block has reached it. The writes to
+shared memory that a thread made before the barrier are visible to every thread of the block after
+it. In cuda-oxide a barrier is `thread::sync_threads()`, and in CUDA C++ `__syncthreads()`.
 
-```rust,ignore
-static mut TILE_A: SharedArray<f32, 240> = SharedArray::UNINIT;
-```
+*Example.* In Figure 17.5, thread 3 arrives first and waits; thread 1 arrives last, and then all 4
+threads continue together.
 
-```console
-short tile launch: true
-short tile sync: Ok(())
-short tile   0 of 262144 wrong
-```
-
-The launch succeeded, the kernel finished without an error, and every result was correct. The 16
-writes, and the later reads of the same slots, went to the 64 bytes of shared memory after
-`TILE_A`, and in this build nothing else in the kernel used those bytes. With another arrangement
-of the shared variables, the same writes would overwrite part of `TILE_B`, and the results would
-be wrong, again without an error. An index into shared memory is correct only because the
-programmer has shown it to be.
-
-## 17.5 Loop forms in the inner product
-
-Section 9.7 found that cuda-oxide does not unroll a `for` loop over a range, and that a fixed-count
-loop written as a `while` loop with `#[unroll]` is unrolled. The kernel `tiled16_for` is `tiled16`
-with the inner loop written as a `for` loop:
-
-```rust,ignore
-pub fn tiled16_for(a: &[f32], b: &[f32], mut c: DisjointSlice<f32, Index2D<N>>) {
-    // ...
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:105:108}}
-    // ...
-}
-```
-
-The 2 kernels perform the same arithmetic on the same values in the same order, and they produce
-identical results, with the same maximum error. Their speeds differ:
-
-```console
-  tiled16, while     501.66 ms    274.0 GFLOP/s  max error 3.4e-5
-  tiled16, for       681.05 ms    201.8 GFLOP/s  max error 3.4e-5
-```
-
-The `for` loop takes 681.05 / 501.66 = 1.36 times as long, and its speed is 26% lower. An unrolled loop of 16 iterations is a straight sequence of 16
-multiply-adds whose shared-memory addresses are fixed offsets from 2 base addresses. A loop that is
-not unrolled must, in each iteration, increment its counter, compare it with 16, branch, and compute
-the 2 addresses again. In a loop body that contains only 1 multiply-add and 2 reads, this overhead
-is a large fraction of the work. For this reason, every fixed-count loop on the hot path of the
-kernels in this book is a `while` loop with `#[unroll]`.
-
-## 17.6 The tile size as a const generic parameter
-
-### 17.6.1 Static shared memory and generic parameters
-
-The tile width 16 appears in `tiled16` as a literal: in the length of the 2 arrays, in the slot
-formula, in the inner loop and in the step of the outer loop. To measure other tile sizes, we would
-like to write the kernel once with the width as a parameter. Rust provides **const generics** for
-this purpose: a function declared as `fn tiled<const T: usize>(...)` takes a compile-time constant
-`T`, and the compiler produces a separate copy of the function, a **specialization**, for every
-value of `T` that the program uses. Inside each specialization `T` is a constant, so a loop
-`while k < T` has a fixed count and can be unrolled.
-
-The direct translation declares the tile with a length that depends on `T`:
-
-```rust,ignore
-#[kernel]
-#[launch_bounds(1024)]
-pub fn tiled<const T: usize>(a: &[f32], mut c: DisjointSlice<f32, Index2D<N>>) {
-    static mut TILE_A: SharedArray<f32, { T * T }> = SharedArray::UNINIT;
-    // ...
-}
-```
-
-The Rust compiler rejects it. It reports the same error twice, once for each `T` in `{ T * T }`;
-the first report reads:
-
-```console
-error[E0401]: can't use generic parameters from outer item
-  --> src/main.rs:18:47
-   |
-17 |     pub fn tiled<const T: usize>(a: &[f32], mut c: DisjointSlice<f32, Index2D<N>>) {
-   |                        - const parameter from outer item
-18 |         static mut TILE_A: SharedArray<f32, { T * T }> = SharedArray::UNINIT;
-   |                    ------                     ^ use of generic parameter from outer item
-   |                    |
-   |                    generic parameter used in this inner static item
-   |
-   = note: nested items are independent from their parent item for everything except for privacy and name resolution
-   = note: a `static` is a separate item from the item that contains it
-```
-
-The 2 notes give the reason. A `static` declared inside a function is still a separate item of the
-program, with exactly 1 instance; only its name is local to the function. A generic function, on
-the other hand, exists once for every value of `T`. A single static cannot have a different length
-in each specialization, so Rust does not allow the type of a static to mention a generic parameter
-of the function that contains it.
-
-### 17.6.2 Tiles in dynamic shared memory
-
-CUDA offers a second kind of shared memory, whose size is chosen when the kernel is launched rather
-than when it is compiled. **Dynamic shared memory** is a single region per block, whose size in
-bytes the host program passes in the launch configuration. In cuda-oxide,
-`DynamicSharedArray::<f32>::get()` returns a raw pointer `*mut f32` to the start of the region, and
-`DynamicSharedArray::<f32>::offset(bytes)` returns a pointer `bytes` bytes further on. Since the
-size is not part of any type, a generic kernel can use it.
-
-Listing 17.3 shows the generic kernel. Lines 130 and 131 take the 2 tiles from the same region:
-tile A starts at byte 0, and tile B starts at byte \\(4T^2\\), immediately after the \\(T^2\\) floats
-of tile A. Figure 17.5 shows the layout for \\(T\\) = 16: 2,048 bytes, with tile B starting at byte
-1,024.
-
-<p class="listing"><b>Listing 17.3</b> The generic tiled kernel.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:121:169}}
-    // ...
-}
-```
+</div>
 
 <figure>
-<img src="../../figures/ch17-dynamic.svg" alt="A bar of 2,048 bytes of dynamic shared memory for tiled with T = 16. Bytes 0 to 1,023 hold tile A, reached with DynamicSharedArray get; bytes 1,024 to 2,047 hold tile B, reached with offset of T times T times 4, which is 1,024. The launch asks for 2,048 bytes and the contract allows 512 to 8,192.">
-<figcaption><b>Figure 17.5</b> The 2 tiles of <code>tiled::&lt;16&gt;</code> in 1 region of dynamic shared memory.</figcaption>
+<img src="../../figures/ch17-barrier.svg" alt="4 threads of a block as horizontal bars on a time axis, with a vertical line for the barrier. Thread 3 arrives first, then thread 0, thread 2 and finally thread 1; each early thread waits on a dotted line until the barrier. After the barrier, all 4 bars start at the same time.">
+<figcaption><b>Figure 17.5</b> A barrier. The 4 threads arrive at different times, wait (dotted), and leave together.</figcaption>
 </figure>
 
-The attributes of lines 123 and 124 differ from those of `tiled16`. An exact block shape such as
-`block = (16, 16, 1)` must be written as literal numbers, so it cannot depend on `T`. The generic
-kernel therefore states only an upper bound, `#[launch_bounds(1024)]`, the largest block that the
-hardware allows. The contract field `dynamic_shared_range = (512, 8192)` states the sizes of
-dynamic shared memory that the kernel accepts: from 512 bytes for \\(T\\) = 8 to 8,192 bytes for
-\\(T\\) = 32. The host checks both before every launch. When it compiles a kernel that uses
-`DynamicSharedArray`, cuda-oxide also prints a warning that the launch configuration must provide
-enough shared memory. The warning is a reminder of that obligation, and the kernel compiles.
+### 17.4.2 The tiled kernel
 
-The body of the loop is the body of `tiled16` with 16 replaced by `T`, and with the tiles reached
-through the 2 pointers. A write through a raw pointer, `*tile_a.add(y * T + x) = ...`, is `unsafe`
-for the same 3 reasons as a write to a `SharedArray`, and the `SAFETY` comment of lines 141 to 143
-states the same conditions in terms of `T`.
-
-A single change goes beyond renaming. Lines 150 to 158 add the \\(T\\) products of a step into a new
-variable `part`, and then add `part` to `sum`. The kernel performs the same number of operations
-as `tiled16`, but in a different order: for \\(T\\) = 16, `sum` receives 256 partial sums of 16
-products each, where `tiled16` adds 4,096 products one at a time into a single running total.
-Section 8.2 showed that a float sum loses accuracy as its running total grows large compared with
-each term. Summing in groups keeps each total small for longer, and the measured maximum error
-falls from 3.4 × 10<sup>−5</sup> for `tiled16` to 6.3 × 10<sup>−6</sup> for `tiled::<16>`. It
-is 3.9 × 10<sup>−6</sup> for \\(T\\) = 32, with 128 groups of 32 products, and
-1.1 × 10<sup>−5</sup> for \\(T\\) = 8, with 512 groups of 8. All are far inside the tolerance of
-10<sup>−3</sup>.
-
-### 17.6.3 A generic device function
-
-The inner product of a step is a natural candidate for a function of its own. The attribute
-`#[device]` compiles a function for the GPU so that kernels can call it, and `tile_dot` in
-Listing 17.4 is generic over `T` in the same way as the kernel.
-
-<p class="listing"><b>Listing 17.4</b> The inner product of a row and a column of a tile, as a device function.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:212:232}}
-}
-```
-
-The function is `unsafe` because its correctness depends on its caller: the 2 pointers must
-address \\(T^2\\) floats each, and no thread may write them during the call. The `# Safety` section
-of its documentation states this requirement. The kernel `tiled_fn` is `tiled` with lines 150 to
-158 replaced by a call that meets the requirement, since it stands between the 2 barriers:
-
-```rust,ignore
-pub fn tiled_fn<const T: usize>(
-    // ...
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:198:199}}
-    // ...
-}
-```
-
-The 2 kernels perform the same operations in the same order, and their results are identical. Their
-speeds are not: `tiled_fn::<16>` ran at 168.2 GFLOP/s and `tiled::<16>` at 271.6 GFLOP/s, 38% less.
-The difference comes from the way `#[device]` compiles a generic function. The macro marks every
-specialization of a generic device function `#[inline(never)]`, so that each specialization remains
-a separate function that cuda-oxide can find and translate. The kernel therefore calls `tile_dot`
-once per step, with the 2 tile addresses as arguments, instead of containing its loop. For a short
-loop on the hot path of a kernel, we write the loop in the kernel itself.
-
-### 17.6.4 Launching the specializations
-
-The host program names each specialization with a turbofish, `::<T>`, in 2 places: when it
-prepares the launch and when it launches. The launch configuration must match `T` in 3 respects:
-the block must have \\(T \times T\\) threads, the grid must have \\(N/T\\) blocks in each direction,
-and the dynamic shared memory must hold 2 tiles, \\(2T^2 \times 4\\) bytes. The function
-`tiled_config::<T>` computes all 3 from `T`, so that they cannot disagree with it.
-
-<p class="listing"><b>Listing 17.5</b> The launch configuration of <code>tiled::&lt;T&gt;</code>, and the preparation of the specializations.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:235:241}}
-
-fn main() -> Result<(), Error> {
-    // ...
-{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:305:308}}
-    // ...
-}
-```
-
-For \\(T\\) = 16 the function returns a grid of 4,096 / 16 = 256 blocks in each direction, blocks
-of 16 × 16 = 256 threads, and 2 × 16 × 16 × 4 = 2,048 bytes of dynamic shared memory. Figure 17.6
-lists the 3 specializations of `tiled`.
+Each phase repeats the same 4 steps: copy the tiles, wait, compute, wait (Figure 17.6). The 2 waits
+are barriers, and Section 17.6 explains why each of them is needed.
 
 <figure>
-<img src="../../figures/ch17-generic.svg" alt="1 card, tiled with a const generic T, fans out into 3 kernels. tiled::<8>: 64 threads, 512 bytes of shared memory, 262,144 blocks, 8 FLOP per float. tiled::<16>: 256 threads, 2,048 bytes, 65,536 blocks, 16 FLOP per float. tiled::<32>: 1,024 threads, 8,192 bytes, 16,384 blocks, 32 FLOP per float.">
-<figcaption><b>Figure 17.6</b> 1 source, 3 kernels: the launch shape and the reuse grow with T.</figcaption>
+<img src="../../figures/ch17-cycle.svg" alt="4 boxes in a row: load tiles, global to shared; barrier, all loads complete; compute, T multiply-adds; barrier, all reads complete. An arrow runs from the last box back to the first, labelled next phase: t = t + 1, while t is less than the ceiling of K over T.">
+<figcaption><b>Figure 17.6</b> 1 phase of the tiled kernel. The cycle repeats ⌈K/T⌉ times.</figcaption>
 </figure>
 
-The launch contract still checks what it can. A preparation of `tiled::<16>` with 16,384 bytes of
-dynamic shared memory is refused before the kernel runs:
+Every thread executes the following procedure. The arrays *tileA* and *tileB* live in shared
+memory, 1 pair per block.
+
+<div class="algo">
+<p class="algo-name">Tiled-Kernel(\(A, B, C, M, K, N\))</p>
+<ol>
+<li>\(tx = \textit{threadIdx.x}\), \(ty = \textit{threadIdx.y}\)</li>
+<li>\(\textit{row} = \textit{blockIdx.y} \cdot T + ty\), \(\textit{col} = \textit{blockIdx.x} \cdot T + tx\)</li>
+<li>\(\textit{sum} = 0\)</li>
+<li>for \(t \in [0, \lceil K/T \rceil)\) {</li>
+<li style="--d:1"><span class="c" style="float:none;margin-left:0">// copy 1 value of each tile; 0 outside the matrix</span></li>
+<li style="--d:1">\(\textit{tileA}[ty][tx] = a_{\textit{row},\, tT + tx}\) if \(\textit{row} \in [0, M)\) and \(tT + tx \in [0, K)\), else 0</li>
+<li style="--d:1">\(\textit{tileB}[ty][tx] = b_{tT + ty,\, \textit{col}}\) if \(tT + ty \in [0, K)\) and \(\textit{col} \in [0, N)\), else 0</li>
+<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until both tiles are full</span></li>
+<li style="--d:1">for \(u \in [0, T)\) {</li>
+<li style="--d:2">\(\textit{sum} = \textit{sum} + \textit{tileA}[ty][u] \cdot \textit{tileB}[u][tx]\)</li>
+<li style="--d:1">}</li>
+<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until every thread has read the tiles</span></li>
+<li>}</li>
+<li>if \(\textit{row} \in [0, M)\) and \(\textit{col} \in [0, N)\) {</li>
+<li style="--d:1">\(c_{\textit{row}, \textit{col}} = \textit{sum}\)</li>
+<li>}</li>
+</ol>
+</div>
+
+Lines 1 and 2 are the same as in
+<span style="font-variant: small-caps">Direct-Kernel</span>. Lines 6 and 7 are the joint copy of
+Section 17.3, and lines 9 to 11 add 1 phase of the sum, the inner sum over \\(u\\) of the formula
+in Section 17.2. Lines 8 and 12 are the 2 barriers, and the zeros in lines 6 and 7 handle matrices
+whose size is not a multiple of \\(T\\); Section 17.6 covers both. Lines 14 to 16 store the result,
+and they replace the early return of the direct kernel, for a reason that Section 17.6.5 gives.
+
+## 17.5 Counting the fetches again
+
+In each phase, every thread fetches 2 values from global memory, 1 for each tile. Block \\((0, 0)\\)
+has 4 threads and runs 2 phases, so it makes \\(4 \cdot 2 \cdot 2 = 16\\) fetches, half of the 32 in
+the direct kernel. Over all 4 blocks we count 64 fetches instead of 128 (Figure 17.7).
+
+<figure>
+<img src="../../figures/ch17-fetches.svg" alt="2 horizontal bars. The direct kernel makes 128 fetches from global memory in the 4 by 4 example; the tiled kernel with 2 by 2 tiles makes 64. A dashed line at 32 marks the number of different values in A and B.">
+<figcaption><b>Figure 17.7</b> Fetches from global memory in the 4 × 4 example.</figcaption>
+</figure>
+
+In general a block makes \\(2T^2\\) fetches per phase. When \\(T\\) divides every dimension, the
+grid has \\((M/T)(N/T)\\) blocks and each block runs \\(K/T\\) phases, so the total is
+
+\\[ \frac{M}{T} \cdot \frac{N}{T} \cdot \frac{K}{T} \cdot 2T^2 = \frac{2MNK}{T}. \\]
+
+Tiling thus divides the traffic to global memory by exactly \\(T\\): each value of \\(A\\) is
+fetched \\(N/T\\) times instead of \\(N\\) times, and each value of \\(B\\) \\(M/T\\) times. With
+\\(T = 16\\), the 1,024 × 1,024 product moves 0.54 GB instead of 8.6 GB. In the units of
+Chapter 9, the kernel performs \\(T\\) FLOP per float fetched from global memory, 16 instead of 1.
+
+What limits \\(T\\)? A block holds at most 1,024 threads, so \\(T \le 32\\). The 2 tiles take
+\\(2T^2\\) values of 4 bytes, which for \\(T = 16\\) is 2 KB of shared memory and for \\(T = 32\\)
+8 KB, well within the 48 KB a block may use. Section 17.8 shows that the largest \\(T\\) is not the
+fastest.
+
+<div class="exercises">
+
+Exercises
+
+17.4 With \\(T = 4\\), the example is 1 block. How many fetches does it make, and how often is each
+value fetched?<br>
+17.5 Let \\(M = N = K = 100\\) and \\(T = 16\\). How many phases does each block run, and what
+fraction of the values copied in the last phase are zeros?<br>
+17.6 For \\(M = N = K = 4{,}096\\) and \\(T = 32\\), how many bytes does the tiled kernel fetch
+from global memory?
+
+</div>
+
+## 17.6 Correctness
+
+The threads of a block run at different speeds, yet they read and write the same shared-memory
+slots. Without coordination, 2 things can go wrong: a thread can read a slot before it has been
+filled, or overwrite a slot that another thread has not finished reading. We now remove the
+barriers of <span style="font-variant: small-caps">Tiled-Kernel</span> one at a time and follow each
+error on our example.
+
+### 17.6.1 The first barrier: copy before computing
+
+Suppose we delete line 8. In phase 1, thread \\((0, 0)\\) finishes its copying early and starts
+computing. It needs \\(\textit{tileB}[1][0]\\), which thread \\((1, 0)\\) is about to fill with
+\\(b_{30} = 1\\), but thread \\((1, 0)\\) is running late (Figure 17.8).
+
+<figure>
+<img src="../../figures/ch17-no-barrier1.svg" alt="A timeline of phase 1 without the first barrier. Thread (0,0) loads, then computes 3 times 2 plus 4 times tileB[1][0]. Thread (1,0) is late: its load of tileB[1][0] = 1 is still running when thread (0,0) reads the slot, marked by a red line. Notes: thread (0,0) reads tileB[1][0] before it is refilled; the stale value 0 gives 3 times 2 plus 4 times 0 = 6 in place of 10; result c00 = 7 in place of 11.">
+<figcaption><b>Figure 17.8</b> Without line 8. Thread (0, 0) reads a slot before thread (1, 0) refills it, and picks up the value left over from phase 0.</figcaption>
+</figure>
+
+The slot still holds \\(b_{10} = 0\\) from phase 0. Thread \\((0, 0)\\) adds
+\\(3 \cdot 2 + 4 \cdot 0 = 6\\) in place of 10, and we get \\(c_{00} = 1 + 6 = 7\\) instead of 11.
+Line 8 prevents this: no thread may start computing until every thread has finished copying.
+
+### 17.6.2 The second barrier: compute before the next copy
+
+Now we restore line 8 and delete line 12 instead. In phase 0, thread \\((1, 1)\\) finishes its
+multiply-adds early, moves on to phase 1, and stores \\(b_{31} = 2\\) in
+\\(\textit{tileB}[1][1]\\). But thread \\((0, 1)\\) is still in phase 0 and still needs the old
+value, \\(b_{11} = 1\\) (Figure 17.9).
+
+<figure>
+<img src="../../figures/ch17-no-barrier2.svg" alt="A timeline without the second barrier. Thread (0,1) is still computing phase 0, 1 times 0 plus 2 times tileB[1][1]. Thread (1,1) has finished its phase-0 load and compute and starts the phase-1 load, which stores tileB[1][1] = 2; a red line marks the moment thread (0,1) reads the slot. Notes: thread (1,1) overwrites tileB[1][1] from 1 to 2 during phase 0; thread (0,1) then computes 1 times 0 plus 2 times 2 = 4 in place of 2; result c01 = 15 in place of 13.">
+<figcaption><b>Figure 17.9</b> Without line 12. Thread (1, 1) overwrites a slot while thread (0, 1) still needs the old value.</figcaption>
+</figure>
+
+Thread \\((0, 1)\\) computes \\(1 \cdot 0 + 2 \cdot 2 = 4\\) in place of 2 in phase 0, and phase 1
+adds the correct 11, so this time we get \\(c_{01} = 15\\) instead of 13. Line 12 prevents this: no
+thread may overwrite a tile until every thread has finished reading it. With both barriers in
+place, every phase follows the same orderly schedule (Figure 17.10).
+
+<figure>
+<img src="../../figures/ch17-schedule.svg" alt="A timeline of 4 threads over 1 phase with both barriers. The loads of phase t end at different times, and each thread waits on a dotted line until barrier 1. All 4 threads then compute phase t, meet at barrier 2, and start the loads of phase t + 1.">
+<figcaption><b>Figure 17.10</b> 1 phase with both barriers. The dotted segments show threads waiting for the slowest thread.</figcaption>
+</figure>
+
+The 2 errors are of different kinds. The first barrier orders a write before a read of the same
+slot: the reading thread needs the value the writing thread produces, a **read-after-write**
+dependence. The second barrier orders a read before the next write of the same slot: the writer
+needs nothing from the reader, and the conflict exists only because both use the same slot in
+consecutive phases, a **write-after-read** dependence. Both are data races in the sense of
+Definition 16.8.
+
+### 17.6.3 The broken kernels on the GPU
+
+Figures 17.8 and 17.9 show what can happen; whether it happens depends on the timing of the
+threads. We built the Rust kernel twice more, once without each barrier, and ran each 3 times on
+the 4 × 4 example with \\(T = 2\\) and 5 times on matrices of 512 × 512 with \\(T = 16\\), comparing
+every entry with the CPU. On the example, all 6 runs printed `equal to the product computed by
+hand: yes`. At 512 × 512 the 2 kernels printed:
 
 ```console
-16384 bytes: tiled: dynamic shared memory is 16384 bytes; contract permits 512..=8192
+without barrier 1, n = 512, T = 16: 260406 of 262144 entries wrong
+without barrier 1, n = 512, T = 16: 260433 of 262144 entries wrong
+without barrier 1, n = 512, T = 16: 260452 of 262144 entries wrong
+without barrier 1, n = 512, T = 16: 260531 of 262144 entries wrong
+without barrier 1, n = 512, T = 16: 260351 of 262144 entries wrong
 ```
-
-The block shape, however, is no longer checked exactly, because the contract states only the upper
-bound of 1,024 threads. A launch of `tiled::<16>` with blocks of 8 × 8 threads, on matrices with
-\\(N\\) = 512, is accepted, and it computes the wrong product. Each block has 64 threads instead of
-256, so it fills only a quarter of each tile, and its threads read the other 3 quarters while they
-still hold whatever was there before:
 
 ```console
-tiled::<16> with 8 x 8 threads: sync Ok(())
-tiled::<16>, 8 x 8 65498 of 262144 wrong
+without barrier 2, n = 512, T = 16: 24255 of 262144 entries wrong
+without barrier 2, n = 512, T = 16: 24704 of 262144 entries wrong
+without barrier 2, n = 512, T = 16: 27347 of 262144 entries wrong
+without barrier 2, n = 512, T = 16: 25287 of 262144 entries wrong
+without barrier 2, n = 512, T = 16: 23913 of 262144 entries wrong
 ```
 
-This is the cost of moving the tile size into a generic parameter: the exact block shape moves from
-a checked contract into the program's own code. Deriving every part of the configuration from `T`
-in a single function, as `tiled_config::<T>` does, keeps the 2 from disagreeing.
+On the 4 × 4 example both broken kernels happened to give the right product, in every run. A
+block of 2 × 2 threads is 4 threads of a single warp, and the hardware issued their loads and their
+multiply-adds together, so no thread ran ahead of another. A missing barrier does not guarantee a
+wrong result; it allows one. At 512 × 512, with blocks of 256 threads in 8 warps that the SM
+schedules independently, the errors appeared at once. Without the first barrier, 99.3% of the
+entries were wrong: almost every dot product met at least 1 slot that its writer had not filled
+yet. Without the second, about 9.5% were wrong, because the error needs 1 warp to finish a whole
+phase while another is still in it. The count changed from run to run, since it follows the
+order in which the warps happen to run. The CUDA C++ kernels behaved in the same way, with 260,014
+to 260,438 and 23,424 to 25,694 wrong entries. Neither program reported an error, and both compiled
+without a warning: a missing barrier breaks no rule that a compiler checks.
 
-## 17.7 Performance
+### 17.6.4 The proof
 
-Listing 17.6 shows the output of the complete program on the measured GPU. Each line gives the
-average time of 2 or 3 runs after a warm-up, the resulting speed for \\(2N^3\\) =
-137.4 × 10<sup>9</sup> FLOP, and the largest difference from a double-precision product over 64
-sampled elements of \\(C\\). Repeated runs of the program differed by up to 24%, because the
-GPU shares its power budget with the CPU, and a busy CPU lowers the clock of the GPU. The run
-shown is the fastest of 9; in the 3 quietest runs, every speed agreed within 2%.
+We can now prove that the kernel is correct. The idea is to watch the variable *sum* of 1 thread
+grow, phase by phase, as in Figure 17.11: before phase \\(t\\), it holds exactly the first \\(tT\\)
+terms of its entry of \\(C\\).
 
-<p class="listing"><b>Listing 17.6</b> The output of the program.</p>
+<figure>
+<img src="../../figures/ch17-invariant.svg" alt="Row 0 of A, 1 2 3 4, and column 0 of B, 1 0 2 1, drawn as 2 rows of cells: the first 2 cells of each in blue (phase 0), the last 2 in amber (phase 1). Below, 3 bars show how much of the dot product sum covers: at the start of t = 0 no terms, sum = 0; at the start of t = 1 the terms s in [0, 2), sum = 1 times 1 plus 2 times 0 = 1; at the end, t = 2, the terms s in [0, 4), sum = 1 + 3 times 2 + 4 times 1 = 11 = c00.">
+<figcaption><b>Figure 17.11</b> The loop invariant for thread (0, 0) with T = 2. Before phase t, sum covers the terms s ∈ [0, tT).</figcaption>
+</figure>
+
+<div class="theorem">
+
+<span class="box-label">Theorem 17.1</span> When <span style="font-variant: small-caps">Tiled-Kernel</span>
+finishes, every entry of \\(C\\) equals the corresponding entry of \\(AB\\).
+
+</div>
+
+<div class="proof">
+
+*Proof.* Fix a thread with \\(\textit{row} \in [0, M)\\) and \\(\textit{col} \in [0, N)\\), and
+treat entries beyond the edge of a matrix as 0. We show that the loop of lines 4 to 13 maintains
+the invariant
+
+\\[ \text{at the start of phase } t, \qquad \textit{sum} = \sum_{s \in [0,\\, tT)}
+a_{\textit{row}, s}\\; b_{s, \textit{col}}. \\]
+
+*Initialization.* Before phase 0, \\(\textit{sum} = 0\\), which is the empty sum.
+
+*Maintenance.* Assume the invariant holds at the start of phase \\(t\\). In lines 6 and 7, the
+threads of the block fill both tiles completely (Section 17.3). Because of the barrier in line 8,
+every one of these stores is complete and visible before any thread reaches line 10; this excludes
+the error of Section 17.6.1. Hence \\(\textit{tileA}[ty][u] = a_{\textit{row}, tT + u}\\) and
+\\(\textit{tileB}[u][tx] = b_{tT + u, \textit{col}}\\) for every \\(u \in [0, T)\\), and lines 9
+to 11 add exactly the terms with \\(s \in [tT, tT + T)\\). Because of the barrier in line 12, no
+thread overwrites a tile for phase \\(t + 1\\) while another thread is still reading it in phase
+\\(t\\); this excludes the error of Section 17.6.2. So the invariant holds at the start of phase
+\\(t + 1\\).
+
+*Termination.* The loop ends with \\(t = \lceil K/T \rceil\\), so \\(tT \ge K\\). All terms with
+\\(s \ge K\\) are 0, hence \\(\textit{sum} = c_{\textit{row}, \textit{col}}\\), and line 15
+stores it.
+
+</div>
+
+The proof uses each barrier exactly once, in the maintenance step, and each use excludes 1 of the
+2 errors. A thread outside \\(C\\) is not covered by the proof, because it stores nothing; but it
+still takes part in lines 6 to 12, and the next section shows why it must.
+
+### 17.6.5 Matrices of any size
+
+Nothing in the algorithm requires the dimensions to be multiples of \\(T\\). Take \\(C\\) of size
+3 × 3 with \\(T = 2\\). We still need 4 blocks, they stick out past the edge of \\(C\\), and 7 of
+their 16 threads have no entry to compute. If also \\(K = 3\\), the second tile of \\(A\\) reaches
+for a column that does not exist (Figure 17.12).
+
+<figure>
+<img src="../../figures/ch17-edges.svg" alt="Left: a 4 by 4 grid of threads from 4 blocks of 2 by 2 laid over a 3 by 3 matrix C, outlined in black. The 9 cells inside C are coloured by block; the 7 cells in row 3 and column 3 are dashed: threads with no entry. Right: tileA in phase 1 when K = 3. Its left column holds A[0][2] and A[1][2]; its right column would hold column 3 of A, which does not exist, so both slots hold 0.">
+<figcaption><b>Figure 17.12</b> Left: 2 × 2 blocks over a 3 × 3 matrix; dashed cells are threads with no entry. Right: a tile that extends past the last column of A is filled with zeros.</figcaption>
+</figure>
+
+For a missing value, lines 6 and 7 store 0, and a product with 0 adds nothing. Threads with no
+entry need more care, and they explain the only structural difference between the 2 kernels. In
+the direct kernel such a thread returns at once. In the tiled kernel it must not: a barrier
+releases the block only when every thread has arrived, and a thread that has returned never
+arrives, so the rest of the block would wait forever, or, on some GPUs, continue with an undefined
+result. Instead, these threads stay in the loop, copy zeros, wait at every barrier with everyone
+else, and skip only the final store in lines 14 to 16. Both programs check the 3 × 3 product with
+\\(T = 2\\), a 128 × 64 by 64 × 96 product and a 1,000 × 1,000 product with \\(T = 16\\), every
+entry of each.
+
+<div class="rule-box">
+
+<span class="box-label">Rule</span> Every thread of a block must reach every barrier. Never place a
+barrier where some threads of the block can skip it.
+
+</div>
+
+<div class="exercises">
+
+Exercises
+
+17.7 Without line 8, thread \\((1, 1)\\) might read \\(\textit{tileA}[1][0]\\) in phase 1 before
+the slot is refilled. Which value would it use, and what would \\(c_{11}\\) become?<br>
+17.8 Explain why the proof of Theorem 17.1 breaks when a thread returns early, even though that
+thread writes no entry of \\(C\\).<br>
+17.9 Without line 12, could \\(c_{00}\\) become wrong in our example? Which thread would have to
+run ahead, and which slot would it overwrite?
+
+</div>
+
+## 17.7 Implementation
+
+### 17.7.1 Shared arrays
+
+In CUDA C++ an array in shared memory is a local array declared `__shared__`. Its length must be
+known at compile time, and a template parameter qualifies, so `matmulTiled<T>` declares 2 tiles of
+`T` × `T` floats and the compiler builds 1 kernel for each `T` the program uses.
+
+In cuda-oxide a fixed-size array in shared memory is a `static mut` of type `SharedArray<f32, N>`
+declared inside the kernel, with `N` known at compile time; Chapter 18 uses 1 for comparison. A
+`static` declared inside a function is a separate item of the program, with exactly 1 instance,
+and Rust does not allow its type to mention a generic parameter of the function that contains it:
+`SharedArray<f32, { T * T }>` inside `fn matmul_tiled<const T: usize>` is refused with error
+E0401. A kernel generic over the tile width therefore takes its tiles from **dynamic shared
+memory**, a single region per block whose size in bytes the host passes in the launch
+configuration. `DynamicSharedArray::<f32>::get()` returns a raw pointer `*mut f32` to the start of
+the region, and `DynamicSharedArray::<f32>::offset(bytes)` a pointer `bytes` bytes further on.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:76:77}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:42:43}}
+```
+
+</div>
+</div>
+
+*tileA* starts at byte 0 of the region and *tileB* at byte \\(4T^2\\), right after the \\(T^2\\)
+floats of *tileA*. Both programs store a tile as a flat array of \\(T^2\\) values in row-major order
+(Figure 17.13): the C++ array `tile_a[ty][tx]` is laid out in this way by the compiler, and the
+Rust kernel writes the index \\(ty \cdot T + tx\\) of Definition 16.2 itself.
+
+<figure>
+<img src="../../figures/ch17-flat-tile.svg" alt="Left: a 2 by 2 tile with slots (0,0), (0,1), (1,0) and (1,1), 1 colour per thread. Right: the same 4 slots in a flat array at indices 0 to 3, in row-major order; slot (1,0) at index 2 is outlined. The rule: index(ty, tx, T) = ty times T plus tx, so (1, 0) is at 1 times 2 plus 0 = 2. With T = 16 the array holds 256 values.">
+<figcaption><b>Figure 17.13</b> A 2 × 2 tile stored as a flat array of 4 slots. Slot (1, 0) is at 1 · 2 + 0 = 2.</figcaption>
+</figure>
+
+### 17.7.2 The tiled kernel
+
+Before reading the code, we trace where the data of 1 thread travel (Figure 17.14): each phase, 2
+values go from global memory into shared memory; from there, \\(2T\\) values feed the
+multiply-adds; at the end, a single store writes *sum* into \\(C\\).
+
+<figure>
+<img src="../../figures/ch17-path.svg" alt="4 boxes joined by arrows: global memory holding A and B, shared memory holding tileA and tileB, registers holding sum, and global memory holding C. Under the arrows: load, 2 values per phase; read, 2T values per phase; store, 1 value.">
+<figcaption><b>Figure 17.14</b> The path of data through 1 thread of the tiled kernel.</figcaption>
+</figure>
+
+The copy of lines 6 to 8:
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:85:99}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:50:57}}
+```
+
+</div>
+</div>
+
+The loop over `t` is line 4, and `a_col` and `b_row` are the indices \\(tT + tx\\) and
+\\(tT + ty\\) of lines 6 and 7. A value past the edge of a matrix becomes 0. The call to the barrier
+sits outside every `if`, so every thread reaches it, as the Rule requires.
+
+The Rust copy is split in 2 halves. The reads `a[row * k + a_col]` and `b[b_row * n + col]` are
+ordinary slice reads, bounds-checked like every slice access in safe Rust. The stores through the
+raw pointers `tile_a` and `tile_b` are not: the compiler cannot check how many threads write a slot
+of shared memory, or when, so every access to it must stand in an `unsafe` block. Each `unsafe`
+block carries a `// SAFETY:` comment, the Rust convention for stating why the block is sound, and
+the 2 comments of the kernel summarize Section 17.6: every thread writes only its own slot, which
+lies inside the tile because the block has \\(T \times T\\) threads, and the barriers keep writes and
+reads of the tiles apart. In C++ the same stores need no marking; the argument is the same, but the
+language does not ask for it.
+
+The phase sum of lines 9 to 12 and the store of lines 14 to 16:
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:101:108}}
+
+{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:113:119}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:59:62}}
+
+{{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:65:67}}
+```
+
+</div>
+</div>
+
+`tile_a.add(ty * T + u)` walks along row `ty` of *tileA*, and `tile_b.add(u * T + tx)` walks down
+column `tx` of *tileB*. The loop is a `while` loop with `#[unroll]`: inside each specialization of
+the generic kernel, `T` is a constant, so the loop has a fixed count and the compiler replaces it
+by \\(T\\) copies of its body. The C++ compiler unrolls the `for` loop over a template constant by
+itself. The final store goes through `DisjointSlice` exactly as in the direct kernel, guarded by
+`row < m && col < n`, and without any early return.
+
+### 17.7.3 The launch
+
+The launch configuration must match `T` in 3 respects: the block must have \\(T \times T\\) threads,
+the grid must cover \\(C\\), and in Rust the dynamic shared memory must hold 2 tiles,
+\\(2T^2 \cdot 4\\) bytes.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:123:130}}
+
+{{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:198:209}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:76:81}}
+```
+
+</div>
+</div>
+
+For \\(T = 16\\) and \\(M = N = 1{,}000\\), `tiled_config` returns a grid of 63 × 63 blocks of
+16 × 16 threads and 2,048 bytes of dynamic shared memory. The launch contract of the Rust kernel
+checks what it can. `dynamic_shared_range = (32, 8192)` accepts the 32 bytes of \\(T = 2\\) up to
+the 8,192 bytes of \\(T = 32\\), and `#[launch_bounds(1024)]` limits a block to 1,024 threads; the
+`requires` clause checks the buffer lengths as in Chapter 16. An exact block shape such as
+`block = (16, 16, 1)` must be written as literal numbers, so it cannot depend on `T`, and the
+contract cannot check that the block is \\(T \times T\\). That condition moves into the program:
+`tiled_config::<T>` derives the block, the grid and the shared memory from `T` in 1 place, and the
+`SAFETY` comment of the copy names it.
+
+<div class="exercises">
+
+Exercises
+
+17.10 Set `T` to 32. Predict the effect on fetches from global memory and on shared memory per
+block.<br>
+17.11 Launch `matmul_tiled::<16>` with blocks of 8 × 8 threads and 2,048 bytes of dynamic shared
+memory. Does the contract accept the launch? Which part of the `SAFETY` argument fails, and which
+entries of \\(C\\) are wrong?<br>
+17.12 Each thread of the tiled kernel performs 2 arithmetic operations for every 2 values it reads
+from shared memory. Design a variant in which each thread computes several entries of \\(C\\), so
+that every value read from shared memory is used more than once.
+
+</div>
+
+## 17.8 Measurements
+
+### 17.8.1 Results
+
+The measurements come from the Jetson Orin NX of Chapter 16 (8 SMs, 102 GB/s, an FP32 peak of
+2,400 GFLOP/s), with the method of Section 16.6.1. Both programs time the direct kernel and the
+tiled kernel with \\(T = 8\\), 16 and 32 on square matrices from 512 × 512 to 4,096 × 4,096.
+
+The Rust program prints:
 
 ```console
 $ cargo oxide run
-C = A B, 4096 x 4096 floats
-  naive              712.01 ms    193.0 GFLOP/s  max error 3.4e-5
-  tiled16, while     501.66 ms    274.0 GFLOP/s  max error 3.4e-5
-  tiled16, for       681.05 ms    201.8 GFLOP/s  max error 3.4e-5
-  tiled::<8>         940.22 ms    146.2 GFLOP/s  max error 1.1e-5
-  tiled::<16>        506.13 ms    271.6 GFLOP/s  max error 6.3e-6
-  tiled::<32>        630.65 ms    217.9 GFLOP/s  max error 3.9e-6
-  tiled_fn::<16>     817.22 ms    168.2 GFLOP/s  max error 6.3e-6
+C = A B on the 4 x 4 example, tiles of 2 x 2, 2 phases
+    11   13    8    8
+    27   29   24   24
+    43   45   40   40
+    59   61   56   56
+equal to the product computed by hand: yes
+
+Sizes that are not multiples of the tile width
+  m =    3, k =    3, n =    3, T =  2:       9 of       9 entries exact
+  m =  128, k =   64, n =   96, T = 16:   12288 of   12288 entries exact
+  m = 1000, k = 1000, n = 1000, T = 16: 1000000 of 1000000 entries exact
+
+C = A B, n x n; fetched: the modelled reads from global memory
+      n  kernel            ms   GFLOP/s  fetched MiB  fetch GB/s   exact
+    512  direct         1.462     183.6       1024.0       734.3     64 of 64
+    512  T = 8          1.918     140.0        128.0        70.0     64 of 64
+    512  T = 16         0.946     283.6         64.0        70.9     64 of 64
+    512  T = 32         1.133     237.0         32.0        29.6     64 of 64
+   1024  direct        15.561     138.0       8192.0       552.0     64 of 64
+   1024  T = 8         15.368     139.7       1024.0        69.9     64 of 64
+   1024  T = 16         8.192     262.1        512.0        65.5     64 of 64
+   1024  T = 32         9.816     218.8        256.0        27.3     64 of 64
+   2048  direct       125.589     136.8      65536.0       547.2     64 of 64
+   2048  T = 8        123.308     139.3       8192.0        69.7     64 of 64
+   2048  T = 16        66.321     259.0       4096.0        64.8     64 of 64
+   2048  T = 32        80.277     214.0       2048.0        26.8     64 of 64
+   4096  direct       996.270     138.0     524288.0       551.8     64 of 64
+   4096  T = 8       1004.860     136.8      65536.0        68.4     64 of 64
+   4096  T = 16       531.679     258.5      32768.0        64.6     64 of 64
+   4096  T = 32       668.652     205.5      16384.0        25.7     64 of 64
 PASSED
 ```
 
-Figure 17.7 places these speeds next to the memory limits of Section 17.1, and next to 2 results of
-Chapter 9 on the same GPU: the CUDA C++ kernel with 16 × 16 tiles, and cuBLAS.
+The column *fetched MiB* is the model of Section 17.5, \\(2n^3/T\\) values of 4 bytes, with
+\\(T = 1\\) for the direct kernel; *fetch GB/s* divides it by the time. The C++ program prints the
+same lines. The table compares the 2 languages at the smallest and the largest size.
+
+| n | kernel | modelled fetches | C++ time | C++ rate | Rust time | Rust rate |
+|---|---|---|---|---|---|---|
+| 512 | direct | 1,024 MiB | 1.495 ms | 179.5 GFLOP/s | 1.462 ms | 183.6 GFLOP/s |
+| 512 | \\(T = 8\\) | 128 MiB | 1.809 ms | 148.4 GFLOP/s | 1.918 ms | 140.0 GFLOP/s |
+| 512 | \\(T = 16\\) | 64 MiB | 0.976 ms | 275.2 GFLOP/s | 0.946 ms | 283.6 GFLOP/s |
+| 512 | \\(T = 32\\) | 32 MiB | 1.079 ms | 248.7 GFLOP/s | 1.133 ms | 237.0 GFLOP/s |
+| 4,096 | direct | 524,288 MiB | 744.953 ms | 184.5 GFLOP/s | 996.270 ms | 138.0 GFLOP/s |
+| 4,096 | \\(T = 8\\) | 65,536 MiB | 982.887 ms | 139.8 GFLOP/s | 1,004.860 ms | 136.8 GFLOP/s |
+| 4,096 | \\(T = 16\\) | 32,768 MiB | 505.159 ms | 272.1 GFLOP/s | 531.679 ms | 258.5 GFLOP/s |
+| 4,096 | \\(T = 32\\) | 16,384 MiB | 637.641 ms | 215.5 GFLOP/s | 668.652 ms | 205.5 GFLOP/s |
+
+With \\(T = 16\\), the tiled kernel made 16 times fewer fetches and ran 1.53 times as fast as the
+direct kernel in C++ at 512 × 512 (1.495 ms against 0.976 ms) and 1.47 times as fast at
+4,096 × 4,096. In Rust the factors are 1.55 and 1.87; the second is larger because the generic
+Rust direct kernel is slower at large sizes (Section 16.6.3). The Rust and C++ tiled kernels agree
+within 6% at every size. All checked entries were exact, including the 3 shapes that are not
+multiples of the tile width.
 
 <figure>
-<img src="../../figures/ch17-speeds.svg" alt="Horizontal bars of measured speed in GFLOP/s for N = 4,096, on a scale from 0 to 1,600. This chapter's kernels: naive 193.0, tiled16 with a while loop 274.0, tiled16 with a for loop 201.8, tiled with T = 8 146.2, T = 16 271.6, T = 32 217.9, tiled_fn with T = 16 168.2. Dashed marks show the memory limit of each tile width: 25.5 for the naive kernel, 204 for T = 8, 408 for T = 16 and 816 for T = 32. Below, 2 results of Chapter 9: the CUDA C++ kernel with 16 by 16 tiles, 273.9, and cuBLAS, 1,495.3 GFLOP/s.">
-<figcaption><b>Figure 17.7</b> Measured speeds for N = 4,096, with the memory limit of each tile width.</figcaption>
+<img src="../../figures/ch17-measured.svg" alt="2 panels for n = 4,096 on the Orin NX. Left, the rate in GFLOP/s of each kernel in C++ and in Rust: direct 184.5 and 138.0, T = 8 139.8 and 136.8, T = 16 272.1 and 258.5, T = 32 215.5 and 205.5, with a dashed line at 300 GFLOP/s, the limit set by 2 shared-memory reads per multiply-add. Right, the requested fetch rate of the C++ kernels in GB/s: direct 738.0, T = 8 69.9, T = 16 68.0, T = 32 26.9, with a dashed line at 102 GB/s, the bandwidth of global memory.">
+<figcaption><b>Figure 17.15</b> The kernels at n = 4,096 on the Orin NX: rates against the shared-memory limit, and requested fetch rates against the bandwidth of global memory.</figcaption>
 </figure>
 
-The 16 × 16 tiles run at 274.0 GFLOP/s, 1.42 times as fast as the naive kernel at 193.0 GFLOP/s.
-The gain is smaller than the factor of 16 in reuse because the naive kernel was already served
-mostly by the caches, as Section 17.1 noted. The generic `tiled::<16>` runs at 271.6 GFLOP/s, within
-1% of `tiled16`: the const generic parameter and the dynamic shared memory cost nothing, since the
-compiler builds the same kind of code for `T` = 16 as for the literal 16. The Rust kernel also
-matches the CUDA C++ kernel of Section 9.4, which ran at 273.9 GFLOP/s on the same GPU.
+### 17.8.2 Why the speedup is 1.5, not 16
 
-Having established that the tiles help, we can ask how close each tile width comes to its memory
-limit. For \\(T\\) = 16, the measured 274.0 GFLOP/s is 274.0 / 408 = 67% of the limit, and for
-\\(T\\) = 8, 146.2 GFLOP/s is 146.2 / 204 = 72% of it. Both widths are therefore close to being
-limited by memory, and the wider tile is faster because it reuses each float twice as often.
+Our model in Section 17.5 counted fetches as if every fetch went all the way to global memory.
+Section 16.6.3 showed that this is not true for the direct kernel: it requested 738 GB/s, 7.2
+times what global memory can deliver, so at least 86% of its fetches were answered by the L1 and L2
+caches. Tiling removes 15 of every 16 requested fetches, but most of the fetches it removes were
+already cheap. The hardware caches had recovered part of the reuse that tiling makes explicit.
 
-The width of 32 breaks this pattern. Its limit is 816 GFLOP/s, yet it ran at 217.9 GFLOP/s, 27% of
-the limit and slower than the width of 16. The cause is the number of threads that an SM can hold.
-An SM of the measured GPU holds at most 1,536 threads and 16 blocks. A block of 32 × 32 = 1,024
-threads leaves room for no second block, since 2 blocks would need 2,048 threads, so each SM runs 1
-block of 1,024 threads, 67% of its capacity. Moreover, when the threads of that block wait at a
-barrier, the SM has no other block to run. With tiles of 16, 6 blocks of 256 threads fill all 1,536
-places, and while 1 block waits at a barrier, the other 5 continue. The width of 8 is limited in
-another way: 16 blocks of 64 threads give only 16 × 64 = 1,024 threads per SM, also 67%.
+The difference between the 2 approaches is control. A value stays in a cache only by chance, and
+the chance shrinks as the matrices grow beyond the cache. A value in shared memory stays there for
+exactly 1 phase, by construction, at every matrix size. The tiled kernel with \\(T = 16\\)
+requested 68 GB/s from global memory, two-thirds of the 102 GB/s available, so global memory is no
+longer what limits it.
 
-A second limit applies to every tile width. Section 9.4.2 showed that each multiply-add of a tiled
-kernel reads 2 values from shared memory, and that an SM's shared memory delivers fewer values per
-cycle than its arithmetic units could consume at that rate. A larger tile reduces the traffic to
-global memory but not this traffic. The best tiled kernel here reaches 274.0 / 1,495.3 = 18% of the
-speed of cuBLAS, and 274.0 / 2,400 = 11% of the FP32 peak of the GPU. Section 9.5 removed the second
-limit by giving each thread a 4 × 4 patch of results in registers, which reached 844.9 GFLOP/s in
-Rust on this GPU; the techniques of this chapter, shared tiles, barriers and unrolled `while`
-loops, are the parts that kernel is built from.
+What limits it now is shared memory. Each pass of line 10 performs 1 multiply-add and reads 2
+values from shared memory, \\(\textit{tileA}[ty][u]\\) and \\(\textit{tileB}[u][tx]\\). The shared
+memory of an SM serves 1 read instruction of a warp per cycle: 32 values of 4 bytes, 128 bytes per
+cycle, when the 32 addresses fall in different banks or coincide. The 128 FP32 units of the SM can
+perform 128 multiply-adds per cycle. A warp's 32 multiply-adds need 2 read instructions, 2 cycles
+of shared memory, so the SM completes at most 16 multiply-adds per cycle, 1/8 of what its units
+could do. On the Orin NX that limit is \\(2{,}400 / 8 = 300\\) GFLOP/s. The C++ kernel with
+\\(T = 16\\) reached 272 to 275 GFLOP/s at every size, 91% of the limit, and the Rust kernel 259 to
+284 GFLOP/s. A larger tile reduces the fetches from global memory but not this ratio: every
+multiply-add of the tiled kernel still costs 2 reads of shared memory.
 
-## 17.8 The complete program
+The other 2 tile widths are slower for reasons of their own. A block of 32 × 32 = 1,024 threads
+leaves no room for a second block on an SM of the Orin NX, which holds at most 1,536 threads.
 
-Listing 17.7 is the whole of `src/main.rs`: the naive kernel, the 2 kernels with 16 × 16 tiles in
-static shared memory, the 2 generic kernels and the device function, and the host program that
-times and checks each of them. `Cargo.toml` and `rust-toolchain.toml` are those of Chapter 13,
-apart from the name of the package.
+<div class="definition">
 
-<p class="listing"><b>Listing 17.7</b> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch17_matmul_tiled/src/main.rs">code/oxide/ch17_matmul_tiled/src/main.rs</a></p>
+<span class="box-label">Definition 17.3</span> **Occupancy.** The **occupancy** of a kernel is the
+number of threads resident on an SM divided by the largest number the SM can hold.
+
+*Example.* With \\(T = 32\\) each SM of the Orin NX runs 1 block of 1,024 threads out of 1,536, an
+occupancy of 67%; with \\(T = 16\\) it runs 6 blocks of 256 threads, 100%.
+
+</div>
+
+With \\(T = 32\\), when the threads of the single block wait at a barrier, the SM has no other
+block to run, and it idles; the kernel ran at 216 GFLOP/s despite half the fetches of \\(T = 16\\).
+With \\(T = 8\\), a block of 64 threads performs only 8 multiply-adds per thread between 2 barriers,
+the copy and the barriers take a larger share of each phase, and an SM holds at most 16 blocks,
+1,024 threads; it ran at 140 GFLOP/s, slower than the direct kernel in C++.
+
+The speedup differs between GPUs, because it is set by how well the caches serve the direct kernel.
+On a Jetson AGX Thor, Rust kernels for the same 2 algorithms with \\(T = 16\\) took 1.158 ms and
+0.285 ms for 512 × 512 matrices, a speedup of 4.06 (Pathak, 2026). There the direct kernel
+requested 927 GB/s, 3.4 times the 273 GB/s of the Thor's memory, so the caches answered at least
+70% of its fetches, against 86% on the Orin NX, and tiling had more to gain. The tiled kernel ran at
+941.5 GFLOP/s, 93% of the Thor's shared-memory limit of \\(8{,}100 / 8 = 1{,}012\\) GFLOP/s. On both
+GPUs the tiled kernel ends near the same limit, 1/8 of the arithmetic peak, which Chapter 18 removes.
+
+## 17.9 The complete programs
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs}}
 ```
 
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu}}
+```
+
+</div>
+</div>
+
+Build and run the Rust program with `cargo oxide run` in its directory, and the C++ program with
+`nvcc -O3 -arch=native matmul_tiled.cu -o matmul_tiled && ./matmul_tiled`.
+
 ## Common mistakes
 
-- **Omitting a barrier.** Without the barrier after the copies, almost every result is wrong;
-  without the barrier after the inner product, a smaller and varying fraction is. Neither produces
-  an error or a compiler warning (Section 17.4).
-- **Assuming that shared-memory indices are checked.** An index into a `SharedArray`, or through a
-  pointer from `DynamicSharedArray`, is not compared with any length. A wrong index writes into
-  other shared data without an error.
-- **Writing a `SAFETY` comment that names no condition.** State the conditions: the bound on the
-  index, the single writer of each slot, and the barrier that separates the writes from the reads.
-- **Writing the inner loop as a `for` loop.** cuda-oxide does not unroll it, and the kernel ran
-  26% slower (Section 17.5).
-- **Declaring a generic tile as a `static`.** A static cannot depend on a generic parameter of the
-  function that contains it; a tile whose size is a generic parameter belongs in dynamic shared
-  memory.
-- **Calling a generic device function in the innermost loop.** It is compiled as a separate
-  function, and the kernel calls it instead of containing its loop (Section 17.6.3).
-- **Launching a generic kernel with a configuration that does not match its parameter.** The
-  contract of `tiled::<T>` checks only an upper bound on the block size and the range of dynamic
-  shared memory. Compute the block shape, the grid and the shared memory from `T` in 1 function.
-- **Choosing the largest tile.** Tiles of 32 × 32 reuse each float twice as often as tiles of
-  16 × 16, but they ran slower on the measured GPU, because an SM holds only 1 block of 1,024
-  threads (Section 17.7).
+- **Omitting a barrier.** Without the first barrier threads read slots before they are filled;
+  without the second, a fast thread overwrites a tile that a slow one still reads. Neither mistake
+  produces an error or a compiler warning (Section 17.6.3).
+- **Returning early from a tiled kernel.** A thread outside \\(C\\) must still copy zeros and reach
+  every barrier; only its final store is skipped.
+- **Forgetting the zeros.** Without the `else 0` of lines 6 and 7, a tile at the edge holds values
+  of the previous phase or of another matrix, and the last phase adds them.
+- **A block shape that does not match the tile.** With fewer than \\(T \times T\\) threads, part of
+  each tile is never filled; with more, threads write past the end of the tile. In Rust, derive the
+  shape from `T` in 1 function.
+- **Assuming shared-memory indices are checked.** An index through the pointers of
+  `DynamicSharedArray`, or into a C++ `__shared__` array, is not compared with any length.
+- **Choosing the largest tile.** \\(T = 32\\) fetches half as much as \\(T = 16\\) but ran slower,
+  because a block of 1,024 threads fills an SM on its own (Section 17.8.2).
 
 ## Summary
 
-- A tiled kernel copies a \\(T \times T\\) tile of each input matrix into shared memory and reads
-  each copied value \\(T\\) times, which raises the ratio of operations to floats read from global
-  memory from 1 to \\(T\\).
-- In cuda-oxide, a kernel declares a fixed-size tile as `static mut SharedArray<f32, N>`. Each
-  block receives its own copy.
-- Every access to shared memory is `unsafe`. The programmer establishes 3 conditions: every index is
-  in range, every element has 1 writer per step, and barriers separate the writes from the reads.
-  The `SAFETY` comments state which condition each access relies on.
-- The first barrier enforces a read-after-write dependence, the second a write-after-read
-  dependence. Without them, 99.4% and about 17% of the results were wrong, with no error reported.
-- Fixed-count loops on the hot path are written as `while` loops with `#[unroll]`; the `for` loop
-  version was 26% slower.
-- A const generic parameter gives 1 kernel source for several tile sizes. Its tiles live in dynamic
-  shared memory, whose size the launch configuration supplies, and the contract checks that size and
-  an upper bound on the block.
-- A generic device function is compiled as a separate function and called once per step; on the
-  hot path it cost 38%, so the inner loop belongs in the kernel.
-- On the measured GPU, tiles of 16 × 16 ran at 274.0 GFLOP/s: 1.42 times the naive kernel, equal
-  to the CUDA C++ kernel of Chapter 9, and 18% of cuBLAS. Tiles of 8 reuse each float less often,
-  and tiles of 32 leave each SM with a single block of 1,024 threads.
+<div class="summary">
 
-Chapter 18 applies the same technique to a stencil computation, the Jacobi iteration for the
-Laplace equation, in which each tile also needs a border of neighbouring values.
+- A block of \\(T \times T\\) threads needs \\(T\\) rows of \\(A\\) and \\(T\\) columns of \\(B\\);
+  the direct kernel fetches each of these values \\(T\\) times.
+- Splitting each dot product into phases of \\(T\\) terms lets the block copy 1 tile of \\(A\\) and
+  1 tile of \\(B\\) into shared memory per phase, 1 value per thread, and every thread adds \\(T\\)
+  terms from the copy.
+- The tiled kernel fetches \\(2MNK/T\\) values instead of \\(2MNK\\): \\(T\\) FLOP per float
+  instead of 1.
+- The first barrier orders the copy before the reads (without it, \\(c_{00} = 7\\)); the second
+  orders the reads before the next copy (without it, \\(c_{01} = 15\\)). A loop invariant proves the
+  kernel correct, and the proof uses each barrier once.
+- Zeros outside the matrices and threads that stay in the loop handle any size. Every thread of a
+  block must reach every barrier.
+- In Rust, shared memory is `unsafe` to access, and each access states its argument in a
+  `// SAFETY:` comment; a tile sized by a generic parameter lives in dynamic shared memory. In C++
+  a `__shared__` array can be sized by a template parameter.
+- On the Orin NX tiles of 16 × 16 ran about 1.5 times as fast as the direct kernel, not 16 times:
+  the caches had already absorbed most of the direct kernel's repeated fetches, and the tiled kernel
+  is limited by its 2 shared-memory reads per multiply-add.
+
+</div>
+
+Chapter 18 removes the second limit by letting each thread compute several entries of \\(C\\) and
+keep their sums in registers, so that each value read from shared memory is used several times.
 
 ## Exercises
 
-1. For \\(T\\) = 16 and \\(N\\) = 4,096, how many floats does 1 block copy from global memory over the
-   whole kernel, and how many FLOP does it perform? Check that the ratio is 16.
-2. Thread (7, 12) of block (3, 5) in `tiled16`: which slot of each tile does it write, and which
-   elements of \\(A\\) and \\(B\\) does it copy in step \\(k_0\\) = 32?
-3. Remove the second barrier from `tiled16` and run the program 5 times on your GPU. Record the
-   number of wrong elements each time, and explain why the number varies.
-4. Change `tiled16` so that the inner loop reads `TILE_A[k * 16 + y]` instead of
-   `TILE_A[y * 16 + k]`, without changing the copy. Which of the 3 conditions of Section 17.2.3 does
-   the new kernel still satisfy, and why are its results wrong?
-5. Write a version of `tiled16` that handles any \\(N\\), not only multiples of 16. A thread whose
-   element of \\(A\\) or \\(B\\) lies outside the matrix stores 0.0 in its slot. Use `a.get(i)` to
-   read with a bounds test, and explain why 0.0 leaves every sum unchanged.
-6. Add \\(T\\) = 4 to the program. Predict its memory limit on your GPU from Section 17.1, and
-   compare the prediction with the measured speed.
-7. For \\(N\\) = 4,096, compute the number of partial sums that the generic kernel adds for
-   \\(T\\) = 8, 16 and 32, and compare their order with the order of the 3 maximum errors in the
-   output.
-8. Rewrite `tiled_config::<T>` so that it returns an error for a value of `T` that does not divide
-   \\(N\\) or that gives more than 1,024 threads, and call it before each preparation.
+1. For \\(T = 16\\) and \\(M = N = K = 4{,}096\\), how many floats does 1 block copy from global
+   memory over the whole kernel, and how many FLOP does it perform? Check that the ratio is 16.
+2. Thread \\((7, 12)\\) of block \\((3, 5)\\) with \\(T = 16\\): which slot of each tile does it write,
+   and which entries of \\(A\\) and \\(B\\) does it copy in phase 2?
+3. Remove the second barrier from the Rust kernel and run it 5 times on your GPU at
+   512 × 512. Record the number of wrong entries each time, and explain why the number varies.
+4. Change the phase sum to read `tile_a.add(u * T + ty)` instead of `tile_a.add(ty * T + u)`,
+   without changing the copy. Which entries of the 4 × 4 example are still correct, and why?
+5. Add \\(T = 4\\) to the program. Predict its fetches and its shared-memory limit, and compare with
+   the measured rate.
+6. Draw the timeline of Figure 17.8 for thread \\((1, 1)\\) instead of \\((0, 0)\\). Which entry
+   becomes wrong, and what value does it take?
+7. Rewrite `tiled_config::<T>` to return an error when `T * T` exceeds 1,024 threads, and call it
+   for \\(T = 64\\).
 
 ## Sources and further reading
 
-- The cuda-oxide sources at revision `b7fe543`: `crates/cuda-device/src/shared.rs` documents
-  `SharedArray`, including why it is not `Sync`, and `DynamicSharedArray`; `crates/cuda-macros`
-  documents `#[launch_contract]` with `dynamic_shared_range` and `#[launch_bounds]`, and contains
-  the expansion of `#[device]` for generic functions.
-- The Rust Reference, "Static items" and "Generic parameters", for the rules behind
-  Section 17.6.1, and the explanation of error E0401 (`rustc --explain E0401`).
-- NVIDIA, *CUDA C++ Programming Guide*, the sections on shared memory, dynamic shared memory and
-  `__syncthreads()`.
-- Chapter 9 of this book for the tiled algorithm in CUDA C++, register tiles and the comparison with
-  cuBLAS, and Chapter 8 for the accuracy of float sums.
+- A. Pathak, *An Introduction to Tiled Parallel Programming, Simplified*, 2026: the derivation of
+  the tiled kernel on the 4 × 4 example, the 2 broken kernels, the proof, and the measurements on a
+  Jetson AGX Thor quoted in Section 17.8.
+- T. H. Cormen, C. E. Leiserson, R. L. Rivest and C. Stein, *Introduction to Algorithms*, 4th ed.,
+  MIT Press, 2022: loop invariants.
+- NVIDIA, *CUDA C++ Programming Guide*, "Shared Memory" and `__syncthreads()`:
+  <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>
+- cuda-oxide, rev b7fe543, `crates/cuda-device/src/shared.rs`: `SharedArray` and
+  `DynamicSharedArray`; `cuda-macros`: `dynamic_shared_range` and `#[launch_bounds]`.
+- The Rust Reference, "Static items", and `rustc --explain E0401`.
+- V. Volkov and J. Demmel, "Benchmarking GPUs to Tune Dense Linear Algebra", SC08, 2008.
+- Chapter 9 of this book, for the same algorithm in CUDA C++ and the comparison with cuBLAS.
