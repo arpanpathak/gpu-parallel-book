@@ -23,6 +23,11 @@ __pycache__/
 /code/ch11_libraries/fft_rand
 /code/ch12_nvrtc/nvrtc
 /code/ch15_capstone/pipeline
+/code/ch16_profiling/bugs
+/code/ch16_profiling/bugs_debug
+/code/ch16_profiling/measure
+/code/ch16_profiling/latency
+/code/ch16_profiling/verify
 /code/ch14_cuda_oxide/host_closure.ptx
 /code/ch14_cuda_oxide/*.ll
 /code/ch14_cuda_oxide/*.opt.ll
