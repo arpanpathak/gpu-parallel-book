@@ -834,9 +834,8 @@ per element does it read?
 
 ### 15.8.1 Platform and method
 
-The measurements come from 2 integrated GPUs: a Jetson Orin NX 16 GB (8 SMs, 102 GB/s) and a
-Jetson AGX Thor (20 SMs, 273 GB/s). Both programs passed on both; the timings below are from the
-Orin NX. Each program first runs the 2 exact tests of Section 15.6.3, then computes the dot product
+The measurements come from an integrated GPU, a Jetson Orin NX 16 GB (8 SMs, 102 GB/s).
+Each program first runs the 2 exact tests of Section 15.6.3, then computes the dot product
 of \\(2^{24}\\) pairs of floats in \\([0, 1)\\) from a fixed generator, 64 MiB per vector, with
 each of the 4 designs. Every design runs 10 times as a warm-up and 20 times under CUDA events. The
 rate is the number of bytes the design must move, 16 or 8 per pair, divided by its time. The
@@ -875,10 +874,10 @@ Every design returns 63 for the worked example and exactly 2,796,203 for the 0-a
 | fused, warp shuffles | 8 | 1.405 ms | 95.5 GB/s | 1.456 ms | 92.2 GB/s |
 | fused, atomic combine | 8 | 1.405 ms | 95.5 GB/s | 1.389 ms | 96.6 GB/s |
 
-<p class="listing"><b>Table 15.1</b> The dot product of \(2^{24}\) pairs on the Jetson Orin NX. Least times at 102 GB/s: 2.63 ms for 16 bytes per pair, 1.32 ms for 8.</p>
+<p class="listing"><b>Table 15.1</b> The dot product of \(2^{24}\) pairs on the measured GPU. Least times at 102 GB/s: 2.63 ms for 16 bytes per pair, 1.32 ms for 8.</p>
 
 <figure>
-<img src="../../figures/ch15-measured.svg" alt="Measured rates of the 4 designs on the Jetson Orin NX, Rust and C++, against 102 GB/s.">
+<img src="../../figures/ch15-measured.svg" alt="Measured rates of the 4 designs on the measured GPU, Rust and C++, against 102 GB/s.">
 <figcaption><b>Figure 15.12</b> Measured rates of the 4 designs against the memory bandwidth of 102 GB/s.</figcaption>
 </figure>
 
@@ -928,7 +927,7 @@ Exercises
 
 15.20 From Table 15.1, compute the fraction of the 102 GB/s that each fused design reaches in each
 language.<br>
-15.21 Predict the time of the fused dot product of \\(2^{26}\\) pairs on the Orin NX, and on a GPU
+15.21 Predict the time of the fused dot product of \\(2^{26}\\) pairs on the measured GPU, and on a GPU
 with 3,350 GB/s.
 
 </div>
@@ -995,7 +994,7 @@ barrier.
 - Block sums are combined by a second launch, in a fixed order, or by atomic additions, in the
   order the blocks finish. A plain addition loses sums. Atomic float additions gave 3 different
   last bits in 100 runs; the second launch gave the same bits every time.
-- The fused kernels read 8 bytes per pair and ran at 92 GB/s to 97 GB/s on the Orin NX, 2.2 to
+- The fused kernels read 8 bytes per pair and ran at 92 GB/s to 97 GB/s on the measured GPU, 2.2 to
   2.4 times as fast as a map followed by a reduction, which moves 16.
 
 ## Exercises

@@ -858,10 +858,9 @@ this safer than a constant 256?
 
 ### 14.8.1 Platform and method
 
-The measurements come from 2 integrated GPUs: a Jetson Orin NX 16 GB (8 SMs, 102 GB/s) and a
-Jetson AGX Thor (20 SMs, 273 GB/s). Both programs passed on both; the timings below are from the
-Orin NX. Each program fills \\(x\\) and \\(y\\) with \\(2^{24}\\) values, 64 MiB per vector,
-more than the 4 MiB L2 cache of the Orin NX, so that every launch reads and writes global memory.
+The measurements come from an integrated GPU, a Jetson Orin NX 16 GB (8 SMs, 102 GB/s).
+Each program fills \\(x\\) and \\(y\\) with \\(2^{24}\\) values, 64 MiB per vector,
+more than the 4 MiB L2 cache of the measured GPU, so that every launch reads and writes global memory.
 It uses \\(x_i = (i \bmod 1024) \cdot 0.5\\), \\(y_i = i \bmod 7\\) and \\(a = 2.5\\): every
 product \\(2.5\,x_i\\) is a multiple of 1.25 below 1,280, which a float represents exactly, so the
 results are compared with the CPU's for exact equality. Each kernel runs for 500 ms to raise the
@@ -913,7 +912,7 @@ from the CPU's result: 0 for every kernel. Table 14.3 collects the times of both
 | grid-stride loop, 48 blocks per SM | 98,304 | 2.191 ms | 91.9 GB/s | 2.232 ms | 90.2 GB/s |
 | device-to-device copy (driver) | | 1.579 ms | 85.0 GB/s | 1.579 ms | 85.0 GB/s |
 
-<p class="listing"><b>Table 14.3</b> SAXPY on \(2^{24}\) elements on the Jetson Orin NX. The rate is 201.3 MB divided by the time; the copy moves 134.2 MB.</p>
+<p class="listing"><b>Table 14.3</b> SAXPY on \(2^{24}\) elements on the measured GPU. The rate is 201.3 MB divided by the time; the copy moves 134.2 MB.</p>
 
 3 results stand out (Figure 14.11). The 2 languages run at the same speed, within the variation
 between runs. The generic map with a closure or a lambda is as fast as the hand-written SAXPY
@@ -922,14 +921,14 @@ arrives in a kernel parameter in both cases. And no kernel exceeds 93.1 GB/s, 91
 GB/s of the memory.
 
 <figure>
-<img src="../../figures/ch14-measured.svg" alt="Measured rates on the Jetson Orin NX, Rust and C++: saxpy 89.9 and 91.2 GB/s; map with a closure or lambda 90.9 and 90.7 GB/s; grid-stride loop with 12 blocks per SM 92.1 and 92.4 GB/s; the driver's device-to-device copy 85.0 GB/s in both. A dashed line marks 102 GB/s.">
-<figcaption><b>Figure 14.11</b> Measured rates of SAXPY on the Orin NX against the memory bandwidth of 102 GB/s.</figcaption>
+<img src="../../figures/ch14-measured.svg" alt="Measured rates on the measured GPU, Rust and C++: saxpy 89.9 and 91.2 GB/s; map with a closure or lambda 90.9 and 90.7 GB/s; grid-stride loop with 12 blocks per SM 92.1 and 92.4 GB/s; the driver's device-to-device copy 85.0 GB/s in both. A dashed line marks 102 GB/s.">
+<figcaption><b>Figure 14.11</b> Measured rates of SAXPY on the measured GPU against the memory bandwidth of 102 GB/s.</figcaption>
 </figure>
 
 ### 14.8.3 Why 91 GB/s, not 102 GB/s
 
 Section 14.6.2 predicted at least 1.97 ms at 102 GB/s; the kernels took 2.16 ms to 2.24 ms, 10%
-to 14% longer. The figure of 102 GB/s is the rate at the pins of the memory chips: the Orin NX
+to 14% longer. The figure of 102 GB/s is the rate at the pins of the memory chips: the measured GPU
 moves 16 bytes per transfer over a 128-bit bus at 6,400 million transfers per second, and
 \\(16 \text{ B} \cdot 6.4 \cdot 10^9 \text{ /s} = 102.4 \text{ GB/s}\\). The memory cannot
 transfer data on every one of those cycles. It must refresh its rows at regular intervals, it must
@@ -982,11 +981,11 @@ reach the bandwidth: \\(C = X L = 102 \text{ GB/s} \cdot 0.50\ \mu\text{s} = 51\
 threads with 8 bytes each, a little more than 3 blocks of 256 threads on each of the 8 SMs.
 
 <figure>
-<img src="../../figures/ch14-blocks.svg" alt="Measured rate of the grid-stride SAXPY against the number of blocks per SM on the Jetson Orin NX. Rust and C++: 1 block 32.9 and 33.8 GB/s, 2 blocks 59.7 and 61.1, 3 blocks 78.2 and 80.5, 6 blocks 88.3 and 93.1, 12 blocks 92.1 and 92.4, 48 blocks 91.9 and 90.2. A dashed line from Little's law rises in proportion to the blocks until it meets 102 GB/s.">
+<img src="../../figures/ch14-blocks.svg" alt="Measured rate of the grid-stride SAXPY against the number of blocks per SM on the measured GPU. Rust and C++: 1 block 32.9 and 33.8 GB/s, 2 blocks 59.7 and 61.1, 3 blocks 78.2 and 80.5, 6 blocks 88.3 and 93.1, 12 blocks 92.1 and 92.4, 48 blocks 91.9 and 90.2. A dashed line from Little's law rises in proportion to the blocks until it meets 102 GB/s.">
 <figcaption><b>Figure 14.12</b> The rate of the grid-stride loop follows the bytes in flight, as Little's law predicts, until the bandwidth caps it.</figcaption>
 </figure>
 
-The Orin NX holds 1,536 threads per SM, 6 blocks of 256, so a grid of 6 blocks per SM fills the
+The measured GPU holds 1,536 threads per SM, 6 blocks of 256, so a grid of 6 blocks per SM fills the
 GPU in 1 round, and the measurements show no gain beyond it. A grid-stride loop should therefore
 be launched with at least as many blocks as the GPU holds at once, which the host program computes
 from the number of SMs and the threads per SM that it reads from the device.
@@ -1082,7 +1081,7 @@ together, exceed the L2 cache of every GPU in Table 14.2.
   least \\(12 n / W\\): 1.97 ms for \\(2^{24}\\) elements at 102 GB/s.
 - A generic map takes a Rust closure or a C++ lambda; the compiler builds 1 kernel per closure
   type, and the captured values travel as 1 kernel parameter.
-- On the Orin NX, SAXPY ran at 90 GB/s to 93 GB/s in both languages, about 90% of the 102 GB/s of
+- On the measured GPU, SAXPY ran at 90 GB/s to 93 GB/s in both languages, about 90% of the 102 GB/s of
   the memory; a grid-stride loop needs about 3 blocks of 256 threads per SM to keep enough bytes in
   flight, and 6 to fill the GPU.
 
@@ -1099,7 +1098,7 @@ together, exceed the L2 cache of every GPU in Table 14.2.
    with 1 block of 256 threads per SM on a GPU with 20 SMs and 273 GB/s. How many blocks per SM
    would reach the bandwidth?
 5. Suppose each thread of the grid-stride loop handled 2 elements per iteration, loading 16 bytes
-   before computing. By Little's law, how many blocks per SM would keep the memory of the Orin NX
+   before computing. By Little's law, how many blocks per SM would keep the memory of the measured GPU
    busy?
 6. Prove that <span class="sc">Saxpy-Kernel</span> updates every element exactly once when
    launched with \\(\lceil n / B \rceil\\) blocks of \\(B\\) threads.
