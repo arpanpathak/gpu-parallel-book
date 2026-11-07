@@ -44,13 +44,13 @@
 
 # Part VI  -  The Engineering Mindset
 
-- [Chapter 16: Profiling, Debugging & Performance Engineering](chapters/part6_engineering/ch16_profiling_debugging_performance.md)
+- [Chapter 22: Profiling, Debugging & Performance Engineering](chapters/part6_engineering/ch22_profiling_debugging_performance.md)
 
 # Part VII  -  Systems & Multi-GPU Programming
 
-- [Chapter 17: GPU Systems Programming & Memory-Mapped I/O](chapters/part7_systems_multi_gpu/ch17_gpu_systems_mmio.md)
-- [Chapter 18: NVLink & NVSwitch - The Multi-GPU Interconnect](chapters/part7_systems_multi_gpu/ch18_nvlink_nvswitch.md)
-- [Chapter 19: NCCL & Multi-GPU Collective Communication](chapters/part7_systems_multi_gpu/ch19_nccl_collectives.md)
+- [Chapter 23: GPU Systems Programming & Memory-Mapped I/O](chapters/part7_systems_multi_gpu/ch23_gpu_systems_mmio.md)
+- [Chapter 24: NVLink & NVSwitch - The Multi-GPU Interconnect](chapters/part7_systems_multi_gpu/ch24_nvlink_nvswitch.md)
+- [Chapter 25: NCCL & Multi-GPU Collective Communication](chapters/part7_systems_multi_gpu/ch25_nccl_collectives.md)
 
 # Earlier drafts (being replaced by Part V)
 

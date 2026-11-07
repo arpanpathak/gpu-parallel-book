@@ -22,7 +22,7 @@ PIPE8 = [("in", 0, 0.000, 0.663), ("kernel", 0, 0.666, 1.983), ("out", 0, 1.990,
          ("in", 1, 7.330, 8.152), ("kernel", 1, 8.225, 9.551), ("out", 1, 9.553, 10.445),
          ("in", 0, 9.077, 10.021), ("kernel", 0, 10.030, 11.355), ("out", 0, 11.365, 12.207),
          ("in", 1, 10.451, 11.277), ("kernel", 1, 11.350, 12.681), ("out", 1, 12.690, 13.586)]
-PIPE1 = [("in", 0, 0.000, 6.176), ("kernel", 0, 6.350, 16.746), ("out", 0, 16.753, 20.947)]
+PIPE1 = [("in", 0, 0.000, 6.176), ("kernel", 0, 6.350, 22.746), ("out", 0, 22.753, 20.947)]
 
 # y = 2 x over 256 MiB: the first 40 runs in ms, from a cold start.
 WARMUP = [19.83, 14.43, 10.63, 13.25, 10.64, 11.40, 10.62, 9.67, 8.48, 8.46,
@@ -31,16 +31,16 @@ WARMUP = [19.83, 14.43, 10.63, 13.25, 10.64, 11.40, 10.62, 9.67, 8.48, 8.46,
           8.34, 8.34, 12.91, 9.80, 8.36, 8.35, 8.36, 8.36, 8.34, 8.35]
 
 
-# 16.1  The question decides the tool.
-rows = [("Where does the time go?", "the whole program", "Nsight Systems, nsys", "a timeline", "16.2"),
-        ("Why is 1 kernel slow?", "1 kernel", "Nsight Compute, ncu", "hardware counters", "16.3"),
+# 22.1  The question decides the tool.
+rows = [("Where does the time go?", "the whole program", "Nsight Systems, nsys", "a timeline", "22.2"),
+        ("Why is 1 kernel slow?", "1 kernel", "Nsight Compute, ncu", "hardware counters", "22.3"),
         ("Is every access legal?", "every access", "Compute Sanitizer", "memcheck, racecheck …",
-         "16.4"),
-        ("What does thread 232 hold?", "1 thread", "cuda-gdb", "breakpoints in kernels", "16.5"),
-        ("How long does 1 load take?", "a few instructions", "clock64()", "cycles, inside a kernel", "16.6"),
+         "22.4"),
+        ("What does thread 232 hold?", "1 thread", "cuda-gdb", "breakpoints in kernels", "22.5"),
+        ("How long does 1 load take?", "a few instructions", "clock64()", "cycles, inside a kernel", "22.6"),
         ("Can the number be trusted?", "a measurement", "a benchmark protocol", "warm-up, events, medians",
-         "16.7"),
-        ("Is the answer right?", "the output", "a CPU reference", "with a tolerance", "16.8")]
+         "22.7"),
+        ("Is the answer right?", "the output", "a CPU reference", "with a tolerance", "22.8")]
 parts = [zone(16, 104, 300, 7 * 62 + 24, "the question"), zone(344, 104, 300, 7 * 62 + 24, "the instrument")]
 for k, (question, scope, tool, how, section) in enumerate(rows):
     y = 128 + k * 62
@@ -50,16 +50,16 @@ for k, (question, scope, tool, how, section) in enumerate(rows):
               wire([(300, y + 25), (360, y + 25)])]
 parts += [note(16, 586, "A profiler, a debugger and a stopwatch each answer 1 kind of question. The first step is to", room=628),
           note(16, 604, "name the question; the instrument follows from it.", room=628)]
-save(OUT + "ch16-tools.svg", 660, 626,
+save(OUT + "ch22-tools.svg", 660, 626,
      "Seven rows, each joining a question to an instrument. Where does the time go: Nsight Systems, a "
-     "timeline, section 16.2. Why is 1 kernel slow: Nsight Compute, hardware counters, 16.3. Does it touch "
-     "Is every access legal: Compute Sanitizer, 16.4. What does thread 232 hold: cuda-gdb, 16.5. How long does 1 "
-     "load take: clock64 inside a kernel, 16.6. Can the number be trusted: events, warm-up and medians, 16.7. "
-     "Is the answer right: a CPU reference with a tolerance, 16.8.",
+     "timeline, section 22.2. Why is 1 kernel slow: Nsight Compute, hardware counters, 22.3. Does it touch "
+     "Is every access legal: Compute Sanitizer, 22.4. What does thread 232 hold: cuda-gdb, 22.5. How long does 1 "
+     "load take: clock64 inside a kernel, 22.6. Can the number be trusted: events, warm-up and medians, 22.7. "
+     "Is the answer right: a CPU reference with a tolerance, 22.8.",
      "1 question, 1 instrument", "Each tool of the chapter answers 1 kind of question.", parts)
 
 
-# 16.2  The nsys timeline of Chapter 6's pipeline: 1 stream, then 2 streams and 8 chunks.
+# 22.2  The nsys timeline of Chapter 6's pipeline: 1 stream, then 2 streams and 8 chunks.
 x0, scale = 128, 23.0                          # x of 0 ms, pixels per ms
 LANES = {"in": ("copy in", "client"), "kernel": ("kernel", "store"), "out": ("copy out", "good")}
 
@@ -89,7 +89,7 @@ parts += [bar(x0, 420, 30, 16, "store"), text(x0 + 38, 433, "stream A", "note"),
           note(32, 462, "Kernel lane busy: 10.40 of 20.95 ms with 1 stream (50%), and 8 × 1.33 = 10.61 of", room=600),
           note(32, 480, "13.59 ms with 2 streams (78%). With 2 streams each kernel starts as soon as its own", room=600),
           note(32, 498, "copy in ends, so the copies hide behind the kernels of the other stream.", room=600)]
-save(OUT + "ch16-timeline.svg", 660, 520,
+save(OUT + "ch22-timeline.svg", 660, 520,
      "Two timelines from Nsight Systems, each with 3 lanes: copy in, kernel, copy out, on a scale from 0 to "
      "21 milliseconds. With 1 stream: copy in from 0 to 6.18 ms, kernel from 6.35 to 16.75 ms, copy out "
      "from 16.75 to 20.95 ms, one after the other. With 2 streams and 8 chunks: 8 kernels of about 1.33 ms "
@@ -99,7 +99,7 @@ save(OUT + "ch16-timeline.svg", 660, 520,
      parts)
 
 
-# 16.3  Why the missing guard went unnoticed: 4,000-byte arrays in 4,096-byte slots.
+# 22.3  Why the missing guard went unnoticed: 4,000-byte arrays in 4,096-byte slots.
 x0, slot = 40, 580 / 3                        # 1 slot of 4,096 bytes per third of the strip
 used = slot * 4000 / 4096
 pad = slot - used
@@ -135,7 +135,7 @@ parts += [wire([(gap, 182), (gap, 230), (first + 8, 230), (first + 8, 293)]),
           note(40, 438, "24 extra threads; 24 × 4 bytes = 96 bytes, exactly the padding. The stray accesses touched", room=600),
           note(40, 456, "no other array, so the program saw nothing wrong; memcheck reports every one of them.",
                room=600)]
-save(OUT + "ch16-bounds.svg", 660, 478,
+save(OUT + "ch22-bounds.svg", 660, 478,
      "A strip of device memory with 3 allocations a, b and c of 4,000 bytes, each in a slot of 4,096 bytes, "
      "with 96 bytes of padding at the end of each slot. Threads 1,000 to 1,023, which are threads 232 to 255 of "
      "block 3, read and write inside the padding: 24 floats, 96 bytes. An enlarged view shows a[996] to a[999], "
@@ -144,7 +144,7 @@ save(OUT + "ch16-bounds.svg", 660, 478,
      "Why the missing guard went unnoticed", "24 stray threads × 4 bytes fit exactly in the padding.", parts)
 
 
-# 16.4  The race of the block sum without barriers: 2 warps, 1 shared value.
+# 22.4  The race of the block sum without barriers: 2 warps, 1 shared value.
 parts = [zone(16, 104, 628, 250, "1 block, no barrier between the steps")]
 for k, (name, events) in enumerate([("warp 0, threads 0 to 31", [(0, 3, "s[t] = in[…]", "client"),
                                                                   (3.2, 6.6, "s[t] += s[t + 128]", "danger"),
@@ -162,14 +162,14 @@ parts += [line(40 + 3.2 * 58, 176, 40 + 3.2 * 58, 312, KINDS["danger"][0], 1.4, 
           note(16, 384, "Nothing makes warp 4 store s[128] before warp 0 reads it. When warp 0 runs first it adds", room=628),
           note(16, 402, "whatever s[128] held before, and the block sum is wrong. racecheck reports the pair as", room=628),
           note(16, 420, "a write at line 31 and a read at line 35 of the same shared location.", room=628)]
-save(OUT + "ch16-race.svg", 660, 442,
+save(OUT + "ch22-race.svg", 660, 442,
      "Two lanes of time for 1 block. Warp 0, threads 0 to 31, stores its own values, then at once adds "
      "s[t + 128] into s[t], which for thread 0 reads s[128]. Warp 4, threads 128 to 159, stores s[128] only later. The read of s[128] comes before "
      "its write: a race, which racecheck reports as a write at line 31 and a read at line 35.",
      "The race in the block sum", "Without a barrier, a read can come before the write it needs.", parts)
 
 
-# 16.5  Latencies in cycles, on a log scale.
+# 22.5  Latencies in cycles, on a log scale.
 LAT = [("1 multiply-add, dependent", 4.24, None, "store"), ("1 multiply-add, 4 chains", 1.31, None, "good"),
        ("1 load from L1", 39, None, "client"), ("1 load from L2", 191, None, "outside"),
        ("1 load from DRAM", 598, 1137, "danger")]
@@ -191,14 +191,14 @@ for k, (name, lo, hi, kind) in enumerate(LAT):
 parts += [text(x0 - 14, 120 + 5 * 52 + 18, "cycles", "sub", "end"),
           note(40, 430, "Measured with clock64() by 1 thread, at 1,173 MHz: 1 cycle = 0.85 ns.", room=600),
           note(40, 448, "A DRAM load costs about 140 dependent multiply-adds; the range comes from 14 runs.", room=600)]
-save(OUT + "ch16-latency.svg", 660, 470,
+save(OUT + "ch22-latency.svg", 660, 470,
      "Horizontal bars on a logarithmic scale of clock cycles. A dependent multiply-add takes 4.24 cycles; with "
      "4 independent chains each takes 1.31 cycles. A load from L1 takes 39 cycles, from L2 191 cycles, and "
      "from DRAM 598 to 1,137 cycles over 14 runs.",
      "Latencies, measured inside a kernel", "1 thread, timed with clock64(), on a GPU at 1,173 MHz.", parts)
 
 
-# 16.6  The first 40 runs of y = 2 x: warm-up, then a plateau, then outliers.
+# 22.6  The first 40 runs of y = 2 x: warm-up, then a plateau, then outliers.
 x0, y0, high, step = 72, 400, 260, 11.5
 ys = lambda ms: y0 - high * ms / 21
 right = x0 + 40 * step
@@ -223,7 +223,7 @@ parts += [line(x0, ys(mean), right + 6, ys(mean), KINDS["danger"][0], 1.4, "6 4"
           note(40, 448, "Runs 1 to 8 (red) pay for the cold start and the low clock; runs 9 to 40 sit near 8.35 ms,", room=600),
           note(40, 466, "with 4 outliers above 9 ms (amber) when other work used the GPU. The mean counts every", room=600),
           note(40, 484, "one of them; the median of the warm runs does not.", room=600)]
-save(OUT + "ch16-warmup.svg", 660, 506,
+save(OUT + "ch22-warmup.svg", 660, 506,
      "Bars of 40 run times of y = 2 x over 256 MiB on 1 GPU. Run 1 takes 19.83 ms and runs 2 to 8 "
      "between 9.67 and 14.43 ms; from run 9 the times sit near 8.35 ms, with outliers of 10.43, 10.33, 12.91 "
      "and 9.80 ms. A dashed line marks the mean of all 40 runs, 9.46 ms; a solid line the median of runs 21 "
@@ -231,7 +231,7 @@ save(OUT + "ch16-warmup.svg", 660, 506,
      "The first 40 runs of 1 kernel", "y = 2 x over 256 MiB, timed with events, from a cold start.", parts)
 
 
-# 16.7  Units in the last place: the spacing of floats doubles at every power of 2.
+# 22.7  Units in the last place: the spacing of floats doubles at every power of 2.
 x0, unit = 50, 35                               # x of 0, pixels per 1
 parts = [zone(16, 104, 628, 196, "a toy float: 8 values between 2 powers of 2")]
 parts += [line(x0, 190, x0 + 16 * unit, 190, WIRE, 1.6)]
@@ -255,7 +255,7 @@ for k, (kind, name, sub) in enumerate(cards):
     parts.append(card(x, y, 310, 70, kind, name, sub))
 parts += [note(16, 508, "An error in ULPs means the same at every size: 2 ULPs is about 2 parts in 8 million.",
                room=628)]
-save(OUT + "ch16-ulp.svg", 660, 530,
+save(OUT + "ch22-ulp.svg", 660, 530,
      "Top: a toy float with 8 values between each 2 powers of 2, on a line from 0 to 16. Between 1 and 2 the "
      "values are 1/8 apart, between 2 and 4 1/4 apart, between 4 and 8 1/2 apart, and between 8 and 16 1 apart. "
      "Bottom: 4 cards. Near 1, 1 ULP of a real float is 2 to the minus 23, about 0.000000119. Near e to the 10, "
@@ -264,7 +264,7 @@ save(OUT + "ch16-ulp.svg", 660, 530,
      "Units in the last place", "The gap between neighbouring floats doubles at every power of 2.", parts)
 
 
-# 16.8  A tolerance that is too wide hides a bug; an input with a known answer does not.
+# 22.8  A tolerance that is too wide hides a bug; an input with a known answer does not.
 parts = [zone(16, 104, 628, 172, "random inputs: tolerance 42.01"), zone(16, 302, 628, 152, "all ones: tolerance 0")]
 cx, half = 330, 260
 parts += [bar(cx - half, 160, 2 * half, 30, "good", dashed=True),
@@ -284,7 +284,7 @@ parts += [line(cx, 340, cx, 400, INK, 1.6), mono(cx, 418, "16,777,216", "middle"
           note(16, 486, "The missing element is less than 1, far inside a tolerance of 42. With ones, every", room=628),
           note(16, 504, "partial sum is a whole number a float holds exactly, so the right answer is exact and", room=628),
           note(16, 522, "any difference at all is a bug.", room=628)]
-save(OUT + "ch16-tolerance.svg", 660, 544,
+save(OUT + "ch22-tolerance.svg", 660, 544,
      "Two panels. Random inputs: a band from minus 42.01 to plus 42.01 around the exact sum; the correct sum is "
      "0.42 away and the sum that misses 1 element is 0.58 away, both inside the band, both PASSED. All ones: "
      "the exact sum is 16,777,216; the correct sum hits it, the sum that misses 1 element gives 16,777,215 and "
@@ -292,7 +292,7 @@ save(OUT + "ch16-tolerance.svg", 660, 544,
      "Tolerance and known answers", "The off-by-one sum passes 1 test and fails the other.", parts)
 
 
-# 16.9  A kernel report by hand: how close 2 kernels come to the memory and the arithmetic peaks.
+# 22.9  A kernel report by hand: how close 2 kernels come to the memory and the arithmetic peaks.
 REPORT = [("y = 2 x, 256 MiB", [("memory", 64.3 / 102 * 100, "64.3 of 102 GB/s", "client", False),
                                 ("FP32", 8.04 / 2400 * 100, "8.0 of 2,400 GFLOP/s", "store", False)]),
           ("4 × 4 per thread (Ch. 9)", [("loads", 56.3 / 102 * 100, "56.3 GB/s, L2 or DRAM", "client", True),
@@ -315,7 +315,7 @@ for k, (name, rows) in enumerate(REPORT):
 parts += [note(32, 384, "Percentages of data-sheet peaks of 102 GB/s and 2,400 GFLOP/s. y = 2 x uses 63% of the", room=600),
           note(32, 402, "memory and 0.33% of the arithmetic: memory-bound. The patch kernel uses 38% of the", room=600),
           note(32, 420, "arithmetic; only a profiler's counters can split its loads between L2 and DRAM.", room=600)]
-save(OUT + "ch16-report.svg", 660, 442,
+save(OUT + "ch22-report.svg", 660, 442,
      "A chart like a profiler's speed-of-light section, in percent of the peaks of a GPU with 2,400 GFLOP/s and 102 GB/s. y = 2 x over 256 "
      "MiB: memory 64.3 of 102 GB/s, 63%; arithmetic 8.0 of 2,400 GFLOP/s, 0.3%. Chapter 9's 4 by 4 patch "
      "kernel: loads of 56.3 GB/s from L2 or DRAM, 55% of the memory peak if all came from DRAM, drawn dashed; "
@@ -324,7 +324,7 @@ save(OUT + "ch16-report.svg", 660, 442,
      parts)
 
 
-# 16.10  The engineering loop, with the numbers of the Rust pointer chase.
+# 22.10  The engineering loop, with the numbers of the Rust pointer chase.
 steps = [("measure", "store", "Rust: 62 cycles per L1 load", "C++: 39 cycles"),
          ("hypothesis", "outside", "the bounds check of next[j]", "sits on the chain"),
          ("change 1 thing", "client", "next.get_unchecked(j)", "with a SAFETY comment"),
@@ -340,7 +340,7 @@ parts += [wire([(300, 166), (360, 166)]),
           wire([(170, 332), (170, 426), (200, 426)]),
           note(40, 498, "1 change between 2 measurements. A 2nd change (a while loop in place of a for loop) was", room=600),
           note(40, 516, "measured separately, so each difference has 1 cause.", room=600)]
-save(OUT + "ch16-loop.svg", 660, 538,
+save(OUT + "ch22-loop.svg", 660, 538,
      "Five cards joined by arrows in a loop. Measure: the Rust pointer chase takes 62 cycles per L1 load, the "
      "C++ one 39. Hypothesis: the bounds check of next[j] sits on the chain. Change 1 thing: next.get_unchecked(j) "
      "with a SAFETY comment. Measure again: 39 cycles, the same as C++. Verify: every chain ends at the index "

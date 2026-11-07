@@ -43,7 +43,7 @@ Three currents are visible:
 
 ## The Discipline
 
-The most durable idea in this book is the loop of Chapter 16: measure, profile,
+The most durable idea in this book is the loop of Chapter 22: measure, profile,
 hypothesise, change one thing, re-measure, and verify. Hardware changes,
 languages change, and libraries change. The loop does not.
 

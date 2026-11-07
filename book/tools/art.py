@@ -1207,10 +1207,10 @@ def ch13():
             rect(752, 222, 168, 30, "#ffffffcc", 15), label(836, 243, "i ≥ N: no work", 16, "#27405a", font=MONO, weight=600)]
 
 
-@plate("ch16", "Profiling & Debugging", "Lens the hawk", "Lens, a hawk, perches on a fence post at dusk "
+@plate("ch22", "Profiling & Debugging", "Lens the hawk", "Lens, a hawk, perches on a fence post at dusk "
        "with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, "
        "kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change 1 thing.")
-def ch16():
+def ch22():
     lanes = [("in", "#7aa6ff", [(0, 34), (40, 74), (80, 114), (120, 154)]),
              ("kernel", "#f5c542", [(36, 84), (86, 134), (136, 184), (186, 234)]),
              ("out", "#8fd19e", [(86, 118), (136, 168), (186, 218), (236, 268)])]
@@ -1233,12 +1233,12 @@ def ch16():
             tag(710, 52, "measure, then change 1 thing", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch17", "GPU Systems Programming & Memory-Mapped I/O", "Knock the woodpecker", "Knock, a woodpecker, "
+@plate("ch23", "GPU Systems Programming & Memory-Mapped I/O", "Knock the woodpecker", "Knock, a woodpecker, "
        "clings to a tree trunk and taps its beak on a brass doorbell plate fixed to the bark, marked with a register "
        "address. Beside the tree hangs a board with a ring of 8 slots: 5 of them hold work tickets, a PUT marker points "
        "past the last ticket written and a GET marker at the first ticket not yet done. A tag says write the work, "
        "then knock: the rule of a doorbell.")
-def ch17():
+def ch23():
     trunk_x = 300
     bark = [path(f"M{trunk_x + 14 + 22 * k},{40 + 30 * (k % 3)} q-6,60 0,120 t0,120", stroke="#5a3d28", sw=3,
                  extra='opacity="0.5"') for k in range(4)]
@@ -1266,13 +1266,13 @@ def ch17():
             tag(696, 64, "write the work, then knock", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch18", "NVLink & NVSwitch", "Weave the spider", "Weave, a spider, hangs at the centre of a web "
+@plate("ch24", "NVLink & NVSwitch", "Weave the spider", "Weave, a spider, hangs at the centre of a web "
        "strung across a night sky. 8 green GPU chips, GPU 0 to GPU 7, sit at the ends of the spokes, and "
        "every spoke runs from a chip to the hub where Weave hangs. 4 silver knots on the spokes near the "
        "hub stand for the switches. With 1 thread from each chip to the hub, every GPU reaches every "
        "other through the hub, without a separate thread for each pair. A tag reads 1 link to the "
        "switch, not 7 to the others.")
-def ch18():
+def ch24():
     hub = (480, 176)
     places = []
     for k in range(8):
@@ -1299,11 +1299,11 @@ def ch18():
             tag(230, 30, "1 link to the switch, not 7 to the others", 16, "#fff6e2", "#2a1a10")]
 
 
-@plate("ch19", "NCCL & Multi-GPU Collective Communication", "The ring of geese", "4 geese stand in a ring on "
+@plate("ch25", "NCCL & Multi-GPU Collective Communication", "The ring of geese", "4 geese stand in a ring on "
        "a meadow at dusk, each one a GPU of a ring all-reduce. A dashed path with arrows joins them in a circle. Each "
        "goose holds a parcel in its beak and faces the next goose, to which it hands its parcel. Around the ring from rank 0 the "
        "parcels read 1, 3, 6 and 10: a partial sum that grows as it travels. A tag says pass a chunk on, add your own, pass it on.")
-def ch19():
+def ch25():
     cx, cy, rx, ry = 480, 238, 300, 54
     ring_path = f"M{cx - rx},{cy} A{rx},{ry} 0 1 0 {cx + rx},{cy} A{rx},{ry} 0 1 0 {cx - rx},{cy}"
     arrows = []

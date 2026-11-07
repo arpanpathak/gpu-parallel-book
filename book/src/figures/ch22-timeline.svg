@@ -48,12 +48,11 @@
   <text x="198.3" y="144.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">A</text>
   <text x="116.0" y="175.0" class="sub" text-anchor="end" xml:space="preserve">kernel</text>
   <line x1="128.0" y1="182.0" x2="622.5" y2="182.0" stroke="#D5DBE3" stroke-width="1"/>
-  <rect x="274.0" y="160.0" width="237.6" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
-  <text x="392.9" y="174.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">A</text>
+  <rect x="274.0" y="160.0" width="375.6" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="461.9" y="174.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">A</text>
   <text x="116.0" y="205.0" class="sub" text-anchor="end" xml:space="preserve">copy out</text>
   <line x1="128.0" y1="212.0" x2="622.5" y2="212.0" stroke="#D5DBE3" stroke-width="1"/>
-  <rect x="513.3" y="190.0" width="95.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
-  <text x="560.8" y="204.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">A</text>
+  <rect x="651.3" y="190.0" width="-43.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
   <text x="32.0" y="270.0" class="name" text-anchor="start" xml:space="preserve">2 streams, 8 chunks of 16 MiB</text>
   <rect x="521.6" y="257" width="106.4" height="18" rx="9" fill="#F1F4F7"/>
   <text x="574.8" y="269.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">total 13.59 ms</text>

@@ -896,7 +896,7 @@ so it would save nothing.
 **A 7-point blur of each frame of a video** reads 3 neighbors on each side of every pixel. No
 library call fits a stencil with a halo of neighbors, so the blur requires a custom kernel.
 It should read along rows, so that neighboring threads read neighboring pixels (Chapter 7).
-Tiling in shared memory should be added only if the profiler of Chapter 16 shows the blur to
+Tiling in shared memory should be added only if the profiler of Chapter 22 shows the blur to
 be the slowest stage of the pipeline.
 
 ## 11.7 The complete programs

@@ -1,6 +1,6 @@
-<img class="plate" src="../../art/ch18.svg" alt="Weave, a spider, hangs at the centre of a web strung across a night sky. 8 green GPU chips, GPU 0 to GPU 7, sit at the ends of the spokes, and every spoke runs from a chip to the hub where Weave hangs. 4 silver knots on the spokes near the hub stand for the switches. With 1 thread from each chip to the hub, every GPU reaches every other through the hub, without a separate thread for each pair. A tag reads 1 link to the switch, not 7 to the others.">
+<img class="plate" src="../../art/ch24.svg" alt="Weave, a spider, hangs at the centre of a web strung across a night sky. 8 green GPU chips, GPU 0 to GPU 7, sit at the ends of the spokes, and every spoke runs from a chip to the hub where Weave hangs. 4 silver knots on the spokes near the hub stand for the switches. With 1 thread from each chip to the hub, every GPU reaches every other through the hub, without a separate thread for each pair. A tag reads 1 link to the switch, not 7 to the others.">
 
-# Chapter 18: NVLink & NVSwitch - The Multi-GPU Interconnect
+# Chapter 24: NVLink & NVSwitch - The Multi-GPU Interconnect
 
 Every program in the previous chapters ran on a single GPU. Its threads read and wrote the
 GPU's own memory, and the only other memory involved was host memory, reached over the link
@@ -40,9 +40,9 @@ for C++ and in
 [`code/oxide/ch18_peer/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch18_peer)
 for Rust.
 
-## 18.1 Scaling beyond a single GPU
+## 24.1 Scaling beyond a single GPU
 
-### 18.1.1 Capacity and time
+### 24.1.1 Capacity and time
 
 There are 2 reasons to use more than a single GPU, and they lead to different ways of
 dividing a program.
@@ -59,7 +59,7 @@ there. Training a model repeats the same step many times, each time on a new **b
 group of training examples. If 8 GPUs each process a share of every batch, the training
 finishes sooner.
 
-### 18.1.2 Dividing the work among GPUs
+### 24.1.2 Dividing the work among GPUs
 
 A program can be divided among GPUs in 3 ways, summarised in the following table. The
 division determines what data the GPUs must send to each other.
@@ -76,7 +76,7 @@ capacity problem, since no GPU holds the whole model. Real systems combine them,
 pipeline parallelism between groups of GPUs and model parallelism within each group. In every
 case, the GPUs send data to each other at every step.
 
-### 18.1.3 Communication in data-parallel training
+### 24.1.3 Communication in data-parallel training
 
 We use data parallelism as our example because its communication is easy to count. A training
 step computes a **gradient** for every parameter of the model. The gradient of a parameter is
@@ -88,7 +88,7 @@ In data parallelism, each GPU computes gradients from its own share of the batch
 gradients differ from GPU to GPU. Before any GPU updates its copy of the model, the gradients
 of all GPUs must be added, and every GPU must receive the sum. Otherwise the copies of the
 model would diverge. The operation that adds a value held by every GPU and gives the sum to
-every GPU is called an **all-reduce**. Chapter 19 develops the all-reduce algorithms; here we
+every GPU is called an **all-reduce**. Chapter 25 develops the all-reduce algorithms; here we
 only need their cost. With the commonly used ring algorithm, each of \\(N\\) GPUs sends, and
 also receives, \\(2(N - 1)/N\\) times the size of the data.
 
@@ -99,15 +99,15 @@ carries 32 GB/s in each direction (Section 4.1.2), so sending 1.75 GB takes 1.75
 0.0547 s, or 54.7 ms. Assume that a single GPU needs 400 ms to compute the step for the whole
 batch. Each of the 8 GPUs then needs 400 / 8 = 50 ms to compute its share.
 
-The exchange therefore takes longer than the computation it serves. Figure 18.1 shows the
+The exchange therefore takes longer than the computation it serves. Figure 24.1 shows the
 resulting step. On 8 GPUs connected by PCIe, a step takes 50 + 54.7 = 104.7 ms, so the 8 GPUs
 together are only 400 / 104.7 = 3.8 times as fast as a single GPU. With the NVLink of an A100,
 which carries 300 GB/s in each direction, the exchange takes 1.75 / 300 = 5.8 ms, and the 8
-GPUs are 400 / 55.8 = 7.2 times as fast. Section 18.6 generalises this example into a model.
+GPUs are 400 / 55.8 = 7.2 times as fast. Section 24.6 generalises this example into a model.
 
 <figure>
-<img src="../../figures/ch18-step.svg" alt="Three timelines of 1 training step. On 1 GPU, 400 ms of compute. On 8 GPUs joined by PCIe 4.0, 50 ms of compute and 54.7 ms of gradient exchange, 104.7 ms, 3.8 times as fast. On 8 GPUs joined by NVLink 3, 50 ms of compute and 5.8 ms of exchange, 55.8 ms, 7.2 times as fast.">
-<figcaption><b>Figure 18.1</b> A training step on 8 GPUs: the computation is divided by 8, the exchange is not.</figcaption>
+<img src="../../figures/ch24-step.svg" alt="Three timelines of 1 training step. On 1 GPU, 400 ms of compute. On 8 GPUs joined by PCIe 4.0, 50 ms of compute and 54.7 ms of gradient exchange, 104.7 ms, 3.8 times as fast. On 8 GPUs joined by NVLink 3, 50 ms of compute and 5.8 ms of exchange, 55.8 ms, 7.2 times as fast.">
+<figcaption><b>Figure 24.1</b> A training step on 8 GPUs: the computation is divided by 8, the exchange is not.</figcaption>
 </figure>
 
 <div class="callout note" markdown="1">
@@ -127,9 +127,9 @@ The interconnect between the GPUs determines how many GPUs still make the progra
 
 </div>
 
-## 18.2 NVLink: a faster link between GPUs
+## 24.2 NVLink: a faster link between GPUs
 
-### 18.2.1 Links and differential pairs
+### 24.2.1 Links and differential pairs
 
 An **interconnect** is the hardware that carries data between chips. PCIe, described in
 Chapter 4, is the standard interconnect between a CPU and the devices plugged into it.
@@ -151,14 +151,14 @@ in each direction, which is 200 / 8 = 25 GB/s. An H100 has 18 links, for a total
 18 × 25 = 450 GB/s in each direction. The NVLink 3 of the A100 reached the same 25 GB/s per
 link with 4 pairs in each direction at half the signalling rate. NVLink 4 halved the number of
 pairs per link and doubled their rate, which leaves room on the chip for more links. Figure
-18.2 shows a link and the 18 links of an H100.
+24.2 shows a link and the 18 links of an H100.
 
 <figure>
-<img src="../../figures/ch18-link.svg" alt="Left: 1 link of NVLink 4 between GPU A and GPU B, drawn as 2 wire pairs from A to B and 2 from B to A. 2 pairs of 100 Gbit/s carry 200 Gbit/s, 25 GB/s each way. Right: the 18 links of 1 H100, numbered 1 to 18: 18 times 25 GB/s is 450 GB/s each way, 900 GB/s both ways, against 64 GB/s each way for PCIe 5.0 with 16 lanes.">
-<figcaption><b>Figure 18.2</b> A link carries 25 GB/s in each direction; an H100 has 18 links.</figcaption>
+<img src="../../figures/ch24-link.svg" alt="Left: 1 link of NVLink 4 between GPU A and GPU B, drawn as 2 wire pairs from A to B and 2 from B to A. 2 pairs of 100 Gbit/s carry 200 Gbit/s, 25 GB/s each way. Right: the 18 links of 1 H100, numbered 1 to 18: 18 times 25 GB/s is 450 GB/s each way, 900 GB/s both ways, against 64 GB/s each way for PCIe 5.0 with 16 lanes.">
+<figcaption><b>Figure 24.2</b> A link carries 25 GB/s in each direction; an H100 has 18 links.</figcaption>
 </figure>
 
-### 18.2.2 Bandwidth in each direction
+### 24.2.2 Bandwidth in each direction
 
 The **bandwidth** of a link is the maximum amount of data it can carry per unit of time. A link
 with pairs in both directions has 2 bandwidths, 1 for each direction, and both can be used at
@@ -179,7 +179,7 @@ quantities for an H100.
 | \\(B = L \cdot b\\) | the GPU's NVLink bandwidth, each way | 18 × 25 = 450 GB/s |
 | \\(2B\\) | both ways, the figure NVIDIA quotes | 900 GB/s |
 
-### 18.2.3 NVLink generations
+### 24.2.3 NVLink generations
 
 Each generation of NVIDIA's data-centre GPUs has introduced a new generation of NVLink. The
 following table lists NVIDIA's figures. The column for each direction is half of NVIDIA's
@@ -201,17 +201,17 @@ of each link. The consumer GPUs in the table, the RTX 4090 and RTX 5090, have no
 of them exchange data over PCIe. Integrated GPUs, such as the one in the DGX Spark, have no
 NVLink either: each is the only GPU in its system, and it shares a single memory with the CPU.
 
-Figure 18.3 converts these rates into the time needed to move the 1 GB of gradients from
-Section 18.1.3.
+Figure 24.3 converts these rates into the time needed to move the 1 GB of gradients from
+Section 24.1.3.
 
 <figure>
-<img src="../../figures/ch18-rates.svg" alt="Horizontal bars of bandwidth each way, with the time to move 1 GB. PCIe 4.0 with 16 lanes 32 GB/s, 31 ms. PCIe 5.0 64 GB/s, 16 ms. NVLink 2 on V100 150 GB/s, 6.7 ms. NVLink 3 on A100 300 GB/s, 3.3 ms. NVLink 4 on H100 450 GB/s, 2.2 ms. NVLink-C2C on GH200 450 GB/s, 2.2 ms. NVLink 5 on B200 900 GB/s, 1.1 ms. A copy inside an H100's own memory 1,675 GB/s, 0.6 ms.">
-<figcaption><b>Figure 18.3</b> The time to move 1 GB over each link, and within the memory of a GPU.</figcaption>
+<img src="../../figures/ch24-rates.svg" alt="Horizontal bars of bandwidth each way, with the time to move 1 GB. PCIe 4.0 with 16 lanes 32 GB/s, 31 ms. PCIe 5.0 64 GB/s, 16 ms. NVLink 2 on V100 150 GB/s, 6.7 ms. NVLink 3 on A100 300 GB/s, 3.3 ms. NVLink 4 on H100 450 GB/s, 2.2 ms. NVLink-C2C on GH200 450 GB/s, 2.2 ms. NVLink 5 on B200 900 GB/s, 1.1 ms. A copy inside an H100's own memory 1,675 GB/s, 0.6 ms.">
+<figcaption><b>Figure 24.3</b> The time to move 1 GB over each link, and within the memory of a GPU.</figcaption>
 </figure>
 
-### 18.2.4 Peer bandwidth compared with local memory
+### 24.2.4 Peer bandwidth compared with local memory
 
-A GPU's own memory is still faster than any link. The last bar of Figure 18.3 is a copy within
+A GPU's own memory is still faster than any link. The last bar of Figure 24.3 is a copy within
 an H100. Its memory delivers 3,350 GB/s, and a copy both reads and writes every byte, so it
 moves data at 3,350 / 2 = 1,675 GB/s. For a program, the important quantity is how many times
 slower the memory of another GPU in the same system, called a **peer**, is to reach than the
@@ -232,9 +232,9 @@ PCIe it is 52 times slower. This ratio, more than the bandwidth alone, determine
 programs can treat several GPUs as 1 large GPU. For example, a kernel that reads 1 byte in 8
 from a peer over NVLink spends about as much time on the link as on its own memory.
 
-## 18.3 NVSwitch and topologies
+## 24.3 NVSwitch and topologies
 
-### 18.3.1 Full-mesh topology
+### 24.3.1 Full-mesh topology
 
 The **topology** of a multi-GPU system is the pattern of links that connects its GPUs. The
 simplest topology gives every pair of GPUs its own link, and is called a **full mesh**. In a
@@ -243,12 +243,12 @@ full mesh of 4 GPUs, each GPU needs a link to each of the other 3 GPUs. This giv
 GPUs, each GPU needs 7 links, and the mesh needs 8 × 7 / 2 = 28. In general, a full mesh of
 \\(N\\) GPUs needs \\(N - 1\\) links per GPU and \\(N(N - 1)/2\\) links in total.
 
-Figure 18.4 shows both cases. The number of links in a mesh grows with the square of the
+Figure 24.4 shows both cases. The number of links in a mesh grows with the square of the
 number of GPUs, but the number of links on each GPU is fixed when the chip is designed.
 
 <figure>
-<img src="../../figures/ch18-mesh.svg" alt="Left: 4 GPUs at the corners of a square, joined by 4 sides and 2 diagonals, 6 links, 3 per GPU. Right: an 8 by 8 table of GPU pairs. The diagonal is crossed out, the upper half is shaded: 28 cells, 1 link for each pair, 7 links at each GPU.">
-<figcaption><b>Figure 18.4</b> A full mesh: 6 links for 4 GPUs, 28 links for 8 GPUs.</figcaption>
+<img src="../../figures/ch24-mesh.svg" alt="Left: 4 GPUs at the corners of a square, joined by 4 sides and 2 diagonals, 6 links, 3 per GPU. Right: an 8 by 8 table of GPU pairs. The diagonal is crossed out, the upper half is shaded: 28 cells, 1 link for each pair, 7 links at each GPU.">
+<figcaption><b>Figure 24.4</b> A full mesh: 6 links for 4 GPUs, 28 links for 8 GPUs.</figcaption>
 </figure>
 
 Each GPU must therefore divide its links among its peers. An A100 has 12 links. In a mesh of 4
@@ -258,7 +258,7 @@ direction per pair. In a mesh of 8 H100s, each GPU could give 2 links to each of
 single peer. That is a ninth of the GPU's 450 GB/s. The more GPUs a mesh connects, the less
 bandwidth is available between any 2 of them.
 
-### 18.3.2 NVSwitch
+### 24.3.2 NVSwitch
 
 A **switch** is a chip with many ports that forwards data arriving at any port to any other
 port. **NVSwitch** is NVIDIA's switch for NVLink. Instead of connecting GPUs to each other,
@@ -268,19 +268,19 @@ GPU it addresses.
 The difference appears when a GPU communicates with a single peer. In a mesh, only the 2 links
 between the pair carry the data. Through switches, all 18 links of the GPU carry it, at the
 full 450 GB/s in each direction. A switch that allows every GPU to send at its full rate to any
-other GPU at the same time is called **non-blocking**. Figure 18.5 compares the 2 ways of
+other GPU at the same time is called **non-blocking**. Figure 24.5 compares the 2 ways of
 connecting 8 H100s.
 
 <figure>
-<img src="../../figures/ch18-switch.svg" alt="Top: 8 H100s wired directly. GPU 0 fans out to GPUs 1 to 7, each with a tag of 2 links: 18 links over 7 peers give 2 links per peer, 50 GB/s each way. Bottom: 8 GPUs, each with 18 links going down into a row of 4 NVSwitch chips. Any pair can use all 18 links, 450 GB/s each way, and all 8 GPUs can do so at once; 144 of the 256 switch ports are used.">
-<figcaption><b>Figure 18.5</b> 8 H100s: 50 GB/s to a peer in a mesh, 450 GB/s through switches.</figcaption>
+<img src="../../figures/ch24-switch.svg" alt="Top: 8 H100s wired directly. GPU 0 fans out to GPUs 1 to 7, each with a tag of 2 links: 18 links over 7 peers give 2 links per peer, 50 GB/s each way. Bottom: 8 GPUs, each with 18 links going down into a row of 4 NVSwitch chips. Any pair can use all 18 links, 450 GB/s each way, and all 8 GPUs can do so at once; 144 of the 256 switch ports are used.">
+<figcaption><b>Figure 24.5</b> 8 H100s: 50 GB/s to a peer in a mesh, 450 GB/s through switches.</figcaption>
 </figure>
 
 The switch adds a hop: data travels from the GPU to a switch and then to the peer, and each hop
 adds latency. For exchanges larger than a few kilobytes, the gain in bandwidth outweighs the
 added latency.
 
-### 18.3.3 NVLink systems
+### 24.3.3 NVLink systems
 
 NVIDIA's 8-GPU servers and its rack-scale systems are built from these components.
 
@@ -299,9 +299,9 @@ quotes as the total for the rack.
 
 The third-generation NVSwitch can also perform arithmetic. It can add the data that several
 GPUs send to it and return the sum, which can halve the number of bytes that some of the
-collective operations of Chapter 19 must move.
+collective operations of Chapter 25 must move.
 
-### 18.3.4 Bisection bandwidth
+### 24.3.4 Bisection bandwidth
 
 Topologies differ most when every GPU sends data at the same time, and a single number
 characterises this case. Divide the GPUs into 2 halves of equal size, choosing the division
@@ -309,7 +309,7 @@ that leaves the fewest links crossing between the halves. The **bisection bandwi
 total bandwidth, in each direction, of the links that cross. It is the maximum amount of data
 that one half can send to the other half per unit of time.
 
-Figure 18.6 computes the bisection bandwidth of 8 GPUs, each with 18 links of 25 GB/s,
+Figure 24.6 computes the bisection bandwidth of 8 GPUs, each with 18 links of 25 GB/s,
 connected in 3 ways.
 
 <div class="example" markdown="1">
@@ -326,8 +326,8 @@ Worked example: the bisection bandwidth of 8 GPUs
 </div>
 
 <figure>
-<img src="../../figures/ch18-bisection.svg" alt="Three ways to join 8 GPUs that each have 18 links, cut in half by a dashed line. Ring: 2 edges of 9 links cross the cut, 450 GB/s each way. Mesh: 16 pairs of 2 links cross, 800 GB/s. Switch: all 4 GPUs on one side send at 450 GB/s through the switch, 1,800 GB/s.">
-<figcaption><b>Figure 18.6</b> The same 18 links per GPU give a bisection bandwidth of 450, 800 or 1,800 GB/s.</figcaption>
+<img src="../../figures/ch24-bisection.svg" alt="Three ways to join 8 GPUs that each have 18 links, cut in half by a dashed line. Ring: 2 edges of 9 links cross the cut, 450 GB/s each way. Mesh: 16 pairs of 2 links cross, 800 GB/s. Switch: all 4 GPUs on one side send at 450 GB/s through the switch, 1,800 GB/s.">
+<figcaption><b>Figure 24.6</b> The same 18 links per GPU give a bisection bandwidth of 450, 800 or 1,800 GB/s.</figcaption>
 </figure>
 
 The links are the same in all 3 cases; only their arrangement differs. Some model-parallel
@@ -348,27 +348,27 @@ communicates at once.
 
 </div>
 
-## 18.4 Memory access across NVLink
+## 24.4 Memory access across NVLink
 
 A fast link would be useful even if it only carried copies. Together with CUDA, however,
 NVLink also allows a GPU to use the memory of another GPU almost as if it were its own. We now
 describe the 4 mechanisms that make this possible.
 
-### 18.4.1 Unified virtual addressing
+### 24.4.1 Unified virtual addressing
 
 On a 64-bit system, CUDA places the host and all GPUs in a single range of virtual addresses.
 This arrangement is called **unified virtual addressing** (UVA). No 2 allocations, on any GPU
 or on the host, receive the same address, so the value of a pointer alone determines which
-memory it points to. The program of Section 18.5 uses `cudaPointerGetAttributes` to ask the
+memory it points to. The program of Section 24.5 uses `cudaPointerGetAttributes` to ask the
 runtime where a buffer resides. It copies with `cudaMemcpyDefault`, which tells the runtime to
 infer the direction of the copy from the 2 pointers.
 
 UVA is related to the unified memory of Section 4.5, but it provides only part of it: the
 addresses are shared, while the data stays in the memory where it was allocated.
 
-### 18.4.2 Peer copies and direct peer access
+### 24.4.2 Peer copies and direct peer access
 
-Data can reach a peer's memory in 2 ways, and the program of Section 18.5 measures both.
+Data can reach a peer's memory in 2 ways, and the program of Section 24.5 measures both.
 
 1. **A copy.** `cudaMemcpyPeerAsync` asks the copy engines of the GPU, the units that move data
    without using any SM (Section 4.2.2), to move a block of bytes from 1 GPU to another.
@@ -378,12 +378,12 @@ Data can reach a peer's memory in 2 ways, and the program of Section 18.5 measur
 
 Direct access must be enabled, once, with `cudaDeviceEnablePeerAccess`. Copies work without
 it, but the runtime then **stages** them through host memory: it copies from GPU 0 to the host
-and then from the host to GPU 1, crossing PCIe twice where once would suffice. Figure 18.7
+and then from the host to GPU 1, crossing PCIe twice where once would suffice. Figure 24.7
 shows the 3 paths that a copy can take.
 
 <figure>
-<img src="../../figures/ch18-paths.svg" alt="Three rows. Staged through the host: GPU 0 to host memory over PCIe, then host memory to GPU 1 over PCIe. PCIe peer to peer: GPU 0 to a PCIe switch to GPU 1, without host memory. NVLink: GPU 0 straight to GPU 1 over NVLink.">
-<figcaption><b>Figure 18.7</b> The 3 paths from GPU 0 to GPU 1, slowest first.</figcaption>
+<img src="../../figures/ch24-paths.svg" alt="Three rows. Staged through the host: GPU 0 to host memory over PCIe, then host memory to GPU 1 over PCIe. PCIe peer to peer: GPU 0 to a PCIe switch to GPU 1, without host memory. NVLink: GPU 0 straight to GPU 1 over NVLink.">
+<figcaption><b>Figure 24.7</b> The 3 paths from GPU 0 to GPU 1, slowest first.</figcaption>
 </figure>
 
 A **peer-to-peer** (P2P) transfer is any transfer from 1 GPU to another that does not pass
@@ -392,7 +392,7 @@ reliably when the 2 GPUs are behind the same PCIe switch, and many desktop syste
 it at all. Over NVLink it is always possible. `cudaDeviceCanAccessPeer` reports, for a pair of
 GPUs, whether it is.
 
-### 18.4.3 Atomic operations on peer memory
+### 24.4.3 Atomic operations on peer memory
 
 The atomic operations of Chapter 5 can target a peer's memory, so threads on 2 GPUs can add to
 the same counter. NVLink carries atomic operations as such, and the peer's memory performs
@@ -401,7 +401,7 @@ them. Whether a given pair of GPUs supports this natively is reported by
 atomic operation crosses the link and waits for its result. Peer atomics are therefore suited
 to infrequent events, such as a flag or a work counter, and not to an update per element.
 
-### 18.4.4 NVLink-C2C and coherence
+### 24.4.4 NVLink-C2C and coherence
 
 The Grace Hopper superchip, GH200, connects a Grace CPU and an H100 GPU with **NVLink-C2C**, a
 chip-to-chip link of 450 GB/s in each direction. The link is **coherent**: when the CPU writes
@@ -411,9 +411,9 @@ work on the same data at the same time, without copies and without the page migr
 unified memory. Integrated GPUs, such as the one in the DGX Spark, go further: they share a
 single memory with their CPU, so there is no second memory to copy to.
 
-## 18.5 Peer-to-peer in CUDA
+## 24.5 Peer-to-peer in CUDA
 
-### 18.5.1 Structure of the program
+### 24.5.1 Structure of the program
 
 The program of this section asks the system 3 questions and measures the answer to the last:
 
@@ -423,7 +423,7 @@ The program of this section asks the system 3 questions and measures the answer 
 
 On a machine with 2 GPUs that can access each other, the copies go from GPU 0 to GPU 1. On a
 machine with a single GPU, they stay within GPU 0, and the program measures the GPU's own
-memory, the baseline against which Section 18.2.4 compared every link. The following
+memory, the baseline against which Section 24.2.4 compared every link. The following
 pseudocode summarises the program.
 
 ```text
@@ -447,15 +447,15 @@ The measurements in this chapter come from 2 integrated GPUs: a Jetson Orin NX (
 102 GB/s) and a Jetson AGX Thor (20 SMs, 32 MiB of L2 cache). The buffers are 128 MiB, 4 times
 the larger of the 2 L2 caches, so the copies measure memory rather than the cache (Chapter 7).
 
-### 18.5.2 Querying peer access
+### 24.5.2 Querying peer access
 
 `cudaGetDeviceCount` returns the number of GPUs, which are numbered from 0.
 `cudaDeviceCanAccessPeer` sets its first argument to 1 if the GPU given by its second argument
 can access the memory of the GPU given by its third argument. Note that the query has a
 direction: whether GPU 0 can access GPU 1 and whether GPU 1 can access GPU 0 are queried, and
-enabled, separately. Listing 18.1 prints the resulting matrix.
+enabled, separately. Listing 24.1 prints the resulting matrix.
 
-<p class="listing"><b>Listing 18.1</b> The peer matrix, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">code/ch18_peer/peer.cu</a></p>
+<p class="listing"><b>Listing 24.1</b> The peer matrix, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">code/ch18_peer/peer.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch18_peer/peer.cu:31:52}}
@@ -468,20 +468,20 @@ function that returns the number of GPUs, so the Rust program calls the driver f
 line. The driver must already be initialised when the call is made, which
 `CudaContext::new(0)` ensures.
 
-<p class="listing"><b>Listing 18.2</b> The number of GPUs and the peer matrix, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">code/oxide/ch18_peer/src/main.rs</a></p>
+<p class="listing"><b>Listing 24.2</b> The number of GPUs and the peer matrix, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">code/oxide/ch18_peer/src/main.rs</a></p>
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch18_peer/src/main.rs:37:69}}
 ```
 
-### 18.5.3 Enabling peer access and allocating the buffers
+### 24.5.3 Enabling peer access and allocating the buffers
 
 `cudaDeviceEnablePeerAccess(peer, 0)` allows the current GPU, selected with `cudaSetDevice`, to
 access the memory of the GPU `peer`. The second argument is reserved for flags and must be 0.
 The call maps the peer's memory into the page tables of the current GPU. This mapping takes
 time, so the call is made once and not inside a loop.
 
-<p class="listing"><b>Listing 18.3</b> Choosing the 2 GPUs and enabling access, in C++.</p>
+<p class="listing"><b>Listing 24.3</b> Choosing the 2 GPUs and enabling access, in C++.</p>
 
 ```cpp
 int main()
@@ -497,7 +497,7 @@ program selects GPU `src` before allocating `a` and GPU `dst` before allocating 
 `cudaPointerGetAttributes` then determines, from the pointer `b` alone, which GPU holds the
 buffer.
 
-<p class="listing"><b>Listing 18.4</b> A buffer on each GPU, and the location of <code>b</code> reported through UVA, in C++.</p>
+<p class="listing"><b>Listing 24.4</b> A buffer on each GPU, and the location of <code>b</code> reported through UVA, in C++.</p>
 
 ```cpp
 int main()
@@ -512,7 +512,7 @@ In Rust, each GPU has its own `CudaContext` and its own stream, and a `DeviceBuf
 allocated on the GPU whose stream creates it. `peer::enable_peer_access(from, to)` corresponds
 to `cudaDeviceEnablePeerAccess`; it also returns `Ok` when access is already enabled.
 
-<p class="listing"><b>Listing 18.5</b> Choosing the 2 GPUs and allocating, in Rust.</p>
+<p class="listing"><b>Listing 24.5</b> Choosing the 2 GPUs and allocating, in Rust.</p>
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
@@ -522,7 +522,7 @@ fn main() -> Result<(), Error> {
 }
 ```
 
-### 18.5.4 Peer copies and copy kernels
+### 24.5.4 Peer copies and copy kernels
 
 The first method is a copy. `cudaMemcpyPeerAsync(dst pointer, dst GPU, src pointer, src GPU,
 bytes, stream)` names both GPUs, and when peer access is enabled the copy goes directly across
@@ -531,13 +531,13 @@ an ordinary copy within its memory. The second method is a kernel running on GPU
 each thread copies 1 float from `a` to `b`. On 2 GPUs, the stores of this kernel are written to
 the peer's memory.
 
-<p class="listing"><b>Listing 18.6</b> The copy kernel, in C++.</p>
+<p class="listing"><b>Listing 24.6</b> The copy kernel, in C++.</p>
 
 ```cpp
 {{#include ../../../../code/ch18_peer/peer.cu:25:29}}
 ```
 
-<p class="listing"><b>Listing 18.7</b> A copy and a kernel, each timed and checked, in C++.</p>
+<p class="listing"><b>Listing 24.7</b> A copy and a kernel, each timed and checked, in C++.</p>
 
 ```cpp
 int main()
@@ -559,13 +559,13 @@ device-to-device copy, which, with UVA, also works between GPUs. The kernel uses
 contract of Chapter 13: `src` is a plain slice, and `DisjointSlice` allows each thread to write
 its own element of `dst` without `unsafe` code.
 
-<p class="listing"><b>Listing 18.8</b> The copy kernel, in Rust.</p>
+<p class="listing"><b>Listing 24.8</b> The copy kernel, in Rust.</p>
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch18_peer/src/main.rs:22:35}}
 ```
 
-<p class="listing"><b>Listing 18.9</b> A copy and a kernel, each timed and checked, in Rust.</p>
+<p class="listing"><b>Listing 24.9</b> A copy and a kernel, each timed and checked, in Rust.</p>
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
@@ -575,7 +575,7 @@ fn main() -> Result<(), Error> {
 }
 ```
 
-### 18.5.5 Results
+### 24.5.5 Results
 
 ```console
 $ nvcc -arch=native peer.cu -o peer && ./peer
@@ -609,7 +609,7 @@ buffer b lives on GPU0
 
 Both copies pass on this GPU as well, in C++ and in Rust.
 
-To interpret the rates, we use the reasoning of Section 18.2.4. A copy of 128 MiB, which is
+To interpret the rates, we use the reasoning of Section 24.2.4. A copy of 128 MiB, which is
 134.2 MB, in 3.462 ms corresponds to 134.2 / 3.462 = 38.8 GB/s copied. Every copied byte is
 read once and written once, so the memory moved 2 × 38.8 = 77.6 GB/s, which is 76% of the
 GPU's 102 GB/s. A copy cannot use all of the memory bandwidth, because the memory loses time
@@ -618,8 +618,8 @@ call; in both cases the memory, not the SMs, limited the rate. Across 6 runs, th
 between 38.8 and 42.3 GB/s, a spread of 9%.
 
 <figure>
-<img src="../../figures/ch18-measured.svg" alt="A bar as long as the GPU's memory bandwidth, 102 GB/s. The copy ran at 38.8 GB/s, so 38.8 GB/s were read and 38.8 GB/s written: 77.6 GB/s, 76% of the bandwidth. The rest of the bar is unused.">
-<figcaption><b>Figure 18.8</b> A copy within a GPU uses its memory bandwidth twice, once to read and once to write.</figcaption>
+<img src="../../figures/ch24-measured.svg" alt="A bar as long as the GPU's memory bandwidth, 102 GB/s. The copy ran at 38.8 GB/s, so 38.8 GB/s were read and 38.8 GB/s written: 77.6 GB/s, 76% of the bandwidth. The rest of the bar is unused.">
+<figcaption><b>Figure 24.8</b> A copy within a GPU uses its memory bandwidth twice, once to read and once to write.</figcaption>
 </figure>
 
 The Rust program prints the same lines except the UVA details, because cuda-core does not
@@ -641,7 +641,7 @@ no peer to reach: copying within GPU0
 `copy_from_device_async` calls the same driver copy as the C++ program, and it ran within 2% of
 it, which is within the spread between runs.
 
-### 18.5.6 Output on a multi-GPU system
+### 24.5.6 Output on a multi-GPU system
 
 On a server with 8 GPUs connected through NVSwitch, the matrix contains `yes` in every cell off
 the diagonal, because every GPU can reach every other GPU through the switches. On a desktop
@@ -654,16 +654,16 @@ that no link to a peer exceeds.
 <div class="callout tip" markdown="1">
 
 **TIP:** Run `peer` on a multi-GPU machine, such as a cloud instance with 2 or 8 GPUs, and
-compare its rates with the table of Section 18.2.3. A rate far below the table usually means
+compare its rates with the table of Section 24.2.3. A rate far below the table usually means
 that the copies are being staged through the host; check the matrix for `no`.
 
 </div>
 
-## 18.6 When a faster interconnect helps
+## 24.6 When a faster interconnect helps
 
-### 18.6.1 A model of a training step
+### 24.6.1 A model of a training step
 
-Section 18.1.3 computed the time of a step by hand. Writing the same arithmetic with symbols
+Section 24.1.3 computed the time of a step by hand. Writing the same arithmetic with symbols
 tells us when a faster link improves performance. Let a step take \\(T_1\\) on a single GPU. On
 \\(N\\) GPUs, each GPU computes for \\(T_1 / N\\) and then exchanges data for \\(T_x\\), a time
 that does not decrease with \\(N\\):
@@ -691,7 +691,7 @@ doubles both \\(T_1\\) and the number of bytes exchanged, so their ratio does no
 Halving the batch halves \\(T_1\\) but not the bytes, so the exchange becomes relatively more
 important.
 
-### 18.6.2 Workloads and interconnect requirements
+### 24.6.2 Workloads and interconnect requirements
 
 The model classifies programs by the ratio of their exchange time to their computation time.
 
@@ -706,15 +706,15 @@ The model classifies programs by the ratio of their exchange time to their compu
 
 The entries of the table follow from the arithmetic of the model rather than from fixed rules.
 To decide for a given program, measure the 2 terms: \\(T_1\\) with the events of Chapter 6, and
-\\(T_x\\) with the program of Section 18.5 or with nccl-tests, which Chapter 19 introduces.
+\\(T_x\\) with the program of Section 24.5 or with nccl-tests, which Chapter 25 introduces.
 
-## 18.7 Topology discovery
+## 24.7 Topology discovery
 
-### 18.7.1 `nvidia-smi topo -m`
+### 24.7.1 `nvidia-smi topo -m`
 
 A program cannot choose good pairs of GPUs without knowing how they are connected. The command
 `nvidia-smi topo -m` prints the topology as a matrix with 1 row and 1 column per GPU, and each
-cell contains a code for the path between the 2 GPUs. On the second GPU of Section 18.5.5, it
+cell contains a code for the path between the 2 GPUs. On the second GPU of Section 24.5.5, it
 prints the following:
 
 ```console
@@ -739,7 +739,7 @@ with the memory attached to them; the GPU belongs to node 0, the only node of th
 some integrated GPUs, `nvidia-smi` does not implement the matrix and prints `Failed to run
 topology matrix`.
 
-### 18.7.2 Connection codes
+### 24.7.2 Connection codes
 
 The legend lists the paths from the fastest, at the bottom, to the slowest, at the top. A
 **PCIe bridge** is a PCIe switch. A **host bridge** is the point where PCIe enters the CPU. An
@@ -754,19 +754,19 @@ The legend lists the paths from the fastest, at the bottom, to the slowest, at t
 | `NODE` | between host bridges of 1 CPU | rarely |
 | `SYS` | across CPU sockets | no; staged through the host |
 
-Figure 18.9 shows a matrix of this form for an example server with 4 GPUs on 2 CPU sockets, in
+Figure 24.9 shows a matrix of this form for an example server with 4 GPUs on 2 CPU sockets, in
 which GPUs 0 and 1, and GPUs 2 and 3, are connected by 4 NVLinks. The figure illustrates the
 format; it is not output from a real machine.
 
 <figure>
-<img src="../../figures/ch18-topo.svg" alt="A 4 by 4 matrix like the one nvidia-smi topo -m prints, for an example server. The diagonal reads X. GPU0 and GPU1, and GPU2 and GPU3, read NV4: 4 NVLinks. GPU0 and GPU2, and GPU1 and GPU3, read PIX: 1 PCIe switch. GPU0 and GPU3, and GPU1 and GPU2, read SYS: across the CPU sockets. A legend explains each code.">
-<figcaption><b>Figure 18.9</b> Reading a row of the matrix: the path from a GPU to each of the others.</figcaption>
+<img src="../../figures/ch24-topo.svg" alt="A 4 by 4 matrix like the one nvidia-smi topo -m prints, for an example server. The diagonal reads X. GPU0 and GPU1, and GPU2 and GPU3, read NV4: 4 NVLinks. GPU0 and GPU2, and GPU1 and GPU3, read PIX: 1 PCIe switch. GPU0 and GPU3, and GPU1 and GPU2, read SYS: across the CPU sockets. A legend explains each code.">
+<figcaption><b>Figure 24.9</b> Reading a row of the matrix: the path from a GPU to each of the others.</figcaption>
 </figure>
 
 On such a server, a program that uses 2 GPUs should choose GPUs 0 and 1, or GPUs 2 and 3.
 Choosing GPUs 0 and 3 would send every byte across the CPU sockets.
 
-### 18.7.3 NVLink status and NVML
+### 24.7.3 NVLink status and NVML
 
 `nvidia-smi nvlink -s` lists the NVLinks of each GPU, with the rate of each link and whether it
 is active. On a GPU that is the only GPU in its system, it prints `Device does not have or
@@ -775,15 +775,15 @@ support Nvlink`. A program that must adapt to the machine can read the same info
 returns the nearest common point on the paths of 2 GPUs, which corresponds to the codes of the
 table above, and `nvmlDeviceGetNvLinkState` reports the state of each link.
 
-## 18.8 The complete programs
+## 24.8 The complete programs
 
-<p class="listing"><b>Listing 18.10</b> The complete <code>peer.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">code/ch18_peer/peer.cu</a></p>
+<p class="listing"><b>Listing 24.10</b> The complete <code>peer.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">code/ch18_peer/peer.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch18_peer/peer.cu}}
 ```
 
-<p class="listing"><b>Listing 18.11</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">code/oxide/ch18_peer/src/main.rs</a></p>
+<p class="listing"><b>Listing 24.11</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">code/oxide/ch18_peer/src/main.rs</a></p>
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch18_peer/src/main.rs}}
@@ -835,7 +835,7 @@ table above, and `nvmlDeviceGetNvLinkState` reports the state of each link.
 
 </div>
 
-Chapter 19 develops the all-reduce algorithms whose cost this chapter used, and NCCL, the
+Chapter 25 develops the all-reduce algorithms whose cost this chapter used, and NCCL, the
 library that runs them over the links that the topology provides.
 
 ## Exercises
@@ -849,7 +849,7 @@ library that runs them over the links that the topology provides.
    each pair get, and what bandwidth in each direction at 25 GB/s per link?
 4. Compute the bisection bandwidth in each direction of 16 GPUs with 18 links each, connected
    (a) in a ring with 9 links to each neighbour, and (b) through a non-blocking switch.
-5. In the model of Section 18.6, find the smallest \\(T_1\\) for which 8 A100s on NVLink 3
+5. In the model of Section 24.6, find the smallest \\(T_1\\) for which 8 A100s on NVLink 3
    reach a speedup of 6 with gradients of 1 GB.
 6. Run `peer` on your GPU. Compute the memory traffic of the copy, 2 times the rate, as a share
    of your GPU's memory bandwidth. Then change `N` to 1 MiB of floats and explain the new rate.
