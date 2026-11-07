@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 456" width="640" height="456" role="img" aria-label="Two ways to load the 4 by 4 tile of block (1, 1). Left, extra threads: the block has 4 by 4 = 16 threads, 1 per slot; all 16 load, and only the inner 4 compute. Right, a loop: the block has 2 by 2 = 4 threads, and each loads 4 slots, at rows ty and ty + 2 and columns tx and tx + 2; the slots are coloured by the thread that loads them. A note gives the counts for the programs: 34 by 10 = 340 threads, 256 of which compute; or 256 threads, of which 180 load 1 slot, 72 load 2 and 4 load 4.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="456" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">2 ways to load a tile and its halo</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Every slot needs exactly 1 loading thread; the block has fewer threads than slots.</text>
+  <rect x="32" y="96" width="280" height="340" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="50" y="85" width="248.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="174.1" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">EXTRA THREADS: 4 × 4 THREADS</text>
+  <rect x="328" y="96" width="280" height="340" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="346" y="85" width="240.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="466.2" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">LOADING LOOP: 2 × 2 THREADS</text>
+  <rect x="72.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="94.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,0</text>
+  <rect x="122.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="144.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,1</text>
+  <rect x="172.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="194.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,2</text>
+  <rect x="222.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="244.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,3</text>
+  <rect x="72.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="94.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,0</text>
+  <rect x="122.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="144.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,1</text>
+  <rect x="172.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="194.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,2</text>
+  <rect x="222.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="244.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,3</text>
+  <rect x="72.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="94.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t2,0</text>
+  <rect x="122.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="144.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t2,1</text>
+  <rect x="172.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="194.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t2,2</text>
+  <rect x="222.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="244.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t2,3</text>
+  <rect x="72.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="94.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t3,0</text>
+  <rect x="122.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="144.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t3,1</text>
+  <rect x="172.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="194.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t3,2</text>
+  <rect x="222.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="244.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t3,3</text>
+  <rect x="368.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="390.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,0</text>
+  <rect x="418.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="440.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,1</text>
+  <rect x="468.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="490.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,0</text>
+  <rect x="518.0" y="128.0" width="45.0" height="45.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="540.5" y="154.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,1</text>
+  <rect x="368.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="390.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,0</text>
+  <rect x="418.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="440.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,1</text>
+  <rect x="468.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="490.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,0</text>
+  <rect x="518.0" y="178.0" width="45.0" height="45.0" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="540.5" y="204.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,1</text>
+  <rect x="368.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="390.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,0</text>
+  <rect x="418.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="440.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,1</text>
+  <rect x="468.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="490.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,0</text>
+  <rect x="518.0" y="228.0" width="45.0" height="45.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="540.5" y="254.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t0,1</text>
+  <rect x="368.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="390.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,0</text>
+  <rect x="418.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="440.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,1</text>
+  <rect x="468.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="490.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,0</text>
+  <rect x="518.0" y="278.0" width="45.0" height="45.0" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="540.5" y="304.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">t1,1</text>
+  <text x="52.0" y="352.0" class="note" text-anchor="start" xml:space="preserve">16 threads load 1 slot each;</text>
+  <text x="52.0" y="368.0" class="note" text-anchor="start" xml:space="preserve">the 4 green ones also compute.</text>
+  <text x="52.0" y="396.0" class="note" text-anchor="start" xml:space="preserve">Programs: 34 × 10 = 340 threads,</text>
+  <text x="52.0" y="412.0" class="note" text-anchor="start" xml:space="preserve">256 of them compute.</text>
+  <text x="348.0" y="352.0" class="note" text-anchor="start" xml:space="preserve">Each thread loads every slot (i, j)</text>
+  <text x="348.0" y="368.0" class="note" text-anchor="start" xml:space="preserve">with i ≡ ty, j ≡ tx (mod 2): 4 slots.</text>
+  <text x="348.0" y="396.0" class="note" text-anchor="start" xml:space="preserve">Programs: 256 threads; 180 load 1 slot,</text>
+  <text x="348.0" y="412.0" class="note" text-anchor="start" xml:space="preserve">72 load 2, and 4 load 4.</text>
+</svg>

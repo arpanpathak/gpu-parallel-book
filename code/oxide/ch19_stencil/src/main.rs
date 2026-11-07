@@ -1,4 +1,4 @@
-//! Chapter 18 in Rust: Jacobi iteration for the Laplace equation with a 5-point stencil.
+//! Chapter 19: Jacobi iteration for the Laplace equation, 1 thread per cell.
 //!
 //!     cargo oxide run
 
@@ -7,16 +7,12 @@ use std::time::Instant;
 
 use cuda_core::{CudaContext, CudaStream, DeviceBuffer, LaunchConfig1D, LaunchConfig2D};
 use cuda_device::thread::Runtime2DIndex;
-use cuda_device::{DisjointSlice, SharedArray, cuda_module, device, kernel, launch_contract};
-use cuda_device::{thread, warp};
+use cuda_device::{DisjointSlice, cuda_module, kernel, launch_contract, thread};
 use cuda_host::RowWidth;
 
-const BX: usize = 32;
-const BY: usize = 8;
-const TW: usize = BX + 2;
-const TH: usize = BY + 2;
-const SUM_BLOCKS: u32 = 64;
-const HOT: f32 = 100.0;
+const BX: usize = 32; // block width: 1 warp along a row of the grid
+const BY: usize = 8; // block height: 8 warps, 256 threads
+const HOT: f32 = 100.0; // the top edge; the other edges are held at 0
 
 type Error = Box<dyn std::error::Error>;
 
@@ -24,7 +20,7 @@ type Error = Box<dyn std::error::Error>;
 mod kernels {
     use super::*;
 
-    /// 1 Jacobi step: every interior cell becomes the mean of its 4 neighbours.
+    /// 1 Jacobi step: each interior cell of `new` gets the mean of 4 neighbours in `old`.
     #[kernel]
     #[launch_contract(domain = 2, block = (32, 8, 1))]
     pub fn jacobi(old: &[f32], mut new: DisjointSlice<f32, Runtime2DIndex>) {
@@ -33,53 +29,11 @@ mod kernels {
 
         if let Some(idx) = thread::index_2d_runtime(&new) {
             let (row, col) = (idx.row(), idx.col());
+            let interior = row >= 1 && row + 1 < height && col >= 1 && col + 1 < width;
 
-            if row >= 1 && row + 1 < height && col >= 1 && col + 1 < width {
+            if interior {
                 let c = row * width + col;
                 let sum = old[c - width] + old[c + width] + old[c - 1] + old[c + 1];
-
-                if let Some(cell) = new.get_mut(idx) {
-                    *cell = 0.25 * sum;
-                }
-            }
-        }
-    }
-
-    /// The same step, with the block's cells and a 1-cell halo staged in shared memory.
-    #[kernel]
-    #[launch_contract(domain = 2, block = (32, 8, 1))]
-    pub fn jacobi_tiled(old: &[f32], mut new: DisjointSlice<f32, Runtime2DIndex>) {
-        static mut TILE: SharedArray<f32, { TW * TH }> = SharedArray::UNINIT;
-
-        let width = new.row_width() as usize;
-        let height = new.len() / width;
-        let tx = thread::threadIdx_x() as usize;
-        let ty = thread::threadIdx_y() as usize;
-        let left = thread::blockIdx_x() as usize * BX;
-        let top = thread::blockIdx_y() as usize * BY;
-
-        let mut k = ty * BX + tx;
-        while k < TW * TH {
-            let r = (top + k / TW).wrapping_sub(1);
-            let c = (left + k % TW).wrapping_sub(1);
-            let value = if r < height && c < width { old[r * width + c] } else { 0.0 };
-
-            // SAFETY: slot k is written by thread k mod 256 alone, before the barrier.
-            unsafe { TILE[k] = value };
-            k += BX * BY;
-        }
-        thread::sync_threads();
-
-        if let Some(idx) = thread::index_2d_runtime(&new) {
-            let (row, col) = (idx.row(), idx.col());
-
-            if row >= 1 && row + 1 < height && col >= 1 && col + 1 < width {
-                let s = (ty + 1) * TW + tx + 1;
-                // SAFETY: after the barrier the tile is only read.
-                let (up, down) = unsafe { (TILE[s - TW], TILE[s + TW]) };
-                // SAFETY: as above.
-                let (west, east) = unsafe { (TILE[s - 1], TILE[s + 1]) };
-                let sum = up + down + west + east;
 
                 if let Some(cell) = new.get_mut(idx) {
                     *cell = 0.25 * sum;
@@ -99,59 +53,16 @@ mod kernels {
             *o = input[i];
         }
     }
-
-    #[device]
-    fn warp_sum(mut v: f32) -> f32 {
-        for offset in [16, 8, 4, 2, 1] {
-            v += warp::shuffle_down_f32(v, offset);
-        }
-        v
-    }
-
-    /// Per block: the sum of (a[i] - b[i])^2 over a grid-stride share of the cells.
-    #[kernel]
-    #[launch_contract(domain = 1, block = (256, 1, 1))]
-    pub fn change(a: &[f32], b: &[f32], mut partial: DisjointSlice<f32>) {
-        static mut WARPS: SharedArray<f32, 8> = SharedArray::UNINIT;
-
-        let stride = (thread::gridDim_x() * 256) as usize;
-        let lane = warp::lane_id() as usize;
-        let warp = thread::threadIdx_x() as usize / 32;
-
-        let mut sum = 0.0;
-        let mut i = thread::index_1d().get();
-        while i < a.len() {
-            let d = a[i] - b[i];
-            sum += d * d;
-            i += stride;
-        }
-
-        sum = warp_sum(sum);
-        if lane == 0 {
-            // SAFETY: lane 0 of each warp writes its own slot, before the barrier.
-            unsafe { WARPS[warp] = sum };
-        }
-        thread::sync_threads();
-
-        if warp == 0 {
-            // SAFETY: after the barrier the slots are only read.
-            sum = warp_sum(if lane < 8 { unsafe { WARPS[lane] } } else { 0.0 });
-            if lane == 0 {
-                // SAFETY: only thread 0 of each block writes, at its own block number.
-                unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = sum };
-            }
-        }
-    }
 }
 
-/// A grid of `width` x `height` cells, top row at HOT, every other cell at 0.
+/// A plate of `width` x `height` cells: the top row at HOT, every other cell at 0.
 fn initial_grid(width: usize, height: usize) -> Vec<f32> {
     let mut grid = vec![0.0; width * height];
     grid[..width].fill(HOT);
     grid
 }
 
-/// 1 Jacobi step on the CPU, the reference for the GPU kernels.
+/// 1 Jacobi step on the CPU, the reference for the GPU kernel.
 fn cpu_step(old: &[f32], new: &mut [f32], width: usize) {
     let height = old.len() / width;
 
@@ -164,6 +75,18 @@ fn cpu_step(old: &[f32], new: &mut [f32], width: usize) {
     }
 }
 
+/// The root-mean-square difference between 2 grids, over all cells.
+fn rms_change(new: &[f32], old: &[f32]) -> f64 {
+    let squares: f64 = new.iter().zip(old).map(|(a, b)| f64::from(a - b).powi(2)).sum();
+    (squares / new.len() as f64).sqrt()
+}
+
+/// A number in the style of C's %.2e, so that both programs print the same text.
+fn sci(v: f64) -> String {
+    let exponent = if v == 0.0 { 0 } else { v.abs().log10().floor() as i32 };
+    format!("{:.2}e{exponent:+03}", v / 10f64.powi(exponent))
+}
+
 fn print_grid(label: &str, grid: &[f32], width: usize) {
     println!("  {label}");
     for row in grid.chunks(width) {
@@ -172,6 +95,7 @@ fn print_grid(label: &str, grid: &[f32], width: usize) {
     }
 }
 
+/// Enough 32 x 8 blocks to cover a grid of `width` x `height` cells, 1 thread per cell.
 fn grid_2d(width: usize, height: usize) -> LaunchConfig2D {
     let blocks_x = width.div_ceil(BX) as u32;
     let blocks_y = height.div_ceil(BY) as u32;
@@ -209,62 +133,66 @@ fn main() -> Result<(), Error> {
     let sms = ctx.multiprocessor_count()?;
     println!("GPU: {name}, {sms} SMs");
 
-    // 1. A 5 x 5 grid, small enough to check by hand.
-    let (w, h) = (5, 5);
+    // 1. The 6 x 6 plate of the text, small enough to check by hand.
+    let (w, h) = (6, 6);
     let start = initial_grid(w, h);
     let mut a = DeviceBuffer::from_host(&stream, &start)?;
     let mut b = DeviceBuffer::from_host(&stream, &start)?;
     let small = module.prepare_jacobi(grid_2d(w, h))?;
 
-    println!("1. 5 x 5 grid, top edge at {HOT}");
-    for step in 1..=200 {
+    println!("1. 6 x 6 plate, top edge at {HOT}");
+    let mut changes = Vec::new();
+    for step in 1..=100 {
         module.jacobi(&stream, &small, &a, RowWidth::new(&mut b, w as u32))?;
         std::mem::swap(&mut a, &mut b);
 
-        if step <= 2 || step == 200 {
-            print_grid(&format!("after step {step}"), &a.to_host_vec(&stream)?, w);
+        let (new, old) = (a.to_host_vec(&stream)?, b.to_host_vec(&stream)?);
+        changes.push(rms_change(&new, &old));
+        if step <= 2 || step == 100 {
+            print_grid(&format!("after step {step}"), &new, w);
         }
     }
 
-    // 2. A 64 x 64 grid, iterated until the root-mean-square change per step < 1e-6.
+    println!("  RMS change per step, and its ratio to the step before");
+    println!("    step {:3}   {:>9}", 1, sci(changes[0]));
+    for step in [2, 3, 4, 10, 20, 40] {
+        let ratio = changes[step - 1] / changes[step - 2];
+        println!("    step {step:3}   {:>9}   ratio {ratio:.4}", sci(changes[step - 1]));
+    }
+
+    let mut cpu_a = start.clone();
+    let mut cpu_b = start.clone();
+    for _ in 0..100 {
+        cpu_step(&cpu_a, &mut cpu_b, w);
+        std::mem::swap(&mut cpu_a, &mut cpu_b);
+    }
+    let small_same = a.to_host_vec(&stream)? == cpu_a;
+    println!("  same bits as the CPU after 100 steps: {small_same}");
+
+    // 2. A 64 x 64 plate, iterated until the RMS change per step is below 1e-6.
     let (w, h) = (64, 64);
     let start = initial_grid(w, h);
     let mut a = DeviceBuffer::from_host(&stream, &start)?;
     let mut b = DeviceBuffer::from_host(&stream, &start)?;
-    let mut partial = DeviceBuffer::<f32>::zeroed(&stream, SUM_BLOCKS as usize)?;
     let step = module.prepare_jacobi(grid_2d(w, h))?;
-    let change = module.prepare_change(LaunchConfig1D::new(SUM_BLOCKS, 256, 0))?;
 
-    println!("2. 64 x 64 grid until the RMS change per step is below 1e-6");
+    println!("2. 64 x 64 plate until the RMS change per step is below 1e-6");
     let mut steps = 0;
     loop {
         module.jacobi(&stream, &step, &a, RowWidth::new(&mut b, w as u32))?;
+        std::mem::swap(&mut a, &mut b);
         steps += 1;
 
         if steps % 1000 == 0 {
-            module.change(&stream, &change, &a, &b, &mut partial)?;
-            let total: f32 = partial.to_host_vec(&stream)?.iter().sum();
-            let rms = (total / (w * h) as f32).sqrt();
-            println!("  step {steps:5}   RMS change {rms:.2e}");
-
+            let rms = rms_change(&a.to_host_vec(&stream)?, &b.to_host_vec(&stream)?);
+            println!("  step {steps:5}   RMS change {}", sci(rms));
             if rms < 1e-6 {
-                std::mem::swap(&mut a, &mut b);
                 break;
             }
         }
-        std::mem::swap(&mut a, &mut b);
     }
 
     let field = a.to_host_vec(&stream)?;
-    println!("  every 9th cell of every 9th row (8 x 8 of the 64 x 64 cells)");
-    for row in (0..h).step_by(9) {
-        let mut line = String::new();
-        for col in (0..w).step_by(9) {
-            line += &format!("{:7.2}", field[row * w + col]);
-        }
-        println!("   {line}");
-    }
-
     let mut cpu_a = start.clone();
     let mut cpu_b = start.clone();
     for _ in 0..steps {
@@ -272,58 +200,32 @@ fn main() -> Result<(), Error> {
         std::mem::swap(&mut cpu_a, &mut cpu_b);
     }
     let diff = field.iter().zip(&cpu_a).map(|(g, c)| (g - c).abs()).fold(0.0, f32::max);
-    println!("  largest difference from the CPU after {steps} steps: {diff:.2e}");
+    let shown = sci(f64::from(diff));
+    println!("  largest difference from the CPU after {steps} steps: {shown}");
 
-    // 3. A 4096 x 4096 grid: time per step and effective bandwidth.
+    // 3. A 4096 x 4096 plate: time per step and effective bandwidth.
     let (w, h) = (4096, 4096);
     let n = w * h;
     let start = initial_grid(w, h);
     let mut a = DeviceBuffer::from_host(&stream, &start)?;
     let mut b = DeviceBuffer::from_host(&stream, &start)?;
-    let global = module.prepare_jacobi(grid_2d(w, h))?;
-    let tiled = module.prepare_jacobi_tiled(grid_2d(w, h))?;
+    let big = module.prepare_jacobi(grid_2d(w, h))?;
     let copy = module.prepare_copy(LaunchConfig1D::new((n / 256) as u32, 256, 0))?;
 
     let ms_copy = time_ms(&stream, 50, || Ok(module.copy(&stream, &copy, &a, &mut b)?))?;
 
-    let ms_global = time_ms(&stream, 50, || {
-        module.jacobi(&stream, &global, &a, RowWidth::new(&mut b, w as u32))?;
-        module.jacobi(&stream, &global, &b, RowWidth::new(&mut a, w as u32))?;
-        Ok(())
-    })? / 2.0;
-
-    let ms_tiled = time_ms(&stream, 50, || {
-        module.jacobi_tiled(&stream, &tiled, &a, RowWidth::new(&mut b, w as u32))?;
-        module.jacobi_tiled(&stream, &tiled, &b, RowWidth::new(&mut a, w as u32))?;
+    let ms_jacobi = time_ms(&stream, 50, || {
+        module.jacobi(&stream, &big, &a, RowWidth::new(&mut b, w as u32))?;
+        module.jacobi(&stream, &big, &b, RowWidth::new(&mut a, w as u32))?;
         Ok(())
     })? / 2.0;
 
     let gb = |ms: f64| (2 * n * 4) as f64 / 1e9 / (ms / 1e3);
-    println!("3. 4096 x 4096 grid, 8 bytes per cell per step (1 read, 1 write)");
+    println!("3. 4096 x 4096 plate, 8 bytes per cell per step (1 read, 1 write)");
     println!("  copy kernel        {ms_copy:6.3} ms   {:6.1} GB/s", gb(ms_copy));
-    println!("  jacobi             {ms_global:6.3} ms   {:6.1} GB/s", gb(ms_global));
-    println!("  jacobi, tiled      {ms_tiled:6.3} ms   {:6.1} GB/s", gb(ms_tiled));
+    println!("  jacobi             {ms_jacobi:6.3} ms   {:6.1} GB/s", gb(ms_jacobi));
 
-    let mut results = Vec::new();
-    for use_tiles in [false, true] {
-        a.copy_from_host(&stream, &start)?;
-        b.copy_from_host(&stream, &start)?;
-
-        for _ in 0..10 {
-            if use_tiles {
-                module.jacobi_tiled(&stream, &tiled, &a, RowWidth::new(&mut b, w as u32))?;
-            } else {
-                module.jacobi(&stream, &global, &a, RowWidth::new(&mut b, w as u32))?;
-            }
-            std::mem::swap(&mut a, &mut b);
-        }
-        results.push(a.to_host_vec(&stream)?);
-    }
-
-    let same = results[0] == results[1];
-    println!("  both kernels give the same bits after 10 steps: {same}");
-
-    let passed = diff < 1e-4 && same;
+    let passed = small_same && diff == 0.0;
     println!("{}", if passed { "PASSED" } else { "FAILED" });
     Ok(())
 }
