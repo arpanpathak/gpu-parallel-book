@@ -64,6 +64,12 @@ run "ch12_nvrtc" \
 run "ch15_capstone" \
     bash -c 'cd ch15_capstone && nvcc -arch="$1" pipeline.cu -o pipeline && ./pipeline 96 64 2' _ "$ARCH"
 
+# bugs.cu is left out on purpose: its kernels are wrong, and 1 of them can hang the GPU.
+for prog in measure latency verify; do
+    run "ch16_$prog" \
+        bash -c 'cd ch16_profiling && nvcc -arch="$1" "$2.cu" -o "$2" && "./$2"' _ "$ARCH" "$prog"
+done
+
 # --- Rust examples (optional toolchains) -------------------------------------
 if command -v cargo >/dev/null 2>&1; then
     run "ch13_rust_vector_add" \

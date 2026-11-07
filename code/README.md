@@ -21,6 +21,7 @@ comments; each directory builds standalone.
 | [`ch13_rust_vector_add/`](ch13_rust_vector_add/) | Ch 13 - Rust Meets the GPU | Rust host driving a CUDA kernel via `cudarc` | `cargo build --release` (needs CUDA toolkit) |
 | [`ch14_cuda_oxide/`](ch14_cuda_oxide/) | Ch 14 - CUDA-Oxide | The `#[kernel]` map example in pure Rust | `cargo oxide run host_closure` |
 | [`ch15_capstone/`](ch15_capstone/) | Ch 15 - Capstone Pipeline | The full RGB -> blur -> Sobel -> histogram pipeline | `nvcc -arch=compute_60 pipeline.cu -o pipeline` |
+| [`ch16_profiling/`](ch16_profiling/) | Ch 16 - Profiling, Debugging & Performance Engineering | 4 bugs for Compute Sanitizer, the GPU's limits and a warm-up curve, latencies with `clock64()`, tolerances in ULPs (Rust: `oxide/ch16_latency`) | `nvcc -arch=native -lineinfo <name>.cu -o <name>` for `bugs`, `measure`, `latency`, `verify` |
 
 **Architecture flags.** `-arch=compute_60` produces portable PTX that the
 driver JIT-compiles on any CUDA 12.x GPU (Pascal or newer), including T4,

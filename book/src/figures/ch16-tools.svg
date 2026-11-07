@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 626" width="660" height="626" role="img" aria-label="Seven rows, each joining a question to an instrument. Where does the time go: Nsight Systems, a timeline, section 16.2. Why is 1 kernel slow: Nsight Compute, hardware counters, 16.3. Does it touch Is every access legal: Compute Sanitizer, 16.4. What does thread 232 hold: cuda-gdb, 16.5. How long does 1 load take: clock64 inside a kernel, 16.6. Can the number be trusted: events, warm-up and medians, 16.7. Is the answer right: a CPU reference with a tolerance, 16.8.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="626" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 question, 1 instrument</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each tool of the chapter answers 1 kind of question.</text>
+  <rect x="16" y="104" width="300" height="458" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="122.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="95.2" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">THE QUESTION</text>
+  <rect x="344" y="104" width="300" height="458" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="362" y="93" width="138.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="431.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">THE INSTRUMENT</text>
+  <rect x="32" y="128" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,128.7 H38 V177.3 H44 A11.3,11.3 0 0 1 32.7,166 V140 A11.3,11.3 0 0 1 44,128.7 Z" fill="#7F8EA0"/>
+  <text x="52.0" y="149.0" class="name" text-anchor="start" xml:space="preserve">Where does the time go?</text>
+  <text x="52.0" y="167.0" class="sub" text-anchor="start" xml:space="preserve">the whole program</text>
+  <rect x="360" y="128" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M372,128.7 H366 V177.3 H372 A11.3,11.3 0 0 1 360.7,166 V140 A11.3,11.3 0 0 1 372,128.7 Z" fill="#2F6FDB"/>
+  <text x="380.0" y="149.0" class="name" text-anchor="start" xml:space="preserve">Nsight Systems, nsys</text>
+  <text x="380.0" y="167.0" class="sub" text-anchor="start" xml:space="preserve">a timeline</text>
+  <rect x="569.0" y="140" width="47.0" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="592.5" y="152.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">§16.2</text>
+  <path class="wire" d="M300,153 L360,153" marker-end="url(#head)"/>
+  <rect x="32" y="190" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,190.7 H38 V239.3 H44 A11.3,11.3 0 0 1 32.7,228 V202 A11.3,11.3 0 0 1 44,190.7 Z" fill="#7F8EA0"/>
+  <text x="52.0" y="211.0" class="name" text-anchor="start" xml:space="preserve">Why is 1 kernel slow?</text>
+  <text x="52.0" y="229.0" class="sub" text-anchor="start" xml:space="preserve">1 kernel</text>
+  <rect x="360" y="190" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M372,190.7 H366 V239.3 H372 A11.3,11.3 0 0 1 360.7,228 V202 A11.3,11.3 0 0 1 372,190.7 Z" fill="#7A4FD0"/>
+  <text x="380.0" y="211.0" class="name" text-anchor="start" xml:space="preserve">Nsight Compute, ncu</text>
+  <text x="380.0" y="229.0" class="sub" text-anchor="start" xml:space="preserve">hardware counters</text>
+  <rect x="569.0" y="202" width="47.0" height="18" rx="9" fill="#F0EAFB"/>
+  <text x="592.5" y="214.6" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">§16.3</text>
+  <path class="wire" d="M300,215 L360,215" marker-end="url(#head)"/>
+  <rect x="32" y="252" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,252.7 H38 V301.3 H44 A11.3,11.3 0 0 1 32.7,290 V264 A11.3,11.3 0 0 1 44,252.7 Z" fill="#7F8EA0"/>
+  <text x="52.0" y="273.0" class="name" text-anchor="start" xml:space="preserve">Is every access legal?</text>
+  <text x="52.0" y="291.0" class="sub" text-anchor="start" xml:space="preserve">every access</text>
+  <rect x="360" y="252" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M372,252.7 H366 V301.3 H372 A11.3,11.3 0 0 1 360.7,290 V264 A11.3,11.3 0 0 1 372,252.7 Z" fill="#CF4526"/>
+  <text x="380.0" y="273.0" class="name" text-anchor="start" xml:space="preserve">Compute Sanitizer</text>
+  <text x="380.0" y="291.0" class="sub" text-anchor="start" xml:space="preserve">memcheck, racecheck …</text>
+  <rect x="569.0" y="264" width="47.0" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="592.5" y="276.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">§16.4</text>
+  <path class="wire" d="M300,277 L360,277" marker-end="url(#head)"/>
+  <rect x="32" y="314" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,314.7 H38 V363.3 H44 A11.3,11.3 0 0 1 32.7,352 V326 A11.3,11.3 0 0 1 44,314.7 Z" fill="#7F8EA0"/>
+  <text x="52.0" y="335.0" class="name" text-anchor="start" xml:space="preserve">What does thread 232 hold?</text>
+  <text x="52.0" y="353.0" class="sub" text-anchor="start" xml:space="preserve">1 thread</text>
+  <rect x="360" y="314" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M372,314.7 H366 V363.3 H372 A11.3,11.3 0 0 1 360.7,352 V326 A11.3,11.3 0 0 1 372,314.7 Z" fill="#CF4526"/>
+  <text x="380.0" y="335.0" class="name" text-anchor="start" xml:space="preserve">cuda-gdb</text>
+  <text x="380.0" y="353.0" class="sub" text-anchor="start" xml:space="preserve">breakpoints in kernels</text>
+  <rect x="569.0" y="326" width="47.0" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="592.5" y="338.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">§16.5</text>
+  <path class="wire" d="M300,339 L360,339" marker-end="url(#head)"/>
+  <rect x="32" y="376" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,376.7 H38 V425.3 H44 A11.3,11.3 0 0 1 32.7,414 V388 A11.3,11.3 0 0 1 44,376.7 Z" fill="#7F8EA0"/>
+  <text x="52.0" y="397.0" class="name" text-anchor="start" xml:space="preserve">How long does 1 load take?</text>
+  <text x="52.0" y="415.0" class="sub" text-anchor="start" xml:space="preserve">a few instructions</text>
+  <rect x="360" y="376" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M372,376.7 H366 V425.3 H372 A11.3,11.3 0 0 1 360.7,414 V388 A11.3,11.3 0 0 1 372,376.7 Z" fill="#B7791F"/>
+  <text x="380.0" y="397.0" class="name" text-anchor="start" xml:space="preserve">clock64()</text>
+  <text x="380.0" y="415.0" class="sub" text-anchor="start" xml:space="preserve">cycles, inside a kernel</text>
+  <rect x="569.0" y="388" width="47.0" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="592.5" y="400.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">§16.6</text>
+  <path class="wire" d="M300,401 L360,401" marker-end="url(#head)"/>
+  <rect x="32" y="438" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,438.7 H38 V487.3 H44 A11.3,11.3 0 0 1 32.7,476 V450 A11.3,11.3 0 0 1 44,438.7 Z" fill="#7F8EA0"/>
+  <text x="52.0" y="459.0" class="name" text-anchor="start" xml:space="preserve">Can the number be trusted?</text>
+  <text x="52.0" y="477.0" class="sub" text-anchor="start" xml:space="preserve">a measurement</text>
+  <rect x="360" y="438" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M372,438.7 H366 V487.3 H372 A11.3,11.3 0 0 1 360.7,476 V450 A11.3,11.3 0 0 1 372,438.7 Z" fill="#1F8A70"/>
+  <text x="380.0" y="459.0" class="name" text-anchor="start" xml:space="preserve">a benchmark protocol</text>
+  <text x="380.0" y="477.0" class="sub" text-anchor="start" xml:space="preserve">warm-up, events, medians</text>
+  <rect x="569.0" y="450" width="47.0" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="592.5" y="462.6" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">§16.7</text>
+  <path class="wire" d="M300,463 L360,463" marker-end="url(#head)"/>
+  <rect x="32" y="500" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,500.7 H38 V549.3 H44 A11.3,11.3 0 0 1 32.7,538 V512 A11.3,11.3 0 0 1 44,500.7 Z" fill="#7F8EA0"/>
+  <text x="52.0" y="521.0" class="name" text-anchor="start" xml:space="preserve">Is the answer right?</text>
+  <text x="52.0" y="539.0" class="sub" text-anchor="start" xml:space="preserve">the output</text>
+  <rect x="360" y="500" width="268" height="50" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M372,500.7 H366 V549.3 H372 A11.3,11.3 0 0 1 360.7,538 V512 A11.3,11.3 0 0 1 372,500.7 Z" fill="#2E8B3D"/>
+  <text x="380.0" y="521.0" class="name" text-anchor="start" xml:space="preserve">a CPU reference</text>
+  <text x="380.0" y="539.0" class="sub" text-anchor="start" xml:space="preserve">with a tolerance</text>
+  <rect x="569.0" y="512" width="47.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="592.5" y="524.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">§16.8</text>
+  <path class="wire" d="M300,525 L360,525" marker-end="url(#head)"/>
+  <text x="16.0" y="586.0" class="note" text-anchor="start" xml:space="preserve">A profiler, a debugger and a stopwatch each answer 1 kind of question. The first step is to</text>
+  <text x="16.0" y="604.0" class="note" text-anchor="start" xml:space="preserve">name the question; the instrument follows from it.</text>
+</svg>
