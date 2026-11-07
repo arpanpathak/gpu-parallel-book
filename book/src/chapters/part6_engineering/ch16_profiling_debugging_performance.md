@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch16.svg" alt="Lens, a hawk, perches on a fence post at dusk with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change 1 thing.">
+<img class="plate" src="../../art/ch16.svg" alt="Lens, a hawk, perches on a fence post at dusk with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change one thing.">
 
 # Chapter 16: Profiling, Debugging & Performance Engineering
 
@@ -16,7 +16,7 @@ addition of Chapter 3 and the block sum of Chapter 5. We use an in-kernel clock 
 latencies that Chapter 1 assumed, about 4 cycles for an arithmetic operation and several hundred
 cycles for a read from memory. We then turn to the question of whether a measurement or a test
 result can be trusted, and we close with the procedure that connects all of these tools:
-measure, explain, change 1 thing, and measure again.
+measure, explain, change one thing, and measure again.
 
 <div class="covers" markdown="1">
 
@@ -377,7 +377,7 @@ with the option `--tool`:
 | Checker | Finds |
 |---|---|
 | `memcheck` (the default) | loads and stores outside any allocation, misaligned accesses, errors from CUDA calls |
-| `racecheck` | 2 accesses to the same shared-memory location, at least 1 of them a write, with no barrier between them |
+| `racecheck` | 2 accesses to the same shared-memory location, at least one of them a write, with no barrier between them |
 | `synccheck` | barriers used in ways the hardware does not define |
 | `initcheck` | loads of global memory that nothing has written |
 
@@ -469,7 +469,7 @@ $ compute-sanitizer --tool racecheck ./bugs race
 ========= RACECHECK SUMMARY: 4 hazards displayed (3 errors, 1 warning)
 ```
 
-A **race** is a pair of accesses to the same location by different threads, at least 1 of them a
+A **race** is a pair of accesses to the same location by different threads, at least one of them a
 write, with nothing that orders them. Line 31 stores the value of each thread into `s[t]`, and line
 35 reads `s[t + stride]`. In the first step, thread 0 of warp 0 reads `s[128]`, but `s[128]` is
 written by thread 128, which belongs to warp 4. Nothing orders the 2 warps. Figure 16.5 shows the
@@ -955,7 +955,7 @@ The tools of this chapter fit into a single procedure, which every earlier chapt
 
 1. **Measure**, using the protocol of section 16.7.
 2. Form a **hypothesis** that names the cause, using the timeline, the counters or a count by hand.
-3. **Change 1 thing.**
+3. **Change one thing.**
 4. **Measure again**, in the same way.
 5. **Verify** that the results are still correct.
 
@@ -972,7 +972,7 @@ bounds check still took 62 cycles. The bounds check alone accounted for the 23 c
 of the loop for none of them.
 
 <figure>
-<img src="../../figures/ch16-loop.svg" alt="Five cards joined by arrows in a loop. Measure: the Rust pointer chase takes 62 cycles per L1 load, the C++ one 39. Hypothesis: the bounds check of next[j] sits on the chain. Change 1 thing: next.get_unchecked(j) with a SAFETY comment. Measure again: 39 cycles, the same as C++. Verify: every chain ends at the index the host expects.">
+<img src="../../figures/ch16-loop.svg" alt="Five cards joined by arrows in a loop. Measure: the Rust pointer chase takes 62 cycles per L1 load, the C++ one 39. Hypothesis: the bounds check of next[j] sits on the chain. Change one thing: next.get_unchecked(j) with a SAFETY comment. Measure again: 39 cycles, the same as C++. Verify: every chain ends at the index the host expects.">
 <figcaption><b>Figure 16.10</b> The optimization process applied to the Rust pointer chase.</figcaption>
 </figure>
 
@@ -1059,7 +1059,7 @@ value is fetched. The procedure above is how each of these explanations was chec
   idle, and verify the output.
 - Count floating-point errors in ULPs, derive tolerances from error bounds, and add known-answer and
   property tests, which a tolerance cannot replace.
-- Measure, form a hypothesis, change 1 thing, measure again, and verify.
+- Measure, form a hypothesis, change one thing, measure again, and verify.
 
 </div>
 

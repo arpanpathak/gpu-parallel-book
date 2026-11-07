@@ -743,7 +743,7 @@ topology matrix`.
 
 The legend lists the paths from the fastest, at the bottom, to the slowest, at the top. A
 **PCIe bridge** is a PCIe switch. A **host bridge** is the point where PCIe enters the CPU. An
-**SMP interconnect** connects the CPU sockets of a server with more than 1 CPU.
+**SMP interconnect** connects the CPU sockets of a server with more than one CPU.
 
 | Code | Path between the 2 GPUs | Peer to peer |
 |---|---|---|

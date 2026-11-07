@@ -502,11 +502,11 @@ a `&[u32]`.
 Each step of a plan runs as 1 launch of 1 **kernel**, the function that runs on the GPU. All the
 transfers of a step share the launch. If a step has `count` transfers and each transfer is given
 `per` blocks, block `b` works on transfer `b / per`, and the `per` blocks of a transfer stride
-through its floats together. Figure 19.6 shows step 1 of the ring for 4 ranks.
+through its floats together. Figure 19.6 shows step one of the ring for 4 ranks.
 
 <figure>
 <img src="../../figures/ch19-plan.svg" alt="A buffer of 16 chunks, 4 per rank. In step 1 of reduce-scatter, 4 arrows leave chunk c0 of rank 0, c1 of rank 1, c2 of rank 2 and c3 of rank 3, and land on the same chunk of the next rank; the last one wraps from rank 3 back to rank 0. Below, 2 cards: 1 step is 1 launch, with blocks divided among the transfers; no element is both read and written within a step, so the transfers cannot race.">
-<figcaption><b>Figure 19.6</b> Step 1 of the ring on 4 simulated ranks: 4 transfers in 1 launch.</figcaption>
+<figcaption><b>Figure 19.6</b> Step one of the ring on 4 simulated ranks: 4 transfers in 1 launch.</figcaption>
 </figure>
 
 Running all the transfers of a step in 1 launch is correct only if no transfer reads an element
@@ -900,7 +900,7 @@ ring that must cross a `SYS` path, between processor sockets, runs at the speed 
 
 </div>
 
-This chapter concludes the part of the book on systems with more than 1 GPU. The Epilogue looks
+This chapter concludes the part of the book on systems with more than one GPU. The Epilogue looks
 at the directions in which GPU hardware and its programming are developing.
 
 ## Exercises

@@ -106,7 +106,7 @@ the part of the processor chip that turns the CPU's loads and stores into transa
 back; each of its connectors is a **root port**. A device at the end of a link is an
 **endpoint**.
 
-Each endpoint holds 1 or more **functions**, logical devices with their own registers. A
+Each endpoint holds one or more **functions**, logical devices with their own registers. A
 function is named by 4 numbers, written `domain:bus:device.function`: the NVMe drive of the
 same machine is `0004:01:00.0`, domain 4, bus 1, device 0, function 0. `lspci` lists every
 function the kernel found:
@@ -576,7 +576,7 @@ also sees entry \\(c\\). The `doorbellFirst` branch exists to break that order o
 (section 17.4.6).
 
 Rust's version stores each entry in an `AtomicU64`, with the opcode in the high 32 bits. Rust
-does not allow 2 threads to touch the same plain memory when 1 of them writes, so the slots are
+does not allow 2 threads to touch the same plain memory when one of them writes, so the slots are
 atomics too. A `Relaxed` store compiles to an ordinary store, and the `Release` store of the
 doorbell provides the order.
 
@@ -707,7 +707,7 @@ the sequence is:
 
 1. The driver makes sure the host buffer's pages cannot move, by pinning them or by staging the
    data through a pinned buffer (section 4.2.2 explains why).
-2. It writes 1 or more descriptors, as methods in a channel's pushbuffer.
+2. It writes one or more descriptors, as methods in a channel's pushbuffer.
 3. It rings the channel's doorbell, as in section 17.4.2.
 4. The copy engine reads the descriptors, then reads the source by DMA and writes the
    destination, while the CPU does other work.
