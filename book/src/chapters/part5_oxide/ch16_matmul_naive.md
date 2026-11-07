@@ -218,7 +218,7 @@ computation, copies \\(C\\) back, and checks it.
 <figcaption><b>Figure 16.4</b> The 5 steps of every program, and the system. Host and device each have a processor and a memory, and the link between them carries only explicit copies.</figcaption>
 </figure>
 
-On an integrated GPU, such as the Jetson modules on which this book measures, host and device
+On an integrated GPU, host and device
 share 1 physical memory, but the program still copies between the host's buffers and the
 device's buffers, and the 5 steps are the same.
 
@@ -751,16 +751,15 @@ bound does `i32` satisfy that a type such as `bool` does not?<br>
 
 ### 16.6.1 Platform and method
 
-The measurements come from 2 integrated GPUs: a Jetson Orin NX 16 GB (8 SMs, 102 GB/s, an FP32
-peak of 2,400 GFLOP/s at 1.173 GHz) and a Jetson AGX Thor (20 SMs, 273 GB/s). The timings quoted
-are from the Orin NX; both programs also pass on the Thor. Each program warms the GPU up for
+The measurements come from an integrated GPU, a Jetson Orin NX 16 GB (8 SMs, 102 GB/s, an FP32
+peak of 2,400 GFLOP/s at 1.173 GHz). Each program warms the GPU up for
 0.5 s so that its clocks reach their sustained values, launches each kernel once without timing,
 and then averages up to 50 launches, fewer for the large sizes. Each program ran 3 times; the
 tables show the quietest run, and repeated runs differed by up to 10%.
 
 ### 16.6.2 Results
 
-The Rust program prints the following on the Orin NX:
+The Rust program prints the following:
 
 ```console
 $ cargo oxide run
@@ -806,8 +805,8 @@ requests, \\(2n^3\\) values of 4 or 8 bytes, by the time. All 64 sampled entries
 every run, in single and in double precision.
 
 <figure>
-<img src="../../figures/ch16-measured.svg" alt="2 panels of horizontal bars for the direct kernel on the Orin NX. Top, the rate in GFLOP/s at n = 4,096: C++ f32 185.0, Rust f32 137.8, Rust f32 with the width fixed at compile time 194.0 (n = 1,024), and f64 35.2 at n = 2,048, against a dashed line for the FP32 peak of 2,400 and a short mark for the FP64 peak of 75. Bottom, the requested fetch rate in GB/s: C++ 739.8 and Rust 551.3, against a dashed line at 102 GB/s, the bandwidth of global memory. A note: at least 1 minus 102 / 740 = 86% of the C++ kernel's fetches were answered by the caches.">
-<figcaption><b>Figure 16.13</b> The direct kernel on the Orin NX: its rate against the FP32 peak, and its requested fetch rate against the bandwidth of global memory.</figcaption>
+<img src="../../figures/ch16-measured.svg" alt="2 panels of horizontal bars for the direct kernel on the measured GPU. Top, the rate in GFLOP/s at n = 4,096: C++ f32 185.0, Rust f32 137.8, Rust f32 with the width fixed at compile time 194.0 (n = 1,024), and f64 35.2 at n = 2,048, against a dashed line for the FP32 peak of 2,400 and a short mark for the FP64 peak of 75. Bottom, the requested fetch rate in GB/s: C++ 739.8 and Rust 551.3, against a dashed line at 102 GB/s, the bandwidth of global memory. A note: at least 1 minus 102 / 740 = 86% of the C++ kernel's fetches were answered by the caches.">
+<figcaption><b>Figure 16.13</b> The direct kernel on the measured GPU: its rate against the FP32 peak, and its requested fetch rate against the bandwidth of global memory.</figcaption>
 </figure>
 
 ### 16.6.3 Why the rate is far below the peak
@@ -815,7 +814,7 @@ every run, in single and in double precision.
 The C++ kernel ran at 185.0 GFLOP/s for \\(n = 4{,}096\\), 7.7% of the FP32 peak of
 2,400 GFLOP/s; the arithmetic units were idle more than 92% of the time. Section 16.4.3 gives the
 reason. The kernel fetches 1 float for every FLOP. If every fetch went to global memory, the
-102 GB/s of the Orin NX would deliver \\(102 / 4 = 25.5 \times 10^9\\) floats per second, and the
+102 GB/s of the measured GPU would deliver \\(102 / 4 = 25.5 \times 10^9\\) floats per second, and the
 kernel could perform at most 25.5 GFLOP/s.
 
 The measured rate is 7.3 times that limit, and the fetch column shows how. The kernel requested
@@ -829,7 +828,7 @@ after one another. The caches therefore recover much of the reuse, but by chance
 is waiting for memory: the kernel is limited by how fast the memory system delivers operands, not
 by the arithmetic.
 
-The `f64` kernel ran at 35.2 GFLOP/s. The Orin NX reports a ratio of 32 between its FP32 and FP64
+The `f64` kernel ran at 35.2 GFLOP/s. The measured GPU reports a ratio of 32 between its FP32 and FP64
 rates, so its FP64 peak is \\(2{,}400 / 32 = 75\\) GFLOP/s, and the `f64` kernel reached 47% of
 it, against 7.7% for `f32`. Its operands are twice as large, 282 GB/s of requests, but on this GPU
 the few FP64 units, not the memory, set its speed. On a data-centre GPU with an FP32:FP64 ratio of
@@ -905,7 +904,7 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
   of \\(A\\) \\(N\\) times and every value of \\(B\\) \\(M\\) times: \\(2MNK\\) fetches, 1 per FLOP.
 - In Rust, `DisjointSlice` with `Runtime2DIndex` or `Index2D<W>` lets each thread write only its
   own entry without `unsafe`, and the launch contract refuses buffers too small for the sizes.
-- On the Orin NX the kernel ran at about 7% of the FP32 peak; the caches answered most of its
+- On the measured GPU the kernel ran at about 7% of the FP32 peak; the caches answered most of its
   repeated fetches, and the rest of the time went to waiting for memory.
 
 </div>

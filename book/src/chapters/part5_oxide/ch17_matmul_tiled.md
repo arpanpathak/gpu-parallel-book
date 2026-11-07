@@ -618,7 +618,7 @@ that every value read from shared memory is used more than once.
 
 ### 17.8.1 Results
 
-The measurements come from the Jetson Orin NX of Chapter 16 (8 SMs, 102 GB/s, an FP32 peak of
+The measurements come from the GPU of Chapter 16 (8 SMs, 102 GB/s, an FP32 peak of
 2,400 GFLOP/s), with the method of Section 16.6.1. Both programs time the direct kernel and the
 tiled kernel with \\(T = 8\\), 16 and 32 on square matrices from 512 × 512 to 4,096 × 4,096.
 
@@ -682,8 +682,8 @@ within 6% at every size. All checked entries were exact, including the 3 shapes 
 multiples of the tile width.
 
 <figure>
-<img src="../../figures/ch17-measured.svg" alt="2 panels for n = 4,096 on the Orin NX. Left, the rate in GFLOP/s of each kernel in C++ and in Rust: direct 184.5 and 138.0, T = 8 139.8 and 136.8, T = 16 272.1 and 258.5, T = 32 215.5 and 205.5, with a dashed line at 300 GFLOP/s, the limit set by 2 shared-memory reads per multiply-add. Right, the requested fetch rate of the C++ kernels in GB/s: direct 738.0, T = 8 69.9, T = 16 68.0, T = 32 26.9, with a dashed line at 102 GB/s, the bandwidth of global memory.">
-<figcaption><b>Figure 17.15</b> The kernels at n = 4,096 on the Orin NX: rates against the shared-memory limit, and requested fetch rates against the bandwidth of global memory.</figcaption>
+<img src="../../figures/ch17-measured.svg" alt="2 panels for n = 4,096 on the measured GPU. Left, the rate in GFLOP/s of each kernel in C++ and in Rust: direct 184.5 and 138.0, T = 8 139.8 and 136.8, T = 16 272.1 and 258.5, T = 32 215.5 and 205.5, with a dashed line at 300 GFLOP/s, the limit set by 2 shared-memory reads per multiply-add. Right, the requested fetch rate of the C++ kernels in GB/s: direct 738.0, T = 8 69.9, T = 16 68.0, T = 32 26.9, with a dashed line at 102 GB/s, the bandwidth of global memory.">
+<figcaption><b>Figure 17.15</b> The kernels at n = 4,096 on the measured GPU: rates against the shared-memory limit, and requested fetch rates against the bandwidth of global memory.</figcaption>
 </figure>
 
 ### 17.8.2 Why the speedup is 1.5, not 16
@@ -706,20 +706,20 @@ memory of an SM serves 1 read instruction of a warp per cycle: 32 values of 4 by
 cycle, when the 32 addresses fall in different banks or coincide. The 128 FP32 units of the SM can
 perform 128 multiply-adds per cycle. A warp's 32 multiply-adds need 2 read instructions, 2 cycles
 of shared memory, so the SM completes at most 16 multiply-adds per cycle, 1/8 of what its units
-could do. On the Orin NX that limit is \\(2{,}400 / 8 = 300\\) GFLOP/s. The C++ kernel with
+could do. On the measured GPU that limit is \\(2{,}400 / 8 = 300\\) GFLOP/s. The C++ kernel with
 \\(T = 16\\) reached 272 to 275 GFLOP/s at every size, 91% of the limit, and the Rust kernel 259 to
 284 GFLOP/s. A larger tile reduces the fetches from global memory but not this ratio: every
 multiply-add of the tiled kernel still costs 2 reads of shared memory.
 
 The other 2 tile widths are slower for reasons of their own. A block of 32 × 32 = 1,024 threads
-leaves no room for a second block on an SM of the Orin NX, which holds at most 1,536 threads.
+leaves no room for a second block on an SM of the measured GPU, which holds at most 1,536 threads.
 
 <div class="definition">
 
 <span class="box-label">Definition 17.3</span> **Occupancy.** The **occupancy** of a kernel is the
 number of threads resident on an SM divided by the largest number the SM can hold.
 
-*Example.* With \\(T = 32\\) each SM of the Orin NX runs 1 block of 1,024 threads out of 1,536, an
+*Example.* With \\(T = 32\\) each SM of the measured GPU runs 1 block of 1,024 threads out of 1,536, an
 occupancy of 67%; with \\(T = 16\\) it runs 6 blocks of 256 threads, 100%.
 
 </div>
@@ -734,7 +734,7 @@ The speedup differs between GPUs, because it is set by how well the caches serve
 On a Jetson AGX Thor, Rust kernels for the same 2 algorithms with \\(T = 16\\) took 1.158 ms and
 0.285 ms for 512 × 512 matrices, a speedup of 4.06 (Pathak, 2026). There the direct kernel
 requested 927 GB/s, 3.4 times the 273 GB/s of the Thor's memory, so the caches answered at least
-70% of its fetches, against 86% on the Orin NX, and tiling had more to gain. The tiled kernel ran at
+70% of its fetches, against 86% on the measured GPU, and tiling had more to gain. The tiled kernel ran at
 941.5 GFLOP/s, 93% of the Thor's shared-memory limit of \\(8{,}100 / 8 = 1{,}012\\) GFLOP/s. On both
 GPUs the tiled kernel ends near the same limit, 1/8 of the arithmetic peak, which Chapter 18 removes.
 
@@ -796,7 +796,7 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 - In Rust, shared memory is `unsafe` to access, and each access states its argument in a
   `// SAFETY:` comment; a tile sized by a generic parameter lives in dynamic shared memory. In C++
   a `__shared__` array can be sized by a template parameter.
-- On the Orin NX tiles of 16 × 16 ran about 1.5 times as fast as the direct kernel, not 16 times:
+- On the measured GPU tiles of 16 × 16 ran about 1.5 times as fast as the direct kernel, not 16 times:
   the caches had already absorbed most of the direct kernel's repeated fetches, and the tiled kernel
   is limited by its 2 shared-memory reads per multiply-add.
 

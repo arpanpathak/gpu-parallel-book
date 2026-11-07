@@ -25,7 +25,7 @@ compute a block of entries as a sum of outer products and measures register tile
 8 × 8.
 
 Each chapter implements its kernel in Rust with cuda-oxide and in CUDA C++, shows the 2 side by
-side, checks the results exactly against the CPU, and measures them on a Jetson Orin NX. The
+side, checks the results exactly against the CPU, and measures them. The
 chapters build on Chapter 9, which developed the same sequence of kernels in CUDA C++ and compared
 them with cuBLAS, and on Chapters 13 to 15, which introduced kernels, `DisjointSlice`, launch
 contracts and shared memory in Rust.

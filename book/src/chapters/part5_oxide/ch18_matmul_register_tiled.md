@@ -1,9 +1,10 @@
+
 <img class="plate" src="../../art/ch18.svg" alt="Patch, a crab, stands on the sand beside a slate board. To the left of the board stand 2 cells of A, 1 and 5, and above it 2 cells of B, 1 and 0. On the board are their 4 products, 1 0 / 5 0. Further right, a larger board holds the 4 by 4 matrix C, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, split into 4 coloured patches of 2 by 2, 1 per thread. A tag says read 4 values, make 4 products.">
 
 # Chapter 18: Register Tiling, Several Entries per Thread
 
 The tiled kernel of Chapter 17 fetches each value from global memory 16 times less often than the
-direct kernel, yet on the Orin NX it ran only about 1.5 times as fast. Section 17.8.2 located the
+direct kernel, yet on the GPU measured there it ran only about 1.5 times as fast. Section 17.8.2 located the
 new limit in shared memory: every multiply-add of the tiled kernel reads 2 values from shared
 memory, and shared memory cannot deliver them as fast as the arithmetic units consume them. The
 kernel ends near 1/8 of the arithmetic peak on every GPU, whatever the tile width.
@@ -69,7 +70,7 @@ memory, 1 level closer to the arithmetic.
 Section 17.8.2 turned this count into a limit. An SM's shared memory serves 1 read instruction
 of a warp per cycle, 32 values, and the SM's 128 FP32 units could perform 128 multiply-adds in that
 cycle. At 2 reads per multiply-add, the SM completes at most 16 multiply-adds per cycle, 1/8 of its
-peak: 300 GFLOP/s on the Orin NX, against which the tiled kernel measured 272 GFLOP/s. A larger
+peak: 300 GFLOP/s on the GPU of Chapter 17, against which the tiled kernel measured 272 GFLOP/s. A larger
 tile does not help, because the ratio of 2 reads per multiply-add does not depend on \\(T\\). Only a
 kernel that performs more multiply-adds for each value it reads can go faster.
 
@@ -484,7 +485,7 @@ passes for *tileA* and \\(B_K B_N / P\\) for *tileB*, 4 each for the 4 × 4 conf
 count the compiler can unroll the loop and issue all the loads from global memory of a phase before
 the first store to shared memory, so their waiting times overlap. An earlier version that ran
 `e` from `id` in steps of \\(P\\) while \\(e < B_M B_K\\), the literal form of line 5, does the same
-work but its count is unknown to the compiler; on the Orin NX it ran the 2 × 2 configuration at
+work but its count is unknown to the compiler; on the measured GPU it ran the 2 × 2 configuration at
 380 GFLOP/s, against 580 GFLOP/s with the fixed count.
 
 The steps of lines 12 to 16:
@@ -600,7 +601,7 @@ configuration, and explain the change in speed.<br>
 
 ### 18.7.1 Results
 
-The measurements come from the Orin NX of Chapters 16 and 17 (8 SMs, 102 GB/s, 2,400 GFLOP/s), with
+The measurements come from the GPU of Chapters 16 and 17 (8 SMs, 102 GB/s, 2,400 GFLOP/s), with
 the same method. Both programs run the 4 × 4 example with 1 block of 2 × 2 threads, check the
 1,000 × 1,000 product, and then time 6 kernels on square matrices of 1,024, 2,048 and 4,096: the
 tiled kernel of Chapter 17 with \\(T = 16\\), and the register-tiled kernel with thread tiles of
@@ -658,8 +659,8 @@ C++ kernel.
 | 8 × 8, 128 × 128 block | 0.25 | 2,400 GFLOP/s | 773.1 GFLOP/s | 827.5 GFLOP/s | 138 |
 
 <figure>
-<img src="../../figures/ch18-measured.svg" alt="Horizontal bars of the rate in GFLOP/s at n = 4,096 on the Orin NX, C++ and Rust for each kernel, with a red mark at the shared-memory limit of 300 times 2 divided by the reads per multiply-add. Chapter 17's kernel with T = 16: 271.9 and 274.4, limit 300. 1 by 1: 220.4 and 219.4, limit 300. 2 by 1: 391.5 and 389.8, limit 400. 2 by 2: 583.5 and 568.5, limit 600. 4 by 4: 1,009.9 and 875.5, limit 1,200. 8 by 8: 773.1 and 827.5, limit 2,400, the FP32 peak.">
-<figcaption><b>Figure 18.9</b> Register tiles on the Orin NX at n = 4,096, against the shared-memory limit of each thread tile.</figcaption>
+<img src="../../figures/ch18-measured.svg" alt="Horizontal bars of the rate in GFLOP/s at n = 4,096 on the measured GPU, C++ and Rust for each kernel, with a red mark at the shared-memory limit of 300 times 2 divided by the reads per multiply-add. Chapter 17's kernel with T = 16: 271.9 and 274.4, limit 300. 1 by 1: 220.4 and 219.4, limit 300. 2 by 1: 391.5 and 389.8, limit 400. 2 by 2: 583.5 and 568.5, limit 600. 4 by 4: 1,009.9 and 875.5, limit 1,200. 8 by 8: 773.1 and 827.5, limit 2,400, the FP32 peak.">
+<figcaption><b>Figure 18.9</b> Register tiles on the measured GPU at n = 4,096, against the shared-memory limit of each thread tile.</figcaption>
 </figure>
 
 ### 18.7.2 Comparison with the model
@@ -674,7 +675,7 @@ which in the general kernel computes each slot from the flat number \\(e\\).
 The 4 × 4 tile reached 1,009.9 GFLOP/s in C++, 42% of the FP32 peak and 3.7 times the tiled kernel
 of Chapter 17, but only 84% of its limit of 1,200. Two other limits now come into view. Its
 operands from global memory, 64 FLOP per float, allow at most \\(25.5 \cdot 64 = 1{,}632\\) GFLOP/s
-on the Orin NX's 102 GB/s. And its 72 registers per thread leave room for 3 blocks of 256 threads on
+on its 102 GB/s. And its 72 registers per thread leave room for 3 blocks of 256 threads on
 an SM, \\(65{,}536 / (72 \cdot 256) = 3.6\\), 768 threads, an occupancy of 50%. With half as many
 warps to switch between, the SM hides less of the time each warp spends waiting for shared memory
 and for the barriers.
@@ -754,7 +755,7 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 - The 5 sizes are template parameters in C++ and const generic parameters in Rust, and every loop
   over the register tile is unrolled. In Rust, `RuntimeRowMajorTiles` lets each thread write its
   whole tile without `unsafe`.
-- On the Orin NX the rate followed the shared-memory limit up to the 2 × 2 tile (583.5 of
+- On the measured GPU the rate followed the shared-memory limit up to the 2 × 2 tile (583.5 of
   600 GFLOP/s). The 4 × 4 tile reached 1,009.9 GFLOP/s in C++ and 875.5 in Rust, 3.7 and 3.2 times
   the tiled kernel; the 8 × 8 tile was slower in both languages, because its registers leave few blocks on each
   SM (1 in C++).
