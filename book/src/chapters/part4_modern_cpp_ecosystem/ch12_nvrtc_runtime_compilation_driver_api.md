@@ -603,7 +603,7 @@ PASSED
 The lines read as follows.
 
 - **Compile, 45.74 ms and 51.99 ms.** NVRTC ran the whole compiler on the CPU, once for each
-  output. Across our runs the time ranged from 44 ms to 88 ms, with the load other programs put on
+  output. Across repeated runs the time ranged from 44 ms to 88 ms, with the load other programs put on
   the CPU.
 - **Load PTX, 0.68 ms.** This run found the driver's compiled copy in its cache; section 12.7
   explains the cache, and the 13 to 45 ms a load costs without it.
@@ -730,7 +730,7 @@ $ CUDA_CACHE_DISABLE=1 ./nvrtc | grep 'load PTX'
   load PTX              14.44 ms                  # compiled every time
 ```
 
-In this sequence the hit cost 31.98 / 0.77 = 42 times less than the miss. Across our runs a
+In this sequence the hit cost 31.98 / 0.77 = 42 times less than the miss. Across repeated runs a
 load without the cache took 13 to 45 ms and a load from it 0.68 to 0.97 ms. The cache directory
 held 24 KB after the 3 runs. The driver discards the cache when it is upgraded,
 because a new driver may compile the same PTX differently.

@@ -12,9 +12,8 @@ by engineers who see the hardware before it is released.
 This chapter puts each library next to the kernel it replaces and measures both on the same
 board, on the same day. The numbers answer 2 practical questions. When is the library as
 fast as the hand-written kernel, or faster? And what does a library call cost that a kernel
-launch does not? The second question has a surprising answer for small inputs: on a sum of
-4,096 floats, most of the time of a convenient library call goes to memory allocation and
-waiting, not to adding.
+launch does not? For small inputs the second answer is dominated by overhead: on a sum of 4,096 floats, most of
+the time of a convenient library call goes to memory allocation and waiting, not to adding.
 
 <div class="covers" markdown="1">
 
