@@ -860,7 +860,7 @@ this safer than a constant 256?
 
 The measurements come from an integrated GPU, a Jetson Orin NX 16 GB (8 SMs, 102 GB/s).
 Each program fills \\(x\\) and \\(y\\) with \\(2^{24}\\) values, 64 MiB per vector,
-more than the 4 MiB L2 cache of the measured GPU, so that every launch reads and writes global memory.
+more than the 2 MiB L2 cache of the measured GPU, so that every launch reads and writes global memory.
 It uses \\(x_i = (i \bmod 1024) \cdot 0.5\\), \\(y_i = i \bmod 7\\) and \\(a = 2.5\\): every
 product \\(2.5\,x_i\\) is a multiple of 1.25 below 1,280, which a float represents exactly, so the
 results are compared with the CPU's for exact equality. Each kernel runs for 500 ms to raise the
