@@ -6,7 +6,7 @@ In every kernel so far, each thread wrote its own output element. Thread \\(i\\)
 addition kernel wrote `c[i]` and no other location, so the threads never needed to know about
 each other. Many useful computations do not have this property. A histogram of bytes has 256
 bins, and millions of threads add counts to them. A sum has a single result, and every thread
-contributes a part of it. Whenever 2 threads access the same memory location, and at least 1 of
+contributes a part of it. Whenever 2 threads access the same memory location, and at least one of
 them writes it, the result can depend on the order of the accesses. The hardware does not choose
 that order in any predictable way, so the program must impose an order where one is needed.
 
@@ -55,7 +55,7 @@ A has written its result. Both threads compute 6, and both write 6. 2 additions 
 but the counter increased by only 1. The addition performed by thread A has been overwritten; we
 call this a **lost update**. The situation that makes it possible is called a race condition. A
 **race condition**, or data race, occurs when 2 or more threads access the same memory location,
-at least 1 of the accesses is a write, and nothing in the program orders the accesses. The result
+at least one of the accesses is a write, and nothing in the program orders the accesses. The result
 then depends on the relative timing of the threads.
 
 ### 5.1.2 Measuring a race on the GPU
@@ -149,7 +149,7 @@ branch therefore needs special handling when some threads of a warp take the `if
 others take the `else` path. In this case the warp executes both paths. It first executes the
 `if` path, with the threads that took it active and the other threads idle. It then executes the
 `else` path with the roles reversed. After the branch, the threads continue together. Executing
-more than 1 path within a warp is called **control divergence**. Its cost is proportional to the
+more than one path within a warp is called **control divergence**. Its cost is proportional to the
 number of paths the warp executes, not to the number of threads that take each path, as figure 5.2
 illustrates.
 
@@ -323,7 +323,7 @@ overlap. Atomic operations on global memory are performed in the L2 cache, which
 
 <figure>
 <img src="../../figures/ch05-atomic.svg" alt="Three threads each call atomicAdd on counter c. Their requests go to an atomic unit in the L2 cache, which performs 1 operation at a time on an address: read, add and write as 1 step. The counter goes from 5 to 8 and no addition is lost.">
-<figcaption><b>Figure 5.5</b> Atomic requests to 1 address are performed 1 at a time.</figcaption>
+<figcaption><b>Figure 5.5</b> Atomic requests to 1 address are performed one at a time.</figcaption>
 </figure>
 
 CUDA provides the following atomic functions for `int`, `unsigned int` and `unsigned long long`,
@@ -346,7 +346,7 @@ The Rust atomic types provide the same operations as methods: `fetch_add`, `fetc
 `compare_exchange`, `fetch_min`, `fetch_max`, `fetch_and`, `fetch_or` and `fetch_xor`.
 
 Atomic operations are correct, but they have a cost. Since operations on the same address are
-performed 1 at a time, many threads that update 1 location must wait for each other, and the
+performed one at a time, many threads that update 1 location must wait for each other, and the
 waiting time grows with the number of threads. The next section measures this cost.
 
 ### 5.5.2 A histogram
@@ -552,7 +552,7 @@ contains a race, even if every test so far has passed. The `racecheck` tool of C
 
 ## Summary
 
-- A race condition consists of 2 accesses to 1 location, at least 1 of them a write, with nothing
+- A race condition consists of 2 accesses to 1 location, at least one of them a write, with nothing
   ordering them. 1,048,576 plain additions to 1 counter kept 505 and 192 of the additions on the
   2 GPUs, and no error was reported.
 - Safe Rust cannot express that race, because memory that many threads update must have an atomic

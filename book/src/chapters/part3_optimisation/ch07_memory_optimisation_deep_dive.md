@@ -6,7 +6,7 @@ Most kernels perform only a few arithmetic operations for each byte they read fr
 As we saw in Chapter 1, the speed of such a kernel is limited by the memory bandwidth of the GPU,
 not by its arithmetic units. For a memory-bound kernel, the number of operations it performs
 matters less than the number of bytes it moves and the fraction of those bytes it uses. 2 kernels
-that compute the same result can differ 5 times in speed because 1 of them moves 5 times as many
+that compute the same result can differ 5 times in speed because one of them moves 5 times as many
 bytes.
 
 In this chapter, we study the rules that determine how many bytes a kernel moves. Global memory
@@ -59,7 +59,7 @@ There are 2 ways to improve a memory-bound kernel:
 2. **Fetch fewer bytes.** When the same data is needed more than once, keep it on the chip, in
    shared memory or in registers, instead of reading it from global memory again.
 
-Each technique in the rest of this chapter belongs to 1 of these 2 categories.
+Each technique in the rest of this chapter belongs to one of these 2 categories.
 
 ## 7.2 Memory coalescing
 
@@ -68,7 +68,7 @@ Each technique in the rest of this chapter belongs to 1 of these 2 categories.
 Global memory does not deliver individual bytes. The memory system transfers data in **sectors**
 of 32 bytes, aligned to multiples of 32, and the L2 cache groups 4 sectors into a 128-byte line.
 When a warp executes a load instruction, the hardware collects the 32 addresses of its threads and
-fetches every sector that contains at least 1 of them. A warp's access is said to be **coalesced**
+fetches every sector that contains at least one of them. A warp's access is said to be **coalesced**
 when its addresses fall into as few sectors as possible.
 
 Consider a warp whose 32 threads read 32 neighbouring `float`s. These occupy 32 × 4 = 128 bytes,

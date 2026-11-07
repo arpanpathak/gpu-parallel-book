@@ -2,10 +2,10 @@
 
 # Chapter 6: Streams, Events & Asynchronous Execution
 
-A GPU contains more than 1 kind of execution unit. The streaming multiprocessors (SMs), described
+A GPU contains more than one kind of execution unit. The streaming multiprocessors (SMs), described
 in Chapter 2, execute kernels. The copy engines, described in Chapter 4, transfer data between
 host memory and device memory without using the SMs. In the programs of the previous chapters,
-these units were used 1 at a time. The program copied its input to the device, launched a kernel,
+these units were used one at a time. The program copied its input to the device, launched a kernel,
 and copied the result back, and each operation started only after the previous one had finished.
 While a copy was in progress the SMs were idle, and while the kernel was running the copy engines
 were idle.

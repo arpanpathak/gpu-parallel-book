@@ -15,7 +15,7 @@ discrete and integrated GPUs. We then explain why CUDA distinguishes pageable fr
 memory, build a simple model of the cost of a transfer, and compare the model with
 measurements. The chapter ends with 2 kinds of memory that reduce or remove explicit
 transfers: unified memory and zero-copy memory. The measurements are made by 2 small programs,
-1 in C++ and 1 in Rust, which run on any NVIDIA GPU.
+one in C++ and one in Rust, which run on any NVIDIA GPU.
 
 <div class="covers" markdown="1">
 
@@ -228,7 +228,7 @@ Below the break-even size, more than half of the time of a copy is fixed cost. F
 about \\(t_0 + 4\ \text{MB} / B\\). A program that has many small pieces of data to transfer
 should therefore gather them into 1 buffer and copy that buffer once. This is the relation
 between latency and throughput from Chapter 1: a fixed latency per operation limits the
-throughput of operations that are issued 1 at a time.
+throughput of operations that are issued one at a time.
 
 ## 4.4 Measuring copies
 
