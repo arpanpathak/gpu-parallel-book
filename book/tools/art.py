@@ -1422,8 +1422,6 @@ def ch18():
     return parts
 
 
-@plate("ch19", "Stencils and the Laplace Solver", "Ripple the crab", "Ripple, a crab, stands on the sand "
-       "beside a grid of square cells, 9 across and 6 down. The top row is hot, 100, and coloured red; the other "
 @plate("ch19", "Stencils and Jacobi Iteration", "Ripple the crab", "Ripple, a crab, stands on the sand "
        "beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and coloured red; the other "
        "edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the "
