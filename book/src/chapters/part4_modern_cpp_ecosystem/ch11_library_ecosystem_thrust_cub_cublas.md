@@ -10,10 +10,11 @@ own. NVIDIA ships several with every toolkit, and each one is tuned for every GP
 by engineers who see the hardware before it is released.
 
 This chapter puts each library next to the kernel it replaces and measures both on the same
-board, on the same day. The numbers answer 2 practical questions. When is the library as
-fast as the hand-written kernel, or faster? And what does a library call cost that a kernel
-launch does not? For small inputs the second answer is dominated by overhead: on a sum of 4,096 floats, most of
-the time of a convenient library call goes to memory allocation and waiting, not to adding.
+GPU, a Jetson Orin NX (8 SMs, 102 GB/s of memory bandwidth, 2.4 TFLOP/s FP32), on the same day.
+The numbers answer 2 practical questions. When is the library as fast as the hand-written
+kernel, or faster? And what does a library call cost that a kernel launch does not? For small
+inputs the second answer is dominated by overhead: on a sum of 4,096 floats, most of the time
+of a convenient library call goes to memory allocation and waiting, not to adding.
 
 <div class="covers" markdown="1">
 
@@ -58,8 +59,8 @@ it runs, such as the partial sums of the blocks of a reduction.
 Thrust and CUB consist only of C++ templates in header files, so they are compiled into the
 program like any other code and need no link flag. They belong to the **CUDA C++ Core
 Libraries**, CCCL, together with `libcu++`, which provides the `cuda::std::` versions of the
-C++ standard library used below. The version follows the toolkit: CUDA 12.6 on the Orin NX
-ships CCCL 2.5, and CUDA 13.2 on the Thor ships CCCL 3.2. cuBLAS, cuFFT and cuRAND are
+C++ standard library used below. The version follows the toolkit: CUDA 12.6
+ships CCCL 2.5, and CUDA 13.2 ships CCCL 3.2. cuBLAS, cuFFT and cuRAND are
 compiled libraries, linked with a flag.
 
 Figure 11.1 places them by where they are called from and who manages the memory.
@@ -134,7 +135,7 @@ GPU to finish and copies 4 bytes back. The program checks every sum against a su
 precision and prints PASSED when all agree to 1 part in 100,000.
 
 ```console
-$ ./reduce_scan                                   # on a Jetson Orin NX
+$ ./reduce_scan
 GPU: Orin, 8 SMs, L2 cache 2 MiB
 sum of 67108864 floats (256 MiB), average of 20 runs
   Chapter 8, float4 + shuffles    2.87 ms    93.4 GB/s  sum 33557628.0
@@ -144,7 +145,7 @@ sum of 67108864 floats (256 MiB), average of 20 runs
   thrust::reduce                  2.89 ms    93.0 GB/s  sum 33557628.0
 ```
 
-All 4 ran within 2% of each other, 91.8 to 93.4 GB/s, which is 90% to 92% of the Orin NX's
+All 4 ran within 2% of each other, 91.8 to 93.4 GB/s, which is 90% to 92% of the GPU's
 102 GB/s. Chapter 8 showed that this is the ceiling: a sum reads each byte once and does 1
 addition per 4 bytes, so the memory sets the speed. Work whose speed the memory sets is
 called **memory-bound**, and no library can read faster than the memory delivers. The sums differ in the last digits because each method adds in a different
@@ -361,7 +362,7 @@ The program sorts 16,777,216 random 32-bit keys, 64 MiB, and checks each result 
 allocated once, as section 11.3.3 explains.
 
 ```console
-$ ./sort                                          # on a Jetson Orin NX
+$ ./sort
 GPU: Orin, 8 SMs
 sort of 16777216 random 32-bit keys, average of 5 runs
   std::sort, 1 CPU core              1626.26 ms     10.3 Mkeys/s
@@ -392,7 +393,7 @@ Mkeys/s is millions of keys sorted per second. 5 lessons are in the 9 lines.
 4. **A fast path depends on what the library recognises.** In CCCL 2.5, Thrust's sort takes
    the radix path only if the comparison's type is exactly `thrust::less<Key>` or
    `thrust::greater<Key>`; `cuda::std::greater` is a different type there, so the descending
-   sort fell back to the merge sort, 30.92 ms. CCCL 3.2 on the Thor makes `thrust::greater` a
+   sort fell back to the merge sort, 30.92 ms. CCCL 3.2 makes `thrust::greater` a
    name for `cuda::std::greater`, and the same source took the radix path, as fast as the
    ascending sort. Only a measurement shows which path a call took.
 5. **Fewer bits, fewer passes.** For keys from 0 to 255, only bits 0 to 7 differ. Told so
@@ -403,8 +404,8 @@ The 2 merge sorts differ by 26%, more than their code does: on a board shared wi
 programs, sorts that take 20 to 30 ms drifted by 20% to 30% between runs.
 
 <figure>
-<img src="../../figures/ch11-sort.svg" alt="Horizontal bars of sorting speed in millions of keys per second for 16,777,216 32-bit keys on a Jetson Orin NX. std::sort on 1 CPU core 10.3. thrust::sort 676.7. thrust::sort with scratch reused 1,285.5. With cuda::std::greater 542.6 and with its own comparison 686.8, both merge sorts. cub::DeviceRadixSort 1,872.8. Keys from 0 to 255 sorted on bits 0 to 7 only: 5,356.5.">
-<figcaption><b>Figure 11.4</b> Sorting 16 Mi keys on an Orin NX, in millions of keys per second.</figcaption>
+<img src="../../figures/ch11-sort.svg" alt="Horizontal bars of sorting speed in millions of keys per second for 16,777,216 32-bit keys. std::sort on 1 CPU core 10.3. thrust::sort 676.7. thrust::sort with scratch reused 1,285.5. With cuda::std::greater 542.6 and with its own comparison 686.8, both merge sorts. cub::DeviceRadixSort 1,872.8. Keys from 0 to 255 sorted on bits 0 to 7 only: 5,356.5.">
+<figcaption><b>Figure 11.4</b> Sorting 16 Mi keys, in millions of keys per second.</figcaption>
 </figure>
 
 <details class="check"><summary>Why does a radix sort need every pass to be stable?</summary>
@@ -492,7 +493,7 @@ mod kernels {
 ```
 
 ```console
-$ cargo oxide run                                 # on a Jetson Orin NX
+$ cargo oxide run
 sum of 67108864 floats, average of 20 runs
   Chapter 8, by hand    3.95 ms    68.0 GB/s  sum 33557632.0
   block_reduce          4.10 ms    65.5 GB/s  sum 33557632.0
@@ -505,8 +506,7 @@ PASSED
 The 2 Rust sums ran within 4% of each other and gave the same total. Both read 1 float per
 load, so they reach 68 GB/s rather than the 93 GB/s of the C++ kernels with `float4` loads,
 the difference Chapter 8 measured. The first 8 scanned values rise by 0 to 3 at each step, as
-the inputs 0, 1, 0, 2, 2, 0, 0, 1 require, and the program checked all 67,108,864. The same
-program passed on the Thor.
+the inputs 0, 1, 0, 2, 2, 0, 0, 1 require, and the program checked all 67,108,864.
 
 ### 11.3.3 Device-wide calls and their scratch memory
 
@@ -712,14 +712,14 @@ int main()
 ```
 
 ```console
-$ ./gemm                                          # on a Jetson Orin NX
+$ ./gemm
 C = A B, 4096 x 4096 floats, average of 10 runs
   cuBLAS, FP32              91.34 ms   1504.6 GFLOP/s  max error 1.9e-05
   cuBLAS, TF32 tensor       21.05 ms   6530.4 GFLOP/s  max error 4.0e-03
 PASSED
 ```
 
-In FP32, cuBLAS reached 1,504.6 GFLOP/s, 63% of the Orin NX's 2.4 TFLOP/s FP32 peak; Chapter
+In FP32, cuBLAS reached 1,504.6 GFLOP/s, 63% of the GPU's 2.4 TFLOP/s FP32 peak; Chapter
 9's best kernel reached 931.9 GFLOP/s, 62% of cuBLAS. The `max error` column compares 64
 elements with a product computed in double precision, as in Chapter 9.
 
@@ -745,7 +745,7 @@ Worked example: 1/3 in FP32 and in TF32
 </div>
 
 <figure>
-<img src="../../figures/ch11-tf32.svg" alt="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096 on a Jetson Orin NX: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
+<img src="../../figures/ch11-tf32.svg" alt="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
 <figcaption><b>Figure 11.7</b> TF32 keeps FP32's range and 10 of its 23 mantissa bits: 4.3 times the speed, 210 times the error.</figcaption>
 </figure>
 
@@ -757,7 +757,7 @@ the chip than consumer GPUs do:
 | A100 SXM | 19.5 TFLOP/s | 156 TFLOP/s | 8.0 |
 | H100 SXM | 67 TFLOP/s | 495 TFLOP/s | 7.4 |
 | GeForce RTX 4090 | 82.6 TFLOP/s | 82.6 TFLOP/s | 1.0 |
-| Jetson Orin NX, measured | 1.50 TFLOP/s (cuBLAS) | 6.53 TFLOP/s (cuBLAS) | 4.3 |
+| The measured GPU | 1.50 TFLOP/s (cuBLAS) | 6.53 TFLOP/s (cuBLAS) | 4.3 |
 
 The peaks are from NVIDIA's A100, H100 and Ada architecture documents; "dense" excludes the
 doubled figures quoted for sparse matrices. TF32 is used by default for training neural
@@ -792,7 +792,7 @@ standard deviation 1, the bell curve, and checks both with 2 Thrust reductions: 
 the numbers and of their squares.
 
 ```console
-$ ./fft_rand                                      # on a Jetson Orin NX
+$ ./fft_rand
 cuRAND, 16777216 normal numbers in 1.01 ms (16688 million per second)
   mean -0.00042, standard deviation 0.99994
 ```
@@ -850,7 +850,7 @@ PASSED
 </figure>
 
 The program printed every frequency above magnitude 1: only the 2 predicted, with the
-predicted heights. Both libraries ran correctly on the Thor as well.
+predicted heights.
 
 ## 11.6 Library or custom kernel?
 
@@ -858,13 +858,13 @@ Figure 11.9 collects the measurements of the chapter for the 3 algorithms that t
 wrote by hand.
 
 <figure>
-<img src="../../figures/ch11-versus.svg" alt="3 panels of horizontal bars, measured on a Jetson Orin NX. Sum of 256 MiB, in GB/s: Chapter 8 kernel 93.4, cub::BlockReduce 92.5, cub::DeviceReduce 91.8, thrust::reduce 93.0. Scan of 64 Mi values, in GB/s: Chapter 8 43.0, thrust::inclusive_scan 68.2, cub::DeviceScan 74.3. SGEMM with N = 4,096, in GFLOP/s: Chapter 9 best 931.9, cuBLAS FP32 1,504.6, cuBLAS TF32 6,530.4.">
-<figcaption><b>Figure 11.9</b> The book's kernels against the libraries, on the same board.</figcaption>
+<img src="../../figures/ch11-versus.svg" alt="3 panels of horizontal bars. Sum of 256 MiB, in GB/s: Chapter 8 kernel 93.4, cub::BlockReduce 92.5, cub::DeviceReduce 91.8, thrust::reduce 93.0. Scan of 64 Mi values, in GB/s: Chapter 8 43.0, thrust::inclusive_scan 68.2, cub::DeviceScan 74.3. SGEMM with N = 4,096, in GFLOP/s: Chapter 9 best 931.9, cuBLAS FP32 1,504.6, cuBLAS TF32 6,530.4.">
+<figcaption><b>Figure 11.9</b> The book's kernels against the libraries, on the same GPU.</figcaption>
 </figure>
 
 <div class="lld" markdown="1">
 
-| Problem | Library | Book's kernel | Measured on the Orin NX | Choice |
+| Problem | Library | Book's kernel | Measured | Choice |
 |---|---|---|---|---|
 | sum of a large array | `thrust::reduce` or CUB | Chapter 8 | 93.0 vs 93.4 GB/s | library: same speed, no code |
 | sum of a small array, often | CUB, scratch reused, result kept | Chapter 8 | 8.8 µs vs 68.1 µs for `thrust::reduce` | CUB device-wide call |
@@ -1005,7 +1005,7 @@ NVRTC, and loads and launches the result through the driver API.
    What does cuBLAS then compute, and in which order is the result stored?
 7. Rerun `sort.cu` with `thrust::greater<unsigned>` in place of `cuda::std::greater<unsigned>`.
    On which toolkit does the time change, and why?
-8. The Orin NX ran TF32 SGEMM 4.3 times as fast as FP32; the A100's peaks differ 8 times and
+8. The measured GPU ran TF32 SGEMM 4.3 times as fast as FP32; the A100's peaks differ 8 times and
    the RTX 4090's not at all. Look up your GPU's FP32 and TF32 peaks and predict the ratio,
    then measure it with `gemm.cu`.
 9. Generate 16 Mi uniform numbers with `curandGenerateUniform` and estimate π by counting the

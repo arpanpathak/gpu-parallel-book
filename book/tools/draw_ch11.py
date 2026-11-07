@@ -103,7 +103,7 @@ save(OUT + "ch11-fusion.svg", 660, 470,
      "2 rows of bars drawn to scale. Top, transform then reduce: read 256 MiB, write 256 MiB of squares, read "
      "the squares again, 768 MiB in all, measured 10.51 ms. Bottom, transform_reduce: read 256 MiB once, "
      "each square kept in a register, measured 3.15 ms. A note says 3 times the bytes, 3.3 times the time.",
-     "Fusion", "The sum of squares of 256 MiB of floats, on a Jetson Orin NX.", parts)
+     "Fusion", "The sum of squares of 256 MiB of floats.", parts)
 
 
 # 11.3  A radix sort by hand: 2 passes over 6 keys of 2 decimal digits.
@@ -181,11 +181,11 @@ parts += [text(x0 - 14, top + len(SORT) * 44 + 18, "Mkeys/s", "sub", "end"),
                room=600),
           note(40, top + len(SORT) * 44 + 102, "0 to 255 on their low 8 bits only, 1 pass instead of 4.", room=600)]
 save(OUT + "ch11-sort.svg", 660, top + len(SORT) * 44 + 124,
-     "Horizontal bars of sorting speed in millions of keys per second for 16,777,216 32-bit keys on a Jetson "
-     "Orin NX. std::sort on 1 CPU core 10.3. thrust::sort 676.7. thrust::sort with scratch reused 1,285.5. "
+     "Horizontal bars of sorting speed in millions of keys per second for 16,777,216 32-bit keys. "
+     "std::sort on 1 CPU core 10.3. thrust::sort 676.7. thrust::sort with scratch reused 1,285.5. "
      "With cuda::std::greater 542.6 and with its own comparison 686.8, both merge sorts. "
      "cub::DeviceRadixSort 1,872.8. Keys from 0 to 255 sorted on bits 0 to 7 only: 5,356.5.",
-     "Sorting 16 Mi keys", "Millions of keys per second on a Jetson Orin NX.", parts)
+     "Sorting 16 Mi keys", "Millions of keys per second, 16,777,216 random 32-bit keys.", parts)
 
 
 # 11.5  CUB's 2 calls, and where the time of a small sum goes.
@@ -222,7 +222,7 @@ save(OUT + "ch11-scratch.svg", 660, 554,
      "scale. thrust::reduce, 68.1 microseconds: 38.2 allocating and freeing, 21.1 copying the result back "
      "and waiting, 8.8 launching and summing. CUB with the result copied, 29.9 microseconds: 21.1 copy and "
      "wait, 8.8 sum. CUB with the result kept, 8.8 microseconds. The data itself needs 0.18 microseconds.",
-     "Scratch memory and waiting", "Measured per call on a Jetson Orin NX.", parts)
+     "Scratch memory and waiting", "Measured per call, 4,096 floats.", parts)
 
 
 # 11.6  The same 6 numbers, read by rows and by columns.
@@ -282,12 +282,12 @@ parts += [tag(40, 290, "FP32: 1/3 = 0.33333334", "client"),
           card(40, 336, 280, 80, "client", "cuBLAS, FP32", ["1,504.6 GFLOP/s", "max error 1.9e-5"]),
           card(344, 336, 280, 80, "good", "cuBLAS, TF32 tensor", ["6,530.4 GFLOP/s, 4.3 ×", "max error 4.0e-3, 210 ×"]),
           note(40, 448, "Same 8-bit exponent, so the same range; 13 fewer mantissa bits, so each input is", room=600),
-          note(40, 466, "rounded to about 3 decimal digits before it is multiplied. N = 4,096, Jetson Orin NX.",
+          note(40, 466, "rounded to about 3 decimal digits before it is multiplied. N = 4,096.",
                room=600)]
 save(OUT + "ch11-tf32.svg", 660, 488,
      "The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is "
      "0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; "
-     "1/3 is 0.33325195. Below, 2 measured results for N = 4,096 on a Jetson Orin NX: FP32 1,504.6 GFLOP/s "
+     "1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s "
      "with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.",
      "FP32 and TF32", "What tensor cores keep of each number, and what that buys.", parts)
 
@@ -341,8 +341,8 @@ for title, rows, unit, top in panels:
     y += h + 24
 parts += [swatches(40, y + 4, [(KINDS["idle"][0], "the book's kernel"), (KINDS["client"][0], "library")])]
 save(OUT + "ch11-versus.svg", 660, y + 26,
-     "3 panels of horizontal bars, measured on a Jetson Orin NX. Sum of 256 MiB, in GB/s: Chapter 8 kernel "
+     "3 panels of horizontal bars, Sum of 256 MiB, in GB/s: Chapter 8 kernel "
      "93.4, cub::BlockReduce 92.5, cub::DeviceReduce 91.8, thrust::reduce 93.0. Scan of 64 Mi values, in "
      "GB/s: Chapter 8 43.0, thrust::inclusive_scan 68.2, cub::DeviceScan 74.3. SGEMM with N = 4,096, in "
      "GFLOP/s: Chapter 9 best 931.9, cuBLAS FP32 1,504.6, cuBLAS TF32 6,530.4.",
-     "Hand-written against library", "Measured on a Jetson Orin NX, the same day.", parts)
+     "Hand-written against library", "Measured on 1 GPU, the same day.", parts)

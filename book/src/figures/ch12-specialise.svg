@@ -69,6 +69,6 @@
   <text x="24.0" y="429.0" class="note" text-anchor="start" xml:space="preserve">rated memory, 102 GB/s</text>
   <rect x="200" y="412" width="112.4" height="26" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
   <text x="320.4" y="430.0" class="mono" text-anchor="start" style="fill:#7F8EA0" xml:space="preserve">1.32 ms</text>
-  <text x="24.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">16,777,216 values, degree 32, on a Jetson Orin NX. Both move 134 MB: the specialised</text>
+  <text x="24.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">16,777,216 values, degree 32. Both move 134 MB: the specialised</text>
   <text x="24.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">kernel at 73 GB/s, 71% of the rated 102 GB/s, and the generic one at 52 GB/s.</text>
 </svg>

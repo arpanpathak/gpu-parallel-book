@@ -38,7 +38,7 @@
   </defs>
   <rect width="660" height="470" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Fusion</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The sum of squares of 256 MiB of floats, on a Jetson Orin NX.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The sum of squares of 256 MiB of floats.</text>
   <rect x="16" y="104" width="628" height="150" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="34" y="93" width="201.1" height="22" rx="11" fill="#1B2430"/>
   <text x="134.5" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">TRANSFORM, THEN REDUCE</text>

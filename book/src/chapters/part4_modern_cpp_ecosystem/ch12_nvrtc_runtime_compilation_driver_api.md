@@ -18,8 +18,10 @@ runtime itself is built.
 We follow 1 example from start to finish: a polynomial of degree 32 evaluated at 16,777,216
 points. A generic kernel reads its 33 coefficients from memory. A specialised kernel, written by
 the program after it knows the coefficients, contains them as constants. Both give bit-identical
-results; on a Jetson Orin NX the specialised one runs about 1.4 times as fast, and compiling it
-costs about 50 ms. The chapter measures both sides of that trade.
+results; the specialised one runs about 1.4 times as fast, and compiling it costs about 50 ms.
+The times in this chapter were measured on a Jetson Orin NX, an integrated GPU of compute
+capability 8.7 with 102 GB/s of memory bandwidth; the programs were also run on a Jetson AGX
+Thor, of compute capability 11.0. The chapter measures both sides of that trade.
 
 <div class="covers" markdown="1">
 
@@ -140,7 +142,7 @@ The real machine code comes in 2 containers:
   matches the GPU, or JIT-compiles the PTX when none matches.
 
 Figure 12.2 shows the 3 forms twice: made by `nvcc` before the program runs, and made by NVRTC
-while it runs. The sizes are those of the chapter's polynomial on the Orin NX.
+while it runs. The sizes are those of the chapter's polynomial, compiled for `sm_87`.
 
 <figure>
 <img src="../../figures/ch12-pipeline.svg" alt="Two zones. At build time, nvcc turns a .cu source file into PTX for a virtual GPU, compute_87, then into a cubin of machine code for sm_87 only, and bundles cubins and PTX into a fatbin inside the executable. While the program runs, NVRTC turns a source string of 1,315 bytes into PTX of 2,237 bytes in 44 to 88 ms or a cubin of 3,624 bytes in 49 to 74 ms. Loading the PTX takes 0.7 to 45 ms, depending on the driver's cache; loading the cubin takes 0.05 ms.">
@@ -352,8 +354,8 @@ from it: major 8 and minor 7 give `sm_87`. The same lines create the context of 
 ```
 
 ```console
-GPU: Orin, compute capability 8.7, target sm_87                   # Jetson Orin NX
-GPU: NVIDIA Thor, compute capability 11.0, target sm_110          # Jetson AGX Thor
+GPU: Orin, compute capability 8.7, target sm_87
+GPU: NVIDIA Thor, compute capability 11.0, target sm_110
 ```
 
 The same source gives a cubin of 3,624 bytes for `sm_87` and of 6,368 bytes for `sm_110`. The
@@ -417,8 +419,8 @@ spellings as the same number.
 
 Portable code is for machines the program has never seen. A program compiling at run time
 already knows its GPU. For `sm_87` NVRTC produces a cubin that loads in about 0.05 ms. PTX for any
-virtual architecture must still be JIT-compiled by the driver when it is loaded, at 13 to 45 ms on
-the Orin NX (section 12.7). PTX for an older virtual architecture also keeps the compiler from
+virtual architecture must still be JIT-compiled by the driver when it is loaded, at 13 to 45 ms in
+the measurements of section 12.7. PTX for an older virtual architecture also keeps the compiler from
 using any feature added since.
 
 </details>
@@ -463,7 +465,7 @@ CUDA driver error: CUDA_ERROR_NOT_FOUND
 ```
 
 The module held a kernel named `_Z4polyPKfPfi`, and no kernel named `poly`. A second copy, which
-compiled its cubin for `sm_90` and loaded it on the Orin NX, stopped one step earlier, in
+compiled its cubin for `sm_90` and loaded it on the `sm_87` GPU, stopped one step earlier, in
 `cuModuleLoadData`, with `CUDA_ERROR_INVALID_SOURCE`: the driver does not load machine code for
 another generation.
 
@@ -584,7 +586,7 @@ every one of the 16,777,216 results of the 2 kernels, and checks every 4,099th r
 Horner's rule in double precision on the CPU.
 
 ```console
-$ ./nvrtc                                         # on a Jetson Orin NX
+$ ./nvrtc
 GPU: Orin, compute capability 8.7, target sm_87
 NVRTC, a polynomial of degree 32, 1315 bytes of source
   compile to PTX        45.74 ms    2237 bytes
@@ -623,7 +625,7 @@ per byte moved.
 Worked example: is the polynomial limited by memory or by arithmetic?
 
 1. Per point: 32 multiply-adds, 64 FLOP, for 4 bytes read and 4 written: 64 / 8 = 8 FLOP per byte.
-2. The Orin NX does 2,400 GFLOP/s and its memory delivers 102 GB/s: the ridge point is
+2. The measured GPU does 2,400 GFLOP/s and its memory delivers 102 GB/s: the ridge point is
    2,400 / 102 = 23.5 FLOP per byte.
 3. 8 < 23.5, so the work is **memory-bound**: at best, the time is that of moving
    134.2 MB at 102 GB/s, 1.32 ms.
@@ -643,7 +645,7 @@ degree would gain more. Exercise 3 measures that.
 The Rust program gives the same answer:
 
 ```console
-$ cargo oxide run                                 # on a Jetson Orin NX
+$ cargo oxide run
 GPU: Orin, compute capability 8.7, target sm_87
 NVRTC, 1281 bytes of source
   compile to cubin      57.66 ms    3624 bytes
@@ -658,16 +660,15 @@ PASSED
 ```
 
 The specialised kernel is the same NVRTC cubin, and took 1.96 ms against 1.84 ms in C++,
-within the 10% that runs drift on this board. The generic Rust kernel, built by cuda-oxide, ran
+within the 10% by which runs drift. The generic Rust kernel, built by cuda-oxide, ran
 within 10% of the generic C++ one, and its results match the specialised kernel's bit for bit,
-because `mul_add` performs the same fused operation. Both programs also pass on a Jetson AGX
-Thor. On your own GPU, the ratio of the 2 kernels is the number to compare.
+because `mul_add` performs the same fused operation. On your own GPU, the ratio of the 2 kernels is the number to compare.
 
 Figure 12.6 puts every cost of the run on 1 logarithmic axis, and works out when compiling pays
 for itself.
 
 <figure>
-<img src="../../figures/ch12-costs.svg" alt="Horizontal bars on a logarithmic time axis from 0.01 ms to 100 ms, measured on a Jetson Orin NX: compile to cubin 52 ms; load PTX with a cache miss 32 ms; 1 run of the generic kernel 2.61 ms; 1 run of the specialised kernel 1.84 ms; load PTX with a cache hit 0.77 ms; load cubin 0.05 ms. Below, a card: each run saves 0.77 ms, compiling costs 52 ms, so it pays back after 68 runs.">
+<img src="../../figures/ch12-costs.svg" alt="Horizontal bars on a logarithmic time axis from 0.01 ms to 100 ms, measured: compile to cubin 52 ms; load PTX with a cache miss 32 ms; 1 run of the generic kernel 2.61 ms; 1 run of the specialised kernel 1.84 ms; load PTX with a cache hit 0.77 ms; load cubin 0.05 ms. Below, a card: each run saves 0.77 ms, compiling costs 52 ms, so it pays back after 68 runs.">
 <figcaption><b>Figure 12.6</b> Compiling costs about 20 to 30 runs of the kernel; it pays back after 68 runs.</figcaption>
 </figure>
 
@@ -704,7 +705,7 @@ given PTX compiles it and stores the result; later loads, in this process or any
 the stored machine code (figure 12.7).
 
 <figure>
-<img src="../../figures/ch12-cache.svg" alt="A flow. cuModuleLoadData receives 2,237 bytes of PTX and looks it up in the cache, keyed by the PTX, the GPU and the driver version. The first time, a miss: the driver compiles the PTX, 13 to 45 ms on the Orin NX, and stores the result for the next process, in CUDA_CACHE_PATH, by default ~/.nv/ComputeCache. Later, a hit: the machine code is copied from the file in 0.7 ms. Either way the module in the context holds the same code.">
+<img src="../../figures/ch12-cache.svg" alt="A flow. cuModuleLoadData receives 2,237 bytes of PTX and looks it up in the cache, keyed by the PTX, the GPU and the driver version. The first time, a miss: the driver compiles the PTX, 13 to 45 ms when measured, and stores the result for the next process, in CUDA_CACHE_PATH, by default ~/.nv/ComputeCache. Later, a hit: the machine code is copied from the file in 0.7 ms. Either way the module in the context holds the same code.">
 <figcaption><b>Figure 12.7</b> 1 process pays to compile the PTX; later processes read the result.</figcaption>
 </figure>
 
@@ -745,7 +746,7 @@ load the file next time.
 <summary>A data centre upgrades its GPU driver overnight. What happens to the first run of each program the next morning?</summary>
 
 The driver discards the JIT cache when it is upgraded, so every PTX the programs load is compiled
-again, once, at 13 to 45 ms each on a board like the Orin NX. Programs that load cubins, from a
+again, once, at 13 to 45 ms each on the GPU of section 12.7. Programs that load cubins, from a
 fatbin or from NVRTC, do not notice: a cubin needs no JIT compilation.
 
 </details>
@@ -797,7 +798,7 @@ $ nvcc app.cu -o app -gencode arch=compute_87,code=[sm_87,sm_90,compute_87]
 ```
 
 `arch=compute_87` names the virtual architecture the source is compiled for. `code=` lists what
-goes into the fatbin: cubins for `sm_87`, the Orin NX, and `sm_90`, the H100, and the
+goes into the fatbin: cubins for `sm_87` and `sm_90`, and the
 `compute_87` PTX itself, which the driver can JIT-compile on any later GPU.
 
 | Situation | Choose |
@@ -852,7 +853,7 @@ goes into the fatbin: cubins for `sm_87`, the Orin NX, and `sm_90`, the H100, an
 - `cuModuleLoadData`, `cuModuleGetFunction` and `cuLaunchKernel` load, find and launch the
   result. The argument array holds the address of each argument.
 - A polynomial of degree 32 specialised to its coefficients ran 1.3 to 1.46 times as fast as the
-  generic kernel on the Orin NX, at 71% of the rated memory bandwidth, with bit-identical results.
+  generic kernel, at 71% of the rated memory bandwidth, with bit-identical results.
   Compiling cost about 52 ms, repaid after 68 runs.
 - The JIT cache turned a 13 to 45 ms PTX load into a 0.7 ms one for every later process.
 - Retaining the primary context lets the runtime API and the driver API share memory.

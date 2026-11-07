@@ -2,8 +2,8 @@
 
     python3 tools/draw_ch10.py
 
-The numbers are the ones measured with code/ch10_modern/raw.cu and modern.cu on a Jetson
-Orin NX (the runs quoted in the chapter).
+The numbers are the ones measured with code/ch10_modern/raw.cu and modern.cu on the first
+GPU named in the chapter (the runs quoted there).
 """
 from figkit import stacked, width_of
 from figparts import (EDGE, INK, KINDS, MUTED, WIRE, arrow, fan, legend, line, mono, note, save,
@@ -182,8 +182,8 @@ for k, (name, sub, rate) in enumerate(kernels):
 parts += [box(126, 344, 408, 30, "idle", "scaleRaw, written by hand for float: 74.5 GB/s"),
           note(16, 408, "The template is not a kernel. At each launch with new types, the compiler writes", room=628),
           note(16, 426, "a kernel for those types, as if typed by hand: 3 types, 3 kernels in the binary.", room=628),
-          note(16, 444, "transform<float> ran at the speed of the hand-written kernel (Orin NX, 16,777,216", room=628),
-          note(16, 462, "values). double moves twice the bytes per thread and reached 90.2 GB/s of 102 GB/s.", room=628)]
+          note(16, 444, "transform<float> ran at the speed of the hand-written kernel (16,777,216 values).", room=628),
+          note(16, 462, "double moves twice the bytes per thread and reached 90.2 GB/s of 102 GB/s.", room=628)]
 save(OUT + "ch10-instantiate.svg", 660, 484,
      "A template, transform with type T and operation F, fans out into 3 kernels the compiler writes: "
      "transform<float>, 4 bytes in and 4 out, 74.6 GB/s; transform<double>, 8 bytes in and 8 out, 90.2 GB/s; "

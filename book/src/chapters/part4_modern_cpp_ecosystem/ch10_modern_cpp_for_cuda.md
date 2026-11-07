@@ -41,8 +41,9 @@ The code of the chapter is in
 [`code/ch10_modern/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch10_modern)
 for C++ and in
 [`code/oxide/ch10_modern/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch10_modern)
-for Rust. Every output in the chapter comes from a Jetson Orin NX; the programs also passed,
-with the same counts, on a Jetson AGX Thor with CUDA 13.2.
+for Rust. The outputs in this chapter come from 2 integrated GPUs: a Jetson Orin NX (8 SMs,
+102 GB/s, CUDA 12.6), whose runs the listings show, and a Jetson AGX Thor (20 SMs, 273 GB/s,
+CUDA 13.2), which gives the same counts.
 
 ## 10.1 Problems with raw CUDA C
 
@@ -72,9 +73,9 @@ bytes handed out and not yet given back, in the attribute `cudaMemPoolAttrUsedMe
 ```
 
 `cudaMemGetInfo`, the older way to ask, reports the free memory of the whole device, and other
-programs change it. On the Orin NX, whose GPU shares its memory with the operating system, an
-allocation of 128 MiB moved the free memory that `cudaMemGetInfo` reported by only 0.5 MiB; on
-the Thor the same allocation moved it by 129 MiB. The pool's count does not depend on anything
+programs change it. On an integrated GPU, which shares its memory with the operating system, an
+allocation of 128 MiB moved the free memory that `cudaMemGetInfo` reported by only 0.5 MiB on
+the first GPU and by 129 MiB on the second. The pool's count does not depend on anything
 outside the program. 1 MiB is 2<sup>20</sup> bytes, 1,048,576 bytes, which is the number the
 listing divides by.
 
@@ -110,7 +111,7 @@ Worked example: 8 calls with a factor of 0
 </figure>
 
 ```console
-$ nvcc -arch=native raw.cu -o raw && ./raw         # on a Jetson Orin NX
+$ nvcc -arch=native raw.cu -o raw && ./raw
 1. 8 calls that return early: 128.0 MiB lost
 ```
 
@@ -145,7 +146,7 @@ The launch syntax `<<<...>>>` returns nothing, so a launch that fails cannot han
 code. CUDA records the failure instead, and the next call to `cudaGetLastError` returns it. The
 copy that follows succeeds; it copies an array that no kernel wrote, and `out[0]` is still the
 0.0 of the `cudaMemset`. If the program never calls `cudaGetLastError`, it continues with wrong
-data and no message. On the Thor, CUDA 13.2 reports the same launch as `invalid argument`; the
+data and no message. On the second GPU, CUDA 13.2 reports the same launch as `invalid argument`; the
 wording varies between versions, the silence does not.
 
 ### 10.1.4 Bytes where elements were meant
@@ -456,7 +457,7 @@ host, before any call to the driver.
 leak cannot make a program read or write wrong memory, but it has to be written out by name.
 
 ```console
-$ cargo oxide run                                  # on a Jetson Orin NX
+$ cargo oxide run
 ownership
   8 calls that return early: 0.0 MiB lost
   2048 threads per block returned: scale: block (2048, 1, 1) does not match required block (256, 1, 1)
@@ -558,7 +559,7 @@ cannot use, and nvcc refuses it with the error
 A template, a function object and a span are abstractions: names for things the hand-written
 kernel did directly. The measurement compares `transform<float>` with `scaleRaw`, the C-style
 kernel of `raw.cu`, on the same 16,777,216 floats, and runs the other 2 instantiations beside
-them. Each timing follows 500 ms of warm-up, because the Orin NX raises the clocks of its GPU
+them. Each timing follows 500 ms of warm-up, because a GPU raises the clocks of its cores
 and of its memory only under sustained load.
 
 ```console
@@ -574,7 +575,7 @@ float, divided by the time. `transform<float>` and `scaleRaw` both took 1.80 ms;
 cost nothing measurable. Repeated runs drift by 10 to 20% in both directions, and the 2 kernels
 moved together. `transform<double>` moved twice the bytes, 268.4 MB, in 1.66 times the time. At
 8 bytes per element, each thread's load and store carry twice the data, and the kernel came
-closer to the board's 102 GB/s: 90.2 GB/s is 88% of it.
+closer to the GPU's 102 GB/s: 90.2 GB/s is 88% of it.
 
 Each kernel's speed is set by memory, so on any GPU the least time follows from the bytes moved
 and the memory bandwidth, the most bytes the memory can transfer per second.
@@ -589,7 +590,7 @@ and the memory bandwidth, the most bytes the memory can transfer per second.
 | A100 SXM 80 GB | 2,039 GB/s | 0.066 ms |
 | H100 SXM | 3,350 GB/s | 0.040 ms |
 
-The Orin NX's 1.80 ms is 74.6 GB/s, 73% of its 102 GB/s. A template does not move that limit;
+The measured 1.80 ms is 74.6 GB/s, 73% of the GPU's 102 GB/s. A template does not move that limit;
 only fewer bytes would.
 
 ### 10.3.4 Generic kernels in Rust
@@ -826,7 +827,7 @@ by the compiler, and a false condition is a compile error.
 CUDA ships a C++ library for device code called **libcu++**. Its names live in 2 namespaces:
 `cuda::std::`, which holds versions of standard library types that work in device code, and
 `cuda::`, which holds extensions for the GPU. Both headers used here, `<cuda/std/span>` and
-`<cuda/atomic>`, compiled and ran with CUDA 12.6 on the Orin NX and CUDA 13.2 on the Thor.
+`<cuda/atomic>`, compiled and ran with CUDA 12.6 and with CUDA 13.2.
 
 ### 10.6.1 `cuda::std::span`
 
@@ -1003,8 +1004,8 @@ hand-written kernel.
   `thread_scope_device`; use the narrowest scope that contains every thread that touches the
   value.
 - **Measuring without a warm-up.** With 0.3 s of warm-up, the kernels of this chapter ran at 33 to
-  48 GB/s on the Orin NX; with 500 ms before each measurement, at 70 to 90 GB/s. The clocks of
-  its GPU and memory rise only under sustained load.
+  48 GB/s; with 500 ms before each measurement, at 70 to 90 GB/s. The clocks of a GPU and of its
+  memory rise only under sustained load.
 
 <div class="summary" markdown="1">
 

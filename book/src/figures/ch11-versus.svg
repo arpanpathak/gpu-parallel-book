@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 634" width="660" height="634" role="img" aria-label="3 panels of horizontal bars, measured on a Jetson Orin NX. Sum of 256 MiB, in GB/s: Chapter 8 kernel 93.4, cub::BlockReduce 92.5, cub::DeviceReduce 91.8, thrust::reduce 93.0. Scan of 64 Mi values, in GB/s: Chapter 8 43.0, thrust::inclusive_scan 68.2, cub::DeviceScan 74.3. SGEMM with N = 4,096, in GFLOP/s: Chapter 9 best 931.9, cuBLAS FP32 1,504.6, cuBLAS TF32 6,530.4.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 634" width="660" height="634" role="img" aria-label="3 panels of horizontal bars, Sum of 256 MiB, in GB/s: Chapter 8 kernel 93.4, cub::BlockReduce 92.5, cub::DeviceReduce 91.8, thrust::reduce 93.0. Scan of 64 Mi values, in GB/s: Chapter 8 43.0, thrust::inclusive_scan 68.2, cub::DeviceScan 74.3. SGEMM with N = 4,096, in GFLOP/s: Chapter 9 best 931.9, cuBLAS FP32 1,504.6, cuBLAS TF32 6,530.4.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -38,7 +38,7 @@
   </defs>
   <rect width="660" height="634" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Hand-written against library</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Measured on a Jetson Orin NX, the same day.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Measured on 1 GPU, the same day.</text>
   <rect x="16" y="104" width="628" height="164" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="34" y="93" width="138.1" height="22" rx="11" fill="#1B2430"/>
   <text x="103.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SUM OF 256 MIB</text>

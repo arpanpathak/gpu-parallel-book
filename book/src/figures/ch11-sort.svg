@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 554" width="660" height="554" role="img" aria-label="Horizontal bars of sorting speed in millions of keys per second for 16,777,216 32-bit keys on a Jetson Orin NX. std::sort on 1 CPU core 10.3. thrust::sort 676.7. thrust::sort with scratch reused 1,285.5. With cuda::std::greater 542.6 and with its own comparison 686.8, both merge sorts. cub::DeviceRadixSort 1,872.8. Keys from 0 to 255 sorted on bits 0 to 7 only: 5,356.5.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 554" width="660" height="554" role="img" aria-label="Horizontal bars of sorting speed in millions of keys per second for 16,777,216 32-bit keys. std::sort on 1 CPU core 10.3. thrust::sort 676.7. thrust::sort with scratch reused 1,285.5. With cuda::std::greater 542.6 and with its own comparison 686.8, both merge sorts. cub::DeviceRadixSort 1,872.8. Keys from 0 to 255 sorted on bits 0 to 7 only: 5,356.5.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -38,7 +38,7 @@
   </defs>
   <rect width="660" height="554" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Sorting 16 Mi keys</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Millions of keys per second on a Jetson Orin NX.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Millions of keys per second, 16,777,216 random 32-bit keys.</text>
   <line x1="236.0" y1="116.0" x2="236.0" y2="430.0" stroke="#D5DBE3" stroke-width="1"/>
   <text x="236.0" y="448.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
   <line x1="336.0" y1="116.0" x2="336.0" y2="430.0" stroke="#D5DBE3" stroke-width="1"/>

@@ -120,7 +120,7 @@ for row, (name, ms, kind) in enumerate([("generic", 2.61, "client"), ("specialis
               f'  <rect x="200" y="{y}" width="{ms * scale:.1f}" height="26" rx="6" fill="{tint}" stroke="{accent}"'
               f' stroke-width="1.3"{dash}/>',
               mono(208 + ms * scale, y + 18, f"{ms:.2f} ms", fill=accent)]
-parts += [note(24, 470, "16,777,216 values, degree 32, on a Jetson Orin NX. Both move 134 MB: the specialised", room=612),
+parts += [note(24, 470, "16,777,216 values, degree 32. Both move 134 MB: the specialised", room=612),
           note(24, 488, "kernel at 73 GB/s, 71% of the rated 102 GB/s, and the generic one at 52 GB/s.", room=612)]
 save(OUT + "ch12-specialise.svg", 660, 508,
      "Two code sheets. The generic kernel, built by nvcc, loops from c[degree] down, and each step reads c[k] "
@@ -162,8 +162,8 @@ save(OUT + "ch12-args.svg", 660, 504,
 parts = [card(24, 100, 196, 64, "outside", "cuModuleLoadData", "PTX, 2,237 bytes"),
          card(232, 100, 404, 64, "store", "look up the PTX in the cache", "key: the PTX, the GPU, the driver version"),
          harrow(220, 232, 132),
-         card(24, 208, 300, 84, "danger", "miss: compile", ["the driver compiles the PTX", "13 to 45 ms on the Orin NX"]),
-         card(336, 208, 300, 84, "good", "hit: copy", ["machine code from the file", "0.7 ms on the Orin NX"]),
+         card(24, 208, 300, 84, "danger", "miss: compile", ["the driver compiles the PTX", "13 to 45 ms, measured"]),
+         card(336, 208, 300, 84, "good", "hit: copy", ["machine code from the file", "0.7 ms, measured"]),
          card(24, 324, 300, 64, "store", "store the result", "for the next process"),
          card(24, 420, 612, 56, "service", "module in the context", "the same machine code either way"),
          wire([(434, 164), (434, 186), (174, 186), (174, 208)]),
@@ -175,7 +175,7 @@ parts += [tag(250, 177, "first time", "danger"), tag(494, 177, "later", "good"),
           note(352, 380, "off: CUDA_CACHE_DISABLE=1", room=284)]
 save(OUT + "ch12-cache.svg", 660, 496,
      "A flow. cuModuleLoadData receives 2,237 bytes of PTX and looks it up in the cache, keyed by the PTX, the GPU "
-     "and the driver version. The first time, a miss: the driver compiles the PTX, 13 to 45 ms on the Orin NX, and "
+     "and the driver version. The first time, a miss: the driver compiles the PTX, 13 to 45 ms when measured, and "
      "stores the result for the next process, in CUDA_CACHE_PATH, by default ~/.nv/ComputeCache. Later, a hit: "
      "the machine code is copied from the file in 0.7 ms. Either way the module in the context holds the same code.",
      "The JIT cache", "A process pays to compile PTX once; later processes read the result.", parts)
@@ -222,7 +222,7 @@ parts += [card(24, 396, 612, 84, "good", "when compiling pays back",
                ["each run saves 2.61 − 1.84 = 0.77 ms", "compiling and loading cost 52 ms",
                 "52 ms ÷ 0.77 ms = 68 runs to break even"])]
 save(OUT + "ch12-costs.svg", 660, 500,
-     "Horizontal bars on a logarithmic time axis from 0.01 ms to 100 ms, measured on a Jetson Orin NX: compile to "
+     "Horizontal bars on a logarithmic time axis from 0.01 ms to 100 ms, measured: compile to "
      "cubin 52 ms; load PTX with a cache miss 32 ms; 1 run of the generic kernel 2.61 ms; 1 run of the specialised "
      "kernel 1.84 ms; load PTX with a cache hit 0.77 ms; load cubin 0.05 ms. Below, a card: each run saves 0.77 ms, "
      "compiling costs 52 ms, so it pays back after 68 runs.",

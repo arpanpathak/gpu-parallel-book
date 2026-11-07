@@ -67,6 +67,6 @@
   <text x="330.0" y="363.2" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">scaleRaw, written by hand for float: 74.5 GB/s</text>
   <text x="16.0" y="408.0" class="note" text-anchor="start" xml:space="preserve">The template is not a kernel. At each launch with new types, the compiler writes</text>
   <text x="16.0" y="426.0" class="note" text-anchor="start" xml:space="preserve">a kernel for those types, as if typed by hand: 3 types, 3 kernels in the binary.</text>
-  <text x="16.0" y="444.0" class="note" text-anchor="start" xml:space="preserve">transform&lt;float&gt; ran at the speed of the hand-written kernel (Orin NX, 16,777,216</text>
-  <text x="16.0" y="462.0" class="note" text-anchor="start" xml:space="preserve">values). double moves twice the bytes per thread and reached 90.2 GB/s of 102 GB/s.</text>
+  <text x="16.0" y="444.0" class="note" text-anchor="start" xml:space="preserve">transform&lt;float&gt; ran at the speed of the hand-written kernel (16,777,216 values).</text>
+  <text x="16.0" y="462.0" class="note" text-anchor="start" xml:space="preserve">double moves twice the bytes per thread and reached 90.2 GB/s of 102 GB/s.</text>
 </svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 488" width="660" height="488" role="img" aria-label="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096 on a Jetson Orin NX: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 488" width="660" height="488" role="img" aria-label="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -130,5 +130,5 @@
   <text x="364.0" y="381.0" class="sub" text-anchor="start" xml:space="preserve">6,530.4 GFLOP/s, 4.3 ×</text>
   <text x="364.0" y="399.0" class="sub" text-anchor="start" xml:space="preserve">max error 4.0e-3, 210 ×</text>
   <text x="40.0" y="448.0" class="note" text-anchor="start" xml:space="preserve">Same 8-bit exponent, so the same range; 13 fewer mantissa bits, so each input is</text>
-  <text x="40.0" y="466.0" class="note" text-anchor="start" xml:space="preserve">rounded to about 3 decimal digits before it is multiplied. N = 4,096, Jetson Orin NX.</text>
+  <text x="40.0" y="466.0" class="note" text-anchor="start" xml:space="preserve">rounded to about 3 decimal digits before it is multiplied. N = 4,096.</text>
 </svg>
