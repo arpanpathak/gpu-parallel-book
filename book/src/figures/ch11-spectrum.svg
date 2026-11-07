@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 448" width="660" height="448" role="img" aria-label="Left: the first 128 samples of the signal sin(50 t) + 0.5 sin(120 t), a fast wobble on a slower wave. An arrow labelled FFT leads right to the spectrum: 513 frequencies along the bottom, all 0 except a bar of height 512 at frequency 50 and a bar of height 256 at frequency 120.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="448" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A spectrum with cuFFT</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">cufftExecR2C on 1,024 real samples.</text>
+  <rect x="16" y="104" width="300" height="272" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="185.3" height="22" rx="11" fill="#1B2430"/>
+  <text x="126.7" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">128 OF 1,024 SAMPLES</text>
+  <rect x="372" y="104" width="272" height="272" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="390" y="93" width="146.0" height="22" rx="11" fill="#1B2430"/>
+  <text x="463.0" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">513 FREQUENCIES</text>
+  <line x1="36.0" y1="234.0" x2="306.0" y2="234.0" stroke="#D5DBE3" stroke-width="1"/>
+  <polyline points="36.0,234.0 38.1,195.7 40.2,169.6 42.3,162.2 44.4,171.7 46.5,189.5 48.6,204.9 50.7,210.8 52.8,207.4 54.9,201.6 57.0,203.1 59.1,218.8 61.2,248.2 63.3,283.4 65.4,312.0 67.5,323.6 69.6,314.1 71.7,288.0 73.8,256.3 75.9,230.6 78.0,217.9 80.1,217.2 82.2,221.2 84.3,220.3 86.4,208.8 88.5,187.8 90.6,165.7 92.7,153.7 94.8,160.1 96.9,185.9 99.0,223.8 101.1,261.4 103.2,287.0 105.3,294.9 107.4,287.6 109.5,274.1 111.6,264.5 113.7,264.5 115.8,272.6 117.9,280.8 120.0,279.1 122.1,261.5 124.2,229.3 126.3,191.6 128.4,160.9 130.5,147.6 132.6,155.0 134.7,177.8 136.8,205.3 138.9,226.5 141.0,235.6 143.1,234.7 145.2,231.9 147.3,236.4 149.4,253.0 151.5,279.0 153.6,305.2 155.7,319.8 157.8,314.9 159.9,290.3 162.0,253.8 164.1,218.0 166.2,193.9 168.3,186.2 170.4,191.6 172.5,200.9 174.6,204.7 176.7,198.6 178.8,185.6 180.9,174.6 183.0,175.7 185.1,194.5 187.2,228.4 189.3,267.7 191.4,299.6 193.5,314.2 195.6,308.9 197.7,289.5 199.8,266.8 201.9,250.9 204.0,246.1 206.1,249.2 208.2,251.6 210.3,244.2 212.4,223.2 214.5,192.7 216.6,162.9 218.7,145.8 220.8,148.9 222.9,171.7 225.0,205.8 227.1,238.8 229.2,260.5 231.3,267.2 233.4,263.2 235.5,257.7 237.6,259.4 239.7,271.6 241.8,289.6 243.9,303.7 246.0,303.7 248.1,284.7 250.2,250.1 252.3,210.2 254.4,178.0 256.5,162.8 258.6,166.3 260.7,182.1 262.8,199.6 264.9,209.8 267.0,209.6 269.1,203.6 271.2,201.1 273.3,210.6 275.4,235.1 277.5,269.3 279.6,302.1 281.7,321.5 283.8,320.3 285.9,299.8 288.0,268.9 290.1,239.6 292.2,221.3 294.3,216.4 296.4,219.6 298.5,221.8 300.6,214.8 302.7,196.9 304.8,174.0" fill="none" stroke="#2F6FDB" stroke-width="1.6"/>
+  <text x="36.0" y="356.0" class="sub" text-anchor="start" xml:space="preserve">sin(50 t) + 0.5 sin(120 t)</text>
+  <path class="wire" d="M318,234 L370,234" marker-end="url(#head)"/>
+  <text x="344.0" y="220.0" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">FFT</text>
+  <line x1="392.0" y1="320.0" x2="624.0" y2="320.0" stroke="#1B2430" stroke-width="1.2"/>
+  <rect x="410.7" y="170.0" width="8" height="150.0" rx="2" fill="#2F6FDB"/>
+  <text x="424.7" y="182.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">frequency 50: 512</text>
+  <rect x="442.4" y="245.0" width="8" height="75.0" rx="2" fill="#7A4FD0"/>
+  <text x="456.4" y="257.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">frequency 120: 256</text>
+  <text x="392.0" y="336.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="624.0" y="336.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">512</text>
+  <text x="392.0" y="356.0" class="sub" text-anchor="start" xml:space="preserve">every other magnitude is 0</text>
+  <text x="40.0" y="408.0" class="note" text-anchor="start" xml:space="preserve">A wave of height h with a whole number of cycles in N samples gives 1 peak of h N / 2:</text>
+  <text x="40.0" y="426.0" class="note" text-anchor="start" xml:space="preserve">1 × 1,024 / 2 = 512 at frequency 50, and 0.5 × 512 = 256 at 120.</text>
+</svg>

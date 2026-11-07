@@ -591,6 +591,41 @@ def lantern(cx, top, lit, s=1.0):
     return "\n".join(parts)
 
 
+def reading_owl(cx, base, s=1.0, look=1, hat=None):
+    """An owl standing with its wings folded; `hat` is None, "glasses" or "mortarboard".
+    1.0 is 175 units tall."""
+    h, coat, wing, face = 175 * s, "#8a5a3a", "#6d452b", "#e2c59c"
+    y = lambda f: base - f * h
+    belly = [path(f"M{cx + dx * h:.1f},{y(fy):.1f} l{0.03 * h:.1f},{0.03 * h:.1f} l{0.03 * h:.1f},{-0.03 * h:.1f}",
+                  stroke="#a9825c", sw=2.5 * s)
+             for dx, fy in ((-0.10, 0.36), (0.04, 0.36), (-0.03, 0.26), (-0.10, 0.16), (0.04, 0.16))]
+    parts = [
+        shadow(cx, base, 0.34 * h),
+        ellipse(cx - 0.10 * h, y(0.01), 0.07 * h, 0.03 * h, BRASS),
+        ellipse(cx + 0.10 * h, y(0.01), 0.07 * h, 0.03 * h, BRASS),
+        path(f"M{cx - 0.24 * h:.1f},{y(0.86):.1f} L{cx - 0.30 * h:.1f},{y(1.06):.1f} L{cx - 0.10 * h:.1f},{y(0.94):.1f} Z", coat),
+        path(f"M{cx + 0.24 * h:.1f},{y(0.86):.1f} L{cx + 0.30 * h:.1f},{y(1.06):.1f} L{cx + 0.10 * h:.1f},{y(0.94):.1f} Z", coat),
+        ellipse(cx, y(0.47), 0.30 * h, 0.47 * h, coat), ellipse(cx, y(0.28), 0.19 * h, 0.25 * h, face), *belly,
+        ellipse(cx - 0.30 * h, y(0.42), 0.07 * h, 0.22 * h, wing, rot(12, cx - 0.28 * h, y(0.6))),
+        ellipse(cx + 0.30 * h, y(0.42), 0.07 * h, 0.22 * h, wing, rot(-12, cx + 0.28 * h, y(0.6))),
+        circle(cx - 0.125 * h, y(0.72), 0.135 * h, CREAM), circle(cx + 0.125 * h, y(0.72), 0.135 * h, CREAM),
+        eye(cx - 0.125 * h, y(0.72), 0.085 * h, look * 0.6, 0.6),
+        eye(cx + 0.125 * h, y(0.72), 0.085 * h, look * 0.6, 0.6),
+        path(f"M{cx - 0.04 * h:.1f},{y(0.66):.1f} h{0.08 * h:.1f} l{-0.04 * h:.1f},{0.08 * h:.1f} Z", BRASS),
+    ]
+    if hat == "glasses":
+        rim = f'stroke="{INK}" stroke-width="{2.6 * s:.1f}"'
+        parts += [circle(cx - 0.125 * h, y(0.72), 0.105 * h, "none", rim),
+                  circle(cx + 0.125 * h, y(0.72), 0.105 * h, "none", rim),
+                  line(cx - 0.02 * h, y(0.73), cx + 0.02 * h, y(0.73), INK, 2.6 * s)]
+    if hat == "mortarboard":
+        parts += [rect(cx - 0.16 * h, y(1.0), 0.32 * h, 0.08 * h, INK, 3),
+                  path(f"M{cx - 0.30 * h:.1f},{y(1.02):.1f} L{cx:.1f},{y(1.12):.1f} L{cx + 0.30 * h:.1f},{y(1.02):.1f}"
+                       f" L{cx:.1f},{y(0.92):.1f} Z", INK),
+                  line(cx + 0.22 * h, y(1.02), cx + 0.24 * h, y(0.86), HONEY, 2.4 * s)]
+    return "\n".join(parts)
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -889,6 +924,43 @@ def ch10():
             ellipse(171, GROUND - 58, 75, 13, "#c9a46a", 'stroke="#5a3d28" stroke-width="3"'),
             owl(171, GROUND - 60, 0.92, look=1),
             tag(615, 48, "acquired when made, released when its scope ends", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch11", "The Library Ecosystem: Thrust, CUB & cuBLAS", "Folio the librarian owl", "Folio, an owl in "
+       "reading glasses, stands in front of a tall bookcase. The shelves hold rows of books, and 6 of them face "
+       "outwards with their titles: reduce, scan, sort, gemm, fft and rand, the ready-made kernels of the libraries. "
+       "Folio holds 1 more book, marked BlockReduce, to lend to a kernel. A tag says tuned once, borrowed by every "
+       "program.")
+def ch11():
+    shelves, books = [], []
+    left, right, top = 420, 900, 64
+    tones = ("#2f7f86", "#d9622b", "#c89b3c", "#5b6b7c", "#7a4f9a", "#3f7a4a", "#b5532a")
+    titles = (("reduce", "scan", "sort"), ("gemm", "fft", "rand"))
+    for row in range(3):
+        floor = top + 80 * (row + 1)
+        shelves.append(rect(left, floor, right - left, 12, WOOD, 3, "#5a3d28", 2.5))
+        x, k = left + 14, row * 5
+        while x < right - 30:
+            wide = 18 + (k * 7) % 12
+            tall = 52 + (k * 11) % 18
+            books.append(rect(x, floor - tall, wide, tall, tones[k % len(tones)], 3, "#2a1a10", 2))
+            x += wide + 3
+            k += 1
+        if row < 2:
+            for j, title in enumerate(titles[row]):
+                bx = left + 40 + 150 * j
+                books += [rect(bx, floor - 66, 116, 64, "#fff6e2", 6, "#2a1a10", 2.5),
+                          rect(bx + 6, floor - 60, 6, 52, tones[(j + 3 * row) % len(tones)], 2),
+                          label(bx + 64, floor - 27, title, 20, "#2a1a10", font=MONO, weight=700,
+                                fit=textw(title, 20, MONO))]
+    case = [rect(left - 18, top - 10, right - left + 36, GROUND - top + 10, "#5a3d28", 10, "#2a1a10", 3),
+            rect(left, top + 4, right - left, GROUND - top - 4, "#3a2a1c", 4)]
+    held = [rect(278, GROUND - 120, 132, 40, "#fff6e2", 6, "#2a1a10", 2.5),
+            label(344, GROUND - 93, "BlockReduce", 16, "#2a1a10", font=MONO, weight=700,
+                  fit=textw("BlockReduce", 16, MONO))]
+    return [backdrop(seed=11, **DUSK), *case, *shelves, *books,
+            reading_owl(250, GROUND - 2, 1.15, look=1, hat="glasses"), *held,
+            tag(210, 70, "tuned once, borrowed by every program", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "

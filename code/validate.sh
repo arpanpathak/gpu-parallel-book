@@ -46,14 +46,17 @@ run "ch10_raw" \
 run "ch10_modern" \
     bash -c 'cd ch10_modern && nvcc -std=c++20 --extended-lambda -arch="$1" modern.cu -o modern && ./modern' _ "$ARCH"
 
-run "ch11_thrust" \
-    bash -c 'cd ch11_library_examples && nvcc --extended-lambda -arch="$1" thrust_example.cu -o thrust_example && ./thrust_example' _ "$ARCH"
+run "ch11_reduce_scan" \
+    bash -c 'cd ch11_libraries && nvcc -arch="$1" -O2 reduce_scan.cu -o reduce_scan && ./reduce_scan' _ "$ARCH"
 
-run "ch11_cub" \
-    bash -c 'cd ch11_library_examples && nvcc -arch="$1" cub_reduce.cu -o cub_reduce && ./cub_reduce' _ "$ARCH"
+run "ch11_sort" \
+    bash -c 'cd ch11_libraries && nvcc -arch="$1" -O2 sort.cu -o sort && ./sort' _ "$ARCH"
 
-run "ch11_cublas" \
-    bash -c 'cd ch11_library_examples && nvcc -arch="$1" cublas_sgemm.cu -o cublas_sgemm -lcublas && ./cublas_sgemm' _ "$ARCH"
+run "ch11_gemm" \
+    bash -c 'cd ch11_libraries && nvcc -arch="$1" -O2 gemm.cu -o gemm -lcublas && ./gemm' _ "$ARCH"
+
+run "ch11_fft_rand" \
+    bash -c 'cd ch11_libraries && nvcc -arch="$1" -O2 fft_rand.cu -o fft_rand -lcurand -lcufft && ./fft_rand' _ "$ARCH"
 
 run "ch12_nvrtc" \
     bash -c 'cd ch12_nvrtc && nvcc -arch="$1" main.cu -o nvrtc_example -lnvrtc -lcuda && ./nvrtc_example' _ "$ARCH"
