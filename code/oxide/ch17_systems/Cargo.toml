@@ -1,0 +1,11 @@
+[package]
+name = "ch17_systems"
+version = "0.1.0"
+edition = "2024"
+
+# A standalone crate: not part of any parent workspace.
+[workspace]
+
+[dependencies]
+# Host runtime only: context, device queries, pinned host memory. No kernels here.
+cuda-core = { git = "https://github.com/NVlabs/cuda-oxide.git", rev = "b7fe543b863cdef46362e5f69797906b84d499c7" }

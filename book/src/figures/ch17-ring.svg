@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 492" width="660" height="492" role="img" aria-label="2 rows of 8 slots numbered 0 to 7. Top: GET = 2 and PUT = 7, so slots 2 to 6 hold 7 minus 2 = 5 pending entries. Bottom: after 3 more entries PUT = 10; entries 7, 8 and 9 went to slots 7, 0 and 1, because the slot is the counter mod 8. Now 10 minus 2 = 8 entries are pending, the ring&#x27;s capacity, so the next write must wait.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="492" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A work ring by hand</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">8 slots, 2 counters that only grow, slot = counter mod 8.</text>
+  <text x="24.0" y="130.0" class="name" text-anchor="start" xml:space="preserve">GET = 2, PUT = 7</text>
+  <rect x="120.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="144.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="176.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="200.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <rect x="232.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="256.0" y="170.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">#2</text>
+  <text x="256.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <rect x="288.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="312.0" y="170.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">#3</text>
+  <text x="312.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <rect x="344.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="368.0" y="170.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">#4</text>
+  <text x="368.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <rect x="400.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="424.0" y="170.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">#5</text>
+  <text x="424.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">5</text>
+  <rect x="456.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="480.0" y="170.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">#6</text>
+  <text x="480.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <rect x="512.0" y="144.0" width="48.0" height="44.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="536.0" y="206.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <rect x="232.0" y="120" width="33.8" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="248.9" y="132.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">GET</text>
+  <rect x="512.0" y="120" width="33.8" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="528.9" y="132.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">PUT</text>
+  <text x="24.0" y="236.0" class="sub" text-anchor="start" xml:space="preserve">pending = PUT − GET = 7 − 2 = 5 entries, #2 to #6, in slots 2 to 6</text>
+  <text x="24.0" y="286.0" class="name" text-anchor="start" xml:space="preserve">after 3 more: PUT = 10</text>
+  <rect x="120.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="144.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#8</text>
+  <text x="144.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="176.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="200.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#9</text>
+  <text x="200.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <rect x="232.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="256.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#2</text>
+  <text x="256.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <rect x="288.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="312.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#3</text>
+  <text x="312.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <rect x="344.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="368.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#4</text>
+  <text x="368.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <rect x="400.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="424.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#5</text>
+  <text x="424.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">5</text>
+  <rect x="456.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="480.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#6</text>
+  <text x="480.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <rect x="512.0" y="300.0" width="48.0" height="44.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="536.0" y="326.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">#7</text>
+  <text x="536.0" y="362.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
+  <rect x="232.0" y="276" width="33.8" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="248.9" y="288.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">GET</text>
+  <rect x="232.0" y="254" width="119.6" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="291.8" y="266.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">PUT = 10: slot 2</text>
+  <text x="24.0" y="392.0" class="sub" text-anchor="start" xml:space="preserve">pending = 10 − 2 = 8 = capacity: the ring is full; the next write must wait</text>
+  <text x="24.0" y="412.0" class="sub" text-anchor="start" xml:space="preserve">entry #c goes to slot c mod 8: #8 → slot 0, #9 → slot 1, and PUT = 10 → slot 2</text>
+  <text x="24.0" y="452.0" class="note" text-anchor="start" xml:space="preserve">The host owns PUT and writes entries; the GPU owns GET and reads them. Each side only</text>
+  <text x="24.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">moves its own counter forward, so neither needs a lock.</text>
+</svg>

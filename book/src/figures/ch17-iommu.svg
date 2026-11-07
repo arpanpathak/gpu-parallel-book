@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 496" width="660" height="496" role="img" aria-label="3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighbouring 4 KiB pages; the SMMU page table maps page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="496" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">An IOMMU between the GPU and memory</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Device addresses are translated and checked, page by page (example addresses).</text>
+  <rect x="16" y="104" width="190" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="153.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="110.9" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">DEVICE ADDRESSES</text>
+  <rect x="450" y="104" width="194" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="468" y="93" width="138.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="537.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">PHYSICAL PAGES</text>
+  <rect x="36.0" y="140.0" width="150.0" height="34.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="111.0" y="161.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0x1000_0000</text>
+  <rect x="36.0" y="190.0" width="150.0" height="34.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="111.0" y="211.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0x1000_1000</text>
+  <rect x="36.0" y="240.0" width="150.0" height="34.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="111.0" y="261.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0x1000_2000</text>
+  <rect x="36.0" y="290.0" width="150.0" height="34.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="111.0" y="311.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0x1000_3000</text>
+  <rect x="36.0" y="340.0" width="150.0" height="34.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="111.0" y="361.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0x2000_0000</text>
+  <rect x="470.0" y="132.0" width="154.0" height="34.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="547.0" y="153.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0x8_4A21_7000</text>
+  <rect x="470.0" y="176.0" width="154.0" height="34.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="547.0" y="197.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0x8_1102_3000</text>
+  <rect x="470.0" y="220.0" width="154.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="547.0" y="241.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0x9_0C40_1000</text>
+  <rect x="470.0" y="264.0" width="154.0" height="34.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="547.0" y="285.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0x8_4A21_6000</text>
+  <rect x="470.0" y="308.0" width="154.0" height="34.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="547.0" y="329.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">kernel data</text>
+  <rect x="470.0" y="352.0" width="154.0" height="34.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="547.0" y="373.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0x8_77F0_2000</text>
+  <rect x="236" y="104" width="184" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="254" y="93" width="146.0" height="22" rx="11" fill="#1B2430"/>
+  <text x="327.0" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SMMU PAGE TABLE</text>
+  <rect x="256.0" y="140.0" width="144.0" height="34.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="328.0" y="161.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">page 0 → slot 3</text>
+  <path class="wire" d="M186,157 L256,157"/>
+  <path class="wire" d="M400,157 L417,157 Q426,157 426,166 L426,272 Q426,281 435,281 L470,281" marker-end="url(#head)"/>
+  <rect x="256.0" y="190.0" width="144.0" height="34.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="328.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">page 1 → slot 0</text>
+  <path class="wire" d="M186,207 L256,207"/>
+  <path class="wire" d="M400,207 L426,207 Q435,207 435,198 L435,158 Q435,149 444,149 L470,149" marker-end="url(#head)"/>
+  <rect x="256.0" y="240.0" width="144.0" height="34.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="328.0" y="261.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">page 2 → slot 5</text>
+  <path class="wire" d="M186,257 L256,257"/>
+  <path class="wire" d="M400,257 L435,257 Q444,257 444,266 L444,360 Q444,369 453,369 L470,369" marker-end="url(#head)"/>
+  <rect x="256.0" y="290.0" width="144.0" height="34.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="328.0" y="311.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">page 3 → slot 1</text>
+  <path class="wire" d="M186,307 L256,307"/>
+  <path class="wire" d="M400,307 L444,307 Q453,307 453,298 L453,202 Q453,193 461.5,193.0 L470,193" marker-end="url(#head)"/>
+  <rect x="256.0" y="340.0" width="144.0" height="34.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="328.0" y="361.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">no entry: fault</text>
+  <path class="wire danger" d="M186,357 L256,357" marker-end="url(#head-danger)"/>
+  <text x="16.0" y="438.0" class="note" text-anchor="start" xml:space="preserve">The device sees 4 neighbouring pages; the SMMU maps each to wherever the OS put it. An</text>
+  <text x="16.0" y="456.0" class="note" text-anchor="start" xml:space="preserve">address with no entry stops at the SMMU with a fault and never reaches the kernel&#x27;s data.</text>
+  <text x="16.0" y="474.0" class="note" text-anchor="start" xml:space="preserve">A 64 MiB buffer in 4 KiB pages needs 64 MiB ÷ 4 KiB = 16,384 entries.</text>
+</svg>

@@ -61,6 +61,9 @@ run "ch11_fft_rand" \
 run "ch12_nvrtc" \
     bash -c 'cd ch12_nvrtc && nvcc -arch="$1" nvrtc.cu -o nvrtc -lnvrtc -lcuda && ./nvrtc' _ "$ARCH"
 
+run "ch17_systems" \
+    bash -c 'cd ch17_systems && nvcc -arch="$1" -O3 systems.cu -o systems && ./systems' _ "$ARCH"
+
 run "ch15_capstone" \
     bash -c 'cd ch15_capstone && nvcc -arch="$1" pipeline.cu -o pipeline && ./pipeline 96 64 2' _ "$ARCH"
 

@@ -715,6 +715,30 @@ def hawk(cx, base, s=1.0, look=1):
         circle(X(32), Y(204), 4.4 * s, ink),
         circle(X(33.5), Y(206), 1.5 * s, SNOW),
         path(f"M{X(16)},{Y(214)} Q{X(30)},{Y(220)} {X(44)},{Y(212)}", "none", ink, 4 * s),
+
+
+def woodpecker(cx, cy, s=1.0, look=1):
+    """A woodpecker clinging upright to a trunk on its side `look` (1: the trunk is to its right).
+    (cx, cy) is the middle of its body; 1.0 is about 190 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: cy - dy * s
+    black, white, red, beak, ink = "#23262d", "#f4f1ea", "#d8402a", "#c9a46a", "#14161a"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    spots = [ellipse(X(-14 + 8 * (k % 2)), Y(14 - 13 * k), 4 * s, 2.6 * s, white) for k in range(4)]
+    return "".join([
+        path(f"M{X(-6)},{Y(-40)} L{X(-30)},{Y(-96)} L{X(6)},{Y(-58)} Z", black, ink, 2.2 * s),
+        ellipse(cx, Y(0), 30 * s, 52 * s, white, stroke),
+        path(f"M{X(-30)},{Y(6)} Q{X(-34)},{Y(-40)} {X(-4)},{Y(-50)} Q{X(-10)},{Y(10)} {X(-6)},{Y(42)}"
+             f" Q{X(-26)},{Y(36)} {X(-30)},{Y(6)} Z", black, ink, 2.2 * s),
+        *spots,
+        path(f"M{X(22)},{Y(-30)} l{f * 16 * s},{-6 * s} M{X(22)},{Y(-40)} l{f * 16 * s},{4 * s}", "none", ink, 3 * s),
+        circle(X(6), Y(62), 25 * s, white, stroke),
+        path(f"M{X(-18)},{Y(62)} Q{X(-16)},{Y(92)} {X(10)},{Y(88)} Q{X(-2)},{Y(74)} {X(-18)},{Y(62)} Z", black, ink, 1.8 * s),
+        path(f"M{X(-14)},{Y(78)} Q{X(0)},{Y(98)} {X(20)},{Y(84)} Q{X(6)},{Y(80)} {X(-14)},{Y(78)} Z", red, ink, 1.8 * s),
+        path(f"M{X(-16)},{Y(52)} Q{X(6)},{Y(46)} {X(26)},{Y(54)}", "none", black, 5 * s),
+        path(f"M{X(26)},{Y(68)} L{X(70)},{Y(62)} L{X(26)},{Y(56)} Z", beak, ink, 2 * s),
+        eye(X(14), Y(66), 5 * s, look * 0.7),
     ])
 
 
@@ -1086,6 +1110,39 @@ def ch12():
             path("M676,190 L758,190", "none", "#e36f8e", 7), circle(758, 190, 8, "#e36f8e"),
             *chip,
             tag(480, 52, "written, compiled and loaded while the program runs", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch17", "GPU Systems Programming & Memory-Mapped I/O", "Knock the woodpecker", "Knock, a woodpecker, "
+       "clings to a tree trunk and taps its beak on a brass doorbell plate fixed to the bark, marked with a register "
+       "address. Beside the tree hangs a board with a ring of 8 slots: 5 of them hold work tickets, a PUT marker points "
+       "past the last ticket written and a GET marker at the first ticket not yet done. A tag says write the work, "
+       "then knock: the rule of a doorbell.")
+def ch17():
+    trunk_x = 300
+    bark = [path(f"M{trunk_x + 14 + 22 * k},{40 + 30 * (k % 3)} q-6,60 0,120 t0,120", stroke="#5a3d28", sw=3,
+                 extra='opacity="0.5"') for k in range(4)]
+    slots = []
+    for k in range(8):
+        x, filled = 520 + 46 * k, 2 <= k < 7
+        slots.append(rect(x, 196, 40, 52, "#fff6e2" if filled else "#3a4a5e", 6, "#2a1a10", 2.5))
+        if filled:
+            slots += [line(x + 8, 212 + 8 * j, x + 32, 212 + 8 * j, "#7a5a32", 2) for j in range(3)]
+        slots.append(label(x + 20, 268, str(k), 15, SNOW, font=MONO, fit=textw(str(k), 15, MONO)))
+    return [backdrop(seed=17, **DUSK),
+            rect(trunk_x, 0, 100, GROUND + 10, "#8a6a44", 0, "#2a1a10", 3), *bark,
+            path(f"M{trunk_x - 30},{GROUND + 8} Q{trunk_x + 50},{GROUND - 20} {trunk_x + 130},{GROUND + 8} Z", "#6b4f30"),
+            rect(trunk_x + 46, 132, 74, 54, BRASS, 8, "#5a4210", 3),
+            circle(trunk_x + 83, 159, 12, "#e6c46a", 'stroke="#5a4210" stroke-width="3"'),
+            label(trunk_x + 83, 210, "0x810090", 15, SNOW, font=MONO, weight=700, fit=textw("0x810090", 15, MONO)),
+            path(f"M{trunk_x + 36},128 l-8,-12 M{trunk_x + 46},124 l0,-14 M{trunk_x + 56},128 l8,-12",
+                 stroke=HONEY, sw=3),
+            woodpecker(trunk_x - 20, 221, 1.0, look=1),
+            rect(494, 132, 416, 152, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.75"'),
+            line(520, 104, 520, 132, "#6f8196", 3), line(890, 104, 890, 132, "#6f8196", 3),
+            *slots,
+            tag(520 + 46 * 2 + 20, 166, "GET", 15, "#c8f0d0", "#1d4a2a", MONO, 700),
+            tag(520 + 46 * 7 + 20, 166, "PUT", 15, "#ffe7a3", "#5a4210", MONO, 700),
+            tag(696, 64, "write the work, then knock", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
