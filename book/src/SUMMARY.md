@@ -33,14 +33,14 @@
 # Part V  -  GPU Kernels in Rust with cuda-oxide
 
 - [Chapter 13: Your First Rust Kernel](chapters/part5_oxide/ch13_your_first_rust_kernel.md)
-- [Coming next: Map, SAXPY and Closures]()
-- [Coming next: Reductions and the Dot Product]()
-- [Coming next: Matrix Multiplication, One Thread per Output]()
-- [Coming next: Tiled Matrix Multiplication in Shared Memory]()
-- [Coming next: Stencils and the Laplace Solver]()
-- [Coming next: Scan and Histogram]()
-- [Coming next: Softmax and Layer Norm]()
-- [Coming next: Capstone, an Image Pipeline in Rust]()
+- [Chapter 14: Map, SAXPY and Closures](chapters/part5_oxide/ch14_map_saxpy.md)
+- [Chapter 15: Reductions and the Dot Product](chapters/part5_oxide/ch15_dot_product.md)
+- [Chapter 16: Matrix Multiplication in Rust, One Thread per Output](chapters/part5_oxide/ch16_matmul_naive.md)
+- [Chapter 17: Tiled Matrix Multiplication in Shared Memory](chapters/part5_oxide/ch17_matmul_tiled.md)
+- [Chapter 18: Stencils and the Laplace Solver](chapters/part5_oxide/ch18_stencil.md)
+- [Chapter 19: Scan and Histogram in Rust](chapters/part5_oxide/ch19_scan_apps.md)
+- [Chapter 20: Softmax and Layer Normalization](chapters/part5_oxide/ch20_softmax_layernorm.md)
+- [Chapter 21: Capstone: An Image Pipeline in Rust](chapters/part5_oxide/ch21_capstone.md)
 
 # Part VI  -  The Engineering Mindset
 

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 510" width="660" height="510" role="img" aria-label="Horizontal bars of the measured rate in GB/s, against a dashed line at 102 GB/s. Map then reduce, 16 bytes per pair: 75.7 GB/s in 3.547 ms. Fused with a shared-memory tree: 93.8 GB/s in 1.430 ms. Fused with shuffles: 94.0 GB/s in 1.429 ms. Fused with an atomic combine: 88.1 GB/s in 1.524 ms.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="510" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Measured rates</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">16,777,216 pairs of floats, average of 20 runs, on a GPU with 102 GB/s.</text>
+  <text x="198.0" y="148.0" class="sub" text-anchor="end" xml:space="preserve">map, then reduce</text>
+  <rect x="210.0" y="128.0" width="282.0" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="351.0" y="147.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">75.7 GB/s</text>
+  <text x="198.0" y="168.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">3.547 ms, 16 B/pair</text>
+  <text x="198.0" y="210.0" class="sub" text-anchor="end" xml:space="preserve">fused, shared tree</text>
+  <rect x="210.0" y="190.0" width="349.5" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="384.7" y="209.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">93.8 GB/s</text>
+  <text x="198.0" y="230.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1.430 ms, 8 B/pair</text>
+  <text x="198.0" y="272.0" class="sub" text-anchor="end" xml:space="preserve">fused, shuffles</text>
+  <rect x="210.0" y="252.0" width="350.2" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="385.1" y="271.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">94.0 GB/s</text>
+  <text x="198.0" y="292.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1.429 ms, 8 B/pair</text>
+  <text x="198.0" y="334.0" class="sub" text-anchor="end" xml:space="preserve">fused, atomic combine</text>
+  <rect x="210.0" y="314.0" width="328.2" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="374.1" y="333.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">88.1 GB/s</text>
+  <text x="198.0" y="354.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1.524 ms, 8 B/pair</text>
+  <line x1="590.0" y1="112.0" x2="590.0" y2="380.0" stroke="#CF4526" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <rect x="378.0" y="384" width="212.0" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="484.0" y="396.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">102 GB/s: the memory bandwidth</text>
+  <rect x="40" y="426" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="61.0" y="437.5" class="note" text-anchor="start" xml:space="preserve">16 bytes per pair</text>
+  <rect x="195.2" y="426" width="14" height="14" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="216.2" y="437.5" class="note" text-anchor="start" xml:space="preserve">8 bytes per pair</text>
+  <text x="16.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">The fused kernels move half the bytes and take 1.43 ms instead of 3.55 ms. At</text>
+  <text x="16.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">94 GB/s they run at 92% of the memory bandwidth, so arithmetic is not the limit.</text>
+</svg>

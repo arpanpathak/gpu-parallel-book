@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 428" width="640" height="428" role="img" aria-label="Top: on 1 stream each image is copied in, processed and copied out before the next starts. On 3 streams the copy of 1 image overlaps the kernels of another. Bottom, measured images per second for a batch of 128 images: 1 stream 587.6; 2 streams 692.8; 3 streams 699.9; CPU, 8 cores 46.3.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="428" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A batch of images on streams</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Copies of 1 image run while another is processed.</text>
+  <text x="36.0" y="106.0" class="name" text-anchor="start" xml:space="preserve">1 stream</text>
+  <text x="36.0" y="190.0" class="name" text-anchor="start" xml:space="preserve">3 streams</text>
+  <rect x="120.0" y="92.0" width="18.3" height="22.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="139.8" y="92.0" width="125.4" height="22.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="202.5" y="107.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1.41 ms</text>
+  <rect x="266.7" y="92.0" width="5.7" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="120.0" y="140.0" width="18.3" height="22.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="139.8" y="140.0" width="125.4" height="22.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="202.5" y="155.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1.41 ms</text>
+  <rect x="266.7" y="140.0" width="5.7" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="273.9" y="92.0" width="18.3" height="22.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="293.7" y="92.0" width="125.4" height="22.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="356.4" y="107.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1.41 ms</text>
+  <rect x="420.6" y="92.0" width="5.7" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="246.9" y="168.0" width="18.3" height="22.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="266.7" y="168.0" width="125.4" height="22.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="329.4" y="183.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1.41 ms</text>
+  <rect x="393.6" y="168.0" width="5.7" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="427.8" y="92.0" width="18.3" height="22.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="447.6" y="92.0" width="125.4" height="22.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="510.3" y="107.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1.41 ms</text>
+  <rect x="574.5" y="92.0" width="5.7" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="373.8" y="196.0" width="18.3" height="22.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="393.6" y="196.0" width="125.4" height="22.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="456.3" y="211.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1.41 ms</text>
+  <rect x="520.5" y="196.0" width="5.7" height="22.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="120" y="238" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="141.0" y="249.5" class="note" text-anchor="start" xml:space="preserve">copy in, 6.2 MB</text>
+  <rect x="262.0" y="238" width="14" height="14" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="283.0" y="249.5" class="note" text-anchor="start" xml:space="preserve">7 kernels</text>
+  <rect x="364.4" y="238" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="385.4" y="249.5" class="note" text-anchor="start" xml:space="preserve">copy out, 2.1 MB</text>
+  <text x="150.0" y="289.0" class="name" text-anchor="end" xml:space="preserve">1 stream</text>
+  <rect x="162.0" y="272.0" width="285.4" height="24.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="455.4" y="288.0" class="note" text-anchor="start" xml:space="preserve">587.6 images/s</text>
+  <text x="150.0" y="323.0" class="name" text-anchor="end" xml:space="preserve">2 streams</text>
+  <rect x="162.0" y="306.0" width="336.6" height="24.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="506.6" y="322.0" class="note" text-anchor="start" xml:space="preserve">692.8 images/s</text>
+  <text x="150.0" y="357.0" class="name" text-anchor="end" xml:space="preserve">3 streams</text>
+  <rect x="162.0" y="340.0" width="340.0" height="24.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="510.0" y="356.0" class="note" text-anchor="start" xml:space="preserve">699.9 images/s</text>
+  <text x="150.0" y="391.0" class="name" text-anchor="end" xml:space="preserve">CPU, 8 cores</text>
+  <rect x="162.0" y="374.0" width="22.5" height="24.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="192.5" y="390.0" class="note" text-anchor="start" xml:space="preserve">46.3 images/s</text>
+</svg>

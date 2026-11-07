@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 480" width="660" height="480" role="img" aria-label="1 declaration, static mut CELLS of type SharedArray of 256 floats, at the top. Arrows lead to 3 blocks on SMs, each holding its own copy of CELLS, 1 KiB of shared memory, used by its threads 0 to 255.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="480" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 shared array per block</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">A static SharedArray in a kernel is placed in shared memory.</text>
+  <rect x="150" y="100" width="360" height="60" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M162,100.7 H156 V159.3 H162 A11.3,11.3 0 0 1 150.7,148 V112 A11.3,11.3 0 0 1 162,100.7 Z" fill="#7A4FD0"/>
+  <text x="170.0" y="126.0" class="name" text-anchor="start" xml:space="preserve">static mut CELLS: SharedArray&lt;f32, 256&gt;</text>
+  <text x="170.0" y="144.0" class="sub" text-anchor="start" xml:space="preserve">declared once, in the kernel</text>
+  <rect x="24" y="214" width="192" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="42" y="203" width="153.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="118.9" y="218.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">BLOCK 0 ON AN SM</text>
+  <rect x="40.0" y="238.0" width="160.0" height="34.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="120.0" y="259.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">CELLS: 256 floats</text>
+  <text x="120.0" y="300.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">threads 0 to 255</text>
+  <circle cx="54" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="73" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="92" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="111" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="130" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="149" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="168" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="187" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="120.0" y="360.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 KiB of the SM&#x27;s</text>
+  <text x="120.0" y="378.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">shared memory</text>
+  <rect x="234" y="214" width="192" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="252" y="203" width="153.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="328.9" y="218.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">BLOCK 1 ON AN SM</text>
+  <rect x="250.0" y="238.0" width="160.0" height="34.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="330.0" y="259.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">CELLS: 256 floats</text>
+  <text x="330.0" y="300.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">threads 0 to 255</text>
+  <circle cx="264" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="283" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="302" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="321" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="340" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="359" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="378" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="397" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="330.0" y="360.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 KiB of the SM&#x27;s</text>
+  <text x="330.0" y="378.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">shared memory</text>
+  <rect x="444" y="214" width="192" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="462" y="203" width="153.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="538.9" y="218.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">BLOCK 2 ON AN SM</text>
+  <rect x="460.0" y="238.0" width="160.0" height="34.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="540.0" y="259.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">CELLS: 256 floats</text>
+  <text x="540.0" y="300.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">threads 0 to 255</text>
+  <circle cx="474" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="493" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="512" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="531" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="550" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="569" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="588" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <circle cx="607" cy="324" r="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="540.0" y="360.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 KiB of the SM&#x27;s</text>
+  <text x="540.0" y="378.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">shared memory</text>
+  <path class="wire" d="M330,160 L330,177 Q330,186 321,186 L129,186 Q120,186 120,195 L120,210" marker-end="url(#head)"/>
+  <path class="wire" d="M330,186 L330,210" marker-end="url(#head)"/>
+  <path class="wire" d="M330,186 L531,186 Q540,186 540,195 L540,210" marker-end="url(#head)"/>
+  <text x="16.0" y="440.0" class="note" text-anchor="start" xml:space="preserve">Each resident block gets its own copy, created when the block starts and freed</text>
+  <text x="16.0" y="458.0" class="note" text-anchor="start" xml:space="preserve">when it ends. A thread can read and write the copy of its own block only.</text>
+</svg>

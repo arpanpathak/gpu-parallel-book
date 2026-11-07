@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 428" width="660" height="428" role="img" aria-label="Left, top to bottom: prepare_matmul checks the block shape (16, 16, 1) and the 2-D domain; the call matmul checks a.len() at least m k, b.len() at least k n and c.len() at least m n; then the kernel is launched. Right: with n = 256 and k = 512, a holds 65,536 floats while m times k is 131,072, so the check fails on the CPU and no kernel starts.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="428" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Checks before the launch</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The launch contract tests sizes on the CPU, once per launch.</text>
+  <rect x="40" y="116" width="260" height="70" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,116.7 H46 V185.3 H52 A11.3,11.3 0 0 1 40.7,174 V128 A11.3,11.3 0 0 1 52,116.7 Z" fill="#2F6FDB"/>
+  <text x="60.0" y="147.0" class="name" text-anchor="start" xml:space="preserve">prepare_matmul(config)</text>
+  <text x="60.0" y="165.0" class="sub" text-anchor="start" xml:space="preserve">block = (16, 16, 1)? domain 2?</text>
+  <path d="M170,186 V219" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="40" y="222" width="260" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,222.7 H46 V305.3 H52 A11.3,11.3 0 0 1 40.7,294 V234 A11.3,11.3 0 0 1 52,222.7 Z" fill="#B7791F"/>
+  <text x="60.0" y="251.0" class="name" text-anchor="start" xml:space="preserve">matmul(m, n, k, a, b, c)</text>
+  <text x="60.0" y="269.0" class="sub" text-anchor="start" xml:space="preserve">a.len() ≥ m k</text>
+  <text x="60.0" y="287.0" class="sub" text-anchor="start" xml:space="preserve">b.len() ≥ k n, c.len() ≥ m n</text>
+  <path d="M170,306 V339" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="40" y="342" width="260" height="62" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,342.7 H46 V403.3 H52 A11.3,11.3 0 0 1 40.7,392 V354 A11.3,11.3 0 0 1 52,342.7 Z" fill="#2E8B3D"/>
+  <text x="60.0" y="369.0" class="name" text-anchor="start" xml:space="preserve">launch</text>
+  <text x="60.0" y="387.0" class="sub" text-anchor="start" xml:space="preserve">the kernel runs on the GPU</text>
+  <rect x="330" y="116" width="314" height="288" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="348" y="105" width="256.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="476.1" y="120.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">A LAUNCH THAT CLAIMS TOO MUCH</text>
+  <text x="354.0" y="162.0" class="note" text-anchor="start" xml:space="preserve">a holds 256 × 256 = 65,536 floats.</text>
+  <text x="354.0" y="186.0" class="note" text-anchor="start" xml:space="preserve">The call claims m = 256, k = 512:</text>
+  <text x="354.0" y="210.0" class="note" text-anchor="start" xml:space="preserve">m × k = 131,072 &gt; 65,536.</text>
+  <text x="354.0" y="246.0" class="note" text-anchor="start" xml:space="preserve">The relation a.len() ≥ m k fails on</text>
+  <text x="354.0" y="270.0" class="note" text-anchor="start" xml:space="preserve">the CPU, and matmul returns Err.</text>
+  <text x="354.0" y="294.0" class="note" text-anchor="start" xml:space="preserve">No kernel starts, and no thread</text>
+  <text x="354.0" y="318.0" class="note" text-anchor="start" xml:space="preserve">reads past the end of a.</text>
+  <rect x="354.0" y="356" width="165.8" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="436.9" y="368.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">checked once per launch</text>
+</svg>

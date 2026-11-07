@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 486" width="660" height="486" role="img" aria-label="4 rows of 8 SMs, each SM drawn with 6 slots for blocks of 256 threads. With 1 block per SM, 1 slot of 6 is filled; with 3, half; with 6, all; with 12, all slots are filled and a second wave of 6 blocks per SM waits.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="486" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Blocks per SM</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">A grid of 8 SMs × k blocks fills k of 6 slots in each SM.</text>
+  <text x="40.0" y="120.0" class="sub" text-anchor="start" xml:space="preserve">8 SMs, each with room for 1,536 threads = 6 blocks of 256</text>
+  <text x="40.0" y="152.0" class="name" text-anchor="start" xml:space="preserve">1 block per SM: 2,048 threads, 1 of 6 slots</text>
+  <rect x="40" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="44.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="114" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="118.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="188" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="192.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="262" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="266.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="336" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="340.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="410" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="414.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="484" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="488.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="558" y="162" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="562.0" y="166" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <text x="40.0" y="226.0" class="name" text-anchor="start" xml:space="preserve">3 blocks per SM: 6,144 threads, half the slots</text>
+  <rect x="40" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="44.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="54.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="65.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="114" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="118.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="128.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="139.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="188" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="192.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="202.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="213.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="262" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="266.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="276.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="287.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="336" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="340.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="350.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="361.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="410" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="414.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="424.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="435.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="484" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="488.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="498.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="509.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="558" y="236" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="562.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="572.5" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="583.0" y="240" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <text x="40.0" y="300.0" class="name" text-anchor="start" xml:space="preserve">6 blocks per SM: 12,288 threads, every slot</text>
+  <rect x="40" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="44.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="54.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="65.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="75.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="86.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="96.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="114" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="118.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="128.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="139.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="149.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="160.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="170.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="188" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="192.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="202.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="213.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="223.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="234.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="244.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="262" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="266.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="276.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="287.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="297.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="308.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="318.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="336" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="340.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="350.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="361.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="371.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="382.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="392.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="410" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="414.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="424.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="435.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="445.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="456.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="466.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="484" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="488.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="498.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="509.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="519.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="530.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="540.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="558" y="310" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="562.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="572.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="583.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="593.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="604.0" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <rect x="614.5" y="314" width="8" height="22" rx="1.5" fill="#2F6FDB"/>
+  <text x="40.0" y="374.0" class="name" text-anchor="start" xml:space="preserve">12 blocks per SM: every slot, and a second wave of 6</text>
+  <rect x="40" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="44.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="54.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="65.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="75.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="86.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="96.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="114" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="118.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="128.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="139.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="149.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="160.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="170.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="188" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="192.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="202.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="213.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="223.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="234.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="244.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="262" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="266.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="276.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="287.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="297.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="308.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="318.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="336" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="340.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="350.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="361.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="371.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="382.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="392.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="410" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="414.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="424.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="435.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="445.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="456.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="466.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="484" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="488.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="498.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="509.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="519.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="530.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="540.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="558" y="384" width="68" height="30" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect x="562.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="572.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="583.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="593.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="604.0" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <rect x="614.5" y="388" width="8" height="22" rx="1.5" fill="#7A4FD0"/>
+  <text x="40.0" y="446.0" class="note" text-anchor="start" xml:space="preserve">A block of 256 threads occupies 1 of 6 slots. Fewer than 6 blocks per SM leave</text>
+  <text x="40.0" y="464.0" class="note" text-anchor="start" xml:space="preserve">slots empty; blocks beyond 6 wait for a free slot and run in a later wave.</text>
+</svg>

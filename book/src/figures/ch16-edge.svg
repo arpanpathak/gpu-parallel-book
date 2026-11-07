@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 350" width="660" height="350" role="img" aria-label="16 cells for the 16 threads of the last block in a row of blocks, at columns 992 to 1,007 with x from 0 to 15. Columns 992 to 999 are green: inside C. Columns 1,000 to 1,007 are red: the test col &lt; n fails. The note: 1,000 / 16 = 62.5 rounds up to 63 blocks, 1,008 threads, and block 62 starts at column 992.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="350" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The edge of C</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">When n is not a multiple of 16, the last block reaches past C.</text>
+  <rect x="16" y="104" width="628" height="224" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="374.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="221.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">THE LAST BLOCK OF A ROW OF BLOCKS, N = 1,000</text>
+  <rect x="28.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="46.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">992</text>
+  <text x="46.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=0</text>
+  <rect x="66.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="84.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">993</text>
+  <text x="84.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=1</text>
+  <rect x="104.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="122.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">994</text>
+  <text x="122.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=2</text>
+  <rect x="142.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="160.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">995</text>
+  <text x="160.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=3</text>
+  <rect x="180.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="198.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">996</text>
+  <text x="198.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=4</text>
+  <rect x="218.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="236.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">997</text>
+  <text x="236.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=5</text>
+  <rect x="256.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="274.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">998</text>
+  <text x="274.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=6</text>
+  <rect x="294.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="312.0" y="178.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">999</text>
+  <text x="312.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=7</text>
+  <rect x="332.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="350.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1000</text>
+  <text x="350.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=8</text>
+  <rect x="370.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="388.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1001</text>
+  <text x="388.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=9</text>
+  <rect x="408.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="426.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1002</text>
+  <text x="426.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=10</text>
+  <rect x="446.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="464.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1003</text>
+  <text x="464.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=11</text>
+  <rect x="484.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="502.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1004</text>
+  <text x="502.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=12</text>
+  <rect x="522.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="540.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1005</text>
+  <text x="540.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=13</text>
+  <rect x="560.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="578.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1006</text>
+  <text x="578.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=14</text>
+  <rect x="598.0" y="160.0" width="36.0" height="44.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="616.0" y="178.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1007</text>
+  <text x="616.0" y="196.0" class="sub" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">x=15</text>
+  <rect x="36.0" y="220" width="231.8" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="151.9" y="232.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">col 992 to 999: inside C, compute</text>
+  <rect x="332.0" y="220" width="218.6" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="441.3" y="232.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">col 1000 to 1007: col &lt; n fails</text>
+  <text x="36.0" y="264.0" class="note" text-anchor="start" xml:space="preserve">1,000 ÷ 16 = 62.5, rounded up to 63 blocks: 63 × 16 = 1,008 threads per row and</text>
+  <text x="36.0" y="282.0" class="note" text-anchor="start" xml:space="preserve">per column. Block 62 starts at 62 × 16 = 992; its threads x = 8 to 15 fall at</text>
+  <text x="36.0" y="300.0" class="note" text-anchor="start" xml:space="preserve">columns 1,000 to 1,007, past the last column of C, and the guard stops them.</text>
+</svg>

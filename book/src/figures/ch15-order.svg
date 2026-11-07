@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 450" width="660" height="450" role="img" aria-label="Left: 16,777,216 + 1 rounds back to 16,777,216, and so does the second + 1; the result is 16,777,216. Right: 1 + 1 = 2 first, then 16,777,216 + 2 = 16,777,218, the exact sum.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="450" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The order of float additions</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The same 3 numbers, added in 2 orders, in 32-bit floats.</text>
+  <rect x="16" y="104" width="300" height="260" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="130.3" height="22" rx="11" fill="#1B2430"/>
+  <text x="99.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">LEFT TO RIGHT</text>
+  <rect x="344" y="104" width="300" height="260" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="362" y="93" width="169.6" height="22" rx="11" fill="#1B2430"/>
+  <text x="446.8" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SMALL VALUES FIRST</text>
+  <rect x="40.0" y="140.0" width="120.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="100.0" y="159.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">16,777,216</text>
+  <rect x="176.0" y="140.0" width="50.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="201.0" y="159.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="240.0" y="140.0" width="50.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="265.0" y="159.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="40.0" y="214.0" width="120.0" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="100.0" y="233.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">16,777,216</text>
+  <text x="176.0" y="234.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">+1 rounds away</text>
+  <rect x="40.0" y="288.0" width="120.0" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="100.0" y="307.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">16,777,216</text>
+  <text x="176.0" y="308.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">+1 rounds away</text>
+  <path d="M100,170 V211" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M100,244 V285" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="368.0" y="140.0" width="120.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="428.0" y="159.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">16,777,216</text>
+  <rect x="504.0" y="140.0" width="50.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="529.0" y="159.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="568.0" y="140.0" width="50.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="593.0" y="159.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <rect x="536.0" y="214.0" width="50.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="561.0" y="233.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">2</text>
+  <path d="M529.0,170.0 V192.0 H561.0 V211.0" fill="none" stroke="#3F5873" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>
+  <path d="M593.0,170.0 V192.0 H561.0 V211.0" fill="none" stroke="#3F5873" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>
+  <rect x="368.0" y="288.0" width="120.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="428.0" y="307.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">16,777,218</text>
+  <path d="M428.0,170.0 V229.0 H428.0 V285.0" fill="none" stroke="#3F5873" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>
+  <path d="M561.0,244.0 V266.0 H428.0 V285.0" fill="none" stroke="#3F5873" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>
+  <text x="16.0" y="392.0" class="note" text-anchor="start" xml:space="preserve">A float has 24 bits of significand. Between 2²⁴ = 16,777,216 and 2²⁵ the floats</text>
+  <text x="16.0" y="410.0" class="note" text-anchor="start" xml:space="preserve">are 2 apart, so 16,777,216 + 1 is a tie and rounds to the even 16,777,216. Adding</text>
+  <text x="16.0" y="428.0" class="note" text-anchor="start" xml:space="preserve">the 2 small values first gives 2, which is representable, and the exact 16,777,218.</text>
+</svg>

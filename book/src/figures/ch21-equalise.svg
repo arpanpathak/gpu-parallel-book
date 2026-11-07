@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 496" width="640" height="496" role="img" aria-label="A table with 8 gray levels, 0 to 7, for an image of 16 pixels. Counts: 0, 0, 3, 5, 4, 2, 2, 0. Cumulative counts: 0, 0, 3, 8, 12, 14, 16, 16. New levels: 0, 0, 0, 3, 5, 6, 7, 7. Below, the histogram before occupies levels 2 to 6; after, the same pixels occupy levels 0, 3, 5, 6 and 7. The formula is new level = round((cumulative minus 3) times 7 divided by 13).">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="496" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Histogram equalisation by hand</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">16 pixels, 8 levels: each level moves to its rank.</text>
+  <text x="154.0" y="119.0" class="name" text-anchor="end" xml:space="preserve">level v</text>
+  <rect x="168.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="194.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
+  <rect x="224.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="250.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">1</text>
+  <rect x="280.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="306.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">2</text>
+  <rect x="336.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="362.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
+  <rect x="392.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="418.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
+  <rect x="448.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="474.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">5</text>
+  <rect x="504.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="530.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">6</text>
+  <rect x="560.0" y="100.0" width="52.0" height="30.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="586.0" y="119.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">7</text>
+  <text x="154.0" y="157.0" class="name" text-anchor="end" xml:space="preserve">count</text>
+  <rect x="168.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="194.0" y="157.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="224.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="250.0" y="157.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <rect x="280.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="306.0" y="157.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="336.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="362.0" y="157.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">5</text>
+  <rect x="392.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="418.0" y="157.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
+  <rect x="448.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="474.0" y="157.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="504.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="530.0" y="157.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="560.0" y="138.0" width="52.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="586.0" y="157.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="154.0" y="195.0" class="name" text-anchor="end" xml:space="preserve">cumulative</text>
+  <rect x="168.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="194.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0</text>
+  <rect x="224.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="250.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0</text>
+  <rect x="280.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="306.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">3</text>
+  <rect x="336.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="362.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">8</text>
+  <rect x="392.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="418.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">12</text>
+  <rect x="448.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="474.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">14</text>
+  <rect x="504.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="530.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
+  <rect x="560.0" y="176.0" width="52.0" height="30.0" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="586.0" y="195.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
+  <text x="154.0" y="233.0" class="name" text-anchor="end" xml:space="preserve">new level</text>
+  <rect x="168.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="194.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="224.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="250.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="280.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="306.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="336.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="362.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">3</text>
+  <rect x="392.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="418.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <rect x="448.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="474.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="504.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="530.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="560.0" y="214.0" width="52.0" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="586.0" y="233.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <text x="60.0" y="278.0" class="name" text-anchor="start" xml:space="preserve">histogram before</text>
+  <line x1="60.0" y1="400.0" x2="300.0" y2="400.0" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="75.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">0</text>
+  <text x="105.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">1</text>
+  <rect x="124.0" y="346.0" width="22.0" height="54.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="135.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">2</text>
+  <rect x="154.0" y="310.0" width="22.0" height="90.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="165.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">3</text>
+  <rect x="184.0" y="328.0" width="22.0" height="72.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="195.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">4</text>
+  <rect x="214.0" y="364.0" width="22.0" height="36.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="225.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">5</text>
+  <rect x="244.0" y="364.0" width="22.0" height="36.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="255.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">6</text>
+  <text x="285.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">7</text>
+  <text x="360.0" y="278.0" class="name" text-anchor="start" xml:space="preserve">histogram after</text>
+  <line x1="360.0" y1="400.0" x2="600.0" y2="400.0" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="364.0" y="346.0" width="22.0" height="54.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="375.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">0</text>
+  <text x="405.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">1</text>
+  <text x="435.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">2</text>
+  <rect x="454.0" y="310.0" width="22.0" height="90.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="465.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">3</text>
+  <text x="495.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">4</text>
+  <rect x="514.0" y="328.0" width="22.0" height="72.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="525.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">5</text>
+  <rect x="544.0" y="364.0" width="22.0" height="36.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="555.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">6</text>
+  <rect x="574.0" y="364.0" width="22.0" height="36.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="585.0" y="416.0" class="mono" text-anchor="middle" xml:space="preserve">7</text>
+  <text x="32.0" y="452.0" class="note" text-anchor="start" xml:space="preserve">new level = round((cumulative - 3) x 7 / (16 - 3)); 3 is the cumulative count of the first level in use.</text>
+  <text x="32.0" y="472.0" class="note" text-anchor="start" xml:space="preserve">Levels 2 to 6 spread to 0 to 7; the order of the levels is kept, so no 2 pixels change places.</text>
+</svg>

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="A chart with a logarithmic vertical axis from 1e-7 to 1e-2 and Jacobi steps from 0 to 9,000 on the horizontal axis. 9 measured points, from 7.49e-3 at step 1,000 to 5.59e-7 at step 9,000, fall on a straight line. A dashed line, the prediction that the change shrinks by cos(pi / 63) per step, or 0.288 per 1,000 steps, runs through the points.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="400" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Convergence on the 64 x 64 grid</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The change shrinks by the same factor every step: a straight line in log scale.</text>
+  <line x1="96.0" y1="340.0" x2="600.0" y2="340.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="96.0" y1="110.0" x2="96.0" y2="340.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="96.0" y1="340.0" x2="600.0" y2="340.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="88.0" y="344.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-7</text>
+  <line x1="96.0" y1="294.0" x2="600.0" y2="294.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="88.0" y="298.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-6</text>
+  <line x1="96.0" y1="248.0" x2="600.0" y2="248.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="88.0" y="252.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-5</text>
+  <line x1="96.0" y1="202.0" x2="600.0" y2="202.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="88.0" y="206.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-4</text>
+  <line x1="96.0" y1="156.0" x2="600.0" y2="156.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="88.0" y="160.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-3</text>
+  <line x1="96.0" y1="110.0" x2="600.0" y2="110.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="88.0" y="114.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-2</text>
+  <text x="96.0" y="358.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="264.0" y="358.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3,000</text>
+  <text x="432.0" y="358.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6,000</text>
+  <text x="600.0" y="358.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">9,000</text>
+  <path d="M152.0,115.8 L166.0,122.0 L180.0,128.2 L194.0,134.4 L208.0,140.6 L222.0,146.8 L236.0,153.0 L250.0,159.3 L264.0,165.5 L278.0,171.7 L292.0,177.9 L306.0,184.1 L320.0,190.3 L334.0,196.5 L348.0,202.7 L362.0,209.0 L376.0,215.2 L390.0,221.4 L404.0,227.6 L418.0,233.8 L432.0,240.0 L446.0,246.2 L460.0,252.4 L474.0,258.7 L488.0,264.9 L502.0,271.1 L516.0,277.3 L530.0,283.5 L544.0,289.7 L558.0,295.9 L572.0,302.1 L586.0,308.4 L600.0,314.6" fill="none" stroke="#B7791F" stroke-width="2" stroke-dasharray="5 4"/>
+  <circle cx="152.0" cy="115.8" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="208.0" cy="141.6" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="264.0" cy="166.4" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="320.0" cy="191.3" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="376.0" cy="216.0" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="432.0" cy="240.7" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="488.0" cy="263.6" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="544.0" cy="282.4" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="600.0" cy="305.6" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="100.0" y="96.0" class="note" text-anchor="start" xml:space="preserve">RMS change per step</text>
+  <text x="600.0" y="380.0" class="note" text-anchor="end" xml:space="preserve">Jacobi steps</text>
+  <rect x="110.0" y="270" width="192.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="206.1" y="282.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">measured, every 1,000 steps</text>
+  <rect x="110.0" y="300" width="311.0" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="265.5" y="312.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">cos(π / 63) per step: × 0.288 per 1,000 steps</text>
+</svg>

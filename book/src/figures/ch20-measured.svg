@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 514" width="660" height="514" role="img" aria-label="Horizontal bars of time per matrix of 4,096 by 4,096 floats. Softmax with rows of 4,096: 3 passes 2.028 ms, online 2.245 ms, fused 1.446 ms. With rows of 65,536: 3 passes 3.984 ms, online 3.009 ms. Layer norm: sum of squares 2.288 ms but wrong, Welford 2.168 ms, fused 1.794 ms. A dashed line marks 1.32 ms, the time to read and write every element once at 102 GB/s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="514" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Measured times</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1 matrix of 4,096 × 4,096 floats, 64 MiB, per kernel.</text>
+  <text x="40.0" y="116.0" class="name" text-anchor="start" xml:space="preserve">softmax, 4,096 columns</text>
+  <text x="40.0" y="145.0" class="note" text-anchor="start" xml:space="preserve">3 passes</text>
+  <rect x="150.0" y="128.0" width="136.9" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="294.9" y="145.0" class="mono" text-anchor="start" xml:space="preserve">2.028 ms   16 B per element</text>
+  <text x="40.0" y="177.0" class="note" text-anchor="start" xml:space="preserve">online</text>
+  <rect x="150.0" y="160.0" width="151.5" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="309.5" y="177.0" class="mono" text-anchor="start" xml:space="preserve">2.245 ms   12 B per element</text>
+  <text x="40.0" y="209.0" class="note" text-anchor="start" xml:space="preserve">fused</text>
+  <rect x="150.0" y="192.0" width="97.6" height="24.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="255.6" y="209.0" class="mono" text-anchor="start" xml:space="preserve">1.446 ms   8 B per element</text>
+  <text x="40.0" y="246.0" class="name" text-anchor="start" xml:space="preserve">softmax, 65,536 columns</text>
+  <text x="40.0" y="275.0" class="note" text-anchor="start" xml:space="preserve">3 passes</text>
+  <rect x="150.0" y="258.0" width="268.9" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="426.9" y="275.0" class="mono" text-anchor="start" xml:space="preserve">3.984 ms   16 B per element</text>
+  <text x="40.0" y="307.0" class="note" text-anchor="start" xml:space="preserve">online</text>
+  <rect x="150.0" y="290.0" width="203.1" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="361.1" y="307.0" class="mono" text-anchor="start" xml:space="preserve">3.009 ms   12 B per element</text>
+  <text x="40.0" y="344.0" class="name" text-anchor="start" xml:space="preserve">layer norm, 4,096 columns</text>
+  <text x="40.0" y="373.0" class="note" text-anchor="start" xml:space="preserve">sum of x²</text>
+  <rect x="150.0" y="356.0" width="154.4" height="24.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="312.4" y="373.0" class="mono" text-anchor="start" xml:space="preserve">2.288 ms   12 B per element</text>
+  <text x="40.0" y="405.0" class="note" text-anchor="start" xml:space="preserve">Welford</text>
+  <rect x="150.0" y="388.0" width="146.3" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="304.3" y="405.0" class="mono" text-anchor="start" xml:space="preserve">2.168 ms   12 B per element</text>
+  <text x="40.0" y="437.0" class="note" text-anchor="start" xml:space="preserve">fused</text>
+  <rect x="150.0" y="420.0" width="121.1" height="24.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="279.1" y="437.0" class="mono" text-anchor="start" xml:space="preserve">1.794 ms   8 B per element</text>
+  <line x1="238.8" y1="120.0" x2="238.8" y2="454.0" stroke="#B7791F" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="244.8" y="468.0" class="note" text-anchor="start" xml:space="preserve">1.32 ms: 8 B per element at 102 GB/s</text>
+  <text x="40.0" y="492.0" class="note" text-anchor="start" xml:space="preserve">The sum of x² gives errors up to 2.97; Welford and fused stay below 1.9e-4.</text>
+</svg>

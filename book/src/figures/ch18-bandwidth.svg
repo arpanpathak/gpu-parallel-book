@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 410" width="640" height="410" role="img" aria-label="3 horizontal bars of effective bandwidth on a 4096 by 4096 grid: copy kernel 75.3 GB/s, jacobi 58.3 GB/s, jacobi tiled 37.8 GB/s. A dashed line marks the rated memory bandwidth of 102 GB/s. A note explains that each step moves 134.2 MB, and that the tiled kernel is slower than the plain one.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="410" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Effective bandwidth of 1 Jacobi step</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4096 x 4096 cells, 8 bytes per cell per step, on a GPU rated at 102 GB/s.</text>
+  <text x="40.0" y="138.0" class="note" text-anchor="start" xml:space="preserve">copy kernel</text>
+  <rect x="140" y="116" width="287.5" height="34" rx="5" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.4"/>
+  <text x="435.5" y="138.0" class="mono" text-anchor="start" xml:space="preserve">75.3 GB/s</text>
+  <text x="40.0" y="196.0" class="note" text-anchor="start" xml:space="preserve">jacobi</text>
+  <rect x="140" y="174" width="222.6" height="34" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.4"/>
+  <text x="370.6" y="196.0" class="mono" text-anchor="start" xml:space="preserve">58.3 GB/s</text>
+  <text x="40.0" y="254.0" class="note" text-anchor="start" xml:space="preserve">jacobi, tiled</text>
+  <rect x="140" y="232" width="144.3" height="34" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4"/>
+  <text x="292.3" y="254.0" class="mono" text-anchor="start" xml:space="preserve">37.8 GB/s</text>
+  <path d="M529.5,104 V300" stroke="#CF4526" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text x="529.5" y="318.0" class="note" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">rated 102 GB/s</text>
+  <text x="40.0" y="352.0" class="note" text-anchor="start" xml:space="preserve">1 read and 1 write of 4 bytes per cell: 134.2 MB per step.</text>
+  <text x="40.0" y="370.0" class="note" text-anchor="start" xml:space="preserve">The tiled kernel loads 1.33 cells per result, yet runs slower than the</text>
+  <text x="40.0" y="388.0" class="note" text-anchor="start" xml:space="preserve">plain kernel, whose neighbour reads the L1 and L2 caches already serve.</text>
+</svg>

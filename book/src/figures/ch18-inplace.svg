@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 436" width="640" height="436" role="img" aria-label="Left: the 5 by 5 grid after step 1, with 25 in the 3 cells under the hot edge. Right: cell (1, 2) at step 2 computed 2 ways. If cell (1, 1) still holds its old value 25, the result is (100 + 0 + 25 + 25) / 4 = 37.50. If cell (1, 1) has already been replaced by 31.25, the result is (100 + 0 + 31.25 + 25) / 4 = 39.06.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="436" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Why a step cannot update the grid in place</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Two buffers, one read and one written, make every thread see the same old values.</text>
+  <rect x="32" y="96" width="280" height="274" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="50" y="85" width="169.6" height="22" rx="11" fill="#1B2430"/>
+  <text x="134.8" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">OLD VALUES, STEP 1</text>
+  <rect x="62.0" y="124.0" width="43.0" height="43.0" rx="4" fill="#ec8c6c" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="83.5" y="149.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">100</text>
+  <rect x="108.0" y="124.0" width="43.0" height="43.0" rx="4" fill="#ec8c6c" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="129.5" y="149.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">100</text>
+  <rect x="154.0" y="124.0" width="43.0" height="43.0" rx="4" fill="#ec8c6c" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="175.5" y="149.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">100</text>
+  <rect x="200.0" y="124.0" width="43.0" height="43.0" rx="4" fill="#ec8c6c" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="221.5" y="149.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">100</text>
+  <rect x="246.0" y="124.0" width="43.0" height="43.0" rx="4" fill="#ec8c6c" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="267.5" y="149.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">100</text>
+  <rect x="62.0" y="170.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="83.5" y="195.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="108.0" y="170.0" width="43.0" height="43.0" rx="4" fill="#c2dfdc" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="129.5" y="195.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">25</text>
+  <rect x="154.0" y="170.0" width="43.0" height="43.0" rx="4" fill="#c2dfdc" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="175.5" y="195.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">25</text>
+  <rect x="200.0" y="170.0" width="43.0" height="43.0" rx="4" fill="#c2dfdc" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="221.5" y="195.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">25</text>
+  <rect x="246.0" y="170.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="267.5" y="195.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="62.0" y="216.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="83.5" y="241.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="108.0" y="216.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="129.5" y="241.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="154.0" y="216.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="175.5" y="241.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="200.0" y="216.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="221.5" y="241.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="246.0" y="216.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="267.5" y="241.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="62.0" y="262.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="83.5" y="287.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="108.0" y="262.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="129.5" y="287.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="154.0" y="262.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="175.5" y="287.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="200.0" y="262.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#D5DBE3" stroke-width="1.1"/>
+  <text x="221.5" y="287.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="246.0" y="262.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="267.5" y="287.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="62.0" y="308.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="83.5" y="333.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="108.0" y="308.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="129.5" y="333.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="154.0" y="308.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="175.5" y="333.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="200.0" y="308.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="221.5" y="333.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="246.0" y="308.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
+  <text x="267.5" y="333.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <rect x="336" y="96" width="272" height="274" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="354" y="85" width="193.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="450.6" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">CELL (1, 2) AT STEP 2</text>
+  <text x="356.0" y="140.0" class="note" text-anchor="start" xml:space="preserve">(1, 1) not yet written</text>
+  <text x="356.0" y="162.0" class="mono" text-anchor="start" xml:space="preserve">(100 + 0 + 25 + 25) / 4</text>
+  <text x="588.0" y="190.0" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">37.50</text>
+  <text x="356.0" y="232.0" class="note" text-anchor="start" xml:space="preserve">(1, 1) already written</text>
+  <text x="356.0" y="254.0" class="mono" text-anchor="start" xml:space="preserve">(100 + 0 + 31.25 + 25) / 4</text>
+  <text x="588.0" y="282.0" class="mono" text-anchor="end" style="fill:#CF4526" xml:space="preserve">39.06</text>
+  <text x="32.0" y="398.0" class="note" text-anchor="start" xml:space="preserve">In place, a thread may read a neighbour that another thread has already replaced. The result</text>
+  <text x="32.0" y="416.0" class="note" text-anchor="start" xml:space="preserve">then depends on the order in which the threads run, which the hardware does not fix.</text>
+</svg>

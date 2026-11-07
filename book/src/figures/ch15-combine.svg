@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 510" width="660" height="510" role="img" aria-label="Left: the 1,024 block sums are written to an array, and a second launch of 1 block adds them into total in a fixed order. Right: each block adds its sum into result[0] with an atomic addition, in the order the blocks finish, for example block 7, then block 2, then block 900.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="510" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Combining the block results</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1,024 block sums become 1 number in 1 of 2 ways.</text>
+  <rect x="16" y="104" width="300" height="340" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="146.0" height="22" rx="11" fill="#1B2430"/>
+  <text x="107.0" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">A SECOND LAUNCH</text>
+  <rect x="344" y="104" width="300" height="340" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="362" y="93" width="169.6" height="22" rx="11" fill="#1B2430"/>
+  <text x="446.8" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">AN ATOMIC ADDITION</text>
+  <rect x="40.0" y="136.0" width="252.0" height="34.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="166.0" y="157.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">partial[0 … 1023]: 1 per block</text>
+  <path d="M166,170 V207" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="40" y="210" width="252" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,210.7 H46 V273.3 H52 A11.3,11.3 0 0 1 40.7,262 V222 A11.3,11.3 0 0 1 52,210.7 Z" fill="#1F8A70"/>
+  <text x="60.0" y="238.0" class="name" text-anchor="start" xml:space="preserve">launch 2: 1 block</text>
+  <text x="60.0" y="256.0" class="sub" text-anchor="start" xml:space="preserve">256 threads add 1,024 values</text>
+  <path d="M166,274 V311" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="40.0" y="314.0" width="252.0" height="34.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="166.0" y="335.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">total</text>
+  <text x="40.0" y="380.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">fixed order of additions:</text>
+  <text x="40.0" y="398.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">same bits on every run</text>
+  <rect x="368.0" y="136.0" width="120.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="428.0" y="155.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">block 7</text>
+  <path class="wire" d="M488,151 L531,151 Q540,151 540,160 L540,312" marker-end="url(#head)"/>
+  <rect x="368.0" y="176.0" width="120.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="428.0" y="195.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">block 2</text>
+  <path class="wire" d="M488,191 L531,191 Q540,191 540,200 L540,312"/>
+  <rect x="368.0" y="216.0" width="120.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="428.0" y="235.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">block 900</text>
+  <path class="wire" d="M488,231 L531,231 Q540,231 540,240 L540,312"/>
+  <rect x="368.0" y="256.0" width="120.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="428.0" y="275.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">…</text>
+  <rect x="480.0" y="314.0" width="120.0" height="34.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="540.0" y="335.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">result[0]</text>
+  <text x="368.0" y="380.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">order of arrival changes:</text>
+  <text x="368.0" y="398.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">the bits can change</text>
+  <text x="16.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">Both designs add the same 1,024 block sums. The launch boundary orders the</text>
+  <text x="16.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">additions; the atomic unit adds them in whatever order the blocks finish.</text>
+</svg>
