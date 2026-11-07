@@ -22,6 +22,7 @@ comments; each directory builds standalone.
 | [`ch14_cuda_oxide/`](ch14_cuda_oxide/) | Ch 14 - CUDA-Oxide | The `#[kernel]` map example in pure Rust | `cargo oxide run host_closure` |
 | [`ch15_capstone/`](ch15_capstone/) | Ch 15 - Capstone Pipeline | The full RGB -> blur -> Sobel -> histogram pipeline | `nvcc -arch=compute_60 pipeline.cu -o pipeline` |
 | [`ch16_profiling/`](ch16_profiling/) | Ch 16 - Profiling, Debugging & Performance Engineering | 4 bugs for Compute Sanitizer, the GPU's limits and a warm-up curve, latencies with `clock64()`, tolerances in ULPs (Rust: `oxide/ch16_latency`) | `nvcc -arch=native -lineinfo <name>.cu -o <name>` for `bugs`, `measure`, `latency`, `verify` |
+| [`ch17_systems/`](ch17_systems/) | Ch 17 - GPU Systems & MMIO | What the runtime reports about the GPU, CPU speed over 4 memory types, a work ring with a doorbell between 2 threads (Rust: `oxide/ch17_systems`) | `nvcc -arch=native -O3 systems.cu -o systems` |
 
 **Architecture flags.** `-arch=compute_60` produces portable PTX that the
 driver JIT-compiles on any CUDA 12.x GPU (Pascal or newer), including T4,

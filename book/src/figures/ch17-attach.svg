@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 594" width="660" height="594" role="img" aria-label="3 columns. Discrete GPU: a CPU with a root complex joined by a PCIe 4.0 or 5.0 link of 16 lanes to a GPU card whose BAR0 holds registers and BAR1 a window on its own GDDR or HBM memory of 24 to 80 GB. Integrated GPU as a PCIe function: the CPU&#x27;s root port joined to an on-chip GPU that answers as PCIe function 01:00.0, vendor 10de device 2b00, with a 16 MiB BAR0 of registers and no memory window; memory is 128 GB of LPDDR5X shared with the CPU. Integrated GPU as a platform device: the CPU joined by an on-chip bus to the GPU platform device 17000000.gpu, with 3 register windows from the device tree, and 16 GB of LPDDR5 shared with the CPU.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="594" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">3 ways to attach a GPU</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The GPU is a device the CPU reaches through addresses.</text>
+  <rect x="16" y="104" width="200" height="400" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="122.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="95.2" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">DISCRETE GPU</text>
+  <rect x="24" y="132" width="184" height="54" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,132.7 H30 V185.3 H36 A11.3,11.3 0 0 1 24.7,174 V144 A11.3,11.3 0 0 1 36,132.7 Z" fill="#2F6FDB"/>
+  <rect x="40" y="143.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(46.0,149.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="82.0" y="155.0" class="name" text-anchor="start" xml:space="preserve">CPU</text>
+  <text x="82.0" y="173.0" class="sub" text-anchor="start" xml:space="preserve">with root complex</text>
+  <path d="M116,186 V235" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="24" y="238" width="184" height="74" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,238.7 H30 V311.3 H36 A11.3,11.3 0 0 1 24.7,300 V250 A11.3,11.3 0 0 1 36,238.7 Z" fill="#1F8A70"/>
+  <text x="44.0" y="262.0" class="name" text-anchor="start" xml:space="preserve">GPU card</text>
+  <text x="44.0" y="280.0" class="sub" text-anchor="start" xml:space="preserve">BAR0: registers</text>
+  <text x="44.0" y="298.0" class="sub" text-anchor="start" xml:space="preserve">BAR1: memory window</text>
+  <path d="M116,312 V365" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M40,377 A76.0,9 0 0 1 192,377 V443 A76.0,9 0 0 1 40,443 Z" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4" filter="url(#lift)"/>
+  <ellipse cx="116.0" cy="377" rx="76.0" ry="9" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.4"/>
+  <text x="116.0" y="404.0" class="name" text-anchor="middle" xml:space="preserve">own memory</text>
+  <text x="116.0" y="422.0" class="sub" text-anchor="middle" xml:space="preserve">GDDR or HBM,</text>
+  <text x="116.0" y="440.0" class="sub" text-anchor="middle" xml:space="preserve">24 to 80 GB</text>
+  <rect x="52.9" y="203" width="126.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="116.0" y="215.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">PCIe 4.0/5.0 × 16</text>
+  <rect x="230" y="104" width="200" height="400" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="248" y="93" width="161.7" height="22" rx="11" fill="#1B2430"/>
+  <text x="328.9" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">PCIE-FUNCTION GPU</text>
+  <rect x="238" y="132" width="184" height="54" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M250,132.7 H244 V185.3 H250 A11.3,11.3 0 0 1 238.7,174 V144 A11.3,11.3 0 0 1 250,132.7 Z" fill="#2F6FDB"/>
+  <rect x="254" y="143.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(260.0,149.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="296.0" y="155.0" class="name" text-anchor="start" xml:space="preserve">CPU</text>
+  <text x="296.0" y="173.0" class="sub" text-anchor="start" xml:space="preserve">with root port</text>
+  <path d="M330,186 V235" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="238" y="238" width="184" height="74" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M250,238.7 H244 V311.3 H250 A11.3,11.3 0 0 1 238.7,300 V250 A11.3,11.3 0 0 1 250,238.7 Z" fill="#1F8A70"/>
+  <text x="258.0" y="262.0" class="name" text-anchor="start" xml:space="preserve">GPU, 10de:2b00</text>
+  <text x="258.0" y="280.0" class="sub" text-anchor="start" xml:space="preserve">BAR0: 16 MiB registers</text>
+  <text x="258.0" y="298.0" class="sub" text-anchor="start" xml:space="preserve">no memory window</text>
+  <path d="M330,312 V365" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M254,377 A76.0,9 0 0 1 406,377 V443 A76.0,9 0 0 1 254,443 Z" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4" filter="url(#lift)"/>
+  <ellipse cx="330.0" cy="377" rx="76.0" ry="9" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.4"/>
+  <text x="330.0" y="404.0" class="name" text-anchor="middle" xml:space="preserve">shared memory</text>
+  <text x="330.0" y="422.0" class="sub" text-anchor="middle" xml:space="preserve">LPDDR5X, 128 GB,</text>
+  <text x="330.0" y="440.0" class="sub" text-anchor="middle" xml:space="preserve">also the CPU&#x27;s</text>
+  <rect x="257.0" y="203" width="146.0" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="330.0" y="215.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">on-chip PCIe 01:00.0</text>
+  <rect x="444" y="104" width="200" height="400" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="462" y="93" width="177.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="550.7" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">PLATFORM-DEVICE GPU</text>
+  <rect x="452" y="132" width="184" height="54" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M464,132.7 H458 V185.3 H464 A11.3,11.3 0 0 1 452.7,174 V144 A11.3,11.3 0 0 1 464,132.7 Z" fill="#2F6FDB"/>
+  <rect x="468" y="143.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(474.0,149.0) scale(0.8333)"><path d="M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zM7 7v10h10V7zm2.5 2.5h5v5h-5z" fill="#2F6FDB" fill-rule="evenodd"/></g>
+  <text x="510.0" y="155.0" class="name" text-anchor="start" xml:space="preserve">CPU</text>
+  <text x="510.0" y="173.0" class="sub" text-anchor="start" xml:space="preserve">no PCIe link</text>
+  <path d="M544,186 V235" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="452" y="238" width="184" height="74" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M464,238.7 H458 V311.3 H464 A11.3,11.3 0 0 1 452.7,300 V250 A11.3,11.3 0 0 1 464,238.7 Z" fill="#1F8A70"/>
+  <text x="472.0" y="262.0" class="name" text-anchor="start" xml:space="preserve">GPU 17000000.gpu</text>
+  <text x="472.0" y="280.0" class="sub" text-anchor="start" xml:space="preserve">3 windows from the</text>
+  <text x="472.0" y="298.0" class="sub" text-anchor="start" xml:space="preserve">device tree</text>
+  <path d="M544,312 V365" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M468,377 A76.0,9 0 0 1 620,377 V443 A76.0,9 0 0 1 468,443 Z" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4" filter="url(#lift)"/>
+  <ellipse cx="544.0" cy="377" rx="76.0" ry="9" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.4"/>
+  <text x="544.0" y="404.0" class="name" text-anchor="middle" xml:space="preserve">shared memory</text>
+  <text x="544.0" y="422.0" class="sub" text-anchor="middle" xml:space="preserve">LPDDR5, 16 GB,</text>
+  <text x="544.0" y="440.0" class="sub" text-anchor="middle" xml:space="preserve">also the CPU&#x27;s</text>
+  <rect x="471.0" y="203" width="146.0" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="544.0" y="215.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">on-chip bus, no PCIe</text>
+  <text x="16.0" y="534.0" class="note" text-anchor="start" xml:space="preserve">A discrete GPU is a card at the end of a PCIe link, with its own memory behind a window</text>
+  <text x="16.0" y="552.0" class="note" text-anchor="start" xml:space="preserve">(BAR1). An integrated GPU is on the chip; it answers as a PCIe function, or it is a</text>
+  <text x="16.0" y="570.0" class="note" text-anchor="start" xml:space="preserve">platform device described by the device tree. Both kinds share 1 memory with the CPU.</text>
+</svg>
