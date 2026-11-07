@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 508" width="660" height="508" role="img" aria-label="Two code sheets. The generic kernel, built by nvcc, loops from c[degree] down, and each step reads c[k] from memory, counts k and does 1 multiply-add. The specialised kernel, built by NVRTC, is 32 straight lines such as p = p times v plus 3.13e-2f: each step is 1 multiply-add with the constant inside it. Below, bars: generic 2.61 ms, specialised 1.84 ms, and the time to move 134 MB at the rated 102 GB/s, 1.32 ms.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="508" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Generic and specialised</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The same polynomial; 1 kernel reads its coefficients, the other contains them.</text>
+  <path d="M34,96 H302 L320,114 V282 A10,10 0 0 1 310,292 H34 A10,10 0 0 1 24,282 V106 A10,10 0 0 1 34,96 Z" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M302,96 V114 H320 Z" fill="#EAF1FD" stroke="#D5DBE3" stroke-width="1.3" stroke-linejoin="round"/>
+  <rect x="40" y="112" width="4" height="14" rx="2" fill="#2F6FDB"/>
+  <text x="52.0" y="123.5" class="tab" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">generic: built by nvcc</text>
+  <text x="40.0" y="152.0" class="mono" text-anchor="start" xml:space="preserve">float p = c[degree];</text>
+  <text x="40.0" y="170.0" class="mono" text-anchor="start" xml:space="preserve">for (k = degree - 1;</text>
+  <text x="40.0" y="188.0" class="mono" text-anchor="start" xml:space="preserve">     k &gt;= 0; --k)</text>
+  <text x="40.0" y="206.0" class="mono" text-anchor="start" xml:space="preserve">  p = p * v + c[k];</text>
+  <text x="40.0" y="259.0" class="note" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">per step: read c[k], count k,</text>
+  <text x="40.0" y="276.0" class="note" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">then 1 multiply-add</text>
+  <path d="M350,96 H618 L636,114 V282 A10,10 0 0 1 626,292 H350 A10,10 0 0 1 340,282 V106 A10,10 0 0 1 350,96 Z" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M618,96 V114 H636 Z" fill="#E7F5E9" stroke="#D5DBE3" stroke-width="1.3" stroke-linejoin="round"/>
+  <rect x="356" y="112" width="4" height="14" rx="2" fill="#2E8B3D"/>
+  <text x="368.0" y="123.5" class="tab" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">specialised: built by NVRTC</text>
+  <text x="356.0" y="152.0" class="mono" text-anchor="start" xml:space="preserve">float p = 3.03e-2f;</text>
+  <text x="356.0" y="170.0" class="mono" text-anchor="start" xml:space="preserve">p = p * v + 3.13e-2f;</text>
+  <text x="356.0" y="188.0" class="mono" text-anchor="start" xml:space="preserve">p = p * v + 3.23e-2f;</text>
+  <text x="356.0" y="206.0" class="mono" text-anchor="start" xml:space="preserve">... 29 more lines ...</text>
+  <text x="356.0" y="224.0" class="mono" text-anchor="start" xml:space="preserve">p = p * v + 1.00e+0f;</text>
+  <text x="356.0" y="259.0" class="note" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">per step: 1 multiply-add,</text>
+  <text x="356.0" y="276.0" class="note" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">the constant inside it</text>
+  <text x="24.0" y="349.0" class="note" text-anchor="start" xml:space="preserve">generic</text>
+  <rect x="200" y="332" width="222.3" height="26" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="430.3" y="350.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">2.61 ms</text>
+  <text x="24.0" y="389.0" class="note" text-anchor="start" xml:space="preserve">specialised</text>
+  <rect x="200" y="372" width="156.7" height="26" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="364.7" y="390.0" class="mono" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">1.84 ms</text>
+  <text x="24.0" y="429.0" class="note" text-anchor="start" xml:space="preserve">rated memory, 102 GB/s</text>
+  <rect x="200" y="412" width="112.4" height="26" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="320.4" y="430.0" class="mono" text-anchor="start" style="fill:#7F8EA0" xml:space="preserve">1.32 ms</text>
+  <text x="24.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">16,777,216 values, degree 32, on a Jetson Orin NX. Both move 134 MB: the specialised</text>
+  <text x="24.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">kernel at 73 GB/s, 71% of the rated 102 GB/s, and the generic one at 52 GB/s.</text>
+</svg>

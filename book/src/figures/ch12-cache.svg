@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 496" width="660" height="496" role="img" aria-label="A flow. cuModuleLoadData receives 2,237 bytes of PTX and looks it up in the cache, keyed by the PTX, the GPU and the driver version. The first time, a miss: the driver compiles the PTX, 13 to 45 ms on the Orin NX, and stores the result for the next process, in CUDA_CACHE_PATH, by default ~/.nv/ComputeCache. Later, a hit: the machine code is copied from the file in 0.7 ms. Either way the module in the context holds the same code.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="496" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The JIT cache</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">A process pays to compile PTX once; later processes read the result.</text>
+  <rect x="24" y="100" width="196" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,100.7 H30 V163.3 H36 A11.3,11.3 0 0 1 24.7,152 V112 A11.3,11.3 0 0 1 36,100.7 Z" fill="#7A4FD0"/>
+  <text x="44.0" y="128.0" class="name" text-anchor="start" xml:space="preserve">cuModuleLoadData</text>
+  <text x="44.0" y="146.0" class="sub" text-anchor="start" xml:space="preserve">PTX, 2,237 bytes</text>
+  <rect x="232" y="100" width="404" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M244,100.7 H238 V163.3 H244 A11.3,11.3 0 0 1 232.7,152 V112 A11.3,11.3 0 0 1 244,100.7 Z" fill="#B7791F"/>
+  <text x="252.0" y="128.0" class="name" text-anchor="start" xml:space="preserve">look up the PTX in the cache</text>
+  <text x="252.0" y="146.0" class="sub" text-anchor="start" xml:space="preserve">key: the PTX, the GPU, the driver version</text>
+  <path d="M220,132 H229" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="24" y="208" width="300" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,208.7 H30 V291.3 H36 A11.3,11.3 0 0 1 24.7,280 V220 A11.3,11.3 0 0 1 36,208.7 Z" fill="#CF4526"/>
+  <text x="44.0" y="237.0" class="name" text-anchor="start" xml:space="preserve">miss: compile</text>
+  <text x="44.0" y="255.0" class="sub" text-anchor="start" xml:space="preserve">the driver compiles the PTX</text>
+  <text x="44.0" y="273.0" class="sub" text-anchor="start" xml:space="preserve">13 to 45 ms on the Orin NX</text>
+  <rect x="336" y="208" width="300" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M348,208.7 H342 V291.3 H348 A11.3,11.3 0 0 1 336.7,280 V220 A11.3,11.3 0 0 1 348,208.7 Z" fill="#2E8B3D"/>
+  <text x="356.0" y="237.0" class="name" text-anchor="start" xml:space="preserve">hit: copy</text>
+  <text x="356.0" y="255.0" class="sub" text-anchor="start" xml:space="preserve">machine code from the file</text>
+  <text x="356.0" y="273.0" class="sub" text-anchor="start" xml:space="preserve">0.7 ms on the Orin NX</text>
+  <rect x="24" y="324" width="300" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,324.7 H30 V387.3 H36 A11.3,11.3 0 0 1 24.7,376 V336 A11.3,11.3 0 0 1 36,324.7 Z" fill="#B7791F"/>
+  <text x="44.0" y="352.0" class="name" text-anchor="start" xml:space="preserve">store the result</text>
+  <text x="44.0" y="370.0" class="sub" text-anchor="start" xml:space="preserve">for the next process</text>
+  <rect x="24" y="420" width="612" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,420.7 H30 V475.3 H36 A11.3,11.3 0 0 1 24.7,464 V432 A11.3,11.3 0 0 1 36,420.7 Z" fill="#1F8A70"/>
+  <text x="44.0" y="444.0" class="name" text-anchor="start" xml:space="preserve">module in the context</text>
+  <text x="44.0" y="462.0" class="sub" text-anchor="start" xml:space="preserve">the same machine code either way</text>
+  <path class="wire" d="M434,164 L434,177 Q434,186 425,186 L183,186 Q174,186 174,195 L174,208" marker-end="url(#head)"/>
+  <path d="M486,164 V205" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M174,292 V321" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M600,292 V417" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path class="wire" d="M174,388 L174.0,396.0 Q174,404 183,404 L321,404 Q330,404 330.0,412.0 L330,420" marker-end="url(#head)"/>
+  <rect x="250.0" y="177" width="80.0" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="290.0" y="189.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">first time</text>
+  <rect x="494.0" y="177" width="47.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="517.5" y="189.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">later</text>
+  <text x="352.0" y="344.0" class="note" text-anchor="start" xml:space="preserve">where: CUDA_CACHE_PATH,</text>
+  <text x="352.0" y="362.0" class="note" text-anchor="start" xml:space="preserve">by default ~/.nv/ComputeCache</text>
+  <text x="352.0" y="380.0" class="note" text-anchor="start" xml:space="preserve">off: CUDA_CACHE_DISABLE=1</text>
+</svg>

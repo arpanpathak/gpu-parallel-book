@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 516" width="660" height="516" role="img" aria-label="4 rows of cards. Top: 3 kinds of program, C++ with triple angle brackets, C++ built at run time, and Rust with cuda-oxide. Below them: the runtime API, which creates the context on the first call, registers kernels and packs arguments; NVRTC, which turns source text into PTX or a cubin; and cuda-core. All 3 sit on the driver API in libcuda, which reaches the kernel-mode driver and the GPU.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="516" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">From a program to the GPU</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">3 ways in, 1 driver API underneath.</text>
+  <rect x="24" y="96" width="196" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,96.7 H30 V151.3 H36 A11.3,11.3 0 0 1 24.7,140 V108 A11.3,11.3 0 0 1 36,96.7 Z" fill="#2F6FDB"/>
+  <text x="44.0" y="120.0" class="name" text-anchor="start" xml:space="preserve">C++, &lt;&lt;&lt;...&gt;&gt;&gt;</text>
+  <text x="44.0" y="138.0" class="sub" text-anchor="start" xml:space="preserve">Chapters 3 to 11</text>
+  <rect x="232" y="96" width="196" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M244,96.7 H238 V151.3 H244 A11.3,11.3 0 0 1 232.7,140 V108 A11.3,11.3 0 0 1 244,96.7 Z" fill="#7A4FD0"/>
+  <text x="252.0" y="120.0" class="name" text-anchor="start" xml:space="preserve">C++ at run time</text>
+  <text x="252.0" y="138.0" class="sub" text-anchor="start" xml:space="preserve">this chapter</text>
+  <rect x="440" y="96" width="196" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M452,96.7 H446 V151.3 H452 A11.3,11.3 0 0 1 440.7,140 V108 A11.3,11.3 0 0 1 452,96.7 Z" fill="#B7791F"/>
+  <text x="460.0" y="120.0" class="name" text-anchor="start" xml:space="preserve">Rust, cuda-oxide</text>
+  <text x="460.0" y="138.0" class="sub" text-anchor="start" xml:space="preserve">Chapter 13 on</text>
+  <rect x="24" y="184" width="196" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,184.7 H30 V267.3 H36 A11.3,11.3 0 0 1 24.7,256 V196 A11.3,11.3 0 0 1 36,184.7 Z" fill="#2F6FDB"/>
+  <text x="44.0" y="204.0" class="name" text-anchor="start" xml:space="preserve">runtime API</text>
+  <text x="44.0" y="222.0" class="sub" text-anchor="start" xml:space="preserve">context on first call</text>
+  <text x="44.0" y="240.0" class="sub" text-anchor="start" xml:space="preserve">kernels registered</text>
+  <text x="44.0" y="258.0" class="sub" text-anchor="start" xml:space="preserve">&lt;&lt;&lt;&gt;&gt;&gt; packs arguments</text>
+  <rect x="161.0" y="196" width="47.0" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="184.5" y="208.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">cuda*</text>
+  <rect x="232" y="184" width="196" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M244,184.7 H238 V267.3 H244 A11.3,11.3 0 0 1 232.7,256 V196 A11.3,11.3 0 0 1 244,184.7 Z" fill="#7A4FD0"/>
+  <text x="252.0" y="204.0" class="name" text-anchor="start" xml:space="preserve">NVRTC</text>
+  <text x="252.0" y="222.0" class="sub" text-anchor="start" xml:space="preserve">source text in</text>
+  <text x="252.0" y="240.0" class="sub" text-anchor="start" xml:space="preserve">PTX or cubin out</text>
+  <text x="252.0" y="258.0" class="sub" text-anchor="start" xml:space="preserve">no GPU needed</text>
+  <rect x="362.4" y="196" width="53.6" height="18" rx="9" fill="#F0EAFB"/>
+  <text x="389.2" y="208.6" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">nvrtc*</text>
+  <rect x="440" y="184" width="196" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M452,184.7 H446 V267.3 H452 A11.3,11.3 0 0 1 440.7,256 V196 A11.3,11.3 0 0 1 452,184.7 Z" fill="#B7791F"/>
+  <text x="460.0" y="204.0" class="name" text-anchor="start" xml:space="preserve">cuda-core</text>
+  <text x="460.0" y="222.0" class="sub" text-anchor="start" xml:space="preserve">CudaContext</text>
+  <text x="460.0" y="240.0" class="sub" text-anchor="start" xml:space="preserve">CudaModule</text>
+  <text x="460.0" y="258.0" class="sub" text-anchor="start" xml:space="preserve">typed launches</text>
+  <rect x="24" y="300" width="612" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,300.7 H30 V363.3 H36 A11.3,11.3 0 0 1 24.7,352 V312 A11.3,11.3 0 0 1 36,300.7 Z" fill="#1F8A70"/>
+  <text x="44.0" y="328.0" class="name" text-anchor="start" xml:space="preserve">driver API, libcuda</text>
+  <text x="44.0" y="346.0" class="sub" text-anchor="start" xml:space="preserve">contexts, modules, functions, memory, streams, cuLaunchKernel</text>
+  <rect x="590.2" y="312" width="33.8" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="607.1" y="324.6" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">cu*</text>
+  <rect x="24" y="396" width="300" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M36,396.7 H30 V447.3 H36 A11.3,11.3 0 0 1 24.7,436 V408 A11.3,11.3 0 0 1 36,396.7 Z" fill="#7F8EA0"/>
+  <text x="44.0" y="418.0" class="name" text-anchor="start" xml:space="preserve">kernel-mode driver</text>
+  <text x="44.0" y="436.0" class="sub" text-anchor="start" xml:space="preserve">in the operating system</text>
+  <rect x="336" y="396" width="300" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M348,396.7 H342 V447.3 H348 A11.3,11.3 0 0 1 336.7,436 V408 A11.3,11.3 0 0 1 348,396.7 Z" fill="#2E8B3D"/>
+  <text x="356.0" y="418.0" class="name" text-anchor="start" xml:space="preserve">GPU</text>
+  <text x="356.0" y="436.0" class="sub" text-anchor="start" xml:space="preserve">runs the machine code</text>
+  <path d="M122,152 V181" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M330,152 V181" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M538,152 V181" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M122,268 V297" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M330,268 V297" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M538,268 V297" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M174,364 V393" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M486,364 V393" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="24.0" y="478.0" class="note" text-anchor="start" xml:space="preserve">The runtime API and cuda-core are both built on the driver API. NVRTC is a compiler: it</text>
+  <text x="24.0" y="496.0" class="note" text-anchor="start" xml:space="preserve">turns text into PTX or a cubin, and the program hands the result to the driver API.</text>
+</svg>

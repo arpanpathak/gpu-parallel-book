@@ -59,7 +59,7 @@ run "ch11_fft_rand" \
     bash -c 'cd ch11_libraries && nvcc -arch="$1" -O2 fft_rand.cu -o fft_rand -lcurand -lcufft && ./fft_rand' _ "$ARCH"
 
 run "ch12_nvrtc" \
-    bash -c 'cd ch12_nvrtc && nvcc -arch="$1" main.cu -o nvrtc_example -lnvrtc -lcuda && ./nvrtc_example' _ "$ARCH"
+    bash -c 'cd ch12_nvrtc && nvcc -arch="$1" nvrtc.cu -o nvrtc -lnvrtc -lcuda && ./nvrtc' _ "$ARCH"
 
 run "ch15_capstone" \
     bash -c 'cd ch15_capstone && nvcc -arch="$1" pipeline.cu -o pipeline && ./pipeline 96 64 2' _ "$ARCH"

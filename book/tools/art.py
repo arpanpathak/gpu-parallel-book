@@ -626,6 +626,45 @@ def reading_owl(cx, base, s=1.0, look=1, hat=None):
     return "\n".join(parts)
 
 
+def chameleon(cx, base, s=1.0, look=1, hues=("#4f8fd6", "#3fa3a0", "#5fb85a", "#a8c94a", "#e8b73c")):
+    """A chameleon gripping a branch at `base`, facing `look`, its body banded from tail to head
+    in `hues`: it changes colour as it goes. 1.0 is about 330 units from tail curl to snout."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    ink = "#1f2a1a"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    bid = uid("hue")
+    body = (f"M{X(-92)},{Y(46)} Q{X(-80)},{Y(104)} {X(0)},{Y(106)} Q{X(70)},{Y(104)} {X(92)},{Y(70)}"
+            f" Q{X(80)},{Y(18)} {X(0)},{Y(16)} Q{X(-80)},{Y(16)} {X(-92)},{Y(46)} Z")
+    bands = [rect(min(X(-100 + 40 * k), X(-60 + 40 * k)), Y(120), 40 * s + 1, 120 * s, hue, 0, extra=f'clip-path="url(#{bid})"')
+             for k, hue in enumerate(hues)]
+    crest = " ".join(f"L{X(-70 + 14 * k)},{Y(106 + (8 if k % 2 else 0) - abs(k - 5) * 1.6)}" for k in range(11))
+    tail = (f"M{X(-86)},{Y(40)} Q{X(-150)},{Y(30)} {X(-150)},{Y(-10)} A{26 * s},{26 * s} 0 1 {1 if f > 0 else 0}"
+            f" {X(-112)},{Y(-14)} A{14 * s},{14 * s} 0 1 {1 if f > 0 else 0} {X(-128)},{Y(-4)}")
+    legs = []
+    for dx, lean in ((-56, -1), (-26, 1), (34, -1), (62, 1)):
+        knee = (X(dx + 10 * lean), Y(30))
+        legs += [path(f"M{X(dx)},{Y(34)} L{knee[0]},{knee[1]} L{X(dx + 4 * lean)},{Y(2)}", "none", ink, 10 * s),
+                 path(f"M{X(dx)},{Y(34)} L{knee[0]},{knee[1]} L{X(dx + 4 * lean)},{Y(2)}", "none", hues[(dx + 100) * 5 // 200], 6 * s),
+                 ellipse(X(dx + 4 * lean), Y(0), 9 * s, 5 * s, hues[(dx + 100) * 5 // 200], stroke)]
+    head = (f"M{X(80)},{Y(98)} Q{X(100)},{Y(130)} {X(122)},{Y(112)} L{X(160)},{Y(76)}"
+            f" Q{X(150)},{Y(56)} {X(120)},{Y(54)} Q{X(92)},{Y(56)} {X(82)},{Y(66)} Z")
+    return "".join([
+        shadow(cx, base, 120 * s),
+        path(tail, "none", ink, 18 * s), path(tail, "none", hues[0], 13 * s),
+        *legs,
+        f'<defs><clipPath id="{bid}"><path d="{body}"/></clipPath></defs>',
+        path(body, hues[2], ink, 2.6 * s), *bands, path(body, "none", ink, 2.6 * s),
+        path(f"M{X(-72)},{Y(100)} {crest}", "none", ink, 2.2 * s),
+        path(f"M{X(-60)},{Y(40)} Q{X(0)},{Y(28)} {X(70)},{Y(44)}", "none", "#ffffff", 3 * s, 'opacity="0.45"'),
+        path(head, hues[-1], ink, 2.6 * s),
+        circle(X(112), Y(84), 17 * s, hues[-2], stroke),
+        eye(X(114), Y(84), 9 * s, look * 0.7),
+        path(f"M{X(124)},{Y(64)} L{X(158)},{Y(74)}", "none", ink, 2.2 * s),
+    ])
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -961,6 +1000,39 @@ def ch11():
     return [backdrop(seed=11, **DUSK), *case, *shelves, *books,
             reading_owl(250, GROUND - 2, 1.15, look=1, hat="glasses"), *held,
             tag(210, 70, "tuned once, borrowed by every program", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch12", "NVRTC & the Driver API", "Hue the chameleon", "Hue, a chameleon, grips a branch at dusk. On the "
+       "left hangs a sheet of source code that the program has just written: float p, then lines of p = p * v plus a "
+       "constant. Hue's body changes colour from tail to head, blue like the paper's ink at the tail, yellow at the head. "
+       "Its tongue reaches out to a chip marked sm_87, the GPU the code is compiled for. A tag says written, compiled "
+       "and loaded while the program runs.")
+def ch12():
+    lines = ["float p = 3.03e-2f;", "p = p * v + 3.13e-2f;", "p = p * v + 3.23e-2f;", "...",
+             "p = p * v + 1.00e+0f;", "y[i] = p;"]
+    sheet = [rect(40, 92, 236, 184, "#fbf6ea", 8, "#7a5a32", 2.5),
+             rect(40, 92, 236, 30, "#e9dcc0", 8, "#7a5a32", 2.5),
+             label(158, 113, "poly.cu", 15, NIGHT, font=MONO, fit=textw("poly.cu", 15, MONO))]
+    sheet += [label(56, 146 + 22 * k, body, 14, "#27405a", anchor="start", font=MONO, fit=textw(body, 14, MONO))
+              for k, body in enumerate(lines)]
+    pins = []
+    for k in range(4):
+        pins += [rect(782 + 16 * k, 136, 6, 14, "#c9ccd3", 2), rect(782 + 16 * k, 226, 6, 14, "#c9ccd3", 2),
+                 rect(752, 166 + 16 * k - 6, 14, 6, "#c9ccd3", 2), rect(856, 166 + 16 * k - 6, 14, 6, "#c9ccd3", 2)]
+    chip = [*pins, rect(766, 150, 90, 76, "#2b3a4a", 10, "#9fb0c2", 2.5),
+            rect(780, 164, 62, 48, "#76b900", 6),
+            label(811, 194, "sm_87", 17, NIGHT, font=MONO, fit=textw("sm_87", 17, MONO))]
+    branch = [path("M150,272 C320,258 560,276 940,256", "none", "#5a3d28", 18),
+              path("M150,272 C320,258 560,276 940,256", "none", WOOD, 12),
+              path("M300,266 q-20,30 -50,36", "none", "#5a3d28", 7),
+              ellipse(245, 302, 18, 9, "#5f9a62", 'stroke="#2f5a32" stroke-width="2"'),
+              ellipse(905, 236, 20, 9, "#5f9a62", 'stroke="#2f5a32" stroke-width="2"')]
+    return [backdrop(seed=12, **DUSK), *branch, *sheet,
+            path("M276,184 C320,184 340,226 372,244", "none", "#fbf6ea", 3, 'stroke-dasharray="6 7" opacity="0.8"'),
+            chameleon(520, 262, 1.0, look=1),
+            path("M676,190 L758,190", "none", "#e36f8e", 7), circle(758, 190, 8, "#e36f8e"),
+            *chip,
+            tag(480, 52, "written, compiled and loaded while the program runs", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "

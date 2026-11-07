@@ -21,7 +21,7 @@ __pycache__/
 /code/ch11_libraries/sort
 /code/ch11_libraries/gemm
 /code/ch11_libraries/fft_rand
-/code/ch12_nvrtc/nvrtc_example
+/code/ch12_nvrtc/nvrtc
 /code/ch15_capstone/pipeline
 /code/ch14_cuda_oxide/host_closure.ptx
 /code/ch14_cuda_oxide/*.ll
