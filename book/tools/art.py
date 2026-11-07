@@ -1334,13 +1334,13 @@ def ch15():
     parts.append(tag(210, 92, "pairs, then pairs of pairs", 17, "#fff6e2", "#2a1a10", SANS, 700))
     return parts
 
-@plate("ch16", "Matrix Multiplication in Rust", "Abacus the crab", "Abacus, a crab, stands between a row of "
-       "4 cells and a column of 4 cells. 1 claw points along the row, 0 1 3 2, the other down the column, 0 2 1 1. "
-       "Beside it stands a wooden abacus with 4 rods, and the beads pushed to the left on each rod are the 4 "
-       "products, 0, 2, 3 and 2. A tag reads 0 + 2 + 3 + 2 = 7: 1 element of C, computed by 1 thread.")
+@plate("ch16", "Matrix Multiplication, One Thread per Entry", "Abacus the crab", "Abacus, a crab, stands between "
+       "a row of 4 cells and a column of 4 cells. 1 claw points along the row, 1 2 3 4, the other down the column, "
+       "1 0 2 1. Beside it stands a wooden abacus with 4 rods, and the beads pushed to the left on each rod are the 4 "
+       "products, 1, 0, 6 and 4. A tag reads 1 + 0 + 6 + 4 = 11: 1 entry of C, computed by 1 thread.")
 def ch16():
-    row = ["0", "1", "3", "2"]
-    col = ["0", "2", "1", "1"]
+    row = ["1", "2", "3", "4"]
+    col = ["1", "0", "2", "1"]
     cells = []
 
     for k in range(4):
@@ -1351,11 +1351,11 @@ def ch16():
             rect(46, 64, 226, 56, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'),
             rect(342, 64, 56, 196, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'),
             *cells,
-            label(160, 146, "row 1 of A", 16, SNOW, font=MONO, weight=600),
-            label(370, 286, "col 2 of B", 16, SNOW, font=MONO, weight=600),
+            label(160, 146, "row 0 of A", 16, SNOW, font=MONO, weight=600),
+            label(370, 286, "col 0 of B", 16, SNOW, font=MONO, weight=600),
             crab(222, s=1.1, mood="happy", look=1),
-            abacus(560, 70, 330, [0, 2, 3, 2]),
-            tag(725, 262, "0 + 2 + 3 + 2 = 7", 18, "#fff6e2", "#2a1a10", MONO, 700)]
+            abacus(560, 70, 330, [1, 0, 6, 4]),
+            tag(725, 262, "1 + 0 + 6 + 4 = 11", 18, "#fff6e2", "#2a1a10", MONO, 700)]
 
 
 def heat(t):
@@ -1368,7 +1368,7 @@ def heat(t):
     return "#e2522b"
 
 
-@plate("ch17", "Tiled Matrix Multiplication in Rust", "Tiler the hermit crab", "Tiler, a hermit crab, walks "
+@plate("ch17", "Tiled Matrix Multiplication", "Tiler the hermit crab", "Tiler, a hermit crab, walks "
        "along a beach under a shell built of square tiles. Behind it on the sand lie 2 tall stacks of tiles, marked A "
        "and B: the matrices in global memory. Ahead lies a small tide pool marked shared memory, where 2 tiles already "
        "rest, 1 from each stack. A tag says copy a tile once, read it 16 times: the idea of a tiled matrix "
@@ -1391,6 +1391,39 @@ def ch17():
             tag(480, 60, "copy a tile once, read it 16 times", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
+@plate("ch18", "Register Tiling, Several Entries per Thread", "Patch the crab", "Patch, a crab, stands on the "
+       "sand beside a slate board. To the left of the board stand 2 cells of A, 1 and 5, and above it 2 cells of B, "
+       "1 and 0. On the board are their 4 products, 1 0 / 5 0. Further right, a larger board holds the 4 by 4 matrix "
+       "C, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, split into 4 coloured patches of 2 by 2, 1 per "
+       "thread. A tag says read 4 values, make 4 products.")
+def ch18():
+    parts = [backdrop(seed=18, **SAND)]
+    # The 4 x 4 board of C behind, in 4 patches of 2 x 2.
+    tints = ["#c9d2fb", "#c8ecdc", "#f8d6c0", "#f5cbd9"]
+    big = [[11, 13, 8, 8], [27, 29, 24, 24], [43, 45, 40, 40], [59, 61, 56, 56]]
+    parts.append(rect(612, 52, 236, 236, "#0f1c2b", 14, "#6f8196", 3, 'opacity="0.5"'))
+    for r in range(4):
+        for c in range(4):
+            parts.append(cell(648 + c * 54, 88 + r * 54, str(big[r][c]), tints[(r // 2) * 2 + c // 2], size=46,
+                              font_size=17))
+    # The 2 operands and their outer product.
+    parts.append(rect(330, 78, 176, 150, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'))
+    for k, v in enumerate(["1", "5"]):
+        parts.append(cell(300, 124 + k * 52, v, "#bfe3f7"))
+    for k, v in enumerate(["1", "0"]):
+        parts.append(cell(390 + k * 60, 44, v, "#f7d9a0"))
+    for r, row in enumerate([["1", "0"], ["5", "0"]]):
+        for c, v in enumerate(row):
+            parts.append(cell(390 + c * 60, 124 + r * 52, v, "#c9d2fb", size=44))
+    parts += [label(300, 214, "A", 16, SNOW, font=MONO, weight=600),
+              label(540, 50, "B", 16, SNOW, font=MONO, weight=600),
+              crab(140, s=1.0, mood="happy", look=1),
+              tag(470, 268, "read 4 values, make 4 products", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+    return parts
+
+
+@plate("ch19", "Stencils and the Laplace Solver", "Ripple the crab", "Ripple, a crab, stands on the sand "
+       "beside a grid of square cells, 9 across and 6 down. The top row is hot, 100, and coloured red; the other "
 @plate("ch19", "Stencils and Jacobi Iteration", "Ripple the crab", "Ripple, a crab, stands on the sand "
        "beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and coloured red; the other "
        "edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the "
