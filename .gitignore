@@ -15,7 +15,8 @@ __pycache__/
 /code/ch08_reduction/reduction
 /code/ch08_reduction/reduce
 /code/ch09_sgemm/sgemm
-/code/ch10_device_buffer/test
+/code/ch10_modern/raw
+/code/ch10_modern/modern
 /code/ch11_library_examples/thrust_example
 /code/ch11_library_examples/cub_reduce
 /code/ch11_library_examples/cublas_sgemm

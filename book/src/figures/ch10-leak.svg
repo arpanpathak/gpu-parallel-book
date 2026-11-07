@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 566" width="660" height="566" role="img" aria-label="Two columns of steps. Raw pointers: 2 calls of cudaMallocAsync of 8 MiB, then if factor is 0 return false; the 2 calls of cudaFreeAsync below are dashed, skipped on every early return. After 8 calls the pool holds 8 segments of 16 MiB, 128 MiB. DeviceBuffer: the same 2 allocations and the same return, followed by the destructors of out and in, which free both buffers; after 8 calls the pool is empty.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="566" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The early return</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Raw pointers skip the frees; a destructor runs on the return itself.</text>
+  <rect x="16" y="104" width="304" height="376" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="122.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="95.2" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">RAW POINTERS</text>
+  <rect x="340" y="104" width="304" height="376" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="358" y="93" width="122.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="419.2" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">DEVICEBUFFER</text>
+  <rect x="40.0" y="132.0" width="256.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="168.0" y="151.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">cudaMallocAsync(&amp;in, 8 MiB)</text>
+  <path d="M168,162 V179" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="40.0" y="182.0" width="256.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="168.0" y="201.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">cudaMallocAsync(&amp;out, 8 MiB)</text>
+  <path d="M168,212 V229" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="40.0" y="232.0" width="256.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="168.0" y="251.2" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">if (factor == 0) return false;</text>
+  <rect x="40.0" y="282.0" width="256.0" height="30.0" rx="6" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="168.0" y="301.2" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">cudaFreeAsync(in, 0);</text>
+  <rect x="40.0" y="332.0" width="256.0" height="30.0" rx="6" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="168.0" y="351.2" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">cudaFreeAsync(out, 0);</text>
+  <rect x="364.0" y="132.0" width="256.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="492.0" y="151.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">DeviceBuffer&lt;float&gt; in(host);</text>
+  <path d="M492,162 V179" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="364.0" y="182.0" width="256.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="492.0" y="201.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">DeviceBuffer&lt;float&gt; out(n);</text>
+  <path d="M492,212 V229" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="364.0" y="232.0" width="256.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="492.0" y="251.2" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">if (factor == 0) return false;</text>
+  <path d="M492,262 V279" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="364.0" y="282.0" width="256.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="492.0" y="301.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">~out(): cudaFreeAsync</text>
+  <path d="M492,312 V329" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="364.0" y="332.0" width="256.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="492.0" y="351.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">~in():  cudaFreeAsync</text>
+  <rect x="40.0" y="380" width="205.4" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="142.7" y="392.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">skipped on every early return</text>
+  <rect x="364.0" y="380" width="146.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="437.0" y="392.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">run on every way out</text>
+  <text x="40.0" y="424.0" class="note" text-anchor="start" xml:space="preserve">pool in use after 8 calls: 128 MiB</text>
+  <clipPath id="clip-40-434"><rect x="40" y="434" width="256" height="22" rx="6"/></clipPath>
+  <g clip-path="url(#clip-40-434)" filter="url(#lift)">
+  <rect x="40.0" y="434" width="32.0" height="22" fill="#CF4526"/>
+  <text x="56.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  <rect x="72.0" y="434" width="32.0" height="22" fill="#E36B4F"/>
+  <text x="88.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  <rect x="104.0" y="434" width="32.0" height="22" fill="#CF4526"/>
+  <text x="120.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  <rect x="136.0" y="434" width="32.0" height="22" fill="#E36B4F"/>
+  <text x="152.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  <rect x="168.0" y="434" width="32.0" height="22" fill="#CF4526"/>
+  <text x="184.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  <rect x="200.0" y="434" width="32.0" height="22" fill="#E36B4F"/>
+  <text x="216.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  <rect x="232.0" y="434" width="32.0" height="22" fill="#CF4526"/>
+  <text x="248.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  <rect x="264.0" y="434" width="32.0" height="22" fill="#E36B4F"/>
+  <text x="280.0" y="449.2" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16</text>
+  </g>
+  <rect x="40" y="434" width="256" height="22" rx="6" fill="none" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="364.0" y="424.0" class="note" text-anchor="start" xml:space="preserve">pool in use after 8 calls: 0 MiB</text>
+  <rect x="364" y="434" width="256" height="22" rx="6" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="492.0" y="449.0" class="pill" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">empty</text>
+  <text x="16.0" y="508.0" class="note" text-anchor="start" xml:space="preserve">Each call takes 2 buffers of 8 MiB from the pool. The raw function returns before</text>
+  <text x="16.0" y="526.0" class="note" text-anchor="start" xml:space="preserve">its 2 frees, so 8 calls keep 8 × 16 MiB = 128 MiB. The destructors run on the</text>
+  <text x="16.0" y="544.0" class="note" text-anchor="start" xml:space="preserve">return itself, in the reverse order of construction: out first, then in.</text>
+</svg>

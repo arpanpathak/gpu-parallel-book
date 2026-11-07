@@ -538,6 +538,59 @@ def tortoise(cx, base, s=1.0, look=1):
     ])
 
 
+def owl(cx, base, s=1.0, look=1, hat=None):
+    """A barn-brown owl seen from the front, its claws at `base`. `look` turns the pupils
+    (1 right, -1 left, 0 ahead); `hat` is None or "mortarboard". 1.0 is 200 units tall."""
+    X = lambda dx: cx + dx * s
+    Y = lambda dy: base - dy * s
+    feather, wing, belly, disc, ink = "#9a7550", "#7a5838", "#ecdcb6", "#f6ead0", "#2a1d10"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    chevrons = [path(f"M{X(dx - 6)},{Y(dy)} L{X(dx)},{Y(dy - 5)} L{X(dx + 6)},{Y(dy)}", "none", "#b08a5a", 2 * s)
+                for dy in (100, 78, 56) for dx in (-16, 0, 16)]
+    parts = [
+        shadow(cx, base, 56 * s),
+        *[path(f"M{X(dx - 9)},{Y(0)} l{4 * s},{-12 * s} l{4 * s},{12 * s} l{4 * s},{-12 * s} l{4 * s},{12 * s}",
+               "none", "#f2a03d", 3.2 * s) for dx in (-14, 14)],
+        ellipse(cx, Y(78), 58 * s, 78 * s, feather, stroke),
+        ellipse(X(-50), Y(82), 20 * s, 56 * s, wing, stroke + f' {rot(12, X(-50), Y(82))}'),
+        ellipse(X(50), Y(82), 20 * s, 56 * s, wing, stroke + f' {rot(-12, X(50), Y(82))}'),
+        ellipse(cx, Y(70), 38 * s, 56 * s, belly),
+        *chevrons,
+        path(f"M{X(-50)},{Y(176)} L{X(-46)},{Y(214)} L{X(-20)},{Y(190)} Z", feather, ink, 2.2 * s),
+        path(f"M{X(50)},{Y(176)} L{X(46)},{Y(214)} L{X(20)},{Y(190)} Z", feather, ink, 2.2 * s),
+        ellipse(cx, Y(160), 56 * s, 46 * s, feather, stroke),
+    ]
+    for side in (-1, 1):
+        ex, ey = X(side * 23), Y(162)
+        parts += [circle(ex, ey, 22 * s, disc), circle(ex, ey, 14 * s, "#f5c542", f'stroke="{ink}" stroke-width="{1.6 * s}"'),
+                  circle(ex + look * 3.5 * s, ey + 0.5 * s, 7.5 * s, INK),
+                  circle(ex + look * 3.5 * s + 2.5 * s, ey - 2.5 * s, 2.4 * s, SNOW)]
+    parts.append(path(f"M{X(-7)},{Y(150)} L{X(7)},{Y(150)} L{cx},{Y(134)} Z", "#f2a03d", ink, 1.8 * s))
+    if hat == "mortarboard":
+        parts += [path(f"M{X(-30)},{Y(196)} L{X(30)},{Y(196)} L{X(30)},{Y(212)} L{X(-30)},{Y(212)} Z", INK),
+                  path(f"M{X(-62)},{Y(214)} L{cx},{Y(234)} L{X(62)},{Y(214)} L{cx},{Y(196)} Z", INK),
+                  line(X(40), Y(215), X(48), Y(178), HONEY, 2.5 * s), circle(X(48), Y(176), 4 * s, HONEY)]
+    return "\n".join(parts)
+
+
+def lantern(cx, top, lit, s=1.0):
+    """A hanging lantern whose top hook is at (cx, top): glowing when `lit`, dark when not."""
+    glass = "#ffd96a" if lit else "#3a4656"
+    parts = [line(cx, top, cx, top + 12 * s, "#2a1d10", 2.5 * s),
+             circle(cx, top + 10 * s, 5 * s, "none", f'stroke="#2a1d10" stroke-width="{2 * s}"')]
+    if lit:
+        parts += [circle(cx, top + 44 * s, 46 * s, "#ffd96a", 'opacity="0.18"'),
+                  circle(cx, top + 44 * s, 30 * s, "#ffd96a", 'opacity="0.25"')]
+    parts += [path(f"M{cx - 16 * s},{top + 24 * s} L{cx + 16 * s},{top + 24 * s} L{cx + 10 * s},{top + 15 * s}"
+                   f" L{cx - 10 * s},{top + 15 * s} Z", "#5b4a3a", "#2a1d10", 2 * s),
+              rect(cx - 13 * s, top + 24 * s, 26 * s, 38 * s, glass, 4 * s, "#2a1d10", 2.2 * s),
+              line(cx, top + 24 * s, cx, top + 62 * s, "#2a1d10", 1.6 * s, 'opacity="0.5"'),
+              rect(cx - 16 * s, top + 62 * s, 32 * s, 7 * s, "#5b4a3a", 3 * s, "#2a1d10", 2 * s)]
+    if lit:
+        parts.append(ellipse(cx, top + 46 * s, 5 * s, 9 * s, "#f28c28"))
+    return "\n".join(parts)
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -809,6 +862,33 @@ def ch09():
             tag(120, GROUND - 60, "C", 18, "#fff6e2", "#2a1a10", MONO, 700),
             tortoise(380, GROUND - 2, 0.95, look=1),
             tag(480, 64, "load a tile once, use it many times", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch10", "Modern C++ for CUDA", "Hoot the owl", "Hoot, an owl, sits on a tree stump at dusk and "
+       "watches a rope of lanterns. The first 4 lanterns glow; a brace beneath them reads in scope. The last 2 "
+       "hang dark; a brace beneath them reads scope ended. Nobody walked along the rope to put them out: each "
+       "lantern switched itself off when its scope ended, as a C++ destructor releases what a constructor took.")
+def ch10():
+    rope = "M300,96 Q610,150 930,96"
+    xs = [372, 462, 552, 642, 768, 858]
+    hang = lambda x: 96 + 108 * ((x - 300) / 630) * (1 - (x - 300) / 630) - 4
+    lanterns = [lantern(x, hang(x), k < 4, 1.05) for k, x in enumerate(xs)]
+
+    def brace(x0, x1, y, text, ink):
+        mid = (x0 + x1) / 2
+        return "\n".join([path(f"M{x0},{y} q0,12 12,12 H{mid - 12} q12,0 12,12 q0,-12 12,-12 H{x1 - 12} q12,0 12,-12",
+                               "none", ink, 3),
+                          tag(mid, y + 46, text, 16, "#fff6e2", "#2a1a10", MONO, 700)])
+
+    return [backdrop(seed=10, **DUSK),
+            path(rope, "none", "#2a1d10", 3),
+            *lanterns,
+            brace(340, 674, 236, "in scope: lit", HONEY),
+            brace(736, 890, 236, "scope ended", "#cfe1f0"),
+            rect(96, GROUND - 58, 150, 62, WOOD, 10, "#5a3d28", 3),
+            ellipse(171, GROUND - 58, 75, 13, "#c9a46a", 'stroke="#5a3d28" stroke-width="3"'),
+            owl(171, GROUND - 60, 0.92, look=1),
+            tag(615, 48, "acquired when made, released when its scope ends", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 532" width="660" height="532" role="img" aria-label="Three nested zones. The outer zone, system, holds the CPU and every GPU and goes with thread_scope_system, for memory that the CPU and the GPU both update, such as a flag. Inside it, device holds every thread of 1 GPU and goes with thread_scope_device: countAbove runs 8,192 blocks of 256 threads that add to 1 int in global memory, and counted 622,552 of 2,097,152 values. Inside that, block holds the 256 threads of 1 block and goes with thread_scope_block, as for the shared-memory counters of Chapter 5.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="532" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The scope of an atomic</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each scope names the threads that must agree on the value.</text>
+  <rect x="16" y="104" width="628" height="360" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="256.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="162.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SYSTEM: THE CPU AND EVERY GPU</text>
+  <rect x="40" y="148" width="580" height="236" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="58" y="137" width="256.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="186.1" y="152.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">DEVICE: EVERY THREAD OF 1 GPU</text>
+  <rect x="64" y="192" width="260" height="168" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="82" y="181" width="256.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="210.1" y="196.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">BLOCK: 256 THREADS OF 1 BLOCK</text>
+  <rect x="88.0" y="230.0" width="212.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="194.0" y="249.2" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">thread_scope_block</text>
+  <text x="88.0" y="290.0" class="note" text-anchor="start" xml:space="preserve">shared-memory counters of</text>
+  <text x="88.0" y="308.0" class="note" text-anchor="start" xml:space="preserve">1 block (Chapter 5)</text>
+  <rect x="348.0" y="196.0" width="248.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="472.0" y="215.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">thread_scope_device</text>
+  <text x="348.0" y="250.0" class="note" text-anchor="start" xml:space="preserve">countAbove: 8,192 blocks of</text>
+  <text x="348.0" y="268.0" class="note" text-anchor="start" xml:space="preserve">256 threads add to 1 int</text>
+  <text x="348.0" y="286.0" class="note" text-anchor="start" xml:space="preserve">in global memory</text>
+  <rect x="348.0" y="312" width="231.8" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="463.9" y="324.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2,097,152 values, 622,552 counted</text>
+  <rect x="64.0" y="408.0" width="236.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="182.0" y="427.2" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">thread_scope_system</text>
+  <text x="324.0" y="420.0" class="note" text-anchor="start" xml:space="preserve">memory that the CPU and the GPU</text>
+  <text x="324.0" y="438.0" class="note" text-anchor="start" xml:space="preserve">both update, such as a flag</text>
+  <text x="16.0" y="492.0" class="note" text-anchor="start" xml:space="preserve">A wider scope promises that more threads see the update, and costs more to keep:</text>
+  <text x="16.0" y="510.0" class="note" text-anchor="start" xml:space="preserve">use the narrowest scope that contains every thread that touches the value.</text>
+</svg>

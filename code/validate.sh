@@ -40,8 +40,11 @@ run "ch08_reduction" \
 run "ch09_sgemm" \
     bash -c 'cd ch09_sgemm && nvcc -arch="$1" sgemm.cu -o sgemm -lcublas && ./sgemm' _ "$ARCH"
 
-run "ch10_device_buffer" \
-    bash -c 'cd ch10_device_buffer && nvcc -std=c++20 -arch="$1" test.cu -o test && ./test' _ "$ARCH"
+run "ch10_raw" \
+    bash -c 'cd ch10_modern && nvcc -arch="$1" raw.cu -o raw && ./raw' _ "$ARCH"
+
+run "ch10_modern" \
+    bash -c 'cd ch10_modern && nvcc -std=c++20 --extended-lambda -arch="$1" modern.cu -o modern && ./modern' _ "$ARCH"
 
 run "ch11_thrust" \
     bash -c 'cd ch11_library_examples && nvcc --extended-lambda -arch="$1" thrust_example.cu -o thrust_example && ./thrust_example' _ "$ARCH"
