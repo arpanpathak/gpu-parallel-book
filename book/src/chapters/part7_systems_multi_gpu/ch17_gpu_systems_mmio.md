@@ -2,20 +2,20 @@
 
 # Chapter 17: GPU Systems Programming & Memory-Mapped I/O
 
-Every chapter so far has treated the GPU through the CUDA API: `cudaMalloc` returns a pointer,
-`cudaMemcpy` moves bytes, and a launch with `<<<grid, block>>>` returns after a few
-microseconds while the kernel runs on. Chapter 6 measured each launch at 3.77 µs, and a
-launch call returns long before its kernel ends. Something carried the launch from the CPU to
-the GPU in that time. It was not a function call: the GPU is a separate device, and the CPU
-cannot call into it.
+So far, we have used the GPU only through the CUDA API. `cudaMalloc` returns a pointer,
+`cudaMemcpy` moves data, and a kernel launch with `<<<grid, block>>>` returns to the host after
+a few microseconds while the kernel continues to run on the device. In Chapter 6 we measured a
+launch at 3.77 µs. Because the CPU and the GPU are separate devices, a launch cannot be an
+ordinary function call: the CPU must deliver the work to the GPU through the hardware that
+connects them. In this chapter, we study that hardware and the way the driver uses it.
 
-This chapter follows that path. We start from the addresses through which a CPU reaches any
-device, and look at how the operating system finds a GPU and the windows of addresses it
-offers. We then turn to the 2 ways the CPU and the GPU exchange information: small stores into
-the GPU's registers, and bulk reads and writes that the GPU makes in memory by itself. With
-those in place we can follow a kernel launch from the store that announces it to the moment
-the GPU's streaming multiprocessors (SMs) start. We then build a working model of the
-mechanism with 2 threads, in C++ and in Rust.
+We start with the physical addresses through which a CPU reaches any device, and with the way
+the operating system finds a GPU and the address ranges that the GPU occupies. We then look at
+the 2 ways in which the CPU and the GPU exchange information: small stores into the GPU's
+registers, called memory-mapped I/O, and bulk transfers that the GPU performs by itself, called
+direct memory access. With these mechanisms in place, we follow a kernel launch from the CPU to
+the GPU's streaming multiprocessors (SMs), and we build a working model of the mechanism with 2
+CPU threads, in C++ and in Rust.
 
 <div class="covers" markdown="1">
 
@@ -28,7 +28,7 @@ This chapter covers
 - the control path (MMIO) and the data path (DMA), and why they differ
 - cached, write-combined and device memory, measured from the CPU
 - work rings and doorbells: how a kernel launch reaches the GPU without a system call
-- the order of writes before a doorbell, and what goes wrong without it
+- the order of writes before a doorbell, and the errors that a wrong order causes
 - the IOMMU, which checks every address a device uses
 - the kernel-mode and user-mode drivers, and how to observe all of it on Linux
 
@@ -80,29 +80,16 @@ $ xxd -g4 /sys/firmware/devicetree/base/bus@0/gpu@17000000/reg
 00000020: 00000000 03b41000 00000000 00001000  ................
 ```
 
-<div class="example" markdown="1">
-
-Worked example: reading the GPU's windows from the device tree
-
-1. Each number in the property is 2 words of 32 bits, high word first: an address, then a size.
-2. Row 1: address 0x0000_0000_1700_0000, size 0x0100_0000 = 16,777,216 bytes = 16 MiB.
-3. Row 2: address 0x1800_0000, size 16 MiB.
-4. Row 3: address 0x03B4_1000, size 0x1000 = 4,096 bytes = 4 KiB.
-5. The kernel's binding for this family of GPUs names the first 2 entries `bar0` and `bar1`,
-   after the BARs of a PCIe GPU that section 17.2 introduces.
-
-</div>
+Each number in the property is written as 2 words of 32 bits, high word first, and each row
+holds an address followed by a size. The first row therefore describes a window at
+0x1700_0000 of 0x0100_0000 = 16,777,216 bytes, or 16 MiB. The second row describes another
+16 MiB window at 0x1800_0000, and the third a window of 0x1000 = 4,096 bytes at 0x03B4_1000.
+The kernel's binding for this family of GPUs names the first 2 windows `bar0` and `bar1`, after
+the BARs of a PCIe GPU that we introduce in section 17.2.
 
 A store by the CPU to 0x1700_0000 + \\(r\\) writes the GPU's register at offset \\(r\\) of
 `bar0`. The driver, not a program, decides which offsets to touch; section 17.7 shows how the
 operating system keeps ordinary programs away from these addresses.
-
-<div class="bee bee-happy" markdown="1">
-
-Memory-mapped I/O operates a device with ordinary loads and stores. Which of the 2 happens,
-reading memory or talking to a device, depends only on the physical address.
-
-</div>
 
 ### 17.1.2 PCIe: links, functions and addresses
 
@@ -111,7 +98,7 @@ Most devices in a computer are not built into the processor chip but attached th
 its physical side: a **link** of 1 to 16 **lanes**, each lane a pair of wires in each
 direction, carrying about 2 GB/s each way per lane in generation 4.0 and 4 GB/s in 5.0.
 
-This chapter needs its logical side. PCIe carries **transactions**, packets with a type, an
+In this chapter, we need its logical side. PCIe carries **transactions**, packets with a type, an
 address and data. A CPU store to an address inside a device's window becomes a *memory write*
 transaction that travels down the link. A CPU load becomes a *memory read* transaction, and the
 device answers with a *completion* packet that carries the data back. The **root complex** is
@@ -138,7 +125,7 @@ The machine has 3 root ports in use, each shown as a PCI bridge on bus 0 of its 
 with 1 device behind each: a Wi-Fi card, an NVMe drive and an Ethernet controller. The GPU is
 not in the list: on this machine it is not a PCIe device at all.
 
-### 17.1.3 3 ways to attach a GPU
+### 17.1.3 Discrete and integrated GPUs
 
 A **discrete GPU** is a separate card with its own memory, joined to the CPU by a PCIe link
 (or, on Grace Hopper, by NVLink-C2C). An **integrated GPU** is built on the same chip as the
@@ -255,7 +242,7 @@ byte first, so the first 2 bytes, `de 10`, are the number 0x10de.
 
 <div class="example" markdown="1">
 
-Worked example: decoding the PCIe-function GPU's header
+Worked example: decoding the configuration header
 
 1. **Vendor and device**, bytes 0 to 3: 0x10de is NVIDIA's vendor number, assigned by the
    PCI-SIG; 0x2b00 is the device number NVIDIA gave this GPU. `lspci -nn` printed the same
@@ -293,10 +280,10 @@ $ lspci -vv -s 0000:01:00.0                           # Jetson AGX Thor, as a no
 address decoded above. The capabilities, which start at offset 0x40, lie beyond the first 64
 bytes, and Linux shows them only to root.
 
-### 17.2.2 How the kernel learns the size of a BAR
+### 17.2.2 BAR sizing
 
-`lspci` reported `[size=16M]`, yet no field of the header holds a size. The size is found by a
-trick that the PCI specification defines. A device implements only the high bits of each BAR's
+`lspci` reported `[size=16M]`, although no field of the header holds a size. The size is found
+by a procedure that the PCI specification defines. A device implements only the high bits of each BAR's
 address: the bits below the window's size are wired to 0, because a window of \\(2^k\\) bytes
 must start at a multiple of \\(2^k\\). Software writes all ones into the BAR and reads it back;
 the bits that stayed 0 reveal the size. Figure 17.4 works it for the NVMe drive of figure 17.1
@@ -307,29 +294,17 @@ and for the PCIe-function GPU.
 <figcaption><b>Figure 17.4</b> The size of a BAR: write all ones, read back, invert, add 1.</figcaption>
 </figure>
 
-<div class="example" markdown="1">
-
-Worked example: the NVMe drive's 16 KiB BAR
-
-1. The drive's window is 16 KiB = 16,384 bytes = \\(2^{14}\\) bytes, so address bits 13 to 0
-   are wired to 0.
-2. Written with 0xFFFF_FFFF, the low word reads back as 0xFFFF_C004: bits 31 to 14 are 1, bits
-   13 to 4 are 0, and bits 3 to 0 hold the flags, 0x4 (a 64-bit memory window).
-3. Clearing the flags gives 0xFFFF_C000; inverting gives 0x0000_3FFF = 16,383; adding 1 gives
-   16,384 bytes.
-4. The same steps on the PCIe-function GPU give 0x0100_0000 = 16,777,216 bytes = 16 MiB, the
-   `[size=16M]` that `lspci` printed.
-
-</div>
-
-| Symbol | Meaning | In the example |
-|---|---|---|
-| \\(v\\) | value read back after writing all ones, flags cleared | 0xFFFF_C000 |
-| \\(\lnot v + 1\\) | size of the window in bytes | 0x4000 = 16,384 bytes |
+Let us follow the procedure for the NVMe drive. Its window is 16 KiB = 16,384 bytes =
+\\(2^{14}\\) bytes, so address bits 13 to 0 of its BAR are wired to 0. When software writes
+0xFFFF_FFFF, the low word reads back as 0xFFFF_C004: bits 31 to 14 are 1, bits 13 to 4 are 0,
+and bits 3 to 0 hold the flags, 0x4, which mark a 64-bit memory window. Clearing the flags gives
+0xFFFF_C000, inverting gives 0x0000_3FFF = 16,383, and adding 1 gives 16,384 bytes. The same
+steps on the PCIe-function GPU give 0x0100_0000 = 16,777,216 bytes, the `[size=16M]` that
+`lspci` printed.
 
 The kernel performs this sizing once, at boot, for every BAR of every function. Ordinary
 programs never do it, and should not: a BAR full of ones points the device at the wrong
-address until it is restored. One consequence reaches far: the size of a BAR is always
+address until it is restored. It follows from the procedure that the size of a BAR is always
 a power of 2. A GPU with 24 GiB of memory that wants all of it visible through 1 window needs
 a BAR of 32 GiB, the next power of 2.
 
@@ -368,14 +343,7 @@ expose: its memory is the system's DRAM, which the CPU already reaches directly.
 tree of the platform-device GPU gives it a `bar0` and a `bar1` of 16 MiB each, plus a 4 KiB
 window, again with no window onto a separate memory.
 
-<div class="bee bee-cute" markdown="1">
-
-A BAR is a window of the device's registers or memory in the physical address space. The device
-chooses its size, always a power of 2, and the operating system chooses where it goes.
-
-</div>
-
-## 17.3 MMIO, the control path
+## 17.3 Memory-mapped I/O as the control path
 
 ### 17.3.1 Loads and stores with side effects
 
@@ -383,10 +351,11 @@ A load from DRAM has no effect on the memory, and reading the same address twice
 same value. A load from a device register can have an effect: reading a status register may
 clear the event it reports, and 2 reads may return 2 different values because the device
 changed state in between. A store to a register is a command, such as "start", "reset" or
-"new work is waiting". These are **side effects**, and they change the rules for the processor.
+"new work is waiting". Such effects are called **side effects**, and they change what the processor may do with the
+addresses.
 
 A processor keeps copies of memory in its caches and reads ahead of a program when it expects
-to need data soon. Both habits would break a device: a cached copy of a status register goes
+to need data soon. Both behaviours are wrong for a device: a cached copy of a status register goes
 stale, and a load that the processor issued early, on a guess, may trigger a side effect the
 program never asked for. Every page in a program's address space therefore carries a **memory
 type** in its page-table entry, which tells the processor how it may treat the addresses:
@@ -417,7 +386,7 @@ while the CPU does other work (figure 17.5).
 <figcaption><b>Figure 17.5</b> The control path carries a few bytes from the CPU; the data path carries the rest, fetched by the GPU.</figcaption>
 </figure>
 
-### 17.3.2 Measured: 1 loop, 4 memory types
+### 17.3.2 CPU access speed by memory type
 
 The registers of a GPU are out of reach of an ordinary program, but the memory types
 are not. CUDA can allocate host memory with the write-combining type: `cudaHostAlloc` with the
@@ -461,15 +430,7 @@ write-combined allocation at rev b7fe543. On the platform-device machine it foun
 C++: 27.41 and 27.58 GB/s for writes, 12.43 and 12.32 GB/s for reads. Runs differ by about 10%
 from one to the next.
 
-<div class="bee bee-shocked" markdown="1">
-
-The same loop read 11 times slower from write-combined memory where the flag took effect. The
-memory type, not the memory, decided the speed. Device registers are slower still: a register
-read crosses to the device and back.
-
-</div>
-
-### 17.3.3 Data first, then the doorbell
+### 17.3.3 Ordering writes before a doorbell
 
 A device usually learns of new work in 2 steps. The CPU first writes the work itself into
 memory, then stores into 1 register, the **doorbell**, to tell the device to look. The order of
@@ -486,7 +447,7 @@ write a 32-bit register, puts a write barrier before the store for exactly this 
 device started by the register sees every earlier write to memory. Section 17.4.6 shows what
 happens when the order is wrong.
 
-## 17.4 Doorbells and work rings: how a launch reaches the GPU
+## 17.4 Work rings and doorbells
 
 ### 17.4.1 A ring of work entries
 
@@ -566,7 +527,7 @@ Steps 6 to 9 happen later, on the GPU's own time. The part of the GPU that reads
 the GPU to accept anything. Only when the ring is full does a launch wait, exactly as the host
 waits in the worked example.
 
-### 17.4.3 The same design in an NVMe drive
+### 17.4.3 Doorbells in an NVMe drive
 
 The design is not peculiar to GPUs. An NVMe drive, whose specification is public, takes its
 commands the same way. The host writes 64-byte commands into a **submission queue** in memory,
@@ -583,23 +544,16 @@ places the doorbells right after the drive's 4 KiB of control registers:
 | DSTRD | doorbell stride, read from the drive's capability register | 0 (the usual value) |
 | \\(4 \ll \text{DSTRD}\\) | bytes between doorbells | 4 |
 
-<div class="example" markdown="1">
+For example, `/proc/interrupts` lists 9 interrupt lines for the drive of figure 17.1,
+`nvme0q0` to `nvme0q8`: the administration queue and 8 I/O queues, 1 per CPU core. With a
+stride of 4 bytes, the submission doorbell of queue 8 sits at 0x1000 + 2 × 8 × 4 = 0x1040, and
+its completion doorbell at 0x1000 + 17 × 4 = 0x1044. The highest doorbell, at 0x1047, lies well
+inside the 16 KiB = 0x4000-byte BAR0 that we sized in figure 17.4.
 
-Worked example: the doorbells of an NVMe drive
+### 17.4.4 A software model of a work ring
 
-1. `/proc/interrupts` lists 9 interrupt lines for the drive, `nvme0q0` to `nvme0q8`: the
-   administration queue and 8 I/O queues, 1 per CPU core.
-2. With a stride of 4 bytes, queue 8's submission doorbell sits at 0x1000 + 2 × 8 × 4 = 0x1040,
-   and its completion doorbell at 0x1000 + 17 × 4 = 0x1044.
-3. The highest doorbell, 0x1047, is far inside the drive's 16 KiB = 0x4000-byte BAR0 that
-   figure 17.4 sized.
-
-</div>
-
-### 17.4.4 A work ring in software
-
-The chapter's program builds the mechanism with 2 CPU threads, so that we can run it, time it
-and break it. A *host* thread submits entries; a *device* thread plays the GPU's host
+The chapter's program builds the mechanism with 2 CPU threads, so that we can run it, time it,
+and observe what happens when the order of writes is wrong. A *host* thread submits entries; a *device* thread plays the GPU's host
 interface. Each entry carries an opcode and an argument. The device thread spends 2 µs on each
 entry, a stand-in for a kernel, and adds the argument to a sum, so the program can check that
 every entry was run exactly once.
@@ -632,12 +586,12 @@ doorbell provides the order.
 {{#include ../../../../code/oxide/ch17_systems/src/main.rs:58:104}}
 ```
 
-### 17.4.5 Measured: how deep the ring should be
+### 17.4.5 Ring depth and run-ahead
 
 The program submits 200 bursts of 32 entries. After each burst the host does 64 µs of work of
 its own, so the work a GPU would do and the work the CPU does could overlap. We run it with a
 ring of depth 1, 4, 32 and 64: the host may run at most that many entries ahead of the device.
-Before running it, we can predict the time of 1 burst by hand.
+Before we run it, we can predict the time of 1 burst.
 
 <div class="example" markdown="1">
 
@@ -689,7 +643,7 @@ Figure 17.8 draws 1 burst at depth 1 and at depth 32.
 <figcaption><b>Figure 17.8</b> 1 burst at depth 1 and at depth 32, to scale.</figcaption>
 </figure>
 
-The ring halves the total time only when it holds the whole burst. A ring is a queue, and a
+Note that the ring halves the total time only when it holds the whole burst. A ring is a queue, and a
 queue lets the producer run ahead of the consumer by as many entries as it holds; this is the
 mechanism behind Chapter 6's asynchronous launches and streams. A GPU's rings hold hundreds of
 entries, so a program can queue many kernels and copies before it must wait.
@@ -701,7 +655,7 @@ the further the CPU can run ahead of the GPU.
 
 </div>
 
-### 17.4.6 When the doorbell rings too early
+### 17.4.6 Ordering errors
 
 Run with `--doorbell-first`, the program stores PUT + 1 before it writes the entry. The device
 may then see the new PUT, read the slot, and find whatever the slot held before: an entry from
@@ -722,22 +676,22 @@ to run. Depth 1 fails most often, because the device thread is idle and watching
 doorbell rings, so it reaches the slot in the instant before the entry arrives. The same swap
 in the Rust program failed at depth 1 in all 5 runs.
 
-The Rust version teaches something more. Rust does not compile a program in which 2 threads
+The Rust version shows a further point. Rust does not compile a program in which 2 threads
 touch the same plain memory, so the slots had to be atomics. The broken program is
 nevertheless free of data races in Rust's sense, and it still loses entries. The compiler can
 prove that every access is safe, but not that the protocol, entry first and doorbell second, is
 followed. The C++ version is worse off: there the swap also creates a data race, and its
-behaviour is undefined. In a driver the same mistake shows up as a GPU that runs garbage
-commands, rarely, under load.
+behaviour is undefined. In a driver, the same mistake causes the GPU to execute stale
+commands, rarely and usually under load.
 
 <div class="bee bee-angry" markdown="1">
 
 Write the work, then a barrier, then the doorbell. In the other order, the program passed most
-runs and failed some: the worst kind of bug to find.
+runs and failed some, which makes the error hard to find.
 
 </div>
 
-## 17.5 DMA, the data path
+## 17.5 DMA as the data path
 
 **DMA**, direct memory access, is a transfer that a device performs itself, reading or writing
 memory without a CPU core moving each byte. A PCIe function may do it only while its *bus
@@ -783,18 +737,12 @@ The IOMMU gives 2 benefits besides safety. A buffer whose pages lie scattered in
 memory looks contiguous to the device, so 1 descriptor can cover it. And the kernel can take a
 mapping away, for example when a device is unplugged or handed to a virtual machine.
 
-<div class="example" markdown="1">
-
-Worked example: the entries behind a 64 MiB buffer
-
-1. A 64 MiB buffer in 4 KiB pages has 64 MiB ÷ 4 KiB = 67,108,864 ÷ 4,096 = 16,384 pages.
-2. To let a copy engine read it, the kernel writes 16,384 entries into the IOMMU's page table,
-   and the IOMMU caches recent translations in its own TLB (translation lookaside buffer), a
-   small cache of entries.
-3. Pinning the buffer once and reusing it keeps those entries; pinning it again for every copy
-   rebuilds them each time. Section 4.2.3 explains why pinning is slow to set up.
-
-</div>
+The mappings have a cost. A 64 MiB buffer in 4 KiB pages has 67,108,864 ÷ 4,096 = 16,384
+pages, so before a copy engine can read it, the kernel writes 16,384 entries into the IOMMU's
+page table. The IOMMU caches recent translations in its own **TLB** (translation lookaside
+buffer), a small cache of page-table entries. A buffer that is pinned once and reused keeps its
+entries, whereas a buffer that is pinned again for every copy has them rebuilt each time; section
+4.2.3 discusses why pinning is slow to set up.
 
 Both machines route their devices through SMMUs. The platform-device machine has 3 SMMU
 instances and 53 **IOMMU groups**, sets of devices that the IOMMU cannot tell apart and that
@@ -809,13 +757,6 @@ PCIe-function machine reports `Addressing Mode : ATS`. This is why its GPU print
 `pageableAccess 1` and `viaHostPageTables 1` in listing 17.1: it can follow a pointer returned
 by `malloc`, because it translates the address the same way the CPU does. The platform-device
 GPU printed 0 for both, so a kernel there needs memory that CUDA allocated or registered.
-
-<div class="bee bee-sleepy" markdown="1">
-
-The IOMMU checks every address a device uses against page tables that the kernel owns. With
-ATS, those can be the CPU's own page tables, and the GPU can read memory from plain `malloc`.
-
-</div>
 
 ## 17.7 The kernel-mode and user-mode drivers
 
@@ -866,21 +807,13 @@ handler. The platform-device GPU uses wires into the interrupt controller, named
 tree; the PCIe-function GPU sends **MSI** interrupts, which are memory writes to a special
 address, so they need no wire.
 
-<div class="example" markdown="1">
-
-Worked example: the interrupts of the platform-device GPU
-
-1. The device tree gives the GPU 4 interrupts, numbered 0x44, 0x46, 0x47 and 0x43 among the
-   interrupt controller's *shared peripheral interrupts*, named `stall0`, `stall1`, `stall2`
-   and `nonstall`.
-2. On an Arm GICv3 interrupt controller, shared peripheral interrupts start at number 32, so
-   0x44 = 68 becomes interrupt 68 + 32 = 100. `/proc/interrupts` lists `GICv3 100 gk20a_stall`,
-   and 99, 102 and 103 for the other 3.
-3. Line 103 had counted 49,415,447 interrupts after 29 days, 23 hours and 30 minutes of uptime,
-   2,590,200 s: 49,415,447 ÷ 2,590,200 ≈ 19 interrupts per second.
-4. The PCIe-function GPU has 8 MSI vectors, listed as 8 lines named `nvidia`.
-
-</div>
+The device tree of the platform-device GPU gives it 4 interrupts, numbered 0x44, 0x46, 0x47 and
+0x43 among the interrupt controller's *shared peripheral interrupts*, and named `stall0`,
+`stall1`, `stall2` and `nonstall`. On an Arm GICv3 interrupt controller, shared peripheral
+interrupts start at number 32, so 0x44 = 68 becomes interrupt 68 + 32 = 100, and
+`/proc/interrupts` lists it as `GICv3 100 gk20a_stall`; the other 3 appear as 99, 102 and 103.
+Line 103 had counted 49,415,447 interrupts after 2,590,200 s of uptime, or about 19 interrupts
+per second. The PCIe-function GPU uses 8 MSI vectors instead, listed as 8 lines named `nvidia`.
 
 Interrupts are for events that the CPU must hear about. The submission of work never needs one:
 the doorbell is a store from the CPU, and the CPU learns that work has finished by reading GET,
@@ -888,8 +821,8 @@ or a semaphore the GPU wrote, in memory.
 
 ## 17.8 Observing the system on Linux
 
-Everything in this chapter can be checked on any Linux machine with a GPU, without root. The
-table lists the commands and what each showed on the 2 machines.
+The mechanisms of this chapter can be observed on any Linux machine with a GPU, without root
+privileges. The table lists the commands and what each one showed on the 2 machines.
 
 | Command | Shows | Platform-device GPU | PCIe-function GPU |
 |---|---|---|---|
@@ -922,9 +855,9 @@ it.
 
 </details>
 
-## 17.9 From MMIO to the CUDA API
+## 17.9 CUDA calls and the mechanisms beneath them
 
-Each CUDA call that touches the hardware maps onto the mechanisms of this chapter.
+We can now relate each CUDA call that touches the hardware to the mechanisms of this chapter.
 
 | CUDA call | What happens underneath |
 |---|---|
