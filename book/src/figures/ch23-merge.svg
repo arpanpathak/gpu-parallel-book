@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 432" width="660" height="432" role="img" aria-label="Left: the softmax states of 2, 4 (m = 4, s = 1.1353) and of 4, 5 (m = 5, s = 1.3679) merge into m = 5 and s = 1.1353 times exp(-1) plus 1.3679 = 1.7855. Right: the Welford states of 1, 2 (n = 2, mean 1.5, q = 0.5) and of 3, 4 (n = 2, mean 3.5, q = 0.5) merge into n = 4, mean 2.5 and q = 0.5 + 0.5 + 4 times 2 times 2 / 4 = 5.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="432" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Merging 2 partial states</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each half is summarised by a few numbers, and 2 summaries combine.</text>
+  <rect x="16" y="96" width="306" height="320" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="85" width="193.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="130.6" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SOFTMAX STATES, ROW 1</text>
+  <rect x="338" y="96" width="306" height="320" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="356" y="85" width="193.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="452.6" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">WELFORD STATES, ROW 0</text>
+  <rect x="32" y="128" width="132" height="88" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,128.7 H38 V215.3 H44 A11.3,11.3 0 0 1 32.7,204 V140 A11.3,11.3 0 0 1 44,128.7 Z" fill="#1F8A70"/>
+  <text x="52.0" y="159.0" class="name" text-anchor="start" xml:space="preserve">2, 4</text>
+  <text x="52.0" y="177.0" class="sub" text-anchor="start" xml:space="preserve">m = 4</text>
+  <text x="52.0" y="195.0" class="sub" text-anchor="start" xml:space="preserve">s = 1.1353</text>
+  <rect x="174" y="128" width="132" height="88" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M186,128.7 H180 V215.3 H186 A11.3,11.3 0 0 1 174.7,204 V140 A11.3,11.3 0 0 1 186,128.7 Z" fill="#1F8A70"/>
+  <text x="194.0" y="159.0" class="name" text-anchor="start" xml:space="preserve">4, 5</text>
+  <text x="194.0" y="177.0" class="sub" text-anchor="start" xml:space="preserve">m = 5</text>
+  <text x="194.0" y="195.0" class="sub" text-anchor="start" xml:space="preserve">s = 1.3679</text>
+  <line x1="98.0" y1="216.0" x2="98.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
+  <line x1="240.0" y1="216.0" x2="240.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
+  <line x1="98.0" y1="236.0" x2="240.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
+  <circle cx="169" cy="236" r="3" fill="#3F5873"/>
+  <path d="M169,236 V265" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="32" y="268" width="274" height="72" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,268.7 H38 V339.3 H44 A11.3,11.3 0 0 1 32.7,328 V280 A11.3,11.3 0 0 1 44,268.7 Z" fill="#2E8B3D"/>
+  <text x="52.0" y="291.0" class="name" text-anchor="start" xml:space="preserve">2, 4, 4, 5</text>
+  <text x="52.0" y="309.0" class="sub" text-anchor="start" xml:space="preserve">m = max(4, 5) = 5</text>
+  <text x="52.0" y="327.0" class="sub" text-anchor="start" xml:space="preserve">s = 1.7855</text>
+  <text x="36.0" y="366.0" class="note" text-anchor="start" xml:space="preserve">s = 1.1353 × exp(4 − 5) + 1.3679 × exp(0)</text>
+  <text x="36.0" y="386.0" class="note" text-anchor="start" xml:space="preserve">  = 1.7855</text>
+  <rect x="354" y="128" width="132" height="88" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M366,128.7 H360 V215.3 H366 A11.3,11.3 0 0 1 354.7,204 V140 A11.3,11.3 0 0 1 366,128.7 Z" fill="#2F6FDB"/>
+  <text x="374.0" y="159.0" class="name" text-anchor="start" xml:space="preserve">1, 2</text>
+  <text x="374.0" y="177.0" class="sub" text-anchor="start" xml:space="preserve">n = 2, μ = 1.5</text>
+  <text x="374.0" y="195.0" class="sub" text-anchor="start" xml:space="preserve">q = 0.5</text>
+  <rect x="496" y="128" width="132" height="88" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M508,128.7 H502 V215.3 H508 A11.3,11.3 0 0 1 496.7,204 V140 A11.3,11.3 0 0 1 508,128.7 Z" fill="#2F6FDB"/>
+  <text x="516.0" y="159.0" class="name" text-anchor="start" xml:space="preserve">3, 4</text>
+  <text x="516.0" y="177.0" class="sub" text-anchor="start" xml:space="preserve">n = 2, μ = 3.5</text>
+  <text x="516.0" y="195.0" class="sub" text-anchor="start" xml:space="preserve">q = 0.5</text>
+  <line x1="420.0" y1="216.0" x2="420.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
+  <line x1="562.0" y1="216.0" x2="562.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
+  <line x1="420.0" y1="236.0" x2="562.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
+  <circle cx="491" cy="236" r="3" fill="#3F5873"/>
+  <path d="M491,236 V265" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="354" y="268" width="274" height="72" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M366,268.7 H360 V339.3 H366 A11.3,11.3 0 0 1 354.7,328 V280 A11.3,11.3 0 0 1 366,268.7 Z" fill="#2E8B3D"/>
+  <text x="374.0" y="291.0" class="name" text-anchor="start" xml:space="preserve">1, 2, 3, 4</text>
+  <text x="374.0" y="309.0" class="sub" text-anchor="start" xml:space="preserve">n = 4, μ = 2.5</text>
+  <text x="374.0" y="327.0" class="sub" text-anchor="start" xml:space="preserve">q = 5</text>
+  <text x="358.0" y="366.0" class="note" text-anchor="start" xml:space="preserve">δ = 3.5 − 1.5 = 2,  μ = 1.5 + 2 × 2 ÷ 4</text>
+  <text x="358.0" y="386.0" class="note" text-anchor="start" xml:space="preserve">q = 0.5 + 0.5 + 2² × 2 × 2 ÷ 4 = 5</text>
+</svg>
