@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 216" width="640" height="216" role="img" aria-label="The sequential loop visits the 12 elements in order, 1 to 12 along a time axis. Visit 10 handles element 9: it reads x[9] = 8 and y[9] = 3 and writes y[9] = 19, with 2 reads, 1 write and 2 floating-point operations. In total 12 visits make 24 FLOP and move 144 bytes.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+  </defs>
+  <rect width="640" height="216" rx="12" fill="#FFFFFF"/>
+  <text x="82.0" y="46.0" font-size="11" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">visit</text>
+  <rect x="96.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="113.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="134.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="151.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <rect x="172.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="189.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <rect x="210.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="227.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
+  <rect x="248.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="265.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="286.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="303.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
+  <rect x="324.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="341.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="362.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="379.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="400.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="417.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">9</text>
+  <rect x="438.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#C9CAF6" stroke="#4F52C4" stroke-width="2.2"/>
+  <text x="455.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">10</text>
+  <rect x="476.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="493.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
+  <rect x="514.0" y="28.0" width="34.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="531.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">12</text>
+  <line x1="96.0" y1="74.0" x2="548.0" y2="74.0" stroke="#8A94A3" stroke-width="1.1" marker-end="url(#m-grey)"/>
+  <text x="548.0" y="90.0" font-size="11" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">time</text>
+  <line x1="455.0" y1="56.0" x2="455.0" y2="104.0" stroke="#4F52C4" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <rect x="248.0" y="108.0" width="296.0" height="92.0" rx="8" fill="#F7F7FE" stroke="#4F52C4" stroke-width="1.2"/>
+  <text x="262.0" y="130.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">visit 10, i = 9 (line 2 of the loop):</text>
+  <text x="262.0" y="152.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">read x[9] = 8 and y[9] = 3</text>
+  <text x="262.0" y="172.0" font-size="12" fill="#4F52C4" text-anchor="start" font-weight="600" xml:space="preserve">y[9] = 2 · 8 + 3 = 19, written back</text>
+  <text x="262.0" y="191.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">2 reads, 1 write, 2 FLOP</text>
+  <text x="46.0" y="130.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">12 visits, 1 after another</text>
+  <text x="46.0" y="150.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">each visit: 2 reads, 1 write</text>
+  <text x="46.0" y="170.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">total: 24 FLOP, 144 bytes</text>
+</svg>

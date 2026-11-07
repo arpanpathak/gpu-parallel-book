@@ -1,11 +1,13 @@
-//! Chapter 15: the dot product of 2 vectors, 4 ways.
+//! Chapter 15: the dot product of 2 vectors as a reduction, 4 ways: map then reduce,
+//! a fused kernel with a tree in shared memory, a fused kernel with warp shuffles, and
+//! a fused kernel that combines its block results with atomic additions.
 //!
 //!     cargo oxide run
 
 use std::collections::BTreeSet;
 use std::sync::Arc;
-use std::time::Instant;
 
+use cuda_core::sys::CUevent_flags_enum_CU_EVENT_DEFAULT as TIMING;
 use cuda_core::{CudaContext, CudaStream, DeviceBuffer, LaunchConfig1D};
 use cuda_device::atomic::{AtomicOrdering, DeviceAtomicF32};
 use cuda_device::{DisjointSlice, SharedArray, cuda_module, device, kernel, launch_contract};
@@ -13,7 +15,12 @@ use cuda_device::{thread, warp};
 
 const BLOCK: u32 = 256;
 const GRID: u32 = 1024;
-const N: usize = 16 << 20;
+const N: usize = 1 << 24;
+const RUNS: u32 = 20;
+
+/// The worked example of the chapter: 16 pairs whose products add up to 63.
+const A16: [f32; 16] = [1., 2., 3., 1., 5., 1., 2., 3., 3., 1., 2., 3., 1., 3., 2., 1.];
+const B16: [f32; 16] = [2., 3., 1., 4., 1., 1., 4., 1., 1., 2., 2., 2., 1., 3., 1., 4.];
 
 type Error = Box<dyn std::error::Error>;
 
@@ -53,16 +60,16 @@ mod kernels {
         if warp == 0 { warp_sum(w) } else { 0.0 }
     }
 
-    /// The products a[i] * b[i] of this thread's elements, read with a grid-stride loop.
+    /// The sum of a[i] * b[i] over this thread's elements i = t, t + P, t + 2P, ...
     #[device]
     fn products(a: &[f32], b: &[f32]) -> f32 {
-        let stride = (thread::gridDim_x() * BLOCK) as usize;
+        let threads = (thread::gridDim_x() * BLOCK) as usize;
         let mut i = thread::index_1d().get();
 
         let mut sum = 0.0;
         while i < a.len() {
             sum += a[i] * b[i];
-            i += stride;
+            i += threads;
         }
         sum
     }
@@ -83,13 +90,13 @@ mod kernels {
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn sum(input: &[f32], mut partial: DisjointSlice<f32>) {
-        let stride = (thread::gridDim_x() * BLOCK) as usize;
+        let threads = (thread::gridDim_x() * BLOCK) as usize;
         let mut i = thread::index_1d().get();
 
         let mut v = 0.0;
         while i < input.len() {
             v += input[i];
-            i += stride;
+            i += threads;
         }
 
         let total = block_sum(v);
@@ -104,26 +111,26 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn dot_tree(a: &[f32], b: &[f32], mut partial: DisjointSlice<f32>) {
         static mut CELLS: SharedArray<f32, 256> = SharedArray::UNINIT;
-        let tid = thread::threadIdx_x() as usize;
+        let t = thread::threadIdx_x() as usize;
 
         // SAFETY: each thread writes only its own cell, before the barrier.
-        unsafe { CELLS[tid] = products(a, b) };
+        unsafe { CELLS[t] = products(a, b) };
         thread::sync_threads();
 
         let mut step: usize = 0;
         #[unroll]
         while step < 8 {
-            let half: usize = 128 >> step;
-            if tid < half {
-                // SAFETY: in this step thread t alone writes cell t, and reads cell
-                // t + half, which no thread writes in the same step.
-                unsafe { CELLS[tid] += CELLS[tid + half] };
+            let s: usize = 128 >> step;
+            if t < s {
+                // SAFETY: in this step thread t alone writes cell t, and it reads cell
+                // t + s, which no thread writes in this step.
+                unsafe { CELLS[t] += CELLS[t + s] };
             }
             thread::sync_threads();
             step += 1;
         }
 
-        if tid == 0 {
+        if t == 0 {
             // SAFETY: only thread 0 of each block writes, at its own block number.
             unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = CELLS[0] };
         }
@@ -180,7 +187,14 @@ enum Method {
     Atomic,
 }
 
-/// The device memory of the program.
+const METHODS: [(&str, Method, usize); 4] = [
+    ("map, then reduce", Method::MapReduce, 16),
+    ("fused, shared tree", Method::Tree, 8),
+    ("fused, shuffles", Method::Shuffle, 8),
+    ("fused, atomic combine", Method::Atomic, 8),
+];
+
+/// The device memory of 1 problem.
 struct Buffers {
     a: DeviceBuffer<f32>,
     b: DeviceBuffer<f32>,
@@ -190,67 +204,55 @@ struct Buffers {
     atomic: DeviceBuffer<DeviceAtomicF32>,
 }
 
-/// Launches 1 dot product; the result ends in `buf.total`.
-fn run(
-    method: Method,
-    module: &kernels::LoadedModule,
-    stream: &Arc<CudaStream>,
-    buf: &mut Buffers,
-) -> Result<(), Error> {
-    let grid = LaunchConfig1D::new(GRID, BLOCK, 0);
-    let one = LaunchConfig1D::new(1, BLOCK, 0);
-    let map = LaunchConfig1D::new(N as u32 / BLOCK, BLOCK, 0);
-    let last = module.prepare_sum(one)?;
-
-    match method {
-        Method::MapReduce => {
-            let multiply = module.prepare_multiply(map)?;
-            let reduce = module.prepare_sum(grid)?;
-            module.multiply(stream, &multiply, &buf.a, &buf.b, &mut buf.p)?;
-            module.sum(stream, &reduce, &buf.p, &mut buf.partial)?;
-            module.sum(stream, &last, &buf.partial, &mut buf.total)?;
-        }
-        Method::Tree => {
-            let tree = module.prepare_dot_tree(grid)?;
-            module.dot_tree(stream, &tree, &buf.a, &buf.b, &mut buf.partial)?;
-            module.sum(stream, &last, &buf.partial, &mut buf.total)?;
-        }
-        Method::Shuffle => {
-            let shuffle = module.prepare_dot_shuffle(grid)?;
-            module.dot_shuffle(stream, &shuffle, &buf.a, &buf.b, &mut buf.partial)?;
-            module.sum(stream, &last, &buf.partial, &mut buf.total)?;
-        }
-        Method::Atomic => {
-            let clear = module.prepare_clear(one)?;
-            let fused = module.prepare_dot_atomic(grid)?;
-            let publish = module.prepare_publish(one)?;
-            module.clear(stream, &clear, &buf.atomic)?;
-            module.dot_atomic(stream, &fused, &buf.a, &buf.b, &buf.atomic)?;
-            module.publish(stream, &publish, &buf.atomic, &mut buf.total)?;
-        }
+impl Buffers {
+    fn new(stream: &Arc<CudaStream>, a: &[f32], b: &[f32]) -> Result<Self, Error> {
+        Ok(Buffers {
+            a: DeviceBuffer::from_host(stream, a)?,
+            b: DeviceBuffer::from_host(stream, b)?,
+            p: DeviceBuffer::zeroed(stream, a.len())?,
+            partial: DeviceBuffer::zeroed(stream, GRID as usize)?,
+            total: DeviceBuffer::zeroed(stream, 1)?,
+            atomic: DeviceBuffer::<f32>::zeroed(stream, 1)?.cast_elem(),
+        })
     }
-    Ok(())
 }
 
-/// Average time of 20 runs of `method`, in milliseconds, after 10 warm-up runs.
-fn time_ms(
+/// Runs 1 method once and returns its result.
+fn result<R>(
+    run: &R,
     method: Method,
-    module: &kernels::LoadedModule,
-    stream: &Arc<CudaStream>,
     buf: &mut Buffers,
-) -> Result<f64, Error> {
+    stream: &CudaStream,
+) -> Result<f32, Error>
+where
+    R: Fn(Method, &mut Buffers) -> Result<(), Error>,
+{
+    run(method, buf)?;
+    Ok(buf.total.to_host_vec(stream)?[0])
+}
+
+/// Milliseconds per run of 1 method: 10 warm-up runs, then RUNS runs timed with events.
+fn time_ms<R>(
+    run: &R,
+    method: Method,
+    buf: &mut Buffers,
+    stream: &CudaStream,
+) -> Result<f64, Error>
+where
+    R: Fn(Method, &mut Buffers) -> Result<(), Error>,
+{
     for _ in 0..10 {
-        run(method, module, stream, buf)?;
+        run(method, buf)?;
     }
-    stream.synchronize()?;
 
-    let start = Instant::now();
-    for _ in 0..20 {
-        run(method, module, stream, buf)?;
+    let start = stream.record_event(Some(TIMING))?;
+    for _ in 0..RUNS {
+        run(method, buf)?;
     }
-    stream.synchronize()?;
+    let stop = stream.record_event(Some(TIMING))?;
+    stop.synchronize()?;
 
-    Ok(start.elapsed().as_secs_f64() * 1e3 / 20.0)
+    Ok(start.elapsed_ms(&stop)? as f64 / RUNS as f64)
 }
 
 /// Floats in [0, 1) from a small linear congruential generator.
@@ -265,64 +267,126 @@ fn random(n: usize, seed: u32) -> Vec<f32> {
         .collect()
 }
 
+/// Every method on 1 input whose dot product is an integer that a float holds exactly.
+/// Returns the number of methods whose result differs from `expect`.
+fn exact_test<R>(
+    run: &R,
+    stream: &Arc<CudaStream>,
+    label: &str,
+    a: &[f32],
+    b: &[f32],
+) -> Result<usize, Error>
+where
+    R: Fn(Method, &mut Buffers) -> Result<(), Error>,
+{
+    let expect: f32 = a.iter().zip(b).map(|(x, y)| x * y).sum();
+    let mut buf = Buffers::new(stream, a, b)?;
+    let mut bad = 0;
+
+    print!("  {label:<26}");
+    for (_, method, _) in METHODS {
+        let got = result(run, method, &mut buf, stream)?;
+        print!(" {got:>9}");
+        bad += usize::from(got != expect);
+    }
+    println!("   expected {expect}");
+    Ok(bad)
+}
+
 fn main() -> Result<(), Error> {
     let ctx = CudaContext::new(0)?;
     let stream = ctx.default_stream();
     // SAFETY: the loaded code was compiled from the `kernels` module above.
     let module = unsafe { kernels::load(&ctx)? };
 
+    let name = ctx.device_name()?;
+    let sms = ctx.multiprocessor_count()?;
+    println!("GPU: {name}, {sms} SMs");
+
+    let grid = LaunchConfig1D::new(GRID, BLOCK, 0);
+    let one = LaunchConfig1D::new(1, BLOCK, 0);
+    let map = LaunchConfig1D::new(N as u32 / BLOCK, BLOCK, 0);
+
+    let multiply = module.prepare_multiply(map)?;
+    let reduce = module.prepare_sum(grid)?;
+    let last = module.prepare_sum(one)?;
+    let tree = module.prepare_dot_tree(grid)?;
+    let shuffle = module.prepare_dot_shuffle(grid)?;
+    let clear = module.prepare_clear(one)?;
+    let atomic = module.prepare_dot_atomic(grid)?;
+    let publish = module.prepare_publish(one)?;
+
+    // Launches 1 dot product; the result ends in `buf.total`.
+    let run = |method: Method, buf: &mut Buffers| -> Result<(), Error> {
+        let (a, b, s) = (&buf.a, &buf.b, &stream);
+        match method {
+            Method::MapReduce => {
+                module.multiply(s, &multiply, a, b, &mut buf.p)?;
+                module.sum(s, &reduce, &buf.p, &mut buf.partial)?;
+                module.sum(s, &last, &buf.partial, &mut buf.total)?;
+            }
+            Method::Tree => {
+                module.dot_tree(s, &tree, a, b, &mut buf.partial)?;
+                module.sum(s, &last, &buf.partial, &mut buf.total)?;
+            }
+            Method::Shuffle => {
+                module.dot_shuffle(s, &shuffle, a, b, &mut buf.partial)?;
+                module.sum(s, &last, &buf.partial, &mut buf.total)?;
+            }
+            Method::Atomic => {
+                module.clear(s, &clear, &buf.atomic)?;
+                module.dot_atomic(s, &atomic, a, b, &buf.atomic)?;
+                module.publish(s, &publish, &buf.atomic, &mut buf.total)?;
+            }
+        }
+        Ok(())
+    };
+
+    println!("exact tests                   map+red      tree   shuffle    atomic");
+    let mut failed = exact_test(&run, &stream, "worked example, 16 pairs", &A16, &B16)?;
+
+    let ones_a: Vec<f32> = (0..N).map(|i| f32::from(i % 3 == 0)).collect();
+    let ones_b: Vec<f32> = (0..N).map(|i| f32::from(i % 2 == 0)).collect();
+    failed += exact_test(&run, &stream, "0s and 1s, 16777216 pairs", &ones_a, &ones_b)?;
+
     let a = random(N, 1);
     let b = random(N, 2);
     let exact: f64 = a.iter().zip(&b).map(|(&x, &y)| x as f64 * y as f64).sum();
-
-    let mut buf = Buffers {
-        a: DeviceBuffer::from_host(&stream, &a)?,
-        b: DeviceBuffer::from_host(&stream, &b)?,
-        p: DeviceBuffer::zeroed(&stream, N)?,
-        partial: DeviceBuffer::zeroed(&stream, GRID as usize)?,
-        total: DeviceBuffer::zeroed(&stream, 1)?,
-        atomic: DeviceBuffer::<f32>::zeroed(&stream, 1)?.cast_elem(),
-    };
-
+    let mut buf = Buffers::new(&stream, &a, &b)?;
     let error = |r: f32| ((r as f64 - exact) / exact).abs();
     let mut worst = 0.0f64;
 
-    println!("dot product of {N} pairs of floats, average of 20 runs");
-    let methods = [
-        ("map, then reduce", Method::MapReduce, 16),
-        ("fused, shared tree", Method::Tree, 8),
-        ("fused, shuffles", Method::Shuffle, 8),
-        ("fused, atomic combine", Method::Atomic, 8),
-    ];
+    println!("{N} pairs of floats in [0, 1), {RUNS} runs");
+    println!("  method                    time   bytes/pair      rate      result");
+    for (name, method, per_pair) in METHODS {
+        let ms = time_ms(&run, method, &mut buf, &stream)?;
+        let got = result(&run, method, &mut buf, &stream)?;
+        worst = worst.max(error(got));
 
-    for (name, method, bytes_per_pair) in methods {
-        let ms = time_ms(method, &module, &stream, &mut buf)?;
-        let result = buf.total.to_host_vec(&stream)?[0];
-        worst = worst.max(error(result));
-
-        let gb = (N * bytes_per_pair) as f64 / 1e9 / (ms / 1e3);
-        let per_pair = format!("{bytes_per_pair} B/pair");
-        println!("  {name:<22} {ms:6.3} ms  {per_pair:>9}  {gb:6.1} GB/s  {result:.1}");
+        let gbs = (N * per_pair) as f64 / ms / 1e6;
+        print!("  {name:<22} {ms:6.3} ms {per_pair:>8} B");
+        println!("  {gbs:6.1} GB/s  {got:.1}");
     }
-    println!("  {:<46} {exact:.1}", "exact (f64)");
+    println!("  {:<54} {exact:.1}", "exact, in double precision");
 
     println!("distinct results in 100 runs");
     for (name, method) in [("second launch", Method::Shuffle), ("atomic", Method::Atomic)] {
         let mut seen = BTreeSet::new();
         for _ in 0..100 {
-            run(method, &module, &stream, &mut buf)?;
-            seen.insert(buf.total.to_host_vec(&stream)?[0].to_bits());
+            seen.insert(result(&run, method, &mut buf, &stream)?.to_bits());
         }
 
         let low = f32::from_bits(*seen.first().ok_or("no result")?);
         let high = f32::from_bits(*seen.last().ok_or("no result")?);
         println!("  {name:<14} {:3}  from {low:.1} to {high:.1}", seen.len());
-
         worst = worst.max(error(low)).max(error(high));
     }
 
-    let verdict = if worst < 1e-5 { "PASSED" } else { "FAILED" };
-    println!("largest relative error {worst:.2e}: {verdict}");
-
+    println!("largest relative error {worst:.2e}");
+    if failed == 0 && worst < 1e-5 {
+        println!("PASSED");
+    } else {
+        println!("FAILED");
+    }
     Ok(())
 }

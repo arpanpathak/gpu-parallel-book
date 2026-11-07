@@ -1251,7 +1251,7 @@ def stage_picture(x, y, mode, fid):
                       f'<g clip-path="url(#{fid}c)" {blur}>', *scene, "</g>"])
 
 
-@plate("ch14", "Map, SAXPY and Closures", "Shuttle the crab", "Shuttle, a crab, walks along a long table of "
+@plate("ch14", "Map and SAXPY", "Shuttle the crab", "Shuttle, a crab, walks along a long table of "
        "numbered cells, 0 to 15, coloured in a repeating pattern of 4. Dashed arcs mark its hops: from cell 1 to 5, to 9, "
        "to 13, always 4 cells at a time, and it fills every cell it lands on. 3 more crabs further back would cover the "
        "other colours. A tag reads i, i + stride, i + 2 stride: the grid-stride loop.")
@@ -1301,14 +1301,14 @@ def paper_lantern(cx, top, glow, s=1.0):
     return "\n".join(parts)
 
 
-@plate("ch15", "Reductions and the Dot Product", "The pyramid crabs", "A pyramid of crabs on a sandy "
-       "shore at dusk. 4 crabs on the sand hold up the products 2, 0, 3 and 12. On a rock above them, 2 crabs "
-       "hold the sums of pairs, 2 and 15. On the highest rock, 1 crab holds the total, 17. A tag reads: "
+@plate("ch15", "Reduction and the Dot Product", "The pyramid crabs", "A pyramid of crabs on a sandy "
+       "shore at dusk. 4 crabs on the sand hold up the products 2, 6, 3 and 4. On a rock above them, 2 crabs "
+       "hold the sums of pairs, 8 and 7. On the highest rock, 1 crab holds the total, 15. A tag reads: "
        "pairs, then pairs of pairs.")
 def ch15():
-    bottom = [(430, "2"), (540, "0"), (690, "3"), (800, "12")]
-    middle = [(485, "2"), (745, "15")]
-    top = (615, "17")
+    bottom = [(430, "2"), (540, "6"), (690, "3"), (800, "4")]
+    middle = [(485, "8"), (745, "7")]
+    top = (615, "15")
     ledge, peak = 232, 146
     parts = [backdrop(seed=15, **SAND),
              rect(420, ledge, 390, GROUND - ledge, "#8a6d4a", 14, "#6b5236", 3),

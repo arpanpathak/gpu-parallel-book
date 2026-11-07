@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 338" width="640" height="338" role="img" aria-label="The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. With s = 4, threads 0 to 3 add cell t + 4 into cell t, giving 7, 7, 11, 7. With s = 2, threads 0 and 1 give 18 and 14. With s = 1, thread 0 gives 32. A barrier separates the steps; cells no longer read are grey.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+  </defs>
+  <rect width="640" height="338" rx="12" fill="#FFFFFF"/>
+  <text x="20.0" y="22.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">shared memory of block 0, cells 0 to 7</text>
+  <text x="170.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">0</text>
+  <text x="216.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <text x="262.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <text x="308.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <text x="354.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
+  <text x="400.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <text x="446.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
+  <text x="492.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="150.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="170.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <rect x="196.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="216.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
+  <rect x="242.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="262.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <rect x="288.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="308.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
+  <rect x="334.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="354.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="380.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="400.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="426.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="446.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="472.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="492.0" y="66.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <text x="136.0" y="61.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">after line 7</text>
+  <path d="M354.0,78 C354.0,102 170.0,92 170.0,120" fill="none" stroke="#7275D6" stroke-width="1.2" marker-end="url(#m-blue)"/>
+  <path d="M400.0,78 C400.0,102 216.0,92 216.0,120" fill="none" stroke="#3F9F80" stroke-width="1.2" marker-end="url(#m-mint)"/>
+  <path d="M446.0,78 C446.0,102 262.0,92 262.0,120" fill="none" stroke="#D98654" stroke-width="1.2" marker-end="url(#m-peach)"/>
+  <path d="M492.0,78 C492.0,102 308.0,92 308.0,120" fill="none" stroke="#CC6A91" stroke-width="1.2" marker-end="url(#m-pink)"/>
+  <line x1="144.0" y1="114.0" x2="518.0" y2="114.0" stroke="#1F2633" stroke-width="1.4"/>
+  <text x="522.0" y="118.0" font-size="10.5" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">barrier</text>
+  <rect x="150.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="170.0" y="140.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="196.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1"/>
+  <text x="216.0" y="140.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="242.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <text x="262.0" y="140.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
+  <rect x="288.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#F9DBE6" stroke="#CC6A91" stroke-width="1.1"/>
+  <text x="308.0" y="140.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="334.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="354.0" y="140.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="380.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="400.0" y="140.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="426.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="446.0" y="140.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="472.0" y="122.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="492.0" y="140.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <text x="136.0" y="135.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">s = 4</text>
+  <text x="136.0" y="149.0" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">threads 0 to 3 add</text>
+  <path d="M262.0,152 C262.0,176 170.0,166 170.0,194" fill="none" stroke="#7275D6" stroke-width="1.2" marker-end="url(#m-blue)"/>
+  <path d="M308.0,152 C308.0,176 216.0,166 216.0,194" fill="none" stroke="#3F9F80" stroke-width="1.2" marker-end="url(#m-mint)"/>
+  <line x1="144.0" y1="188.0" x2="518.0" y2="188.0" stroke="#1F2633" stroke-width="1.4"/>
+  <text x="522.0" y="192.0" font-size="10.5" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">barrier</text>
+  <rect x="150.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="170.0" y="214.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">18</text>
+  <rect x="196.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1"/>
+  <text x="216.0" y="214.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">14</text>
+  <rect x="242.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="262.0" y="214.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
+  <rect x="288.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="308.0" y="214.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="334.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="354.0" y="214.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="380.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="400.0" y="214.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="426.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="446.0" y="214.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="472.0" y="196.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="492.0" y="214.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <text x="136.0" y="209.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">s = 2</text>
+  <text x="136.0" y="223.0" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">threads 0, 1 add</text>
+  <path d="M216.0,226 C216.0,250 170.0,240 170.0,268" fill="none" stroke="#7275D6" stroke-width="1.2" marker-end="url(#m-blue)"/>
+  <line x1="144.0" y1="262.0" x2="518.0" y2="262.0" stroke="#1F2633" stroke-width="1.4"/>
+  <text x="522.0" y="266.0" font-size="10.5" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">barrier</text>
+  <rect x="150.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#4F52C4" stroke-width="2.2"/>
+  <text x="170.0" y="288.5" font-size="12.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">32</text>
+  <rect x="196.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="216.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">14</text>
+  <rect x="242.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="262.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
+  <rect x="288.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="308.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="334.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="354.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="380.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="400.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="426.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="446.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="472.0" y="270.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="492.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <text x="136.0" y="283.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">s = 1</text>
+  <text x="136.0" y="297.0" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">thread 0 adds</text>
+  <text x="150.0" y="324.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">Grey cells are no longer read. After step s = 1, cell 0 holds 32.</text>
+</svg>

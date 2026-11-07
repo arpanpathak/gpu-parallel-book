@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 324" width="640" height="324" role="img" aria-label="A warp sum by shuffles, drawn on 8 lanes. The registers start as 2, 6, 3, 4, 5, 1, 8, 3. With offset 4, lanes 0 to 3 add the values of lanes 4 to 7: 7, 7, 11, 7. With offset 2: 18, 14. With offset 1: lane 0 holds 32. The same numbers as the tree in shared memory, with no shared memory and no barrier.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+  </defs>
+  <rect width="640" height="324" rx="12" fill="#FFFFFF"/>
+  <text x="20.0" y="22.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">registers v of lanes 0 to 7 (no shared memory, no barrier)</text>
+  <text x="170.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 0</text>
+  <text x="224.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 1</text>
+  <text x="278.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 2</text>
+  <text x="332.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 3</text>
+  <text x="386.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 4</text>
+  <text x="440.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 5</text>
+  <text x="494.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 6</text>
+  <text x="548.0" y="40.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">lane 7</text>
+  <rect x="150.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="170.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <rect x="204.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1"/>
+  <text x="224.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
+  <rect x="258.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <text x="278.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <rect x="312.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#F9DBE6" stroke="#CC6A91" stroke-width="1.1"/>
+  <text x="332.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
+  <rect x="366.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="386.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="420.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1"/>
+  <text x="440.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="474.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <text x="494.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="528.0" y="48.0" width="40.0" height="28.0" rx="5" fill="#F9DBE6" stroke="#CC6A91" stroke-width="1.1"/>
+  <text x="548.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <text x="136.0" y="66.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">start</text>
+  <path d="M386.0,78 C386.0,98 170.0,86 170.0,110" fill="none" stroke="#7275D6" stroke-width="1.2" marker-end="url(#m-blue)"/>
+  <path d="M440.0,78 C440.0,98 224.0,86 224.0,110" fill="none" stroke="#3F9F80" stroke-width="1.2" marker-end="url(#m-mint)"/>
+  <path d="M494.0,78 C494.0,98 278.0,86 278.0,110" fill="none" stroke="#D98654" stroke-width="1.2" marker-end="url(#m-peach)"/>
+  <path d="M548.0,78 C548.0,98 332.0,86 332.0,110" fill="none" stroke="#CC6A91" stroke-width="1.2" marker-end="url(#m-pink)"/>
+  <rect x="150.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="170.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="204.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1"/>
+  <text x="224.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="258.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <text x="278.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
+  <rect x="312.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#F9DBE6" stroke="#CC6A91" stroke-width="1.1"/>
+  <text x="332.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="366.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="386.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="420.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="440.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="474.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="494.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="528.0" y="112.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="548.0" y="130.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <text x="136.0" y="130.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">offset 4</text>
+  <path d="M278.0,142 C278.0,162 170.0,150 170.0,174" fill="none" stroke="#7275D6" stroke-width="1.2" marker-end="url(#m-blue)"/>
+  <path d="M332.0,142 C332.0,162 224.0,150 224.0,174" fill="none" stroke="#3F9F80" stroke-width="1.2" marker-end="url(#m-mint)"/>
+  <rect x="150.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="170.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">18</text>
+  <rect x="204.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1"/>
+  <text x="224.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">14</text>
+  <rect x="258.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="278.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="312.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="332.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="366.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="386.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="420.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="440.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="474.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="494.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="528.0" y="176.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="548.0" y="194.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <text x="136.0" y="194.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">offset 2</text>
+  <path d="M224.0,206 C224.0,226 170.0,214 170.0,238" fill="none" stroke="#7275D6" stroke-width="1.2" marker-end="url(#m-blue)"/>
+  <rect x="150.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#4F52C4" stroke-width="2.2"/>
+  <text x="170.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">32</text>
+  <rect x="204.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="224.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="258.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="278.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="312.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="332.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="366.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="386.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="420.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="440.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="474.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="494.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <rect x="528.0" y="240.0" width="40.0" height="28.0" rx="5" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="548.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
+  <text x="136.0" y="258.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">offset 1</text>
+  <text x="150.0" y="292.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">Lane k adds the value of lane k + offset. A real warp has 32 lanes and 5 steps:</text>
+  <text x="150.0" y="310.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">offsets 16, 8, 4, 2, 1. Grey lanes compute values nobody uses.</text>
+</svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="A pyramid of crabs on a sandy shore at dusk. 4 crabs on the sand hold up the products 2, 0, 3 and 12. On a rock above them, 2 crabs hold the sums of pairs, 2 and 15. On the highest rock, 1 crab holds the total, 17. A tag reads: pairs, then pairs of pairs.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="A pyramid of crabs on a sandy shore at dusk. 4 crabs on the sand hold up the products 2, 6, 3 and 4. On a rock above them, 2 crabs hold the sums of pairs, 8 and 7. On the highest rock, 1 crab holds the total, 15. A tag reads: pairs, then pairs of pairs.">
 <defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2f4d"/><stop offset="1" stop-color="#b7684a"/></linearGradient><linearGradient id="glow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/><stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/></linearGradient></defs>
 <rect x="0.0" y="0.0" width="960.0" height="420.0" rx="0" fill="url(#sky1)" stroke="none" stroke-width="0" />
 <path d="M0,120 C240,40 520,160 960,80 L960,150 C520,220 240,110 0,190 Z" fill="url(#glow2)" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
@@ -99,7 +99,7 @@
 <circle cx="548.9" cy="301.3" r="2.8" fill="#1b2430" />
 <circle cx="549.8" cy="300.0" r="0.9" fill="#ffffff" />
 <path d="M534.0,310.9 Q540.0,320.0 546.0,310.9 Z" fill="#7a1f0a" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
-<rect x="523.0" y="231.0" width="34.0" height="34.0" rx="6" fill="#ffe7a3" stroke="none" stroke-width="0" /><text x="540.0" y="254.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="523.0" y="231.0" width="34.0" height="34.0" rx="6" fill="#ffe7a3" stroke="none" stroke-width="0" /><text x="540.0" y="254.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >6</text>
 <ellipse cx="690.0" cy="329.0" rx="31.2" ry="3.4" fill="#0d1a28" opacity="0.22"/>
 <line x1="674.9" y1="313.9" x2="667.8" y2="326.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
 <line x1="668.8" y1="313.9" x2="659.8" y2="326.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
@@ -147,7 +147,7 @@
 <circle cx="808.9" cy="301.3" r="2.8" fill="#1b2430" />
 <circle cx="809.8" cy="300.0" r="0.9" fill="#ffffff" />
 <path d="M794.0,310.9 Q800.0,320.0 806.0,310.9 Z" fill="#7a1f0a" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
-<rect x="783.0" y="231.0" width="34.0" height="34.0" rx="6" fill="#ffe7a3" stroke="none" stroke-width="0" /><text x="800.0" y="254.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >12</text>
+<rect x="783.0" y="231.0" width="34.0" height="34.0" rx="6" fill="#ffe7a3" stroke="none" stroke-width="0" /><text x="800.0" y="254.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >4</text>
 <ellipse cx="485.0" cy="235.0" rx="31.2" ry="3.4" fill="#0d1a28" opacity="0.22"/>
 <line x1="469.9" y1="219.9" x2="462.8" y2="232.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
 <line x1="463.8" y1="219.9" x2="454.8" y2="232.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
@@ -171,7 +171,7 @@
 <circle cx="493.9" cy="207.3" r="2.8" fill="#1b2430" />
 <circle cx="494.8" cy="206.0" r="0.9" fill="#ffffff" />
 <path d="M479.0,216.9 Q485.0,226.0 491.0,216.9 Z" fill="#7a1f0a" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
-<rect x="468.0" y="137.0" width="34.0" height="34.0" rx="6" fill="#c8f0d0" stroke="none" stroke-width="0" /><text x="485.0" y="160.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >2</text>
+<rect x="468.0" y="137.0" width="34.0" height="34.0" rx="6" fill="#c8f0d0" stroke="none" stroke-width="0" /><text x="485.0" y="160.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >8</text>
 <ellipse cx="745.0" cy="235.0" rx="31.2" ry="3.4" fill="#0d1a28" opacity="0.22"/>
 <line x1="729.9" y1="219.9" x2="722.8" y2="232.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
 <line x1="723.8" y1="219.9" x2="714.8" y2="232.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
@@ -195,7 +195,7 @@
 <circle cx="753.9" cy="207.3" r="2.8" fill="#1b2430" />
 <circle cx="754.8" cy="206.0" r="0.9" fill="#ffffff" />
 <path d="M739.0,216.9 Q745.0,226.0 751.0,216.9 Z" fill="#7a1f0a" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
-<rect x="728.0" y="137.0" width="34.0" height="34.0" rx="6" fill="#c8f0d0" stroke="none" stroke-width="0" /><text x="745.0" y="160.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >15</text>
+<rect x="728.0" y="137.0" width="34.0" height="34.0" rx="6" fill="#c8f0d0" stroke="none" stroke-width="0" /><text x="745.0" y="160.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >7</text>
 <ellipse cx="615.0" cy="149.0" rx="31.2" ry="3.4" fill="#0d1a28" opacity="0.22"/>
 <line x1="599.9" y1="133.9" x2="592.8" y2="146.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
 <line x1="593.8" y1="133.9" x2="584.8" y2="146.0" stroke="#c2441a" stroke-width="3.6" stroke-linecap="round" />
@@ -223,7 +223,7 @@
 <circle cx="622.3" cy="122.5" r="0.8" fill="#ffffff" />
 <ellipse cx="631.6" cy="128.9" rx="3.5" ry="2.0" fill="#ff9aa8" opacity="0.8"/>
 <path d="M611.5,130.9 q1.8,2.5 3.5,0 q1.8,2.5 3.5,0" fill="none" stroke="#7a1f0a" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" />
-<rect x="598.0" y="51.0" width="34.0" height="34.0" rx="6" fill="#bfe3f7" stroke="none" stroke-width="0" /><text x="615.0" y="74.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >17</text>
+<rect x="598.0" y="51.0" width="34.0" height="34.0" rx="6" fill="#bfe3f7" stroke="none" stroke-width="0" /><text x="615.0" y="74.1" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="17" font-weight="700" fill="#12263d" text-anchor="middle" >15</text>
 <path d="M430,228 Q430,192 471,168" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 6" opacity="0.85"/>
 <path d="M690,228 Q690,192 731,168" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 6" opacity="0.85"/>
 <path d="M540,228 Q540,192 499,168" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 6" opacity="0.85"/>
@@ -233,8 +233,8 @@
 <rect x="70.2" y="76.7" width="279.5" height="30.6" rx="15.3" fill="#fff6e2" stroke="none" stroke-width="0" /><text x="210.0" y="98.1" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700" fill="#2a1a10" text-anchor="middle"  textLength="247.5" lengthAdjust="spacingAndGlyphs">pairs, then pairs of pairs</text>
 <rect x="28.0" y="360.0" width="72.0" height="40.0" rx="6" fill="#d9622b" stroke="none" stroke-width="0" />
 <text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="30.8" lengthAdjust="spacingAndGlyphs">15</text>
-<rect x="100.0" y="360.0" width="481.0" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
-<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="441.0" lengthAdjust="spacingAndGlyphs">REDUCTIONS AND THE DOT PRODUCT</text>
+<rect x="100.0" y="360.0" width="466.3" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
+<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="426.3" lengthAdjust="spacingAndGlyphs">REDUCTION AND THE DOT PRODUCT</text>
 <rect x="738.2" y="364.0" width="193.8" height="32.0" rx="16" fill="#ffffffdd" stroke="none" stroke-width="0" />
 <text x="835.1" y="386.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#27405a" text-anchor="middle"  textLength="161.8" lengthAdjust="spacingAndGlyphs">The pyramid crabs</text>
 </svg>

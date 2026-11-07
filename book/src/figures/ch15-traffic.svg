@@ -1,78 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 516" width="660" height="516" role="img" aria-label="Left, map then reduce: per pair of elements the GPU reads a[i] and b[i], writes p[i] and reads p[i] back, 4 bytes each, 16 bytes per pair, 268 MB for 16,777,216 pairs. Right, the fused kernel reads only a[i] and b[i]: 8 bytes per pair, 134 MB.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 286" width="640" height="286" role="img" aria-label="Bytes moved per pair. Map then reduce reads a[i] and b[i], writes p[i] and reads it back: 16 bytes. The fused kernel reads a[i] and b[i] and adds the product to a register: 8 bytes. For 16,777,216 pairs, 268 MB against 134 MB, 2.63 ms against 1.32 ms at 102 GB/s.">
   <style>
-    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
-    .title { font-size: 18px; font-weight: 650; }
-    .lede { font-size: 12.5px; fill: #5D6B7A; }
-    .name { font-size: 14px; font-weight: 650; }
-    .sub { font-size: 12px; fill: #5D6B7A; }
-    .note { font-size: 12px; fill: #5D6B7A; }
-    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
-    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
-    .dim { fill: #8794A3; }
-    .strong { font-weight: 700; }
-    .trap { fill: #CF4526; font-weight: 700; }
-    .pill { font-size: 11px; font-weight: 600; }
-    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
-    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
-    </filter>
-    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
-    </linearGradient>
-    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
-    </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
   </defs>
-  <rect width="660" height="516" rx="14" fill="#FBFAF6"/>
-  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Memory traffic of the 2 designs</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Bytes moved per pair of elements, with 4-byte floats.</text>
-  <rect x="16" y="104" width="300" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
-  <rect x="34" y="93" width="153.9" height="22" rx="11" fill="#1B2430"/>
-  <text x="110.9" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">MAP, THEN REDUCE</text>
-  <rect x="344" y="104" width="300" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
-  <rect x="362" y="93" width="67.3" height="22" rx="11" fill="#1B2430"/>
-  <text x="395.7" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">FUSED</text>
-  <rect x="40.0" y="136.0" width="150.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
-  <text x="115.0" y="157.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read a[i]</text>
-  <text x="206.0" y="158.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">4 B</text>
-  <rect x="40.0" y="182.0" width="150.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
-  <text x="115.0" y="203.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read b[i]</text>
-  <text x="206.0" y="204.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">4 B</text>
-  <rect x="40.0" y="228.0" width="150.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
-  <text x="115.0" y="249.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">write p[i]</text>
-  <text x="206.0" y="250.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">4 B</text>
-  <rect x="40.0" y="274.0" width="150.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
-  <text x="115.0" y="295.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">read p[i]</text>
-  <text x="206.0" y="296.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">4 B</text>
-  <rect x="368.0" y="136.0" width="150.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
-  <text x="443.0" y="157.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read a[i]</text>
-  <text x="534.0" y="158.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">4 B</text>
-  <rect x="368.0" y="182.0" width="150.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
-  <text x="443.0" y="203.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read b[i]</text>
-  <text x="534.0" y="204.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">4 B</text>
-  <line x1="40.0" y1="330.0" x2="290.0" y2="330.0" stroke="#D5DBE3" stroke-width="1"/>
-  <line x1="368.0" y1="330.0" x2="618.0" y2="330.0" stroke="#D5DBE3" stroke-width="1"/>
-  <text x="40.0" y="356.0" class="name" text-anchor="start" xml:space="preserve">16 B per pair</text>
-  <text x="368.0" y="356.0" class="name" text-anchor="start" xml:space="preserve">8 B per pair</text>
-  <text x="40.0" y="382.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">N = 16,777,216: 268 MB</text>
-  <text x="368.0" y="382.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">N = 16,777,216: 134 MB</text>
-  <rect x="40" y="428" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
-  <text x="61.0" y="439.5" class="note" text-anchor="start" xml:space="preserve">input, read once</text>
-  <rect x="188.60000000000002" y="428" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
-  <text x="209.6" y="439.5" class="note" text-anchor="start" xml:space="preserve">product array, written and read</text>
-  <text x="16.0" y="476.0" class="note" text-anchor="start" xml:space="preserve">The product array p exists only to carry values from the map to the reduce. A</text>
-  <text x="16.0" y="494.0" class="note" text-anchor="start" xml:space="preserve">kernel that adds each product as soon as it is computed never stores it.</text>
+  <rect width="640" height="286" rx="12" fill="#FFFFFF"/>
+  <text x="20.0" y="22.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">map, then reduce: 16 bytes per pair</text>
+  <rect x="20.0" y="36.0" width="96.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="68.0" y="54.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">read a[i]</text>
+  <text x="68.0" y="80.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <rect x="124.0" y="36.0" width="96.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="172.0" y="54.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">read b[i]</text>
+  <text x="172.0" y="80.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <rect x="228.0" y="36.0" width="96.0" height="28.0" rx="5" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <text x="276.0" y="54.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">write p[i]</text>
+  <text x="276.0" y="80.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <rect x="332.0" y="36.0" width="96.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="380.0" y="54.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">read p[i]</text>
+  <text x="380.0" y="80.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <text x="450.0" y="56.0" font-size="11" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">2 kernels, p in between</text>
+  <text x="20.0" y="116.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">fused: 8 bytes per pair</text>
+  <rect x="20.0" y="130.0" width="96.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="68.0" y="148.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">read a[i]</text>
+  <text x="68.0" y="174.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <rect x="124.0" y="130.0" width="96.0" height="28.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="172.0" y="148.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">read b[i]</text>
+  <text x="172.0" y="174.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <text x="240.0" y="150.0" font-size="11" fill="#2E8B57" text-anchor="start" font-weight="400" xml:space="preserve">product added to a register, never stored</text>
+  <text x="140.0" y="214.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">map, then reduce</text>
+  <rect x="150.0" y="200.0" width="375.2" height="20.0" rx="4" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <text x="531.2" y="214.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">268 MB</text>
+  <text x="140.0" y="244.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">fused</text>
+  <rect x="150.0" y="230.0" width="187.6" height="20.0" rx="4" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1"/>
+  <text x="343.6" y="244.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">134 MB</text>
+  <text x="20.0" y="272.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">for n = 16,777,216 pairs: at 102 GB/s, 2.63 ms and 1.32 ms</text>
 </svg>

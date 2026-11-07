@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 306" width="640" height="306" role="img" aria-label="Measured rate of the grid-stride SAXPY against the number of blocks per SM on the Jetson Orin NX. Rust and C++: 1 block 32.9 and 33.8 GB/s, 2 blocks 59.7 and 61.1, 3 blocks 78.2 and 80.5, 6 blocks 88.3 and 93.1, 12 blocks 92.1 and 92.4, 48 blocks 91.9 and 90.2. A dashed line from Little&#x27;s law rises in proportion to the blocks until it meets 102 GB/s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+  </defs>
+  <rect width="640" height="306" rx="12" fill="#FFFFFF"/>
+  <text x="20.0" y="20.0" font-size="11" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">GB/s</text>
+  <line x1="70.0" y1="230.0" x2="600.0" y2="230.0" stroke="#EEF0F3" stroke-width="1"/>
+  <text x="62.0" y="234.0" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">0</text>
+  <line x1="70.0" y1="184.5" x2="600.0" y2="184.5" stroke="#EEF0F3" stroke-width="1"/>
+  <text x="62.0" y="188.5" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">25</text>
+  <line x1="70.0" y1="139.1" x2="600.0" y2="139.1" stroke="#EEF0F3" stroke-width="1"/>
+  <text x="62.0" y="143.1" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">50</text>
+  <line x1="70.0" y1="93.6" x2="600.0" y2="93.6" stroke="#EEF0F3" stroke-width="1"/>
+  <text x="62.0" y="97.6" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">75</text>
+  <line x1="70.0" y1="48.2" x2="600.0" y2="48.2" stroke="#EEF0F3" stroke-width="1"/>
+  <text x="62.0" y="52.2" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">100</text>
+  <line x1="70.0" y1="44.5" x2="600.0" y2="44.5" stroke="#C2412D" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="600.0" y="38.5" font-size="10.5" fill="#C2412D" text-anchor="end" font-weight="400" xml:space="preserve">102 GB/s</text>
+  <rect x="92.2" y="170.2" width="21.0" height="59.8" rx="3" fill="#FCE2D2" stroke="#D98654" stroke-width="1.2"/>
+  <rect x="115.2" y="168.5" width="21.0" height="61.5" rx="3" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="114.2" y="246.0" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="600" xml:space="preserve">1</text>
+  <rect x="180.5" y="121.5" width="21.0" height="108.5" rx="3" fill="#FCE2D2" stroke="#D98654" stroke-width="1.2"/>
+  <rect x="203.5" y="118.9" width="21.0" height="111.1" rx="3" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="202.5" y="246.0" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="600" xml:space="preserve">2</text>
+  <rect x="268.8" y="87.8" width="21.0" height="142.2" rx="3" fill="#FCE2D2" stroke="#D98654" stroke-width="1.2"/>
+  <rect x="291.8" y="83.6" width="21.0" height="146.4" rx="3" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="290.8" y="246.0" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="600" xml:space="preserve">3</text>
+  <rect x="357.2" y="69.5" width="21.0" height="160.5" rx="3" fill="#FCE2D2" stroke="#D98654" stroke-width="1.2"/>
+  <rect x="380.2" y="60.7" width="21.0" height="169.3" rx="3" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="379.2" y="246.0" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="600" xml:space="preserve">6</text>
+  <rect x="445.5" y="62.5" width="21.0" height="167.5" rx="3" fill="#FCE2D2" stroke="#D98654" stroke-width="1.2"/>
+  <rect x="468.5" y="62.0" width="21.0" height="168.0" rx="3" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="467.5" y="246.0" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="600" xml:space="preserve">12</text>
+  <rect x="533.8" y="62.9" width="21.0" height="167.1" rx="3" fill="#FCE2D2" stroke="#D98654" stroke-width="1.2"/>
+  <rect x="556.8" y="66.0" width="21.0" height="164.0" rx="3" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="555.8" y="246.0" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="600" xml:space="preserve">48</text>
+  <path d="M114.2,170.2 L202.5,110.4 L290.8,50.5 L379.2,44.5 L467.5,44.5 L555.8,44.5" fill="none" stroke="#4F52C4" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="335.0" y="266.0" font-size="11.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">blocks of 256 threads per SM</text>
+  <rect x="70.0" y="280.0" width="14.0" height="14.0" rx="3" fill="#FCE2D2" stroke="#D98654" stroke-width="1.2"/>
+  <text x="90.0" y="291.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">Rust</text>
+  <rect x="150.0" y="280.0" width="14.0" height="14.0" rx="3" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="170.0" y="291.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">C++</text>
+  <line x1="230.0" y1="287.0" x2="256.0" y2="287.0" stroke="#4F52C4" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="262.0" y="291.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">Little&#x27;s law: 16,384 B in flight per block per SM, latency 0.50 µs</text>
+</svg>
