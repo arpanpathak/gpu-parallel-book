@@ -78,5 +78,5 @@
   <text x="286.0" y="348.0" class="note" text-anchor="middle" xml:space="preserve">p</text>
   <rect x="566.2" y="306" width="33.8" height="18" rx="9" fill="#FBF1DC"/>
   <text x="583.1" y="318.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">8 B</text>
-  <text x="40.0" y="372.0" class="note" text-anchor="start" xml:space="preserve">The fused kernel reads each value once and keeps it in a register for all 3 steps.</text>
+  <text x="40.0" y="372.0" class="note" text-anchor="start" xml:space="preserve">Layer norm: sum of squares and Welford read twice (12 B); fused reads once (8 B).</text>
 </svg>
