@@ -548,10 +548,10 @@ threads now load 2 slots? Measure the 2 versions.<br>
 ### 20.7.1 Results
 
 The measurements come from a Jetson Orin NX, an integrated GPU with 8 SMs and 102 GB/s of memory
-bandwidth; both programs give the same results, bit for bit, on a Jetson AGX Thor. Both programs
+bandwidth. Both programs
 time each kernel on a 4096 × 4096 plate after 0.4 s of warm-up, average 50 launches, and report the effective bandwidth of Chapter 19: 8 bytes per cell
 per step, divided by the time of a step. Repeated runs differ by 10 to 20%. The C++ program printed
-on the Orin NX:
+on the measured GPU:
 
 ```console
 2. 4096 x 4096 plate, 8 bytes per cell per step (1 read, 1 write)
@@ -580,8 +580,8 @@ are slower than the C++ ones throughout, for the reason measured in Section 19.8
 positions in 64-bit integers and derive the height with a division.
 
 <figure>
-<img src="../../figures/ch20-bandwidth.svg" alt="Horizontal bars of effective bandwidth on a 4096 by 4096 grid on the Orin NX, for C++ and Rust: copy, direct kernel, tiled with a loading loop, tiled with extra threads, and 4 steps per load. In C++: 76.6, 68.3, 43.4, 45.8 and 63.5 GB/s. The direct kernel is the fastest stencil kernel in both languages.">
-<figcaption><b>Figure 20.9</b> Effective bandwidth on the Orin NX: neither tiled kernel beats the direct kernel.</figcaption>
+<img src="../../figures/ch20-bandwidth.svg" alt="Horizontal bars of effective bandwidth on a 4096 by 4096 grid on the measured GPU, for C++ and Rust: copy, direct kernel, tiled with a loading loop, tiled with extra threads, and 4 steps per load. In C++: 76.6, 68.3, 43.4, 45.8 and 63.5 GB/s. The direct kernel is the fastest stencil kernel in both languages.">
+<figcaption><b>Figure 20.9</b> Effective bandwidth on the measured GPU: neither tiled kernel beats the direct kernel.</figcaption>
 </figure>
 
 ### 20.7.2 Why the tile gains nothing here
@@ -596,7 +596,7 @@ remove only the traffic that reaches memory, and here the caches have removed it
 2 further measurements support this account. First, we bypassed the L1 cache in the direct kernel
 (each neighbour read with the C++ intrinsic `__ldcg`, which reads through L2 only): it ran at 61.4
 to 63.7 GB/s, 7 to 10% slower. The L2 cache alone captures most of the reuse, and the 2 MiB L2 of
-the Orin NX holds the few rows that a wave of blocks shares. Second, the tile is not free. The
+the measured GPU holds the few rows that a wave of blocks shares. Second, the tile is not free. The
 tiled kernels compute a tile position for every slot, store it to shared memory and read it back,
 and wait at a barrier. During the wait, a warp that has finished its loads issues nothing. Deleting
 the barrier from the loop loader, which gives wrong results, cut its time from 3.10 ms to 2.83 ms,
@@ -606,7 +606,7 @@ keeps 84 of its 340 threads idle while the others compute.
 
 The result depends on the GPU. On a GPU whose caches are small compared with the number of
 threads in flight, or that does not cache global loads in L1, the direct kernel's 4 reads per cell
-reach memory, and the tile's 1.33 is a 3-fold reduction of the traffic. On the Orin NX the caches
+reach memory, and the tile's 1.33 is a 3-fold reduction of the traffic. On the measured GPU the caches
 capture the reuse of a 5-point stencil, and the tile adds only work. A stencil with more
 reuse per value, such as a 3-D stencil of radius 4 that reads 25 values per result, or a kernel that
 performs several steps on 1 tile, leaves more for the tile to capture. The next section measures the
@@ -714,7 +714,7 @@ step, all 1,024 threads of the block run the loop and wait at the barrier, thoug
 (32 - 2K)^2\\) thread-steps: 1.78 for \\(K = 4\\). We measured the C++ kernel for several \\(K\\)
 in 1 run, in which the direct kernel reached 65.0 GB/s:
 
-| \\(K\\) | Own cells per block | Bytes per cell and step | Thread-steps per cell and step | Measured, Orin NX |
+| \\(K\\) | Own cells per block | Bytes per cell and step | Thread-steps per cell and step | Measured |
 |---|---|---|---|---|
 | 1 | 30 × 30 | 8.55 | 1.14 | 30.3 GB/s |
 | 2 | 28 × 28 | 4.61 | 1.31 | 48.4 GB/s |
@@ -724,7 +724,7 @@ in 1 run, in which the direct kernel reached 65.0 GB/s:
 
 <figure>
 <img src="../../figures/ch20-temporal-sweep.svg" alt="A chart over K = 1, 2, 4, 6, 8 steps per load. Bars give the modelled bytes per cell and step: 8.55, 4.61, 2.78, 2.37, 2.50. Under each bar, the thread-steps per kept cell and step: 1.14, 1.31, 1.78, 2.56, 4.00. Points give the measured effective bandwidth: 30.3, 48.4, 62.4, 57.1, 43.7 GB/s, highest at K = 4. A dashed line marks the direct kernel in the same run at 65.0 GB/s.">
-<figcaption><b>Figure 20.11</b> Temporal blocking on the Orin NX: traffic falls with \(K\), work grows, and the speed peaks at \(K = 4\), below the direct kernel.</figcaption>
+<figcaption><b>Figure 20.11</b> Temporal blocking on the measured GPU: traffic falls with \(K\), work grows, and the speed peaks at \(K = 4\), below the direct kernel.</figcaption>
 </figure>
 
 From \\(K = 1\\) to \\(K = 4\\) the traffic falls by a factor of 3 and the speed doubles. Beyond
@@ -732,7 +732,7 @@ From \\(K = 1\\) to \\(K = 4\\) the traffic falls by a factor of 3 and the speed
 and the speed falls again: the kernel's time now follows its work, not its traffic. At its best,
 \\(K = 4\\), the temporal kernel reached 62.4 GB/s in this run, 96% of the direct kernel's 65.0
 GB/s, while moving a third of the bytes; in the run of Section 20.7 the 2 were 63.5 and 68.3 GB/s,
-93%. On the Orin NX, with 8 SMs, a 5-point step costs about as much in instructions as in
+93%. On the measured GPU, with 8 SMs, a 5-point step costs about as much in instructions as in
 memory traffic once the caches have done their part, so neither tiling nor temporal blocking beats
 the direct kernel. On a GPU with more arithmetic per byte of bandwidth, such as those with ridge
 points of 60 to 110 FLOP per byte in Chapter 2, the same reduction of traffic leaves more room for
@@ -806,7 +806,7 @@ fewer threads idle in the outer rings. Predict its thread-steps per cell for \\(
   loader per slot, the barrier, and a tile that covers every neighbour.
 - A tile of \\(T \times T\\) costs \\((T + 2)^2 / T^2\\) loads per result: 1.33 for 32 × 8, against 4
   requested by the direct kernel.
-- On the Orin NX the caches already reduce the direct kernel to about 1.25 loads per cell, so the
+- On the measured GPU the caches already reduce the direct kernel to about 1.25 loads per cell, so the
   tiled kernels ran slower, 43.4 and 45.8 GB/s against 68.3 GB/s.
 - Temporal blocking with \\(K = 4\\) steps per load cuts the traffic to 2.78 bytes per cell and
   step and reached 63.5 GB/s, 93% of the direct kernel; beyond \\(K = 4\\) the extra work

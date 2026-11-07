@@ -639,7 +639,7 @@ grid moves at least 134 MB, while the exchange moves 80 bytes of host memory.
 
 ### 19.6.3 Running the example
 
-Both programs print the same values; the Rust program on the Orin NX prints:
+Both programs print the same values; the Rust program prints:
 
 ```console
 $ cargo oxide run
@@ -827,12 +827,11 @@ can be no faster than a copy of the grid, which moves the same 8 bytes per cell.
 ### 19.8.2 Measurements
 
 The measurements come from a Jetson Orin NX, an integrated GPU with 8 SMs and 102 GB/s of memory
-bandwidth; both programs also give the same results, bit for bit, on a Jetson AGX Thor (20 SMs,
-273 GB/s). Both programs time a step on a 4096 × 4096 grid, 64 MiB per buffer, far larger than the
-2 MiB L2 cache of the Orin NX, so that the grid must come from memory.
+bandwidth. Both programs time a step on a 4096 × 4096 grid, 64 MiB per buffer, far larger than the
+2 MiB L2 cache of the measured GPU, so that the grid must come from memory.
 Each program first runs the kernel for 0.4 s, because these GPUs raise their clock frequency only
 under sustained load, and then averages 50 calls; repeated runs differ by 10 to 20%. The C++ program
-printed, on the Orin NX:
+printed, on the measured GPU:
 
 ```console
 3. 4096 x 4096 plate, 8 bytes per cell per step (1 read, 1 write)
@@ -857,8 +856,8 @@ PASSED
 | Jacobi step, Rust | 2.322 ms | 57.8 GB/s | 76% |
 
 <figure>
-<img src="../../figures/ch19-bandwidth.svg" alt="Horizontal bars of effective bandwidth on a 4096 by 4096 grid, Orin NX: copy kernel 76.4 GB/s, Jacobi step in C++ 68.3 GB/s, Jacobi step in Rust 57.8 GB/s. A dashed line marks the rated 102 GB/s. A second dashed line marks 67.9 GB/s, the rate predicted for 9 bytes per cell.">
-<figcaption><b>Figure 19.10</b> Effective bandwidth of a copy and of the Jacobi step on the Orin NX.</figcaption>
+<img src="../../figures/ch19-bandwidth.svg" alt="Horizontal bars of effective bandwidth on a 4096 by 4096 grid on the measured GPU: copy kernel 76.4 GB/s, Jacobi step in C++ 68.3 GB/s, Jacobi step in Rust 57.8 GB/s. A dashed line marks the rated 102 GB/s. A second dashed line marks 67.9 GB/s, the rate predicted for 9 bytes per cell.">
+<figcaption><b>Figure 19.10</b> Effective bandwidth of a copy and of the Jacobi step on the measured GPU.</figcaption>
 </figure>
 
 ### 19.8.3 Why the step runs at 89% of a copy
