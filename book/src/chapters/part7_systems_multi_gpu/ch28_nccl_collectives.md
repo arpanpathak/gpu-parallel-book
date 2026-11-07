@@ -1,8 +1,8 @@
-<img class="plate" src="../../art/ch25.svg" alt="4 geese stand in a ring on a meadow at dusk, each one a GPU of a ring all-reduce. A dashed path with arrows joins them in a circle. Each goose holds a parcel in its beak and faces the next goose, to which it hands its parcel. Around the ring from rank 0 the parcels read 1, 3, 6 and 10: a partial sum that grows as it travels. A tag says pass a chunk on, add your own, pass it on.">
+<img class="plate" src="../../art/ch28.svg" alt="4 geese stand in a ring on a meadow at dusk, each one a GPU of a ring all-reduce. A dashed path with arrows joins them in a circle. Each goose holds a parcel in its beak and faces the next goose, to which it hands its parcel. Around the ring from rank 0 the parcels read 1, 3, 6 and 10: a partial sum that grows as it travels. A tag says pass a chunk on, add your own, pass it on.">
 
-# Chapter 25: NCCL & Multi-GPU Collective Communication
+# Chapter 28: NCCL & Multi-GPU Collective Communication
 
-Chapter 24 described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
+Chapter 27 described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
 we turn to the data that programs send over those connections. When several GPUs work on 1
 problem, each GPU computes a partial result, and the partial results must be combined, usually
 in every iteration of the program. The time that this combination takes depends not only on the
@@ -39,9 +39,9 @@ for C++ and in
 [`code/oxide/ch19_collectives/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch19_collectives)
 for Rust.
 
-## 25.1 The multi-GPU programming problem
+## 28.1 The multi-GPU programming problem
 
-### 25.1.1 Data parallelism
+### 28.1.1 Data parallelism
 
 The most common reason to combine data across GPUs is the training of neural networks, so we
 use it as our running example. A neural network computes its output from a large set of numbers
@@ -74,7 +74,7 @@ Real models have far more parameters. A model with 250 million parameters stored
 has a gradient of 250 × 10<sup>6</sup> × 4 bytes = 1 GB, and every rank must combine its 1 GB
 with the gradients of all the other ranks in every step.
 
-### 25.1.2 Combining gradients at a single rank
+### 28.1.2 Combining gradients at a single rank
 
 The most straightforward way to combine the gradients is to choose 1 rank as a collector. Every
 other rank sends its gradient to the collector, the collector adds the gradients, and then it
@@ -93,7 +93,7 @@ therefore takes 24 ms. During those 24 ms, the links of ranks 1, 2 and 3 each ca
 in each direction, a third of what the link of rank 0 carries.
 
 In general, the link of the collector carries k − 1 times the message in each direction, so the
-time grows with the number of ranks while the other links are mostly idle. Section 25.4 presents
+time grows with the number of ranks while the other links are mostly idle. Section 28.4 presents
 an algorithm in which every link carries the same share, 150 MB in this example, and the same
 exchange takes 6 ms.
 
@@ -104,21 +104,21 @@ bytes evenly over all the links.
 
 </div>
 
-## 25.2 Collective operations
+## 28.2 Collective operations
 
-### 25.2.1 Common collective operations
+### 28.2.1 Common collective operations
 
 A **collective operation** is an operation in which every rank of a group takes part and whose
 result depends on data from all of the ranks. Every rank calls the same operation, and no rank
 can complete it alone. Some collectives single out 1 rank, called the **root**, which sends data
 to all the other ranks or receives data from all of them.
 
-5 collectives cover most programs. Figure 25.1 shows each of them for 4 ranks that hold 4 numbers
+5 collectives cover most programs. Figure 28.1 shows each of them for 4 ranks that hold 4 numbers
 each. The element-by-element sum of the 4 ranks' data is 4, 6, 7, 5.
 
 <figure>
-<img src="../../figures/ch25-collectives.svg" alt="Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds 1 0 2 1, and afterwards every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 1, and afterwards rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends with all 4, 4 6 7 5.">
-<figcaption><b>Figure 25.1</b> The 5 collectives on 4 ranks: the data on every rank before and after the operation.</figcaption>
+<img src="../../figures/ch28-collectives.svg" alt="Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds 1 0 2 1, and afterwards every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 1, and afterwards rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends with all 4, 4 6 7 5.">
+<figcaption><b>Figure 28.1</b> The 5 collectives on 4 ranks: the data on every rank before and after the operation.</figcaption>
 </figure>
 
 | Collective | Before | After |
@@ -132,7 +132,7 @@ each. The element-by-element sum of the 4 ranks' data is 4, 6, 7, 5.
 Data-parallel training needs an all-reduce, because every rank contributes a gradient and every
 rank needs the sum.
 
-### 25.2.2 Reduction operators
+### 28.2.2 Reduction operators
 
 The combination is computed by a **reduction operator** that is applied element by element, such
 as a sum, a product, a minimum or a maximum. The operator must be **associative**, that is,
@@ -145,15 +145,15 @@ algorithms that group the same additions differently can therefore return result
 the last bits. For this reason, the tests in this chapter use small whole numbers, whose sums are
 exact in any order, so that every rank's result can be compared exactly with the expected sum.
 
-### 25.2.3 Relations between collectives
+### 28.2.3 Relations between collectives
 
 The 5 collectives are related to each other. An all-reduce produces the same result as a reduce
 followed by a broadcast. It also produces the same result as a reduce-scatter followed by an
-all-gather. In Figure 25.1, the reduce-scatter leaves the sum 4, 6, 7, 5 spread over the 4 ranks,
+all-gather. In Figure 28.1, the reduce-scatter leaves the sum 4, 6, 7, 5 spread over the 4 ranks,
 1 number on each rank. The all-gather then gives every rank all 4 numbers, which is the result of
 the all-reduce.
 
-The ring algorithm of Section 25.4 uses the second decomposition. Its first half makes each rank
+The ring algorithm of Section 28.4 uses the second decomposition. Its first half makes each rank
 responsible for computing 1 piece of the sum, so the additions are divided evenly among the
 ranks. Its second half distributes the finished pieces to all ranks.
 
@@ -165,7 +165,7 @@ and every rank needs the result.
 
 </details>
 
-## 25.3 A cost model for messages
+## 28.3 A cost model for messages
 
 To compare algorithms, we need an estimate of the time that 1 message takes. In Section 4.3, we
 modelled a copy between the host and the device as a fixed start-up time plus the number of bytes
@@ -198,15 +198,15 @@ whereas a good algorithm for large messages sends few bytes over each link. As w
 next 2 sections, the ring is the better algorithm for large messages and the tree is the better
 algorithm for small ones.
 
-## 25.4 Ring all-reduce
+## 28.4 Ring all-reduce
 
-### 25.4.1 Chunks and steps of the ring
+### 28.4.1 Chunks and steps of the ring
 
 In a **ring**, the k ranks are arranged in a circle. Each rank r sends only to the next rank,
 r + 1, and receives only from the previous rank, r − 1. Rank k − 1 sends to rank 0. The message of
 m bytes on each rank is divided into k equal **chunks**, numbered 0 to k − 1, of m / k bytes each.
 
-The algorithm has 2 phases, which correspond to the 2 collectives of Section 25.2.3:
+The algorithm has 2 phases, which correspond to the 2 collectives of Section 28.2.3:
 
 1. **Reduce-scatter**, k − 1 steps. In each step, every rank sends 1 chunk to the next rank, which
    adds it to its own copy of that chunk. Each chunk travels around the ring and collects the
@@ -234,7 +234,7 @@ RING ALL-REDUCE on rank r of k; data[0 .. k − 1] are r's chunks
 
 All rank numbers are taken modulo k, so the previous rank of rank 0 is rank k − 1.
 
-### 25.4.2 A ring all-reduce example
+### 28.4.2 A ring all-reduce example
 
 Let us trace the algorithm for a small case. The following example uses 4 ranks with 8 floats
 each, so each chunk holds 2 floats.
@@ -258,29 +258,29 @@ Rank r starts with r + 1 in every element, so the sum of all 4 ranks is 1 + 2 + 
 
 </div>
 
-Figure 25.2 shows the data of every rank after every step. These are also the values that the
-program of Section 25.6 prints when it runs this case.
+Figure 28.2 shows the data of every rank after every step. These are also the values that the
+program of Section 28.6 prints when it runs this case.
 
 <figure>
-<img src="../../figures/ch25-ring-steps.svg" alt="A table of 7 rows, start and steps 1 to 6, and 4 columns, ranks 0 to 3, each with 4 chunks c0 to c3. At the start rank r holds r + 1 in every chunk. In step 1 rank 1's c0 becomes 3, rank 2's c1 5, rank 3's c2 7 and rank 0's c3 5. After step 3 rank 0 holds 10 in c1, rank 1 in c2, rank 2 in c3 and rank 3 in c0. Steps 4 to 6 copy each 10 around the ring until every chunk of every rank is 10.">
-<figcaption><b>Figure 25.2</b> Ring all-reduce on 4 ranks: 3 steps of reduce-scatter, then 3 steps of all-gather.</figcaption>
+<img src="../../figures/ch28-ring-steps.svg" alt="A table of 7 rows, start and steps 1 to 6, and 4 columns, ranks 0 to 3, each with 4 chunks c0 to c3. At the start rank r holds r + 1 in every chunk. In step 1 rank 1's c0 becomes 3, rank 2's c1 5, rank 3's c2 7 and rank 0's c3 5. After step 3 rank 0 holds 10 in c1, rank 1 in c2, rank 2 in c3 and rank 3 in c0. Steps 4 to 6 copy each 10 around the ring until every chunk of every rank is 10.">
+<figcaption><b>Figure 28.2</b> Ring all-reduce on 4 ranks: 3 steps of reduce-scatter, then 3 steps of all-gather.</figcaption>
 </figure>
 
 Animation 1 shows the same 6 steps with the chunks in transit between the ranks.
 
 <figure class="anim">
-<video class="motion" src="../../figures/ch25-ring-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="4 ranks at the corners of a square ring, each with 4 chunks. Rank r starts with r + 1 in every chunk. In each of 6 steps, 4 cards fly at once from each rank to the next. In steps 1 to 3 the receiver adds, and the values grow until each rank holds 1 chunk of 10; in steps 4 to 6 the tens are copied around until all 16 chunks read 10." data-chapters="[[0.0, &quot;the ring&quot;], [5.7, &quot;reduce-scatter&quot;], [29.52, &quot;all-gather&quot;]]"><img src="../../figures/ch25-ring-anim.gif" alt="4 ranks at the corners of a square ring, each with 4 chunks. Rank r starts with r + 1 in every chunk. In each of 6 steps, 4 cards fly at once from each rank to the next. In steps 1 to 3 the receiver adds, and the values grow until each rank holds 1 chunk of 10; in steps 4 to 6 the tens are copied around until all 16 chunks read 10."></video>
+<video class="motion" src="../../figures/ch28-ring-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="4 ranks at the corners of a square ring, each with 4 chunks. Rank r starts with r + 1 in every chunk. In each of 6 steps, 4 cards fly at once from each rank to the next. In steps 1 to 3 the receiver adds, and the values grow until each rank holds 1 chunk of 10; in steps 4 to 6 the tens are copied around until all 16 chunks read 10." data-chapters="[[0.0, &quot;the ring&quot;], [5.7, &quot;reduce-scatter&quot;], [29.52, &quot;all-gather&quot;]]"><img src="../../figures/ch28-ring-anim.gif" alt="4 ranks at the corners of a square ring, each with 4 chunks. Rank r starts with r + 1 in every chunk. In each of 6 steps, 4 cards fly at once from each rank to the next. In steps 1 to 3 the receiver adds, and the values grow until each rank holds 1 chunk of 10; in steps 4 to 6 the tens are copied around until all 16 chunks read 10."></video>
 <figcaption><b>Animation 1</b> The 6 steps of a ring all-reduce: every link carries 1 chunk per step.</figcaption>
 </figure>
 
-### 25.4.3 Steps and bytes of the ring
+### 28.4.3 Steps and bytes of the ring
 
 Each phase of the ring takes k − 1 steps, so the all-reduce takes 2 (k − 1) steps. In each step, a
 rank sends 1 chunk of m / k bytes. Over the whole all-reduce, each rank therefore sends
 
 \\[ 2 (k - 1) \cdot \frac{m}{k} = \frac{2 (k - 1)}{k} \, m \\]
 
-bytes, and it receives the same number of bytes. In the example of Section 25.4.2, k = 4 and
+bytes, and it receives the same number of bytes. In the example of Section 28.4.2, k = 4 and
 m = 8 floats, so each rank sends 1 chunk of 2 floats in each of 6 steps, 12 floats in all. This is
 2 × 3 / 4 = 1.5 times the message of 8 floats.
 
@@ -290,11 +290,11 @@ the number of ranks. Patarasuk and Yuan proved in 2009 that in any all-reduce al
 must send at least 2 (k − 1) / k of the message over its link. The ring reaches this lower bound,
 so it is said to be **bandwidth-optimal**.
 
-With the cost model of Section 25.3, the time of a ring all-reduce is
+With the cost model of Section 28.3, the time of a ring all-reduce is
 
 \\[ T_{\text{ring}} = 2 (k - 1) \, \alpha + \frac{2 (k - 1)}{k} \cdot \frac{m}{B} \\]
 
-| Symbol | Meaning | For the example of section 25.1.2 |
+| Symbol | Meaning | For the example of section 28.1.2 |
 |---|---|---|
 | \\(k\\) | number of ranks | 4 |
 | \\(m\\) | message per rank | 100 MB |
@@ -302,16 +302,16 @@ With the cost model of Section 25.3, the time of a ring all-reduce is
 | \\(2 (k - 1) m / k\\) | bytes that each link carries in each direction | 150 MB |
 | \\(T_{\text{ring}}\\) | the time, with α = 10 µs and B = 25 GB/s | 0.06 ms + 6 ms |
 
-### 25.4.4 Comparison with a single collecting rank
+### 28.4.4 Comparison with a single collecting rank
 
-Figure 25.3 compares the ring with the collector of Section 25.1.2, for the same 4 ranks, 100 MB
+Figure 28.3 compares the ring with the collector of Section 28.1.2, for the same 4 ranks, 100 MB
 and links of 25 GB/s. The link of the collector carries 300 MB in each direction, which takes
 24 ms. Each link of the ring carries 2 × 3 / 4 × 100 MB = 150 MB in each direction, and all the
 links work at the same time, so the exchange takes 6 ms.
 
 <figure>
-<img src="../../figures/ch25-star-ring.svg" alt="Two zones. Left, 1 collector: ranks 1, 2 and 3 each send 100 MB up to rank 0, so rank 0's link carries 300 MB in and then 300 MB back out, 24 ms at 25 GB/s. Right, a ring of 4 ranks: each link carries 150 MB in each direction, all links at once, 6 ms.">
-<figcaption><b>Figure 25.3</b> The same all-reduce of 100 MB: 24 ms with 1 collector, 6 ms with a ring.</figcaption>
+<img src="../../figures/ch28-star-ring.svg" alt="Two zones. Left, 1 collector: ranks 1, 2 and 3 each send 100 MB up to rank 0, so rank 0's link carries 300 MB in and then 300 MB back out, 24 ms at 25 GB/s. Right, a ring of 4 ranks: each link carries 150 MB in each direction, all links at once, 6 ms.">
+<figcaption><b>Figure 28.3</b> The same all-reduce of 100 MB: 24 ms with 1 collector, 6 ms with a ring.</figcaption>
 </figure>
 
 In general, the ratio between the 2 times is k. The link of the collector moves 2 (k − 1) m bytes,
@@ -322,7 +322,7 @@ the 6 ms total. For a small message, however, the fixed time is nearly all of th
 
 For large messages, the bandwidth term determines how long an all-reduce takes on real hardware.
 The following table assumes 8 GPUs in a ring and a gradient of 1 GB, the 250 million parameters of
-Section 25.1.1. It gives the bandwidth term, 1.75 × 1 GB ÷ B, at the rated bandwidth of each kind of
+Section 28.1.1. It gives the bandwidth term, 1.75 × 1 GB ÷ B, at the rated bandwidth of each kind of
 link in 1 direction. Measured transfers reach less than the rated bandwidth, as we found for PCIe
 in Chapter 4.
 
@@ -346,9 +346,9 @@ message for any number of ranks.
 
 </div>
 
-## 25.5 Tree all-reduce
+## 28.5 Tree all-reduce
 
-### 25.5.1 Binomial trees
+### 28.5.1 Binomial trees
 
 The ring needs 2 (k − 1) steps, and each step pays the latency α. For 1,024 ranks, this is 2,046
 steps. A tree needs far fewer steps. A **binomial tree** pairs up the ranks, then pairs up the
@@ -376,11 +376,11 @@ TREE ALL-REDUCE over k = 2^d ranks
 ```
 
 <figure>
-<img src="../../figures/ch25-tree.svg" alt="Eight columns, ranks 0 to 7, and 6 rows of arrows. Reduce: in step 1 ranks 1, 3, 5 and 7 send to 0, 2, 4 and 6; in step 2 ranks 2 and 6 send to 0 and 4; in step 3 rank 4 sends to 0. Broadcast mirrors it: rank 0 sends to 4, then 0 and 4 send to 2 and 6, then 0, 2, 4 and 6 send to 1, 3, 5 and 7. 6 steps; rank 0 sends and receives the whole message 3 times.">
-<figcaption><b>Figure 25.4</b> A tree all-reduce of 8 ranks: 3 steps up the tree, 3 steps down.</figcaption>
+<img src="../../figures/ch28-tree.svg" alt="Eight columns, ranks 0 to 7, and 6 rows of arrows. Reduce: in step 1 ranks 1, 3, 5 and 7 send to 0, 2, 4 and 6; in step 2 ranks 2 and 6 send to 0 and 4; in step 3 rank 4 sends to 0. Broadcast mirrors it: rank 0 sends to 4, then 0 and 4 send to 2 and 6, then 0, 2, 4 and 6 send to 1, 3, 5 and 7. 6 steps; rank 0 sends and receives the whole message 3 times.">
+<figcaption><b>Figure 28.4</b> A tree all-reduce of 8 ranks: 3 steps up the tree, 3 steps down.</figcaption>
 </figure>
 
-Figure 25.4 shows the tree for k = 8. The all-reduce takes 2 × log<sub>2</sub> 8 = 6 steps,
+Figure 28.4 shows the tree for k = 8. The all-reduce takes 2 × log<sub>2</sub> 8 = 6 steps,
 compared with 2 × 7 = 14 steps for a ring of 8 ranks. However, every arrow in the tree carries the
 whole message of m bytes, because the message is not divided into chunks. Rank 0 receives a
 message in each of the 3 steps of the reduce phase and sends a message in each of the 3 steps of
@@ -392,7 +392,7 @@ ranks. The time of the tree all-reduce is therefore
 Compared with the ring, the number of steps contains \\(\log_2 k\\) in place of \\(k - 1\\), and
 every step carries the whole message rather than a chunk.
 
-### 25.5.2 Choosing between the ring and the tree
+### 28.5.2 Choosing between the ring and the tree
 
 Having derived the time of both algorithms, we can now determine which one is faster for a given
 message size. For k = 8, the 2 formulas are
@@ -416,13 +416,13 @@ Worked example: the crossover for α = 10 µs, B = 25 GB/s, k = 8
 
 </div>
 
-Below 470 KB the tree is faster, and above 470 KB the ring is faster. Figure 25.5 plots both
+Below 470 KB the tree is faster, and above 470 KB the ring is faster. Figure 28.5 plots both
 formulas for messages from 1 KB to 1 GB. For a message of 4 KB, the tree takes 60 µs and the ring
 140 µs. For a message of 1 GB, the ring takes 70 ms and the tree 240 ms.
 
 <figure>
-<img src="../../figures/ch25-alpha-beta.svg" alt="A log-log chart of time against message size from 1 KB to 1 GB for an all-reduce over 8 ranks with alpha = 10 microseconds and B = 25 GB/s. The tree line starts lower, at 60 microseconds for small messages, against 140 for the ring. The lines cross at 470 KB and 0.17 ms. For large messages the ring is lower, 1.75 m / B against 6 m / B for the tree.">
-<figcaption><b>Figure 25.5</b> The cost model for 8 ranks: the tree is faster below 470 KB, the ring above.</figcaption>
+<img src="../../figures/ch28-alpha-beta.svg" alt="A log-log chart of time against message size from 1 KB to 1 GB for an all-reduce over 8 ranks with alpha = 10 microseconds and B = 25 GB/s. The tree line starts lower, at 60 microseconds for small messages, against 140 for the ring. The lines cross at 470 KB and 0.17 ms. For large messages the ring is lower, 1.75 m / B against 6 m / B for the tree.">
+<figcaption><b>Figure 28.5</b> The cost model for 8 ranks: the tree is faster below 470 KB, the ring above.</figcaption>
 </figure>
 
 A gradient of 1 GB is far above the crossover, which is why rings carry most of the traffic of
@@ -447,9 +447,9 @@ ring steps, so the tree remains faster up to larger messages.
 
 </details>
 
-## 25.6 Simulating collectives on 1 GPU
+## 28.6 Simulating collectives on 1 GPU
 
-### 25.6.1 Ranks as slices of a buffer
+### 28.6.1 Ranks as slices of a buffer
 
 We now implement both algorithms. The program of this section runs them on 1 GPU by placing all k
 ranks in the memory of that GPU, as k slices of 1 buffer. Rank r owns the floats from r n to
@@ -457,31 +457,31 @@ r n + n − 1, where n is the number of floats per rank. A send from rank r to r
 becomes a read from 1 slice and a write into another.
 
 Note that the program measures the algorithms, not a network. All the simulated links share the
-memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. Section 25.6.4
+memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. Section 28.6.4
 shows how this affects the measured times.
 
 The program first converts an algorithm into a **plan**: a list of steps, each of which is a list of
 **transfers** that run at the same time. A transfer specifies the offset that it reads from and the
 offset that it writes to, and its step specifies whether the transfer adds to the destination or
-overwrites it. Listing 25.1 shows the data structures. The function `addStep` appends the
+overwrites it. Listing 28.1 shows the data structures. The function `addStep` appends the
 transfers of 1 step to the plan and records where they start, how many there are, how many floats
 each one moves, and whether they add.
 
-<p class="listing"><b>Listing 25.1</b> A plan of steps and transfers, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+<p class="listing"><b>Listing 28.1</b> A plan of steps and transfers, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:19:43}}
 ```
 
-The function `ring` in Listing 25.2 builds the plan of the pseudocode of Section 25.4.1. The first
+The function `ring` in Listing 28.2 builds the plan of the pseudocode of Section 28.4.1. The first
 loop creates the k − 1 reduce-scatter steps. In step `s`, rank `r` sends its chunk
 `(r − s) mod k` to rank `(r + 1) % k`, and the step adds. The second loop creates the k − 1
 all-gather steps, in which rank `r` sends its chunk `(r + 1 − s) mod k`, and the step overwrites.
 The term `+ k` inside each `%` keeps the left operand positive, because the `%` of a negative
-`int` is negative in C++. The function `tree` builds the 2 phases of Section 25.5.1 in the same
+`int` is negative in C++. The function `tree` builds the 2 phases of Section 28.5.1 in the same
 way, with the distance `d` doubling in the reduce phase and halving in the broadcast phase.
 
-<p class="listing"><b>Listing 25.2</b> The ring and the tree as plans, in C++.</p>
+<p class="listing"><b>Listing 28.2</b> The ring and the tree as plans, in C++.</p>
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:45:97}}
@@ -491,22 +491,22 @@ The Rust version builds the same plans. It stores each transfer as 2 numbers in 
 so that the plan can be copied to the GPU with `DeviceBuffer::from_host` and read by the kernel as
 a `&[u32]`.
 
-<p class="listing"><b>Listing 25.3</b> The ring and the tree as plans, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
+<p class="listing"><b>Listing 28.3</b> The ring and the tree as plans, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch19_collectives/src/main.rs:106:144}}
 ```
 
-### 25.6.2 The step kernel
+### 28.6.2 The step kernel
 
 Each step of a plan runs as 1 launch of 1 **kernel**, the function that runs on the GPU. All the
 transfers of a step share the launch. If a step has `count` transfers and each transfer is given
 `per` blocks, block `b` works on transfer `b / per`, and the `per` blocks of a transfer stride
-through its floats together. Figure 25.6 shows step one of the ring for 4 ranks.
+through its floats together. Figure 28.6 shows step one of the ring for 4 ranks.
 
 <figure>
-<img src="../../figures/ch25-plan.svg" alt="A buffer of 16 chunks, 4 per rank. In step 1 of reduce-scatter, 4 arrows leave chunk c0 of rank 0, c1 of rank 1, c2 of rank 2 and c3 of rank 3, and land on the same chunk of the next rank; the last one wraps from rank 3 back to rank 0. Below, 2 cards: 1 step is 1 launch, with blocks divided among the transfers; no element is both read and written within a step, so the transfers cannot race.">
-<figcaption><b>Figure 25.6</b> Step one of the ring on 4 simulated ranks: 4 transfers in 1 launch.</figcaption>
+<img src="../../figures/ch28-plan.svg" alt="A buffer of 16 chunks, 4 per rank. In step 1 of reduce-scatter, 4 arrows leave chunk c0 of rank 0, c1 of rank 1, c2 of rank 2 and c3 of rank 3, and land on the same chunk of the next rank; the last one wraps from rank 3 back to rank 0. Below, 2 cards: 1 step is 1 launch, with blocks divided among the transfers; no element is both read and written within a step, so the transfers cannot race.">
+<figcaption><b>Figure 28.6</b> Step one of the ring on 4 simulated ranks: 4 transfers in 1 launch.</figcaption>
 </figure>
 
 Running all the transfers of a step in 1 launch is correct only if no transfer reads an element
@@ -517,14 +517,14 @@ that receive are 2 separate sets. The order of the steps is maintained by the **
 queue of GPU work introduced in Chapter 6: a launch starts only after the previous launch on the
 same stream has finished.
 
-In the kernel `runStep` of Listing 25.4, each thread first reads the transfer of its block,
+In the kernel `runStep` of Listing 28.4, each thread first reads the transfer of its block,
 `sends[blockIdx.x / per]`. The loop then starts at the thread's position within the `per` blocks
 of the transfer and advances by `stride`, the total number of threads that work on the transfer.
 In each iteration, the thread reads 1 float from the source slice and either adds it to the
 destination or overwrites the destination, depending on `add`. The host function `run` computes
 `per` and launches the kernel on the stream.
 
-<p class="listing"><b>Listing 25.4</b> The step kernel and its launch, in C++.</p>
+<p class="listing"><b>Listing 28.4</b> The step kernel and its launch, in C++.</p>
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:113:124}}
@@ -545,7 +545,7 @@ reads at `from + i`, where the offsets come from the plan, so it uses `get_unche
 `unsafe` block, as the per-block writes of Chapter 8 did. The `SAFETY` comment states the argument
 of the previous paragraph: no element is both read and written within 1 step.
 
-<p class="listing"><b>Listing 25.5</b> The step kernel and its launch, in Rust.</p>
+<p class="listing"><b>Listing 28.5</b> The step kernel and its launch, in Rust.</p>
 
 ```rust,ignore
 mod kernels {
@@ -563,10 +563,10 @@ impl Gpu<'_> {
 }
 ```
 
-### 25.6.3 Running the 4-rank example
+### 28.6.3 Running the 4-rank example
 
 The measurements in this section come from a Jetson Orin NX, an integrated GPU with 8 SMs and
-102 GB/s of memory bandwidth. The program first runs the example of Section 25.4.2, 4 ranks of 8
+102 GB/s of memory bandwidth. The program first runs the example of Section 28.4.2, 4 ranks of 8
 floats, 1 step at a time, and prints the data of every rank after every step.
 
 ```console
@@ -610,11 +610,11 @@ after step 6 (all-gather)
 ```
 
 Each pair of columns is 1 chunk of 2 floats. The rows agree with the steps that we traced by hand
-in Section 25.4.2. After step 1, chunk 0 of rank 1 is 3 and chunk 3 of rank 0 is 5. After step 3,
+in Section 28.4.2. After step 1, chunk 0 of rank 1 is 3 and chunk 3 of rank 0 is 5. After step 3,
 each rank holds 1 complete chunk of 10, and after step 6 all 32 floats are 10. The Rust program
 prints the same 35 lines.
 
-### 25.6.4 Timing the ring and the tree
+### 28.6.4 Timing the ring and the tree
 
 The program then runs both algorithms on 8 simulated ranks, for messages of 4 KiB, 64 KiB, 1 MiB
 and 16 MiB per rank. For each size, it times 50 all-reduces with CUDA events (Chapter 6), each
@@ -647,18 +647,18 @@ $ cargo oxide run
 every rank holds the exact sum: PASSED
 ```
 
-The first table confirms the counts of Sections 25.4.3 and 25.5.1: 14 and 6 steps, and 1.75 and 3
+The first table confirms the counts of Sections 28.4.3 and 28.5.1: 14 and 6 steps, and 1.75 and 3
 times the message through the busiest rank. Repeated runs differ by up to 25% at 1 MiB.
 
 <figure>
-<img src="../../figures/ch25-measured.svg" alt="A log-log chart of measured all-reduce time against message size on 8 simulated ranks of 1 GPU, with dashed model lines. Ring: 0.162 ms at 4 KiB, 0.226 at 64 KiB, 0.913 at 1 MiB, 7.184 at 16 MiB. Tree: 0.070, 0.143, 0.795 and 6.645 ms. At 4 KiB each step costs about 11.6 microseconds; at 16 MiB both move 587 MB of memory traffic at about 84 GB/s.">
-<figcaption><b>Figure 25.7</b> Measured on 1 GPU: small messages cost a fixed time per step, large messages a time per byte of memory traffic.</figcaption>
+<img src="../../figures/ch28-measured.svg" alt="A log-log chart of measured all-reduce time against message size on 8 simulated ranks of 1 GPU, with dashed model lines. Ring: 0.162 ms at 4 KiB, 0.226 at 64 KiB, 0.913 at 1 MiB, 7.184 at 16 MiB. Tree: 0.070, 0.143, 0.795 and 6.645 ms. At 4 KiB each step costs about 11.6 microseconds; at 16 MiB both move 587 MB of memory traffic at about 84 GB/s.">
+<figcaption><b>Figure 28.7</b> Measured on 1 GPU: small messages cost a fixed time per step, large messages a time per byte of memory traffic.</figcaption>
 </figure>
 
 For small messages, the time follows the number of steps. At 4 KiB, the ring took 0.162 ms for 14
 steps, 11.6 µs per step, and the tree took 0.070 ms for 6 steps, 11.7 µs per step. The tree was
 0.162 ÷ 0.070 = 2.3 times as fast, which is the ratio of the step counts, 14 ÷ 6 = 2.3. On this
-GPU, the α of a step is therefore about 12 µs. A timeline from Nsight Systems (Chapter 22) divides
+GPU, the α of a step is therefore about 12 µs. A timeline from Nsight Systems (Chapter 25) divides
 it into about 9 µs inside the step kernel and 3.5 µs between 1 kernel and the next.
 
 For large messages, the time follows the memory traffic. At 16 MiB, the 2 algorithms took about
@@ -671,7 +671,7 @@ the ring and in the tree alike. This is 35 bytes of memory traffic for every byt
 The ring took 7.184 ms, of which 0.162 ms was fixed time, so the memory moved
 587.2 MB ÷ 7.022 ms = 84 GB/s, 82% of the GPU's 102 GB/s.
 
-The dashed lines of Figure 25.7 show the model T = steps × 11.6 µs + 35 m ÷ 84 GB/s. The model
+The dashed lines of Figure 28.7 show the model T = steps × 11.6 µs + 35 m ÷ 84 GB/s. The model
 matches both ends of the measurements. At 1 MiB, where neither term dominates, the measured times
 lie about 0.3 ms above it.
 
@@ -682,12 +682,12 @@ difference, because its 8 links are 1 memory and only the total traffic matters.
 GPU therefore verifies the algorithm and measures the cost of its steps, but measuring the links
 requires 2 or more GPUs.
 
-## 25.7 NCCL
+## 28.7 NCCL
 
-### 25.7.1 Overview of NCCL
+### 28.7.1 Overview of NCCL
 
 **NCCL**, the NVIDIA Collective Communications Library (pronounced "nickel"), implements the
-collectives of Section 25.2, as well as point-to-point sends and receives, for NVIDIA GPUs. It is
+collectives of Section 28.2, as well as point-to-point sends and receives, for NVIDIA GPUs. It is
 open source, under a BSD licence, and every major deep-learning framework uses it.
 
 When a group of ranks starts, NCCL discovers the **topology** of the system: which GPUs share
@@ -702,16 +702,16 @@ Ethernet) or TCP sockets.
 Each collective runs as 1 CUDA kernel on each rank, launched on a stream that the program chooses.
 The threads of the kernel move the data and perform the additions. They keep the steps of the
 algorithm in order through flags in memory, which the threads of 1 rank write and the threads of
-the next rank wait for. Unlike the simulation of Section 25.6, which launched 1 kernel per step, no
-host thread takes part between the steps. Figure 25.8 shows where NCCL sits between a framework
+the next rank wait for. Unlike the simulation of Section 28.6, which launched 1 kernel per step, no
+host thread takes part between the steps. Figure 28.8 shows where NCCL sits between a framework
 and the hardware.
 
 <figure>
-<img src="../../figures/ch25-nccl-stack.svg" alt="Three layers. At the top, a framework such as PyTorch DistributedDataParallel asks for an all-reduce of the gradients. In the middle, NCCL keeps 1 communicator per rank, finds the topology, builds rings and trees, and runs each collective as 1 kernel on the rank's stream. At the bottom, 4 transports: NVLink and NVSwitch, PCIe peer to peer, host memory within a node, and the network, InfiniBand or RoCE.">
-<figcaption><b>Figure 25.8</b> NCCL between a framework and the links.</figcaption>
+<img src="../../figures/ch28-nccl-stack.svg" alt="Three layers. At the top, a framework such as PyTorch DistributedDataParallel asks for an all-reduce of the gradients. In the middle, NCCL keeps 1 communicator per rank, finds the topology, builds rings and trees, and runs each collective as 1 kernel on the rank's stream. At the bottom, 4 transports: NVLink and NVSwitch, PCIe peer to peer, host memory within a node, and the network, InfiniBand or RoCE.">
+<figcaption><b>Figure 28.8</b> NCCL between a framework and the links.</figcaption>
 </figure>
 
-### 25.7.2 Communicators and the unique ID
+### 28.7.2 Communicators and the unique ID
 
 A **communicator**, of type `ncclComm_t`, represents the membership of a rank in a group. It holds
 the size of the group, the number of the rank within it, and the rings and connections that NCCL
@@ -743,7 +743,7 @@ programs.
 A single process that drives every GPU of 1 server does not need the ID. It can call
 `ncclCommInitAll`, which creates k communicators at once, 1 for each device in a list.
 
-### 25.7.3 Collectives on a stream
+### 28.7.3 Collectives on a stream
 
 Once the communicator exists, an all-reduce is a single call:
 
@@ -763,7 +763,7 @@ Every rank must call the same collectives in the same order, with the same `coun
 rank calls `ncclAllReduce` while another calls `ncclBroadcast`, both wait for partners that never
 arrive.
 
-### 25.7.4 Group calls
+### 28.7.4 Group calls
 
 A single host thread may drive several GPUs, each with its own communicator. Such a thread must
 start the collective on all of its GPUs before any of them can finish, because the kernel of each
@@ -782,9 +782,9 @@ Without the group, the first call could block while it waits for ranks whose cal
 has not yet made. Group calls also combine a `ncclSend` and a `ncclRecv` into 1 exchange, which is
 how a halo is exchanged between neighbouring GPUs.
 
-## 25.8 NCCL in frameworks and performance tuning
+## 28.8 NCCL in frameworks and performance tuning
 
-### 25.8.1 PyTorch DistributedDataParallel
+### 28.8.1 PyTorch DistributedDataParallel
 
 Most programs use NCCL through a framework. In PyTorch, the launcher `torchrun` starts 1 process per
 GPU and gives each process its rank in environment variables (`RANK`, `LOCAL_RANK`,
@@ -810,7 +810,7 @@ layers first, their buckets are summed over the links while the gradients of the
 still being computed. This is the overlap of computation and data transfer from Chapter 6, applied
 to communication between GPUs.
 
-### 25.8.2 Debugging and tuning NCCL
+### 28.8.2 Debugging and tuning NCCL
 
 NCCL reads its settings from environment variables. The following table lists the ones that are
 used most often:
@@ -837,7 +837,7 @@ The NCCL tests, a separate open-source repository, measure collectives in isolat
 This command times all-reduces from 8 bytes (`-b`) to 128 MB (`-e`), doubling the size each time
 (`-f 2`), over 4 GPUs driven by 1 thread (`-g 4`). For each size, it prints 2 rates. The
 **algorithm bandwidth** is the message size divided by the time. The **bus bandwidth** is the
-algorithm bandwidth multiplied by 2 (k − 1) / k for an all-reduce, the factor of Section 25.4.3. The
+algorithm bandwidth multiplied by 2 (k − 1) / k for an all-reduce, the factor of Section 28.4.3. The
 bus bandwidth is the number of bytes that each link carried per second, so it can be compared
 directly with the rated bandwidth of the link.
 
@@ -845,15 +845,15 @@ Finally, `nvidia-smi topo -m` prints the matrix of connections between the GPUs 
 entry `NV4` means 4 NVLinks; `PIX`, `PXB`, `PHB` and `SYS` mean PCIe paths of increasing length. A
 ring that must cross a `SYS` path, between processor sockets, runs at the speed of that path.
 
-## 25.9 The complete programs
+## 28.9 The complete programs
 
-<p class="listing"><b>Listing 25.6</b> The complete <code>allreduce.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+<p class="listing"><b>Listing 28.6</b> The complete <code>allreduce.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu}}
 ```
 
-<p class="listing"><b>Listing 25.7</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
+<p class="listing"><b>Listing 28.7</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch19_collectives/src/main.rs}}
@@ -912,8 +912,8 @@ at the directions in which GPU hardware and its programming are developing.
 3. Derive the crossover size m\* between the ring and the binomial tree for k = 16, α = 5 µs and
    B = 50 GB/s.
 4. In `allreduce.cu`, change `k` to 4 and to 16 and run the program. How do the times at 4 KiB
-   change, and which count from Section 25.4.3 or 25.5.1 explains the change?
-5. The tree in Listing 25.2 assumes that k is a power of 2. Which ranks lose their partner when
+   change, and which count from Section 28.4.3 or 28.5.1 explains the change?
+5. The tree in Listing 28.2 assumes that k is a power of 2. Which ranks lose their partner when
    k = 6, and how would you change `tree` to handle them?
 6. Write a plan for an all-gather alone and add it to the program: each rank starts with 1 chunk.
    How many steps does it take, and how many bytes does each rank send?

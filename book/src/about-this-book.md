@@ -83,7 +83,7 @@ The book is organised into six parts:
 
 **Part V - Rust, CUDA-Oxide & Safe GPU Programming** (Chapters 13-15) covers Rust host code driving CUDA kernels, NVIDIA's experimental CUDA-Oxide compiler for writing kernels in pure Rust, and the image-processing capstone.
 
-**Part VI - The Engineering Mindset** (Chapter 22) covers profiling with Nsight Compute, debugging with Compute Sanitizer, and reproducible performance engineering.
+**Part VI - The Engineering Mindset** (Chapter 25) covers profiling with Nsight Compute, debugging with Compute Sanitizer, and reproducible performance engineering.
 
 ## A Note on the Coding Standards
 

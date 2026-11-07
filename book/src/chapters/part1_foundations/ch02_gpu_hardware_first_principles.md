@@ -547,7 +547,7 @@ number of blocks that fit on an SM is the smallest of
 
 where \\(\lfloor\ \rfloor\\) means rounding down, since part of a block cannot be
 resident. Occupancy is then that number of blocks times \\(T_B\\), divided by the thread
-limit. Chapter 22 shows the CUDA function that computes it.
+limit. Chapter 25 shows the CUDA function that computes it.
 
 ### 2.9.3 More is not always better
 
@@ -606,7 +606,7 @@ capability**, a version number of the form *major.minor*.
 Each generation changes the number of SMs, the size of shared memory, the tensor cores and
 many of the limits of section 2.9. A performance figure is only meaningful together with the
 compute capability on which it was measured. The `deviceQuery` sample that ships with CUDA
-prints the limits of the GPU it runs on; Chapter 22 shows how to read its output.
+prints the limits of the GPU it runs on; Chapter 25 shows how to read its output.
 
 ## Common mistakes
 

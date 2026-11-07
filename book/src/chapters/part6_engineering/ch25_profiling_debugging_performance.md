@@ -1,6 +1,6 @@
-<img class="plate" src="../../art/ch22.svg" alt="Lens, a hawk, perches on a fence post at dusk with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change one thing.">
+<img class="plate" src="../../art/ch25.svg" alt="Lens, a hawk, perches on a fence post at dusk with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change one thing.">
 
-# Chapter 22: Profiling, Debugging & Performance Engineering
+# Chapter 25: Profiling, Debugging & Performance Engineering
 
 Every performance claim in the earlier chapters rested on a measurement. We timed kernels with
 CUDA events, counted wrong elements, and compared results with a reference computed on the CPU.
@@ -42,9 +42,9 @@ for C++ and in
 for Rust. The measurements in this chapter come from 2 integrated GPUs: a Jetson Orin NX (8 SMs,
 102 GB/s), the first GPU below, and a Jetson AGX Thor (20 SMs, 273 GB/s), the second.
 
-## 22.1 Tools for performance and correctness
+## 25.1 Tools for performance and correctness
 
-### 22.1.1 Profilers, traces and counters
+### 25.1.1 Profilers, traces and counters
 
 A **profiler** is a program that records what another program does while it runs. On a GPU, 2
 kinds of record are useful. A **trace** is a list of timestamped events, such as a copy that
@@ -68,22 +68,22 @@ other tools. **Compute Sanitizer** adds checks to every memory access of a kerne
 and to every **barrier**, a point in a kernel at which the threads of a block wait for each other.
 **cuda-gdb** is a **debugger**: a program that controls another program, stops it at chosen
 points called **breakpoints**, and shows its state. cuda-gdb can stop a kernel at a source line
-and show the variables of any one of its threads. Figure 22.1 pairs each question that we ask in
+and show the variables of any one of its threads. Figure 25.1 pairs each question that we ask in
 this chapter with the tool that answers it.
 
 <figure>
-<img src="../../figures/ch22-tools.svg" alt="Seven rows, each joining a question to an instrument. Where does the time go: Nsight Systems, a timeline, section 22.2. Why is 1 kernel slow: Nsight Compute, hardware counters, 22.3. Is every access legal: Compute Sanitizer, 22.4. What does thread 232 hold: cuda-gdb, 22.5. How long does 1 load take: clock64 inside a kernel, 22.6. Can the number be trusted: a benchmark protocol, 22.7. Is the answer right: a CPU reference with a tolerance, 22.8.">
-<figcaption><b>Figure 22.1</b> Questions about a GPU program and the tools that answer them.</figcaption>
+<img src="../../figures/ch25-tools.svg" alt="Seven rows, each joining a question to an instrument. Where does the time go: Nsight Systems, a timeline, section 25.2. Why is 1 kernel slow: Nsight Compute, hardware counters, 22.3. Is every access legal: Compute Sanitizer, 22.4. What does thread 232 hold: cuda-gdb, 22.5. How long does 1 load take: clock64 inside a kernel, 22.6. Can the number be trusted: a benchmark protocol, 22.7. Is the answer right: a CPU reference with a tolerance, 22.8.">
+<figcaption><b>Figure 25.1</b> Questions about a GPU program and the tools that answer them.</figcaption>
 </figure>
 
-### 22.1.2 Which tool to use first
+### 25.1.2 Which tool to use first
 
 The order in which we apply these tools follows from Amdahl's law (Chapter 1, section 1.3).
 Making a kernel faster can only shorten the part of the run during which that kernel executes. If
 the GPU spends half of the run waiting for copies, even an infinitely fast kernel leaves the other
 half.
 
-The pipeline of Chapter 6 shows this clearly. Its 1-stream version, which we trace in section 22.2,
+The pipeline of Chapter 6 shows this clearly. Its 1-stream version, which we trace in section 25.2,
 takes 20.95 ms: 6.18 ms of copy in, 10.40 ms of kernel and 4.19 ms of copy out, executed one after
 another. If we made the kernel twice as fast, it would take 10.40 / 2 = 5.20 ms, and the run would
 take 20.95 − 5.20 = 15.75 ms. Overlapping the copies with the kernel instead, using 2 streams and
@@ -93,7 +93,7 @@ The timeline showed where the time went before any kernel was tuned, and it poin
 gain. For this reason, we start with Nsight Systems, and we turn to Nsight Compute only once the
 timeline shows that a kernel dominates the run.
 
-### 22.1.3 Access permissions for counters and debuggers
+### 25.1.3 Access permissions for counters and debuggers
 
 Hardware counters and debugger control are restricted on most systems. In 2018, researchers showed
 that a program could learn about the work of another program from the GPU's performance counters,
@@ -116,9 +116,9 @@ operating system. On Jetson modules, counter and debugger access go through the 
 `/dev/nvhost-prof-gpu` and `/dev/nvhost-dbg-gpu`, which belong to the group `debug`, so the tools
 must be run with `sudo` or by a member of that group.
 
-## 22.2 Timelines with Nsight Systems
+## 25.2 Timelines with Nsight Systems
 
-### 22.2.1 Recording a trace
+### 25.2.1 Recording a trace
 
 Recall from Chapter 6 that a **stream** is a queue of GPU work whose operations run in the order in
 which they were issued, and that work in different streams may overlap. Chapter 6's program
@@ -147,15 +147,15 @@ once to time the 3 stages separately. Then come 5 runs of 1 chunk, 5 runs of 8 c
 table. The median time, 0.34 ms, is that of the kernel on 1 chunk of 32, because 160 of the 248
 launches are of that size.
 
-### 22.2.2 Accounting for the run time
+### 25.2.2 Accounting for the run time
 
-The report also holds the start and end time of every copy and kernel. Figure 22.2 draws 2
+The report also holds the start and end time of every copy and kernel. Figure 25.2 draws 2
 repetitions from it on a common scale: the last run of the 1-stream pipeline and the first run of
 the 2-stream pipeline with 8 chunks.
 
 <figure>
-<img src="../../figures/ch22-timeline.svg" alt="Two timelines from Nsight Systems, each with 3 lanes: copy in, kernel, copy out, on a scale from 0 to 21 milliseconds. With 1 stream: copy in from 0 to 6.18 ms, kernel from 6.35 to 16.75 ms, copy out from 16.75 to 20.95 ms, one after the other. With 2 streams and 8 chunks: 8 kernels of about 1.33 ms each run almost back to back from 0.67 to 12.68 ms, alternating streams A and B, while copies of the other stream run beside them; the whole run ends at 13.59 ms.">
-<figcaption><b>Figure 22.2</b> The pipeline of Chapter 6 as recorded by Nsight Systems on the first GPU.</figcaption>
+<img src="../../figures/ch25-timeline.svg" alt="Two timelines from Nsight Systems, each with 3 lanes: copy in, kernel, copy out, on a scale from 0 to 21 milliseconds. With 1 stream: copy in from 0 to 6.18 ms, kernel from 6.35 to 16.75 ms, copy out from 16.75 to 20.95 ms, one after the other. With 2 streams and 8 chunks: 8 kernels of about 1.33 ms each run almost back to back from 0.67 to 12.68 ms, alternating streams A and B, while copies of the other stream run beside them; the whole run ends at 13.59 ms.">
+<figcaption><b>Figure 25.2</b> The pipeline of Chapter 6 as recorded by Nsight Systems on the first GPU.</figcaption>
 </figure>
 
 We say that a lane of the timeline is **busy** while it executes an operation. The fraction of the
@@ -188,7 +188,7 @@ Tracing a program can change its timing. The program also times the same pipelin
 itself, without the profiler, and printed 13.08 ms, 13.31 ms and 13.34 ms in 3 runs. The traced
 run, 13.59 ms, is within 4% of those times, so the trace describes the program as it normally runs.
 
-### 22.2.3 Common timeline patterns
+### 25.2.3 Common timeline patterns
 
 Most performance problems of a GPU program are visible on a timeline. The table below lists the common
 patterns, their likely causes, and the chapters that treat them.
@@ -198,12 +198,12 @@ patterns, their likely causes, and the chapters that treat them.
 | kernel lane idle while a copy runs, and the reverse | 1 stream, or copies from pageable memory | streams and pinned memory (Chapters 4 and 6) |
 | short gaps between many tiny kernels | the CPU's launch cost, a few µs per launch | CUDA graphs (section 6.7) |
 | long CPU calls such as `cudaMalloc` between kernels | allocation inside the loop | allocate once, before the loop |
-| kernel lane busy nearly all the time | the kernels themselves | Nsight Compute (section 22.3) |
+| kernel lane busy nearly all the time | the kernels themselves | Nsight Compute (section 25.3) |
 
-### 22.2.4 Tracing a Rust program
+### 25.2.4 Tracing a Rust program
 
 `nsys` traces any program that uses the CUDA driver, regardless of the language in which it was
-written. For the Rust program of section 22.6, it prints the Rust names of the kernels:
+written. For the Rust program of section 25.6, it prints the Rust names of the kernels:
 
 ```console
 $ nsys profile -t cuda -o rust ./target/release/ch16_latency
@@ -218,9 +218,9 @@ The summary of CPU calls shows `cuLaunchKernel` and `cuModuleLoadData` where the
 `cudaLaunchKernel`. The reason is that cuda-oxide calls the CUDA driver API directly, whereas the
 C++ programs call the runtime API, which in turn calls the driver (Chapter 12).
 
-## 22.3 Kernel analysis with Nsight Compute
+## 25.3 Kernel analysis with Nsight Compute
 
-### 22.3.1 Sections of a kernel report
+### 25.3.1 Sections of a kernel report
 
 `ncu` organizes its counters into **sections**, and 3 of them answer most questions.
 
@@ -251,21 +251,21 @@ $ sudo ncu --section SpeedOfLight --section Occupancy -k regex:patches -c 1 ./sg
 The option `--section` chooses the sections to collect, and adding `--section WarpStateStats`
 adds the stall reasons. The option `-k` selects kernels by name, and `-c 1` profiles only the first
 launch that matches. Without counter access, `ncu` stops before the kernel runs and names the
-setting described in section 22.1.3:
+setting described in section 25.1.3:
 
 ```console
 ==ERROR== ERR_NVGPUCTRPERM - The user does not have permission to access NVIDIA GPU
 Performance Counters on the target device 0.
 ```
 
-### 22.3.2 Peak rates from device attributes
+### 25.3.2 Peak rates from device attributes
 
 Several numbers of the report can be computed without counters, from the limits that the GPU
 reports and a kernel time measured with events. The CUDA runtime describes the GPU in a
-`cudaDeviceProp` structure, and `cudaDeviceGetAttribute` returns single values. Listing 22.1 prints
+`cudaDeviceProp` structure, and `cudaDeviceGetAttribute` returns single values. Listing 25.1 prints
 the limits that the rest of the chapter uses, and the 2 peak rates they imply.
 
-<p class="listing"><b>Listing 22.1</b> The limits of the GPU, and the peaks they imply. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/measure.cu">code/ch16_profiling/measure.cu</a></p>
+<p class="listing"><b>Listing 25.1</b> The limits of the GPU, and the peaks they imply. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/measure.cu">code/ch16_profiling/measure.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/measure.cu:61:90}}
@@ -291,7 +291,7 @@ resident (Chapter 2). The number of registers per SM determined the occupancy of
 kernels. The **L2 cache** is a memory on the GPU chip, shared by all SMs, that keeps recently used
 data; each SM also has a smaller **L1 cache** of its own. The size of the L2 cache determines how
 large the data of a test must be for the test to measure memory rather than the cache (section
-22.7).
+25.7).
 
 The 2 peak rates require care. The FP32 peak is the number of SMs × 128 FP32 units × 2 FLOP per
 multiply-add × the clock rate. For the first GPU, this gives 8 × 128 × 2 × 1.173 GHz = 2,402
@@ -305,13 +305,13 @@ bits, so the product, 75.1 GB/s, falls below the 102 GB/s of the data sheet. The
 the data sheet is the reference. In this chapter, we use the data-sheet peaks of Chapter 2: 2.4
 TFLOP/s and 102 GB/s for the first GPU, and 8.1 TFLOP/s and 273 GB/s for the second.
 
-### 22.3.3 Speed-of-light analysis without counters
+### 25.3.3 Speed-of-light analysis without counters
 
 The speed-of-light percentage of a kernel is its achieved rate divided by the peak rate. For
 memory, the achieved rate is the number of bytes the kernel moves divided by its time. For
 arithmetic, it is the number of operations divided by the time. The program `measure.cu` times the
 kernel `y = 2 x` over 2 arrays of 256 MiB each, which is larger than the L2 cache of either GPU;
-section 22.7 explains how the time was taken.
+section 25.7 explains how the time was taken.
 
 On the first GPU, the median time of the kernel is 8.35 ms. Each of the 67,108,864 elements is read
 once and written once, so the kernel moves 2 × 4 bytes per element, 536,870,912 bytes or 512 MiB in
@@ -330,11 +330,11 @@ therefore loads 256 × 2,048 × 4 bytes = 2 MiB, and the 4,096 blocks load 8 GiB
 bytes, in 152.47 ms. This is a load rate of 56.3 GB/s.
 
 <figure>
-<img src="../../figures/ch22-report.svg" alt="A chart like a profiler's speed-of-light section, in percent of the peaks of a GPU with 2,400 GFLOP/s and 102 GB/s. y = 2 x over 256 MiB: memory 64.3 of 102 GB/s, 63%; arithmetic 8.0 of 2,400 GFLOP/s, 0.33%. Chapter 9's 4 by 4 patch kernel: loads of 56.3 GB/s from L2 or DRAM, 55% of the memory peak if all came from DRAM, drawn dashed; arithmetic 901 of 2,400 GFLOP/s, 38%.">
-<figcaption><b>Figure 22.3</b> A speed-of-light analysis of 2 kernels, computed by hand.</figcaption>
+<img src="../../figures/ch25-report.svg" alt="A chart like a profiler's speed-of-light section, in percent of the peaks of a GPU with 2,400 GFLOP/s and 102 GB/s. y = 2 x over 256 MiB: memory 64.3 of 102 GB/s, 63%; arithmetic 8.0 of 2,400 GFLOP/s, 0.33%. Chapter 9's 4 by 4 patch kernel: loads of 56.3 GB/s from L2 or DRAM, 55% of the memory peak if all came from DRAM, drawn dashed; arithmetic 901 of 2,400 GFLOP/s, 38%.">
+<figcaption><b>Figure 25.3</b> A speed-of-light analysis of 2 kernels, computed by hand.</figcaption>
 </figure>
 
-Figure 22.3 draws both results. The second one shows the limit of an analysis done by hand. The
+Figure 25.3 draws both results. The second one shows the limit of an analysis done by hand. The
 56.3 GB/s of loads are served by the L2 cache or by DRAM, and the program cannot tell which. Tiles
 that several blocks need may stay in the 2 MiB L2 cache between their uses. If all loads came from
 DRAM, the kernel would use 55% of the memory peak; if most came from L2, it would use much less.
@@ -345,7 +345,7 @@ The theoretical occupancy, on the other hand, can be computed without counters. 
 `cudaOccupancyMaxActiveBlocksPerMultiprocessor`, which Chapter 2 mentioned, returns how many blocks
 of a given size fit on 1 SM, given the registers and shared memory of the kernel.
 
-<p class="listing"><b>Listing 22.2</b> The theoretical occupancy of <code>scale</code>.</p>
+<p class="listing"><b>Listing 25.2</b> The theoretical occupancy of <code>scale</code>.</p>
 
 ```cpp
 int main()
@@ -363,9 +363,9 @@ blocks of 256 per SM          6 = 1536 threads
 6 blocks of 256 threads are 1,536 threads, which is the limit of an SM on both GPUs. The
 theoretical occupancy of the kernel is therefore 100%.
 
-## 22.4 Compute Sanitizer
+## 25.4 Compute Sanitizer
 
-### 22.4.1 Bugs that produce no error
+### 25.4.1 Bugs that produce no error
 
 The most dangerous bugs of a GPU program produce no error message. A kernel that writes past the
 end of an array usually writes into memory that belongs to no allocation, or to another array of
@@ -395,16 +395,16 @@ sum of 1,024 floats nobody wrote: 0
 ```
 
 On the second GPU, all 4 runs exit with status 0, and 3 of the 4 print a result that looks
-correct. The first GPU printed the same lines for 3 of the bugs; section 22.4.4 describes what it
+correct. The first GPU printed the same lines for 3 of the bugs; section 25.4.4 describes what it
 did with the fourth.
 
-### 22.4.2 Out-of-bounds accesses (memcheck)
+### 25.4.2 Out-of-bounds accesses (memcheck)
 
 Recall from Chapter 3 that we round the number of threads up to a whole number of blocks, and that
-the kernel needs a guard, `if (i < n)`, so that the extra threads do nothing. Listing 22.3 leaves
+the kernel needs a guard, `if (i < n)`, so that the extra threads do nothing. Listing 25.3 leaves
 the guard out.
 
-<p class="listing"><b>Listing 22.3</b> Vector addition without its guard. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/bugs.cu">code/ch16_profiling/bugs.cu</a></p>
+<p class="listing"><b>Listing 25.3</b> Vector addition without its guard. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/bugs.cu">code/ch16_profiling/bugs.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:19:24}}
@@ -435,25 +435,25 @@ Thread 232 of block 3 has the index 3 × 256 + 232 = 1,000, which is the first e
 The array `a` starts at address `...800000`, and the next allocation starts at `...801000`, 0x1000
 = 4,096 bytes later. In other words, `cudaMalloc` placed each array of 4,000 bytes at the start of a
 4,096-byte slot. The 24 extra threads access 24 × 4 = 96 bytes past the end of each array, which is
-exactly the 4,096 − 4,000 = 96 bytes of padding, as Figure 22.4 shows. Because no other array was
+exactly the 4,096 − 4,000 = 96 bytes of padding, as Figure 25.4 shows. Because no other array was
 affected, the bug was invisible in the output. With 1,010 elements, the slots would hold only
 4,096 − 4,040 = 56 bytes of padding, and the last 10 threads would write into the next array.
 
 <figure>
-<img src="../../figures/ch22-bounds.svg" alt="A strip of device memory with 3 allocations a, b and c of 4,000 bytes, each in a slot of 4,096 bytes, with 96 bytes of padding at the end of each slot. Threads 1,000 to 1,023, which are threads 232 to 255 of block 3, read and write inside the padding: 24 floats, 96 bytes. An enlarged view shows a[997] to a[999], the 24 padding floats, then b[0] at a + 4,096 bytes. No other array is touched, so the program sees no wrong element.">
-<figcaption><b>Figure 22.4</b> The 24 extra threads access only the padding after each array.</figcaption>
+<img src="../../figures/ch25-bounds.svg" alt="A strip of device memory with 3 allocations a, b and c of 4,000 bytes, each in a slot of 4,096 bytes, with 96 bytes of padding at the end of each slot. Threads 1,000 to 1,023, which are threads 232 to 255 of block 3, read and write inside the padding: 24 floats, 96 bytes. An enlarged view shows a[997] to a[999], the 24 padding floats, then b[0] at a + 4,096 bytes. No other array is touched, so the program sees no wrong element.">
+<figcaption><b>Figure 25.4</b> The 24 extra threads access only the padding after each array.</figcaption>
 </figure>
 
 memcheck reports 24 invalid reads, 1 for each extra thread, and stops the kernel. The program's next
 CUDA call then fails, which is the 25th error. The same check applied to Chapter 3's program, which
 has the guard, ends with `ERROR SUMMARY: 0 errors`.
 
-### 22.4.3 Shared-memory races (racecheck)
+### 25.4.3 Shared-memory races (racecheck)
 
 In Chapter 5, we summed 256 values per block as a tree in shared memory, with a barrier after each
-level of the tree. Listing 22.4 leaves the barriers out.
+level of the tree. Listing 25.4 leaves the barriers out.
 
-<p class="listing"><b>Listing 22.4</b> A block sum without barriers.</p>
+<p class="listing"><b>Listing 25.4</b> A block sum without barriers.</p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:26:42}}
@@ -472,21 +472,21 @@ $ compute-sanitizer --tool racecheck ./bugs race
 A **race** is a pair of accesses to the same location by different threads, at least one of them a
 write, with nothing that orders them. Line 31 stores the value of each thread into `s[t]`, and line
 35 reads `s[t + stride]`. In the first step, thread 0 of warp 0 reads `s[128]`, but `s[128]` is
-written by thread 128, which belongs to warp 4. Nothing orders the 2 warps. Figure 22.5 shows the
+written by thread 128, which belongs to warp 4. Nothing orders the 2 warps. Figure 25.5 shows the
 case in which warp 0 reads the location before warp 4 has written it.
 
 <figure>
-<img src="../../figures/ch22-race.svg" alt="Two lanes of time for 1 block. Warp 0, threads 0 to 31, stores its own values, then at once adds s[t + 128] into s[t], which for thread 0 reads s[128]. Warp 4, threads 128 to 159, stores s[128] only later. The read of s[128] comes before its write: a race, which racecheck reports as a write at line 31 and a read at line 35.">
-<figcaption><b>Figure 22.5</b> Without a barrier, warp 0 can read s[128] before warp 4 has written it.</figcaption>
+<img src="../../figures/ch25-race.svg" alt="Two lanes of time for 1 block. Warp 0, threads 0 to 31, stores its own values, then at once adds s[t + 128] into s[t], which for thread 0 reads s[128]. Warp 4, threads 128 to 159, stores s[128] only later. The read of s[128] comes before its write: a race, which racecheck reports as a write at line 31 and a read at line 35.">
+<figcaption><b>Figure 25.5</b> Without a barrier, warp 0 can read s[128] before warp 4 has written it.</figcaption>
 </figure>
 
-### 22.4.4 Barriers in divergent code (synccheck)
+### 25.4.4 Barriers in divergent code (synccheck)
 
 The behavior of `__syncthreads()` is defined only when every thread of the block reaches the same
-barrier instruction. Listing 22.5 places 1 barrier in each branch of an `if` statement, so the even
+barrier instruction. Listing 25.5 places 1 barrier in each branch of an `if` statement, so the even
 and odd threads of every warp wait at 2 different instructions.
 
-<p class="listing"><b>Listing 22.5</b> 2 barriers, 1 per branch.</p>
+<p class="listing"><b>Listing 25.5</b> 2 barriers, 1 per branch.</p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:44:58}}
@@ -511,12 +511,12 @@ The 128 errors are 1 for each of the 128 even threads that waited at line 52 whi
 of their warps waited at line 55. The correct kernel moves the barrier out of the `if` statement,
 where all 256 threads reach it.
 
-### 22.4.5 Reads of uninitialized memory (initcheck)
+### 25.4.5 Reads of uninitialized memory (initcheck)
 
-`cudaMalloc` returns memory that still holds whatever it last contained. Listing 22.6 sums 1,024
+`cudaMalloc` returns memory that still holds whatever it last contained. Listing 25.6 sums 1,024
 floats that nothing has written.
 
-<p class="listing"><b>Listing 22.6</b> A sum of unwritten memory.</p>
+<p class="listing"><b>Listing 25.6</b> A sum of unwritten memory.</p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:60:68}}
@@ -534,9 +534,9 @@ $ compute-sanitizer --tool initcheck ./bugs uninit
 ========= ERROR SUMMARY: 1024 errors
 ```
 
-### 22.4.6 Overhead and limits of instrumentation
+### 25.4.6 Overhead and limits of instrumentation
 
-Every check adds work. The Rust program of section 22.6 measures a load from the L1 cache in 39
+Every check adds work. The Rust program of section 25.6 measures a load from the L1 cache in 39
 cycles. Under memcheck, the same loop took 8,463 cycles per load, 217 times as long. A run under
 Compute Sanitizer therefore tells us whether a program is correct, but never how fast it is. The
 same run ended with `ERROR SUMMARY: 0 errors`, which shows that programs written with cuda-oxide can
@@ -544,7 +544,7 @@ be checked in the same way as C++ programs.
 
 A clean run, moreover, is evidence only about the inputs and the timing of that run. A race
 that did not occur in 1 run may occur in the next, and an out-of-bounds index that depends on the
-input may not be reached by the test input. Section 22.8 adds tests that check the result itself.
+input may not be reached by the test input. Section 25.8 adds tests that check the result itself.
 
 <div class="bee bee-shocked" markdown="1">
 
@@ -554,7 +554,7 @@ before trusting it.
 
 </div>
 
-## 22.5 Debugging a kernel with cuda-gdb
+## 25.5 Debugging a kernel with cuda-gdb
 
 `cuda-gdb` extends the GNU debugger with support for GPU threads. A breakpoint on a line of a
 kernel stops the whole grid as soon as any thread reaches it, and the **focus** selects the thread
@@ -562,7 +562,7 @@ whose variables the debugger shows. The program is built with `-G`, which keeps 
 in a form the debugger can read and turns off most optimizations, and with `-g` for the host code.
 A debugging session can be scripted with `-batch` and 1 `-ex` option per command. In the session
 below, the breakpoint has a condition, so that it stops only thread 232 of block 3, the first extra
-thread of section 22.4.2:
+thread of section 25.4.2:
 
 ```console
 $ nvcc -arch=native -G -g bugs.cu -o bugs_debug
@@ -581,19 +581,19 @@ $2 = 1000
 [Inferior 1 (process 3104365) exited normally]
 ```
 
-The debugger confirms the reasoning of section 22.4.2 from inside the kernel. Thread 232 of block 3
+The debugger confirms the reasoning of section 25.4.2 from inside the kernel. Thread 232 of block 3
 has `i = 1000`, which equals `n`, and is about to access `a[1000]`. The focus line also locates the
 thread in the hardware: thread 232 belongs to warp 232 / 32 = 7, rounded down, at lane 232 − 7 × 32
 = 8, and it ran on SM 3. The 3 pointers lie 0x1000 = 4,096 bytes apart, which matches the slots of
-Figure 22.4.
+Figure 25.4.
 
 `cuda-gdb` is the tool for the bugs that Compute Sanitizer cannot detect, because they involve no
 illegal access: wrong arithmetic on indices, a wrong weight in a stencil, or a branch taken by the
 wrong threads.
 
-## 22.6 Timing inside a kernel with clock64()
+## 25.6 Timing inside a kernel with clock64()
 
-### 22.6.1 The per-SM cycle counter
+### 25.6.1 The per-SM cycle counter
 
 Events measure the time of a whole kernel. To measure a few instructions, we need a clock that a
 thread can read. The function `clock64()` returns the value of a 64-bit counter that each SM
@@ -628,11 +628,11 @@ KERNEL chase(next, warm, hops), 1 thread:
     cycles ← t1 − t0
 ```
 
-### 22.6.2 Latency of arithmetic
+### 25.6.2 Latency of arithmetic
 
-Listing 22.7 implements the first measurement in 2 forms.
+Listing 25.7 implements the first measurement in 2 forms.
 
-<p class="listing"><b>Listing 22.7</b> 1 dependent chain, and 4 independent chains, timed with <code>clock64()</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
+<p class="listing"><b>Listing 25.7</b> 1 dependent chain, and 4 independent chains, timed with <code>clock64()</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/latency.cu:19:50}}
@@ -642,7 +642,7 @@ The first kernel performs 4,096 multiply-adds as a single dependent chain. The s
 performs the same 4,096 multiply-adds as 4 chains of 1,024. The 4 operations of each step do not
 depend on each other, so the SM can start each of them before the previous one has finished.
 
-### 22.6.3 Latency of loads
+### 25.6.3 Latency of loads
 
 A **pointer chase** measures the latency of a load. An array `next` holds, at each position, the
 position of the next load, so that each load must wait for the one before it. The host builds the
@@ -652,7 +652,7 @@ sizes, which are served from different levels of the memory hierarchy. A chain o
 L1 cache. A chain of 1 MiB fits in the L2 cache but not in L1. The third chain spans 256 MiB with a
 step of 1 MiB + 128 bytes and has no warm-up, so every load goes to DRAM.
 
-<p class="listing"><b>Listing 22.8</b> The pointer chase.</p>
+<p class="listing"><b>Listing 25.8</b> The pointer chase.</p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/latency.cu:52:69}}
@@ -686,7 +686,7 @@ The loads can be converted from cycles to time in the same way. At 1,173 MHz, a 
 191 × 0.85 = 163 ns, and a load from DRAM takes 607 × 0.85 = 517 ns. A single load from DRAM thus
 costs as much time as 607 / 4.24 = 143 dependent multiply-adds.
 
-Figure 22.6 places the 5 numbers on a logarithmic scale. The DRAM latency varied more than the
+Figure 25.6 places the 5 numbers on a logarithmic scale. The DRAM latency varied more than the
 others. Over 14 runs of the C++ and Rust programs, it ranged from 598 to 1,137 cycles. The L1
 latency stayed at 39 cycles, and the L2 latency at 190 to 191 cycles in all runs but 2, which gave
 431 and 689 cycles. On an integrated GPU, DRAM is shared with the CPU cores, the display and every
@@ -694,18 +694,18 @@ other program, and the loads of a single thread wait behind theirs. For this rea
 DRAM latency as a range.
 
 <figure>
-<img src="../../figures/ch22-latency.svg" alt="Horizontal bars on a logarithmic scale of clock cycles. A dependent multiply-add takes 4.24 cycles; with 4 independent chains each takes 1.31 cycles. A load from L1 takes 39 cycles, from L2 191 cycles, and from DRAM 598 to 1,137 cycles over 14 runs.">
-<figcaption><b>Figure 22.6</b> Latencies measured with clock64() on the first GPU.</figcaption>
+<img src="../../figures/ch25-latency.svg" alt="Horizontal bars on a logarithmic scale of clock cycles. A dependent multiply-add takes 4.24 cycles; with 4 independent chains each takes 1.31 cycles. A load from L1 takes 39 cycles, from L2 191 cycles, and from DRAM 598 to 1,137 cycles over 14 runs.">
+<figcaption><b>Figure 25.6</b> Latencies measured with clock64() on the first GPU.</figcaption>
 </figure>
 
-### 22.6.4 Latency measurement in Rust
+### 25.6.4 Latency measurement in Rust
 
 cuda-oxide exposes the same counter as `cuda_device::debug::clock64()`, and the multiply-add as
 `cuda_device::float::fma_rn_f32`, which rounds to nearest like `fmaf`. The kernels launch 1 thread
 with the contract `block = (1, 1, 1)` and write their results through `DisjointSlice`, as in
-Chapter 13. The chase reads `next` with `get_unchecked`; section 22.9 explains why.
+Chapter 13. The chase reads `next` with `get_unchecked`; section 25.9 explains why.
 
-<p class="listing"><b>Listing 22.9</b> The pointer chase in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_latency/src/main.rs">code/oxide/ch16_latency/src/main.rs</a></p>
+<p class="listing"><b>Listing 25.9</b> The pointer chase in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_latency/src/main.rs">code/oxide/ch16_latency/src/main.rs</a></p>
 
 ```rust,ignore
 mod kernels {
@@ -730,16 +730,16 @@ The load latencies match those of the C++ program cycle for cycle. The multiply-
 Rust program are unrolled 16 and 4 times by `#[unroll]` (Chapter 9, section 9.7). Less of each step
 is therefore spent on counting, and the Rust kernels are 0.17 to 0.19 cycles faster per operation.
 
-## 22.7 The benchmarking discipline
+## 25.7 The benchmarking discipline
 
-### 22.7.1 Warm-up effects
+### 25.7.1 Warm-up effects
 
 A **benchmark** is a measurement of a program's speed made in such a way that it can be repeated
 and compared. The first rule of benchmarking is to measure the program in the state in which it
 will normally run. To see why, `measure.cu` times the kernel `y = 2 x` 40 times in a row with
-events, starting after the GPU has been idle. Listing 22.10 shows how a single launch is timed.
+events, starting after the GPU has been idle. Listing 25.10 shows how a single launch is timed.
 
-<p class="listing"><b>Listing 22.10</b> 1 launch, timed with 2 events.</p>
+<p class="listing"><b>Listing 25.10</b> 1 launch, timed with 2 events.</p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/measure.cu:42:59}}
@@ -760,11 +760,11 @@ PASSED: 0 of 67108864 elements wrong
 ```
 
 <figure>
-<img src="../../figures/ch22-warmup.svg" alt="Bars of 40 run times of y = 2 x over 256 MiB on the first GPU. Run 1 takes 19.83 ms and runs 2 to 8 between 9.67 and 14.43 ms; from run 9 the times sit near 8.35 ms, with outliers of 10.43, 10.33, 12.91 and 9.80 ms. A dashed line marks the mean of all 40 runs, 9.46 ms; a solid line the median of runs 21 to 40, 8.35 ms.">
-<figcaption><b>Figure 22.7</b> The first 40 runs of a kernel: warm-up, a steady state, and 4 outliers.</figcaption>
+<img src="../../figures/ch25-warmup.svg" alt="Bars of 40 run times of y = 2 x over 256 MiB on the first GPU. Run 1 takes 19.83 ms and runs 2 to 8 between 9.67 and 14.43 ms; from run 9 the times sit near 8.35 ms, with outliers of 10.43, 10.33, 12.91 and 9.80 ms. A dashed line marks the mean of all 40 runs, 9.46 ms; a solid line the median of runs 21 to 40, 8.35 ms.">
+<figcaption><b>Figure 25.7</b> The first 40 runs of a kernel: warm-up, a steady state, and 4 outliers.</figcaption>
 </figure>
 
-As Figure 22.7 shows, the same kernel on the same data took 19.83 ms the first time and 8.35 ms
+As Figure 25.7 shows, the same kernel on the same data took 19.83 ms the first time and 8.35 ms
 once warm. 2 effects contribute to the difference. First, a first launch pays one-time costs, such
 as loading the kernel's code onto the GPU. Second, a power governor, such as the one on Jetson
 modules, lowers the GPU clock while the GPU is idle and raises it only after it has seen sustained
@@ -772,7 +772,7 @@ load (Chapter 6), so runs 2 to 8 executed at a lower clock. When the program was
 immediately, while the clock was still high, its first run took 8.92 ms. A measurement taken
 without warm-up therefore depends on what the machine did in the seconds before it.
 
-### 22.7.2 Mean and median
+### 25.7.2 Mean and median
 
 The **mean** of a set of times is their sum divided by their number. The **median** is the middle
 value once the times are sorted. A single slow run moves the mean by its whole excess divided by
@@ -788,7 +788,7 @@ same GPU. An earlier run of the same kernel, while that other work was heavier, 
 11.56 ms and a median of 9.74 ms. A busy machine shifts even the median, so a measurement protocol
 must also check that the machine is idle before it measures.
 
-### 22.7.3 A measurement protocol
+### 25.7.3 A measurement protocol
 
 The following protocol collects these rules. Each rule prevents a mistake that the measurements of
 this chapter or of an earlier chapter made visible.
@@ -804,7 +804,7 @@ BENCHMARK kernel:
         times[r] ← elapsed(start, stop)
     report median(times) and the spread       # not the mean of a few runs
     verify the output                         # a fast wrong kernel is not a result
-    record GPU, clocks, CUDA version, flags   # the limits of listing 22.1
+    record GPU, clocks, CUDA version, flags   # the limits of listing 25.1
 ```
 
 We use events rather than CPU clocks because a launch returns to the CPU before the kernel ends;
@@ -818,9 +818,9 @@ MiB. We record the environment because the clocks, the compiler flags (`-O3`, `-
 cannot be reproduced. Finally, we run the whole program 3 times and quote a quiet run, and we expect
 10% to 20% drift between runs on GPUs whose clocks change with load and temperature.
 
-## 22.8 Verifying results
+## 25.8 Verifying results
 
-### 22.8.1 Units in the last place
+### 25.8.1 Units in the last place
 
 A **differential test** compares a result with a trusted reference computed in another way,
 usually on the CPU in double precision. For integers, the comparison is exact. For floating-point
@@ -830,12 +830,12 @@ tolerance needs a unit.
 A float stores 24 significant bits. Between 2 consecutive powers of 2, \\(2^e\\) and \\(2^{e+1}\\),
 there are therefore \\(2^{23}\\) floats, evenly spaced \\(2^{e-23}\\) apart, and the spacing doubles
 at every power of 2. 1 **unit in the last place**, or 1 **ULP**, is the spacing of the floats around
-a value. Figure 22.8 draws a small floating-point format with 8 values between consecutive powers
+a value. Figure 25.8 draws a small floating-point format with 8 values between consecutive powers
 of 2, so that the doubling of the spacing is visible.
 
 <figure>
-<img src="../../figures/ch22-ulp.svg" alt="Top: a toy float with 8 values between each 2 powers of 2, on a line from 0 to 16. Between 1 and 2 the values are 1/8 apart, between 2 and 4 1/4 apart, between 4 and 8 1/2 apart, and between 8 and 16 1 apart. Bottom: 4 cards. Near 1, 1 ULP of a real float is 2 to the minus 23, about 0.000000119. Near e to the 10, 22,026.47, 1 ULP is 2 to the minus 9, about 0.00195. expf was measured at most 2 ULPs from the nearest float to exp(x), __expf at most 8 ULPs, over x from minus 10 to 10.">
-<figcaption><b>Figure 22.8</b> The spacing of floats doubles at every power of 2; a ULP is that spacing.</figcaption>
+<img src="../../figures/ch25-ulp.svg" alt="Top: a toy float with 8 values between each 2 powers of 2, on a line from 0 to 16. Between 1 and 2 the values are 1/8 apart, between 2 and 4 1/4 apart, between 4 and 8 1/2 apart, and between 8 and 16 1 apart. Bottom: 4 cards. Near 1, 1 ULP of a real float is 2 to the minus 23, about 0.000000119. Near e to the 10, 22,026.47, 1 ULP is 2 to the minus 9, about 0.00195. expf was measured at most 2 ULPs from the nearest float to exp(x), __expf at most 8 ULPs, over x from minus 10 to 10.">
+<figcaption><b>Figure 25.8</b> The spacing of floats doubles at every power of 2; a ULP is that spacing.</figcaption>
 </figure>
 
 For example, e<sup>10</sup> = 22,026.47 lies between 2<sup>14</sup> = 16,384 and 2<sup>15</sup> =
@@ -844,11 +844,11 @@ therefore 0.0039 at 22,026.47 and \\(2 \times 2^{-23}\\) = 0.00000024 near 1. Bo
 same relative size, about 1 part in 4 million.
 
 Because positive floats are stored in order, the number of floats between 2 of them is the
-difference of their bit patterns read as integers. Listing 22.11 uses this property to measure the
+difference of their bit patterns read as integers. Listing 25.11 uses this property to measure the
 error of `expf`, and of `__expf`, the faster hardware version that `--use_fast_math` substitutes,
 against the nearest float to the exact value.
 
-<p class="listing"><b>Listing 22.11</b> The distance between 2 floats in ULPs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
+<p class="listing"><b>Listing 25.11</b> The distance between 2 floats in ULPs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/verify.cu:61:79}}
@@ -864,7 +864,7 @@ The CUDA programming guide gives `expf` a maximum error of 2 ULPs, and the measu
 test of `expf` can therefore use a tolerance of 2 ULPs. The same test fails a kernel compiled with
 `--use_fast_math`, so that flag is a decision about accuracy as well as about speed.
 
-### 22.8.2 Tolerances for sums
+### 25.8.2 Tolerances for sums
 
 A sum has no ULP bound of its own, because its error grows with the number of additions. Each
 addition of 2 floats rounds its exact result to the nearest float, which introduces an error of at
@@ -899,13 +899,13 @@ Worked example: \\(d\\) for the 2-launch sum
 
 </div>
 
-<p class="listing"><b>Listing 22.12</b> The sum tested against its tolerance, and against a known answer.</p>
+<p class="listing"><b>Listing 25.12</b> The sum tested against its tolerance, and against a known answer.</p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/verify.cu:126:175}}
 ```
 
-### 22.8.3 Known-answer and property tests
+### 25.8.3 Known-answer and property tests
 
 The test runs the sum twice: once correctly, and once through a caller that passes \\(n - 1\\)
 instead of \\(n\\), a common off-by-one error.
@@ -928,11 +928,11 @@ The bug passes the differential test. The missing element is smaller than 1, whi
 allows. The second input detects the bug. When every element equals 1, every partial sum is a
 whole number no larger than 2<sup>24</sup> = 16,777,216. A float represents every whole number up
 to 2<sup>24</sup> exactly, so no addition rounds, the correct answer is exact, and the tolerance is
-0. Figure 22.9 places both results.
+0. Figure 25.9 places both results.
 
 <figure>
-<img src="../../figures/ch22-tolerance.svg" alt="Two panels. Random inputs: a band from minus 42.01 to plus 42.01 around the exact sum; the correct sum is 0.42 away and the sum that misses 1 element is 0.58 away, both inside the band, both PASSED. All ones: the exact sum is 16,777,216; the correct sum hits it, the sum that misses 1 element gives 16,777,215 and FAILED.">
-<figcaption><b>Figure 22.9</b> The off-by-one sum passes a test with a tolerance and fails a test with a known answer.</figcaption>
+<img src="../../figures/ch25-tolerance.svg" alt="Two panels. Random inputs: a band from minus 42.01 to plus 42.01 around the exact sum; the correct sum is 0.42 away and the sum that misses 1 element is 0.58 away, both inside the band, both PASSED. All ones: the exact sum is 16,777,216; the correct sum hits it, the sum that misses 1 element gives 16,777,215 and FAILED.">
+<figcaption><b>Figure 25.9</b> The off-by-one sum passes a test with a tolerance and fails a test with a known answer.</figcaption>
 </figure>
 
 A **known-answer test** chooses its input so that the correct result is known exactly. A
@@ -949,17 +949,17 @@ known exactly, and test them with a tolerance of 0.
 
 </div>
 
-## 22.9 A systematic optimization process
+## 25.9 A systematic optimization process
 
 The tools of this chapter fit into a single procedure, which every earlier chapter followed:
 
-1. **Measure**, using the protocol of section 22.7.
+1. **Measure**, using the protocol of section 25.7.
 2. Form a **hypothesis** that names the cause, using the timeline, the counters or a count by hand.
 3. **Change one thing.**
 4. **Measure again**, in the same way.
 5. **Verify** that the results are still correct.
 
-Figure 22.10 applies the procedure to a case from this chapter. The first Rust version of the
+Figure 25.10 applies the procedure to a case from this chapter. The first Rust version of the
 pointer chase indexed `next[j as usize]` in a `for` loop and measured 62 cycles per L1 load,
 against 39 cycles in C++. Our hypothesis was that the bounds check of `next[j]` lies on the
 dependent chain. The check compares `j` with the length of the slice before each load, so each
@@ -972,8 +972,8 @@ bounds check still took 62 cycles. The bounds check alone accounted for the 23 c
 of the loop for none of them.
 
 <figure>
-<img src="../../figures/ch22-loop.svg" alt="Five cards joined by arrows in a loop. Measure: the Rust pointer chase takes 62 cycles per L1 load, the C++ one 39. Hypothesis: the bounds check of next[j] sits on the chain. Change one thing: next.get_unchecked(j) with a SAFETY comment. Measure again: 39 cycles, the same as C++. Verify: every chain ends at the index the host expects.">
-<figcaption><b>Figure 22.10</b> The optimization process applied to the Rust pointer chase.</figcaption>
+<img src="../../figures/ch25-loop.svg" alt="Five cards joined by arrows in a loop. Measure: the Rust pointer chase takes 62 cycles per L1 load, the C++ one 39. Hypothesis: the bounds check of next[j] sits on the chain. Change one thing: next.get_unchecked(j) with a SAFETY comment. Measure again: 39 cycles, the same as C++. Verify: every chain ends at the index the host expects.">
+<figcaption><b>Figure 25.10</b> The optimization process applied to the Rust pointer chase.</figcaption>
 </figure>
 
 The L2 latencies also changed, from 408 cycles to 295 and then to 191, but each of these was a
@@ -987,33 +987,33 @@ tells us whether a kernel is limited by memory or by arithmetic, the coalescing 
 tell us how many sectors a warp moves, and the reuse count of Chapter 9 tells us how often each
 value is fetched. The procedure above is how each of these explanations was checked.
 
-## 22.10 The complete programs
+## 25.10 The complete programs
 
-<p class="listing"><b>Listing 22.13</b> The complete <code>bugs.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/bugs.cu">code/ch16_profiling/bugs.cu</a></p>
+<p class="listing"><b>Listing 25.13</b> The complete <code>bugs.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/bugs.cu">code/ch16_profiling/bugs.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu}}
 ```
 
-<p class="listing"><b>Listing 22.14</b> The complete <code>measure.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/measure.cu">code/ch16_profiling/measure.cu</a></p>
+<p class="listing"><b>Listing 25.14</b> The complete <code>measure.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/measure.cu">code/ch16_profiling/measure.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/measure.cu}}
 ```
 
-<p class="listing"><b>Listing 22.15</b> The complete <code>latency.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
+<p class="listing"><b>Listing 25.15</b> The complete <code>latency.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/latency.cu}}
 ```
 
-<p class="listing"><b>Listing 22.16</b> The complete <code>verify.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
+<p class="listing"><b>Listing 25.16</b> The complete <code>verify.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/verify.cu}}
 ```
 
-<p class="listing"><b>Listing 22.17</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_latency/src/main.rs">code/oxide/ch16_latency/src/main.rs</a></p>
+<p class="listing"><b>Listing 25.17</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_latency/src/main.rs">code/oxide/ch16_latency/src/main.rs</a></p>
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch16_latency/src/main.rs}}
@@ -1021,7 +1021,7 @@ value is fetched. The procedure above is how each of these explanations was chec
 
 ## Common mistakes
 
-- **Tuning a kernel before reading the timeline.** In section 22.1.2, a kernel twice as fast saved
+- **Tuning a kernel before reading the timeline.** In section 25.1.2, a kernel twice as fast saved
   5.20 ms, while overlapping the copies saved 7.36 ms without changing the kernel.
 - **Trusting a clean exit.** The out-of-bounds kernel produced correct output and exit status 0.
   The 2 barriers in 2 branches did the same on 1 GPU and hung another.
@@ -1063,21 +1063,21 @@ value is fetched. The procedure above is how each of these explanations was chec
 
 </div>
 
-Chapter 23 moves from the single program to the GPU as a device in the whole system: how the CPU
+Chapter 26 moves from the single program to the GPU as a device in the whole system: how the CPU
 reaches the GPU's registers, and how the GPU's copy engines reach memory.
 
 ## Exercises
 
-1. Account for the 1-stream run of Figure 22.2 in the way section 22.2.2 accounted for the 2-stream
+1. Account for the 1-stream run of Figure 25.2 in the way section 25.2.2 accounted for the 2-stream
    run. What fraction of the run did each lane spend busy?
 2. Issue all 8 copies in of the 2-stream pipeline before any kernel, or use 3 streams, and trace the
    program again. Do the 3 gaps of 0.47 ms disappear? Account for the new total.
 3. Profile `sgemm` of Chapter 9 with `ncu` on a machine where you can read counters. Compare the
-   `SpeedOfLight` percentages with Figure 22.3, and find how much of the patch kernel's 8 GiB of
+   `SpeedOfLight` percentages with Figure 25.3, and find how much of the patch kernel's 8 GiB of
    loads came from DRAM.
 4. Change `bugs.cu` to use 1,010 elements. Which elements of which array does the unguarded kernel
    now overwrite? Predict the answer, then check it with memcheck.
-5. Put the 2 barriers of Listing 22.5 into a block of 64 threads in which the 2 branches fall in
+5. Put the 2 barriers of Listing 25.5 into a block of 64 threads in which the 2 branches fall in
    different warps (for example, `t < 32`). Does synccheck still report an error? Explain. Run the
    program under synccheck first, because the plain program may hang, as it did on the first GPU.
 6. Extend `latency.cu` with a chain of 16 MiB. Where does its latency fall between the L2 and DRAM
