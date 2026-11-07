@@ -115,7 +115,7 @@ Chapter 3, §3.8.
 `powf`, `fmaf` (fused multiply-add). The `__host__ __device__` versions work
 on both sides (Chapter 10, §10.4). Fast approximations live in the `__`
 prefixed forms (`__expf`, `__sinf`); enable globally with
-`--use_fast_math` - but measure before trusting (Chapter 22, §22.7).
+`--use_fast_math` - but measure before trusting (Chapter 25, §25.7).
 
 ## A.9 Warp-Level Primitives
 
@@ -138,7 +138,7 @@ All `_sync` primitives require all named lanes to execute them.
 | `nvrtcCreateProgram`, `nvrtcCompileProgram`, `nvrtcGetPTX`, `nvrtcGetProgramLog` | Runtime compilation of CUDA source |
 | PTX / cubin / fatbin | Portable ISA / SASS binary / multi-arch container |
 
-## A.11 Tools and Environment (Chapter 22)
+## A.11 Tools and Environment (Chapter 25)
 
 | Tool | Purpose |
 |---|---|

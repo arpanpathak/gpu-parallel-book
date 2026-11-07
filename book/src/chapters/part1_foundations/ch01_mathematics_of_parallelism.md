@@ -958,7 +958,7 @@ a faster disk changes nothing, and a processor twice as fast nearly halves its r
 time. The bound of a program is the first thing to establish before optimising it, because
 an optimisation aimed at a resource that is not the bound cannot help. Chapter 7 treats
 memory-bound GPU programs, Chapter 9 compute-bound ones and Chapter 6 programs that wait for
-data transfers. Chapter 22 shows how a profiler measures the bound instead of guessing it.
+data transfers. Chapter 25 shows how a profiler measures the bound instead of guessing it.
 
 ## 1.9 The cost of synchronization
 

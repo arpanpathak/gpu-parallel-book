@@ -60,7 +60,7 @@ parts += [note(24, 392, "Each GPU computes on 1/8 of the batch, 400 ÷ 8 = 50 ms
                "at 300 GB/s", room=612),
           note(24, 428, "over NVLink 3, 1.75 ÷ 300 = 5.8 ms. Speedups: 400 ÷ 104.7 = 3.8 and "
                "400 ÷ 55.8 = 7.2.", room=612)]
-save(OUT + "ch24-step.svg", 660, 450,
+save(OUT + "ch27-step.svg", 660, 450,
      "Three timelines of 1 training step. On 1 GPU, 400 ms of compute. On 8 GPUs joined by PCIe 4.0, "
      "50 ms of compute and 54.7 ms of gradient exchange, 104.7 ms, 3.8 times as fast. On 8 GPUs joined "
      "by NVLink 3, 50 ms of compute and 5.8 ms of exchange, 55.8 ms, 7.2 times as fast.",
@@ -91,7 +91,7 @@ parts += [note(386, 286, "18 × 25 GB/s = 450 GB/s each way", room=246),
                "ways, so it sends", room=612),
           note(24, 416, "and receives at once. A GPU's bandwidth to other GPUs is its number of links "
                "times 1 link.", room=612)]
-save(OUT + "ch24-link.svg", 660, 438,
+save(OUT + "ch27-link.svg", 660, 438,
      "Left: 1 link of NVLink 4 between GPU A and GPU B, drawn as 2 wire pairs from A to B and 2 from B "
      "to A. 2 pairs of 100 Gbit/s carry 200 Gbit/s, 25 GB/s each way. Right: the 18 links of 1 H100, "
      "numbered 1 to 18: 18 times 25 GB/s is 450 GB/s each way, 900 GB/s both ways, against 64 GB/s each "
@@ -121,7 +121,7 @@ parts += [note(24, 474, "Each way, from NVIDIA's figures. A copy inside an H100 
                "byte, so its", room=612),
           note(24, 492, "3,350 GB/s of memory copy at 3,350 ÷ 2 = 1,675 GB/s. 1 GB ÷ 450 GB/s = 2.2 ms.",
                room=612)]
-save(OUT + "ch24-rates.svg", 660, 514,
+save(OUT + "ch27-rates.svg", 660, 514,
      "Horizontal bars of bandwidth each way, with the time to move 1 GB. PCIe 4.0 with 16 lanes 32 GB/s, "
      "31 ms. PCIe 5.0 64 GB/s, 16 ms. NVLink 2 on V100 150 GB/s, 6.7 ms. NVLink 3 on A100 300 GB/s, "
      "3.3 ms. NVLink 4 on H100 450 GB/s, 2.2 ms. NVLink-C2C on GH200 450 GB/s, 2.2 ms. NVLink 5 on B200 "
@@ -151,7 +151,7 @@ for i in range(8):
         else:
             parts.append(box(gx + j * cell, gy + i * cell, cell - 4, cell - 4, "client", on=i < j))
 parts += [note(306, 412, "1 link per pair: 8 × 7 ÷ 2 = 28 links, 7 per GPU", room=330)]
-save(OUT + "ch24-mesh.svg", 660, 456,
+save(OUT + "ch27-mesh.svg", 660, 456,
      "Left: 4 GPUs at the corners of a square, joined by 4 sides and 2 diagonals, 6 links, 3 per GPU. "
      "Right: an 8 by 8 table of GPU pairs. The diagonal is crossed out, the upper half is shaded: 28 "
      "cells, 1 link for each pair, 7 links at each GPU.",
@@ -181,7 +181,7 @@ for s in range(4):
     parts.append(text(x + 70, 475, f"NVSwitch {s}", "pill", "middle", "#DCE3EC"))
 parts += [note(40, 516, "to any 1 peer: all 18 links, 450 GB/s each way, and all 8 GPUs at once", room=600),
           note(40, 534, "8 GPUs × 18 links = 144 of the 4 × 64 = 256 switch ports", room=600)]
-save(OUT + "ch24-switch.svg", 660, 580,
+save(OUT + "ch27-switch.svg", 660, 580,
      "Top: 8 H100s wired directly. GPU 0 fans out to GPUs 1 to 7, each with a tag of 2 links: 18 links "
      "over 7 peers give 2 links per peer, 50 GB/s each way. Bottom: 8 GPUs, each with 18 links going "
      "down into a row of 4 NVSwitch chips. Any pair can use all 18 links, 450 GB/s each way, and all 8 "
@@ -232,7 +232,7 @@ parts += [note(24, 436, "Every GPU has 18 links of 25 GB/s each way. The dashed 
                "GPUs into 2 halves", room=612),
           note(24, 454, "of 4; the bisection bandwidth is all that can cross it at once, each way.",
                room=612)]
-save(OUT + "ch24-bisection.svg", 660, 476,
+save(OUT + "ch27-bisection.svg", 660, 476,
      "Three ways to join 8 GPUs that each have 18 links, cut in half by a dashed line. Ring: 2 edges of "
      "9 links cross the cut, 450 GB/s each way. Mesh: 16 pairs of 2 links cross, 800 GB/s. Switch: all "
      "4 GPUs on one side send at 450 GB/s through the switch, 1,800 GB/s.",
@@ -258,7 +258,7 @@ parts += [note(24, 456, "Staged: 2 copies, 2 crossings of PCIe, and the host mem
                "twice. Peer", room=612),
           note(24, 474, "to peer: 1 crossing, no host memory. NVLink: 1 direct link, 7 times as fast as "
                "PCIe 5.0.", room=612)]
-save(OUT + "ch24-paths.svg", 660, 496,
+save(OUT + "ch27-paths.svg", 660, 496,
      "Three rows. Staged through the host: GPU 0 to host memory over PCIe, then host memory to GPU 1 "
      "over PCIe. PCIe peer to peer: GPU 0 to a PCIe switch to GPU 1, without host memory. NVLink: GPU 0 "
      "straight to GPU 1 over NVLink.",
@@ -284,7 +284,7 @@ parts += [mono(x0, 244, f"copied: 134.2 MB ÷ 3.462 ms = {copied:g} GB/s", "star
           note(24, 304, "cudaMemcpyPeerAsync of 128 MiB inside 1 GPU. The bar is the GPU's memory "
                "bandwidth; a copy", room=612),
           note(24, 322, "spends it twice, once to read each byte and once to write it.", room=612)]
-save(OUT + "ch24-measured.svg", 660, 344,
+save(OUT + "ch27-measured.svg", 660, 344,
      f"A bar as long as the GPU's memory bandwidth, {memory} GB/s. The copy ran at "
      f"{copied:g} GB/s, so {copied:g} GB/s were read and {copied:g} GB/s written: {traffic:g} GB/s, "
      f"{traffic / memory:.0%} of the bandwidth. The rest of the bar is unused.",
@@ -315,7 +315,7 @@ parts += [note(24, 418, "An example of the matrix's form, for a 2-socket server 
           note(24, 436, "by NVLink. Read a row across: from GPU0, GPU1 is 1 NVLink hop, GPU2 is under the "
                "same", room=612),
           note(24, 454, "PCIe switch, and GPU3 is on the other CPU socket.", room=612)]
-save(OUT + "ch24-topo.svg", 660, 476,
+save(OUT + "ch27-topo.svg", 660, 476,
      "A 4 by 4 matrix like the one nvidia-smi topo -m prints, for an example server. The diagonal reads "
      "X. GPU0 and GPU1, and GPU2 and GPU3, read NV4: 4 NVLinks. GPU0 and GPU2, and GPU1 and GPU3, read "
      "PIX: 1 PCIe switch. GPU0 and GPU3, and GPU1 and GPU2, read SYS: across the CPU sockets. A legend "

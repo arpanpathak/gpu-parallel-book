@@ -131,4 +131,4 @@ def footer(p, tl, s, total, y):
 
 if __name__ == "__main__":
     tl, draw, height = ring()
-    print(render("ch25-ring-anim.gif", tl, draw, height))
+    print(render("ch28-ring-anim.gif", tl, draw, height))

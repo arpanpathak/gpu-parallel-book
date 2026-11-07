@@ -58,7 +58,7 @@ for x, title, cpu, link, gpu, gsub, mem, msub in cols:
 parts += [note(16, 534, "A discrete GPU is a card at the end of a PCIe link, with its own memory behind a window", room=628),
           note(16, 552, "(BAR1). An integrated GPU is on the chip; it answers as a PCIe function, or it is a", room=628),
           note(16, 570, "platform device described by the device tree. Both kinds share 1 memory with the CPU.", room=628)]
-save(OUT + "ch23-attach.svg", 660, 594,
+save(OUT + "ch26-attach.svg", 660, 594,
      "3 columns. Discrete GPU: a CPU with a root complex joined by a PCIe 4.0 or 5.0 link of 16 lanes to a GPU card "
      "whose BAR0 holds registers and BAR1 a window on its own GDDR or HBM memory of 24 to 80 GB. Integrated GPU as a PCIe function: the "
      "CPU's root port joined to an on-chip GPU that answers as PCIe function 01:00.0, vendor 10de device 2b00, with a "
@@ -94,7 +94,7 @@ parts += [f'  <path d="M400,165 H412 V245 H400" fill="none" stroke="{WIRE}" stro
           note(16, 440, "The interconnect sends every load and store by its address. An address in a device's", room=628),
           note(16, 458, "window reaches that device's registers; an address in a RAM range reaches DRAM. The", room=628),
           note(16, 476, "same store instruction does both: the address alone decides.", room=628)]
-save(OUT + "ch23-address-map.svg", 660, 498,
+save(OUT + "ch26-address-map.svg", 660, 498,
      "A CPU core issues store to an address. An address decoder holds 5 ranges read from a device tree: 0x0_03B4_1000, "
      "4 KiB, GPU window 3; 0x0_1700_0000, 16 MiB, GPU bar0; 0x0_1800_0000, 16 MiB, GPU bar1; the RAM ranges, 16 GB, "
      "DRAM; 0x24_2800_0000, 16 KiB, NVMe BAR0. The 3 GPU ranges lead to the GPU's registers, driven by nvgpu; the RAM "
@@ -128,7 +128,7 @@ for k, (kind, where, what) in enumerate(decode):
     y = 288 + 30 * k
     parts += [box(40, y, 96, 24, kind, where, cls="pill"), text(150, y + 16.5, what, "sub")]
 parts += [note(40, 486, "Numbers wider than 1 byte are stored low byte first: de 10 is 0x10de.", room=580)]
-save(OUT + "ch23-config.svg", 660, 508,
+save(OUT + "ch26-config.svg", 660, 508,
      "A grid of 64 bytes in 4 rows of 16, read without root from the configuration space of an integrated GPU presented as a PCIe function. Coloured fields: "
      "bytes 0 to 3, de 10 00 2b, vendor 0x10de and device 0x2b00; bytes 4 and 5, 06 04, command 0x0406 with memory "
      "space and bus master enabled; bytes 9 to 11, 00 02 03, class 3D controller; bytes 16 to 23, 0c 00 00 c0 d0 00 00 "
@@ -156,7 +156,7 @@ parts += [tag(222, 422, "16,384 bytes = 16 KiB", "good"), tag(452, 422, "16,777,
           note(16, 466, "The device wires the address bits below its size to 0, so they read back 0 whatever is", room=628),
           note(16, 484, "written. Counting those zeros gives the size, which is therefore always a power of 2.", room=628),
           note(16, 502, "Bits 3:0 are flags: 0x4 = 64-bit BAR, 0x8 = prefetchable. The kernel does this at boot.", room=628)]
-save(OUT + "ch23-bar-size.svg", 660, 524,
+save(OUT + "ch26-bar-size.svg", 660, 524,
      "6 steps in 2 columns, for an NVMe drive's BAR0 and a PCIe-function GPU's BAR0. 1, the BAR holds 0x40000004 and "
      "0xC000000C. 2, software writes 0xFFFFFFFF. 3, it reads back 0xFFFFC004 and 0xFF00000C. 4, the flag bits 3 to 0 "
      "are cleared: 0xFFFFC000 and 0xFF000000. 5, inverted: 0x00003FFF and 0x00FFFFFF. 6, plus 1: 0x4000 = 16,384 bytes "
@@ -178,7 +178,7 @@ parts = [card(24, 130, 180, 70, "client", "CPU core", ["runs the driver", "and y
          note(24, 494, "Red: the control path, a few bytes stored by the CPU. Blue: the data path, read by the GPU.", room=612),
          note(24, 512, "The CPU tells the GPU where work is with 1 small store; the GPU fetches the work and the", room=612),
          note(24, 530, "data itself, by DMA, while the CPU goes on with other things.", room=612)]
-save(OUT + "ch23-two-paths.svg", 660, 552,
+save(OUT + "ch26-two-paths.svg", 660, 552,
      "A CPU core at the top left and DRAM below it, joined by a cached path. On the right, a GPU with registers in "
      "BAR0, a host interface and copy engines. A red control path runs from the CPU to the registers: an MMIO store "
      "of 4 bytes, the doorbell. 2 data paths run from DRAM to the GPU: the host interface reads 8-byte work entries by "
@@ -209,7 +209,7 @@ parts += [tag(120 + 56 * 2, 276, "GET", "good"), tag(120 + 56 * 2, 254, "PUT = 1
           text(24, 412, "entry #c goes to slot c mod 8: #8 → slot 0, #9 → slot 1, and PUT = 10 → slot 2", "sub"),
           note(24, 452, "The host owns PUT and writes entries; the GPU owns GET and reads them. Each side only", room=612),
           note(24, 470, "moves its own counter forward, so neither needs a lock.", room=612)]
-save(OUT + "ch23-ring.svg", 660, 492,
+save(OUT + "ch26-ring.svg", 660, 492,
      "2 rows of 8 slots numbered 0 to 7. Top: GET = 2 and PUT = 7, so slots 2 to 6 hold 7 minus 2 = 5 pending entries. "
      "Bottom: after 3 more entries PUT = 10; entries 7, 8 and 9 went to slots 7, 0 and 1, because the slot is the "
      "counter mod 8. Now 10 minus 2 = 8 entries are pending, the ring's capacity, so the next write must wait.",
@@ -245,7 +245,7 @@ for k, (a, b, label) in enumerate(steps):
         parts += [hline(a, b, y, kind), text(at, y - 7, label, "mono", anchor, colour)]
 parts += [note(24, 572, "Steps 1 to 5 are ordinary stores from the process, with no system call. The store in step", room=612),
           note(24, 590, "5 is the only one that reaches the GPU; it tells the GPU that new entries are waiting.", room=612)]
-save(OUT + "ch23-launch.svg", 660, 612,
+save(OUT + "ch26-launch.svg", 660, 612,
      "3 vertical lanes: your process, DRAM and the GPU. 1, the process writes methods to the pushbuffer in DRAM. 2, it "
      "writes an 8-byte entry to the ring. 3, it writes GPPut = n + 1 at offset 0x8c of the USERD page. 4, a barrier "
      "orders the earlier writes. 5, it stores a token to the doorbell register of the GPU. 6, the GPU reads the ring "
@@ -288,7 +288,7 @@ parts += [mono(x0, 266, "0", "middle", MUTED), mono(x0 + 64 * scale, 266, "64 µ
           note(16, 466, "200 bursts: depth 1 predicts 200 × 128 µs = 25.6 ms (measured 28.7 to 30.9 ms), depth 32", room=628),
           note(16, 484, "predicts 200 × 64 µs = 12.8 ms (measured 13.5 to 13.7 ms). A deep ring lets the host leave", room=628),
           note(16, 502, "the work queued and go on; the GPU's own command rings exist for the same reason.", room=628)]
-save(OUT + "ch23-queue.svg", 660, 524,
+save(OUT + "ch26-queue.svg", 660, 524,
      "2 timelines of 1 burst, 0 to 128 microseconds. Depth 1: the host submits and waits for 64 microseconds while the "
      "device runs 32 entries of 2 microseconds, then the host does 64 microseconds of its own work while the device is "
      "idle: 128 microseconds per burst. Depth 32: the host writes all 32 entries at once and does its own work while the "
@@ -323,7 +323,7 @@ parts += [box(256, 340, 144, 34, "danger", "no entry: fault", cls="pill"),
           note(16, 438, "The device sees 4 neighbouring pages; the SMMU maps each to wherever the OS put it. An", room=628),
           note(16, 456, "address with no entry stops at the SMMU with a fault and never reaches the kernel's data.", room=628),
           note(16, 474, "A 64 MiB buffer in 4 KiB pages needs 64 MiB ÷ 4 KiB = 16,384 entries.", room=628)]
-save(OUT + "ch23-iommu.svg", 660, 496,
+save(OUT + "ch26-iommu.svg", 660, 496,
      "3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighbouring 4 KiB pages; the SMMU page table maps "
      "page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth "
      "device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of "
@@ -347,7 +347,7 @@ parts = [zone(16, 104, 628, 150, "user space: your process"),
          wire([(484, 322), (484, 232)], kind="idle", label="mmap"),
          note(16, 470, "Allocating memory, creating a channel and mapping pages go through ioctl calls on the", room=628),
          note(16, 488, "device nodes. Submitting work does not: libcuda writes the mapped pages and the doorbell.", room=628)]
-save(OUT + "ch23-drivers.svg", 660, 510,
+save(OUT + "ch26-drivers.svg", 660, 510,
      "2 bands. User space: libcuda.so, the user-mode driver, which implements the CUDA API and builds pushbuffers and "
      "ring entries, and the pages mapped into the process: ring, pushbuffer, USERD and the doorbell page. Kernel space: "
      "the kernel-mode driver, nvgpu and nvmap for a platform-device GPU and nvidia with nvidia_uvm for a PCIe-function GPU, which owns the BARs, "
