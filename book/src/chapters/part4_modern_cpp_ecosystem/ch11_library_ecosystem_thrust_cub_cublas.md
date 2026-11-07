@@ -9,14 +9,16 @@ tuned by other programmers, which a program calls instead of implementing the op
 itself. NVIDIA ships several libraries with every toolkit and tunes them for each new GPU
 generation.
 
-In this chapter, we place each library next to the kernel it replaces and measure both on
-the same GPU. The measurements come from a Jetson Orin NX, an integrated GPU with 8 SMs,
-102 GB/s of memory bandwidth and 2.4 TFLOP/s of FP32 throughput, with all runs made on the
-same day. We will use them to answer 2 practical questions: when a library is as fast as a
-hand-written kernel, and what a library call costs beyond the kernels it launches. We will
-find that on large inputs the libraries match or exceed our kernels, while on small inputs
-most of the time of a convenient library call goes to memory allocation and synchronization
-rather than to computation.
+In this chapter, we place each library next to the kernel it replaces and measure both on the
+same GPU. The measurements come from a Jetson Orin NX, an integrated GPU with 8 SMs (streaming
+multiprocessors), 102 GB/s of memory bandwidth and 2.4 TFLOP/s of FP32 throughput, with all runs
+made on the same day. **FP32** is the 32-bit floating-point format of the C++ type `float`, and
+1 TFLOP/s is 10<sup>12</sup> floating-point operations per second. We will use them to answer 2
+practical questions: when a library is as fast as a hand-written kernel, and what a library call
+costs beyond the kernels it launches. We will find that on large inputs the libraries match or
+exceed our kernels, while on small inputs most of the time of a convenient library call goes to
+memory allocation and synchronization rather than to computation. **Synchronization** here means
+that the host stops and waits until the GPU has finished the work submitted so far.
 
 <div class="covers" markdown="1">
 
@@ -47,10 +49,15 @@ for Rust.
 
 The 5 libraries of this chapter cover most of the algorithms of Part III, as well as a few
 that the book does not implement by hand. All of them are installed with the CUDA toolkit.
-Before we look at the table below, we need 2 terms. **SGEMM** is the single-precision
-matrix product \\(C = AB\\) of Chapter 9. **Temporary storage**, also called scratch memory,
-is device memory that an algorithm needs only while it runs, for example to hold the partial
-sums of the blocks of a reduction.
+Before we look at the table below, we need 4 terms. A **reduction** combines all the elements
+of an array into 1 value with an operation such as addition; the sum of Chapter 8 is a
+reduction. **GEMM** (general matrix multiply) is the matrix product \\(C = AB\\) of Chapter 9,
+and **SGEMM** is its single-precision version, on floats. **Temporary storage**, also called
+scratch memory, is device memory that an algorithm needs only while it runs. For example, a
+sum of 1,024 blocks writes 1 partial sum per block, 1,024 floats or 4 KiB, which the final step
+adds and which are not needed afterwards. A **header** is a source file that a program includes
+with `#include`, and a **link flag** such as `-lcublas` tells the linker to add a compiled
+library file to the executable.
 
 | Library | What it provides | Replaces | Header, link flag |
 |---|---|---|---|
@@ -60,12 +67,22 @@ sums of the blocks of a reduction.
 | **cuFFT** | fast Fourier transforms | not implemented in this book | `<cufft.h>`, `-lcufft` |
 | **cuRAND** | random numbers on the GPU | not implemented in this book | `<curand.h>`, `-lcurand` |
 
-Thrust and CUB consist entirely of C++ templates in header files. They are compiled into the
-program together with the rest of its code and therefore need no link flag. Both belong to
-the **CUDA C++ Core Libraries** (CCCL), together with `libcu++`, which provides the
-`cuda::std::` versions of the C++ standard library that we use below. The CCCL version is
-tied to the toolkit: CUDA 12.6 ships CCCL 2.5, and CUDA 13.2 ships CCCL 3.2. cuBLAS, cuFFT
-and cuRAND, on the other hand, are compiled libraries and must be linked with a flag.
+Thrust and CUB consist entirely of C++ templates (Chapter 10) in header files. They are compiled
+into the program together with the rest of its code and therefore need no link flag. Both belong
+to the **CUDA C++ Core Libraries** (CCCL), together with `libcu++`, which provides the
+`cuda::std::` versions of the C++ standard library that we use below. The CCCL version is tied
+to the toolkit: CUDA 12.6 ships CCCL 2.5, and CUDA 13.2 ships CCCL 3.2. cuBLAS, cuFFT and
+cuRAND, on the other hand, are compiled libraries and must be linked with a flag.
+
+We describe each library briefly before we arrange them. **Thrust** is a library of
+algorithms on whole arrays, such as sum, sort and scan, that a host program calls in 1 line,
+in the manner of the C++ standard library; Thrust launches the kernels itself. **CUB** (CUDA
+UnBound) provides the same algorithms with more control left to the caller, and also provides
+building blocks, such as the sum of the values of 1 block, that a programmer calls from inside
+a kernel of their own. **cuBLAS** is NVIDIA's implementation of the standard routines of linear
+algebra, among them GEMM. For example, a sum of 1,000,000 floats is 1 call of `thrust::reduce`,
+2 calls of `cub::DeviceReduce::Sum`, or 1 kernel of our own in which each block calls
+`cub::BlockReduce` and writes 1 partial sum.
 
 Fig. 11.1 arranges the libraries by where they are called from and by who manages the
 memory they use.
@@ -87,7 +104,8 @@ costs.
 ### 11.1.2 Advantages and limits of a library
 
 A library has 3 advantages over a kernel written for a single program. First, its authors
-select a different kernel for each GPU generation, with block sizes, load widths and
+select a different kernel for each GPU generation, the family of GPUs that share 1 design, such
+as the GPUs of compute capability 8.x, with block sizes, load widths and
 algorithms tuned on that hardware. Second, it can use algorithms whose implementation effort
 a single program could not justify. The scan of Section 11.2.3, for example, relies on a
 protocol between thread blocks that we did not attempt in Chapter 8. Third, it is tested on
@@ -103,7 +121,9 @@ one of the lower levels of Fig. 11.1.
 
 **NOTE:** cuda-oxide, the Rust compiler used in this book, has no bindings to Thrust, CUB,
 cuBLAS, cuFFT or cuRAND at revision `b7fe543`. A Rust program can call these C libraries
-through Rust's foreign function interface, which is beyond the scope of this chapter.
+through Rust's **foreign function interface** (FFI), the mechanism by which Rust code declares
+and calls functions written in C. Chapter 12 uses it for NVRTC; its use for these libraries is
+beyond the scope of this chapter.
 cuda-oxide does provide its own block-level primitives for use inside a kernel, the
 counterparts of CUB's lowest level, and Section 11.3.2 measures them.
 
@@ -113,16 +133,36 @@ counterparts of CUB's lowest level, and Section 11.3.2 measures them.
 
 ### 11.2.1 Reduction with `thrust::reduce`
 
-Thrust's algorithms have the names and parameters of the algorithms in the C++ standard
-library. A range of elements is given by 2 positions, `first` and `last`, followed by the
-remaining arguments. The first argument is an **execution policy**, which specifies where the
-algorithm runs. The policy `thrust::device` runs the algorithm on the GPU, on data in device
-memory. When the data is held in raw device pointers, the range is written `in` to `in + n`.
+Thrust's algorithms have the names and parameters of the algorithms in the C++ standard library.
+A range of elements is given by 2 positions, `first` and `last`. Such a position is called an
+**iterator**: an object that marks 1 element of a sequence and can be advanced to the next. A
+raw pointer is the simplest iterator. The range is **half-open**: it contains `first` and every
+element up to, but not including, `last`. For example, with `in` pointing to an array of 8
+floats, the range `in` to `in + 8` covers elements 0 to 7, and `in + 8` itself marks the
+position just past the end. The first argument of the call is an **execution policy**, which
+specifies where the algorithm runs. The policy `thrust::device` runs the algorithm on the GPU,
+on data in device memory.
 
 ```text
 thrust::reduce(policy, first, last, initial value)
     → initial value + every element in [first, last), combined in any order
 ```
+
+The phrase "in any order" matters, and a small example shows why. Take the 8 values 3, 1, 2, 0,
+1, 2, 0, 1. A sequential loop adds them from left to right: 3, 4, 6, 6, 7, 9, 9, 10. A **tree**
+reduction, as in the kernels of Chapter 8, adds neighbouring pairs in rounds. Round 1 gives 3 +
+1 = 4, 2 + 0 = 2, 1 + 2 = 3 and 0 + 1 = 1; round 2 gives 4 + 2 = 6 and 3 + 1 = 4; round 3 gives
+6 + 4 = 10. Both orders reach 10, but the tree takes 3 rounds instead of 7 steps, and the 4
+additions of round 1 can run at the same time on 4 threads. With integers the order makes no
+difference. With floats, every addition rounds, and different orders round at different places.
+
+<div class="key-observation">
+
+<span class="box-label">Key observation</span> A parallel reduction adds the same elements in a
+different order from a sequential loop. With floats, the 2 results can differ in their last
+digits, although neither is less accurate.
+
+</div>
 
 Like the kernels of Chapter 8, `thrust::reduce` adds the elements in a tree. The order of the
 additions therefore differs from that of a sequential loop, and the result is rounded
@@ -168,13 +208,27 @@ percent between the 4 lines is not significant.
 
 ### 11.2.2 Fusing transform and reduce
 
-A **pass** is 1 traversal of an array in memory. The sum of squares \\(\sum_i x_i^2\\) can
-be written with 2 Thrust calls. `thrust::transform` squares every element and writes the
-squares to a second array, and `thrust::reduce` then adds the elements of the second array.
-Each of the 2 calls is a pass. `thrust::transform_reduce` performs both operations in a single
-pass: it squares each element as it reads it and adds the square immediately, so that the
-square exists only in a register. Combining several passes into 1 in this way is called
-**fusion**.
+The sum of squares \\(\sum_i x_i^2\\) can be written with 2 Thrust calls.
+`thrust::transform` squares every element and writes the squares to a second array, and
+`thrust::reduce` then adds the elements of the second array. Let us count the memory traffic
+for the 4 floats 1, 2, 3, 4, which occupy 16 bytes. The first call reads the 16 bytes and
+writes the squares 1, 4, 9, 16 into a second array of 16 bytes. The second call reads those 16
+bytes again and adds them to 30. In all, 48 bytes cross the memory bus. A single loop could
+instead read 1, square it, add it to a running total, and go on to 2, so that each square exists
+only in a **register**, the storage of 1 thread inside the SM, and never reaches memory. The
+same total 30 then costs 16 bytes of traffic.
+
+<div class="definition">
+
+<span class="box-label">Definition 11.1</span> **Pass and fusion.** A **pass** is 1 traversal
+of an array in memory. **Fusion** combines several passes into 1, so that each intermediate
+value is passed on in a register instead of being written to memory and read back.
+
+*Example.* `thrust::transform` followed by `thrust::reduce` makes 2 passes over the sum of
+squares; `thrust::transform_reduce` makes 1, squaring each element as it reads it and adding the
+square immediately.
+
+</div>
 
 The benefit of fusion follows from the number of bytes each version moves. For 256 MiB of
 floats, `transform` reads 256 MiB and writes 256 MiB of squares, and `reduce` reads the 256
@@ -188,10 +242,11 @@ input once, 256 MiB. At the 92 GB/s measured in Section 11.2.1, 768 MiB (805 MB)
 </figure>
 
 Thrust takes the operation to apply to each element as a **functor**, an object that can be
-called like a function. In Listing 11.2, the functor `Square` is declared `__host__
-__device__` so that it is compiled for the GPU, and `cuda::std::plus<float>` is the addition
-of the standard library, in the `cuda::std` version that can be called on both the host and
-the device.
+called like a function, as the function objects of Chapter 10 are. An object `sq` of a struct
+whose `operator()` returns `x * x` gives `sq(3.0f)` = 9.0. In Listing 11.2, the functor `Square`
+is declared `__host__ __device__` so that it is compiled for the GPU, and
+`cuda::std::plus<float>` is the addition of the standard library, in the `cuda::std` version
+that can be called on both the host and the device.
 
 <p class="listing"><b>Listing 11.2</b> The sum of squares in 2 passes and in 1.</p>
 
@@ -227,8 +282,8 @@ passes saved.
 
 A **scan**, or prefix sum, replaces each element of an array by the running total up to that
 element. An **inclusive** scan includes the element itself in its total, whereas an
-**exclusive** scan stops immediately before it and therefore starts at 0. For the values 3, 1, 2, 0,
-the 2 scans are:
+**exclusive** scan stops immediately before it and therefore starts at 0. For the values 3, 1,
+2, 0, the 2 scans are:
 
 | i | 0 | 1 | 2 | 3 |
 |---|---|---|---|---|
@@ -240,15 +295,46 @@ The exclusive scan is the inclusive scan shifted right by 1 position. Element \\
 exclusive scan is the number of items that come before position \\(i\\), and Section 11.2.4
 uses exactly this property.
 
+<div class="definition">
+
+<span class="box-label">Definition 11.2</span> **Scan.** The **inclusive scan** of
+\\(x_0, x_1, \dots, x_{n-1}\\) is the array \\(y\\) with
+\\(y_i = x_0 + x_1 + \dots + x_i\\). The **exclusive scan** is the array \\(z\\) with
+\\(z_0 = 0\\) and \\(z_i = x_0 + \dots + x_{i-1}\\).
+
+*Example.* For 3, 1, 2, 0, element 2 of the inclusive scan is 3 + 1 + 2 = 6, and element 2 of
+the exclusive scan is 3 + 1 = 4.
+
+</div>
+
 The scan of Chapter 8 made 3 passes. Each block scanned its 1,024 values and wrote them out,
 a second kernel scanned the block totals, and a third kernel read every value again to add the
 offset of its block. CUB, which Thrust calls internally, performs the scan in a single pass
-with a method called **decoupled look-back**. Each block scans its own values in registers
-and publishes its block total in a flag in memory. It then inspects the flags of the blocks
-to its left. As soon as a preceding block has published the running total of all elements
-before it, the current block adds that value, publishes its own running total, and writes its
-values out once, in their final form. Blocks wait for each other only on a few bytes of flags,
-never on the data itself.
+with a method called **decoupled look-back**.
+
+To see how 1 pass can suffice, consider 4 blocks whose values add up to the block totals 6, 10,
+4 and 8. Block 2 needs to know the sum of everything before it, 6 + 10 = 16, before it can write
+its first output. In the method of Chapter 8, a separate kernel computed 16 after every block
+had finished. In decoupled look-back, each block keeps a small record in global memory, a
+**flag** with 2 fields: a status and a number. The status is *aggregate* when the number is the
+block's own total, and *prefix* when the number is the running total up to and including that
+block.
+
+Let us follow block 2. It scans its own values in registers, finds its total 4, and publishes
+*aggregate 4*. It then looks at the flag of block 1, the block to its left. Suppose block 1 has
+so far published only *aggregate 10*. Block 2 adds 10 and looks one block further left, at block
+0, which has published *prefix 6*. Block 2 adds 6, and the sum before it is 10 + 6 = 16. It
+publishes *prefix 16 + 4 = 20* for the blocks to its right, adds 16 to each of its scanned
+values, and writes them out once, in their final form. The search to the left stops at the first
+*prefix* it finds, so it is usually short.
+
+<div class="key-observation">
+
+<span class="box-label">Key observation</span> A block needs only the total of the elements
+before it, not the elements themselves. Blocks therefore wait for each other only on a few bytes
+of flags, never on the data, and every value is read once and written once.
+
+</div>
 
 The saving can again be counted in bytes. For 64 Mi values of 4 bytes (256 MiB), the first
 kernel of Chapter 8 reads 256 MiB and writes 256 MiB, and the third kernel reads and writes
@@ -283,14 +369,28 @@ element, which the exclusive scan does not include.
 ### 11.2.4 Radix sort
 
 Sorting is the clearest case for a library, because the fastest GPU sorting algorithm is long
-and difficult to write. The algorithm is **radix sort**. Instead of comparing keys with each
-other, it sorts them 1 digit at a time, starting with the lowest digit. Each pass must be
-**stable**: keys with the same digit keep the relative order they had before the pass, so
-that the order established by the lower digits is preserved.
+and difficult to write. The algorithm is **radix sort**. Most sorting algorithms, such as the
+`std::sort` of the C++ library, are **comparison sorts**: they learn the order only by asking
+which of 2 keys comes first. Radix sort never compares 2 keys. It sorts them 1 digit at a time,
+starting with the lowest digit.
 
-Each pass is built from 2 algorithms of Chapter 8. A histogram counts how many keys have each
-digit. An exclusive scan of the counts then gives the first output position of each digit's
-group. Finally, every key is written to the next free position of its group:
+<div class="definition">
+
+<span class="box-label">Definition 11.3</span> **Radix sort and stability.** A **radix sort**
+sorts keys in 1 pass per digit, from the lowest digit to the highest, and in each pass orders
+the keys by that digit alone. A pass is **stable** if keys with the same digit keep the relative
+order they had before the pass.
+
+*Example.* The keys 21 and 28 have the same tens digit, 2. After the pass on the ones digit, 21
+comes before 28; a stable pass on the tens digit keeps 21 before 28.
+
+</div>
+
+Stability is what preserves the order established by the lower digits. Each pass is built from
+2 algorithms of Chapter 8. A **histogram** counts how many keys have each digit. An exclusive
+scan of the counts then gives the first output position of each digit's group. Finally, every
+key is written to the next free position of its group. Writing each element to a position
+computed for it, rather than to the next position in order, is called a **scatter**:
 
 ```text
 radix sort, digits of b bits, keys of B bits:
@@ -330,21 +430,27 @@ Worked example: 53, 21, 37, 28, 15, 31
 On a GPU the digits are binary. CUB sorts 8 bits per pass, which gives 256 possible digits,
 so a 32-bit key takes 4 passes, and each pass reads and writes every key. The work of a radix
 sort therefore grows with the number of keys times the number of passes, not with
-\\(n \log n\\) as the work of a comparison sort does.
+\\(n \log n\\) as the work of a comparison sort does. For \\(n\\) = 16,777,216 =
+2<sup>24</sup> keys, a comparison sort needs on the order of \\(n \log_2 n\\) = 24\\(n\\)
+comparisons, while a radix sort on 32-bit keys makes 4 passes over the \\(n\\) keys.
 
 Radix sort has 1 requirement: it must know what the bits of a key mean. Thrust uses it only
 when the keys are numbers and the order is a standard one, `less` or `greater`. If the
 program supplies any other comparison, such as the functor `Ascending` in Listing 11.4,
-Thrust cannot look inside it and falls back to a **merge sort**, which only asks the
-comparison which of 2 keys comes first. `Ascending` produces the same order as `less`, so the
+Thrust cannot look inside it and falls back to a **merge sort**, a comparison sort that
+repeatedly merges 2 sorted runs of keys into 1 longer sorted run and only asks the comparison
+which of 2 keys comes first. `Ascending` produces the same order as `less`, so the
 2 results are identical; only the algorithm differs.
 
-Thrust also needs temporary storage to sort: a second array of keys, plus space for the
-counts. By default it allocates this memory with `cudaMalloc` at the start of each call and
-frees it with `cudaFree` at the end. An **allocator** is an object that provides memory on
-request. Thrust accepts an allocator as part of its execution policy,
-`thrust::cuda::par(allocator)`, and then takes its temporary storage from the allocator. The
-allocator `Arena` in Listing 11.4 keeps 1 large buffer and hands out pieces of it.
+Thrust also needs temporary storage to sort: a second array of keys, plus space for the counts.
+By default it allocates this memory with `cudaMalloc` at the start of each call and frees it
+with `cudaFree` at the end. An **allocator** is an object that provides memory on request.
+Thrust accepts an allocator as part of its execution policy, `thrust::cuda::par(allocator)`, and
+then takes its temporary storage from the allocator. The allocator `Arena` in Listing 11.4 keeps
+1 large buffer and hands out pieces of it. During 1 sort, Thrust asks for several pieces, and
+`Arena` hands them out 1 after another from the start of the buffer. Before the sort returns,
+Thrust gives every piece back, and `Arena` then starts again from the beginning. The next sort
+therefore receives the same memory, with no call to `cudaMalloc` or `cudaFree` in between.
 
 <p class="listing"><b>Listing 11.4</b> A comparison Thrust cannot see inside, and an allocator that reuses 1 buffer. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/sort.cu">code/ch11_libraries/sort.cu</a></p>
 
@@ -435,8 +541,15 @@ instruction together. `cub::BlockReduce` combines 1 value from each thread of a 
 single value, the task performed by the function `blockSum` in Chapter 8. That function
 first reduced the values within each warp with **shuffles**, instructions that pass a value
 from 1 thread of a warp to another. It then stored 1 partial sum per warp in shared memory
-and reduced those partial sums with a final round of shuffles in warp 0. Listing 11.6 is the
-fastest kernel of Chapter 8 with `blockSum` replaced by CUB.
+and reduced those partial sums with a final round of shuffles in warp 0.
+
+Let us count the steps for a block of 256 threads, which form 256 / 32 = 8 warps. In the first
+step, each warp halves its 32 values 5 times with shuffles, 32 → 16 → 8 → 4 → 2 → 1, and the
+thread at **lane** 0, the position 0 within the warp, holds the warp's total. In the second
+step, the 8 lane-0 threads write 8 totals to shared memory. In the third step, warp 0 reads the
+8 totals and reduces them with 3 more shuffles, 8 → 4 → 2 → 1. Thread 0 of the block then holds
+the total of all 256 values. Listing 11.6 is the fastest kernel of Chapter 8 with `blockSum`
+replaced by CUB.
 
 <p class="listing"><b>Listing 11.6</b> Chapter 8's sum with <code>cub::BlockReduce</code>.</p>
 
@@ -444,8 +557,9 @@ fastest kernel of Chapter 8 with `blockSum` replaced by CUB.
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu:99:115}}
 ```
 
-`cub::BlockReduce<float, BLOCK>` is a class template. The element type and the number of
-threads are fixed when the program is compiled, and CUB selects its algorithm from them.
+`cub::BlockReduce<float, BLOCK>` is a class template, a class written in terms of template
+parameters (Chapter 10), here the element type and the number of threads. Both are fixed when
+the program is compiled, and CUB selects its algorithm from them.
 `TempStorage` is a type defined inside the class: a region of shared memory sized for the
 selected algorithm. The reason for making it a type is that shared memory must be declared
 with a size known at compile time, and only CUB knows how many bytes its algorithm needs for
@@ -466,10 +580,15 @@ The `cooperative_groups` module of cuda-oxide provides the Rust counterparts: `w
 `warp_scan`, `block_reduce` and `block_scan`, for the types `u32`, `i32` and `f32` and the
 operations `Sum`, `Min` and `Max`. They work in the same 3 steps as `cub::BlockReduce`. Each
 warp reduces its 32 values with shuffles, lane 0 of each warp writes the warp's total to a
-slot in shared memory, and warp 0 reduces the slots. The slots are a `SharedArray` with 1
-element per warp, which is 256 / 32 = 8 elements for a block of 256 threads. The kernel
-declares the array and passes `&raw mut` to it, the Rust 2024 way to obtain a pointer to a
-`static mut` without creating a reference.
+slot in shared memory, and warp 0 reduces the slots. The slots are a `SharedArray`,
+cuda-oxide's type for an array in shared memory, with 1 element per warp, which is 256 / 32 = 8
+elements for a block of 256 threads. The kernel declares the array as a `static mut`, a variable
+that exists once for the whole block rather than once per thread, and that may be modified. A
+Rust **reference** is a pointer that the compiler checks: while a mutable reference exists, the
+compiler assumes that nothing else modifies the value. The threads of a block access the array
+at the same time, so the compiler cannot guarantee that assumption, and Rust 2024 does not allow
+a reference to a `static mut`. The kernel therefore passes `&raw mut WARPS`, the Rust 2024
+way to obtain a raw pointer to a `static mut` without creating a reference.
 
 <p class="listing"><b>Listing 11.7</b> Chapter 8's Rust sum with <code>block_reduce</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch11_blocks/src/main.rs">code/oxide/ch11_blocks/src/main.rs</a></p>
 
@@ -484,8 +603,9 @@ mod kernels {
 The `8` in `block_reduce::<f32, Sum, 8>` is the number of warps, and the call checks it at
 compile time: a block of more than 32 warps fails to build. `block_scan` has the same form.
 Listing 11.8 scans each block of 256 values, 1 value per thread. The call `out.get_mut(i)`
-returns `None` for the threads beyond the end of the array, so the kernel writes its results
-without `unsafe`.
+returns an `Option`, a Rust value that is either `Some(slot)` or `None`. It is `Some` for a
+thread whose index lies inside the array and `None` for the threads beyond its end, so the
+kernel writes its results without `unsafe`.
 
 <p class="listing"><b>Listing 11.8</b> A scan of each block with <code>block_scan</code>.</p>
 
@@ -509,14 +629,18 @@ PASSED
 
 The 2 Rust sums ran within 4% of each other and produced the same total. Both kernels read 1
 float per load, so they reach 68 GB/s rather than the 93 GB/s of the C++ kernels, which use
-`float4` loads; Chapter 8 measured the same difference. The first 8 scanned values increase by
+`float4` loads, each of which reads 4 floats, 16 bytes, in 1 instruction; Chapter 8 measured
+the same difference. The first 8 scanned values increase by
 0 to 3 at each step, as the inputs 0, 1, 0, 2, 2, 0, 0, 1 require, and the program checked all
 67,108,864 results.
 
 ### 11.3.3 Device-wide calls and temporary storage
 
 The middle level of CUB runs a complete algorithm on a complete array, as Thrust does, but
-takes its temporary storage from the caller. A CUB device-wide call is made twice:
+takes its temporary storage from the caller. The caller, however, does not know how many bytes
+CUB needs: the number depends on the algorithm that CUB selects for the GPU and for the size of
+the array. CUB therefore answers that question in a first call, and does the work in a second
+call. A CUB device-wide call is made twice:
 
 ```text
 1. call with no temporary storage (nullptr) → CUB writes the number of bytes it needs
@@ -537,9 +661,11 @@ bool sums(const float* in, float* partial, float* total, int n, double exact)
 ```
 
 For the sum of 64 Mi floats, CUB asked for 1,279 bytes, enough for the partial sums of its
-blocks. The result `total` remains in device memory, and the call returns without waiting
-for the GPU. On 256 MiB of data, where the work itself takes 2.9 ms, neither difference from
-`thrust::reduce` matters. On a small array, however, they determine the time.
+blocks. The result `total` remains in device memory, and the call returns without waiting for
+the GPU. A call that returns before the GPU has finished the work it requested is called
+**asynchronous**; the host can go on to queue the next kernel while the sum runs. On 256 MiB of
+data, where the work itself takes 2.9 ms, neither difference from `thrust::reduce` matters. On a
+small array, however, they determine the time.
 
 Consider a sum of 4,096 floats, 16 KiB. At 92 GB/s, reading 16 KiB takes 16,384 B / 92 GB/s
 = 0.18 µs. Listing 11.10 measures 3 ways of computing this sum. `thrust::reduce` took 68.1 µs
@@ -592,12 +718,30 @@ runs there.
 cuBLAS implements the **BLAS** (Basic Linear Algebra Subprograms), a standard set of
 routines first published for Fortran in 1979. The routines are organized in 3 levels: dot
 products and vector updates (level 1), matrix-vector products (level 2) and matrix-matrix
-products (level 3), among them SGEMM. Every cuBLAS call takes a **handle**, an object created
-once by `cublasCreate` that holds the state of the library. The state includes the library's
-temporary storage, the **stream** to which its kernels are submitted (`cublasSetStream`; we
-introduced streams in Chapter 6), and settings such as the math mode of Section 11.4.3.
-Keeping this state in a handle rather than in global variables allows 2 threads of a program
-to use cuBLAS at the same time, each with its own handle.
+products (level 3), among them SGEMM.
+
+A cuBLAS call needs more information than its arguments carry. It must know which stream to
+submit its kernels to, where its temporary storage is, and whether it may trade accuracy for
+speed. A **stream** (Chapter 6) is a queue of GPU work that runs in order. cuBLAS could keep
+these settings in global variables, but then 2 host threads that use cuBLAS at the same time, 1
+with stream 1 and 1 with stream 2, would overwrite each other's setting. cuBLAS instead keeps
+them in an object that the program creates and passes to every call.
+
+<div class="definition">
+
+<span class="box-label">Definition 11.4</span> **Handle.** A **handle** is an object, created
+once by the program, that holds the state of a library: its temporary storage, its stream and
+its settings. The program passes the handle as the first argument of every call.
+
+*Example.* `cublasCreate(&handle)` creates a cuBLAS handle; `cublasSetStream(handle, s)` makes
+every later call with `handle` submit its kernels to stream `s`; a second host thread uses its
+own handle with its own stream.
+
+</div>
+
+The settings in a handle include the math mode of Section 11.4.3. Keeping this state in a handle
+rather than in global variables allows 2 threads of a program to use cuBLAS at the same time,
+each with its own handle.
 
 Creating a handle is slow. The program of this section measures it:
 
@@ -610,17 +754,50 @@ program should therefore create 1 handle at startup and pass it to every call.
 
 ### 11.4.2 Row-major and column-major storage
 
-A matrix is stored in memory as a 1-dimensional sequence of numbers. **Row-major** order
-stores the matrix row by row, as C and C++ arrays do and as every chapter of this book has
-done. **Column-major** order stores the matrix column by column, as Fortran does. cuBLAS
-keeps the column-major convention of the original BLAS.
+A matrix is stored in memory as a 1-dimensional sequence of numbers, so a program must decide
+in which order the entries are laid out. We work with 1 small matrix throughout this section,
+\\(A = [1\ 2\ 3;\ 4\ 5\ 6]\\), which has 2 rows and 3 columns; the semicolon separates the
+rows. We number the entries by (row, column) from 0, so the entry 6 is
+at (1, 2). Every chapter of this book has stored a matrix row by row, as C and C++ arrays do:
+row 0 occupies locations 0 to 2 and row 1 locations 3 to 5, so memory holds 1, 2, 3, 4, 5, 6.
+To find entry (r, c), we skip r complete rows of 3 entries and then c entries, which gives
+location \\(3r + c\\). The entry 6 at (1, 2) is at location 3 + 2 = 5.
 
-The same 6 numbers 1, 2, 3, 4, 5, 6 in memory represent 2 different matrices under the 2
-conventions. Read row by row into 2 rows of 3, they form \\(A = [1\ 2\ 3;\ 4\ 5\ 6]\\). Read
-column by column into 3 rows of 2, the first column is 1, 2, 3 and the second is 4, 5, 6,
-which gives \\([1\ 4;\ 2\ 5;\ 3\ 6]\\). This is the **transpose** of \\(A\\), written
-\\(A^T\\), in which rows and columns are exchanged. A row-major array passed to a
-column-major library is therefore seen as its transpose.
+Fortran, and the original BLAS written in it, store a matrix column by column instead: column 0
+occupies locations 0 and 1, column 1 locations 2 and 3, and column 2 locations 4 and 5, so
+memory holds 1, 4, 2, 5, 3, 6. To find entry (r, c), we skip c complete columns of 2 entries and
+then r entries, which gives location \\(2c + r\\). The entry 6 at (1, 2) is now at location
+2 × 2 + 1 = 5, and location 1, which held 2 in the first layout, now holds 4.
+
+<div class="definition">
+
+<span class="box-label">Definition 11.5</span> **Row-major and column-major order.** In
+**row-major** order, the rows of a matrix are stored 1 after another; in a matrix with \\(n\\)
+columns, entry (r, c) is at location \\(r n + c\\). In **column-major** order, the columns are
+stored 1 after another; in a matrix with \\(m\\) rows, entry (r, c) is at location
+\\(c m + r\\).
+
+*Example.* For the 2 × 3 matrix \\(A\\) above, entry (0, 1) = 2 is at location 1 in row-major
+order and at location 2 in column-major order.
+
+</div>
+
+cuBLAS keeps the column-major convention of the original BLAS. Let us therefore ask what cuBLAS
+sees when it receives our row-major memory 1, 2, 3, 4, 5, 6 and is told that the matrix has 3
+rows and 2 columns. It reads column 0 from locations 0 to 2, which hold 1, 2, 3, and column 1
+from locations 3 to 5, which hold 4, 5, 6. The matrix it sees is \\([1\ 4;\ 2\ 5;\ 3\ 6]\\).
+It is the **transpose** of \\(A\\), written \\(A^T\\), the matrix in which rows and columns
+are exchanged, so that entry (r, c) of \\(A^T\\) is entry (c, r) of \\(A\\).
+
+<div class="key-observation">
+
+<span class="box-label">Key observation</span> Entry (r, c) of a row-major \\(m \times n\\)
+matrix is at location \\(r n + c\\), and entry (c, r) of a column-major \\(n \times m\\) matrix
+is at location \\(r n + c\\) as well. A row-major matrix and its column-major transpose occupy
+memory identically, so a row-major array passed to a column-major library is seen as its
+transpose.
+
+</div>
 
 <figure>
 <img src="../../figures/ch11-layout.svg" alt="Top: 6 numbers in memory, 1 2 3 4 5 6. Left: read row by row as a 2 by 3 matrix, they are A, rows 1 2 3 and 4 5 6. Right: read column by column as a 3 by 2 matrix, the columns are 1 2 3 and 4 5 6, so the rows are 1 4, 2 5, 3 6: the transpose of A. Below, the rule: C = A B is the same as C transpose = B transpose A transpose, so a column-major library asked for B transpose times A transpose, with the operands swapped, writes C in row-major order.">
@@ -631,13 +808,30 @@ The transpose of a product reverses the order of its factors: \\((AB)^T = B^T A^
 identity gives the solution. cuBLAS sees our arrays for \\(A\\) and \\(B\\) as \\(A^T\\) and
 \\(B^T\\). If we ask cuBLAS for the product of \\(B^T\\) as its first operand and \\(A^T\\) as
 its second, it computes \\(B^T A^T = (AB)^T = C^T\\) and stores it column by column. A
-column-major \\(C^T\\) occupies memory exactly as a row-major \\(C\\) does. Swapping the 2
-operands, together with the 2 outer dimensions, is therefore sufficient; no data is copied or
-transposed.
+column-major \\(C^T\\) occupies memory exactly as a row-major \\(C\\) does. For example, with
+the matrix \\(B\\) of the worked example below, \\(C = AB = [58\ 64;\ 139\ 154]\\), so
+\\(C^T = [58\ 139;\ 64\ 154]\\). Stored column by column, \\(C^T\\) is 58, 64, 139, 154, which
+is \\(C\\) stored row by row. Swapping the 2 operands, together with the 2 outer dimensions, is
+therefore sufficient; no data is copied or transposed.
 
-Each matrix also has a **leading dimension**, the distance in elements between the starts of
-2 consecutive columns in column-major storage. For a complete matrix it equals the number of
-rows that cuBLAS sees. It can be larger when the matrix is a submatrix of a larger one.
+The location formula \\(c m + r\\) of column-major order needs 1 more number from the program:
+how far apart 2 consecutive columns start. For our 2 × 3 matrix, column 1 starts 2 locations
+after column 0. Now suppose a program stores a 4 × 4 matrix in column-major order and wants
+cuBLAS to work on its top-left 2 × 2 corner. The corner has 2 rows, but its column 0 starts at
+location 0 and its column 1 at location 4, because the 4 entries of the first column of the
+large matrix lie in between. cuBLAS must therefore be told 4, not 2.
+
+<div class="definition">
+
+<span class="box-label">Definition 11.6</span> **Leading dimension.** The **leading dimension**
+of a column-major matrix is the distance in elements between the starts of 2 consecutive
+columns. Entry (r, c) is at location \\(c \cdot ld + r\\), where \\(ld\\) is the leading
+dimension.
+
+*Example.* For a complete matrix it equals the number of rows that cuBLAS sees: 2 for the
+2 × 3 matrix \\(A\\). For the 2 × 2 corner of a 4 × 4 matrix it is 4.
+
+</div>
 
 <div class="example" markdown="1">
 
@@ -668,8 +862,11 @@ bool smallProduct(cublasHandle_t handle)
 ```
 
 The 2 calls differ only in the order of their operands and leading dimensions. cuBLAS
-computes \\(C \leftarrow \alpha \cdot \mathrm{op}(A)\,\mathrm{op}(B) + \beta C\\), and the
-arguments after the handle follow that formula:
+computes \\(C \leftarrow \alpha \cdot \mathrm{op}(A)\,\mathrm{op}(B) + \beta C\\), where
+\\(\alpha\\) and \\(\beta\\) are scalars and \\(\mathrm{op}\\) either leaves an operand as it is
+or transposes it. With \\(\alpha = 1\\) and \\(\beta = 0\\), the formula reduces to
+\\(C \leftarrow AB\\); with \\(\beta = 1\\), it adds the product to the previous contents of
+\\(C\\). The arguments after the handle follow that formula:
 
 | Arguments | Meaning | In the correct call |
 |---|---|---|
@@ -697,9 +894,11 @@ leading dimension.
 ### 11.4.3 SGEMM performance and TF32 tensor cores
 
 Listing 11.12 runs the product of Chapter 9 with \\(N\\) = 4,096 twice. The first call uses
-cuBLAS's default math mode, FP32 on the ordinary arithmetic units. Before the second call,
-`cublasSetMathMode` allows the library to use **TF32** on the **tensor cores**, units that
-multiply small matrices in a single instruction.
+cuBLAS's default **math mode**, the setting in the handle that states which number formats and
+arithmetic units cuBLAS may use; the default is FP32 on the ordinary arithmetic units. Before
+the second call, `cublasSetMathMode` allows the library to use **TF32**, a number format
+described below, on the **tensor cores**, units that multiply small matrices in a single
+instruction.
 
 <p class="listing"><b>Listing 11.12</b> SGEMM in FP32, then with TF32 tensor cores allowed.</p>
 
@@ -724,13 +923,16 @@ In FP32, cuBLAS reached 1,504.6 GFLOP/s, 63% of the GPU's FP32 peak of 2.4 TFLOP
 best kernel of Chapter 9 reached 931.9 GFLOP/s, which is 62% of cuBLAS. The column `max
 error` compares 64 elements with a product computed in double precision, as in Chapter 9.
 
-With tensor cores allowed, the same call ran 4.3 times as fast, at 6,530.4 GFLOP/s, which is
-2.7 times the FP32 peak of the ordinary units. Its error, however, grew 210 times, from 1.9 ×
-10<sup>−5</sup> to 4.0 × 10<sup>−3</sup>. The reason is the number format. TF32
+With tensor cores allowed, the same call ran 4.3 times as fast, at 6,530.4 GFLOP/s, which is 2.7
+times the FP32 peak of the ordinary units. Its error, however, grew 210 times, from 1.9 ×
+10<sup>−5</sup> to 4.0 × 10<sup>−3</sup>. The reason is the number format. A floating-point
+number is stored in 3 fields: a sign, an **exponent** and a **mantissa**, and its value is
+±1.*mantissa* × 2<sup>*exponent*</sup> in binary. For example, 6 = 1.1 (binary) × 2<sup>2</sup>,
+with exponent 2 and mantissa bits 1000…. The exponent sets the range of magnitudes that the
+format can hold, and the number of mantissa bits sets how many significant digits it keeps. TF32
 (TensorFloat-32) keeps the 8-bit exponent of FP32 and therefore covers the same range of
-magnitudes, but it keeps only 10 of the 23 bits of the **mantissa**, the significant digits of
-the number. Each input is rounded to 10 mantissa bits before it is multiplied, and the
-products are added in FP32.
+magnitudes, but it keeps only 10 of the 23 bits of the mantissa. Each input is rounded to 10
+mantissa bits before it is multiplied, and the products are added in FP32.
 
 The effect of the rounding can be seen on the number 1/3. In binary, 1/3 = 1.010101… ×
 2<sup>−2</sup>, with the pattern 01 repeating in the mantissa. FP32 keeps 23 bits of it and
@@ -756,7 +958,8 @@ larger share of the chip to them than consumer GPUs do:
 | The measured GPU | 1.50 TFLOP/s (cuBLAS) | 6.53 TFLOP/s (cuBLAS) | 4.3 |
 
 The peak rates are taken from NVIDIA's A100, H100 and Ada architecture documents; "dense"
-excludes the doubled rates quoted for sparse matrices. TF32 is the default for training
+excludes the doubled rates quoted for sparse matrices, matrices in which a fixed fraction of the
+entries is 0 and is skipped by the hardware. TF32 is the default for training
 neural networks, whose results tolerate errors far larger than 10<sup>−3</sup>. A simulation
 that needs 7 correct digits must not use it, and cuBLAS does not use it unless the program
 asks for it.
@@ -770,8 +973,11 @@ inside a kernel, 1 number per thread. A **pseudo-random generator** computes a s
 appears random from a starting value called the **seed**. The same seed always produces the
 same sequence, which makes a run repeatable. `CURAND_RNG_PSEUDO_PHILOX4_32_10` selects the
 Philox generator, which is **counter-based**: number \\(i\\) of the sequence is computed by a
-scrambling function from \\(i\\) and the seed alone. Every thread can therefore compute its
-own numbers without waiting for the numbers that precede them.
+scrambling function from \\(i\\) and the seed alone. A classical generator instead computes
+each number from the previous one, so number 1,000 can be obtained only after numbers 0 to 999.
+With a counter-based generator, thread 1,000 applies the function to the counter 1,000 and the
+seed directly. Every thread can therefore compute its own numbers without waiting for the
+numbers that precede them.
 
 <p class="listing"><b>Listing 11.13</b> 16 Mi normal numbers with cuRAND. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/fft_rand.cu">code/ch11_libraries/fft_rand.cu</a></p>
 
@@ -785,8 +991,11 @@ bool normalNumbers()
 ```
 
 The program draws 16,777,216 numbers from the **normal distribution** with mean 0 and
-standard deviation 1. It checks both parameters with 2 Thrust reductions, one over the
-numbers and one over their squares.
+standard deviation 1, the bell-shaped distribution in which about 68% of the values lie between
+−1 and 1. The **mean** is the average of the values, and the **standard deviation** measures
+their typical distance from the mean; it is the square root of the mean of the squared
+distances. The program checks both parameters with 2 Thrust reductions, one over the numbers and
+one over their squares.
 
 ```console
 $ ./fft_rand
@@ -795,9 +1004,11 @@ cuRAND, 16777216 normal numbers in 1.01 ms (16688 million per second)
 ```
 
 Writing 64 MiB of numbers in 1.01 ms corresponds to 66 GB/s, so the generator runs close to
-the speed of the memory. For 16.8 million samples, the mean of a correct generator is
-expected to deviate from 0 by about 1 / √16,777,216 = 0.00024. The measured −0.00042 is
-within 2 of these standard errors.
+the speed of the memory. The mean of a finite sample is itself random. Its typical deviation
+from the true mean, called the **standard error**, is the standard deviation divided by the
+square root of the number of samples. For 16.8 million samples, the mean of a correct
+generator is therefore expected to deviate from 0 by about 1 / √16,777,216 = 0.00024. The
+measured −0.00042 is within 2 of these standard errors.
 
 ### 11.5.2 Fast Fourier transforms with cuFFT
 
@@ -809,9 +1020,12 @@ and Tukey in 1965, divides the problem in halves recursively and needs about \\(
 operations: for \\(N\\) = 1,024, about 10,240 instead of 1,048,576.
 
 cuFFT works with a **plan**, which is created once for a given size and kind of transform and
-can then be executed on any number of arrays of that shape. For real input, cuFFT returns
+can then be executed on any number of arrays of that shape. A plan plays the role of the cuBLAS
+handle: it holds the choices that cuFFT makes once for a size, such as how to split 1,024 into
+halves, so that later transforms of that size can skip them. The list of magnitudes, 1 per
+frequency, is called the **spectrum** of the signal. For real input, cuFFT returns
 \\(N/2 + 1\\) frequencies; the remaining half of the spectrum is a mirror image and carries no
-additional information.
+additional information. For \\(N\\) = 1,024, that is 513 frequencies, numbered 0 to 512.
 
 As a test, the program transforms 1,024 samples of \\(\sin(50t) + 0.5 \sin(120t)\\). The
 signal consists of 2 waves: 50 cycles over the 1,024 samples with height 1, and 120 cycles
@@ -882,7 +1096,9 @@ The table suggests a sequence of questions to ask when an operation is needed.
    written from scratch.
 4. **Is a chain of library calls memory-bound?** Each call is a pass over memory. Fuse the
    calls, with `transform_reduce`, with Thrust's transform iterators, or with a single custom
-   kernel.
+   kernel. A **transform iterator** is an iterator that applies a functor to each element as
+   it is read, so that `thrust::reduce` over a transform iterator that squares its elements
+   computes the sum of squares in 1 pass.
 
 The following 2 examples apply these questions.
 
@@ -893,7 +1109,10 @@ in a single pass that reads 400 MB, and `thrust::transform` reads the 400 MB aga
 avoid the second pass, because no element can be scaled before the largest value is known,
 so it would save nothing.
 
-**A 7-point blur of each frame of a video** reads 3 neighbors on each side of every pixel. No
+**A 7-point blur of each frame of a video** reads 3 neighbors on each side of every pixel. A
+computation in which each output is computed from a fixed pattern of neighbouring inputs is
+called a **stencil**, and the inputs that a tile of outputs needs from beyond its own edges are
+its **halo**. For a row of 256 pixels, the blur needs 3 more pixels on each side, 262 in all. No
 library call fits a stencil with a halo of neighbors, so the blur requires a custom kernel.
 It should read along rows, so that neighboring threads read neighboring pixels (Chapter 7).
 Tiling in shared memory should be added only if the profiler of Chapter 25 shows the blur to

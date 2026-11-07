@@ -59,10 +59,10 @@ To detect a leak, we need an exact count of the device memory that a program hol
 of this chapter allocate with `cudaMallocAsync(&pointer, bytes, stream)`, the **stream-ordered
 allocator** introduced in CUDA 11.2. It behaves like `cudaMalloc`, with 2 differences. First,
 the allocation and the matching `cudaFreeAsync` are ordered in a stream, the queue of GPU work
-introduced in Chapter 6, in the same way as kernel launches. Second, the memory comes from a **pool**,
-a reserve of device memory that the driver keeps for each GPU and reuses between allocations.
-The pool records the number of bytes that have been allocated and not yet freed in the attribute
-`cudaMemPoolAttrUsedMemCurrent`, which Listing 10.1 reads and converts to MiB.
+introduced in Chapter 6, in the same way as kernel launches. Second, the memory comes from a
+**pool**, a reserve of device memory that the driver keeps for each GPU and reuses between
+allocations. The pool records the number of bytes that have been allocated and not yet freed in
+the attribute `cudaMemPoolAttrUsedMemCurrent`, which Listing 10.1 reads and converts to MiB.
 
 <p class="listing"><b>Listing 10.1</b> The bytes in use from the pool, in MiB. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/raw.cu">code/ch10_modern/raw.cu</a></p>
 
@@ -73,14 +73,14 @@ The pool records the number of bytes that have been allocated and not yet freed 
 The older function `cudaMemGetInfo` is not suitable for this purpose. It reports the free memory
 of the whole device, which other programs also change. On an integrated GPU, which shares its
 memory with the operating system, an allocation of 128 MiB changed the free memory reported by
-`cudaMemGetInfo` by only 0.5 MiB on the first GPU and by 129 MiB on the second. The pool's count,
-in contrast, depends only on the allocations of our own program.
+`cudaMemGetInfo` by only 0.5 MiB on the first GPU and by 129 MiB on the second. The pool's
+count, in contrast, depends only on the allocations of our own program.
 
 ### 10.1.2 Memory leaks on early returns
 
 A **memory leak** occurs when a program has allocated memory and no longer holds its address, so
-that the memory can no longer be freed. Listing 10.2 shows a function that scales a vector on the
-GPU and contains such a leak.
+that the memory can no longer be freed. Listing 10.2 shows a function that scales a vector on
+the GPU and contains such a leak.
 
 <p class="listing"><b>Listing 10.2</b> An early return before the frees.</p>
 
@@ -92,9 +92,9 @@ The function allocates 2 device buffers, `in` and `out`, with the 2 calls to `cu
 It then copies the input to the device, launches the kernel `scale`, copies the result back, and
 frees both buffers at the end. However, when the factor is 0, there is nothing to compute, and
 the function returns `false` before it reaches the 2 calls to `cudaFreeAsync`. The early return
-is correct by itself. The error is that it skips the frees. The pointers `in` and `out` are local
-variables, so the return destroys them, and with them the only record of where the 2 buffers
-are. The memory remains allocated until the program exits.
+is correct by itself. The error is that it skips the frees. The pointers `in` and `out` are
+local variables, so the return destroys them, and with them the only record of where the 2
+buffers are. The memory remains allocated until the program exits.
 
 Each buffer holds N = 2,097,152 floats of 4 bytes, which is 8 MiB, so each early return leaks
 16 MiB. The test program calls the function 8 times with a factor of 0, which should leave
@@ -118,9 +118,13 @@ it.
 
 ### 10.1.3 Unchecked launch errors
 
-A **block** is a group of threads that are launched together, run on the same SM, and can share
-memory and synchronize with each other. Since compute capability 2.0, every CUDA GPU limits a
-block to at most 1,024 threads. The second error in `raw.cu` launches blocks of 2,048 threads.
+Recall from Chapter 3 that a GPU contains several **streaming multiprocessors** (SMs), the
+processors that execute the threads of a kernel; the Jetson Orin NX has 8 of them. A **block**
+is a group of threads that are launched together, run on the same SM, and can share memory and
+synchronize with each other. The **compute capability** is a version number, such as 8.7 for
+the Orin NX, that NVIDIA assigns to each GPU generation and that determines which features the
+generation has. Since compute capability 2.0, every CUDA GPU limits a block to at most 1,024
+threads. The second error in `raw.cu` launches blocks of 2,048 threads, twice the limit.
 
 <p class="listing"><b>Listing 10.3</b> A launch that exceeds the block size limit.</p>
 
@@ -140,20 +144,23 @@ int main()
 
 The launch syntax `<<<...>>>` has no return value, so a launch that fails cannot return an error
 code to its caller. Instead, CUDA records the error, and the next call to `cudaGetLastError`
-returns it. In the meantime, the program continues. The copy that follows the launch succeeds,
-but it copies an array that no kernel has written, so `out[0]` still holds the 0.0 written by
-`cudaMemset`. A program that does not call `cudaGetLastError` continues with wrong data and
-reports nothing. On the second GPU, CUDA 13.2 describes the same failure as `invalid argument`.
-The wording of the message differs between CUDA versions, but in both cases the error is visible
-only to a program that asks for it.
+returns it. In the meantime, the program continues. Let us follow the first element of `out`
+through the program. Before the launch, `cudaMemset`, which fills device memory with a given
+byte, writes 0 into every byte of `out`, so `out[0]` is 0.0. The launch is rejected, and no
+thread runs. The copy that follows the launch succeeds, but it copies an array that no kernel
+has written, so `out[0]` still holds the 0.0 written by `cudaMemset`, where the kernel would
+have written 1.0 × 2 = 2.0. A program that does not call `cudaGetLastError` continues with wrong
+data and reports nothing. On the second GPU, CUDA 13.2 describes the same failure as `invalid
+argument`. The wording of the message differs between CUDA versions, but in both cases the error
+is visible only to a program that asks for it.
 
 ### 10.1.4 Size errors in copies
 
-The function `cudaMemcpy(dst, src, count, kind)` copies `count` **bytes**. Its pointer parameters
-have type `void*`, a pointer to memory of no particular type, so the function cannot know that
-they point to floats and cannot check a count of floats against them. The third error in
-`raw.cu` passes `N`, the number of floats, where the number of bytes, `N * sizeof(float)`, was
-intended.
+The function `cudaMemcpy(dst, src, count, kind)` copies `count` **bytes**. Its pointer
+parameters have type `void*`, a pointer to memory of no particular type, so the function cannot
+know that they point to floats and cannot check a count of floats against them. The third error
+in `raw.cu` passes `N`, the number of floats, where the number of bytes, `N * sizeof(float)`,
+was intended.
 
 <p class="listing"><b>Listing 10.4</b> A count of floats passed as a count of bytes.</p>
 
@@ -181,14 +188,14 @@ shows.
 3. a copy of N bytes, not N floats: 524288 of 2097152 correct
 ```
 
-With N = 2,097,152, the copy moved 2,097,152 bytes, which are 524,288 floats, so again exactly
-1 result in 4 is correct. Every call returned `cudaSuccess`, because the API did exactly what its
+With N = 2,097,152, the copy moved 2,097,152 bytes, which are 524,288 floats, so again exactly 1
+result in 4 is correct. Every call returned `cudaSuccess`, because the API did exactly what its
 arguments asked for.
 
 <div class="bee bee-shocked" markdown="1">
 
-In 3 short programs, the CUDA C API lost 128 MiB of memory, skipped a kernel and copied 1/4 of an
-array, and none of these errors produced a message.
+In 3 short programs, the CUDA C API lost 128 MiB of memory, skipped a kernel and copied 1/4 of
+an array, and none of these errors produced a message.
 
 </div>
 
@@ -203,18 +210,48 @@ freed.
 ### 10.2.1 Constructors, destructors and scope
 
 A **scope** is a region of a program, delimited by braces `{ }`, in which a name is visible. The
-body of a function is a scope, and so is the body of a loop. An object of a class type is created
-by a **constructor**, a member function of the class that runs when the object is defined. The
-object is destroyed by its **destructor**, `~ClassName()`, a member function that the compiler
-calls when the object's lifetime ends. For a local variable, the lifetime ends when control
-leaves its scope, whichever way it leaves: through the closing brace, a `return`, a `break`, or
-an exception that passes through the scope.
+body of a function is a scope, and so is the body of a loop. An object of a class type is
+created by a **constructor**, a member function of the class that runs when the object is
+defined. The object is destroyed by its **destructor**, `~ClassName()`, a member function that
+the compiler calls when the object's lifetime ends. The **lifetime** of an object is the period
+during which the object exists, from its construction to its destruction. For a local variable,
+the lifetime ends when control leaves its scope, whichever way it leaves: through the closing
+brace, a `return`, a `break`, or an exception that passes through the scope.
 
-**RAII**, short for *resource acquisition is initialization*, is the practice of acquiring a
-resource in the constructor of an object and releasing it in the destructor of the same object.
-The resource then lives exactly as long as the object. Because the compiler, and not the
-programmer, inserts the call to the destructor, the release happens on every path out of the
-scope. The pseudocode below marks where the compiler inserts these calls.
+Before we name the technique, let us follow 1 call of the function of Listing 10.2 with a factor
+of 0, first as written and then with the 2 pointers replaced by objects whose destructor frees
+the memory. As written, the function performs 4 steps. It allocates `in`, and the pool holds
+8 MiB; it allocates `out`, and the pool holds 16 MiB; it tests the factor; and it returns. The
+return removes the local variables `in` and `out`, which are plain addresses, and 16 MiB remain
+allocated with no variable that records where they are. With objects, the first 3 steps are the
+same. At the return, however, the compiler destroys the 2 local objects, in the reverse order of
+their construction. The destructor of `out` frees 8 MiB, the destructor of `in` frees the other
+8 MiB, and the pool holds 0 MiB. Neither version contains a call to `cudaFreeAsync` on the path
+of the early return. The second version obtains its 2 frees from the type of its variables.
+
+<div class="key-observation">
+
+<span class="box-label">Key observation</span> A release written in a destructor runs on every
+path out of the scope, because the compiler, not the programmer, writes the call at each exit.
+
+</div>
+
+<div class="definition">
+
+<span class="box-label">Definition 10.1</span> **RAII.** *Resource acquisition is
+initialization* (RAII) is the practice of acquiring a resource in the constructor of an object
+and releasing it in the destructor of the same object. The resource then lives exactly as long
+as the object.
+
+*Example.* An object of the class `DeviceBuffer<float>` of section 10.2.2, created with a count
+of 2,097,152, allocates 8 MiB in its constructor and frees the 8 MiB in its destructor when its
+scope ends, whether by the closing brace, by a `return` or by an exception.
+
+</div>
+
+Because the compiler, and not the programmer, inserts the call to the destructor, the release
+happens on every path out of the scope. The pseudocode below marks where the compiler inserts
+these calls.
 
 ```text
 {                                   # a scope opens
@@ -258,7 +295,9 @@ First, the size in bytes is always computed from the type: `bytes()` returns
 cannot occur.
 
 Second, the second constructor delegates the allocation to the first, with
-`: DeviceBuffer(host.size())`, before its body copies the data. If the copy throws an exception
+`: DeviceBuffer(host.size())`, before its body copies the data. A constructor that begins by
+calling another constructor of the same class in this way is called a **delegating
+constructor**. If the copy throws an exception
 (section 10.2.4), the object has already been constructed, so its destructor runs and the
 allocation is freed.
 
@@ -276,18 +315,50 @@ would convert a number into a buffer implicitly, and a function that takes a
 ### 10.2.3 Ownership and move semantics
 
 A class that frees memory in its destructor must define what it means to copy one of its
-objects. Suppose that `b = a` copied the pointer, as an assignment of a struct of raw pointers
-does. Then `a` and `b` would both hold the same address, for example 0x7f00, and both
-destructors would free it. Freeing the same allocation twice is called a **double free**. It
-corrupts the records of the allocator, which may later hand out memory that another buffer is
-still using.
+objects. C++ performs a copy with 2 member functions. The **copy constructor** creates a new
+object from an existing one, as in `DeviceBuffer<float> b = a;`. The **copy assignment
+operator** overwrites an existing object with the contents of another, as in `b = a;` when `b`
+already exists. If a class does not define them, the compiler generates both, and the generated
+versions copy every member, field by field.
 
-For this reason, each allocation has exactly 1 **owner**, the object whose destructor frees it.
-Copying is forbidden: the 2 declarations marked `= delete` in Listing 10.6 remove the copy
-constructor and the copy assignment operator, so `b = a` does not compile. Moving, however, is
-allowed. The statement `b = std::move(a)` transfers the pointer to `b` and leaves `a` holding
-`nullptr`, so the destructor of `a` has nothing to free. A move copies 16 bytes, the pointer and
-the count, and never the 8 MiB of data they describe. Figure 10.4 shows both cases.
+Let us follow 1 allocation through such a field-by-field copy. Suppose that `a` holds
+`data_` = 0x7f00 and `count_` = 2,097,152, the 8 MiB of a buffer of floats. The statement
+`b = a` copies both fields, so `b` also holds 0x7f00 and 2,097,152. At the end of the scope,
+the destructor of `b` frees 0x7f00, and then the destructor of `a` frees 0x7f00 a second time.
+Freeing the same allocation twice is called a **double free**. It corrupts the records of the
+allocator, which may later hand out memory that another buffer is still using.
+
+The same allocation can instead pass from `a` to `b` in 2 steps: copy the 2 fields to `b`, then
+write `nullptr` and 0 into the fields of `a`. Afterwards `b` holds 0x7f00 and `a` holds
+`nullptr`. At the end of the scope, the destructor of `b` frees 0x7f00, and the destructor of
+`a` finds `nullptr` and frees nothing. The allocation is freed exactly once. In both cases, only
+the 16 bytes of the 2 fields are copied, never the 8 MiB of data they describe.
+
+<div class="key-observation">
+
+<span class="box-label">Key observation</span> 2 objects that hold the same address free it
+twice. If the object that gives up the address is left holding `nullptr`, exactly 1 object frees
+it.
+
+</div>
+
+<div class="definition">
+
+<span class="box-label">Definition 10.2</span> **Owner and move.** The **owner** of an
+allocation is the object whose destructor frees it. A **move** transfers an allocation from 1
+owner to another: the new object takes the address, and the old object is left empty, so that
+its destructor frees nothing.
+
+*Example.* After `b = std::move(a)`, `b` owns the 8 MiB at 0x7f00 and `a` holds `nullptr`.
+
+</div>
+
+For this reason, each allocation has exactly 1 owner. Copying is forbidden: the 2 declarations
+marked `= delete` in Listing 10.6 remove the copy constructor and the copy assignment operator,
+so `b = a` does not compile. Moving, however, is allowed. The function `std::move(a)` moves
+nothing by itself. It marks `a` as an object whose contents may be taken, and the compiler then
+calls the **move constructor** or the **move assignment operator**, the 2 member functions that
+perform the transfer, instead of the copy operations. Figure 10.4 shows both cases.
 
 <figure>
 <img src="../../figures/ch10-ownership.svg" alt="Two panels. Copy, deleted: objects a and b both hold data_ = 0x7f00 and both point at the same 8 MiB allocation; ~b frees it and ~a frees it again, a double free, so the copy is made a compile error. Move, allowed: after b = std::move(a), b holds 0x7f00 and a holds nullptr; only b points at the allocation, ~b frees it once and ~a has nothing to free.">
@@ -308,10 +379,10 @@ class DeviceBuffer {
 
 The move constructor uses `std::exchange(other.data_, nullptr)`, which returns the old value of
 `other.data_` and stores `nullptr` in its place in a single step. The move assignment operator
-first frees the memory that `*this` held, then takes the pointer of `other`. The test
-`this != &other` prevents a self-assignment such as `a = std::move(a)` from freeing the buffer
-that it is about to keep. Both move operations are declared `noexcept`, a promise that they never
-throw. The promise is easy to keep, because they only exchange 2 values.
+first frees the memory that `*this` held, then takes the pointer of `other`. The test `this !=
+&other` prevents a self-assignment such as `a = std::move(a)` from freeing the buffer that it is
+about to keep. Both move operations are declared `noexcept`, a promise that they never throw.
+The promise is easy to keep, because they only exchange 2 values.
 
 C++ programmers refer to this set of member functions as the **rule of 5**. A class that defines
 any of the destructor, copy constructor, copy assignment, move constructor and move assignment
@@ -354,11 +425,15 @@ been moved from no longer owns any memory.
 
 ### 10.2.4 Error reporting without a macro
 
-Chapters 3 to 9 checked each CUDA call with a small function that printed the error and ended the
-program. Many CUDA programs use a macro instead, `CHECK(call)`, for 1 reason: a macro can insert
-`__FILE__` and `__LINE__` into the message, so the message names the call that failed. Before
-C++20, a function had no way to find out where it was called from. C++20 added
-`std::source_location` for this purpose.
+Chapters 3 to 9 checked each CUDA call with a small function that printed the error and ended
+the program. Many CUDA programs use a macro instead, `CHECK(call)`. A **macro** is a name that
+the **preprocessor**, a text-substitution step that runs before the compiler proper, replaces
+with other text wherever the name appears. Programs use a macro here for 1 reason: the
+preprocessor replaces `__FILE__` and `__LINE__` with the file name and line number of the place
+where the macro is written, so the message names the call that failed. For example, `CHECK`
+written on line 40 of `app.cu` produces a message that contains `app.cu` and 40. Before C++20, a
+function had no way to find out where it was called from. C++20 added `std::source_location` for
+this purpose.
 
 A **default argument** is a value that a function parameter takes when the caller omits it. When
 `std::source_location::current()` is used as a default argument, it is evaluated at the call
@@ -373,15 +448,18 @@ site, so it records the file and line of the caller rather than a line inside `c
 
 `check` reports a failure by throwing an **exception**, an object that travels up the chain of
 function calls until a `catch` clause handles it. On its way, the exception leaves every scope
-it passes through, and every local object in those scopes is destroyed. This is the path labelled
-"check() throws" in Figure 10.3. As a result, the buffers of a function that fails are freed
-before the error reaches the code that handles it.
+it passes through, and every local object in those scopes is destroyed. The destruction of local
+objects while an exception travels up the chain of calls is called **stack unwinding**. It is
+the path labelled "check() throws" in Figure 10.3. For example, if `main` calls a function `f`
+that holds 2 buffers, and `check` throws inside `f`, the 2 destructors of `f` run first, and
+only then does the exception reach the `catch` in `main`. As a result, the buffers of a function
+that fails are freed before the error reaches the code that handles it.
 
-Note that the destructor itself does not call `check`. A destructor may run while an exception is
-already travelling, and if a second exception is thrown at that moment, the program ends with
-`std::terminate`. The destructor therefore frees the memory and ignores the result. A program that
-needs to know whether a free succeeded can call `cudaDeviceSynchronize` through `check` before
-the buffer goes out of scope.
+Note that the destructor itself does not call `check`. A destructor may run while an exception
+is already travelling, and if a second exception is thrown at that moment, the program ends with
+`std::terminate`, a standard function that stops the program immediately. The destructor
+therefore frees the memory and ignores the result. A program that needs to know whether a free
+succeeded can call `cudaDeviceSynchronize` through `check` before the buffer goes out of scope.
 
 ### 10.2.5 The errors of section 10.1, revisited
 
@@ -426,12 +504,14 @@ element was copied correctly, because no caller states a byte count.
 
 ### 10.2.6 RAII in Rust
 
-Rust builds RAII into the language. The destructor of a type is the method `drop` of the trait
-`Drop`, and the compiler calls it when the owner of a value goes out of scope. cuda-core's
-`DeviceBuffer<T>` implements `Drop` by freeing its allocation, so a Rust program has no free to
-forget. Ownership is also the default. The statement `let b = a;` **moves** the buffer, and any
-later use of `a` is a compile error. A copy must be requested explicitly, and `DeviceBuffer` does
-not provide one.
+Rust builds RAII into the language. A **trait** in Rust is a named set of methods that a type
+can implement; a function can then require that its argument type implements the trait. The
+destructor of a type is the method `drop` of the trait `Drop`, and the compiler calls it when
+the owner of a value goes out of scope. cuda-core, the host-side **crate** (Rust package) of
+cuda-oxide, provides a `DeviceBuffer<T>` that implements `Drop` by freeing its allocation, so a
+Rust program has no free to forget. Ownership is also the default. The statement `let b = a;`
+**moves** the buffer, and any later use of `a` is a compile error. A copy must be requested
+explicitly, and `DeviceBuffer` does not provide one.
 
 Rust reports errors as values of type `Result<T, E>`, which is either `Ok(value)` or
 `Err(error)`. The `?` operator after a call returns the `Err` from the enclosing function
@@ -440,9 +520,12 @@ immediately. Like any other return, this return drops every local buffer.
 Listing 10.11 shows the Rust version of the function with the early return. The helper
 `pool_copy` allocates from the same pool as the C++ program, so that the 2 counts can be
 compared. The safe cuda-core functions, such as `DeviceBuffer::from_host`, allocate with the
-synchronous `cuMemAlloc`, which the pool does not count. `uninitialized_async` takes the memory
-from the pool. It is `unsafe` only because the contents of the buffer are undefined until they
-are written, and the copy on the next line writes every element.
+synchronous `cuMemAlloc`, a function of the CUDA driver API (Chapter 12) that the pool does not
+count. `uninitialized_async` takes the memory from the pool. A Rust function marked **`unsafe`**
+performs operations whose correctness the compiler cannot check, and a caller must write the
+call inside an `unsafe` block, which states that the programmer has checked it.
+`uninitialized_async` is `unsafe` only because the contents of the buffer are undefined until
+they are written, and the copy on the next line writes every element.
 
 <p class="listing"><b>Listing 10.11</b> The early return in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a></p>
 
@@ -480,8 +563,8 @@ rejected before it reached the driver.
 <details class="check">
 <summary>A function creates a DeviceBuffer, then calls a function that throws. Who frees the buffer, and when?</summary>
 
-The destructor of the buffer frees it, while the exception passes through the function's scope on
-its way to a `catch`. The code of the function after the throwing call never runs, but the
+The destructor of the buffer frees it, while the exception passes through the function's scope
+on its way to a `catch`. The code of the function after the throwing call never runs, but the
 compiler destroys every local object in every scope that the exception leaves.
 
 </details>
@@ -491,13 +574,29 @@ compiler destroys every local object in every scope that the exception leaves.
 ### 10.3.1 Templates and instantiation
 
 The kernel `scale` of `raw.cu` multiplies floats. A program that also needs to multiply doubles
-and ints would need 3 copies of this kernel that differ only in the element type. C++ templates
-remove this duplication. A **template** is a function or class written in terms of a **template
-parameter**, a placeholder for a type, such as `T`. A template is not yet code. When the program
-uses it with a particular type, the compiler substitutes the type for the parameter and compiles
-the result, which is called an **instantiation**. `transform<float, Scale<float>>` and
-`transform<double, Scale<double>>` are therefore 2 different kernels in the binary, exactly as if
-each had been written by hand.
+and ints would need 3 copies of this kernel. Let us compare the float copy with the double copy
+line by line. The parameter `in` changes from `const float*` to `const double*`, the parameter
+`out` from `float*` to `double*`, and the factor from `float` to `double`. The index
+computation, the bounds test and the multiplication are the same text in both. The 3 copies
+therefore differ in 1 word, the element type, written in 3 places. C++ templates remove this
+duplication by turning that word into a parameter.
+
+<div class="definition">
+
+<span class="box-label">Definition 10.3</span> **Template and instantiation.** A **template** is
+a function or class written in terms of a **template parameter**, a placeholder for a type, such
+as `T`. When the program uses the template with a particular type, the compiler substitutes the
+type for the parameter and compiles the result, which is called an **instantiation** of the
+template.
+
+*Example.* From 1 template `transform<T, F>`, the uses `transform<float, Scale<float>>` and
+`transform<double, Scale<double>>` produce 2 instantiations, 2 different kernels in the binary.
+
+</div>
+
+A template is not yet code. Only its instantiations are compiled into machine code, each exactly
+as if it had been written by hand, so a program contains 1 kernel for each type with which it
+uses the template.
 
 Our kernel is generic in 2 ways: in the element type `T`, and in the operation `F` applied to
 each element. Its pseudocode is that of `scale`, with the multiplication replaced by a call to
@@ -523,10 +622,18 @@ compares `i` with `in.size()` rather than with a separate `n` that might belong 
 (section 10.6.1). The index `i` is a `std::size_t` of 64 bits, so the kernel also works on
 arrays of more than 2<sup>31</sup> elements.
 
-`Scale<T>` is a **function object**, a struct with an `operator()`, so that an object `triple`
-of this type can be called as `triple(x)`. It stores its state, the factor, as a member, and it
-is passed to the GPU as a kernel argument of `sizeof(T)` bytes. Its `operator()` is marked
-`__host__ __device__` so that the kernel can call it; section 10.4 explains these qualifiers.
+`Scale<T>` is a **function object**, a struct with an `operator()`. The member function
+`operator()` is the function that C++ runs when an object is followed by parentheses, so an
+object `triple` of type `Scale<float>` with `factor` = 3 can be called as `triple(x)`, and
+`triple(2.0f)` returns 6.0. It stores its state, the factor, as a member, and it is passed to
+the GPU as a kernel argument of `sizeof(T)` bytes. Its `operator()` is marked `__host__
+__device__` so that the kernel can call it; section 10.4 explains these qualifiers.
+
+Let us run `transform<float, Scale<float>>` by hand on 4 values, `in` = 1, 2, 3, 4, with `f` =
+`triple`. With blocks of 256 threads, 1 block is launched, and threads 0 to 3 pass the test `i <
+in.size()`, since the span `in` has size 4. Thread 2 reads `in[2]` = 3, calls `f(3)`, and writes
+9 into `out[2]`. The 4 threads write 3, 6, 9, 12. Threads 4 to 255 fail the test and write
+nothing.
 
 <figure>
 <img src="../../figures/ch10-instantiate.svg" alt="A template, transform with type T and operation F, fans out into 3 kernels the compiler writes: transform<float>, 4 bytes in and 4 out, 74.6 GB/s; transform<double>, 8 bytes in and 8 out, 90.2 GB/s; transform<int>, 4 bytes in and 4 out, 77.0 GB/s. Below, the hand-written float kernel scaleRaw ran at 74.5 GB/s.">
@@ -547,22 +654,27 @@ instantiates the whole chain from that 1 line.
 
 A **lambda** is a function object written in place. The expression
 `[](float v) { return 2.0f * v; }` defines an unnamed struct with that `operator()` and creates
-an object of it. Passing such a lambda to a kernel looks natural, but it does not compile:
+an object of it. The unnamed struct is called the **closure type** of the lambda. The square
+brackets at the start of the lambda are its **capture list**, which names the variables of the
+surrounding code that the lambda may use; here the list is empty. Passing such a lambda to a
+kernel looks natural, but it does not compile:
 
 ```console
 hostlambda.cu(227): error: The closure type for a lambda ("lambda [](float)->float", defined at hostlambda.cu:224) cannot be used in the template argument type of a __global__ function template instantiation, unless the lambda is defined within a __device__ or __global__ function, or the flag '-extended-lambda' is specified and the lambda is an extended lambda (a __device__ or __host__ __device__ lambda defined within a __host__ or __host__ __device__ function)
 ```
 
-A lambda written in host code is a host function, and the GPU cannot execute host code. The error
-message names the solution. An **extended lambda** carries `__device__` or `__host__ __device__`
-after its capture list, and the compiler then generates a device version of it. The program must
-be compiled with `--extended-lambda`. Section 10.4.2 uses 2 extended lambdas.
+A lambda written in host code is a host function, and the GPU cannot execute host code. The
+error message names the solution. An **extended lambda** carries `__device__` or `__host__
+__device__` after its capture list, and the compiler then generates a device version of it. The
+program must be compiled with `--extended-lambda`. Section 10.4.2 uses 2 extended lambdas.
 
 A lambda can also **capture** variables, which copies them into the lambda object, as in
-`[factor](float v) {...}`. The copies are passed to the GPU with the kernel's arguments, so they
-must be trivially copyable. A capture by reference, `[&factor]`, would pass the address of a host
-variable, which the GPU cannot use, and nvcc rejects it with the error
-`An extended __device__ lambda cannot capture variables by reference`.
+`[factor](float v) {...}`. For example, if the host variable `factor` holds 3.0 when the lambda
+is created, the lambda object contains its own float with the value 3.0, and the lambda
+multiplies by 3.0 even if `factor` changes later. The copies are passed to the GPU with the
+kernel's arguments, so they must be trivially copyable. A capture by reference, `[&factor]`,
+would pass the address of a host variable, which the GPU cannot use, and nvcc rejects it with
+the error `An extended __device__ lambda cannot capture variables by reference`.
 
 ### 10.3.3 The run-time cost of templates
 
@@ -588,9 +700,12 @@ bytes, 268.4 MB, in 1.66 times the time. With 8 bytes per element, each load and
 thread carries twice as much data, and the kernel came closer to the GPU's memory bandwidth of
 102 GB/s: 90.2 GB/s is 88% of it.
 
-Since each of these kernels is limited by memory, the shortest possible time on any GPU follows
-from the number of bytes moved and the **memory bandwidth**, the maximum number of bytes that the
-memory can transfer per second.
+A kernel is said to be **memory-bound** if its time is set by the number of bytes it moves
+rather than by its arithmetic. Each thread of `transform<float>` performs 1 multiplication for
+every 8 bytes it reads and writes, so each of these kernels is memory-bound. The shortest
+possible time on any GPU then follows from the number of bytes moved and the **memory
+bandwidth**, the maximum number of bytes that the memory can transfer per second. For example,
+134.2 MB at 102 GB/s take 134.2 / 102 = 1.32 ms.
 
 | GPU | Memory bandwidth | Least time for `transform<float>`, 134.2 MB |
 |---|---|---|
@@ -607,9 +722,9 @@ change this limit; only moving fewer bytes would.
 
 ### 10.3.4 Generic kernels in Rust
 
-Rust's equivalent of templates is **generics**: a function with a type parameter `T` and a list of
-conditions on that type. The compiler instantiates a generic function for each type it is used
-with, a process that Rust calls **monomorphization**. cuda-oxide applies it to kernels, so
+Rust's equivalent of templates is **generics**: a function with a type parameter `T` and a list
+of conditions on that type. The compiler instantiates a generic function for each type it is
+used with, a process that Rust calls **monomorphization**. cuda-oxide applies it to kernels, so
 `scale::<f32>` and `scale::<f64>` become 2 separate kernels.
 
 <p class="listing"><b>Listing 10.15</b> A generic kernel.</p>
@@ -622,10 +737,13 @@ mod kernels {
 }
 ```
 
-The bound `T: Copy + Mul<Output = T>` lists the operations that the body needs: values of `T`
-can be copied, and 2 of them can be multiplied to give a `T`. The host side names the type when
-it prepares the launch, `prepare_scale::<T>`, and a generic host function, such as the timing
-function in Listing 10.16, can do so for its own `T`.
+A **trait bound** is a condition, written after a type parameter, that the type must implement
+the named traits. The bound `T: Copy + Mul<Output = T>` lists the operations that the body
+needs: values of `T` can be copied (the trait `Copy`), and 2 of them can be multiplied to give a
+`T` (the trait `Mul` with result type `T`). `f32`, `f64` and `i32` satisfy both; a `String`
+satisfies neither. The host side names the type when it prepares the launch,
+`prepare_scale::<T>`, and a generic host function, such as the timing function in Listing 10.16,
+can do so for its own `T`.
 
 <p class="listing"><b>Listing 10.16</b> 1 generic timing function for 3 types.</p>
 
@@ -665,9 +783,9 @@ count the x where the bits of cpu[x] and gpu[x] differ
 ```
 
 A function compiled for both processors may use only what exists on both: arithmetic, the CUDA
-math functions such as `fmaf`, `sqrtf` and `expf`, and plain C++. A part that must differ between
-the 2 compilations is guarded by the macro `__CUDA_ARCH__`, which the compiler defines only while
-it compiles device code:
+math functions such as `fmaf`, `sqrtf` and `expf`, and plain C++. A part that must differ
+between the 2 compilations is guarded by the macro `__CUDA_ARCH__`, which the compiler defines
+only while it compiles device code:
 
 ```cpp
 __host__ __device__ float logOf(float x)
@@ -683,8 +801,10 @@ __host__ __device__ float logOf(float x)
 ### 10.4.2 Floating-point differences between host and device
 
 As an example, we use the polynomial 1 + x + x²/2 + x³/6, the first 4 terms of the series of
-e<sup>x</sup>. Horner's rule writes it as 1 + x(1 + x(1/2 + x/6)), which takes 3
-multiplications, each followed by an addition. Listing 10.17 writes it in 2 ways.
+e<sup>x</sup>. **Horner's rule** evaluates a polynomial from its highest coefficient down by
+nesting the multiplications: it writes the polynomial as 1 + x(1 + x(1/2 + x/6)), which takes 3
+multiplications, each followed by an addition. At x = 1, for example, the 3 steps give 1/2 + 1/6
+= 0.6667, then 1 + 0.6667 = 1.6667, then 1 + 1.6667 = 2.6667. Listing 10.17 writes it in 2 ways.
 
 <p class="listing"><b>Listing 10.17</b> 1 polynomial, written 2 ways, for both processors.</p>
 
@@ -713,17 +833,41 @@ int main()
   fmaf:      0 of 2097152 differ from the CPU
 ```
 
-The version written as `x * y + z` differs in 585,903 values, 28% of them. The cause is a single
-instruction. A **fused multiply-add** (FMA) computes a × b + c with a single rounding at the end,
-so the product is kept exact inside the addition. A multiplication followed by an addition rounds
-twice, once after each operation. By default, the device compiler fuses each `x * (...) + ...` in
-`expPoly` into an FMA, while the host compiler used here does not.
+The version written as `x * y + z` differs in 585,903 values, 28% of them, although both
+processors executed the same source code. To see how 1 expression can produce 2 results, let us
+compute a × b + c by hand with a = 1.23, b = 4.56 and c = −5.60. A float keeps a fixed number of
+binary digits, and we imitate it with decimal arithmetic that keeps 3 significant digits.
 
-The effect of the second rounding is easiest to see in decimal arithmetic with 3 significant
-digits. With 2 roundings, 1.23 × 4.56 = 5.6088 is first rounded to 5.61, and 5.61 − 5.60 gives
-0.0100. With 1 rounding, 1.23 × 4.56 − 5.60 = 0.0088 exactly, which rounds to 0.00880. The 2
-results differ by 14%, because the first rounding discarded 0.0012, which the subtraction then
-exposed. Figure 10.6 shows both computations.
+Suppose first that the multiplication and the addition are 2 separate operations, each rounded
+to 3 digits. The exact product 1.23 × 4.56 = 5.6088 is rounded to 5.61, and 5.61 − 5.60 gives
+0.0100. Suppose instead that the 2 operations are performed as 1, and only the final result is
+rounded. The exact value 1.23 × 4.56 − 5.60 = 0.0088 is rounded to 0.00880. The 2 results differ
+by 14%, because the first rounding discarded 0.0012 of the product, and the subtraction of a
+nearly equal number then made that small part the largest part of the result. Figure 10.6 shows
+both computations.
+
+<div class="key-observation">
+
+<span class="box-label">Key observation</span> a × b + c computed as 2 operations is rounded
+twice, and computed as 1 operation it is rounded once. The 2 results can differ in their last
+digits, and neither of them is wrong.
+
+</div>
+
+<div class="definition">
+
+<span class="box-label">Definition 10.4</span> **Fused multiply-add.** A **fused multiply-add**
+(FMA) computes a × b + c as a single operation with a single rounding at the end, so the product
+is kept exact inside the addition.
+
+*Example.* With 3 significant digits, the FMA of 1.23, 4.56 and −5.60 gives 0.00880, while a
+multiplication followed by an addition gives 0.0100.
+
+</div>
+
+The GPU has an FMA instruction, and by default the device compiler fuses each `x * (...) + ...`
+in `expPoly` into it. The host compiler used here does not fuse, so the CPU rounds twice at each
+of the 3 steps where the GPU rounds once.
 
 <figure>
 <img src="../../figures/ch10-fma.svg" alt="Two columns worked with 3 significant decimal digits. Left, 2 roundings: 1.23 times 4.56 = 5.6088, rounded to 5.61, minus 5.60 gives 0.0100. Right, 1 rounding: 1.23 times 4.56 minus 5.60 is exactly 0.0088, rounded to 0.00880. In the program, the polynomial written as x * y + z differs between CPU and GPU in 585,903 of 2,097,152 values; written with fmaf on both sides, in 0.">
@@ -735,11 +879,13 @@ digits, by about 1 part in 10<sup>7</sup>. Neither result is wrong. Each follows
 rules for its own sequence of operations, and the fused version rounds fewer times. However, a
 differential test that expects identical bits fails on 28% of its inputs. `expPolyFma` writes
 each step as `fmaf(a, b, c)`, which rounds once on both processors, because the host's `fmaf`
-follows the same IEEE 754 rule. Its 0 differences confirm that the device compilation is correct.
+follows the same rule of **IEEE 754**, the standard that defines the floating-point formats and
+how each operation rounds. Its 0 differences confirm that the device compilation is correct.
 
-The compiler option `nvcc --fmad=false` would disable fusion for the whole file, but it would also
-make every kernel in the file slower, because each fused operation becomes 2 instructions. Writing
-`fmaf` where the bits must agree states the intent in the code, at the place where it applies.
+The compiler option `nvcc --fmad=false` would disable fusion for the whole file, but it would
+also make every kernel in the file slower, because each fused operation becomes 2 instructions.
+Writing `fmaf` where the bits must agree states the intent in the code, at the place where it
+applies.
 
 <div class="bee bee-shocked" markdown="1">
 
@@ -774,17 +920,18 @@ compiler does not (Rust never fuses on its own), and `mul_add` rounds once on bo
 
 ## 10.5 `constexpr` and `static_assert`
 
-A **constant expression** is an expression whose value the compiler can compute while it compiles
-the program. A variable declared `constexpr` must be initialized with a constant expression, and
-a function declared `constexpr` can be evaluated by the compiler when its arguments are constant
-expressions. A `static_assert(condition, message)` evaluates its condition during compilation
-and stops the compilation with the message when the condition is false. Together, these features
-move checks from run time to compile time.
+A **constant expression** is an expression whose value the compiler can compute while it
+compiles the program. A variable declared `constexpr` must be initialized with a constant
+expression, and a function declared `constexpr` can be evaluated by the compiler when its
+arguments are constant expressions. A `static_assert(condition, message)` evaluates its
+condition during compilation and stops the compilation with the message when the condition is
+false. Together, these features move checks from run time to compile time.
 
 A useful application is checking the block size. A **warp** is a group of 32 threads of a block
 that the hardware executes together, 1 instruction for all 32. A block size that is not a
 multiple of 32 leaves the last warp of every block partly idle, and a size above 1,024 threads
-cannot be launched at all (section 10.1.3). Listing 10.20 checks both conditions while compiling.
+cannot be launched at all (section 10.1.3). Listing 10.20 checks both conditions while
+compiling.
 
 <p class="listing"><b>Listing 10.20</b> The block size, checked while compiling.</p>
 
@@ -811,10 +958,10 @@ block100.cu(23): error: static assertion failed
   ^
 ```
 
-With blocks of 100 threads, 1,000 elements need 10 blocks, so the second assertion fails as well.
-A `constexpr` constant is preferable to `#define BLOCK 256` because it has a type and a scope and
-can be used in a `static_assert`, whereas a macro is text that the preprocessor pastes wherever
-its name appears.
+With blocks of 100 threads, 1,000 elements need 10 blocks, so the second assertion fails as
+well. A `constexpr` constant is preferable to `#define BLOCK 256` because it has a type and a
+scope and can be used in a `static_assert`, whereas a macro is text that the preprocessor pastes
+wherever its name appears.
 
 Rust writes the same checks as constant assertions. An `assert!` inside a `const` item is
 evaluated by the compiler, and a false condition is a compile error.
@@ -827,44 +974,71 @@ evaluated by the compiler, and a false condition is a compile error.
 
 ## 10.6 CUDA 12 and the `cuda::` Namespace
 
-CUDA includes a C++ library for device code called **libcu++**. Its names are in 2 namespaces:
-`cuda::std::` holds versions of standard library types that work in device code, and `cuda::`
-holds extensions specific to the GPU. Both headers used in this section, `<cuda/std/span>` and
-`<cuda/atomic>`, are available in CUDA 12.6 and in CUDA 13.2.
+CUDA includes a C++ library for device code called **libcu++**. A **namespace** is a named group
+of declarations, which keeps names of different libraries apart; the full name `std::vector`
+means the name `vector` in the namespace `std` of the standard library. The names of libcu++ are
+in 2 namespaces: `cuda::std::` holds versions of standard library types that work in device
+code, and `cuda::` holds extensions specific to the GPU. Both headers used in this section,
+`<cuda/std/span>` and `<cuda/atomic>`, are available in CUDA 12.6 and in CUDA 13.2.
 
 ### 10.6.1 `cuda::std::span`
 
-A **span** is a pointer and a length kept together: a view of a contiguous array that the span
-does not own. `cuda::std::span<const T>` allows reading, and `cuda::std::span<T>` allows writing
-as well. `DeviceBuffer::view()` and `span()` return one of each, and `transform` receives them:
+The C-style kernel `scale` received a pointer and a separate count `n`. Consider a program with
+2 device arrays: `a`, at address 0x7f00, with 1,000 floats, and `b`, with 2,000 floats. A call
+`scale<<<8, 256>>>(a, out, 2000, 2.0f)` passes the count of `b` together with the pointer of
+`a`. The kernel cannot tell, because it receives 2 unrelated numbers, 0x7f00 and 2,000. Threads
+0 to 999 read `a` correctly. Threads 1,000 to 1,999 pass the test `i < n` and read the 1,000
+floats that follow `a` in memory, which belong to another allocation or to none. No error is
+reported. The mistake becomes impossible if the length travels together with the pointer from
+the place where both are known, the buffer.
+
+<div class="definition">
+
+<span class="box-label">Definition 10.5</span> **Span.** A **span** is a pointer and a length
+kept together: a view of a contiguous array that the span does not own. Destroying a span frees
+nothing.
+
+*Example.* A span of the array `a` above holds the 2 values 0x7f00 and 1,000. A kernel that
+receives it tests `i < in.size()`, that is `i < 1000`.
+
+</div>
+
+`cuda::std::span<const T>` allows reading, and `cuda::std::span<T>` allows writing as well.
+`DeviceBuffer::view()` and `span()` return one of each, and `transform` receives them:
 
 ```cpp
 transform<<<blocksFor(in.size()), BLOCK>>>(in.view(), out.span(), Scale{factor});
 ```
 
-The C-style kernel received a pointer and a separate count `n`, and a caller could pass an `n`
-that belonged to a different array. The length of a span comes from the buffer it views, so the
-bounds check `i < in.size()` always uses the correct length. A span occupies 16 bytes, a pointer
+The length of a span comes from the buffer it views, so the bounds check `i < in.size()` always
+uses the correct length. A span occupies 16 bytes, a pointer
 and a length, and it is passed to the kernel by value like any other argument. A Rust slice,
 `&[T]`, has always consisted of a pointer and a length, which is why the Rust kernels of this
 book never take a separate count.
 
 ### 10.6.2 `cuda::atomic_ref` and thread scopes
 
-Recall from Chapter 5 that an **atomic** operation on a memory location completes as a single
-indivisible step, so that no other thread can observe or modify the location partway through it.
-`cuda::atomic_ref<int, scope>` applies atomic operations to an ordinary `int` that already
-exists, in this example a counter in a `DeviceBuffer<int>`. The `int` itself remains a plain
-`int`.
+Recall from Chapter 5 why a shared counter needs special care. An ordinary increment `count +=
+1` is 3 steps: read the value, add 1, write the result. Suppose the counter holds 5 and 2
+threads increment it at the same time. Both read 5, both compute 6, and both write 6. 2
+increments were made, but the counter rose by 1, and 1 count is lost. An **atomic** operation on
+a memory location completes as a single indivisible step, so that no other thread can observe or
+modify the location partway through it. With an atomic increment, the second thread reads 6, not
+5, and the counter ends at 7. `cuda::atomic_ref<int, scope>` applies atomic operations to an
+ordinary `int` that already exists, in this example a counter in a `DeviceBuffer<int>`. The
+`int` itself remains a plain `int`.
 
 The **memory order** of an atomic operation specifies what other memory accesses it orders, that
-is, whether writes made before the operation become visible to a thread that observes its result.
-`cuda::memory_order_relaxed` orders nothing except the counter itself. This is sufficient for a
-count, and it is the least expensive order.
+is, whether writes made before the operation become visible to a thread that observes its
+result. `cuda::memory_order_relaxed` orders nothing except the counter itself. This is
+sufficient for a count, and it is the least expensive order.
 
-The **thread scope** specifies the set of threads that must agree on the value. The narrower the
-set, the less work the hardware must do to keep those threads in agreement. The table lists the 3
-scopes.
+The **thread scope** specifies the set of threads that must agree on the value. For example, a
+counter in **shared memory**, the on-chip memory that only the threads of 1 block can access, is
+never seen by the threads of other blocks, so only the threads of its block need to agree on it.
+A counter in **global memory**, the main memory of the GPU, can be reached by every thread of
+the kernel. The narrower the set, the less work the hardware must do to keep those threads in
+agreement. The table lists the 3 scopes.
 
 | Scope | The threads that must agree | Example |
 |---|---|---|
@@ -892,19 +1066,35 @@ span and atomic_ref: 622552 values above 1.5, CPU 622552
 PASSED
 ```
 
-We can verify this count by hand. The polynomial reaches 1.5 at x = 0.40629, slightly to the right
-of ln 1.5 = 0.40547, because the polynomial is smaller than e<sup>x</sup> for x > 0. The inputs are
-evenly spaced from −1 to 1, so the fraction above 0.40629 is (1 − 0.40629) ÷ 2 = 0.29686, and
-0.29686 × 2,097,152 = 622,552 values, the number that both processors counted.
+We can verify this count by hand. The polynomial reaches 1.5 at x = 0.40629, slightly to the
+right of ln 1.5 = 0.40547, because the polynomial is smaller than e<sup>x</sup> for x > 0. The
+inputs are evenly spaced from −1 to 1, so the fraction above 0.40629 is (1 − 0.40629) ÷ 2 =
+0.29686, and 0.29686 × 2,097,152 = 622,552 values, the number that both processors counted.
 
 The Rust programs of Chapter 5 use `DeviceAtomicU32` from cuda-device, which serves the same
 purpose.
 
 ## 10.7 C++20 Concepts
 
-A template accepts any type for which its body compiles. A **concept** is a named condition on
-template parameters that the compiler checks when the template is used. Listing 10.23 defines the
-2 concepts that `transform` requires.
+A template accepts any type for which its body compiles. The body of `transform` contains only
+`out[i] = f(in[i])`, and C++ converts between number types implicitly. An operation `f` that
+takes a float and returns a `bool` therefore passes: the `bool` is converted to a float and
+stored. The template compiles, and every result is 0.0 or 1.0. The mistake is in the call, but
+the body of the template has no way to see it, because the body never states what type `f` must
+return. A condition written next to the template parameters can state it.
+
+<div class="definition">
+
+<span class="box-label">Definition 10.6</span> **Concept.** A **concept** is a named condition
+on template parameters that the compiler checks when the template is used. A use whose types do
+not satisfy the condition is a compile error at the call.
+
+*Example.* The concept `Number<T>` of Listing 10.23 holds for `float` and `int` and fails for
+`std::string`, so `transform<std::string, ...>` is rejected at the call.
+
+</div>
+
+Listing 10.23 defines the 2 concepts that `transform` requires.
 
 <p class="listing"><b>Listing 10.23</b> 2 concepts.</p>
 
@@ -914,7 +1104,12 @@ template parameters that the compiler checks when the template is used. Listing 
 
 `Number<T>` holds when `T` is an integer or floating-point type. `UnaryOp<F, T>` holds when an
 `F` can be called with a `T` and returns exactly a `T`. Writing `UnaryOp<T> F` in the template's
-parameter list applies the concept to `F`, with `T` as its second argument.
+parameter list applies the concept to `F`, with `T` as its second argument. We can evaluate both
+conditions by hand for 2 calls. For `transform` with `T` = `float` and `F` = `Scale<float>`,
+`Number<float>` holds, and `Scale<float>` called with a float returns a float, so
+`UnaryOp<Scale<float>, float>` holds as well. For `F` = a lambda of type `(float)->bool`, the
+lambda can be called with a float, but it returns a `bool`, which is not exactly a `float`, so
+`UnaryOp` fails.
 
 To see what these conditions prevent, we replaced `Scale{factor}` in `scaleOnGpu` with an
 operation that returns a `bool`, `[] __device__ (float v) { return v > 0.0f; }`, and compiled it
@@ -925,8 +1120,8 @@ because C++ converts a `bool` to a `float` implicitly, and it ran:
   copies sized by the type: 0 of 2097152 correct
 ```
 
-Every result was 1.0, the float value of `true`, and none was the expected 2.0. With the concepts,
-the same call does not compile:
+Every result was 1.0, the float value of `true`, and none was the expected 2.0. With the
+concepts, the same call does not compile:
 
 ```console
 concept.cu(118): error: no instance of function template "transform" matches the argument list
@@ -935,9 +1130,12 @@ concept.cu(36): note #3327-D: candidate function template "transform" failed ded
 ```
 
 The message points to the call and shows the type of the lambda, `(float)->bool`, which is the
-error. A Rust generic states its conditions in the same way, as **trait bounds**. Rust checks them
-when the function is used, and also when it is defined: the body of `scale<T>` may perform only
-the operations that `Copy + Mul<Output = T>` allows.
+error. **Template argument deduction** is the step in which the compiler works out the template
+parameters, here `T` and `F`, from the types of the arguments of a call. When a deduced type
+fails a concept, the compiler discards the template, and the message reports that deduction
+failed. A Rust generic states its conditions in the same way, as **trait bounds**. Rust checks
+them when the function is used, and also when it is defined: the body of `scale<T>` may perform
+only the operations that `Copy + Mul<Output = T>` allows.
 
 ## 10.8 Style Summary
 
@@ -954,8 +1152,10 @@ program cannot break. Some rules can no longer be broken because no call site pe
 any more: a destructor frees the memory, and a type computes the byte count. Some violations
 become compile errors: deleted copies, `static_assert` and concepts. The remaining ones become
 run-time errors that cannot be ignored, such as an exception or an `Err` passed up by `?`. What
-C++ cannot check, such as index arithmetic, Rust kernels confine to `DisjointSlice` and to
-`unsafe` blocks with a written justification (Chapter 13). The table summarizes the replacements.
+C++ cannot check, such as index arithmetic, Rust kernels confine to `DisjointSlice`, the
+cuda-oxide output type through which each thread can write only the element at its own index,
+and to `unsafe` blocks with a written justification (Chapter 13). The table summarizes the
+replacements.
 
 | C-style habit | Modern replacement | What the compiler now does |
 |---|---|---|
@@ -1013,8 +1213,8 @@ hand-written kernel at 74.5 GB/s.
   `thread_scope_device`. Use the narrowest scope that contains every thread that accesses the
   value.
 - **Measuring without a warm-up.** With 0.3 s of warm-up, the kernels of this chapter ran at 33
-  to 48 GB/s; with 500 ms before each measurement, at 70 to 90 GB/s. The clock rates of a GPU and
-  of its memory rise only under sustained load.
+to 48 GB/s; with 500 ms before each measurement, at 70 to 90 GB/s. The clock rates of a GPU and
+of its memory rise only under sustained load.
 
 <div class="summary" markdown="1">
 
@@ -1041,8 +1241,8 @@ hand-written kernel at 74.5 GB/s.
 </div>
 
 Chapter 11 applies these techniques in NVIDIA's libraries. Thrust's `device_vector` is a
-`DeviceBuffer` with algorithms, CUB is a library of template building blocks, and cuBLAS provides
-the matrix product of Chapter 9.
+`DeviceBuffer` with algorithms, CUB is a library of template building blocks, and cuBLAS
+provides the matrix product of Chapter 9.
 
 ## Exercises
 
