@@ -72,6 +72,8 @@ for prog in measure latency verify; do
     run "ch16_$prog" \
         bash -c 'cd ch16_profiling && nvcc -arch="$1" "$2.cu" -o "$2" && "./$2"' _ "$ARCH" "$prog"
 done
+run "ch18_peer" \
+    bash -c 'cd ch18_peer && nvcc -arch="$1" peer.cu -o peer && ./peer' _ "$ARCH"
 
 # --- Rust examples (optional toolchains) -------------------------------------
 if command -v cargo >/dev/null 2>&1; then

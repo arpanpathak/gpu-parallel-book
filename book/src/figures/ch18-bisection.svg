@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 476" width="660" height="476" role="img" aria-label="Three ways to join 8 GPUs that each have 18 links, cut in half by a dashed line. Ring: 2 edges of 9 links cross the cut, 450 GB/s each way. Mesh: 16 pairs of 2 links cross, 800 GB/s. Switch: all 4 GPUs on one side send at 450 GB/s through the switch, 1,800 GB/s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="476" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Bisection bandwidth</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Cut the GPUs into 2 halves; count what crosses, each way.</text>
+  <rect x="16" y="104" width="196" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="59.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="63.7" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">RING</text>
+  <rect x="232" y="104" width="196" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="250" y="93" width="59.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="279.7" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">MESH</text>
+  <rect x="448" y="104" width="196" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="466" y="93" width="75.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="503.6" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SWITCH</text>
+  <rect x="36.0" y="150.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="48.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0</text>
+  <rect x="36.0" y="262.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="48.0" y="277.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">7</text>
+  <rect x="78.0" y="150.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="90.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">1</text>
+  <rect x="78.0" y="262.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="90.0" y="277.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">6</text>
+  <rect x="130.0" y="150.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="142.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">2</text>
+  <rect x="130.0" y="262.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="142.0" y="277.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">5</text>
+  <rect x="172.0" y="150.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="184.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">3</text>
+  <rect x="172.0" y="262.0" width="24.0" height="22.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="184.0" y="277.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">4</text>
+  <line x1="60.0" y1="161.0" x2="78.0" y2="161.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="60.0" y1="273.0" x2="78.0" y2="273.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="102.0" y1="161.0" x2="130.0" y2="161.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="102.0" y1="273.0" x2="130.0" y2="273.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="154.0" y1="161.0" x2="172.0" y2="161.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="154.0" y1="273.0" x2="172.0" y2="273.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="48.0" y1="172.0" x2="48.0" y2="262.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="184.0" y1="172.0" x2="184.0" y2="262.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="117.0" y1="132.0" x2="117.0" y2="300.0" stroke="#CF4526" stroke-width="1.8" stroke-dasharray="6 5"/>
+  <text x="32.0" y="330.0" class="note" text-anchor="start" xml:space="preserve">2 edges cross the cut</text>
+  <text x="32.0" y="348.0" class="note" text-anchor="start" xml:space="preserve">9 links each: 9 × 25 =</text>
+  <text x="32.0" y="366.0" class="note" text-anchor="start" xml:space="preserve">225 GB/s; 2 × 225 =</text>
+  <rect x="32.0" y="378" width="66.8" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="65.4" y="390.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">450 GB/s</text>
+  <rect x="250.0" y="140.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="265.0" y="156.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0</text>
+  <rect x="380.0" y="140.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="395.0" y="156.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">4</text>
+  <rect x="296.0" y="144.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="316.0" y="144.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="336.0" y="144.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="356.0" y="144.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="250.0" y="176.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="265.0" y="192.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">1</text>
+  <rect x="380.0" y="176.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="395.0" y="192.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">5</text>
+  <rect x="296.0" y="180.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="316.0" y="180.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="336.0" y="180.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="356.0" y="180.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="250.0" y="212.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="265.0" y="228.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">2</text>
+  <rect x="380.0" y="212.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="395.0" y="228.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">6</text>
+  <rect x="296.0" y="216.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="316.0" y="216.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="336.0" y="216.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="356.0" y="216.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="250.0" y="248.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="265.0" y="264.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">3</text>
+  <rect x="380.0" y="248.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="395.0" y="264.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">7</text>
+  <rect x="296.0" y="252.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="316.0" y="252.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="336.0" y="252.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="356.0" y="252.0" width="15.0" height="15.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <line x1="330.0" y1="128.0" x2="330.0" y2="288.0" stroke="#CF4526" stroke-width="1.8" stroke-dasharray="6 5"/>
+  <text x="248.0" y="330.0" class="note" text-anchor="start" xml:space="preserve">4 × 4 = 16 pairs cross</text>
+  <text x="248.0" y="348.0" class="note" text-anchor="start" xml:space="preserve">2 links each: 16 × 2 × 25</text>
+  <text x="248.0" y="366.0" class="note" text-anchor="start" xml:space="preserve">= 800 GB/s</text>
+  <rect x="248.0" y="378" width="66.8" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="281.4" y="390.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">800 GB/s</text>
+  <rect x="464.0" y="140.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="479.0" y="156.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0</text>
+  <rect x="598.0" y="140.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="613.0" y="156.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">4</text>
+  <line x1="494.0" y1="152.0" x2="518.0" y2="152.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="574.0" y1="152.0" x2="598.0" y2="152.0" stroke="#3F5873" stroke-width="2.2"/>
+  <rect x="464.0" y="176.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="479.0" y="192.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">1</text>
+  <rect x="598.0" y="176.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="613.0" y="192.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">5</text>
+  <line x1="494.0" y1="188.0" x2="518.0" y2="188.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="574.0" y1="188.0" x2="598.0" y2="188.0" stroke="#3F5873" stroke-width="2.2"/>
+  <rect x="464.0" y="212.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="479.0" y="228.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">2</text>
+  <rect x="598.0" y="212.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="613.0" y="228.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">6</text>
+  <line x1="494.0" y1="224.0" x2="518.0" y2="224.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="574.0" y1="224.0" x2="598.0" y2="224.0" stroke="#3F5873" stroke-width="2.2"/>
+  <rect x="464.0" y="248.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="479.0" y="264.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">3</text>
+  <rect x="598.0" y="248.0" width="30.0" height="24.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="613.0" y="264.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">7</text>
+  <line x1="494.0" y1="260.0" x2="518.0" y2="260.0" stroke="#3F5873" stroke-width="2.2"/>
+  <line x1="574.0" y1="260.0" x2="598.0" y2="260.0" stroke="#3F5873" stroke-width="2.2"/>
+  <rect x="518" y="136" width="56" height="140" rx="8" fill="#2B3442" stroke="#1B2430" stroke-width="1.3"/>
+  <text x="546.0" y="210.0" class="pill" text-anchor="middle" style="fill:#DCE3EC" xml:space="preserve">NVS</text>
+  <line x1="546.0" y1="126.0" x2="546.0" y2="290.0" stroke="#CF4526" stroke-width="1.8" stroke-dasharray="6 5"/>
+  <text x="464.0" y="330.0" class="note" text-anchor="start" xml:space="preserve">4 GPUs send at once</text>
+  <text x="464.0" y="348.0" class="note" text-anchor="start" xml:space="preserve">4 × 450 GB/s</text>
+  <text x="464.0" y="366.0" class="note" text-anchor="start" xml:space="preserve">= 1,800 GB/s</text>
+  <rect x="464.0" y="378" width="80.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="504.0" y="390.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1,800 GB/s</text>
+  <text x="24.0" y="436.0" class="note" text-anchor="start" xml:space="preserve">Every GPU has 18 links of 25 GB/s each way. The dashed line splits the GPUs into 2 halves</text>
+  <text x="24.0" y="454.0" class="note" text-anchor="start" xml:space="preserve">of 4; the bisection bandwidth is all that can cross it at once, each way.</text>
+</svg>
