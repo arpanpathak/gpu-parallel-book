@@ -1171,9 +1171,7 @@ edge image that each stream copies back with the CPU's edge image of the same in
 
 ### 24.9.1 Measurements
 
-The measurements come from 2 integrated GPUs: a Jetson Orin NX (8 SMs, 102 GB/s) and a Jetson AGX
-Thor (20 SMs, 273 GB/s). The times below are from the Orin NX; both programs also passed every check
-on the Thor. Each stage is timed alone, as the mean of 100 launches after the GPU has run the
+The measurements come from an integrated GPU, a Jetson Orin NX (8 SMs, 102 GB/s). Each stage is timed alone, as the mean of 100 launches after the GPU has run the
 pipeline for 0.4 s to raise its clock. The programs report the time and the effective bandwidth, the
 bytes that the stage must read and write divided by its time. Times drift by about 10% between runs.
 
@@ -1211,7 +1209,7 @@ the 7 stages. The Sobel kernel follows with 21%, the apply-table kernel with 18%
 with 17%; the histogram and the table together take 6%.
 
 The arithmetic does not explain this order. The 2 blur passes perform 10 multiply-adds per pixel,
-20.7 million per image. The GPU of the Orin NX has 1,024 lanes (8 SMs of 128) at up to 1.17 GHz,
+20.7 million per image. The measured GPU has 1,024 lanes (8 SMs of 128) at up to 1.17 GHz,
 about \\(1.2 \cdot 10^{12}\\) simple integer operations per second. The multiply-adds therefore account
 for about 0.02 ms of the 0.418 ms. The square roots of the Sobel kernel are likewise a small part of its
 time.
@@ -1228,7 +1226,7 @@ blur with a tile of \\((8 + 4) \times (32 + 4)\\) inputs would move about 2 byte
 
 The effective rates stay far below 102 GB/s because every access is narrow. Each thread of these
 kernels reads and writes 1 or 2 bytes, so 1 load instruction of a warp moves 32 or 64 bytes. Chapter
-8 measured the same effect on the Orin NX with a histogram: 13.7 GB/s with 1-byte loads and 82.9 GB/s
+8 measured the same effect with a histogram: 13.7 GB/s with 1-byte loads and 82.9 GB/s
 with 16-byte loads. The Sobel kernel has the lowest rate, 18.4 GB/s, because it issues the most load
 instructions per byte. For each byte it writes, its code reads 12 bytes, most of them answered by
 the L1 cache, and takes a square root. The apply-table kernel, at 21.6 GB/s, adds a gather to its 2 bytes. Each
@@ -1424,7 +1422,7 @@ The whole Rust program, `src/main.rs`, and the whole C++ program, `capstone.cu`.
   Theorem 24.1 proves the 2 passes exact.
 - A tile for \\(T\\) outputs of radius \\(r\\) holds \\(T + 2r\\) inputs; without the halo, 4 threads
   of each block read unwritten slots.
-- On the Jetson Orin NX the 7 kernels take 1.079 ms per image of 1,920 × 1,080 pixels in C++ and
+- On the measured GPU the 7 kernels take 1.079 ms per image of 1,920 × 1,080 pixels in C++ and
   1.380 ms in Rust. The blur takes the largest share, 39%, because it moves the most bytes, and every
   stage runs at 18 to 45 GB/s because its accesses are 1 or 2 bytes wide.
 - On 3 streams the copies hide completely behind the kernels: 859.5 images/s in C++ and 689.9 in
