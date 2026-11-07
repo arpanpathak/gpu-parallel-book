@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="Rim, a hermit crab, carries on its back a square frame of 4 by 4 cells: the 4 inner cells are blue and the ring of 12 cells around them is amber, with the 4 corner cells grey. Behind it lies the sandy grid of a heated plate, with the same 4 by 4 square marked out where Rim lifted it. A tag says load the tile and its halo once.">
+<defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2f4d"/><stop offset="1" stop-color="#b7684a"/></linearGradient><linearGradient id="glow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/><stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/></linearGradient></defs>
+<rect x="0.0" y="0.0" width="960.0" height="420.0" rx="0" fill="url(#sky1)" stroke="none" stroke-width="0" />
+<path d="M0,144 C240,40 520,190 960,108 L960,178 C520,250 240,110 0,214 Z" fill="url(#glow2)" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="100.0" cy="56.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="297.0" cy="145.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="494.0" cy="42.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="691.0" cy="131.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="888.0" cy="28.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="125.0" cy="117.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="322.0" cy="14.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="519.0" cy="103.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="716.0" cy="192.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="913.0" cy="89.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="150.0" cy="178.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="347.0" cy="75.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="544.0" cy="164.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="741.0" cy="61.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="938.0" cy="150.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="175.0" cy="47.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="372.0" cy="136.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="569.0" cy="33.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="766.0" cy="122.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="3.0" cy="19.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="200.0" cy="108.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="397.0" cy="197.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="594.0" cy="94.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="791.0" cy="183.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="28.0" cy="80.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="225.0" cy="169.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="422.0" cy="66.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="619.0" cy="155.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="816.0" cy="52.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="53.0" cy="141.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="250.0" cy="38.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="447.0" cy="127.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="644.0" cy="24.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="841.0" cy="113.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="78.0" cy="202.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="275.0" cy="99.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="472.0" cy="188.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="669.0" cy="85.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="866.0" cy="174.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="103.0" cy="71.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="300.0" cy="160.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="497.0" cy="57.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="694.0" cy="146.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="891.0" cy="43.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="128.0" cy="132.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="325.0" cy="29.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<path d="M0,296 C200,270 420,314 640,288 S900,302 960,282 L960,420 L0,420 Z" fill="#d6b47c" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M0,316 C260,296 520,330 960,308 L960,420 L0,420 Z" fill="#ecd4a4" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="572.0" y="56.0" width="256.0" height="256.0" rx="12" fill="#0f1c2b" stroke="#6f8196" stroke-width="3" opacity="0.5"/>
+<rect x="582.0" y="66.0" width="36.0" height="36.0" rx="6" fill="#e2522b" stroke="none" stroke-width="0" /><text x="600.0" y="88.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >100</text>
+<rect x="622.0" y="66.0" width="36.0" height="36.0" rx="6" fill="#e2522b" stroke="none" stroke-width="0" /><text x="640.0" y="88.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >100</text>
+<rect x="662.0" y="66.0" width="36.0" height="36.0" rx="6" fill="#e2522b" stroke="none" stroke-width="0" /><text x="680.0" y="88.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >100</text>
+<rect x="702.0" y="66.0" width="36.0" height="36.0" rx="6" fill="#e2522b" stroke="none" stroke-width="0" /><text x="720.0" y="88.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >100</text>
+<rect x="742.0" y="66.0" width="36.0" height="36.0" rx="6" fill="#e2522b" stroke="none" stroke-width="0" /><text x="760.0" y="88.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >100</text>
+<rect x="782.0" y="66.0" width="36.0" height="36.0" rx="6" fill="#e2522b" stroke="none" stroke-width="0" /><text x="800.0" y="88.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >100</text>
+<rect x="582.0" y="106.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="600.0" y="128.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="622.0" y="106.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="640.0" y="128.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="662.0" y="106.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="680.0" y="128.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="702.0" y="106.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="720.0" y="128.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="742.0" y="106.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="760.0" y="128.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="782.0" y="106.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="800.0" y="128.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="582.0" y="146.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="600.0" y="168.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="622.0" y="146.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="640.0" y="168.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="662.0" y="146.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="680.0" y="168.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="702.0" y="146.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="720.0" y="168.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="742.0" y="146.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="760.0" y="168.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="782.0" y="146.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="800.0" y="168.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="582.0" y="186.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="600.0" y="208.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="622.0" y="186.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="640.0" y="208.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="662.0" y="186.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="680.0" y="208.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="702.0" y="186.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="720.0" y="208.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="742.0" y="186.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="760.0" y="208.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="782.0" y="186.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="800.0" y="208.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="582.0" y="226.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="600.0" y="248.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="622.0" y="226.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="640.0" y="248.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="662.0" y="226.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="680.0" y="248.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="702.0" y="226.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="720.0" y="248.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="742.0" y="226.0" width="36.0" height="36.0" rx="6" fill="#d9c08e" stroke="none" stroke-width="0" /><text x="760.0" y="248.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#9c8558" text-anchor="middle" ></text>
+<rect x="782.0" y="226.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="800.0" y="248.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="582.0" y="266.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="600.0" y="288.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="622.0" y="266.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="640.0" y="288.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="662.0" y="266.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="680.0" y="288.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="702.0" y="266.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="720.0" y="288.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="742.0" y="266.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="760.0" y="288.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="782.0" y="266.0" width="36.0" height="36.0" rx="6" fill="#3b6fb6" stroke="none" stroke-width="0" /><text x="800.0" y="288.7" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle" >0</text>
+<rect x="620.0" y="104.0" width="160.0" height="160.0" rx="8" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="8 6"/>
+<rect x="230.0" y="64.0" width="140.0" height="140.0" rx="10" fill="#5a4210" stroke="#3a2a08" stroke-width="3" />
+<rect x="238.0" y="72.0" width="28.0" height="28.0" rx="6" fill="#9fb3c8" stroke="none" stroke-width="0" /><text x="252.0" y="91.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >25</text>
+<rect x="270.0" y="72.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="284.0" y="91.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >25</text>
+<rect x="302.0" y="72.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="316.0" y="91.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >25</text>
+<rect x="334.0" y="72.0" width="28.0" height="28.0" rx="6" fill="#9fb3c8" stroke="none" stroke-width="0" /><text x="348.0" y="91.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >25</text>
+<rect x="238.0" y="104.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="252.0" y="123.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="270.0" y="104.0" width="28.0" height="28.0" rx="6" fill="#6fa8dc" stroke="none" stroke-width="0" /><text x="284.0" y="123.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="302.0" y="104.0" width="28.0" height="28.0" rx="6" fill="#6fa8dc" stroke="none" stroke-width="0" /><text x="316.0" y="123.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="334.0" y="104.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="348.0" y="123.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="238.0" y="136.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="252.0" y="155.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="270.0" y="136.0" width="28.0" height="28.0" rx="6" fill="#6fa8dc" stroke="none" stroke-width="0" /><text x="284.0" y="155.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="302.0" y="136.0" width="28.0" height="28.0" rx="6" fill="#6fa8dc" stroke="none" stroke-width="0" /><text x="316.0" y="155.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="334.0" y="136.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="348.0" y="155.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="238.0" y="168.0" width="28.0" height="28.0" rx="6" fill="#9fb3c8" stroke="none" stroke-width="0" /><text x="252.0" y="187.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="270.0" y="168.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="284.0" y="187.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="302.0" y="168.0" width="28.0" height="28.0" rx="6" fill="#f0b44c" stroke="none" stroke-width="0" /><text x="316.0" y="187.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<rect x="334.0" y="168.0" width="28.0" height="28.0" rx="6" fill="#9fb3c8" stroke="none" stroke-width="0" /><text x="348.0" y="187.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#12263d" text-anchor="middle" >0</text>
+<ellipse cx="300.0" cy="325.0" rx="85.6" ry="9.4" fill="#0d1a28" opacity="0.22"/>
+<line x1="258.6" y1="288.9" x2="239.3" y2="322.0" stroke="#c2441a" stroke-width="7.25" stroke-linecap="round" />
+<line x1="242.0" y1="288.9" x2="217.2" y2="322.0" stroke="#c2441a" stroke-width="7.25" stroke-linecap="round" />
+<line x1="225.5" y1="288.9" x2="195.1" y2="322.0" stroke="#c2441a" stroke-width="7.25" stroke-linecap="round" />
+<line x1="341.4" y1="288.9" x2="360.7" y2="322.0" stroke="#c2441a" stroke-width="7.25" stroke-linecap="round" />
+<line x1="358.0" y1="288.9" x2="382.8" y2="322.0" stroke="#c2441a" stroke-width="7.25" stroke-linecap="round" />
+<line x1="374.5" y1="288.9" x2="404.9" y2="322.0" stroke="#c2441a" stroke-width="7.25" stroke-linecap="round" />
+<path d="M236.5,258.5 Q189.6,261.3 189.6,200.6" fill="none" stroke="#f46a35" stroke-width="12.42" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="189.6" cy="186.8" r="20.7" fill="#f46a35" />
+<path d="M189.6,186.8 l-2.8,-26.2 l17.9,11.0 Z" fill="#fff1e6" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M363.5,258.5 Q410.4,261.3 410.4,200.6" fill="none" stroke="#f46a35" stroke-width="12.42" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="410.4" cy="186.8" r="20.7" fill="#f46a35" />
+<path d="M410.4,186.8 l2.8,-26.2 l-17.9,11.0 Z" fill="#fff1e6" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M222.7,266.8 L231.0,225.4 L253.1,230.9 L269.6,208.8 L300.0,219.9 L330.4,208.8 L346.9,230.9 L369.0,225.4 L377.3,266.8 Z" fill="#f46a35" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<ellipse cx="300.0" cy="269.6" rx="80.0" ry="41.4" fill="#f46a35" />
+<ellipse cx="300.0" cy="288.9" rx="49.7" ry="16.6" fill="#ffb08a" opacity="0.55"/>
+<ellipse cx="276.5" cy="253.0" rx="13.8" ry="17.9" fill="#ffffff" />
+<circle cx="280.7" cy="254.4" r="7.6" fill="#1b2430" />
+<circle cx="283.3" cy="250.7" r="2.4" fill="#ffffff" />
+<ellipse cx="323.5" cy="253.0" rx="13.8" ry="17.9" fill="#ffffff" />
+<circle cx="327.6" cy="254.4" r="7.6" fill="#1b2430" />
+<circle cx="330.3" cy="250.7" r="2.4" fill="#ffffff" />
+<path d="M283.4,280.6 Q300.0,305.4 316.6,280.6 Z" fill="#7a1f0a" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="556.4" y="16.7" width="327.1" height="30.6" rx="15.3" fill="#fff6e2" stroke="none" stroke-width="0" /><text x="720.0" y="38.1" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700" fill="#2a1a10" text-anchor="middle"  textLength="295.1" lengthAdjust="spacingAndGlyphs">load the tile and its halo once</text>
+<rect x="28.0" y="360.0" width="72.0" height="40.0" rx="6" fill="#d9622b" stroke="none" stroke-width="0" />
+<text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="30.8" lengthAdjust="spacingAndGlyphs">20</text>
+<rect x="100.0" y="360.0" width="481.0" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
+<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="441.0" lengthAdjust="spacingAndGlyphs">TILED STENCILS WITH HALO CELLS</text>
+<rect x="719.1" y="364.0" width="212.9" height="32.0" rx="16" fill="#ffffffdd" stroke="none" stroke-width="0" />
+<text x="825.6" y="386.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#27405a" text-anchor="middle"  textLength="180.9" lengthAdjust="spacingAndGlyphs">Rim the hermit crab</text>
+</svg>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" width="640" height="420" role="img" aria-label="A chart over K = 1, 2, 4, 6, 8 steps per load. Bars give the modelled bytes per cell and step: 8.55, 4.61, 2.78, 2.37, 2.50. Under each bar, thread-steps per kept cell and step: 1.14, 1.31, 1.78, 2.56, 4.00. Points give the measured effective bandwidth: 30.3, 48.4, 62.4, 57.1, 43.7 GB/s, highest at K = 4. A dashed line marks the direct kernel in the same run at 65.0 GB/s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="420" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Temporal blocking: traffic against work</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Jetson Orin NX, C++: the speed peaks at K = 4, where traffic stops falling.</text>
+  <line x1="90.0" y1="354.0" x2="560.0" y2="354.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="90.0" y1="134.0" x2="90.0" y2="354.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="560.0" y1="134.0" x2="560.0" y2="354.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="90.0" y1="354.0" x2="560.0" y2="354.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="358.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <line x1="90.0" y1="299.0" x2="560.0" y2="299.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="303.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <line x1="90.0" y1="244.0" x2="560.0" y2="244.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="248.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">40</text>
+  <line x1="90.0" y1="189.0" x2="560.0" y2="189.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="193.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">60</text>
+  <line x1="90.0" y1="134.0" x2="560.0" y2="134.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="138.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">80</text>
+  <text x="568.0" y="358.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="568.0" y="321.3" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <text x="568.0" y="284.7" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="568.0" y="248.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">6</text>
+  <text x="568.0" y="211.3" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">8</text>
+  <text x="568.0" y="174.7" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <text x="568.0" y="138.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">12</text>
+  <text x="20.0" y="104.0" class="note" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">GB/s (points)</text>
+  <text x="600.0" y="104.0" class="note" text-anchor="end" style="fill:#B7791F" xml:space="preserve">bytes per cell and step (bars)</text>
+  <rect x="112" y="197.2" width="36" height="156.8" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="130.0" y="191.2" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">8.55</text>
+  <text x="130.0" y="372.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">K = 1</text>
+  <text x="130.0" y="390.0" class="note" text-anchor="middle" xml:space="preserve">1.14 thread-steps</text>
+  <rect x="210" y="269.4" width="36" height="84.6" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="228.0" y="263.4" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4.61</text>
+  <text x="228.0" y="372.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">K = 2</text>
+  <text x="228.0" y="390.0" class="note" text-anchor="middle" xml:space="preserve">1.31 thread-steps</text>
+  <rect x="308" y="303.1" width="36" height="50.9" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="326.0" y="297.1" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2.78</text>
+  <text x="326.0" y="372.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">K = 4</text>
+  <text x="326.0" y="390.0" class="note" text-anchor="middle" xml:space="preserve">1.78 thread-steps</text>
+  <rect x="406" y="310.5" width="36" height="43.5" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="424.0" y="304.5" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2.37</text>
+  <text x="424.0" y="372.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">K = 6</text>
+  <text x="424.0" y="390.0" class="note" text-anchor="middle" xml:space="preserve">2.56 thread-steps</text>
+  <rect x="504" y="308.2" width="36" height="45.8" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="522.0" y="302.2" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2.50</text>
+  <text x="522.0" y="372.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">K = 8</text>
+  <text x="522.0" y="390.0" class="note" text-anchor="middle" xml:space="preserve">4.00 thread-steps</text>
+  <path d="M130.0,270.7 L228.0,220.9 L326.0,182.4 L424.0,197.0 L522.0,233.8" fill="none" stroke="#2E8B3D" stroke-width="2"/>
+  <circle cx="130.0" cy="270.7" r="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="121.0" y="261.7" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">30.3</text>
+  <circle cx="228.0" cy="220.9" r="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="219.0" y="211.9" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">48.4</text>
+  <circle cx="326.0" cy="182.4" r="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="317.0" y="173.4" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">62.4</text>
+  <circle cx="424.0" cy="197.0" r="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="415.0" y="188.0" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">57.1</text>
+  <circle cx="522.0" cy="233.8" r="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="513.0" y="224.8" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">43.7</text>
+  <line x1="90.0" y1="175.2" x2="560.0" y2="175.2" stroke="#2F6FDB" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text x="120.0" y="120.0" class="note" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">dashed: direct kernel in the same run, 65.0 GB/s</text>
+</svg>

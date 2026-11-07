@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 410" width="640" height="410" role="img" aria-label="3 horizontal bars of effective bandwidth on a 4096 by 4096 grid: copy kernel 75.3 GB/s, jacobi 58.3 GB/s, jacobi tiled 37.8 GB/s. A dashed line marks the rated memory bandwidth of 102 GB/s. A note explains that each step moves 134.2 MB, and that the tiled kernel is slower than the plain one.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 410" width="640" height="410" role="img" aria-label="Horizontal bars of effective bandwidth on a 4096 by 4096 grid, Orin NX: copy kernel 76.4 GB/s, Jacobi step in C++ 68.3 GB/s, Jacobi step in Rust 57.8 GB/s. A dashed line marks the rated 102 GB/s. A second dashed line marks 67.9 GB/s, the rate predicted for 9 bytes per cell.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -37,20 +37,21 @@
     </marker>
   </defs>
   <rect width="640" height="410" rx="14" fill="#FBFAF6"/>
-  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Effective bandwidth of 1 Jacobi step</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4096 x 4096 cells, 8 bytes per cell per step, on a GPU rated at 102 GB/s.</text>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Effective bandwidth of a Jacobi step</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4096 × 4096 cells on a Jetson Orin NX rated at 102 GB/s.</text>
   <text x="40.0" y="138.0" class="note" text-anchor="start" xml:space="preserve">copy kernel</text>
-  <rect x="140" y="116" width="287.5" height="34" rx="5" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.4"/>
-  <text x="435.5" y="138.0" class="mono" text-anchor="start" xml:space="preserve">75.3 GB/s</text>
-  <text x="40.0" y="196.0" class="note" text-anchor="start" xml:space="preserve">jacobi</text>
-  <rect x="140" y="174" width="222.6" height="34" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.4"/>
-  <text x="370.6" y="196.0" class="mono" text-anchor="start" xml:space="preserve">58.3 GB/s</text>
-  <text x="40.0" y="254.0" class="note" text-anchor="start" xml:space="preserve">jacobi, tiled</text>
-  <rect x="140" y="232" width="144.3" height="34" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4"/>
-  <text x="292.3" y="254.0" class="mono" text-anchor="start" xml:space="preserve">37.8 GB/s</text>
-  <path d="M529.5,104 V300" stroke="#CF4526" stroke-width="1.6" stroke-dasharray="5 4"/>
-  <text x="529.5" y="318.0" class="note" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">rated 102 GB/s</text>
-  <text x="40.0" y="352.0" class="note" text-anchor="start" xml:space="preserve">1 read and 1 write of 4 bytes per cell: 134.2 MB per step.</text>
-  <text x="40.0" y="370.0" class="note" text-anchor="start" xml:space="preserve">The tiled kernel loads 1.33 cells per result, yet runs slower than the</text>
-  <text x="40.0" y="388.0" class="note" text-anchor="start" xml:space="preserve">plain kernel, whose neighbour reads the L1 and L2 caches already serve.</text>
+  <rect x="140" y="116" width="298.7" height="34" rx="5" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.4"/>
+  <text x="150.0" y="138.0" class="mono" text-anchor="start" style="fill:#7F8EA0" xml:space="preserve">76.4 GB/s</text>
+  <text x="40.0" y="196.0" class="note" text-anchor="start" xml:space="preserve">Jacobi, C++</text>
+  <rect x="140" y="174" width="267.0" height="34" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.4"/>
+  <text x="150.0" y="196.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">68.3 GB/s</text>
+  <text x="40.0" y="254.0" class="note" text-anchor="start" xml:space="preserve">Jacobi, Rust</text>
+  <rect x="140" y="232" width="225.9" height="34" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.4"/>
+  <text x="150.0" y="254.0" class="mono" text-anchor="start" style="fill:#7A4FD0" xml:space="preserve">57.8 GB/s</text>
+  <path d="M538.7,104 V300" stroke="#CF4526" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text x="538.7" y="318.0" class="note" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">rated 102 GB/s</text>
+  <path d="M405.5,104 V300" stroke="#B7791F" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text x="405.5" y="336.0" class="note" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">9 bytes per cell: 67.9 GB/s</text>
+  <text x="40.0" y="372.0" class="note" text-anchor="start" xml:space="preserve">Effective bandwidth = 8 bytes per cell ÷ time of a step; a step moves at least 134.2 MB.</text>
+  <text x="40.0" y="390.0" class="note" text-anchor="start" xml:space="preserve">The C++ step runs where 9 bytes per cell at the copy&#x27;s rate would put it.</text>
 </svg>

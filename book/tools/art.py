@@ -1391,20 +1391,20 @@ def ch17():
             tag(480, 60, "copy a tile once, read it 16 times", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch19", "Stencils and the Laplace Solver", "Ripple the crab", "Ripple, a crab, stands on the sand "
-       "beside a grid of square cells, 9 across and 6 down. The top row is hot, 100, and coloured red; the other "
+@plate("ch19", "Stencils and Jacobi Iteration", "Ripple the crab", "Ripple, a crab, stands on the sand "
+       "beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and coloured red; the other "
        "edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the "
-       "steady temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says "
+       "final temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says "
        "each cell becomes the mean of its 4 neighbours.")
 def ch19():
-    cols, rows, side = 9, 6, 44
+    cols, rows, side = 6, 6, 44
     grid = [[100.0] * cols] + [[0.0] * cols for _ in range(rows - 1)]
-    for _ in range(3000):
+    for _ in range(400):
         grid = [grid[0]] + [[grid[r][c] if c in (0, cols - 1) or r == rows - 1 else
                              0.25 * (grid[r - 1][c] + grid[r + 1][c] + grid[r][c - 1] + grid[r][c + 1])
                              for c in range(cols)] for r in range(1, rows)]
 
-    x0, y0 = 450, 70
+    x0, y0 = 560, 70
     cells = []
     for r in range(rows):
         for c in range(cols):
@@ -1412,10 +1412,10 @@ def ch19():
             ink = SNOW if t > 75 or t < 20 else NIGHT
             cells.append(cell(x0 + c * side, y0 + r * side, f"{t:.0f}", heat(t), ink, 40, 14))
 
-    hx, hy = x0 + 3 * side, y0 + 2 * side
+    hx, hy = x0 + 2 * side, y0 + 2 * side
     marks = [rect(hx + dx * side - 22, hy + dy * side - 22, 44, 44, "none", 7, SNOW, 3.5)
              for dx, dy in ((0, 0), (-1, 0), (1, 0), (0, -1), (0, 1))]
-    ripples = [ellipse(230, GROUND + 22, 40 + 34 * k, 9 + 8 * k, "none",
+    ripples = [ellipse(300, GROUND + 22, 40 + 34 * k, 9 + 8 * k, "none",
                        f'stroke="#ffffff" stroke-width="2.2" opacity="{0.55 - 0.15 * k:.2f}"')
                for k in range(3)]
 
@@ -1423,8 +1423,52 @@ def ch19():
             rect(x0 - 30, y0 - 30, cols * side + 16, rows * side + 16, "#0f1c2b", 12, "#6f8196", 3,
                  'opacity="0.55"'),
             *cells, *marks, *ripples,
-            crab(230, s=1.2, mood="happy", look=1),
-            tag(220, 92, "each cell: the mean of its 4 neighbours", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+            crab(300, s=1.2, mood="happy", look=1),
+            tag(300, 92, "each cell: the mean of its 4 neighbours", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch20", "Tiled Stencils with Halo Cells", "Rim the hermit crab", "Rim, a hermit crab, carries on its "
+       "back a square frame of 4 by 4 cells: the 4 inner cells are blue and the ring of 12 cells around them is "
+       "amber, with the 4 corner cells grey. Behind it lies the sandy grid of a heated plate, with the same 4 by "
+       "4 square marked out where Rim lifted it. A tag says load the tile and its halo once.")
+def ch20():
+    cols, rows, side = 6, 6, 40
+    grid = [[100.0] * cols] + [[0.0] * cols for _ in range(rows - 1)]
+    grid = [grid[0]] + [[25.0 if r == 1 and 0 < c < cols - 1 else 0.0 for c in range(cols)]
+                        for r in range(1, rows)]
+
+    x0, y0 = 600, 84
+    cells = []
+    for r in range(rows):
+        for c in range(cols):
+            t = grid[r][c]
+            lifted = 1 <= r <= 4 and 1 <= c <= 4
+            fill = "#d9c08e" if lifted else heat(t)
+            ink = "#9c8558" if lifted else (SNOW if t > 75 or t < 20 else NIGHT)
+            cells.append(cell(x0 + c * side, y0 + r * side, "" if lifted else f"{t:.0f}", fill, ink,
+                              36, 13))
+    hole = rect(x0 + side - 20, y0 + side - 20, 4 * side, 4 * side, "none", 8, SNOW, 3,
+                'stroke-dasharray="8 6"')
+
+    cx, top, size = 300, 70, 32
+    tile = []
+    for r in range(4):
+        for c in range(4):
+            corner = r in (0, 3) and c in (0, 3)
+            inner = 1 <= r <= 2 and 1 <= c <= 2
+            fill = "#9fb3c8" if corner else ("#6fa8dc" if inner else "#f0b44c")
+            t = grid[r + 1][c + 1]
+            tile.append(cell(cx - 2 * size + c * size + size / 2, top + r * size + size / 2,
+                             f"{t:.0f}", fill, NIGHT, size - 4, 14))
+    frame = rect(cx - 2 * size - 6, top - 6, 4 * size + 12, 4 * size + 12, "#5a4210", 10, "#3a2a08", 3)
+
+    return [backdrop(seed=20, **SAND),
+            rect(x0 - 28, y0 - 28, cols * side + 16, rows * side + 16, "#0f1c2b", 12, "#6f8196", 3,
+                 'opacity="0.5"'),
+            *cells, hole,
+            frame, *tile,
+            crab(cx, s=1.15, mood="happy", look=1),
+            tag(720, 32, "load the tile and its halo once", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 def abacus(x, y, w, rows, frame="#8a5a32"):

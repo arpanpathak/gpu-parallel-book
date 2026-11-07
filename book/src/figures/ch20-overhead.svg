@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 396" width="640" height="396" role="img" aria-label="A chart of global loads per computed cell against the block width T from 2 to 32. The direct kernel is a flat line at 4. The tiled kernel follows the curve (T + 2) squared over T squared: 4 at T = 2, 2.25 at 4, 1.56 at 8, 1.27 at 16, 1.13 at 32. A marked point shows the 32 by 8 block of the programs at 1.33. The cache model of Chapter 19 for the direct kernel, 1.25 loads from memory per cell, is drawn as a dashed line.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="396" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Loads per result</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The halo overhead shrinks as the block grows; the caches already reach 1.25.</text>
+  <line x1="90.0" y1="330.0" x2="590.0" y2="330.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="90.0" y1="110.0" x2="90.0" y2="330.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="90.0" y1="330.0" x2="590.0" y2="330.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="334.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <line x1="90.0" y1="281.1" x2="590.0" y2="281.1" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="285.1" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="90.0" y1="232.2" x2="590.0" y2="232.2" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="236.2" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">2</text>
+  <line x1="90.0" y1="183.3" x2="590.0" y2="183.3" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="187.3" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">3</text>
+  <line x1="90.0" y1="134.4" x2="590.0" y2="134.4" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="82.0" y="138.4" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">4</text>
+  <text x="90.0" y="348.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">T = 2</text>
+  <text x="215.0" y="348.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">T = 4</text>
+  <text x="340.0" y="348.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">T = 8</text>
+  <text x="465.0" y="348.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">T = 16</text>
+  <text x="590.0" y="348.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">T = 32</text>
+  <text x="340.0" y="368.0" class="note" text-anchor="middle" xml:space="preserve">block of T × T threads</text>
+  <line x1="90.0" y1="134.4" x2="590.0" y2="134.4" stroke="#CF4526" stroke-width="2.0"/>
+  <text x="590.0" y="126.4" class="note" text-anchor="end" style="fill:#CF4526" xml:space="preserve">direct kernel: 4 reads requested</text>
+  <line x1="90.0" y1="268.9" x2="590.0" y2="268.9" stroke="#B7791F" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <text x="96.0" y="284.9" class="note" text-anchor="start" style="fill:#B7791F" xml:space="preserve">direct kernel from memory, with caches: 1.25</text>
+  <path d="M90.0,134.4 L105.6,150.3 L121.2,164.3 L136.9,176.6 L152.5,187.5 L168.1,197.2 L183.8,205.7 L199.4,213.3 L215.0,220.0 L230.6,226.0 L246.2,231.4 L261.9,236.1 L277.5,240.4 L293.1,244.3 L308.8,247.7 L324.4,250.8 L340.0,253.6 L355.6,256.1 L371.2,258.4 L386.9,260.4 L402.5,262.3 L418.1,264.0 L433.8,265.5 L449.4,266.9 L465.0,268.1 L480.6,269.3 L496.2,270.3 L511.9,271.2 L527.5,272.1 L543.1,272.9 L558.8,273.6 L574.4,274.2 L590.0,274.8" fill="none" stroke="#2F6FDB" stroke-width="2.4"/>
+  <circle cx="90.0" cy="134.4" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="98.0" y="126.4" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">4.00</text>
+  <circle cx="215.0" cy="220.0" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="223.0" y="212.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">2.25</text>
+  <circle cx="340.0" cy="253.6" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="348.0" y="245.6" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">1.56</text>
+  <circle cx="465.0" cy="268.1" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="473.0" y="260.1" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">1.27</text>
+  <circle cx="590.0" cy="274.8" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="598.0" y="266.8" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">1.13</text>
+  <rect x="460.0" y="260.1" width="10" height="10" fill="#2E8B3D"/>
+  <line x1="465.0" y1="271.1" x2="465.0" y2="303.1" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="465.0" y="317.1" class="note" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">32 × 8: 340 / 256 = 1.33</text>
+  <text x="100.0" y="114.0" class="note" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">tile: (T + 2)² / T² loads per result</text>
+</svg>
