@@ -951,7 +951,7 @@ took 40.13 ms, 6.5 times less (Figure 22.11). They used the memory at only 40.1 
 
 <figure>
 <img src="../../figures/ch22-sort-measured.svg" alt="Measured sort times for 16,777,216 keys: 32 passes of 1 bit 262.3 ms; 8 passes of 4 bits 40.1 ms; cub::DeviceRadixSort of Chapter 11 9.0 ms.">
-<figcaption><b>Figure 22.11</b> Sorting 16,777,216 random keys of 32 bits on the Orin NX. The CUB time is from Chapter 11.</figcaption>
+<figcaption><b>Figure 22.11</b> Sorting 16,777,216 random keys of 32 bits on the measured GPU. The CUB time is from Chapter 11.</figcaption>
 </figure>
 
 The last line of the output locates the difference. In 1 pass, counting the digits took 1.15 ms,
