@@ -518,7 +518,7 @@ Each method in the table imposes an order on 2 accesses that had none. The same 
 used to find a race. We identify the shared location, list the threads that write it and the
 threads that read it, and determine what orders their accesses. If nothing does, the program
 contains a race, even if every test so far has passed. The `racecheck` tool of Compute Sanitizer
-(Chapter 16) detects unordered accesses to shared memory automatically.
+(Chapter 22) detects unordered accesses to shared memory automatically.
 
 ## 5.8 The complete programs
 
