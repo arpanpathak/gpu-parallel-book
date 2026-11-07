@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="Lumen, a crab, stands on a beach at dusk beside a rope of 4 paper lanterns marked 1, 2, 3 and 4. Each lantern shines in proportion to the exponential of its number: the first glows faintly, and the last outshines the other 3 together. Tags under the lanterns give their shares of the light, 3%, 9%, 24% and 64%, which add up to 100%: the softmax of 1, 2, 3 and 4.">
-<defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#102a44"/><stop offset="1" stop-color="#2f6f9a"/></linearGradient><linearGradient id="glow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/><stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/></linearGradient></defs>
-<rect x="0.0" y="0.0" width="960.0" height="420.0" rx="0" fill="url(#sky1)" stroke="none" stroke-width="0" />
-<path d="M0,144 C240,40 520,190 960,108 L960,178 C520,250 240,110 0,214 Z" fill="url(#glow2)" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<defs><linearGradient id="sky5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#102a44"/><stop offset="1" stop-color="#2f6f9a"/></linearGradient><linearGradient id="glow6" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/><stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/></linearGradient></defs>
+<rect x="0.0" y="0.0" width="960.0" height="420.0" rx="0" fill="url(#sky5)" stroke="none" stroke-width="0" />
+<path d="M0,144 C240,40 520,190 960,108 L960,178 C520,250 240,110 0,214 Z" fill="url(#glow6)" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
 <circle cx="100.0" cy="56.0" r="1.1" fill="#ffffff" opacity="0.35"/>
 <circle cx="297.0" cy="145.0" r="1.7" fill="#ffffff" opacity="0.50"/>
 <circle cx="494.0" cy="42.0" r="2.3" fill="#ffffff" opacity="0.65"/>
@@ -114,7 +114,7 @@
 <path d="M174.2,282.4 Q190.0,306.2 205.8,282.4 Z" fill="#7a1f0a" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
 <rect x="408.8" y="18.7" width="422.3" height="30.6" rx="15.3" fill="#fff6e2" stroke="none" stroke-width="0" /><text x="620.0" y="40.1" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700" fill="#2a1a10" text-anchor="middle"  textLength="390.3" lengthAdjust="spacingAndGlyphs">each lantern's share: exp(x) / sum of exp</text>
 <rect x="28.0" y="360.0" width="72.0" height="40.0" rx="6" fill="#d9622b" stroke="none" stroke-width="0" />
-<text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="30.8" lengthAdjust="spacingAndGlyphs">20</text>
+<text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="30.8" lengthAdjust="spacingAndGlyphs">23</text>
 <rect x="100.0" y="360.0" width="495.7" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
 <text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="455.7" lengthAdjust="spacingAndGlyphs">SOFTMAX AND LAYER NORMALIZATION</text>
 <rect x="766.7" y="364.0" width="165.3" height="32.0" rx="16" fill="#ffffffdd" stroke="none" stroke-width="0" />

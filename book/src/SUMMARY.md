@@ -37,10 +37,10 @@
 - [Chapter 15: Reductions and the Dot Product](chapters/part5_oxide/ch15_dot_product.md)
 - [Chapter 16: Matrix Multiplication in Rust, One Thread per Output](chapters/part5_oxide/ch16_matmul_naive.md)
 - [Chapter 17: Tiled Matrix Multiplication in Shared Memory](chapters/part5_oxide/ch17_matmul_tiled.md)
-- [Chapter 18: Stencils and the Laplace Solver](chapters/part5_oxide/ch18_stencil.md)
-- [Chapter 19: Scan and Histogram in Rust](chapters/part5_oxide/ch19_scan_apps.md)
-- [Chapter 20: Softmax and Layer Normalization](chapters/part5_oxide/ch20_softmax_layernorm.md)
-- [Chapter 21: Capstone: An Image Pipeline in Rust](chapters/part5_oxide/ch21_capstone.md)
+- [Chapter 19: Stencils and the Laplace Solver](chapters/part5_oxide/ch19_stencil.md)
+- [Chapter 21: Scan and Histogram in Rust](chapters/part5_oxide/ch21_scan_apps.md)
+- [Chapter 23: Softmax and Layer Normalization](chapters/part5_oxide/ch23_softmax_layernorm.md)
+- [Chapter 24: Capstone: An Image Pipeline in Rust](chapters/part5_oxide/ch24_capstone.md)
 
 # Part VI  -  The Engineering Mindset
 

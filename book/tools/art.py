@@ -1391,12 +1391,12 @@ def ch17():
             tag(480, 60, "copy a tile once, read it 16 times", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch18", "Stencils and the Laplace Solver", "Ripple the crab", "Ripple, a crab, stands on the sand "
+@plate("ch19", "Stencils and the Laplace Solver", "Ripple the crab", "Ripple, a crab, stands on the sand "
        "beside a grid of square cells, 9 across and 6 down. The top row is hot, 100, and coloured red; the other "
        "edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the "
        "steady temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says "
        "each cell becomes the mean of its 4 neighbours.")
-def ch18():
+def ch19():
     cols, rows, side = 9, 6, 44
     grid = [[100.0] * cols] + [[0.0] * cols for _ in range(rows - 1)]
     for _ in range(3000):
@@ -1443,11 +1443,11 @@ def abacus(x, y, w, rows, frame="#8a5a32"):
     return "\n".join(parts)
 
 
-@plate("ch19", "Scan and Histogram in Rust", "Tally the crab", "Tally, a crab, stands on the sand in front "
+@plate("ch21", "Scan and Histogram in Rust", "Tally the crab", "Tally, a crab, stands on the sand in front "
        "of a row of 8 numbered pebbles, 3, 8, 1, 9, 4, 7, 2, 6. Below the row stand 2 crates, marked x < 5 and "
        "x >= 5, with a count chalked on each: 4 and 4. Tally holds the pebble 9 in one claw, on its way to the "
        "second crate. A tag reads count, scan, then place: a histogram and a scan decide where every item goes.")
-def ch19():
+def ch21():
     keys = ["3", "8", "1", "9", "4", "7", "2", "6"]
     row = [cell(330 + 52 * k, 112, keys[k], "#c8f0d0" if int(keys[k]) >= 5 else "#e6e0d2") for k in range(8)]
     bins = []
@@ -1465,12 +1465,12 @@ def ch19():
             tag(518, 52, "count, scan, then place", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch20", "Softmax and Layer Normalization", "Lumen the crab", "Lumen, a crab, stands on a beach at dusk "
+@plate("ch23", "Softmax and Layer Normalization", "Lumen the crab", "Lumen, a crab, stands on a beach at dusk "
        "beside a rope of 4 paper lanterns marked 1, 2, 3 and 4. Each lantern shines in proportion to the exponential "
        "of its number: the first glows faintly, and the last outshines the other 3 together. Tags under the "
        "lanterns give their shares of the light, 3%, 9%, 24% and 64%, which add up to 100%: the softmax of 1, 2, "
        "3 and 4.")
-def ch20():
+def ch23():
     logits = [1.0, 2.0, 3.0, 4.0]
     exps = [math.exp(v) for v in logits]
     shares = [v / sum(exps) for v in exps]
@@ -1486,12 +1486,12 @@ def ch20():
             crab(190, s=1.1, mood="happy", look=1),
             tag(620, 34, "each lantern's share: exp(x) / sum of exp", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
-@plate("ch21", "Capstone: An Image Pipeline in Rust", "The whole crew", "The whole crew of crabs stands on a "
+@plate("ch24", "Capstone: An Image Pipeline in Rust", "The whole crew", "The whole crew of crabs stands on a "
        "beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. "
        "The first picture is in colour, the second in gray, the third blurred, and the last shows only white "
        "outlines on black. Arrows lead from each picture to the next, and a crab stands under each one: an "
        "assembly line in which every crab does 1 stage to every image. A tag reads 4 stages, many images in flight.")
-def ch21():
+def ch24():
     xs = [150, 340, 530, 720]
     modes = ["color", "gray", "blur", "edges"]
     names = ["grayscale", "equalise", "blur", "sobel"]

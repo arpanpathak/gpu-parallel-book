@@ -1,5 +1,5 @@
 [package]
-name = "ch19_scan_apps"
+name = "ch19_stencil"
 version = "0.1.0"
 edition = "2024"
 

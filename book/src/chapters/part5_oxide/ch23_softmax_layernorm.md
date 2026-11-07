@@ -1,6 +1,6 @@
-<img class="plate" src="../../art/ch20.svg" alt="Lumen, a crab, stands on a beach at dusk beside a rope of 4 paper lanterns marked 1, 2, 3 and 4. Each lantern shines in proportion to the exponential of its number: the first glows faintly, and the last outshines the other 3 together. Tags under the lanterns give their shares of the light, 3%, 9%, 24% and 64%, which add up to 100%: the softmax of 1, 2, 3 and 4.">
+<img class="plate" src="../../art/ch23.svg" alt="Lumen, a crab, stands on a beach at dusk beside a rope of 4 paper lanterns marked 1, 2, 3 and 4. Each lantern shines in proportion to the exponential of its number: the first glows faintly, and the last outshines the other 3 together. Tags under the lanterns give their shares of the light, 3%, 9%, 24% and 64%, which add up to 100%: the softmax of 1, 2, 3 and 4.">
 
-# Chapter 20: Softmax and Layer Normalization
+# Chapter 23: Softmax and Layer Normalization
 
 Every layer of a transformer model applies 2 operations to the rows of a matrix. Softmax turns
 a row of scores into probabilities, and layer normalization rescales a row to a mean of 0 and a
@@ -34,12 +34,12 @@ This chapter covers
 </div>
 
 The code of the chapter is in
-[`code/oxide/ch20_softmax_layernorm/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch20_softmax_layernorm).
+[`code/oxide/ch23_softmax_layernorm/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch23_softmax_layernorm).
 Its `Cargo.toml` and `rust-toolchain.toml` are those of Chapter 13 with a different package name.
 
-## 20.1 The softmax function
+## 23.1 The softmax function
 
-### 20.1.1 Definition
+### 23.1.1 Definition
 
 The **softmax** of a vector \\(x_0, \dots, x_{n-1}\\) is the vector \\(p_0, \dots, p_{n-1}\\) with
 
@@ -59,15 +59,15 @@ and a logit that is larger by 1 receives a probability that is larger by a facto
 | \\(\sum_j e^{x_j}\\) | the sum of the exponentials of the row | 84.791 |
 | \\(p_i\\) | probability \\(i\\) | 0.0321, 0.0871, 0.2369, 0.6439 |
 
-Figure 20.1 works the softmax of the 4 logits 1, 2, 3 and 4 by hand. The exponentials are 2.718,
+Figure 23.1 works the softmax of the 4 logits 1, 2, 3 and 4 by hand. The exponentials are 2.718,
 7.389, 20.086 and 54.598, and their sum is 84.791. Dividing each exponential by the sum gives
 0.0321, 0.0871, 0.2369 and 0.6439. The largest logit receives almost 2 thirds of the total,
 although it is only 4 times as large as the smallest, because the exponential magnifies
 differences.
 
 <figure>
-<img src="../../figures/ch20-softmax.svg" alt="A table for the logits 1, 2, 3 and 4. Their exponentials are 2.718, 7.389, 20.086 and 54.598, which sum to 84.791. Subtracting the maximum 4 gives -3, -2, -1 and 0, whose exponentials 0.0498, 0.1353, 0.3679 and 1 sum to 1.5530. Both routes give the same probabilities 0.0321, 0.0871, 0.2369 and 0.6439, which sum to 1.">
-<figcaption><b>Figure 20.1</b> The softmax of 1, 2, 3 and 4, computed with and without the maximum subtracted.</figcaption>
+<img src="../../figures/ch23-softmax.svg" alt="A table for the logits 1, 2, 3 and 4. Their exponentials are 2.718, 7.389, 20.086 and 54.598, which sum to 84.791. Subtracting the maximum 4 gives -3, -2, -1 and 0, whose exponentials 0.0498, 0.1353, 0.3679 and 1 sum to 1.5530. Both routes give the same probabilities 0.0321, 0.0871, 0.2369 and 0.6439, which sum to 1.">
+<figcaption><b>Figure 23.1</b> The softmax of 1, 2, 3 and 4, computed with and without the maximum subtracted.</figcaption>
 </figure>
 
 Softmax appears in 2 places in a transformer. In an attention layer, it is applied to every row
@@ -76,13 +76,13 @@ of the matrix of scores between tokens, so the row length is the length of the s
 word of the vocabulary, often 32,000 to 128,000 elements. A GPU implementation must therefore
 handle many short rows as well as a few long ones, and we measure both cases in section 20.6.
 
-### 20.1.2 Overflow and the row maximum
+### 23.1.2 Overflow and the row maximum
 
 The largest finite value of type `f32` is about \\(3.4 \times 10^{38}\\), which is
 \\(e^{88.7}\\). An exponential of any argument above 88.7 is therefore rounded to infinity. Logits
 of 100 are not unusual in practice. For the row 100, 101, 102 and 103, every exponential is
 infinite, and every probability becomes \\(\infty / \infty\\), which IEEE arithmetic defines as
-NaN, "not a number". The left half of Figure 20.2 follows this computation.
+NaN, "not a number". The left half of Figure 23.2 follows this computation.
 
 The remedy rests on a property of the formula. Multiplying the numerator and the denominator of
 a fraction by the same nonzero number does not change its value. If we multiply both by
@@ -96,12 +96,12 @@ between 0 and 1 and cannot overflow. The element that equals the maximum contrib
 \\(e^0 = 1\\) to the sum, so the denominator is at least 1 and the division cannot be by 0. For
 the row 1, 2, 3, 4, the shifted arguments are \\(-3, -2, -1, 0\\). Their exponentials 0.0498,
 0.1353, 0.3679 and 1 add up to 1.5530, and the probabilities are the same as before, as the right
-half of Figure 20.1 shows. For the row 100, 101, 102, 103, the shifted arguments are the same
-\\(-3\\) to 0, and the probabilities are again 0.0321 to 0.6439 (Figure 20.2).
+half of Figure 23.1 shows. For the row 100, 101, 102, 103, the shifted arguments are the same
+\\(-3\\) to 0, and the probabilities are again 0.0321 to 0.6439 (Figure 23.2).
 
 <figure>
-<img src="../../figures/ch20-overflow.svg" alt="Left: the logits 100, 101, 102 and 103 have exponentials from 2.7e43 to 5.4e44, all above the largest float, 3.4e38, so each becomes infinity and the division gives NaN. Right: after subtracting the maximum 103 the arguments are -3 to 0, the exponentials 0.0498 to 1 sum to 1.5530, and the probabilities are 0.0321, 0.0871, 0.2369 and 0.6439.">
-<figcaption><b>Figure 20.2</b> Without the maximum, every exponential of the row 100 to 103 overflows; with it, none does.</figcaption>
+<img src="../../figures/ch23-overflow.svg" alt="Left: the logits 100, 101, 102 and 103 have exponentials from 2.7e43 to 5.4e44, all above the largest float, 3.4e38, so each becomes infinity and the division gives NaN. Right: after subtracting the maximum 103 the arguments are -3 to 0, the exponentials 0.0498 to 1 sum to 1.5530, and the probabilities are 0.0321, 0.0871, 0.2369 and 0.6439.">
+<figcaption><b>Figure 23.2</b> Without the maximum, every exponential of the row 100 to 103 overflows; with it, none does.</figcaption>
 </figure>
 
 The subtraction has a cost. The maximum must be known before any exponential can be computed,
@@ -119,9 +119,9 @@ softmax(row x of n elements):
 Each pass reads the whole row. For a row that is too large to stay in a cache, each pass reads it
 from memory, and section 20.4 reduces the number of passes.
 
-## 20.2 Layer normalization
+## 23.2 Layer normalization
 
-### 20.2.1 Definition
+### 23.2.1 Definition
 
 **Layer normalization** rescales each row of a matrix so that its elements have a mean of 0 and a
 variance of 1, and then applies a scale and a shift that are learned for each column. For a row
@@ -146,7 +146,7 @@ variance is their mean, \\(4.75 / 4 = 1.1875\\). With \\(\varepsilon = 10^{-5}\\
 1.1471. Without \\(\varepsilon\\), a row whose elements are all equal would have a variance of 0,
 and the formula would divide 0 by 0.
 
-### 20.2.2 Computing the variance
+### 23.2.2 Computing the variance
 
 The definition of \\(\sigma^2\\) needs the mean \\(\mu\\) before the deviations can be summed, so
 it suggests 2 passes over the row: 1 for the mean and 1 for the squared deviations. A third
@@ -169,16 +169,16 @@ close to 1,000,000.33, and the square of the mean close to 1,000,000.00. Each of
 can be held only to the nearest 0.0625, and the sum of 4,096 squares, about \\(4.1 \times 10^9\\),
 only to the nearest 256, which is again 0.0625 per element after the division by 4,096. The
 variance, 0.33, is the difference of 2 numbers that each carry rounding errors of several times
-0.0625, so most of its digits are rounding error (Figure 20.3). The loss of significant digits
+0.0625, so most of its digits are rounding error (Figure 23.3). The loss of significant digits
 when 2 nearly equal numbers are subtracted is called **cancellation**. We measure its effect on
 the GPU in section 20.6.
 
 <figure>
-<img src="../../figures/ch20-cancel.svg" alt="A table. The mean of the squares of values near 1,000 is about 1,000,000.33 and the square of the mean 1,000,000.00; floats near 1,000,000 are spaced 0.0625 apart. The sum of 4,096 squares, about 4,096,001,365, is held to the nearest 256. The true variance, 0.33, is a small difference between 2 large uncertain numbers. Welford's method accumulates squared deviations of about 0.33 instead.">
-<figcaption><b>Figure 20.3</b> The variance of values near 1,000 as a difference of 2 numbers near 1,000,000.</figcaption>
+<img src="../../figures/ch23-cancel.svg" alt="A table. The mean of the squares of values near 1,000 is about 1,000,000.33 and the square of the mean 1,000,000.00; floats near 1,000,000 are spaced 0.0625 apart. The sum of 4,096 squares, about 4,096,001,365, is held to the nearest 256. The true variance, 0.33, is a small difference between 2 large uncertain numbers. Welford's method accumulates squared deviations of about 0.33 instead.">
+<figcaption><b>Figure 23.3</b> The variance of values near 1,000 as a difference of 2 numbers near 1,000,000.</figcaption>
 </figure>
 
-### 20.2.3 Welford's method
+### 23.2.3 Welford's method
 
 **Welford's method** computes the mean and the variance in 1 pass without forming the squares of
 the values. It keeps 3 numbers while it reads the values: the count \\(n\\), the running mean,
@@ -193,7 +193,7 @@ welford_update(state (n, mean, q), value x):
     q     ← q + delta × (x − mean)   # old deviation times new deviation
 ```
 
-After the last value, the variance is \\(q / n\\). The left half of Figure 20.4 applies the update
+After the last value, the variance is \\(q / n\\). The left half of Figure 23.4 applies the update
 to 2, 4, 4 and 5. After the first value the mean is 2 and \\(q\\) is 0. The second value, 4,
 deviates by 2 from the old mean; the mean moves to 3, and \\(q\\) grows by
 \\(2 \times (4 - 3) = 2\\). The third value moves the mean to 3.3333 and \\(q\\) to 2.6667, and the
@@ -203,8 +203,8 @@ the definition. Every quantity in the computation is a deviation from the mean o
 therefore of the size of the variance itself, and no cancellation occurs.
 
 <figure>
-<img src="../../figures/ch20-welford.svg" alt="Left: Welford's method on 2, 4, 4 and 5. The mean goes 2, 3, 3.3333, 3.75 and the sum of squared deviations q goes 0, 2, 2.6667, 4.75, so the variance is 4.75 / 4 = 1.1875. Right: the halves 2, 4 (mean 3, q 2) and 4, 5 (mean 4.5, q 0.5) merge to mean 3.75 and q = 2 + 0.5 + 1.5 squared times 2 times 2 / 4 = 4.75.">
-<figcaption><b>Figure 20.4</b> Welford's update on 2, 4, 4 and 5, and the merge of the 2 halves.</figcaption>
+<img src="../../figures/ch23-welford.svg" alt="Left: Welford's method on 2, 4, 4 and 5. The mean goes 2, 3, 3.3333, 3.75 and the sum of squared deviations q goes 0, 2, 2.6667, 4.75, so the variance is 4.75 / 4 = 1.1875. Right: the halves 2, 4 (mean 3, q 2) and 4, 5 (mean 4.5, q 0.5) merge to mean 3.75 and q = 2 + 0.5 + 1.5 squared times 2 times 2 / 4 = 4.75.">
+<figcaption><b>Figure 23.4</b> Welford's update on 2, 4, 4 and 5, and the merge of the 2 halves.</figcaption>
 </figure>
 
 A GPU computes a row with many threads, and each thread sees only part of the row. Each thread
@@ -217,25 +217,25 @@ due to Chan, Golub and LeVeque:
 
 The last term accounts for the distance between the 2 means: each half measured its deviations
 from its own mean, and the merged state needs them from the common mean. The right half of
-Figure 20.4 merges the halves 2, 4 (mean 3, \\(q = 2\\)) and 4, 5 (mean 4.5, \\(q = 0.5\\)). The
+Figure 23.4 merges the halves 2, 4 (mean 3, \\(q = 2\\)) and 4, 5 (mean 4.5, \\(q = 0.5\\)). The
 difference of the means is 1.5, and the merged mean is \\(3 + 1.5 \times 2 / 4 = 3.75\\). The
 merged \\(q\\) is \\(2 + 0.5 + 1.5^2 \times 2 \times 2 / 4 = 4.75\\), the same as the sequential
 computation.
 
-## 20.3 One block per row
+## 23.3 One block per row
 
-### 20.3.1 Assigning rows to blocks
+### 23.3.1 Assigning rows to blocks
 
 Our matrices have 4,096 rows of 4,096 `f32` values, 64 MiB in all, which is larger than the L2
 cache of an H100, 50 MB, so a pass over the matrix reads it from memory. We assign 1 block of 256 threads to each row, so the grid has
 4,096 blocks. Thread \\(t\\) of a block reads the columns \\(t, t + 256, t + 512, \dots\\), up to
-\\(t + 3{,}840\\), which is \\(4{,}096 / 256 = 16\\) values (Figure 20.5). At each step the 32
+\\(t + 3{,}840\\), which is \\(4{,}096 / 256 = 16\\) values (Figure 23.5). At each step the 32
 threads of a warp read 32 consecutive columns, 128 consecutive bytes, so every access is
 coalesced in the sense of Chapter 7.
 
 <figure>
-<img src="../../figures/ch20-row-block.svg" alt="A row of 4,096 columns drawn as 16 groups of 256. Thread 5 reads column 5 of every group, 16 values in all. The 256 partial results become 8 warp results by shuffles, the 8 are written to shared memory by lane 0 of each warp, and every thread then reads the 8 slots to obtain the row result.">
-<figcaption><b>Figure 20.5</b> 1 block per row: each thread reduces 16 values, then the block combines 256 partial results.</figcaption>
+<img src="../../figures/ch23-row-block.svg" alt="A row of 4,096 columns drawn as 16 groups of 256. Thread 5 reads column 5 of every group, 16 values in all. The 256 partial results become 8 warp results by shuffles, the 8 are written to shared memory by lane 0 of each warp, and every thread then reads the 8 slots to obtain the row result.">
+<figcaption><b>Figure 23.5</b> 1 block per row: each thread reduces 16 values, then the block combines 256 partial results.</figcaption>
 </figure>
 
 A block per row is a natural choice when the row has thousands of elements, because each thread
@@ -243,7 +243,7 @@ then has several values to process and the block-wide reduction is a small part 
 rows of a few hundred elements, a common alternative assigns 1 warp per row, so that the
 reduction needs no shared memory and no barrier. We keep 1 block per row throughout the chapter.
 
-### 20.3.2 Block-wide maximum and sum
+### 23.3.2 Block-wide maximum and sum
 
 Each thread first reduces its 16 values to 1, its partial maximum or partial sum. The block must
 then combine 256 partial results into 1 and make the result available to all 256 threads,
@@ -256,12 +256,12 @@ swap values, as do 1 and 17, and so on. Both lanes of each pair add the value th
 the steps with masks 16, 8, 4, 2 and 1, every lane holds the sum of all 32 values. This pattern
 is called a **butterfly** reduction.
 
-<p class="listing"><b>Listing 20.1</b> Warp-wide maximum and sum with butterfly shuffles. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch20_softmax_layernorm/src/main.rs">code/oxide/ch20_softmax_layernorm/src/main.rs</a></p>
+<p class="listing"><b>Listing 23.1</b> Warp-wide maximum and sum with butterfly shuffles. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch23_softmax_layernorm/src/main.rs">code/oxide/ch23_softmax_layernorm/src/main.rs</a></p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:24:42}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:24:42}}
 }
 ```
 
@@ -274,12 +274,12 @@ slot of shared memory, and after a barrier every thread reads all 8 slots and co
 itself. Reading 8 values is cheaper than a second round of shuffles followed by another barrier,
 and every thread ends with the result.
 
-<p class="listing"><b>Listing 20.2</b> The block-wide maximum. <code>block_sum</code> differs only in the operation.</p>
+<p class="listing"><b>Listing 23.2</b> The block-wide maximum. <code>block_sum</code> differs only in the operation.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:44:64}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:44:64}}
 }
 ```
 
@@ -293,24 +293,24 @@ its slot while a slow warp is still reading the maxima. Each `unsafe` block carr
 comment that states which threads touch the slots between which barriers, which is the argument
 that the accesses do not race.
 
-## 20.4 Softmax kernels
+## 23.4 Softmax kernels
 
-### 20.4.1 Three passes
+### 23.4.1 Three passes
 
 The first kernel follows the pseudocode of section 20.1.2 directly.
 
-<p class="listing"><b>Listing 20.3</b> Softmax in 3 passes over the row.</p>
+<p class="listing"><b>Listing 23.3</b> Softmax in 3 passes over the row.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:130:163}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:130:163}}
 }
 ```
 
 Block \\(b\\) processes row \\(b\\), which starts at element `base = b × cols`. Each of the 3
 `while` loops starts at column `tid` and advances by 256 columns, the access pattern of
-Figure 20.5. The first loop finds the thread's partial maximum, and `block_max` turns the 256
+Figure 23.5. The first loop finds the thread's partial maximum, and `block_max` turns the 256
 partial maxima into the row maximum `top`. The second loop sums the shifted exponentials, and
 `block_sum` produces the row total. The third loop reads each element once more and writes its
 probability.
@@ -323,7 +323,7 @@ at its own global index (Chapter 13). Here thread \\(t\\) of block \\(b\\) write
 Each element is read 3 times and written once. With 4 bytes per value, the kernel moves
 \\(4 \times 4 = 16\\) bytes per element if every read goes to memory.
 
-### 20.4.2 The online softmax
+### 23.4.2 The online softmax
 
 The first 2 passes of the 3-pass kernel can be combined. Suppose we have processed part of a row
 and know its maximum so far, \\(m\\), and the sum of the exponentials of the part,
@@ -339,14 +339,14 @@ online_update(state (m, s), value x):
     else:       s ← s + exp(x − m)
 ```
 
-Figure 20.6 applies the update to 1, 2, 3, 4. Each value is a new maximum, so each step rescales
+Figure 23.6 applies the update to 1, 2, 3, 4. Each value is a new maximum, so each step rescales
 \\(s\\) by \\(e^{-1} = 0.3679\\) and adds 1: \\(s\\) goes from 1 to 1.3679, 1.5032 and 1.5530,
-which is the sum of Figure 20.1. This formulation was published by Milakov and Gimelshein in 2018
+which is the sum of Figure 23.1. This formulation was published by Milakov and Gimelshein in 2018
 and is called the **online softmax**.
 
 <figure>
-<img src="../../figures/ch20-online.svg" alt="A trace over the logits 1, 2, 3, 4. Start: m = 1, s = 1. At x = 2: m = 2, s = 1 times exp(-1) plus 1 = 1.3679. At x = 3: m = 3, s = 1.5032. At x = 4: m = 4, s = 1.5530, the same sum as the 2-pass method gives.">
-<figcaption><b>Figure 20.6</b> The running maximum and the rescaled sum over 1, 2, 3, 4.</figcaption>
+<img src="../../figures/ch23-online.svg" alt="A trace over the logits 1, 2, 3, 4. Start: m = 1, s = 1. At x = 2: m = 2, s = 1 times exp(-1) plus 1 = 1.3679. At x = 3: m = 3, s = 1.5032. At x = 4: m = 4, s = 1.5530, the same sum as the 2-pass method gives.">
+<figcaption><b>Figure 23.6</b> The running maximum and the rescaled sum over 1, 2, 3, 4.</figcaption>
 </figure>
 
 The same reasoning merges 2 partial states \\((m_a, s_a)\\) and \\((m_b, s_b)\\). The merged
@@ -354,15 +354,15 @@ maximum is \\(m = \max(m_a, m_b)\\), and each sum is converted to it before they
 \\(s = s_a e^{m_a - m} + s_b e^{m_b - m}\\). The kernel uses this merge to combine the states of
 the threads.
 
-<p class="listing"><b>Listing 20.4</b> The merge of 2 softmax states, and the online softmax kernel.</p>
+<p class="listing"><b>Listing 23.4</b> The merge of 2 softmax states, and the online softmax kernel.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:88:93}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:88:93}}
 
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:165:220}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:165:220}}
 }
 ```
 
@@ -373,18 +373,18 @@ merges the states within each warp, shuffling both \\(m\\) and \\(s\\) in each s
 thread merges the 8 warp states from shared memory. The second loop computes the outputs as in
 the 3-pass kernel. The row is read twice and written once, 12 bytes per element.
 
-### 20.4.3 A fused kernel
+### 23.4.3 A fused kernel
 
 A row of 4,096 values occupies 16 KiB, and a block of 256 threads holds 16 of its values per
 thread. A thread can keep 16 values in 16 registers. It can therefore read its values once and
 compute the maximum, the exponentials and the outputs from the registers.
 
-<p class="listing"><b>Listing 20.5</b> Softmax with the row in registers.</p>
+<p class="listing"><b>Listing 23.5</b> Softmax with the row in registers.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:222:261}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:222:261}}
 }
 ```
 
@@ -401,38 +401,38 @@ thread, more registers than a thread can hold, and a row length that is known on
 cannot size the array. Libraries handle this by compiling several fused variants for common
 lengths and falling back to a 2-pass kernel for the others.
 
-### 20.4.4 Bytes per element
+### 23.4.4 Bytes per element
 
-Figure 20.7 compares the memory traffic of the 3 kernels. A memory-bound kernel takes a time
+Figure 23.7 compares the memory traffic of the 3 kernels. A memory-bound kernel takes a time
 roughly proportional to the bytes it moves, so if every read went to memory, the 3 kernels would
 take time in the ratio 16 : 12 : 8. For our matrix of 4,096 × 4,096 elements, the fused kernel
 moves \\(16{,}777{,}216 \times 8\\) bytes, 134 MB, which takes 1.32 ms at 102 GB/s.
 
 <figure>
-<img src="../../figures/ch20-passes.svg" alt="3 rows of bars. The 3-pass kernel reads each element 3 times, for the maximum, the sum and the output, and writes it once: 16 bytes. The online kernel reads it twice and writes once: 12 bytes. The fused kernel reads once and writes once: 8 bytes, because its values stay in registers.">
-<figcaption><b>Figure 20.7</b> Memory traffic per element of the 3 softmax kernels.</figcaption>
+<img src="../../figures/ch23-passes.svg" alt="3 rows of bars. The 3-pass kernel reads each element 3 times, for the maximum, the sum and the output, and writes it once: 16 bytes. The online kernel reads it twice and writes once: 12 bytes. The fused kernel reads once and writes once: 8 bytes, because its values stay in registers.">
+<figcaption><b>Figure 23.7</b> Memory traffic per element of the 3 softmax kernels.</figcaption>
 </figure>
 
 The count assumes that every read reaches memory. A block reads its row of 16 KiB 3 times within
 a short interval, and the second and third reads can be served by the L1 or L2 cache. We
 measure how much the cache saves in section 20.6.
 
-## 20.5 Layer normalization kernels
+## 23.5 Layer normalization kernels
 
 The 3 layer normalization kernels have the same structure as the softmax kernels: 1 block per
 row, a block-wide reduction, and an output loop. They differ in how they compute the variance.
 
-### 20.5.1 Sum and sum of squares
+### 23.5.1 Sum and sum of squares
 
 The first kernel accumulates \\(\sum x\\) and \\(\sum x^2\\) in 1 loop and computes the variance
 as the mean of the squares minus the square of the mean, the formula of section 20.2.2.
 
-<p class="listing"><b>Listing 20.6</b> Layer normalization from the sum and the sum of squares.</p>
+<p class="listing"><b>Listing 23.6</b> Layer normalization from the sum and the sum of squares.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:263:299}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:263:299}}
 }
 ```
 
@@ -441,20 +441,20 @@ once, 12 bytes per element. The arrays `gamma` and `beta` hold 4,096 values each
 total, and every block reads the same values, so after the first blocks they come from the
 cache; we do not count them.
 
-### 20.5.2 Welford's method
+### 23.5.2 Welford's method
 
 The second kernel replaces the 2 sums with a Welford state per thread and merges the states with
 the rule of section 20.2.3.
 
-<p class="listing"><b>Listing 20.7</b> The merge of 2 Welford states, and layer normalization with Welford's method.</p>
+<p class="listing"><b>Listing 23.7</b> The merge of 2 Welford states, and layer normalization with Welford's method.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:95:102}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:95:102}}
 
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:301:365}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:301:365}}
 }
 ```
 
@@ -465,19 +465,19 @@ therefore holds \\(8 \times 3 = 24\\) floats, and every thread merges the 8 stat
 is \\(q / n\\) with \\(n = 4{,}096\\). The kernel moves 12 bytes per element, as the previous one
 does.
 
-### 20.5.3 A fused kernel
+### 23.5.3 A fused kernel
 
 With the row in registers, the variance can be computed by its definition, in 2 passes over the
 registers: the first pass for the mean, the second for the squared deviations. The passes cost
 no memory traffic, and the subtraction of the mean comes before the squaring, so no cancellation
 occurs.
 
-<p class="listing"><b>Listing 20.8</b> Layer normalization with the row in registers.</p>
+<p class="listing"><b>Listing 23.8</b> Layer normalization with the row in registers.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:367:411}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:367:411}}
 }
 ```
 
@@ -485,9 +485,9 @@ The second loop subtracts the mean from each register in place, so the output lo
 the centred values by the factor `rstd`, the reciprocal of the standard deviation. The kernel
 reads each element once and writes it once, 8 bytes per element.
 
-## 20.6 Running the program
+## 23.6 Running the program
 
-### 20.6.1 The host program
+### 23.6.1 The host program
 
 The host program creates the context and loads the module as in Chapter 13. It generates the
 inputs on the CPU with the linear congruential generator of Chapter 8 and launches each kernel
@@ -500,28 +500,28 @@ Each kernel takes about 2 ms, so a single launch is too short to time reliably. 
 of 20 launches and returns the median batch time divided by 20. The median ignores a batch that
 was slowed by other work on the GPU.
 
-<p class="listing"><b>Listing 20.9</b> Timing a kernel by the median of 7 batches.</p>
+<p class="listing"><b>Listing 23.9</b> Timing a kernel by the median of 7 batches.</p>
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:414:437}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:414:437}}
 ```
 
 The main function measures the kernels in 4 groups. The first runs the 2 rows of 4 logits of
-Figure 20.2, and the second the 3 softmax kernels on rows of 4,096. The third runs the 3-pass and
+Figure 23.2, and the second the 3 softmax kernels on rows of 4,096. The third runs the 3-pass and
 online kernels on the same logits arranged as 256 rows of 65,536, and the fourth the 3 layer
 normalization kernels. Each group follows the same steps.
 
-<p class="listing"><b>Listing 20.10</b> The softmax group: prepare the launches, then time and check each kernel.</p>
+<p class="listing"><b>Listing 23.10</b> The softmax group: prepare the launches, then time and check each kernel.</p>
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs:520:550}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:520:550}}
     // ...
 }
 ```
 
-### 20.6.2 The measurements
+### 23.6.2 The measurements
 
 The measurements come from a Jetson Orin NX, an integrated GPU with 8 SMs and 102 GB/s of memory
 bandwidth. Repeated runs differ by 10% to 25%, and we show the run with the lowest times of 3.
@@ -554,11 +554,11 @@ PASSED
 
 The first group reproduces the hand calculations. For the logits 1 to 4, the kernel without the
 maximum and the kernel with it both print 0.0321, 0.0871, 0.2369 and 0.6439, the values of
-Figure 20.1. For the logits 100 to 103, the kernel without the maximum prints NaN for every
-element, as Figure 20.2 predicts. The 3-pass kernel prints the same 4 probabilities as for 1 to
+Figure 23.1. For the logits 100 to 103, the kernel without the maximum prints NaN for every
+element, as Figure 23.2 predicts. The 3-pass kernel prints the same 4 probabilities as for 1 to
 4, because the 2 rows differ only by a constant.
 
-The GB/s column divides the bytes per element of the model in Figure 20.7 by the measured time.
+The GB/s column divides the bytes per element of the model in Figure 23.7 by the measured time.
 For the fused softmax, the model is exact: every element is read once and written once, and the
 kernel reaches 92.8 GB/s, 91% of the 102 GB/s of the memory. For the 3-pass kernel on rows of
 4,096, the same calculation gives 132.4 GB/s, more than the memory can deliver. The model
@@ -568,8 +568,8 @@ cache hits are not free and its 3 loops and 2 block reductions add work. On rows
 online kernel saves nothing over 3 passes, since the read it removes was mostly a cache hit.
 
 <figure>
-<img src="../../figures/ch20-measured.svg" alt="Horizontal bars of time per matrix of 4,096 by 4,096 floats. Softmax with rows of 4,096: 3 passes 2.028 ms, online 2.245 ms, fused 1.446 ms. With rows of 65,536: 3 passes 3.984 ms, online 3.009 ms. Layer norm: sum of squares 2.288 ms but wrong, Welford 2.168 ms, fused 1.794 ms. A dashed line marks 1.32 ms, the time to read and write every element once at 102 GB/s.">
-<figcaption><b>Figure 20.8</b> Measured time per 64 MiB matrix for each kernel, against the time to read and write it once.</figcaption>
+<img src="../../figures/ch23-measured.svg" alt="Horizontal bars of time per matrix of 4,096 by 4,096 floats. Softmax with rows of 4,096: 3 passes 2.028 ms, online 2.245 ms, fused 1.446 ms. With rows of 65,536: 3 passes 3.984 ms, online 3.009 ms. Layer norm: sum of squares 2.288 ms but wrong, Welford 2.168 ms, fused 1.794 ms. A dashed line marks 1.32 ms, the time to read and write every element once at 102 GB/s.">
+<figcaption><b>Figure 23.8</b> Measured time per 64 MiB matrix for each kernel, against the time to read and write it once.</figcaption>
 </figure>
 
 The rows of 65,536 values occupy 256 KiB each, and a block can no longer keep its row in the cache
@@ -597,12 +597,12 @@ Welford's method.
 
 </div>
 
-## 20.7 The complete program
+## 23.7 The complete program
 
-<p class="listing"><b>Listing 20.11</b> The complete program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch20_softmax_layernorm/src/main.rs">code/oxide/ch20_softmax_layernorm/src/main.rs</a></p>
+<p class="listing"><b>Listing 23.11</b> The complete program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch23_softmax_layernorm/src/main.rs">code/oxide/ch23_softmax_layernorm/src/main.rs</a></p>
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch20_softmax_layernorm/src/main.rs}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs}}
 ```
 
 ## Common mistakes
@@ -651,7 +651,7 @@ Welford's method.
    squares minus the square of the mean, rounding each square to the nearest 0.0625. Compare the
    2 variances with the exact value, 0.25.
 4. Merge the Welford states of 2, 4, 4 and of 5 with the rule of section 20.2.3, and check the
-   result against Figure 20.4.
+   result against Figure 23.4.
 5. Change `ROWS` and `COLS` to 16,384 rows of 1,024 columns. Which constant must also change for
    the fused kernels to remain correct, and how do you expect the 3-pass kernel to compare with the
    fused kernel? Run the program and compare.

@@ -3,7 +3,7 @@
     python3 tools/draw_ch20.py
 
 The numbers in the hand-worked figures are computed here, so a figure cannot disagree with
-its own arithmetic. The measured speeds come from code/oxide/ch20_softmax_layernorm.
+its own arithmetic. The measured speeds come from code/oxide/ch23_softmax_layernorm.
 """
 import math
 
@@ -30,7 +30,7 @@ def column(x, y, title, values, kind, w=96, h=30, gap=8):
     return parts
 
 
-# 20.1  Softmax of 4 logits, with and without the maximum subtracted.
+# 23.1  Softmax of 4 logits, with and without the maximum subtracted.
 e = [math.exp(v) for v in X]
 total = sum(e)
 p = [v / total for v in e]
@@ -50,7 +50,7 @@ parts += [mono(164, 318, f"sum {total:.3f}", "middle", KINDS["store"][0]),
                         "the maximum, 4, divides", room=590),
           note(40, 368, "every exponential and the sum by the same factor exp(4), so each p is unchanged.",
                room=590)]
-save(OUT + "ch20-softmax.svg", 660, 412,
+save(OUT + "ch23-softmax.svg", 660, 412,
      f"A table for the logits 1, 2, 3 and 4. Their exponentials are 2.718, 7.389, 20.086 and 54.598, which "
      f"sum to {total:.3f}. Subtracting the maximum 4 gives -3, -2, -1 and 0, whose exponentials 0.0498, "
      f"0.1353, 0.3679 and 1 sum to {total2:.4f}. Both routes give the same probabilities 0.0321, 0.0871, "
@@ -58,7 +58,7 @@ save(OUT + "ch20-softmax.svg", 660, 412,
      "Softmax by hand", "Each probability is exp(x) divided by the sum of the exponentials of its row.", parts)
 
 
-# 20.2  Overflow: exp(100) does not fit in a float; exp(100 - 103) does.
+# 23.2  Overflow: exp(100) does not fit in a float; exp(100 - 103) does.
 big = [100.0, 101.0, 102.0, 103.0]
 parts = [zone(16, 96, 306, 330, "exp(x)"), zone(338, 96, 306, 330, "exp(x − 103)")]
 for k, v in enumerate(big):
@@ -78,7 +78,7 @@ parts += [text(66, 128, "x", "mono", "middle"), text(158, 128, "exact", "mono", 
           note(36, 380, "exp(100) = 2.7e43 rounds to infinity.", room=270),
           note(358, 362, "Every x − m is 0 or less, so every", room=270),
           note(358, 380, "exp lies in (0, 1] and cannot overflow.", room=270)]
-save(OUT + "ch20-overflow.svg", 660, 442,
+save(OUT + "ch23-overflow.svg", 660, 442,
      "Left: the logits 100, 101, 102 and 103 have exponentials from 2.7e43 to 5.4e44, all above the "
      "largest float, 3.4e38, so each becomes infinity and the division gives NaN. Right: after "
      "subtracting the maximum 103 the arguments are -3 to 0, the exponentials 0.0498 to 1 sum to 1.5530, "
@@ -86,7 +86,7 @@ save(OUT + "ch20-overflow.svg", 660, 442,
      "Overflow", "Subtracting the row maximum keeps every exponential between 0 and 1.", parts)
 
 
-# 20.3  1 block per row: thread t reads columns t, t + 256, ..., then the block reduces.
+# 23.3  1 block per row: thread t reads columns t, t + 256, ..., then the block reduces.
 parts = [zone(16, 96, 628, 400, "1 block of 256 threads per row of 4,096")]
 seg = 36
 for k in range(16):
@@ -110,14 +110,14 @@ parts += [note(40, 228, "Thread 5 reads column 5 of every group: 5, 261, 517, ..
                room=590),
           note(40, 458, "so the next reduction of the same block cannot overwrite a slot still in use.",
                room=590)]
-save(OUT + "ch20-row-block.svg", 660, 512,
+save(OUT + "ch23-row-block.svg", 660, 512,
      "A row of 4,096 columns drawn as 16 groups of 256. Thread 5 reads column 5 of every group, 16 values "
      "in all. The 256 partial results become 8 warp results by shuffles, the 8 are written to shared "
      "memory by lane 0 of each warp, and every thread then reads the 8 slots to obtain the row result.",
      "1 block per row", "Each thread reduces 16 values, each warp 32 threads, and the block 8 warps.", parts)
 
 
-# 20.4  Global memory traffic per element for the 3 softmax kernels.
+# 23.4  Global memory traffic per element for the 3 softmax kernels.
 parts = [zone(16, 96, 628, 300, "global memory traffic per element")]
 rows = [("3 passes", [("read", "max"), ("read", "sum"), ("read", "p"), ("write", "p")], 16),
         ("online", [("read", "max + sum"), ("read", "p"), ("write", "p")], 12),
@@ -133,14 +133,14 @@ for r, (name, steps, bytes_) in enumerate(rows):
     parts.append(tag(600, y + 6, f"{bytes_} B", "store", anchor="end"))
 parts += [note(40, 372, "The fused kernel reads each value once and keeps it in a register for all 3 steps.",
                room=590)]
-save(OUT + "ch20-passes.svg", 660, 412,
+save(OUT + "ch23-passes.svg", 660, 412,
      "3 rows of bars. The 3-pass kernel reads each element 3 times, for the maximum, the sum and the output, "
      "and writes it once: 16 bytes. The online kernel reads it twice and writes once: 12 bytes. The fused "
      "kernel reads once and writes once: 8 bytes, because its values stay in registers.",
      "Bytes per element", "Every pass over the row reads each element from memory again.", parts)
 
 
-# 20.5  The online softmax by hand on 1, 2, 3, 4.
+# 23.5  The online softmax by hand on 1, 2, 3, 4.
 parts = [zone(16, 96, 628, 330, "online maximum and sum")]
 m, s = X[0], 1.0
 trace = [("start", X[0], m, s, "m = 1, s = exp(0) = 1")]
@@ -157,18 +157,18 @@ for k, (label, _, mk, sk, how) in enumerate(trace):
               cell(112, y, 52, 30, "outside", f"{mk:.0f}"),
               cell(180, y, 92, 30, "store", f"{sk:.4f}"),
               text(300, y + 20, how, "mono")]
-parts += [note(40, 380, f"The last s, {s:.4f}, equals the sum of exp(x − 4) from the 2 passes of Figure 20.1.",
+parts += [note(40, 380, f"The last s, {s:.4f}, equals the sum of exp(x − 4) from the 2 passes of Figure 23.1.",
                room=590),
           note(40, 398, "When the maximum grows from m to m', the old sum is multiplied by exp(m − m').",
                room=590)]
-save(OUT + "ch20-online.svg", 660, 442,
+save(OUT + "ch23-online.svg", 660, 442,
      f"A trace over the logits 1, 2, 3, 4. Start: m = 1, s = 1. At x = 2: m = 2, s = 1 times exp(-1) plus 1 "
      f"= 1.3679. At x = 3: m = 3, s = 1.5032. At x = 4: m = 4, s = {s:.4f}, the same sum as the 2-pass "
      "method gives.",
      "The online softmax", "1 pass keeps a running maximum m and a sum s rescaled to that maximum.", parts)
 
 
-# 20.6  Welford's running mean and squared deviations, and the merge of 2 halves.
+# 23.6  Welford's running mean and squared deviations, and the merge of 2 halves.
 W = [2.0, 4.0, 4.0, 5.0]
 parts = [zone(16, 96, 300, 330, "1 value at a time"), zone(332, 96, 312, 330, "merging 2 halves")]
 n, mean, q = 0, 0.0, 0.0
@@ -198,7 +198,7 @@ parts += [card(352, 128, 132, 88, "client", "2, 4", ["n = 2", "mean = 3", "q = 2
                                                            f"q = {merged[2]:.2f}"]),
           note(356, 380, "delta = 4.5 − 3 = 1.5", room=264),
           note(356, 398, "q = 2 + 0.5 + 1.5² × 2 × 2 ÷ 4 = 4.75", room=264)]
-save(OUT + "ch20-welford.svg", 660, 442,
+save(OUT + "ch23-welford.svg", 660, 442,
      "Left: Welford's method on 2, 4, 4 and 5. The mean goes 2, 3, 3.3333, 3.75 and the sum of squared "
      "deviations q goes 0, 2, 2.6667, 4.75, so the variance is 4.75 / 4 = 1.1875. Right: the halves 2, 4 "
      "(mean 3, q 2) and 4, 5 (mean 4.5, q 0.5) merge to mean 3.75 and q = 2 + 0.5 + 1.5 squared times 2 "
@@ -206,7 +206,7 @@ save(OUT + "ch20-welford.svg", 660, 442,
      "Welford's method", "A running mean and sum of squared deviations, and how 2 of them merge.", parts)
 
 
-# 20.7  Cancellation: the variance as mean of squares minus squared mean, near 1,000.
+# 23.7  Cancellation: the variance as mean of squares minus squared mean, near 1,000.
 parts = [zone(16, 96, 628, 330, "variance of values near 1,000, in float")]
 rows = [("mean of x²", "1,000,000.33", "0.0625", "client"),
         ("(mean of x)²", "1,000,000.00", "0.0625", "client"),
@@ -227,7 +227,7 @@ parts += [note(40, 340, "Each float near 1,000,000 is exact only to 0.0625, and 
                room=590),
           note(40, 394, "Welford's method never forms x²: it accumulates squared deviations of about 0.33.",
                room=590)]
-save(OUT + "ch20-cancel.svg", 660, 442,
+save(OUT + "ch23-cancel.svg", 660, 442,
      "A table. The mean of the squares of values near 1,000 is about 1,000,000.33 and the square of the mean "
      "1,000,000.00; floats near 1,000,000 are spaced 0.0625 apart. The sum of 4,096 squares, about "
      "4,096,001,365, is held to the nearest 256. The true variance, 0.33, is a small difference between 2 "
@@ -235,7 +235,7 @@ save(OUT + "ch20-cancel.svg", 660, 442,
      "Cancellation", "Subtracting 2 nearly equal large numbers leaves mostly rounding error.", parts)
 
 
-# 20.8  Measured times of the kernels, from the run quoted in the chapter.
+# 23.8  Measured times of the kernels, from the run quoted in the chapter.
 MEASURED = [("softmax, 4,096 columns", [("3 passes", 2.028, 16), ("online", 2.245, 12),
                                         ("fused", 1.446, 8)]),
             ("softmax, 65,536 columns", [("3 passes", 3.984, 16), ("online", 3.009, 12)]),
@@ -262,7 +262,7 @@ parts += [line(x, 120, x, y - 8, KINDS["store"][0], 1.4, "5 4"),
           note(x + 6, y + 6, f"{floor:.2f} ms: 8 B per element at 102 GB/s", room=300),
           note(40, y + 30, "The sum of x² gives errors up to 2.97; Welford and fused stay below 1.9e-4.",
                room=590)]
-save(OUT + "ch20-measured.svg", 660, y + 52,
+save(OUT + "ch23-measured.svg", 660, y + 52,
      "Horizontal bars of time per matrix of 4,096 by 4,096 floats. Softmax with rows of 4,096: 3 passes "
      "2.028 ms, online 2.245 ms, fused 1.446 ms. With rows of 65,536: 3 passes 3.984 ms, online 3.009 ms. "
      "Layer norm: sum of squares 2.288 ms but wrong, Welford 2.168 ms, fused 1.794 ms. A dashed line marks "

@@ -1,6 +1,6 @@
-<img class="plate" src="../../art/ch18.svg" alt="Ripple, a crab, stands on the sand beside a grid of square cells, 9 across and 6 down. The top row is hot, 100, and coloured red; the other edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the steady temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says each cell becomes the mean of its 4 neighbours.">
+<img class="plate" src="../../art/ch19.svg" alt="Ripple, a crab, stands on the sand beside a grid of square cells, 9 across and 6 down. The top row is hot, 100, and coloured red; the other edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the steady temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says each cell becomes the mean of its 4 neighbours.">
 
-# Chapter 18: Stencils and the Laplace Solver
+# Chapter 19: Stencils and the Laplace Solver
 
 Many problems in physics and engineering are described by partial differential equations: the
 temperature in a heated plate, the electric potential between charged conductors, the pressure in
@@ -34,14 +34,14 @@ This chapter covers
 </div>
 
 The code of the chapter is in
-[`code/oxide/ch18_stencil/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch18_stencil).
+[`code/oxide/ch19_stencil/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch19_stencil).
 Its `Cargo.toml` and `rust-toolchain.toml` are those of Chapter 13; the chapter adds no dependency.
 The measurements in this chapter come from a Jetson Orin NX, an integrated GPU with 8 SMs and
 102 GB/s of memory bandwidth.
 
-## 18.1 Background
+## 19.1 Background
 
-### 18.1.1 The Laplace equation on a grid
+### 19.1.1 The Laplace equation on a grid
 
 Consider a thin square plate whose 4 edges are held at fixed temperatures: the top edge at 100
 degrees and the other 3 edges at 0 degrees. Heat flows from the hot edge into the plate and out
@@ -62,12 +62,12 @@ an incompressible fluid at rest, so a solver for one problem solves the others.
 
 To solve the equation on a computer, we replace the plate with a **grid**: a set of points spaced a
 distance \\(h\\) apart in both directions. We store the temperature at grid point \\((r, c)\\), in
-row \\(r\\) and column \\(c\\), in an array element `u[r][c]`. Figure 18.1 shows the smallest grid
+row \\(r\\) and column \\(c\\), in an array element `u[r][c]`. Figure 19.1 shows the smallest grid
 that we will work with, 5 x 5 points.
 
 <figure>
-<img src="../../figures/ch18-grid.svg" alt="A 5 by 5 grid. The top row holds 100 in each cell, the other 3 edges hold 0. The 9 inner cells are marked with question marks: they are the unknowns. A legend explains boundary and interior cells, and notes that each interior cell must equal the mean of its 4 neighbours, which gives 9 equations for 9 unknowns.">
-<figcaption><b>Figure 18.1</b> A 5 x 5 grid: 16 boundary cells with fixed values and 9 interior cells to compute.</figcaption>
+<img src="../../figures/ch19-grid.svg" alt="A 5 by 5 grid. The top row holds 100 in each cell, the other 3 edges hold 0. The 9 inner cells are marked with question marks: they are the unknowns. A legend explains boundary and interior cells, and notes that each interior cell must equal the mean of its 4 neighbours, which gives 9 equations for 9 unknowns.">
+<figcaption><b>Figure 19.1</b> A 5 x 5 grid: 16 boundary cells with fixed values and 9 interior cells to compute.</figcaption>
 </figure>
 
 The cells on the edge of the grid are called **boundary cells**. Their values are given by the
@@ -76,7 +76,7 @@ boundary of the region is called a **boundary condition**. The remaining cells a
 cells**, and their values are the unknowns. The 5 x 5 grid has 25 cells, of which 16 are on the
 boundary and 9 are in the interior.
 
-### 18.1.2 The 5-point stencil
+### 19.1.2 The 5-point stencil
 
 A derivative cannot be evaluated on a grid directly, because the grid holds values only at points
 spaced \\(h\\) apart. Instead, we approximate the derivative with a **finite difference**, an
@@ -102,15 +102,15 @@ Multiplying by \\(h^2\\) and solving for \\(u_{r,c}\\) gives
 That is, at the steady state the temperature of each interior cell is the mean of the temperatures
 of its 4 neighbours. The spacing \\(h\\) has dropped out of the equation. The pattern of cells that
 the equation uses, a centre and its 4 neighbours, with weight 1/4 on each neighbour and 0 on the
-centre, is called the **5-point stencil**. Figure 18.2 shows it, together with 1 update that we
+centre, is called the **5-point stencil**. Figure 19.2 shows it, together with 1 update that we
 will meet again in section 18.2.
 
 <figure>
-<img src="../../figures/ch18-stencil.svg" alt="Left: a cross of 5 cells, the centre (r, c) and its 4 neighbours (r-1, c), (r+1, c), (r, c-1) and (r, c+1), with weight 1/4 on each neighbour and 0 on the centre. Right: the update of cell (1, 1) at step 2: up 100, down 0, left 0, right 25, sum 125, times 1/4 is 31.25.">
-<figcaption><b>Figure 18.2</b> The 5-point stencil, and the update of cell (1, 1) in step 2 of the 5 x 5 example.</figcaption>
+<img src="../../figures/ch19-stencil.svg" alt="Left: a cross of 5 cells, the centre (r, c) and its 4 neighbours (r-1, c), (r+1, c), (r, c-1) and (r, c+1), with weight 1/4 on each neighbour and 0 on the centre. Right: the update of cell (1, 1) at step 2: up 100, down 0, left 0, right 25, sum 125, times 1/4 is 31.25.">
+<figcaption><b>Figure 19.2</b> The 5-point stencil, and the update of cell (1, 1) in step 2 of the 5 x 5 example.</figcaption>
 </figure>
 
-### 18.1.3 A system of equations
+### 19.1.3 A system of equations
 
 The 9 interior cells of the 5 x 5 grid give 9 equations of this form, one for each cell, in 9
 unknowns. For cell (1, 1), whose upper neighbour is a boundary cell at 100 and whose left
@@ -124,9 +124,9 @@ size requires far more memory and time than the iteration we develop next. The i
 naturally onto a GPU: every cell is updated by the same arithmetic, and no cell depends on another
 cell's new value.
 
-## 18.2 Jacobi iteration
+## 19.2 Jacobi iteration
 
-### 18.2.1 The iteration
+### 19.2.1 The iteration
 
 **Jacobi iteration**, named after the mathematician Carl Gustav Jacob Jacobi, solves the system by
 repeated averaging. We start from a guess for the interior, here 0 in every interior cell. In each
@@ -140,14 +140,14 @@ is 0. In step 1, each of the 3 cells in row 1 has the hot boundary cell above it
 at 0, so they stay at 0.
 
 In step 2, cell (1, 1) has the neighbours 100 above, 0 below, 0 to the left (the boundary) and 25
-to the right, so it becomes \\(125 / 4 = 31.25\\), as in Figure 18.2. Cell (1, 2) has 25 on both
+to the right, so it becomes \\(125 / 4 = 31.25\\), as in Figure 19.2. Cell (1, 2) has 25 on both
 sides, so it becomes \\((100 + 0 + 25 + 25) / 4 = 37.5\\). The cells of row 2 each have a cell at 25
 above them and 0 elsewhere, so they become \\(25 / 4 = 6.25\\). Heat has moved 1 row further into
-the plate. Figure 18.3 shows these steps and the grid after 200 steps.
+the plate. Figure 19.3 shows these steps and the grid after 200 steps.
 
 <figure>
-<img src="../../figures/ch18-steps.svg" alt="4 grids of 5 by 5 cells, coloured by temperature. Step 0: top row 100, the rest 0. Step 1: the 3 cells under the hot edge are 25. Step 2: those cells are 31.25, 37.50 and 31.25, and the row below is 6.25 in each cell. Step 200: the inner cells are 42.86, 52.68, 42.86 / 18.75, 25, 18.75 / 7.14, 9.82, 7.14.">
-<figcaption><b>Figure 18.3</b> The 5 x 5 grid at steps 0, 1, 2 and 200.</figcaption>
+<img src="../../figures/ch19-steps.svg" alt="4 grids of 5 by 5 cells, coloured by temperature. Step 0: top row 100, the rest 0. Step 1: the 3 cells under the hot edge are 25. Step 2: those cells are 31.25, 37.50 and 31.25, and the row below is 6.25 in each cell. Step 200: the inner cells are 42.86, 52.68, 42.86 / 18.75, 25, 18.75 / 7.14, 9.82, 7.14.">
+<figcaption><b>Figure 19.3</b> The 5 x 5 grid at steps 0, 1, 2 and 200.</figcaption>
 </figure>
 
 After 200 steps, the interior holds 42.86, 52.68 and 42.86 in row 1, 18.75, 25 and 18.75 in row 2,
@@ -158,17 +158,17 @@ the same value each time by symmetry, and the 4 cases added together give a plat
 100, whose centre is 100. Each case therefore contributes 25. The program in section 18.4 prints
 the same 3 grids.
 
-### 18.2.2 Why a step needs 2 buffers
+### 19.2.2 Why a step needs 2 buffers
 
 On a GPU, each interior cell of a step is computed by its own thread. If the threads wrote their
 new values into the same array that they read from, a thread could read a neighbour that another
-thread has already replaced. Figure 18.4 shows the effect on cell (1, 2) in step 2. If cell (1, 1)
+thread has already replaced. Figure 19.4 shows the effect on cell (1, 2) in step 2. If cell (1, 1)
 still holds its old value 25, cell (1, 2) becomes 37.5. If the thread for cell (1, 1) has already
 stored 31.25, cell (1, 2) becomes \\((100 + 0 + 31.25 + 25) / 4 = 39.06\\).
 
 <figure>
-<img src="../../figures/ch18-inplace.svg" alt="Left: the 5 by 5 grid after step 1, with 25 in the 3 cells under the hot edge. Right: cell (1, 2) at step 2 computed 2 ways. If cell (1, 1) still holds its old value 25, the result is (100 + 0 + 25 + 25) / 4 = 37.50. If cell (1, 1) has already been replaced by 31.25, the result is (100 + 0 + 31.25 + 25) / 4 = 39.06.">
-<figcaption><b>Figure 18.4</b> An update in place gives a result that depends on the order in which threads run.</figcaption>
+<img src="../../figures/ch19-inplace.svg" alt="Left: the 5 by 5 grid after step 1, with 25 in the 3 cells under the hot edge. Right: cell (1, 2) at step 2 computed 2 ways. If cell (1, 1) still holds its old value 25, the result is (100 + 0 + 25 + 25) / 4 = 37.50. If cell (1, 1) has already been replaced by 31.25, the result is (100 + 0 + 31.25 + 25) / 4 = 39.06.">
+<figcaption><b>Figure 19.4</b> An update in place gives a result that depends on the order in which threads run.</figcaption>
 </figure>
 
 The hardware does not fix the order in which threads and blocks run (Chapter 3), so an update in
@@ -177,7 +177,7 @@ Chapter 5. Jacobi iteration avoids it by keeping 2 arrays: each step reads the o
 array and writes the new values into the other. Every thread then sees the same old values, and
 the result does not depend on the order of the threads.
 
-### 18.2.3 The algorithm
+### 19.2.3 The algorithm
 
 The complete method, with the 2 arrays named `a` and `b`, is:
 
@@ -191,12 +191,12 @@ until the change between a and b is small enough
 ```
 
 Both arrays start with the boundary values, although the steps never write a boundary
-cell. Each array is read in every second step, so both must hold the boundary. Section 18.4.3 shows
+cell. Each array is read in every second step, so both must hold the boundary. Section 19.4.3 shows
 what happens when one of them does not.
 
-## 18.3 A stencil kernel in Rust
+## 19.3 A stencil kernel in Rust
 
-### 18.3.1 Grids with a run-time width
+### 19.3.1 Grids with a run-time width
 
 In Chapter 13, each thread wrote its own element of a 1-D `DisjointSlice` through a `ThreadIndex`,
 a value that only the launch can create and that is different for every thread. Chapter 7 used a
@@ -214,16 +214,16 @@ it, or `None`. Because every thread of the launch has a different (row, column) 
 them use the same width, no 2 threads can obtain the same element. The write is therefore safe,
 and the kernel needs no `unsafe` block.
 
-### 18.3.2 The kernel
+### 19.3.2 The kernel
 
-Listing 18.1 shows the Jacobi kernel.
+Listing 19.1 shows the Jacobi kernel.
 
-<p class="listing"><b>Listing 18.1</b> 1 Jacobi step. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_stencil/src/main.rs">code/oxide/ch18_stencil/src/main.rs</a></p>
+<p class="listing"><b>Listing 19.1</b> 1 Jacobi step. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_stencil/src/main.rs">code/oxide/ch19_stencil/src/main.rs</a></p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs:27:46}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:27:46}}
     // ...
 }
 ```
@@ -245,16 +245,16 @@ The last statement stores the mean. The multiplication by 0.25 comes after the 3
 same order as in the CPU reference of the program, so the GPU and the CPU compute the same rounded
 result. The section on convergence confirms that they agree to the last bit.
 
-### 18.3.3 Launching the kernel
+### 19.3.3 Launching the kernel
 
 The kernel's contract, `#[launch_contract(domain = 2, block = (32, 8, 1))]`, states that the kernel
 must be launched with 2-D blocks of 32 x 8 threads. The host prepares each launch with a grid that
-covers the whole array, using the function in Listing 18.2.
+covers the whole array, using the function in Listing 19.2.
 
-<p class="listing"><b>Listing 18.2</b> A 2-D launch configuration that covers a grid of any size.</p>
+<p class="listing"><b>Listing 19.2</b> A 2-D launch configuration that covers a grid of any size.</p>
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs:175:179}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:175:179}}
 ```
 
 The block size of 32 x 8 places the 32 threads of each warp along a row of the grid. As we saw in
@@ -265,18 +265,18 @@ the block give 256 threads, a common block size. For the 5 x 5 grid, `div_ceil` 
 each direction; 25 of its 256 threads fall inside the grid, and the other threads receive `None`
 from `index_2d_runtime` or fail the interior test.
 
-## 18.4 Ping-pong buffers
+## 19.4 Ping-pong buffers
 
-### 18.4.1 Swapping 2 device buffers
+### 19.4.1 Swapping 2 device buffers
 
 The host program keeps the 2 grids in 2 `DeviceBuffer`s, `a` and `b`. Each step reads `a` and
 writes `b`; then the program exchanges the 2 names with `std::mem::swap(&mut a, &mut b)`, so that
 the next step reads the grid that was written last. This arrangement is called **ping-pong
-buffering**. Figure 18.5 shows 3 steps.
+buffering**. Figure 19.5 shows 3 steps.
 
 <figure>
-<img src="../../figures/ch18-pingpong.svg" alt="3 rows, steps 1 to 3. Step 1 reads buffer a and writes buffer b; between steps, swap(&mut a, &mut b) exchanges the names; step 2 reads b and writes a; step 3 reads a and writes b. A note says that the swap exchanges the 2 handles and moves no grid data.">
-<figcaption><b>Figure 18.5</b> Ping-pong buffers: the 2 names exchange their roles after every step.</figcaption>
+<img src="../../figures/ch19-pingpong.svg" alt="3 rows, steps 1 to 3. Step 1 reads buffer a and writes buffer b; between steps, swap(&mut a, &mut b) exchanges the names; step 2 reads b and writes a; step 3 reads a and writes b. A note says that the swap exchanges the 2 handles and moves no grid data.">
+<figcaption><b>Figure 19.5</b> Ping-pong buffers: the 2 names exchange their roles after every step.</figcaption>
 </figure>
 
 The swap moves no grid data. A `DeviceBuffer` is a small handle of 40 bytes, which holds the device
@@ -285,15 +285,15 @@ context and, for some allocations, a pointer to the stream that allocated it.
 `std::mem::swap` exchanges the 2 handles in host memory; the grids stay where they are in device
 memory. A step on a 4096 x 4096 grid moves 134.2 MB, while the swap exchanges 80 bytes.
 
-Listing 18.3 shows the first part of the program, which runs 200 steps on the 5 x 5 grid and prints
+Listing 19.3 shows the first part of the program, which runs 200 steps on the 5 x 5 grid and prints
 the grid after steps 1, 2 and 200.
 
-<p class="listing"><b>Listing 18.3</b> 200 steps on the 5 x 5 grid.</p>
+<p class="listing"><b>Listing 19.3</b> 200 steps on the 5 x 5 grid.</p>
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs:212:227}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:212:227}}
     // ...
 }
 ```
@@ -302,7 +302,7 @@ Both buffers are created from the same host grid `start`, so both hold the bound
 launch passes `&a` as the old grid and `RowWidth::new(&mut b, w as u32)` as the new one. After the
 launch, the swap makes `a` the newest grid, which is why the program prints `a`.
 
-### 18.4.2 Aliasing rejected by the compiler
+### 19.4.2 Aliasing rejected by the compiler
 
 Suppose we tried to update the grid in place, the mistake of section 18.2.2, by passing the same
 buffer as both arguments:
@@ -327,11 +327,11 @@ error[E0502]: cannot borrow `a` as mutable because it is also borrowed as immuta
 ```
 
 The rule that prevents aliasing between a `&` and a `&mut` reference in host code also covers the
-arguments of a kernel launch. The race of Figure 18.4 therefore cannot be written by mistake in a
+arguments of a kernel launch. The race of Figure 19.4 therefore cannot be written by mistake in a
 program that uses the safe launch path. A CUDA C++ kernel that takes 2 `float*` arguments accepts
 the same pointer twice without a warning.
 
-### 18.4.3 Boundary values in both buffers
+### 19.4.3 Boundary values in both buffers
 
 The compiler cannot check the contents of the buffers. If the second buffer is created with
 `DeviceBuffer::<f32>::zeroed(&stream, w * h)` instead of from `start`, its top edge holds 0, and
@@ -366,9 +366,9 @@ in every second step. The centre settles at 12.5, half the correct value of 25. 
 reported. A check against a known answer, here the hand-worked values of section 18.2.1, is the
 only way to find such a mistake.
 
-### 18.4.4 Running the 5 x 5 example
+### 19.4.4 Running the 5 x 5 example
 
-The correct program prints the 3 grids of Figure 18.3:
+The correct program prints the 3 grids of Figure 19.3:
 
 ```console
 $ cargo oxide run
@@ -397,9 +397,9 @@ GPU: Orin, 8 SMs
 Every value agrees with the hand calculation of section 18.2.1: 25 in row 1 after step 1, 31.25,
 37.50 and 6.25 after step 2, and the exact solution after step 200.
 
-## 18.5 Convergence
+## 19.5 Convergence
 
-### 18.5.1 Measuring the change between steps
+### 19.5.1 Measuring the change between steps
 
 The 5 x 5 example ran for a fixed number of steps. A real solver stops when the grid has stopped
 changing. We measure the change of a step by the **root-mean-square (RMS) change**: the square root
@@ -415,26 +415,26 @@ of the mean, over all \\(N\\) cells, of the squared difference between the new a
 
 The sum over all cells is a reduction, and we compute it with the method of section 8.5. Each
 thread sums the squared differences of a grid-stride share of the cells. Each warp then combines its
-32 sums with shuffles, and the first warp of each block combines the 8 warp sums. Listing 18.4 shows the kernel.
+32 sums with shuffles, and the first warp of each block combines the 8 warp sums. Listing 19.4 shows the kernel.
 
-<p class="listing"><b>Listing 18.4</b> The squared change, summed per block.</p>
+<p class="listing"><b>Listing 19.4</b> The squared change, summed per block.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs:103:144}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:103:144}}
 }
 ```
 
 The kernel writes 1 partial sum per block. With 64 blocks, the host copies 64 floats back, adds
-them, divides by \\(N\\) and takes the square root. Listing 18.5 shows the loop that uses it.
+them, divides by \\(N\\) and takes the square root. Listing 19.5 shows the loop that uses it.
 
-<p class="listing"><b>Listing 18.5</b> Iterating the 64 x 64 grid until the RMS change is below 1e-6 degrees.</p>
+<p class="listing"><b>Listing 19.5</b> Iterating the 64 x 64 grid until the RMS change is below 1e-6 degrees.</p>
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs:238:256}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:238:256}}
     // ...
 }
 ```
@@ -445,7 +445,7 @@ step takes a few microseconds, and a measurement after every step would take sev
 as the step itself. Measuring every 1,000 steps adds 1 measurement to 1,000 steps and lets the loop
 run at most 999 steps longer than necessary.
 
-### 18.5.2 The rate of convergence
+### 19.5.2 The rate of convergence
 
 The program prints the RMS change every 1,000 steps:
 
@@ -464,11 +464,11 @@ The program prints the RMS change every 1,000 steps:
 
 The change shrinks by nearly the same factor every 1,000 steps: \\(2.06 / 7.49 = 0.275\\),
 \\(0.595 / 2.06 = 0.289\\), \\(0.171 / 0.595 = 0.287\\) and \\(0.0495 / 0.171 = 0.289\\). A constant
-factor per step appears as a straight line on a logarithmic scale, as in Figure 18.6.
+factor per step appears as a straight line on a logarithmic scale, as in Figure 19.6.
 
 <figure>
-<img src="../../figures/ch18-convergence.svg" alt="A chart with a logarithmic vertical axis from 1e-7 to 1e-2 and Jacobi steps from 0 to 9,000 on the horizontal axis. 9 measured points, from 7.49e-3 at step 1,000 to 5.59e-7 at step 9,000, fall on a straight line. A dashed line, the prediction that the change shrinks by cos(pi / 63) per step, or 0.288 per 1,000 steps, runs through the points.">
-<figcaption><b>Figure 18.6</b> The RMS change per step on the 64 x 64 grid, measured and predicted.</figcaption>
+<img src="../../figures/ch19-convergence.svg" alt="A chart with a logarithmic vertical axis from 1e-7 to 1e-2 and Jacobi steps from 0 to 9,000 on the horizontal axis. 9 measured points, from 7.49e-3 at step 1,000 to 5.59e-7 at step 9,000, fall on a straight line. A dashed line, the prediction that the change shrinks by cos(pi / 63) per step, or 0.288 per 1,000 steps, runs through the points.">
+<figcaption><b>Figure 19.6</b> The RMS change per step on the 64 x 64 grid, measured and predicted.</figcaption>
 </figure>
 
 The factor can be predicted. The difference between the current grid and the solution, the
@@ -501,7 +501,7 @@ hours at the 2.3 ms per step measured in section 18.6. Jacobi iteration is there
 grids as a component of faster methods, such as multigrid, which apply a few Jacobi steps on a
 series of coarser grids. The kernel of this chapter is the building block of those methods.
 
-### 18.5.3 The converged field
+### 19.5.3 The converged field
 
 The program stops after 9,000 steps and prints every 9th cell of every 9th row of the 64 x 64 grid:
 
@@ -519,8 +519,8 @@ The program stops after 9,000 steps and prints every 9th cell of every 9th row o
 ```
 
 <figure>
-<img src="../../figures/ch18-field.svg" alt="An 8 by 8 table of temperatures coloured from red to blue: the converged 64 by 64 field sampled every 9th cell of every 9th row. The top row is 100. Row 9 reads 0, 47.77, 65.71, 71.49, 71.49, 65.71, 47.77, 0; the values fall towards the bottom, where row 54 reads 0, 2.23, 4.01, 4.98, 4.98, 4.01, 2.23, 0, and the last row is 0.">
-<figcaption><b>Figure 18.7</b> The steady temperature of the plate, sampled from the 64 x 64 grid.</figcaption>
+<img src="../../figures/ch19-field.svg" alt="An 8 by 8 table of temperatures coloured from red to blue: the converged 64 by 64 field sampled every 9th cell of every 9th row. The top row is 100. Row 9 reads 0, 47.77, 65.71, 71.49, 71.49, 65.71, 47.77, 0; the values fall towards the bottom, where row 54 reads 0, 2.23, 4.01, 4.98, 4.98, 4.01, 2.23, 0, and the last row is 0.">
+<figcaption><b>Figure 19.7</b> The steady temperature of the plate, sampled from the 64 x 64 grid.</figcaption>
 </figure>
 
 The temperature falls from the hot edge towards the cold edges, and it is symmetric about the
@@ -534,9 +534,9 @@ They agree because each cell is computed with the same 3 additions in the same o
 the same multiplication, and IEEE 754 single-precision arithmetic gives the same rounded result on
 both processors for the same sequence of operations.
 
-## 18.6 Memory traffic and performance
+## 19.6 Memory traffic and performance
 
-### 18.6.1 Arithmetic intensity of the stencil
+### 19.6.1 Arithmetic intensity of the stencil
 
 Each cell of a step costs 3 additions and 1 multiplication, 4 floating-point operations. If the
 kernel reads each old value from memory once and writes each new value once, it moves 4 bytes in
@@ -549,36 +549,36 @@ copy. We therefore measure each kernel by its **effective bandwidth**: 8 bytes p
 the time of a step. On a 4096 x 4096 grid, each step moves at least \\(8 \times 4096^2\\) =
 134,217,728 bytes, 134.2 MB.
 
-The kernel of Listing 18.1 issues 4 loads per cell, 16 bytes. Most of them are served by the
+The kernel of Listing 19.1 issues 4 loads per cell, 16 bytes. Most of them are served by the
 caches. The 32 threads of a warp read 3 contiguous row segments, and the rows above and below a
 warp's row are the rows of the neighbouring warps of the same block. A block of 32 x 8 threads
 therefore needs 10 row segments of the old grid, its own 8 rows and 1 row on each side, for 8 rows
 of results. If each segment comes from memory once, the block reads 1.25 old values per cell and
 writes 1, 9 bytes per cell instead of 8.
 
-### 18.6.2 A tiled kernel with halo cells
+### 19.6.2 A tiled kernel with halo cells
 
 Chapter 7 used shared memory to make a block's reuse of data explicit. For a stencil, the block
 copies its cells and the cells around them into a **tile** in shared memory once, waits at a
 barrier, and then every thread reads its 4 neighbours from the tile. The cells around the block's
 own cells are called **halo cells**. They are read by this block but computed by the neighbouring
-blocks. Figure 18.8 shows the tile of a 32 x 8 block.
+blocks. Figure 19.8 shows the tile of a 32 x 8 block.
 
 <figure>
-<img src="../../figures/ch18-tile.svg" alt="A tile of 34 by 10 small squares. The inner 32 by 8 squares, blue, are the 256 cells the block writes. A ring of 80 amber squares around them is the halo, cells that neighbouring blocks write. The 4 corner squares, grey, are loaded but never read by a 5-point stencil. A note says 340 loads serve 256 results, 1.33 loads per result, against 4 reads per result without the tile.">
-<figcaption><b>Figure 18.8</b> The tile of a 32 x 8 block: 256 own cells, 80 halo cells and 4 unused corners.</figcaption>
+<img src="../../figures/ch19-tile.svg" alt="A tile of 34 by 10 small squares. The inner 32 by 8 squares, blue, are the 256 cells the block writes. A ring of 80 amber squares around them is the halo, cells that neighbouring blocks write. The 4 corner squares, grey, are loaded but never read by a 5-point stencil. A note says 340 loads serve 256 results, 1.33 loads per result, against 4 reads per result without the tile.">
+<figcaption><b>Figure 19.8</b> The tile of a 32 x 8 block: 256 own cells, 80 halo cells and 4 unused corners.</figcaption>
 </figure>
 
 The tile is 34 x 10 cells, 340 in all: the block's 256 cells, a halo of 80 cells (32 above, 32
 below, 8 on the left and 8 on the right), and 4 corner cells that the 5-point stencil never reads.
-Listing 18.6 shows the kernel.
+Listing 19.6 shows the kernel.
 
-<p class="listing"><b>Listing 18.6</b> The Jacobi step with a tile in shared memory.</p>
+<p class="listing"><b>Listing 19.6</b> The Jacobi step with a tile in shared memory.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs:48:89}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:48:89}}
     // ...
 }
 ```
@@ -608,20 +608,20 @@ cannot reduce the traffic below that. It also adds work that the plain kernel do
 loaded cell costs a division and a remainder by 34, and a store to shared memory and a load from it.
 The second loading pass keeps only 84 of the 256 threads busy, and every thread waits at a barrier.
 
-### 18.6.3 Measured bandwidth
+### 19.6.3 Measured bandwidth
 
 The third part of the program times 3 kernels on a 4096 x 4096 grid, 64 MiB per buffer, much larger
 than the GPU's L2 cache. The first is a copy of 1 buffer into the other, which moves the minimum of
-8 bytes per cell; the others are the plain kernel and the tiled kernel. Listing 18.7 shows the timing of the 2 stencil kernels.
+8 bytes per cell; the others are the plain kernel and the tiled kernel. Listing 19.7 shows the timing of the 2 stencil kernels.
 Each timed call performs 2 steps, from `a` to `b` and back, so the buffers return to their roles,
 and the time is halved.
 
-<p class="listing"><b>Listing 18.7</b> Timing 2 steps at a time, so the buffers return to their roles.</p>
+<p class="listing"><b>Listing 19.7</b> Timing 2 steps at a time, so the buffers return to their roles.</p>
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs:287:305}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:287:305}}
     // ...
 }
 ```
@@ -640,8 +640,8 @@ PASSED
 ```
 
 <figure>
-<img src="../../figures/ch18-bandwidth.svg" alt="3 horizontal bars of effective bandwidth on a 4096 by 4096 grid: copy kernel 75.3 GB/s, jacobi 58.3 GB/s, jacobi tiled 37.8 GB/s. A dashed line marks the rated memory bandwidth of 102 GB/s. A note explains that each step moves 134.2 MB, and that the tiled kernel is slower than the plain one.">
-<figcaption><b>Figure 18.9</b> Effective bandwidth of a copy and of the 2 stencil kernels.</figcaption>
+<img src="../../figures/ch19-bandwidth.svg" alt="3 horizontal bars of effective bandwidth on a 4096 by 4096 grid: copy kernel 75.3 GB/s, jacobi 58.3 GB/s, jacobi tiled 37.8 GB/s. A dashed line marks the rated memory bandwidth of 102 GB/s. A note explains that each step moves 134.2 MB, and that the tiled kernel is slower than the plain one.">
+<figcaption><b>Figure 19.9</b> Effective bandwidth of a copy and of the 2 stencil kernels.</figcaption>
 </figure>
 
 The copy reaches 75.3 GB/s, 74% of the rated 102 GB/s; as the measurements of Chapter 7 showed,
@@ -662,12 +662,12 @@ perform several steps on the tile before writing it back.
 The last line of the output confirms that the 2 kernels compute the same grid: after 10 steps
 each, their results are equal in every bit, for the same reason that the GPU and the CPU agree.
 
-## 18.7 The complete program
+## 19.7 The complete program
 
-`code/oxide/ch18_stencil/src/main.rs`, as built and run above:
+`code/oxide/ch19_stencil/src/main.rs`, as built and run above:
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch18_stencil/src/main.rs}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs}}
 ```
 
 ## Common mistakes
@@ -712,7 +712,7 @@ across the whole grid rather than only with their neighbours.
 1. Apply the finite-difference formula of section 18.1.2 to \\(f(x) = x^3\\) at \\(x = 1\\) with
    \\(h = 1\\) and with \\(h = 0.5\\). Compare both with the exact second derivative, 6, and
    confirm that halving \\(h\\) divides the error by 4.
-2. Carry out step 3 of the 5 x 5 example by hand, starting from the step 2 values of Figure 18.3.
+2. Carry out step 3 of the 5 x 5 example by hand, starting from the step 2 values of Figure 19.3.
    Then change the program to print the grid after step 3 and compare.
 3. Change the boundary so that the top edge is 100 and the left edge is 50. Predict the centre
    value of the 5 x 5 grid at the steady state with the symmetry argument of section 18.2.1, and
@@ -725,7 +725,7 @@ across the whole grid rather than only with their neighbours.
    `BY` and `grid_2d`). Predict from section 18.3.3 how the plain kernel's reads change, then
    measure.
 7. The tiled kernel computes `k / TW` and `k % TW` for every cell it loads. Rewrite the loading
-   loop as 2 nested loops over the tile's rows and columns, measure, and compare with Figure 18.9.
+   loop as 2 nested loops over the tile's rows and columns, measure, and compare with Figure 19.9.
 8. A 9-point stencil also uses the 4 diagonal neighbours. Count its loads per result for the plain
    kernel and for a tile of 34 x 10 cells, including the corners. Would you expect tiling to help
    more or less than for the 5-point stencil?

@@ -1,304 +1,233 @@
-"""The figures of chapter 21, drawn with figkit and figparts.
+"""The figures of chapter 19, drawn with figkit and figparts.
 
-    python3 tools/draw_ch21.py [path/to/target/images]
+    python3 tools/draw_ch19.py
 
-The times in the measured figures are the ones printed by code/oxide/ch21_capstone in the
-run quoted in the chapter. With a path, the script also converts the program's output
-images (PPM/PGM) into the PNG montage of figure 21.2.
+The small examples are the ones the program code/oxide/ch21_scan_apps prints; the measured
+numbers in figures 19.4 and 19.7 are from its run quoted in the chapter.
 """
-import sys
-
-from figkit import KINDS, card, legend, wire
-from figparts import EDGE, INK, MUTED, WIRE, bar, line, mono, note, save, tag, text, zone
+from figparts import MUTED, WIRE, bar, legend, line, mono, note, save
 
 OUT = "src/figures/"
-
-# From the quoted run (milliseconds per stage for 1 image of 1,920 x 1,080 pixels).
-STAGE_MS = [("grayscale", 0.201), ("histogram", 0.123), ("table", 0.007),
-            ("apply table", 0.186), ("blur rows", 0.263), ("blur columns", 0.264),
-            ("sobel", 0.350)]
-BYTES = [4, 1, 0, 2, 3, 3, 2]
-PIXELS = 1920 * 1080
-# Images per second for the batch of 32 images, and for the CPU.
-RATES = [("1 stream", 587.6), ("2 streams", 692.8), ("3 streams", 699.9),
-         ("CPU, 8 cores", 46.3)]
+KEYS = [3, 8, 1, 9, 4, 7, 2, 6]
 
 
-def cell(x, y, w, h, body, kind="idle", on=True, cls="mono"):
-    """A table cell: tinted with an accent edge when `on`, white with a grey edge when not."""
-    accent, tint = KINDS[kind]
-    parts = [f'  <rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="4" '
-             f'fill="{tint if on else "#FFFFFF"}" stroke="{accent if on else EDGE}" '
-             f'stroke-width="1.2"/>']
-    if body != "":
-        parts.append(text(x + w / 2, y + h / 2 + 4, str(body), cls, "middle",
-                          accent if on else MUTED))
-    return "\n".join(parts)
+def elbow(x1, y1, x2, y2, mid, colour=WIRE):
+    """A connector from (x1, y1) down to (x2, y2): down to `mid`, across, down, with an arrow."""
+    return (f'  <path d="M{x1:.1f},{y1:.1f} V{mid:.1f} H{x2:.1f} V{y2 - 3:.1f}" fill="none" '
+            f'stroke="{colour}" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#head)"/>')
 
 
-def pipeline():
-    """The 7 kernels and the buffers between them, in 2 columns."""
-    w, h, gap = 264, 52, 76
-    left, right, top = 34, 344, 104
-    lx, rx = left + w / 2, right + w / 2
-    stages_left = [
-        ("store", "RGB image", "3 bytes per pixel, 6.2 MB"),
-        ("service", "grayscale", "reads 3 B, writes 1 B per pixel"),
-        ("service", "histogram", "reads 1 B per pixel, 256 counts"),
-        ("service", "table", "1 block: scan of 256 counts"),
-        ("service", "apply table", "reads gray and the table"),
-    ]
-    stages_right = [
-        ("model", "blur rows", "reads 1 B, writes 2 B per pixel"),
-        ("model", "blur columns", "reads 2 B, writes 1 B per pixel"),
-        ("outside", "sobel", "reads 1 B, writes 1 B per pixel"),
-        ("store", "edge image", "1 byte per pixel, 2.1 MB"),
-    ]
-    links_left = ["rgb", "gray", "bins", "table"]
-    links_right = ["row sums", "blurred", "edges"]
-
-    parts = [zone(18, 92, 300, 400, "Equalise"), zone(328, 92, 294, 324, "Blur and edges")]
-    for k, (kind, name, sub) in enumerate(stages_left):
-        y = top + k * gap
-        parts.append(card(left, y, w, h, kind, name, sub))
-        if k < len(links_left):
-            parts.append(wire([(lx, y + h), (lx, y + gap - 3)], label=links_left[k]))
-    for k, (kind, name, sub) in enumerate(stages_right):
-        y = top + k * gap
-        parts.append(card(right, y, w, h, kind, name, sub))
-        if k < len(links_right):
-            parts.append(wire([(rx, y + h), (rx, y + gap - 3)], label=links_right[k]))
-
-    turn = top + 4 * gap + h / 2
-    parts.append(wire([(left + w, turn), (323, turn), (323, top + h / 2),
-                       (right - 3, top + h / 2)]))
-    parts.append(note(334, 444, "the equalised image goes to blur rows"))
-    save(OUT + "ch21-pipeline.svg", 640, 512,
-         "The pipeline in 2 columns. Equalise: an RGB image of 3 bytes per pixel goes to the "
-         "grayscale kernel, which writes a gray image of 1 byte per pixel. The histogram kernel "
-         "counts its levels into 256 bins, the table kernel scans the 256 counts in 1 block, and "
-         "the apply-table kernel reads the gray image and the table and writes the equalised "
-         "image. Blur and edges: blur rows reads 1 byte and writes 2 bytes per pixel, blur "
-         "columns reads 2 bytes and writes 1, and sobel writes the edge image of 1 byte per "
-         "pixel, 2.1 MB.",
-         "The 7 kernels of the pipeline", "Each arrow is a buffer in device memory.", parts)
+def row(y, name, values, kinds, x0=150, step=58, w=48, h=28):
+    parts = [mono(x0 - 16, y + h / 2 + 4, name, "end", MUTED)]
+    for k, (v, kind) in enumerate(zip(values, kinds)):
+        parts.append(bar(x0 + k * step, y, w, h, kind, str(v)))
+    return parts
 
 
-def equalise():
-    """Histogram equalisation of 16 pixels with 8 levels, by hand."""
-    counts = [0, 0, 3, 5, 4, 2, 2, 0]
-    cdf, total = [], 0
-    for c in counts:
-        total += c
-        cdf.append(total)
-    first = 3
-    span = 16 - first
-    levels = [0 if c < first else ((c - first) * 7 + span // 2) // span for c in cdf]
-
-    x0, cw, ch = 168, 52, 30
-    rows = [("level v", list(range(8)), "idle"), ("count", counts, "client"),
-            ("cumulative", cdf, "service"), ("new level", levels, "good")]
-    parts = []
-    for r, (name, values, kind) in enumerate(rows):
-        y = 100 + r * (ch + 8)
-        parts.append(text(x0 - 14, y + ch / 2 + 4, name, "name", "end"))
-        for v, value in enumerate(values):
-            on = not (kind == "client" and value == 0)
-            parts.append(cell(x0 + v * (cw + 4), y, cw, ch, value, kind, on))
-
-    base, scale = 400, 18
-    for k, (title, hist, kind) in enumerate([("before", counts, "client"),
-                                              ("after", None, "good")]):
-        gx = 60 + k * 300
-        if hist is None:
-            hist = [0] * 8
-            for v, c in enumerate(counts):
-                hist[levels[v]] += c
-        parts.append(text(gx, 278, f"histogram {title}", "name"))
-        parts.append(line(gx, base, gx + 8 * 30, base, EDGE, 1.2))
-        for v, c in enumerate(hist):
-            if c:
-                parts.append(bar(gx + v * 30 + 4, base - c * scale, 22, c * scale, kind))
-            parts.append(mono(gx + v * 30 + 15, base + 16, str(v), "middle"))
-    parts.append(note(32, 452, "new level = round((cumulative - 3) x 7 / (16 - 3)); 3 is the "
-                               "cumulative count of the first level in use."))
-    parts.append(note(32, 472, "Levels 2 to 6 spread to 0 to 7; the order of the levels is "
-                               "kept, so no 2 pixels change places."))
-    save(OUT + "ch21-equalise.svg", 640, 496,
-         "A table with 8 gray levels, 0 to 7, for an image of 16 pixels. Counts: 0, 0, 3, 5, 4, "
-         "2, 2, 0. Cumulative counts: 0, 0, 3, 8, 12, 14, 16, 16. New levels: 0, 0, 0, 3, 5, 6, "
-         "7, 7. Below, the histogram before occupies levels 2 to 6; after, the same pixels "
-         "occupy levels 0, 3, 5, 6 and 7. The formula is new level = round((cumulative minus 3) "
-         "times 7 divided by 13).",
-         "Histogram equalisation by hand", "16 pixels, 8 levels: each level moves to its rank.",
-         parts)
+def centre(k, x0=150, step=58, w=48):
+    return x0 + k * step + w / 2
 
 
-def blur():
-    """The 5 x 5 weights as a product of 2 passes, and the tile of blur_rows."""
-    taps = [1, 4, 6, 4, 1]
-    parts = [text(36, 104, "row pass", "name"), text(36, 128, "column pass", "name")]
-    for k, t in enumerate(taps):
-        parts.append(cell(150 + k * 30, 88, 26, 24, t, "model"))
-        parts.append(cell(150 + k * 30, 116, 26, 24, t, "client"))
-    parts.append(note(310, 104, "each pass sums to 16"))
-    parts.append(note(310, 128, "together 16 x 16 = 256"))
-
-    parts.append(text(36, 172, "the same weights in 1 pass: 25 products", "name"))
-    for r, a in enumerate(taps):
-        for c, b in enumerate(taps):
-            parts.append(cell(150 + c * 34, 184 + r * 26, 30, 22, a * b, "outside",
-                              cls="mono"))
-    parts.append(note(340, 220, "5 + 5 = 10 multiply-adds per pixel"))
-    parts.append(note(340, 240, "instead of 5 x 5 = 25"))
-
-    y = 352
-    parts.append(text(36, y - 12, "tile of 1 block of blur_rows, 128 threads, x0 = 0",
-                      "name"))
-    slots = [("0", "0"), ("1", "0"), ("2", "0"), ("3", "1"), ("...", ""), ("129", "127"),
-             ("130", "128"), ("131", "129")]
-    for k, (slot, pixel) in enumerate(slots):
-        halo = k in (0, 1, 6, 7)
-        parts.append(cell(36 + k * 70, y, 64, 26, slot, "danger" if halo else "model"))
-        parts.append(text(36 + k * 70 + 32, y + 44, pixel and f"pixel {pixel}", "note",
-                          "middle"))
-    parts.append(note(36, y + 72, "Thread t loads slot t; threads 0 to 3 also load slots "
-                                  "128 to 131. Slot t holds pixel t - 2,"))
-    parts.append(note(36, y + 90, "clamped to the row, so slots 0 and 1 repeat pixel 0. "
-                                  "Output x reads slots x to x + 4."))
-    save(OUT + "ch21-blur.svg", 640, 470,
-         "Top: the row weights 1, 4, 6, 4, 1 and the column weights 1, 4, 6, 4, 1, each "
-         "summing to 16. Middle: their products form a 5 by 5 grid from 1 at the corners to 36 "
-         "in the centre, summing to 256; 2 passes need 10 multiply-adds per pixel instead of "
-         "25. Bottom: the shared tile of 1 block of blur rows, slots 0 to 131. Slot t holds "
-         "pixel t minus 2 clamped to the row: slots 0 and 1 hold pixel 0, slot 129 holds pixel "
-         "127, slots 130 and 131 hold pixels 128 and 129, loaded by threads 0 to 3.",
-         "A separable Gaussian blur", "2 passes of 5 weights give the 25 weights of 1 pass.",
-         parts)
+def header(y, name):
+    """The column numbers 0 to 7 above a table of cells, each centred on its column."""
+    return [mono(134, y, name, "end", MUTED)] + [mono(centre(k), y, str(k), "middle", MUTED) for k in range(8)]
 
 
-def sobel():
-    """The 2 Sobel masks applied to 1 neighbourhood, by hand."""
-    block = [[20, 20, 60], [20, 20, 60], [20, 30, 60]]
-    gx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
-    gy = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
-    parts = []
-    for k, (title, grid, kind) in enumerate([("pixels around (x, y)", block, "idle"),
-                                              ("Gx mask", gx, "client"),
-                                              ("Gy mask", gy, "model")]):
-        x = 40 + k * 200
-        parts.append(text(x, 104, title, "name"))
-        for r in range(3):
-            for c in range(3):
-                value = grid[r][c]
-                on = kind == "idle" or value != 0
-                parts.append(cell(x + c * 44, 116 + r * 34, 40, 30, value, kind, on))
-    parts += [
-        mono(40, 252, "gx = (60 + 2 x 60 + 60) - (20 + 2 x 20 + 20) = 240 - 80 = 160"),
-        mono(40, 276, "gy = (20 + 2 x 30 + 60) - (20 + 2 x 20 + 60) = 140 - 120 = 20"),
-        mono(40, 300, "magnitude = sqrt(160 x 160 + 20 x 20) = sqrt(26,000) = 161.2"),
-        mono(40, 324, "edge pixel = round(161.2) = 161, clamped to 255"),
-    ]
-    save(OUT + "ch21-sobel.svg", 640, 348,
-         "Left: a 3 by 3 neighbourhood with columns 20, 20, 60 and a bottom row 20, 30, 60. "
-         "Middle: the Gx mask, -1 0 1 in each row with the middle row doubled. Right: the Gy "
-         "mask, -1 -2 -1 on top and 1 2 1 at the bottom. Worked: gx = 240 - 80 = 160, gy = "
-         "140 - 120 = 20, magnitude = square root of 26,000 = 161.2, rounded to 161.",
-         "Sobel edges by hand", "gx measures the change across, gy the change down.", parts)
+# 21.1  Stream compaction of 8 keys: flags, scan, scatter.
+flags = [int(k >= 5) for k in KEYS]
+inclusive = [sum(flags[:i + 1]) for i in range(8)]
+exclusive = [s - f for s, f in zip(inclusive, flags)]
+kept = [k for k in KEYS if k >= 5]
+kinds = ["good" if f else "idle" for f in flags]
+
+parts = header(100, "index")
+parts += row(112, "input", KEYS, kinds)
+parts += row(158, "flag", flags, kinds)
+parts += row(204, "inclusive", inclusive, ["service"] * 8)
+parts += row(250, "exclusive", exclusive, ["client" if f else "idle" for f in flags])
+parts += row(372, "output", kept, ["good"] * 4)
+for j, k in enumerate(i for i in range(8) if flags[i]):
+    parts.append(elbow(centre(k), 278, centre(j), 372, 300 + 14 * j))
+parts += [mono(150, 424, "out[exclusive[i]] = input[i] for every kept i", "start", MUTED),
+          note(32, 456, "The flag is 1 for x >= 5. The exclusive scan counts the kept keys before each key,", room=596),
+          note(32, 474, "so the 4 kept keys go to positions 0, 1, 2 and 3, in their input order.", room=596)]
+save(OUT + "ch21-compact.svg", 660, 496,
+     "8 keys 3, 8, 1, 9, 4, 7, 2, 6 with flags 0, 1, 0, 1, 0, 1, 0, 1 for x >= 5. The inclusive scan of the "
+     "flags is 0, 1, 1, 2, 2, 3, 3, 4 and the exclusive scan 0, 0, 1, 1, 2, 2, 3, 3. Arrows take the kept keys "
+     "8, 9, 7 and 6 from their exclusive positions 0, 1, 2, 3 to the output 8, 9, 7, 6.",
+     "Stream compaction of 8 keys", "A flag per key, a scan of the flags, a write at the scanned position.",
+     parts)
 
 
-def stages():
-    """Measured time per stage, with the memory traffic each one moves."""
-    top, h, scale = 104, 26, 320 / max(ms for _, ms in STAGE_MS)
-    parts = []
-    for k, ((name, ms), b) in enumerate(zip(STAGE_MS, BYTES)):
-        y = top + k * (h + 12)
-        parts.append(text(150, y + h / 2 + 4, name, "name", "end"))
-        parts.append(bar(162, y, max(ms * scale, 2), h, "service"))
-        rate = b * PIXELS / 1e9 / (ms / 1e3) if b else 0
-        body = f"{ms:.3f} ms" + (f", {rate:.0f} GB/s" if b else "")
-        parts.append(note(170 + max(ms * scale, 2), y + h / 2 + 4, body))
-    total = sum(ms for _, ms in STAGE_MS)
-    parts.append(note(36, top + 7 * (h + 12) + 14,
-                      f"Sum of the 7 stages: {total:.2f} ms per image of 1,920 x 1,080 "
-                      "pixels."))
-    save(OUT + "ch21-stages.svg", 640, top + 7 * (h + 12) + 40,
-         "Horizontal bars of the measured time of each stage for 1 image: "
-         + "; ".join(f"{n} {ms:.3f} ms" for n, ms in STAGE_MS)
-         + f". The 7 stages sum to {total:.2f} ms.",
-         "Time per stage", "1 image of 1,920 x 1,080 pixels on the measured GPU.", parts)
+# 21.2  Bytes per element moved by the 2 compaction methods, for a kept fraction f = 0.5.
+stages = [
+    ("3 passes", [("keep_flags", 8, "client"), ("scan", 16, "service"), ("scatter", 14, "store")]),
+    ("warp votes", [("count_kept", 4, "client"), ("compact_votes", 6, "store")]),
+    ("minimum", [("read + write kept", 6, "good")]),
+]
+parts, scale, x0 = [], 11, 130
+for r, (name, pieces) in enumerate(stages):
+    y = 120 + r * 92
+    parts.append(mono(x0 - 14, y + 20, name, "end", MUTED))
+    at = x0
+    for label, size, kind in pieces:
+        w = size * scale
+        parts.append(bar(at, y, w, 30, kind, f"{size} B"))
+        at += w
+    total = sum(size for _, size, _ in pieces)
+    parts.append(mono(at + 10, y + 20, f"= {total} B", "start"))
+    names = " + ".join(f"{label} {size} B" for label, size, _ in pieces)
+    parts.append(mono(x0, y + 52, names, "start", MUTED))
+parts += [note(32, 420, "Per input element of 4 bytes, with half of the elements kept (f = 0.5). The", room=596),
+          note(32, 438, "scan reads and writes the flags twice; the scatter reads input, flag and scan.", room=596)]
+save(OUT + "ch21-bytes.svg", 660, 460,
+     "Bars of bytes moved per input element when half the elements are kept. 3 passes: keep_flags 8 bytes, "
+     "scan 16 bytes, scatter 14 bytes, total 38 bytes. Warp votes: count_kept 4 bytes, compact_votes 6 "
+     "bytes, total 10 bytes. The minimum, reading the input and writing the kept half, is 6 bytes.",
+     "Bytes moved per element", "3 passes move 38 bytes per element, warp votes 10, the minimum is 6.",
+     parts)
 
 
-def streams():
-    """The batch on 1 and on 3 streams, as lanes of copies and kernels, and the rates."""
-    parts = [text(36, 106, "1 stream", "name"), text(36, 190, "3 streams", "name")]
-    # Milliseconds per image, from the quoted run: copy in, the 7 kernels, copy out.
-    seq = [(0.22, "client"), (1.41, "service"), (0.08, "store")]
-    scale, x0 = 90, 120
-
-    def image(start, y):
-        bars, at = [], start
-        for ms, kind in seq:
-            label = f"{ms:.2f} ms" if ms > 1 else ""
-            bars.append(bar(x0 + at * scale, y, ms * scale - 1.5, 22, kind, label))
-            at += ms
-        return bars
-
-    for k in range(3):
-        parts += image(k * 1.71, 92)
-        parts += image(k * 1.41, 140 + k * 28)
-    parts.append(legend(120, 248, [("client", "copy in, 6.2 MB"), ("service", "7 kernels"),
-                                   ("store", "copy out, 2.1 MB")]))
-    top = 272
-    peak = max(rate for _, rate in RATES)
-    for k, (name, rate) in enumerate(RATES):
-        y = top + k * 34
-        parts.append(text(150, y + 17, name, "name", "end"))
-        kind = "idle" if name.startswith("CPU") else "good"
-        parts.append(bar(162, y, max(rate / peak * 340, 2), 24, kind))
-        parts.append(note(170 + max(rate / peak * 340, 2), y + 16, f"{rate:.1f} images/s"))
-    save(OUT + "ch21-streams.svg", 640, top + 4 * 34 + 20,
-         "Top: on 1 stream each image is copied in, processed and copied out before the next "
-         "starts. On 3 streams the copy of 1 image overlaps the kernels of another. Bottom, "
-         "measured images per second for a batch of 128 images: "
-         + "; ".join(f"{n} {r:.1f}" for n, r in RATES) + ".",
-         "A batch of images on streams", "Copies of 1 image run while another is processed.",
-         parts)
+# 21.3  A warp vote, drawn for 8 lanes: ballot, the lanes below, and the rank.
+keep = [0, 1, 1, 0, 1, 0, 0, 1]
+parts = header(100, "lane")
+parts += row(112, "keep", keep, ["good" if k else "idle" for k in keep])
+below = [1 if lane < 4 else 0 for lane in range(8)]
+both = [a & b for a, b in zip(keep, below)]
+parts += row(170, "votes", keep, ["client"] * 8)
+parts += row(216, "below 4", below, ["store" if b else "idle" for b in below])
+parts += row(262, "votes & below", both, ["service" if b else "idle" for b in both])
+parts += [bar(150, 330, 236, 34, "good", "lane 4: popcount 2 = rank 2"),
+          mono(410, 352, "next + before + rank", "start", MUTED),
+          note(32, 404, "ballot returns 1 bit per lane of the warp, here drawn for 8 lanes. A kept lane's", room=596),
+          note(32, 422, "rank is the number of kept lanes to its left: the 1 bits of the votes below it.", room=596)]
+save(OUT + "ch21-ballot.svg", 660, 444,
+     "8 lanes with keep flags 0, 1, 1, 0, 1, 0, 0, 1. The ballot is the same 8 bits. For lane 4 the mask of "
+     "lanes below is 1 for lanes 0 to 3; the votes and the mask give 0, 1, 1, 0, whose popcount 2 is the "
+     "rank of lane 4 among the kept lanes.",
+     "A rank from a warp vote", "The kept lanes to the left of lane 4, counted from 1 ballot.", parts)
 
 
-def montage(folder):
-    """The program's real output images: 3 panels reduced to 480 x 270 pixels, and 1 panel
-    of 2 crops of 60 x 68 pixels around the window, enlarged 4 times without smoothing."""
-    from PIL import Image, ImageDraw, ImageFont
+# 21.4  A stable split by bit 0, and the 3 passes that sort 3-bit keys.
+keys = [5, 2, 7, 0, 3, 6, 1, 4]
+zero = [1 - (k & 1) for k in keys]
+upto = [sum(zero[:i + 1]) for i in range(8)]
+zeros = upto[-1]
+at = [u - 1 if z else zeros + i - u for i, (z, u) in enumerate(zip(zero, upto))]
+out = [0] * 8
+for i, a in enumerate(at):
+    out[a] = keys[i]
+parts = header(100, "index")
+parts += row(112, "key", keys, ["good" if z else "store" for z in zero])
+parts += row(158, "bit 0 is 0", zero, ["good" if z else "idle" for z in zero])
+parts += row(204, "inclusive", upto, ["service"] * 8)
+parts += row(250, "position", at, ["good" if z else "store" for z in zero])
+parts += row(340, "output", out, ["good" if k % 2 == 0 else "store" for k in out])
+parts += [mono(150, 306, "zero bit: inclusive - 1     one bit: 4 + i - inclusive", "start", MUTED),
+          note(32, 404, "4 keys have bit 0 = 0, so they take positions 0 to 3 and the others 4 to 7.", room=596),
+          note(32, 422, "Within each group the input order is kept: the split is stable.", room=596)]
+save(OUT + "ch21-split.svg", 660, 444,
+     "Keys 5, 2, 7, 0, 3, 6, 1, 4. Flags for bit 0 equal to 0: 0, 1, 0, 1, 0, 1, 0, 1. Inclusive scan 0, 1, 1, "
+     "2, 2, 3, 3, 4, so 4 keys have a zero bit. Positions 4, 0, 5, 1, 6, 2, 7, 3. Output 2, 0, 6, 4, 5, 7, 3, 1: "
+     "even keys first, odd keys after, each group in input order.",
+     "A stable split by 1 bit", "Zero-bit keys to the front, one-bit keys after them, in order.", parts)
 
-    open_rgb = lambda file: Image.open(f"{folder}/{file}").convert("RGB")
-    crop = (400, 580, 460, 648)
-    zoom = lambda file: open_rgb(file).crop(crop).resize((236, 270), Image.NEAREST)
-    pair = Image.new("RGB", (480, 270), "#FBFAF6")
-    pair.paste(zoom("equalised.pgm"), (0, 0))
-    pair.paste(zoom("blurred.pgm"), (244, 0))
+passes = [keys]
+for bit in range(3):
+    cur = passes[-1]
+    passes.append([k for k in cur if not (k >> bit) & 1] + [k for k in cur if (k >> bit) & 1])
+parts = []
+for p, values in enumerate(passes):
+    y = 104 + p * 76
+    name = "input" if p == 0 else f"after bit {p - 1}"
+    if p < 3:
+        kinds = ["good" if not (k >> p) & 1 else "store" for k in values]
+    else:
+        kinds = ["client"] * 8
+    parts += row(y, name, values, kinds)
+    for k, v in enumerate(values):
+        parts.append(mono(centre(k), y + 44, format(v, "03b"), "middle", MUTED))
+parts.append(legend(150, 410, [("good", "next bit is 0"), ("store", "next bit is 1")]))
+parts += [note(32, 436, "Each pass is a stable split on the next bit. Because the split keeps the order of", room=596),
+          note(32, 454, "the earlier passes, after the last pass the keys are in order: 0 to 7.", room=596)]
+save(OUT + "ch21-radix.svg", 660, 476,
+     "Keys 5, 2, 7, 0, 3, 6, 1, 4 after a split on bit 0: 2, 0, 6, 4, 5, 7, 3, 1. After bit 1: 0, 4, 5, 1, 2, "
+     "6, 7, 3. After bit 2: 0, 1, 2, 3, 4, 5, 6, 7, sorted.",
+     "A radix sort of 3-bit keys", "3 stable splits, least significant bit first, sort the 8 keys.", parts)
 
-    panels = [(open_rgb("input.ppm").resize((480, 270)), "input (colour)"),
-              (open_rgb("equalised.pgm").resize((480, 270)), "equalised"),
-              (pair, "equalised | blurred, 4 x zoom on the window"),
-              (open_rgb("edges.pgm").resize((480, 270)), "edges")]
-    sheet = Image.new("RGB", (2 * 480 + 30, 2 * 300 + 30), "#FBFAF6")
-    draw = ImageDraw.Draw(sheet)
-    font = ImageFont.load_default(size=18)
-    for k, (picture, title) in enumerate(panels):
-        x, y = 10 + (k % 2) * 490, 10 + (k // 2) * 305
-        sheet.paste(picture, (x, y + 26))
-        draw.text((x, y + 2), title, fill="#1B2430", font=font)
-    sheet.save(OUT + "ch21-images.png")
+
+# 21.6  Equalisation of a 16-pixel image with 8 grey levels.
+counts = [0, 0, 4, 6, 4, 2, 0, 0]
+cdf = [sum(counts[:v + 1]) for v in range(8)]
+low, n = 4, 16
+table = [((7 * max(c - low, 0)) + (n - low) // 2) // (n - low) for c in cdf]
+parts = header(100, "level")
+parts += row(112, "count", counts, ["store" if c else "idle" for c in counts])
+parts += row(158, "cdf", cdf, ["service"] * 8)
+parts += row(204, "new level", table, ["good" if c else "idle" for c in counts])
+base = 384
+for panel, x0 in (("before", 70), ("after", 380)):
+    for v in range(8):
+        x = x0 + v * 30
+        parts.append(mono(x + 10, base + 16, str(v), "middle", MUTED))
+    parts.append(line(x0 - 6, base, x0 + 236, base, MUTED))
+for v in range(8):
+    h = counts[v] * 14
+    if h:
+        parts.append(bar(70 + v * 30, base - h, 20, h, "store"))
+        parts.append(bar(380 + table[v] * 30, base - h, 20, h, "good"))
+parts += [mono(70, 262, "before: levels 2 to 5", "start", MUTED),
+          mono(380, 262, "after: levels 0, 4, 6, 7", "start", MUTED),
+          note(32, 436, "new level = round(7 (cdf - 4) / (16 - 4)). The 4 occupied levels 2, 3, 4, 5", room=596),
+          note(32, 454, "move to 0, 4, 6, 7: the narrow range is stretched over the whole scale.", room=596)]
+save(OUT + "ch21-cdf.svg", 660, 476,
+     "A 16-pixel image with 8 grey levels has counts 0, 0, 4, 6, 4, 2, 0, 0. The cumulative counts are 0, 0, 4, "
+     "10, 14, 16, 16, 16. With the first occupied cdf 4 and 16 pixels, the new levels of the occupied levels "
+     "2, 3, 4, 5 are 0, 4, 6, 7. 2 small histograms show the counts before, on levels 2 to 5, and after, "
+     "spread from 0 to 7.",
+     "Histogram equalisation by hand", "The cumulative histogram becomes the table of new levels.", parts)
 
 
-if __name__ == "__main__":
-    pipeline()
-    equalise()
-    blur()
-    sobel()
-    if all(ms > 0 for _, ms in STAGE_MS):
-        stages()
-        streams()
-    if len(sys.argv) > 1:
-        montage(sys.argv[1])
+# 21.7  The measured image: shares of the pixels in 8 groups of 32 levels, before and after.
+groups = ["0-31", "32-63", "64-95", "96-127", "128-159", "160-191", "192-223", "224-255"]
+before = [0.0, 0.0, 0.0, 51.6, 48.4, 0.0, 0.0, 0.0]
+after = [11.7, 13.0, 12.2, 11.5, 11.9, 12.7, 13.7, 13.3]
+parts = []
+for name, shares, kind, y0 in (("before", before, "store", 250), ("after", after, "good", 430)):
+    parts.append(mono(32, y0 - 128, name, "start", MUTED))
+    parts.append(line(100, y0, 620, y0, MUTED))
+    for k, share in enumerate(shares):
+        x = 110 + k * 64
+        h = share * 2.2
+        if h:
+            parts.append(bar(x, y0 - h, 44, h, kind))
+        parts.append(mono(x + 22, y0 - h - 6, f"{share:.1f} %", "middle", MUTED))
+        parts.append(mono(x + 22, y0 + 16, groups[k], "middle", MUTED))
+parts += [note(32, 470, "8,192 x 8,192 pixels. Before: all pixels on levels 96 to 158. After: about 1/8", room=596),
+          note(32, 488, "of the pixels in each group of 32 levels; level 96 maps to 0, 127 to 131, 158 to 255.",
+               room=596)]
+save(OUT + "ch21-shares.svg", 660, 510,
+     "2 bar charts of the measured image, shares of the pixels in 8 groups of 32 grey levels. Before: 51.6 % "
+     "in 96 to 127 and 48.4 % in 128 to 159, 0 elsewhere. After: 11.7, 13.0, 12.2, 11.5, 11.9, 12.7, 13.7 "
+     "and 13.3 % in the 8 groups.",
+     "An image before and after equalisation", "Measured: the 2 occupied groups spread over all 8.", parts)
+
+
+# 21.5  Measured compaction time, 3 passes against warp votes, for 3 kept fractions.
+runs = [("10 % kept", 10.08, 2.27), ("50 % kept", 9.35, 2.49), ("90 % kept", 9.59, 2.57)]
+parts, scale = [], 32
+for r, (name, three, votes) in enumerate(runs):
+    y = 112 + r * 96
+    parts.append(mono(32, y + 20, name, "start", MUTED))
+    parts.append(bar(150, y, three * scale, 26, "store"))
+    parts.append(mono(156 + three * scale, y + 18, f"{three:.2f} ms  3 passes", "start"))
+    parts.append(bar(150, y + 34, votes * scale, 26, "good"))
+    parts.append(mono(156 + votes * scale, y + 52, f"{votes:.2f} ms  warp votes", "start"))
+parts += [note(32, 418, "16,777,216 floats, average of 20 runs. At 50 % kept the ratio is 9.35 / 2.49 = 3.8,",
+               room=596),
+          note(32, 436, "the ratio of the bytes moved, 38 / 10 = 3.8: both versions run at the memory rate.",
+               room=596)]
+save(OUT + "ch21-measured.svg", 660, 458,
+     "Bars of measured time for compacting 16,777,216 floats. 10 % kept: 3 passes 10.08 ms, warp votes 2.27 "
+     "ms. 50 % kept: 9.35 ms and 2.49 ms. 90 % kept: 9.59 ms and 2.57 ms.",
+     "Measured compaction time", "Warp votes take about 1/4 of the time of 3 passes.", parts)
