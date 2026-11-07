@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 372" width="640" height="372" role="img" aria-label="Left: the column weights 1, 4, 6, 4, 1 and the row weights 1, 4, 6, 4, 1, and their 25 products from 1 at the corners to 36 in the centre, summing to 256. Right: pixel (3, 3) of the example. The row pass gives 4,080 in row 1 and 2,635 in rows 2 to 5; the column pass gives 4,080 + 15 times 2,635 = 43,605, and (43,605 + 128) &gt;&gt; 8 = 170. 1 pass over 25 weights gives the same 43,605. 2 passes cost 10 multiply-adds per pixel instead of 25.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="372" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A separable blur</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">2 passes of 5 weights give the 25 weights of 1 pass.</text>
+  <text x="40.0" y="96.0" class="name" text-anchor="start" xml:space="preserve">the 25 weights of 1 pass</text>
+  <text x="264.0" y="136.0" class="note" text-anchor="start" xml:space="preserve">b(j)</text>
+  <text x="52.0" y="136.0" class="note" text-anchor="start" xml:space="preserve">a(i)</text>
+  <rect x="92.0" y="120.0" width="30.0" height="24.0" rx="3" fill="#EEF6DC" stroke="#5E9400" stroke-width="1.2"/>
+  <text x="107.0" y="136.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <rect x="52.0" y="150.0" width="30.0" height="26.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="67.0" y="167.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <rect x="126.0" y="120.0" width="30.0" height="24.0" rx="3" fill="#EEF6DC" stroke="#5E9400" stroke-width="1.2"/>
+  <text x="141.0" y="136.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="52.0" y="184.0" width="30.0" height="26.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="67.0" y="201.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="160.0" y="120.0" width="30.0" height="24.0" rx="3" fill="#EEF6DC" stroke="#5E9400" stroke-width="1.2"/>
+  <text x="175.0" y="136.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">6</text>
+  <rect x="52.0" y="218.0" width="30.0" height="26.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="67.0" y="235.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">6</text>
+  <rect x="194.0" y="120.0" width="30.0" height="24.0" rx="3" fill="#EEF6DC" stroke="#5E9400" stroke-width="1.2"/>
+  <text x="209.0" y="136.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="52.0" y="252.0" width="30.0" height="26.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="67.0" y="269.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="228.0" y="120.0" width="30.0" height="24.0" rx="3" fill="#EEF6DC" stroke="#5E9400" stroke-width="1.2"/>
+  <text x="243.0" y="136.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <rect x="52.0" y="286.0" width="30.0" height="26.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="67.0" y="303.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <rect x="92.0" y="150.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="107.0" y="167.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <rect x="126.0" y="150.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="141.0" y="167.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="160.0" y="150.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="175.0" y="167.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">6</text>
+  <rect x="194.0" y="150.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="209.0" y="167.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="228.0" y="150.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="243.0" y="167.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <rect x="92.0" y="184.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="107.0" y="201.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="126.0" y="184.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="141.0" y="201.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
+  <rect x="160.0" y="184.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="175.0" y="201.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">24</text>
+  <rect x="194.0" y="184.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="209.0" y="201.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
+  <rect x="228.0" y="184.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="243.0" y="201.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="92.0" y="218.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="107.0" y="235.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">6</text>
+  <rect x="126.0" y="218.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="141.0" y="235.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">24</text>
+  <rect x="160.0" y="218.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="175.0" y="235.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">36</text>
+  <rect x="194.0" y="218.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="209.0" y="235.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">24</text>
+  <rect x="228.0" y="218.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="243.0" y="235.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">6</text>
+  <rect x="92.0" y="252.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="107.0" y="269.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="126.0" y="252.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="141.0" y="269.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
+  <rect x="160.0" y="252.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="175.0" y="269.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">24</text>
+  <rect x="194.0" y="252.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="209.0" y="269.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
+  <rect x="228.0" y="252.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="243.0" y="269.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="92.0" y="286.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="107.0" y="303.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <rect x="126.0" y="286.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="141.0" y="303.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="160.0" y="286.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="175.0" y="303.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">6</text>
+  <rect x="194.0" y="286.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="209.0" y="303.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">4</text>
+  <rect x="228.0" y="286.0" width="30.0" height="26.0" rx="3" fill="#FFFFFF" stroke="#C9D1DB" stroke-width="1.2"/>
+  <text x="243.0" y="303.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">1</text>
+  <text x="40.0" y="334.0" class="note" text-anchor="start" xml:space="preserve">weight (i, j) = a(i) x b(j); the 25 sum to 16 x 16 = 256</text>
+  <text x="330.0" y="96.0" class="name" text-anchor="start" xml:space="preserve">pixel (3, 3), 2 passes</text>
+  <text x="330.0" y="122.0" class="mono" text-anchor="start" xml:space="preserve">row pass, row 1:  4,080</text>
+  <text x="330.0" y="142.0" class="mono" text-anchor="start" xml:space="preserve">row pass, rows 2 to 5:  2,635 each</text>
+  <text x="330.0" y="162.0" class="mono" text-anchor="start" xml:space="preserve">column pass:</text>
+  <text x="330.0" y="182.0" class="mono" text-anchor="start" xml:space="preserve"> 4,080 + 4 x 2,635 + 6 x 2,635</text>
+  <text x="330.0" y="202.0" class="mono" text-anchor="start" xml:space="preserve">   + 4 x 2,635 + 2,635 = 43,605</text>
+  <text x="330.0" y="222.0" class="mono" text-anchor="start" xml:space="preserve">(43,605 + 128) &gt;&gt; 8 = 170</text>
+  <text x="330.0" y="258.0" class="name" text-anchor="start" xml:space="preserve">the same pixel, 1 pass</text>
+  <text x="330.0" y="284.0" class="mono" text-anchor="start" xml:space="preserve">sum of 25 weights x pixels = 43,605</text>
+  <text x="330.0" y="314.0" class="note" text-anchor="start" xml:space="preserve">work per pixel: 5 + 5 = 10 multiply-adds</text>
+  <text x="330.0" y="334.0" class="note" text-anchor="start" xml:space="preserve">instead of 5 x 5 = 25</text>
+</svg>

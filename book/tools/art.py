@@ -1486,11 +1486,11 @@ def ch23():
             crab(190, s=1.1, mood="happy", look=1),
             tag(620, 34, "each lantern's share: exp(x) / sum of exp", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
-@plate("ch24", "Capstone: An Image Pipeline in Rust", "The whole crew", "The whole crew of crabs stands on a "
+@plate("ch24", "Capstone: An Image Pipeline", "The whole crew", "The whole crew of crabs stands on a "
        "beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. "
        "The first picture is in colour, the second in gray, the third blurred, and the last shows only white "
-       "outlines on black. Arrows lead from each picture to the next, and a crab stands under each one: an "
-       "assembly line in which every crab does 1 stage to every image. A tag reads 4 stages, many images in flight.")
+       "outlines on black. Arrows lead from each picture to the next, and a crab stands under each one, "
+       "labelled grayscale, equalise, blur and sobel. A tag reads 4 stages, many images in flight.")
 def ch24():
     xs = [150, 340, 530, 720]
     modes = ["color", "gray", "blur", "edges"]
