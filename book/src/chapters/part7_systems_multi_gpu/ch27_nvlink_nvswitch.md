@@ -13,8 +13,8 @@ exchange determines how much faster the program runs when GPUs are added.
 In this chapter, we study the hardware that carries data between GPUs. We start by counting
 the bytes that each GPU sends in a step of a data-parallel training program, and the time
 those bytes take over PCIe. We then describe **NVLink**, NVIDIA's interconnect between GPUs,
-and **NVSwitch**, the switch that connects many GPUs through NVLink, and we compare the
-topologies used to connect 4, 8 and 72 GPUs. Finally, we use the CUDA peer-to-peer API, which
+and **NVSwitch**, the switch that connects many GPUs through NVLink, and we compare the ways in
+which 4, 8 and 72 GPUs are connected. Finally, we use the CUDA peer-to-peer API, which
 allows a GPU to copy to and access the memory of another GPU, and the tools that report how
 the GPUs of a machine are connected.
 
@@ -24,7 +24,7 @@ This chapter covers
 
 - the reasons for using several GPUs, and the data they exchange in each step
 - links, differential pairs, and bandwidth in each direction
-- the NVLink generations, compared with PCIe and with local memory
+- the NVLink generations, compared with PCIe and with the memory of the GPU itself
 - full meshes, NVSwitch, and the number of links needed for 4, 8 and 72 GPUs
 - bisection bandwidth
 - unified virtual addressing, peer copies and direct access to a peer's memory
@@ -94,8 +94,9 @@ also receives, \\(2(N - 1)/N\\) times the size of the data.
 
 Let us apply this to a concrete case. A model of 500 × 10<sup>6</sup> parameters in 16-bit
 numbers has 500 × 10<sup>6</sup> × 2 bytes = 1 GB of gradients. On \\(N\\) = 8 GPUs, each GPU
-sends 2 × (8 − 1) / 8 × 1 GB = 1.75 GB per step, and receives as much. PCIe 4.0 with 16 lanes
-carries 32 GB/s in each direction (Section 4.1.2), so sending 1.75 GB takes 1.75 / 32 =
+sends 2 × (8 − 1) / 8 × 1 GB = 1.75 GB per step, and receives as much. PCIe 4.0 with 16 lanes, the
+widest PCIe connection of a GPU (lanes are defined in Section 27.2.1), carries 32 GB/s in each
+direction (Section 4.1.2), so sending 1.75 GB takes 1.75 / 32 =
 0.0547 s, or 54.7 ms. Assume that a single GPU needs 400 ms to compute the step for the whole
 batch. Each of the 8 GPUs then needs 400 / 8 = 50 ms to compute its share.
 
@@ -131,27 +132,57 @@ The interconnect between the GPUs determines how many GPUs still make the progra
 
 ### 27.2.1 Links and differential pairs
 
-An **interconnect** is the hardware that carries data between chips. PCIe, described in
-Chapter 4, is the standard interconnect between a CPU and the devices plugged into it.
+Before we describe NVLink, we need 4 terms for the hardware that connects 2 chips. We define them
+from the outside in: the system of connections, 1 connection, and the wires inside it.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.1</span> **Interconnect and link.** An **interconnect** is the
+hardware that carries data between chips. A **link** is 1 connection of an interconnect between 2
+chips. A link carries data in both directions, and its **bandwidth** in each direction is the
+maximum number of bytes that it can move per second in that direction.
+
+*Example.* PCI Express (**PCIe**), described in Chapter 4, is the standard interconnect between a
+CPU and the devices plugged into it. A GPU in a PCIe slot is joined to the CPU by 1 PCIe link.
+
+</div>
 
 Both PCIe and NVLink transmit data as electrical signals over **differential pairs**. A
 differential pair is 2 wires that carry a signal as the difference between their voltages.
 Noise from outside affects both wires nearly equally, so the difference is disturbed much less
-than the voltage on a single wire would be. A pair carries data in 1 direction. A PCIe **lane**
-consists of 2 pairs, 1 in each direction, and PCIe increases its bandwidth by using 16 lanes
-side by side.
+than the voltage on a single wire would be. A pair carries data in 1 direction, so a link that
+carries data both ways needs pairs in both directions.
 
-**NVLink** is NVIDIA's interconnect between GPUs, and in some systems between a GPU and a CPU.
-It is organised into **links**, each a bundle of pairs in both directions. A GPU has many
-links. It can connect each link to a different GPU, or connect several links to the same GPU.
+<div class="definition">
 
-For example, a link of NVLink 4, the generation used by the H100, has 2 pairs in each
-direction, and each pair signals at 100 Gbit/s. A link therefore carries 2 × 100 = 200 Gbit/s
-in each direction, which is 200 / 8 = 25 GB/s. An H100 has 18 links, for a total of
-18 × 25 = 450 GB/s in each direction. The NVLink 3 of the A100 reached the same 25 GB/s per
-link with 4 pairs in each direction at half the signalling rate. NVLink 4 halved the number of
-pairs per link and doubled their rate, which leaves room on the chip for more links. Figure
-27.2 shows a link and the 18 links of an H100.
+<span class="box-label">Definition 27.2</span> **Lane.** A PCIe **lane** consists of 2 differential
+pairs, 1 in each direction. A PCIe link is made of 1 or more lanes side by side, and its bandwidth
+is the number of lanes times the bandwidth of 1 lane.
+
+*Example.* A lane of PCIe 4.0 carries 2 GB/s in each direction. A GPU in a slot with 16 lanes
+therefore has 16 × 2 = 32 GB/s in each direction, the figure used in Section 27.1.3.
+
+</div>
+
+<div class="definition">
+
+<span class="box-label">Definition 27.3</span> **NVLink.** **NVLink** is NVIDIA's interconnect between
+GPUs, and in some systems between a GPU and a CPU. It is organised into links, each a bundle of
+pairs in both directions. A GPU has many NVLink links. It can connect each link to a different
+GPU, or connect several links to the same GPU.
+
+*Example.* An H100 has 18 NVLink links. In a server of 8 H100s connected directly, a GPU can give
+2 links to each of the other 7 GPUs.
+
+</div>
+
+Let us compute the bandwidth of 1 NVLink link from its pairs. A link of NVLink 4, the generation
+used by the H100, has 2 pairs in each direction, and each pair signals at 100 Gbit/s. A link
+therefore carries 2 × 100 = 200 Gbit/s in each direction, which is 200 / 8 = 25 GB/s. An H100 has
+18 links, for a total of 18 × 25 = 450 GB/s in each direction. The NVLink 3 of the A100 reached
+the same 25 GB/s per link with 4 pairs in each direction at half the signalling rate. NVLink 4
+halved the number of pairs per link and doubled their rate, which leaves room on the chip for
+more links. Figure 27.2 shows a link and the 18 links of an H100.
 
 <figure>
 <img src="../../figures/ch27-link.svg" alt="Left: 1 link of NVLink 4 between GPU A and GPU B, drawn as 2 wire pairs from A to B and 2 from B to A. 2 pairs of 100 Gbit/s carry 200 Gbit/s, 25 GB/s each way. Right: the 18 links of 1 H100, numbered 1 to 18: 18 times 25 GB/s is 450 GB/s each way, 900 GB/s both ways, against 64 GB/s each way for PCIe 5.0 with 16 lanes.">
@@ -160,10 +191,10 @@ pairs per link and doubled their rate, which leaves room on the chip for more li
 
 ### 27.2.2 Bandwidth in each direction
 
-The **bandwidth** of a link is the maximum amount of data it can carry per unit of time. A link
-with pairs in both directions has 2 bandwidths, 1 for each direction, and both can be used at
-the same time. NVIDIA quotes NVLink bandwidth as the sum of the 2 directions: the 900 GB/s
-quoted for an H100 is 450 GB/s in each direction. PCIe bandwidth is usually quoted per
+Recall from Definition 27.1 that the bandwidth of a link is the maximum amount of data it can carry
+per unit of time. A link with pairs in both directions has 2 bandwidths, 1 for each direction, and
+both can be used at the same time. NVIDIA quotes NVLink bandwidth as the sum of the 2 directions:
+the 900 GB/s quoted for an H100 is 450 GB/s in each direction. PCIe bandwidth is usually quoted per
 direction, as in Chapter 4: 32 GB/s for PCIe 4.0 with 16 lanes and 64 GB/s for PCIe 5.0.
 
 A comparison between links must use the same convention for both. A GPU that sends its
@@ -213,8 +244,18 @@ Section 27.1.3.
 
 A GPU's own memory is still faster than any link. The last bar of Figure 27.3 is a copy within
 an H100. Its memory delivers 3,350 GB/s, and a copy both reads and writes every byte, so it
-moves data at 3,350 / 2 = 1,675 GB/s. For a program, the important quantity is how many times
-slower the memory of another GPU in the same system, called a **peer**, is to reach than the
+moves data at 3,350 / 2 = 1,675 GB/s.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.4</span> **Peer.** A **peer** of a GPU is another GPU in the
+same system, and the memory of a peer is called **peer memory**.
+
+*Example.* In a server of 8 GPUs, GPU 0 has 7 peers, GPUs 1 to 7.
+
+</div>
+
+For a program, the important quantity is how many times slower peer memory is to reach than the
 GPU's own memory. The following table uses the **SXM** versions of the data-centre GPUs, which
 are modules mounted on a server board with NVLink. The same GPUs are also sold as PCIe cards,
 with different links and memory.
@@ -236,12 +277,29 @@ from a peer over NVLink spends about as much time on the link as on its own memo
 
 ### 27.3.1 Full-mesh topology
 
-The **topology** of a multi-GPU system is the pattern of links that connects its GPUs. The
-simplest topology gives every pair of GPUs its own link, and is called a **full mesh**. In a
-full mesh of 4 GPUs, each GPU needs a link to each of the other 3 GPUs. This gives
-4 × 3 = 12 link ends, and since each link has 2 ends, the mesh has 12 / 2 = 6 links. With 8
-GPUs, each GPU needs 7 links, and the mesh needs 8 × 7 / 2 = 28. In general, a full mesh of
-\\(N\\) GPUs needs \\(N - 1\\) links per GPU and \\(N(N - 1)/2\\) links in total.
+Once a system has more than 2 GPUs, there is more than 1 way to connect them, and the choice
+determines how fast each pair of GPUs can exchange data.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.5</span> **Topology.** The **topology** of a multi-GPU system is
+the pattern of links that connects its GPUs: which pairs of chips are joined, and by how many
+links.
+
+*Example.* 4 GPUs can be connected in a ring, 0–1–2–3–0, with 4 connections, or with a connection
+between every pair, with 6 connections. The 2 topologies use the same GPUs but give different
+bandwidths between GPUs 0 and 2: the ring has no direct connection between them.
+
+</div>
+
+The simplest topology gives every pair of GPUs its own link, and is called a **full mesh**. Let us
+count the links of a full mesh of 4 GPUs by hand. GPU 0 needs a link to each of GPUs 1, 2 and 3, and
+so do the other 3 GPUs. The 4 GPUs therefore have 4 × 3 = 12 link ends. Each link has 2 ends, 1 on
+each of the GPUs that it joins, so the link from GPU 0 to GPU 1 is counted once at GPU 0 and once at
+GPU 1. The mesh therefore has 12 / 2 = 6 links: 0–1, 0–2, 0–3, 1–2, 1–3 and 2–3. With 8 GPUs, each
+GPU needs 7 links, and the mesh needs 8 × 7 / 2 = 28. The same count for \\(N\\) GPUs gives the
+general rule: a full mesh of \\(N\\) GPUs needs \\(N - 1\\) links per GPU and \\(N(N - 1)/2\\) links
+in total.
 
 Figure 27.4 shows both cases. The number of links in a mesh grows with the square of the
 number of GPUs, but the number of links on each GPU is fixed when the chip is designed.
@@ -260,10 +318,22 @@ bandwidth is available between any 2 of them.
 
 ### 27.3.2 NVSwitch
 
-A **switch** is a chip with many ports that forwards data arriving at any port to any other
-port. **NVSwitch** is NVIDIA's switch for NVLink. Instead of connecting GPUs to each other,
+A mesh runs out of links because every GPU must have a link of its own to every other GPU. A
+switch removes this requirement.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.6</span> **Switch and NVSwitch.** A **switch** is a chip with
+many **ports**, each of which accepts 1 link, and it forwards data arriving at any port to any
+other port. **NVSwitch** is NVIDIA's switch for NVLink. Instead of connecting GPUs to each other,
 each GPU connects all of its links to switches, and the switches forward its data to whichever
 GPU it addresses.
+
+*Example.* 8 GPUs connected through switches need 8 connections, 1 bundle of links from each GPU
+to the switches, where a full mesh of the same 8 GPUs needs 28 links. A ninth GPU adds 1 more
+bundle, whereas in the mesh it would add 8 links.
+
+</div>
 
 The difference appears when a GPU communicates with a single peer. In a mesh, only the 2 links
 between the pair carry the data. Through switches, all 18 links of the GPU carry it, at the
@@ -276,9 +346,22 @@ connecting 8 H100s.
 <figcaption><b>Figure 27.5</b> 8 H100s: 50 GB/s to a peer in a mesh, 450 GB/s through switches.</figcaption>
 </figure>
 
-The switch adds a hop: data travels from the GPU to a switch and then to the peer, and each hop
-adds latency. For exchanges larger than a few kilobytes, the gain in bandwidth outweighs the
-added latency.
+A switch also changes the path that data takes.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.7</span> **Hop.** A **hop** is 1 crossing of a link, from 1
+chip to the next chip on the path of the data. The **latency** of a transfer is the time between
+the start of the transfer and the arrival of its first byte, and every hop adds to it.
+
+*Example.* In a full mesh, data from GPU 0 to GPU 3 crosses the link 0–3: 1 hop. Through a switch,
+it crosses the link from GPU 0 to the switch and then the link from the switch to GPU 3: 2 hops.
+
+</div>
+
+The switch therefore adds a hop: data travels from the GPU to a switch and then to the peer, and
+each hop adds latency. For exchanges larger than a few kilobytes, the gain in bandwidth outweighs
+the added latency.
 
 ### 27.3.3 NVLink systems
 
@@ -304,10 +387,30 @@ collective operations of Chapter 28 must move.
 ### 27.3.4 Bisection bandwidth
 
 Topologies differ most when every GPU sends data at the same time, and a single number
-characterises this case. Divide the GPUs into 2 halves of equal size, choosing the division
-that leaves the fewest links crossing between the halves. The **bisection bandwidth** is the
-total bandwidth, in each direction, of the links that cross. It is the maximum amount of data
-that one half can send to the other half per unit of time.
+characterises this case. Let us derive it on 4 GPUs before we define it. Connect GPUs 0, 1, 2 and
+3 in a ring, 0–1–2–3–0, with 1 link of 25 GB/s on each edge, and let GPUs 0 and 1 each send data
+to GPUs 2 and 3 at the same time. Every byte must cross from the half {0, 1} to the half {2, 3},
+and only 2 links join the halves: 1–2 and 3–0. The 2 halves can therefore exchange at most
+2 × 25 = 50 GB/s in each direction, however fast each GPU is.
+
+The answer depends on where we cut. The division into {0, 2} and {1, 3} is crossed by all 4 links
+of the ring, 100 GB/s. A program cannot choose which halves need to talk to each other, so the
+number that describes the topology is the worst case, the division crossed by the fewest links:
+50 GB/s for this ring. In a full mesh of the same 4 GPUs, with 1 link per pair, every division
+into 2 halves of 2 GPUs is crossed by 2 × 2 = 4 links, 100 GB/s.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.8</span> **Bisection bandwidth.** Divide the GPUs into 2 halves
+of equal size, choosing the division that leaves the fewest links crossing between the halves.
+The **bisection bandwidth** is the total bandwidth, in each direction, of the links that cross. It
+is the maximum amount of data that one half can send to the other half per unit of time, for the
+worst division.
+
+*Example.* 4 GPUs in a ring with 1 link of 25 GB/s per edge have a bisection bandwidth of
+2 × 25 = 50 GB/s; in a full mesh with 1 link per pair, 4 × 25 = 100 GB/s.
+
+</div>
 
 Figure 27.6 computes the bisection bandwidth of 8 GPUs, each with 18 links of 25 GB/s,
 connected in 3 ways.
@@ -356,10 +459,25 @@ describe the 4 mechanisms that make this possible.
 
 ### 27.4.1 Unified virtual addressing
 
-On a 64-bit system, CUDA places the host and all GPUs in a single range of virtual addresses.
-This arrangement is called **unified virtual addressing** (UVA). No 2 allocations, on any GPU
-or on the host, receive the same address, so the value of a pointer alone determines which
-memory it points to. The program of Section 27.5 uses `cudaPointerGetAttributes` to ask the
+A pointer is a number, an address. Before a GPU can use a pointer into the memory of a peer, the
+program must be able to tell from that number which memory it refers to. If GPU 0 and GPU 1 each
+numbered their memory from the same starting address, the same pointer value could mean a byte on
+GPU 0 or a byte on GPU 1, and a copy function would need to be told which.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.9</span> **Unified virtual addressing.** On a 64-bit system,
+CUDA places the host and all GPUs in a single range of virtual addresses. This arrangement is
+called **unified virtual addressing** (**UVA**). No 2 allocations, on any GPU or on the host,
+receive the same address, so the value of a pointer alone determines which memory it points to.
+
+*Example.* A program allocates `a` on GPU 0 and `b` on GPU 1. Under UVA, the addresses of `a` and
+of `b` lie in different parts of 1 address range, so the runtime can tell from the value of `b`
+alone that it points into the memory of GPU 1.
+
+</div>
+
+ The program of Section 27.5 uses `cudaPointerGetAttributes` to ask the
 runtime where a buffer resides. It copies with `cudaMemcpyDefault`, which tells the runtime to
 infer the direction of the copy from the 2 pointers.
 
@@ -371,10 +489,23 @@ addresses are shared, while the data stays in the memory where it was allocated.
 Data can reach a peer's memory in 2 ways, and the program of Section 27.5 measures both.
 
 1. **A copy.** `cudaMemcpyPeerAsync` asks the copy engines of the GPU, the units that move data
-   without using any SM (Section 4.2.2), to move a block of bytes from 1 GPU to another.
+   without using any streaming multiprocessor (SM) (Section 4.2.2), to move a block of bytes from 1 GPU to another.
 2. **Direct access.** A kernel running on GPU 0 dereferences a pointer into the memory of GPU 1,
    and each load or store travels over the link. No copy is made, and the kernel reads only
    the bytes it needs, wherever they are in the peer's memory.
+
+<div class="definition">
+
+<span class="box-label">Definition 27.10</span> **Peer access.** **Peer access** from GPU i to GPU j
+is the permission for kernels running on GPU i to load from and store to the memory of GPU j
+through pointers, and for copies from GPU i to GPU j to go directly to that memory. It is granted
+in 1 direction at a time.
+
+*Example.* After GPU 0 enables peer access to GPU 1, a kernel on GPU 0 can read `b[5]` in the
+memory of GPU 1. A kernel on GPU 1 still cannot read the memory of GPU 0 until GPU 1 enables peer
+access to GPU 0.
+
+</div>
 
 Direct access must be enabled, once, with `cudaDeviceEnablePeerAccess`. Copies work without
 it, but the runtime then **stages** them through host memory: it copies from GPU 0 to the host
@@ -386,8 +517,9 @@ shows the 3 paths that a copy can take.
 <figcaption><b>Figure 27.7</b> The 3 paths from GPU 0 to GPU 1, slowest first.</figcaption>
 </figure>
 
-A **peer-to-peer** (P2P) transfer is any transfer from 1 GPU to another that does not pass
-through host memory. Over PCIe, the platform determines whether P2P is possible. It works most
+A **peer-to-peer** (**P2P**) transfer is any transfer from 1 GPU to another that does not pass
+through host memory. In Figure 27.7, the second and third paths are peer-to-peer, and the first is
+not. Over PCIe, the platform determines whether P2P is possible. It works most
 reliably when the 2 GPUs are behind the same PCIe switch, and many desktop systems do not allow
 it at all. Over NVLink it is always possible. `cudaDeviceCanAccessPeer` reports, for a pair of
 GPUs, whether it is.
