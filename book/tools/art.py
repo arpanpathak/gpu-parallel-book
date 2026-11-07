@@ -739,6 +739,45 @@ def woodpecker(cx, cy, s=1.0, look=1):
         path(f"M{X(-16)},{Y(52)} Q{X(6)},{Y(46)} {X(26)},{Y(54)}", "none", black, 5 * s),
         path(f"M{X(26)},{Y(68)} L{X(70)},{Y(62)} L{X(26)},{Y(56)} Z", beak, ink, 2 * s),
         eye(X(14), Y(66), 5 * s, look * 0.7),
+
+
+def spider(cx, cy, s=1.0, look=0.0):
+    """A round spider seen from the front, its body centred on (cx, cy), 8 bent legs. 1.0 is
+    about 220 units across the legs."""
+    body, dark, ink = "#3d3550", "#2a2338", "#14101c"
+    legs = []
+    for side in (-1, 1):
+        for k, (rise, reach, drop) in enumerate(((46, 62, 4), (26, 84, 30), (6, 94, 58), (-14, 82, 84))):
+            hip = (cx + side * 30 * s, cy + 14 * s + k * 9 * s)
+            knee = (cx + side * reach * s, cy - rise * s)
+            foot = (cx + side * (reach + 24) * s, cy + drop * s)
+            legs.append(path(f"M{hip[0]:.1f},{hip[1]:.1f} L{knee[0]:.1f},{knee[1]:.1f} "
+                             f"L{foot[0]:.1f},{foot[1]:.1f}", "none", ink, 6 * s))
+    return "".join([
+        *legs,
+        ellipse(cx, cy + 34 * s, 44 * s, 40 * s, dark, f'stroke="{ink}" stroke-width="{2.6 * s}"'),
+        path(f"M{cx - 18 * s},{cy + 24 * s} Q{cx},{cy + 14 * s} {cx + 18 * s},{cy + 24 * s}",
+             "none", "#c89b3c", 3 * s),
+        path(f"M{cx - 14 * s},{cy + 40 * s} Q{cx},{cy + 30 * s} {cx + 14 * s},{cy + 40 * s}",
+             "none", "#c89b3c", 3 * s),
+        circle(cx, cy - 8 * s, 30 * s, body, f'stroke="{ink}" stroke-width="{2.6 * s}"'),
+        eye(cx - 11 * s, cy - 14 * s, 8 * s, look), eye(cx + 11 * s, cy - 14 * s, 8 * s, look),
+        circle(cx - 4 * s, cy - 28 * s, 3 * s, SNOW, 'opacity="0.8"'),
+        circle(cx + 4 * s, cy - 28 * s, 3 * s, SNOW, 'opacity="0.8"'),
+        path(f"M{cx - 8 * s},{cy + 6 * s} Q{cx},{cy + 12 * s} {cx + 8 * s},{cy + 6 * s}",
+             "none", SNOW, 2 * s),
+    ])
+
+
+def gpu_chip(cx, cy, name, w=74, h=50):
+    """A green GPU package with pins on 2 sides and its name on the die."""
+    pins = [rect(cx - w / 2 + 8 + 11 * k, cy - h / 2 - 6, 5, 6, "#c8ccd2") for k in range(6)]
+    pins += [rect(cx - w / 2 + 8 + 11 * k, cy + h / 2, 5, 6, "#c8ccd2") for k in range(6)]
+    return "".join([
+        *pins,
+        rect(cx - w / 2, cy - h / 2, w, h, "#2f6a2a", 7, "#173514", 2.4),
+        rect(cx - w / 2 + 10, cy - h / 2 + 9, w - 20, h - 18, "#76b900", 4),
+        label(cx, cy + 6, name, 15, NIGHT, font=MONO, fit=textw(name, 15, MONO)),
     ])
 
 
@@ -1143,6 +1182,39 @@ def ch17():
             tag(520 + 46 * 2 + 20, 166, "GET", 15, "#c8f0d0", "#1d4a2a", MONO, 700),
             tag(520 + 46 * 7 + 20, 166, "PUT", 15, "#ffe7a3", "#5a4210", MONO, 700),
             tag(696, 64, "write the work, then knock", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch18", "NVLink & NVSwitch", "Weave the spider", "Weave, a spider, hangs at the centre of a web "
+       "strung across a night sky. 8 green GPU chips, GPU 0 to GPU 7, sit at the ends of the spokes, and "
+       "every spoke runs from a chip to the hub where Weave hangs. 4 silver knots on the spokes near the "
+       "hub stand for the switches. With 1 thread from each chip to the hub, every GPU reaches every "
+       "other through the hub, without a separate thread for each pair. A tag reads 1 link to the "
+       "switch, not 7 to the others.")
+def ch18():
+    hub = (480, 176)
+    places = []
+    for k in range(8):
+        angle = math.radians(90 + 45 * k + 22.5)
+        places.append((hub[0] + 330 * math.cos(angle), hub[1] + 116 * math.sin(angle)))
+
+    silk = 'opacity="0.75"'
+    spokes = [line(hub[0], hub[1], x, y, "#dfe7f1", 2.2, silk) for x, y in places]
+    rings = []
+    for f in (0.35, 0.62, 0.86):
+        ring = [(hub[0] + (x - hub[0]) * f, hub[1] + (y - hub[1]) * f) for x, y in places]
+        d = "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in ring) + " Z"
+        rings.append(path(d, "none", "#dfe7f1", 1.4, 'opacity="0.55"'))
+
+    knot = lambda x, y: circle(hub[0] + (x - hub[0]) * 0.5, hub[1] + (y - hub[1]) * 0.5, 9,
+                               "#c8ccd2", 'stroke="#5b6b7c" stroke-width="2"')
+    knots = [knot(*places[k]) for k in (0, 3, 4, 7)]
+    chips = [gpu_chip(x, y, f"GPU {k}") for k, (x, y) in enumerate(places)]
+
+    return [backdrop(seed=18, stars=True, **DUSK),
+            line(hub[0], 0, hub[0], hub[1] - 60, "#dfe7f1", 2, 'opacity="0.8"'),
+            *spokes, *rings, *knots, *chips,
+            spider(hub[0], hub[1] - 14, 0.78, look=0.4),
+            tag(230, 30, "1 link to the switch, not 7 to the others", 16, "#fff6e2", "#2a1a10")]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "

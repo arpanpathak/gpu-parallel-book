@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 450" width="660" height="450" role="img" aria-label="Three timelines of 1 training step. On 1 GPU, 400 ms of compute. On 8 GPUs joined by PCIe 4.0, 50 ms of compute and 54.7 ms of gradient exchange, 104.7 ms, 3.8 times as fast. On 8 GPUs joined by NVLink 3, 50 ms of compute and 5.8 ms of exchange, 55.8 ms, 7.2 times as fast.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="450" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 training step on 8 GPUs</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The compute shrinks 8 times; the gradient exchange does not.</text>
+  <rect x="176" y="102" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="197.0" y="113.5" class="note" text-anchor="start" xml:space="preserve">compute</text>
+  <rect x="265.2" y="102" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="286.2" y="113.5" class="note" text-anchor="start" xml:space="preserve">gradient exchange</text>
+  <line x1="176.0" y1="132.0" x2="176.0" y2="336.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="176.0" y="354.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0 ms</text>
+  <line x1="286.0" y1="132.0" x2="286.0" y2="336.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="286.0" y="354.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">100 ms</text>
+  <line x1="396.0" y1="132.0" x2="396.0" y2="336.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="396.0" y="354.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">200 ms</text>
+  <line x1="506.0" y1="132.0" x2="506.0" y2="336.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="506.0" y="354.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">300 ms</text>
+  <line x1="616.0" y1="132.0" x2="616.0" y2="336.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="616.0" y="354.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">400 ms</text>
+  <text x="162.0" y="164.0" class="name" text-anchor="end" xml:space="preserve">1 GPU</text>
+  <text x="162.0" y="182.0" class="sub" text-anchor="end" xml:space="preserve">400 ms per step</text>
+  <rect x="176" y="148" width="440.0" height="36" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="396.0" y="170.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">400 ms</text>
+  <text x="162.0" y="228.0" class="name" text-anchor="end" xml:space="preserve">8 GPUs, PCIe 4.0</text>
+  <text x="162.0" y="246.0" class="sub" text-anchor="end" xml:space="preserve">104.7 ms per step</text>
+  <rect x="176" y="212" width="55.0" height="36" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="203.5" y="234.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">50 ms</text>
+  <rect x="231.0" y="212" width="60.2" height="36" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="301.2" y="234.0" class="mono" text-anchor="start" style="fill:#CF4526" xml:space="preserve">+ 54.7 ms</text>
+  <rect x="544.2" y="221" width="99.8" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="594.1" y="233.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">3.8 × as fast</text>
+  <text x="162.0" y="292.0" class="name" text-anchor="end" xml:space="preserve">8 GPUs, NVLink 3</text>
+  <text x="162.0" y="310.0" class="sub" text-anchor="end" xml:space="preserve">55.8 ms per step</text>
+  <rect x="176" y="276" width="55.0" height="36" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="203.5" y="298.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">50 ms</text>
+  <rect x="231.0" y="276" width="6.4" height="36" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="247.4" y="298.0" class="mono" text-anchor="start" style="fill:#CF4526" xml:space="preserve">+ 5.8 ms</text>
+  <rect x="544.2" y="285" width="99.8" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="594.1" y="297.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7.2 × as fast</text>
+  <text x="24.0" y="392.0" class="note" text-anchor="start" xml:space="preserve">Each GPU computes on 1/8 of the batch, 400 ÷ 8 = 50 ms, then sends and receives 1.75 GB</text>
+  <text x="24.0" y="410.0" class="note" text-anchor="start" xml:space="preserve">of gradients. At 32 GB/s each way over PCIe 4.0 that takes 1.75 ÷ 32 = 54.7 ms; at 300 GB/s</text>
+  <text x="24.0" y="428.0" class="note" text-anchor="start" xml:space="preserve">over NVLink 3, 1.75 ÷ 300 = 5.8 ms. Speedups: 400 ÷ 104.7 = 3.8 and 400 ÷ 55.8 = 7.2.</text>
+</svg>
