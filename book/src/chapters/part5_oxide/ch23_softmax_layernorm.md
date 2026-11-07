@@ -1358,8 +1358,7 @@ fused kernels to stay correct?
 ### 23.7.1 Platform and method
 
 The measurements come from a Jetson Orin NX 16 GB, an integrated GPU with 8 SMs, 102 GB/s of
-memory bandwidth and 2 MiB of L2 cache. Both programs also pass all their checks on a Jetson AGX
-Thor. The test matrices have 4,096 rows of 4,096 `f32` values, 64 MiB, far larger than the L2
+memory bandwidth and 2 MiB of L2 cache. The test matrices have 4,096 rows of 4,096 `f32` values, 64 MiB, far larger than the L2
 cache. The softmax inputs are uniform in \\([-10, 10)\\); the layer-normalization inputs are uniform
 in \\([999, 1001)\\), so that their mean is large compared with their spread, with per-column
 \\(\gamma_j\\) and \\(\beta_j\\). The same softmax inputs are also arranged as 256 rows of 65,536
@@ -1404,7 +1403,7 @@ collects the times of both programs, and of the Rust program built with
 | layer norm, fused | 8 | 1.424 | 1.424 | 1.445 | 92.9 |
 
 <figure>
-<img src="../../figures/ch23-measured.svg" alt="Paired bars of Rust and C++ times per 4,096 by 4,096 matrix on a Jetson Orin NX. Softmax rows of 4,096: 3 passes 2.025 and 1.434 ms, online 2.255 and 1.480 ms, fused 1.435 and 1.417 ms. Rows of 65,536: 3 passes 3.985 and 3.129 ms, online 3.015 and 2.373 ms. Layer norm: sum of squares 1.808 and 1.464 ms, Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modelled byte count at 102 GB/s.">
+<img src="../../figures/ch23-measured.svg" alt="Paired bars of Rust and C++ times per 4,096 by 4,096 matrix on the measured GPU. Softmax rows of 4,096: 3 passes 2.025 and 1.434 ms, online 2.255 and 1.480 ms, fused 1.435 and 1.417 ms. Rows of 65,536: 3 passes 3.985 and 3.129 ms, online 3.015 and 2.373 ms. Layer norm: sum of squares 1.808 and 1.464 ms, Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modelled byte count at 102 GB/s.">
 <figcaption><b>Figure 23.16</b> Measured time per 64 MiB matrix, Rust (upper bar) and C++ (lower bar). The dashed line of each kernel is its modelled bytes at 102 GB/s.</figcaption>
 </figure>
 
