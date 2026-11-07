@@ -1,5 +1,6 @@
-//! Chapter 21: an image pipeline in Rust. Grayscale, histogram equalisation, a separable
-//! Gaussian blur, Sobel edges; checked pixel by pixel against the CPU; a batch on streams.
+//! Chapter 24: an image pipeline. Gray conversion, histogram equalisation, a separable
+//! Gaussian blur and Sobel edges, checked pixel by pixel against the CPU, then a batch of
+//! images on 1, 2 and 3 streams.
 //!
 //!     cargo oxide run
 
@@ -21,13 +22,17 @@ const H: usize = 1080;
 const PIXELS: usize = W * H; // 2,073,600
 const BATCH: usize = 128;
 
+const ROW_T: usize = 128; // outputs per block of the row pass
+const COL_W: usize = 32; // columns per block of the column pass
+const COL_H: usize = 8; // rows per block of the column pass
+
 type Error = Box<dyn std::error::Error>;
 
 #[cuda_module]
 mod kernels {
     use super::*;
 
-    /// Index `i - 2` clamped to 0..n: tap `i` of a 5-wide window centred on `i - 2`.
+    /// Position `i - 2` clamped to [0, n): slot `i` of a window that starts 2 before.
     #[device]
     fn tap(i: usize, n: usize) -> usize {
         if i < 2 { 0 } else { (i - 2).min(n - 1) }
@@ -36,11 +41,15 @@ mod kernels {
     #[device]
     fn warp_scan(mut v: u32) -> u32 {
         let lane = warp::lane_id();
-        for offset in [1, 2, 4, 8, 16] {
+        let mut step = 0;
+        #[unroll]
+        while step < 5 {
+            let offset = 1 << step;
             let left = warp::shuffle_up_sync(u32::MAX, v, offset);
             if lane >= offset {
                 v += left;
             }
+            step += 1;
         }
         v
     }
@@ -151,20 +160,22 @@ mod kernels {
         }
     }
 
-    /// Horizontal pass, weights 1 4 6 4 1. A block reads 128 + 4 pixels of 1 row into
-    /// shared memory, then each thread sums 5 of them. The sum is kept unscaled (0..4,080).
+    /// Row pass, weights 1 4 6 4 1. Slot s of the tile holds pixel x0 + s - 2 of the row,
+    /// clamped: 2 halo slots on the left, 128 own pixels, 2 halo slots on the right.
     #[kernel]
     #[launch_contract(domain = 2, coordinates = u32, block = (128, 1, 1))]
     pub fn blur_rows(src: &[u8], mut out: DisjointSlice<u16, Index2D<W>>) {
-        static mut TILE: SharedArray<u32, { 128 + 4 }> = SharedArray::UNINIT;
+        static mut TILE: SharedArray<u32, { ROW_T + 4 }> = SharedArray::UNINIT;
         let tx = thread::threadIdx_x() as usize;
-        let x0 = thread::blockIdx_x() as usize * 128;
-        let row_start = thread::blockIdx_y() as usize * W;
+        let x0 = thread::blockIdx_x() as usize * ROW_T;
+        let row = thread::blockIdx_y() as usize * W;
+        let pixel = |s: usize| src[row + tap(x0 + s, W)] as u32;
 
-        // SAFETY: each thread writes its own slots of the tile, before the barrier.
-        unsafe { TILE[tx] = src[row_start + tap(x0 + tx, W)] as u32 };
-        if tx < 4 {
-            unsafe { TILE[128 + tx] = src[row_start + tap(x0 + 128 + tx, W)] as u32 };
+        // SAFETY: each slot is written by exactly 1 thread, before the barrier.
+        unsafe { TILE[tx + 2] = pixel(tx + 2) };
+        if tx < 2 {
+            unsafe { TILE[tx] = pixel(tx) };
+            unsafe { TILE[ROW_T + 2 + tx] = pixel(ROW_T + 2 + tx) };
         }
         thread::sync_threads();
 
@@ -179,25 +190,27 @@ mod kernels {
         }
     }
 
-    /// Vertical pass on a 32 x 8 tile with 2 rows of halo above and below. The 2 passes
-    /// weigh by 16 x 16 = 256, so the result is the rounded sum shifted right by 8.
+    /// Column pass on a tile of 32 columns and 8 + 4 rows. The 2 passes weigh by
+    /// 16 x 16 = 256, so the result is the rounded sum shifted right by 8.
     #[kernel]
     #[launch_contract(domain = 2, coordinates = u32, block = (32, 8, 1))]
     pub fn blur_cols(src: &[u16], mut out: DisjointSlice<u8, Index2D<W>>) {
-        static mut TILE: SharedArray<u32, { (8 + 4) * 32 }> = SharedArray::UNINIT;
+        static mut TILE: SharedArray<u32, { (COL_H + 4) * COL_W }> = SharedArray::UNINIT;
         let (tx, ty) = (thread::threadIdx_x() as usize, thread::threadIdx_y() as usize);
-        let x = thread::blockIdx_x() as usize * 32 + tx;
-        let y0 = thread::blockIdx_y() as usize * 8;
+        let x = thread::blockIdx_x() as usize * COL_W + tx;
+        let y0 = thread::blockIdx_y() as usize * COL_H;
+        let value = |s: usize| src[tap(y0 + s, H) * W + x] as u32;
 
-        // SAFETY: each thread writes its own slots of the tile, before the barrier.
-        unsafe { TILE[ty * 32 + tx] = src[tap(y0 + ty, H) * W + x] as u32 };
-        if ty < 4 {
-            unsafe { TILE[(8 + ty) * 32 + tx] = src[tap(y0 + 8 + ty, H) * W + x] as u32 };
+        // SAFETY: each slot is written by exactly 1 thread, before the barrier.
+        unsafe { TILE[(ty + 2) * COL_W + tx] = value(ty + 2) };
+        if ty < 2 {
+            unsafe { TILE[ty * COL_W + tx] = value(ty) };
+            unsafe { TILE[(COL_H + 2 + ty) * COL_W + tx] = value(COL_H + 2 + ty) };
         }
         thread::sync_threads();
 
         // SAFETY: after the barrier the tile is only read.
-        let t = |k: usize| unsafe { TILE[(ty + k) * 32 + tx] };
+        let t = |k: usize| unsafe { TILE[(ty + k) * COL_W + tx] };
         let sum = t(0) + 4 * t(1) + 6 * t(2) + 4 * t(3) + t(4);
 
         if let Some(idx) = thread::index_2d::<W>()
@@ -207,8 +220,8 @@ mod kernels {
         }
     }
 
-    /// Sobel gradient magnitude, rounded and clamped to 255. Reads go straight to global
-    /// memory; the 9 neighbours of a pixel are shared with its neighbours through L1.
+    /// Sobel gradient magnitude divided by 4, rounded and clamped to 255. The 8 neighbours
+    /// come from global memory; neighbouring threads share them through the L1 cache.
     #[kernel]
     #[launch_contract(domain = 2, coordinates = u32, block = (32, 8, 1))]
     pub fn sobel(src: &[u8], mut out: DisjointSlice<u8, Index2D<W>>) {
@@ -227,7 +240,7 @@ mod kernels {
             let (gx, gy) = (right - left, below - above);
 
             let magnitude = sqrt_rn_f32((gx * gx + gy * gy) as f32);
-            *o = (magnitude + 0.5).min(255.0) as u8;
+            *o = (magnitude * 0.25 + 0.5).min(255.0) as u8;
         }
     }
 }
@@ -259,7 +272,7 @@ impl Buffers {
     }
 }
 
-/// Name of each stage, and the bytes it reads and writes per pixel.
+/// Name of each stage, and the bytes it must read and write per pixel.
 const STAGES: [(&str, usize); 7] = [
     ("grayscale", 4),
     ("histogram", 1),
@@ -278,8 +291,9 @@ fn stage(
     k: usize,
 ) -> Result<(), Error> {
     let line = LaunchConfig1D::new((PIXELS / 256) as u32, 256, 0);
-    let rows = LaunchConfig2D::new(((W / 128) as u32, H as u32), (128, 1), 0);
-    let tiles = LaunchConfig2D::new(((W / 32) as u32, (H / 8) as u32), (32, 8), 0);
+    let rows = LaunchConfig2D::new(((W / ROW_T) as u32, H as u32), (ROW_T as u32, 1), 0);
+    let grid = ((W / COL_W) as u32, (H / COL_H) as u32);
+    let tiles = LaunchConfig2D::new(grid, (COL_W as u32, COL_H as u32), 0);
 
     match k {
         0 => {
@@ -326,7 +340,7 @@ fn process(
     Ok(())
 }
 
-/// Average time of 20 runs of `launch`, in milliseconds, after 1 warm-up run.
+/// Average time of 100 runs of `launch`, in milliseconds, after 1 warm-up run.
 fn time_ms(
     stream: &Arc<CudaStream>,
     mut launch: impl FnMut() -> Result<(), Error>,
@@ -335,12 +349,12 @@ fn time_ms(
     stream.synchronize()?;
 
     let start = Instant::now();
-    for _ in 0..20 {
+    for _ in 0..100 {
         launch()?;
     }
     stream.synchronize()?;
 
-    Ok(start.elapsed().as_secs_f64() * 1e3 / 20.0)
+    Ok(start.elapsed().as_secs_f64() * 1e3 / 100.0)
 }
 
 /// Uploads, processes and downloads `count` images, image i on stream i % streams.len().
@@ -466,7 +480,7 @@ fn cpu_pipeline(rgb: &[u8]) -> Images {
             let (gx, gy) = (right - left, below - above);
 
             let magnitude = ((gx * gx + gy * gy) as f32).sqrt();
-            *e = (magnitude + 0.5).min(255.0) as u8;
+            *e = (magnitude * 0.25 + 0.5).min(255.0) as u8;
         }
     });
 
@@ -523,9 +537,26 @@ fn write_image(path: &str, data: &[u8], channels: usize) -> Result<(), Error> {
     Ok(())
 }
 
-/// Number of pixels in which 2 images differ.
-fn differ(a: &[u8], b: &[u8]) -> usize {
-    a.iter().zip(b).filter(|(x, y)| x != y).count()
+/// Prints how many pixels of 2 images differ, and the first one that does.
+fn report(label: &str, gpu: &[u8], cpu: &[u8]) -> usize {
+    let wrong = gpu.iter().zip(cpu).filter(|(a, b)| a != b).count();
+    print!("  {label:<10} {wrong:8}");
+
+    if let Some(i) = (0..PIXELS).find(|&i| gpu[i] != cpu[i]) {
+        let (x, y) = (i % W, i / W);
+        print!("   first at ({x}, {y}): GPU {}, CPU {}", gpu[i], cpu[i]);
+    }
+    println!();
+    wrong
+}
+
+/// FNV-1a hash of an image, to compare the outputs of 2 programs.
+fn checksum(data: &[u8]) -> u32 {
+    let mut h = 2_166_136_261u32;
+    for &byte in data {
+        h = (h ^ byte as u32).wrapping_mul(16_777_619);
+    }
+    h
 }
 
 fn main() -> Result<(), Error> {
@@ -545,8 +576,9 @@ fn main() -> Result<(), Error> {
     // 1. Each stage of 1 image, timed alone.
     let mut b = Buffers::new(stream)?;
     b.rgb = DeviceBuffer::from_host(stream, &scenes[0])?;
-    for _ in 0..20 {
-        time_ms(stream, || process(&module, stream, &mut b))?; // warm up the clocks
+    let warm = Instant::now();
+    while warm.elapsed().as_secs_f64() < 0.4 {
+        time_ms(stream, || process(&module, stream, &mut b))?; // raise the GPU clock
     }
 
     println!("stage              ms     GB/s");
@@ -569,15 +601,12 @@ fn main() -> Result<(), Error> {
         edges: b.edges.to_host_vec(stream)?,
     };
     let cpu = &reference[0];
-    let wrong = [
-        ("gray", differ(&gpu.gray, &cpu.gray)),
-        ("equalised", differ(&gpu.equal, &cpu.equal)),
-        ("blurred", differ(&gpu.blurred, &cpu.blurred)),
-        ("edges", differ(&gpu.edges, &cpu.edges)),
-    ];
-    for (label, count) in wrong {
-        println!("pixels that differ from the CPU, {label:<9}: {count}");
-    }
+    println!("image      pixels that differ from the CPU");
+    let mut wrong = report("gray", &gpu.gray, &cpu.gray);
+    wrong += report("equalised", &gpu.equal, &cpu.equal);
+    wrong += report("blurred", &gpu.blurred, &cpu.blurred);
+    wrong += report("edges", &gpu.edges, &cpu.edges);
+    println!("edge image checksum: {:08x}", checksum(&gpu.edges));
 
     std::fs::create_dir_all("target/images")?;
     write_image("target/images/input.ppm", &scenes[0], 3)?;
@@ -594,16 +623,33 @@ fn main() -> Result<(), Error> {
     let cpu_rate = scenes.len() as f64 / start.elapsed().as_secs_f64();
     let cores = std::thread::available_parallelism().map_or(1, |n| n.get());
 
-    // 4. A batch of BATCH images: copy in, 7 stages, copy out, on 1, 2 and 3 streams.
-    let inputs: Vec<PinnedHostBuffer<u8>> = scenes
-        .iter()
-        .map(|rgb| PinnedHostBuffer::from_slice(&ctx, rgb))
-        .collect::<Result<_, _>>()?;
-    let mut outputs: Vec<PinnedHostBuffer<u8>> = (0..3)
-        .map(|_| PinnedHostBuffer::from_slice(&ctx, &vec![0u8; PIXELS]))
-        .collect::<Result<_, _>>()?;
+    // 4. The copies alone, then a batch: copy in, 7 stages, copy out, on 1 to 3 streams.
+    let mut inputs = Vec::new();
+    for rgb in &scenes {
+        inputs.push(PinnedHostBuffer::from_slice(&ctx, rgb)?);
+    }
+    let mut outputs = Vec::new();
+    for _ in 0..3 {
+        outputs.push(PinnedHostBuffer::from_slice(&ctx, &vec![0u8; PIXELS])?);
+    }
     let mut lanes = vec![b, Buffers::new(stream)?, Buffers::new(stream)?];
     stream.synchronize()?;
+
+    let lane = &mut lanes[0];
+    let copy_in = time_ms(stream, || {
+        // SAFETY: time_ms synchronizes the stream before the host buffers are used again.
+        unsafe { lane.rgb.copy_from_pinned_host_async(stream, &inputs[0])? };
+        Ok(())
+    })?;
+    let copy_out = time_ms(stream, || {
+        // SAFETY: as above.
+        unsafe { lane.edges.copy_to_pinned_host_async(stream, &mut outputs[0])? };
+        Ok(())
+    })?;
+    let rate_in = (3 * PIXELS) as f64 / 1e9 / (copy_in / 1e3);
+    let rate_out = PIXELS as f64 / 1e9 / (copy_out / 1e3);
+    println!("copy in  {copy_in:6.3} ms  {rate_in:5.1} GB/s");
+    println!("copy out {copy_out:6.3} ms  {rate_out:5.1} GB/s");
 
     batch(&module, &streams, &mut lanes, &inputs, &mut outputs, BATCH)?; // warm up
     println!("batch of {BATCH} images: copy in, 7 stages, copy out");
@@ -620,8 +666,7 @@ fn main() -> Result<(), Error> {
     }
     println!("  CPU, {cores} threads       {cpu_rate:6.1} images/s");
 
-    let exact = wrong.iter().all(|&(_, count)| count == 0);
-    let verdict = if exact && correct { "PASSED" } else { "FAILED" };
+    let verdict = if wrong == 0 && correct { "PASSED" } else { "FAILED" };
     println!("batch outputs match the CPU: {}", if correct { "yes" } else { "no" });
     println!("{verdict}");
     Ok(())

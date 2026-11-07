@@ -1,783 +1,1470 @@
-<img class="plate" src="../../art/ch24.svg" alt="The whole crew of crabs stands on a beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. The first picture is in colour, the second in gray, the third blurred, and the last shows only white outlines on black. Arrows lead from each picture to the next, and a crab stands under each one: an assembly line in which every crab does 1 stage to every image. A tag reads 4 stages, many images in flight.">
+<img class="plate" src="../../art/ch24.svg" alt="The whole crew of crabs stands on a beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. The first picture is in colour, the second in gray, the third blurred, and the last shows only white outlines on black. Arrows lead from each picture to the next, and a crab stands under each one, labelled grayscale, equalise, blur and sobel. A tag reads 4 stages, many images in flight.">
 
-# Chapter 24: Capstone: An Image Pipeline in Rust
+# Chapter 24: Capstone: An Image Pipeline
 
-Each chapter of Part V developed 1 pattern of GPU computation in Rust: a map over the elements
-of an array, a reduction, a scan, a stencil. Real applications seldom consist of a single pattern.
-They chain several kernels, each of which reads the output of the one before, and the data must
-also be moved between host memory and device memory. Image processing is a typical example. An
-image is a 2-dimensional array of pixels. The common operations on images fall into the same
-few patterns: some compute each output pixel from the input pixel at the same position, some from
-a small neighbourhood around it, and some from the whole image.
+Chapters 14 to 23 derived 1 parallel algorithm at a time: a map, a reduction, a matrix product, a
+stencil, a scan, a histogram and a normalisation. A real program chains several of them. Each kernel
+reads what the previous kernel wrote, the data travel from host memory to the device and back, and
+the slowest stage sets the rate of the whole program. Image processing shows this well, because its
+common operations fall into the patterns of Part V: some compute each output pixel from 1 input
+pixel, some from a small window around it, and some from every pixel of the image.
 
-In this chapter, we build a pipeline of 7 kernels that turns a colour image into a map of its
-edges. The pipeline converts the image to gray, stretches its contrast by histogram
-equalisation, smooths it with a Gaussian blur, and finds edges with the Sobel operator. Every
-output pixel is compared with the result of the same computation on the CPU, every kernel is
-timed, and a batch of images is processed on several streams so that copies overlap with
-computation.
+In this chapter we build a pipeline of 4 stages that turns a colour image into a map of its edges:
+conversion to gray, histogram equalisation, a Gaussian blur and the Sobel edge detector. We carry an
+image of 8 × 8 pixels through every stage by hand, derive each kernel from the chapter of Part V
+that developed its pattern, and prove that a blur in 2 passes of 5 weights equals the blur with 25
+weights. We then run the pipeline in Rust and in CUDA C++ on images of 1,920 × 1,080 pixels, check
+every pixel against the CPU, find which stage takes the most time and why, and process a batch of
+images on several streams so that copies overlap with computation.
 
-<div class="covers" markdown="1">
+<div class="covers">
 
 This chapter covers
 
-- 3 kinds of image operations: point, neighbourhood and global, and the kernel pattern for each
-- conversion to gray in fixed-point integer arithmetic
-- histogram equalisation: a histogram, a scan of 256 counts, and a lookup table
-- a separable Gaussian blur with tiles and halos in shared memory
-- the Sobel operator, and a square root that rounds the same way on the GPU and the CPU
-- a CPU version on every core, and a pixel-by-pixel comparison
-- the time of each kernel, and the time of a batch on 1, 2 and 3 streams
+- An 8 × 8 image carried by hand through gray conversion, equalisation, blur and edge detection
+- The pattern behind each stage: a map, a histogram with a scan, and 2 stencils
+- The proof that 2 passes of 5 weights equal 1 pass of 25 weights, and the work it saves
+- A shared tile with a halo, and the wrong pixels a missing halo produces
+- 1 easy mistake for each stage, with the wrong value it gives on the example
+- The host program: buffers, streams, and an exact comparison with the CPU
+- The time of each stage, and copies overlapped with kernels on 2 and 3 streams
 
 </div>
 
-The code of the chapter is in
-[`code/oxide/ch24_capstone/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch24_capstone).
-Its `Cargo.toml` and `rust-toolchain.toml` are those of Chapter 13 with the package name changed,
-and it needs no other crate. The measurements in this chapter come from a Jetson Orin NX, an
-integrated GPU with 8 SMs and 102 GB/s of memory bandwidth, beside a CPU of 8 cores.
+The programs are in
+[`code/oxide/ch24_capstone/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch24_capstone)
+(Rust, `cargo oxide run`) and
+[`code/cuda/ch24_capstone/capstone.cu`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/cuda/ch24_capstone)
+(C++, with its build command in its first lines). Both compute the same images from the same input
+and print the same report.
 
-## 24.1 Background
+## 24.1 The problem
 
 ### 24.1.1 Images in memory
 
-A **pixel** is the smallest element of an image. A gray image stores 1 byte per pixel, a level
-from 0 (black) to 255 (white). A colour image stores 3 bytes per pixel, the intensities of red,
-green and blue, in that order. The pipeline works on images of 1,920 × 1,080 pixels, the size of
-a full-HD video frame: 2,073,600 pixels, or 6,220,800 bytes (6.2 MB) in colour and 2.1 MB in
-gray.
+An image is a rectangle of pixels, and memory is a single line of numbered bytes, so we first fix how
+the rectangle is laid along the line.
 
-The pixels are stored row by row. Pixel (x, y), in column x of row y, is element y × 1,920 + x of
-a gray image, and its 3 colour bytes start at byte 3 × (y × 1,920 + x) of a colour image. For
-example, pixel (10, 2) is element 3,850 of the gray image, and its colour bytes are bytes 11,550
-to 11,552. This layout is the row-major layout of the matrices in Chapter 9, with a pixel in place
-of a matrix element.
+<div class="definition">
 
-### 24.1.2 3 kinds of operations
+<span class="box-label">Definition 24.1</span> **Pixel and image.** A **pixel** is the smallest
+element of an image. A pixel of a gray image is 1 byte, a **level** from 0 (black) to 255 (white).
+A pixel of a colour image is 3 bytes, the levels of red, green and blue. An image of width \\(W\\)
+and height \\(H\\) stores its pixels row by row: pixel \\((x, y)\\), in column \\(x\\) of row
+\\(y\\), is byte \\(yW + x\\) of a gray image, and its 3 bytes start at byte \\(3(yW + x)\\) of a
+colour image.
 
-Image operations differ in how many input pixels each output pixel depends on, and that number
-decides how a kernel is organised.
+*Example.* In an image of width 8, pixel \\((3, 0)\\) is byte 3 of the gray image, and its colour
+bytes are bytes 9, 10 and 11.
 
-| Kind | Each output pixel depends on | In this pipeline | Kernel pattern |
-|---|---|---|---|
-| point | the input pixel at the same position | grayscale, apply table | 1 thread per pixel (Chapter 13) |
-| neighbourhood | a small window around that position | blur, Sobel | 1 thread per pixel, with a tile in shared memory (Section 9.4) |
-| global | every pixel of the image | histogram | a reduction with atomic operations (Section 8.8) |
+</div>
 
-A **point operation** is a map: each thread reads 1 pixel and writes 1 pixel, and no thread
-needs the result of another. A **neighbourhood operation**, also called a stencil, computes each
-output from a window of inputs. Neighbouring outputs share most of their inputs, so a kernel can
-load a block of inputs once into shared memory and let every thread of the block read from there.
-A **global operation** combines all pixels into a small result, such as the 256 counts of a
-histogram, and needs the coordination between blocks that Chapter 8 developed for reductions.
+We always write a pixel position as \\((x, y)\\), column first, as in the figures of this chapter,
+whose column numbers run across the top and row numbers down the left side.
 
-### 24.1.3 The pipeline
+### 24.1.2 The worked example
 
-Figure 24.1 shows the 7 kernels and the buffers between them. The first 4 kernels equalise the
-image: they convert it to gray, count how many pixels have each gray level, turn the counts into a
-table of new levels, and replace each pixel by its new level. The last 3 kernels blur the
-equalised image, first along the rows and then along the columns, and compute the edges.
+We use 1 image throughout the chapter (Figure 24.1). It has 8 × 8 pixels of 4 colours, 16 pixels
+of each: 2 rows of sky at the top, 2 rows of ground at the bottom, and between them a house of
+4 × 4 pixels with hill on both sides. The program's test image of Section 24.8 is the same kind of
+scene at 1,920 × 1,080 pixels.
 
 <figure>
-<img src="../../figures/ch24-pipeline.svg" alt="The pipeline in 2 columns. Equalise: an RGB image of 3 bytes per pixel goes to the grayscale kernel, which writes a gray image of 1 byte per pixel. The histogram kernel counts its levels into 256 bins, the table kernel scans the 256 counts in 1 block, and the apply-table kernel reads the gray image and the table and writes the equalised image. Blur and edges: blur rows reads 1 byte and writes 2 bytes per pixel, blur columns reads 2 bytes and writes 1, and sobel writes the edge image of 1 byte per pixel, 2.1 MB.">
-<figcaption><b>Figure 24.1</b> The 7 kernels of the pipeline and the buffers between them.</figcaption>
+<img src="../../figures/ch24-example.svg" alt="Left: an 8 by 8 colour image. Rows 0 and 1 are sky blue, rows 6 and 7 are brown ground, and rows 2 to 5 hold a red-brown house in columns 2 to 5 between green hill pixels in columns 0, 1, 6 and 7. Right: the gray levels of the same pixels: 144 for the sky, 112 for the hill, 120 for the house and 96 for the ground. Below, the 4 colours: sky (120, 150, 180) gives (36,960 + 128) >> 8 = 144; hill (70, 140, 80) gives 112; house (170, 100, 90) gives 120; ground (120, 90, 60) gives 96. Each colour covers 16 pixels.">
+<figcaption><b>Figure 24.1</b> The worked example: an 8 × 8 colour image and its gray levels.</figcaption>
 </figure>
 
-The whole pipeline, for 1 image, is the following sequence of steps.
+The 4 gray levels, 96, 112, 120 and 144, lie within 48 of each other, on a scale that runs from
+0 to 255. The image has low contrast: its darkest pixel is a dark gray, its brightest a light gray, and
+the hill and the house differ by only 8 levels. The pipeline improves it in 4 stages.
 
-```text
-gray[p]      ← (77 R[p] + 150 G[p] + 29 B[p] + 128) >> 8        for every pixel p
-bins[v]      ← number of pixels p with gray[p] = v               for v = 0 .. 255
-table[v]     ← new level of v, from the cumulative counts of bins
-equal[p]     ← table[gray[p]]                                    for every pixel p
-rows[p]      ← weighted sum of 5 pixels of equal along the row of p
-blurred[p]   ← weighted sum of 5 values of rows along the column of p, divided by 256
-edges[p]     ← length of the Sobel gradient of blurred at p, at most 255
-```
+1. **Gray conversion** replaces each colour pixel by 1 level (Figure 24.1, right).
+2. **Histogram equalisation** spreads the levels in use over the whole scale. The 4 levels move to
+   0, 85, 170 and 255.
+3. **A Gaussian blur** replaces each pixel by a weighted average of the 5 × 5 pixels around it, which
+   removes noise and softens the steps between regions.
+4. **Sobel edges** measure how fast the level changes at each pixel. The result is bright where 2
+   regions meet and dark inside a region.
 
-Figure 24.2 shows the images that the program writes for its test image. The test image is
-generated by the program itself: a house below a hill, a sky that brightens towards the horizon,
-a sun, and random grain of ±8 levels on every pixel. Its colours were chosen to lie in a narrow
-range of levels, so that the image has low contrast and the effect of equalisation is visible.
+Each stage reads the image that the previous stage wrote. The stages differ in how many input pixels
+1 output pixel depends on.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.2</span> **Point, neighbourhood and global operations.** An
+image operation is a **point operation** if each output pixel depends only on the input pixel at the
+same position. It is a **neighbourhood operation** if each output pixel depends on a small window of
+input pixels around its position. It is a **global operation** if its result depends on every pixel
+of the image.
+
+*Example.* Gray conversion is a point operation; the blur, with a window of 5 × 5, and the Sobel
+detector, with a window of 3 × 3, are neighbourhood operations; equalisation contains a global
+operation, the histogram of all 64 levels.
+
+</div>
+
+Figure 24.2 shows the pipeline as the 7 kernels of our programs and the buffers between them. The
+equalisation takes 3 kernels and the blur takes 2; Sections 24.4 and 24.5 explain why. Figure 24.3
+shows what the programs produce for their test image of 1,920 × 1,080 pixels.
 
 <figure>
-<img src="../../figures/ch24-images.png" alt="4 panels from the program's real output. Input: a dull colour scene with a blue-gray sky, a pale sun, a pink house with a dark window, and a green hill. Equalised: the same scene in gray with strong contrast, a white sun, a light sky and a dark hill; the grain of the image is also stronger. A 4 times enlargement of the corner of the window, before and after the blur: before, the grain is a pattern of single bright and dark pixels; after, it is a smooth texture and the edge of the window is slightly soft. Edges: a black image with thin white outlines of the house, the window, the roof, the hill and the sun.">
-<figcaption><b>Figure 24.2</b> The program's output for the test image: the input, the equalised image, the blur at 4 × enlargement, and the edges.</figcaption>
+<img src="../../figures/ch24-pipeline.svg" alt="The pipeline in 2 columns. Equalise: the RGB image of 3 bytes per pixel goes to grayscale, a map; histogram counts the gray levels into 256 bins; equalise table scans the 256 counts; apply table maps each pixel through the table. Blur and edges: blur rows and blur columns are stencils with a halo, sobel is a stencil, and the edge image has 1 byte per pixel, 2.1 MB.">
+<figcaption><b>Figure 24.2</b> The 7 kernels of the pipeline, the pattern of each, and the buffers between them.</figcaption>
 </figure>
-
-Equalisation strengthens the grain as well as the scene. It stretches every difference
-between levels, including the small random ones. The blur removes most of this grain before the
-edge detector runs, so the edge image shows the outlines of the objects and only a faint texture
-elsewhere.
-
-## 24.2 Conversion to gray
-
-The brightness that a viewer perceives in a colour pixel is not the plain average of its 3
-components, because the eye is more sensitive to green than to red, and least sensitive to blue.
-The standard ITU-R BT.601 weights the components accordingly:
-
-\\[ Y = 0.299\\,R + 0.587\\,G + 0.114\\,B \\]
-
-| Symbol | Meaning | For the pixel (150, 118, 104) |
-|---|---|---|
-| \\(R, G, B\\) | the red, green and blue levels, 0 to 255 | 150, 118, 104 |
-| \\(Y\\) | the gray level | 44.85 + 69.27 + 11.86 = 125.97 |
-
-The kernel computes the same weights in integer arithmetic. Each weight is multiplied by 256 and
-rounded: 0.299 × 256 = 76.5 becomes 77, 0.587 × 256 = 150.3 becomes 150, and 0.114 × 256 = 29.2
-becomes 29. The 3 integers sum to exactly 256, so a white pixel (255, 255, 255) gives 255 × 256 and
-stays at level 255 after the division by 256. The division is a shift right by 8 bits, and adding
-128 first makes it round to the nearest level rather than down. For the pixel above, 77 × 150 +
-150 × 118 + 29 × 104 = 11,550 + 17,700 + 3,016 = 32,266. Then (32,266 + 128) >> 8 = 32,394 / 256 =
-126.5, truncated to 126, which is the floating-point result 125.97 rounded.
-
-We use integers rather than floating-point numbers for a reason given in
-Section 24.7. The program checks every output pixel against a CPU version of the same
-computation, and it can demand exact equality only if both processors perform exactly the same
-operations. Integer additions and multiplications give the same result on every processor.
-Floating-point expressions do not always: the GPU compiler may fuse a multiplication and an
-addition into 1 instruction that rounds once instead of twice, which Section 10.4 measured on 585,903
-of 2,097,152 values.
-
-<p class="listing"><b>Listing 24.1</b> The grayscale kernel. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch24_capstone/src/main.rs">code/oxide/ch24_capstone/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:48:59}}
-    // ...
-}
-```
-
-Each thread handles 1 pixel. The thread's index `idx` is its pixel number, and its 3 colour bytes
-start at `p = 3 * idx.get()`. The call `gray.get_mut(idx)` returns the thread's own element of the
-output, or `None` for a thread whose index lies past the end of the image, as in Chapter 13. The
-program launches 8,100 blocks of 256 threads, and 8,100 × 256 = 2,073,600 exactly, so every thread
-has a pixel. The components are converted to `u32` before the multiplication, because 77 × 255
-does not fit in a byte.
-
-The reads are coalesced in the sense of Section 7.2. The 32 threads of a warp read 32 consecutive
-pixels, which are 96 consecutive bytes of the colour image, and the memory system serves them with
-3 sectors of 32 bytes.
-
-## 24.3 Histogram equalisation
-
-### 24.3.1 The method
-
-A **histogram** of a gray image counts, for each level v from 0 to 255, the number of pixels whose
-level is v. The histogram of a low-contrast image is concentrated in a narrow range of levels: in
-the test image, the grayscale levels lie between about 70 and 170. Levels below and above that
-range are not used, and the image appears dull.
-
-**Histogram equalisation** replaces each level by a new level that is proportional to the number
-of pixels at or below it. The number of pixels at or below level v is the **cumulative count**
-\\(c(v)\\), the running sum of the histogram up to v, which is an inclusive scan in the sense of
-Section 8.7. If 30% of the pixels are at or below level v, level v moves to about 30% of 255. Levels
-that are used by many pixels are spread apart, and levels that are rare are pushed together, so
-that the new histogram covers the whole range from 0 to 255.
-
-\\[ \text{new}(v) = \operatorname{round}\left(\frac{c(v) - c_{\min}}{N - c_{\min}} \times 255\right) \\]
-
-| Symbol | Meaning | In figure 21.3 |
-|---|---|---|
-| \\(c(v)\\) | cumulative count: pixels with a level of at most v | 0, 0, 3, 8, 12, 14, 16, 16 |
-| \\(c_{\min}\\) | cumulative count at the lowest level in use | 3 |
-| \\(N\\) | number of pixels | 16 |
-| 255 | the highest level (7 in figure 21.3, which uses 8 levels) | 7 |
-
-Subtracting \\(c_{\min}\\) maps the darkest level in use to 0, and dividing by \\(N - c_{\min}\\)
-maps the brightest level in use to the highest level. Figure 24.3 works the method for an image of
-16 pixels with 8 levels. The levels 2 to 6 of the input move to 0, 3, 5, 6 and 7. For level 3, for
-example, \\(c(3) = 8\\), and the new level is round((8 − 3) × 7 / 13) = round(2.69) = 3.
 
 <figure>
-<img src="../../figures/ch24-equalise.svg" alt="A table with 8 gray levels, 0 to 7, for an image of 16 pixels. Counts: 0, 0, 3, 5, 4, 2, 2, 0. Cumulative counts: 0, 0, 3, 8, 12, 14, 16, 16. New levels: 0, 0, 0, 3, 5, 6, 7, 7. Below, the histogram before occupies levels 2 to 6; after, the same pixels occupy levels 0, 3, 5, 6 and 7. The formula is new level = round((cumulative minus 3) times 7 divided by 13).">
-<figcaption><b>Figure 24.3</b> Histogram equalisation of 16 pixels with 8 levels.</figcaption>
+<img src="../../figures/ch24-images.png" alt="4 panels from the program's real output. Input: a dull colour scene with a blue-gray sky, a pale sun, a pink house with a dark window, and a green hill. Equalised: the same scene in gray with strong contrast, a white sun, a light sky and a dark hill; the grain of the image is also stronger. A 4 times enlargement of the corner of the window, before and after the blur: before, the grain is a pattern of single bright and dark pixels; after, it is a smooth texture and the edge of the window is slightly soft. Edges: a dark image with light outlines of the house, the window, the roof, the hill and the sun.">
+<figcaption><b>Figure 24.3</b> The programs' output for their test image: the input, the equalised image, the blur at 4 × enlargement, and the edges.</figcaption>
 </figure>
 
-The division is done in integers. For a numerator a and a denominator s, the expression
-(a + s / 2) / s rounds a / s to the nearest integer: (5 × 7 + 6) / 13 = 41 / 13 = 3 in integer
-division. The new level of a level never decreases as the level increases, because the
-cumulative count never decreases. 2 pixels that were in a given order of brightness therefore keep
-that order.
+Equalisation strengthens the grain of the test image together with the scene, because it stretches
+every difference between levels, including the small random ones. The blur removes most of the
+grain before the edge detector runs, so the edge image shows the outlines of the objects and only a
+faint texture elsewhere.
 
-The method needs 3 kernels, 1 for each step: the histogram, the table of 256 new levels, and the
-replacement of every pixel by its entry in the table.
+<div class="exercises">
 
-### 24.3.2 The histogram kernel
+Exercises
 
-The histogram kernel follows Section 8.8. Each block keeps a private histogram of 256 counters in
-shared memory, the threads of the block add to it with atomic operations, and at the end each block
-adds its 256 counts to the global histogram.
+24.1 At which byte of a gray image of width 1,920 is pixel \\((10, 2)\\) stored? At which bytes are
+its 3 colour bytes?<br>
+24.2 In the example, which pixels does the blur of pixel \\((0, 0)\\) depend on, if positions
+outside the image are not counted? Which pixels does the equalised level of pixel \\((0, 0)\\)
+depend on?<br>
+24.3 Classify as point, neighbourhood or global: inverting an image (\\(255 - v\\)); finding its
+brightest level; replacing each pixel by the median of its 3 × 3 window.
 
-<p class="listing"><b>Listing 24.2</b> The histogram kernel.</p>
+</div>
+
+## 24.2 The sequential pipeline
+
+### 24.2.1 The algorithm
+
+On a CPU the 4 stages become a sequence of loops. A blur window near the border of the image
+reaches past the border; we let a position outside the image take the level of the nearest pixel
+inside it, and write \\(\mathrm{clamp}(i, n) = \min(\max(i, 0), n - 1)\\) for that rule. The 5
+weights of the blur are \\(w = (1, 4, 6, 4, 1)\\), and Section 24.5 explains them.
+
+<div class="algo">
+<p class="algo-name">Image-Pipeline(\(rgb, W, H\))</p>
+<ol>
+<li>for \(p \in [0, WH)\) {</li>
+<li style="--d:1">\(gray[p] = (77\, rgb[3p] + 150\, rgb[3p+1] + 29\, rgb[3p+2] + 128) \gg 8\)</li>
+<li>}</li>
+<li>\(bins[v] = 0\) for every \(v \in [0, 256)\)</li>
+<li>for \(p \in [0, WH)\) {</li>
+<li style="--d:1">\(bins[gray[p]] = bins[gray[p]] + 1\) <span class="c">// histogram</span></li>
+<li>}</li>
+<li>\(c = 0\)</li>
+<li>for \(v \in [0, 256)\) {</li>
+<li style="--d:1">\(c = c + bins[v]\), \(\;cdf[v] = c\) <span class="c">// scan</span></li>
+<li>}</li>
+<li>\(c_{\min} = cdf[v]\) for the lowest \(v\) with \(bins[v] > 0\), \(\;s = WH - c_{\min}\)</li>
+<li>for \(v \in [0, 256)\) {</li>
+<li style="--d:1">\(table[v] = \lfloor (\max(cdf[v] - c_{\min}, 0) \cdot 255 + \lfloor s/2 \rfloor) / s \rfloor\)</li>
+<li>}</li>
+<li>for \(p \in [0, WH)\) {</li>
+<li style="--d:1">\(equal[p] = table[gray[p]]\)</li>
+<li>}</li>
+<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li style="--d:1">\(rows[y][x] = \sum_{j \in [0,5)} w_j \cdot equal[y][\mathrm{clamp}(x + j - 2, W)]\)</li>
+<li>}</li>
+<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li style="--d:1">\(blurred[y][x] = (\sum_{i \in [0,5)} w_i \cdot rows[\mathrm{clamp}(y + i - 2, H)][x] + 128) \gg 8\)</li>
+<li>}</li>
+<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li style="--d:1">\((g_x, g_y) = \) <span class="sc">Sobel</span>\((blurred, x, y)\)</li>
+<li style="--d:1">\(edges[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
+<li>}</li>
+</ol>
+</div>
+
+Lines 1 to 3 convert to gray, lines 4 to 18 equalise, lines 19 to 24 blur in 2 passes, and lines 25
+to 28 compute the edges. The symbol \\(\gg 8\\) is a shift right by 8 bits, a division by 256 that
+discards the remainder. Sections 24.3 to 24.6 explain each group of lines on the example; here we
+count the work and look at what each line depends on.
+
+### 24.2.2 Counting the work
+
+Line 2 runs once for each pixel, 64 times in our example, with 3 multiplications each. Lines 6 and
+17 also run 64 times. Lines 10 and 14 run 256 times, once for each possible level, whatever the
+size of the image. Lines 20 and 23 each run 64 times with 5 multiply-adds, 320 multiply-adds per
+pass. Line 26 reads the 8 neighbours of each of the 64 outputs and adds 12 weighted terms. The example
+therefore needs 192 multiplications for the gray levels, 640 multiply-adds for the blur and 768
+weighted terms for the edges, and the CPU performs them one after another.
+
+In general, with \\(N = WH\\) pixels, every line except 10 and 14 runs \\(N\\) times. For an image of
+1,920 × 1,080 pixels, \\(N = 2{,}073{,}600\\), and the 2 blur passes alone perform
+\\(2 \cdot 5N = 20{,}736{,}000\\) multiply-adds. Section 24.10 measures the whole sequence on 8
+CPU cores at 38 to 51 images per second.
+
+### 24.2.3 What each line depends on
+
+The order of the loops hides how little most lines need. Line 2 computes \\(gray[p]\\) from the 3
+bytes of pixel \\(p\\) and from nothing else. Line 17 reads \\(gray[p]\\) and 1 entry of a table of
+256 bytes. Line 20 reads 5 pixels of 1 row, line 23 reads 5 row sums of 1 column, and line 26 reads
+the 3 × 3 pixels around \\((x, y)\\). For each of these lines, every output could be computed at the
+same time as every other output, once its few inputs exist.
+
+Lines 4 to 14 are different. The table entry of line 14 needs \\(cdf[v]\\), which counts every pixel
+of the image with a level of at most \\(v\\). No entry of the table, and therefore no pixel of the
+equalised image, can be computed until the histogram of the whole image is complete.
+
+<div class="key-observation">
+
+<span class="box-label">Key observation</span> Each stage of the pipeline is a pattern of Part V,
+decided by how many input pixels 1 output pixel depends on: 1 pixel (a map), a small window (a
+stencil), or all pixels (a histogram followed by a scan). The patterns give the kernels; the
+pipeline connects them, in an order that only the histogram constrains.
+
+</div>
+
+<div class="exercises">
+
+Exercises
+
+24.4 How many times does line 20 read each pixel of the equalised image, away from the border? How
+many times does line 26 read each pixel of the blurred image?<br>
+24.5 Lines 10 and 14 run 256 times for an image of any size. What fraction of the work of
+Image-Pipeline do they represent for the image of 1,920 × 1,080 pixels?<br>
+24.6 Which lines of Image-Pipeline could start on pixel \\(p\\) before line 2 has finished every
+pixel? Which could not, and why?
+
+</div>
+
+## 24.3 Conversion to gray
+
+### 24.3.1 The weights
+
+The brightness that a viewer perceives in a colour pixel is not the plain average of its 3 levels,
+because the eye is most sensitive to green and least sensitive to blue. The ITU-R BT.601 standard
+weighs the levels accordingly:
+\\[ Y = 0.299\\,R + 0.587\\,G + 0.114\\,B. \\]
+For the sky of the example, \\(Y = 0.299 \cdot 120 + 0.587 \cdot 150 + 0.114 \cdot 180 = 35.88 +
+88.05 + 20.52 = 144.45\\).
+
+Our programs compute the same weights in integers. Each weight is multiplied by 256 and rounded to
+the nearest integer: \\(0.299 \cdot 256 = 76.5\\) becomes 77, \\(0.587 \cdot 256 = 150.3\\) becomes
+150, and \\(0.114 \cdot 256 = 29.2\\) becomes 29. The 3 integers sum to exactly 256, so a white pixel
+(255, 255, 255) gives \\(255 \cdot 256\\) and keeps level 255 after the division by 256. The
+division is a shift right by 8 bits, and adding 128, half of 256, before the shift makes it round to
+the nearest level instead of down. For the sky,
+\\[ 77 \cdot 120 + 150 \cdot 150 + 29 \cdot 180 = 9{,}240 + 22{,}500 + 5{,}220 = 36{,}960, \qquad
+(36{,}960 + 128) \gg 8 = 144, \\]
+the floating-point value 144.45 rounded. Figure 24.1 lists the same computation for the other 3
+colours.
+
+We use integers for a reason that Section 24.8 makes precise. The programs compare every pixel of
+the GPU's output with the CPU's, and they can demand exact equality only if both processors perform
+exactly the same operations. Integer additions and multiplications give the same result on every
+processor. Floating-point expressions do not always: the GPU compiler may fuse a multiplication and
+an addition into 1 instruction that rounds once instead of twice, and Chapter 10 measured such
+differences on 585,903 of 2,097,152 values.
+
+### 24.3.2 The kernel
+
+Gray conversion is a map, the pattern of Chapter 14, and its kernel gives each pixel its own thread.
+We restate the terms once.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.3</span> **Kernel, thread, block and grid.** A **kernel** is a
+function that the GPU runs many times at once, and each run is a **thread**. Threads are grouped
+into **blocks** of up to 1,024 threads; the threads of a block run on the same processor of the GPU,
+a **streaming multiprocessor** (SM), and can share a small fast memory and wait for one another. The
+**grid** is the set of all blocks of 1 launch. Each thread reads its position from the built-in
+values *blockIdx*, *blockDim* and *threadIdx*.
+
+*Example.* The gray kernel for the 8 × 8 example could run as 1 block of 64 threads; thread 3
+converts pixel \\((3, 0)\\).
+
+</div>
+
+<div class="algo">
+<p class="algo-name">Gray-Kernel(\(rgb, gray, W, H\))</p>
+<ol>
+<li>\(i = blockIdx.x \cdot blockDim.x + threadIdx.x\)</li>
+<li>if \(i \in [0, WH)\) {</li>
+<li style="--d:1">\(r = rgb[3i]\), \(\;g = rgb[3i + 1]\), \(\;b = rgb[3i + 2]\) <span class="c">// 3 reads</span></li>
+<li style="--d:1">\(gray[i] = (77r + 150g + 29b + 128) \gg 8\) <span class="c">// 1 write</span></li>
+<li>}</li>
+</ol>
+</div>
+
+Line 1 gives each thread a pixel number, and line 2 sends home the threads of the last block that
+lie past the end of the image. Figure 24.4 follows thread 3 of the example. It reads bytes 9, 10
+and 11, computes 144 and writes byte 3 of the gray image: 3 reads from global memory and 1 write,
+and no other thread is involved.
+
+<figure>
+<img src="../../figures/ch24-thread.svg" alt="Row 0 of the colour image as 12 bytes in memory, 120, 150, 180 repeated for pixels 0 to 3, one colour per pixel. Thread 3 computes p = 9, reads bytes 9, 10 and 11, computes 77 times 120 plus 150 times 150 plus 29 times 180 = 36,960, adds 128 and shifts right by 8 to get 144, and writes element 3 of the gray image.">
+<figcaption><b>Figure 24.4</b> The work of 1 thread of the gray kernel: 3 bytes in, 1 byte out.</figcaption>
+</figure>
+
+The GPU runs the threads of a block in groups of 32, and the order of the bytes decides how fast
+their reads are served.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.4</span> **Warp and coalesced access.** A **warp** is a group
+of 32 consecutive threads of a block that execute the same instruction together; its threads are its
+**lanes** 0 to 31. An access of a
+warp to global memory is **coalesced** when its 32 addresses fall into as few aligned segments of
+32 bytes as the data allow, so that the memory system serves the whole warp with a few transfers.
+
+*Example.* The 32 threads of a warp of the gray kernel read pixels \\(i\\) to \\(i + 31\\), which
+are 96 consecutive bytes of the colour image, and the memory system serves each of the 3 read
+instructions from the same 3 segments of 32 bytes.
+
+</div>
+
+For the image of 1,920 × 1,080 pixels the programs launch 8,100 blocks of 256 threads, and
+\\(8{,}100 \cdot 256 = 2{,}073{,}600\\), exactly 1 thread per pixel. The kernels follow lines 1 to 5
+of Gray-Kernel.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:61:90}}
-    // ...
-}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:57:68}}
 ```
 
-The kernel runs in 3 phases separated by 2 barriers. In the first phase, thread `tid` sets counter
-`tid` of the shared array `LOCAL` to 0; the block has 256 threads, so every counter is cleared. In
-the second phase, each thread walks through the image with a stride of the whole grid, 64 blocks
-× 256 threads = 16,384 pixels, and adds 1 to the counter of each pixel's level. Each thread handles
-2,073,600 / 16,384 = 126.6, that is 126 or 127, pixels. The counter is reached through a raw pointer
-and turned into a `BlockAtomicU32`, because 2 threads of the block may count the same level at the
-same time. In the third phase, thread `tid` adds the block's count of level `tid` to the global
-histogram `bins`, which is a slice of `DeviceAtomicU32`, and skips the addition when the count is
-0.
+</div>
+<div class="code-tab" data-lang="C++">
 
-The global histogram is allocated as a buffer of `u32` zeros and given to the kernel as
-`DeviceAtomicU32` elements with `cast_elem`, as in Chapter 8. The kernel adds to `bins`, so the
-buffer must hold zeros before the first image. Section 24.3.3 shows how it returns to zeros for
-the next image without a separate kernel.
-
-### 24.3.3 The table kernel
-
-The table kernel turns the 256 counts into 256 new levels. It is launched with a single block of
-256 threads, and thread v is responsible for level v. The block first computes the cumulative
-counts with a scan of 256 values, then finds \\(c_{\min}\\), and finally evaluates the formula of
-Section 24.3.1.
-
-```text
-count      ← bins[v];  bins[v] ← 0                    one atomic exchange
-inclusive  ← scan of count within the warp            Section 8.7.2
-WARPS[w]   ← inclusive of lane 31 of warp w            the total of each of the 8 warps
-barrier
-warp 0: WARPS ← inclusive scan of the 8 warp totals
-barrier
-c          ← inclusive + WARPS[w - 1]                  (0 for warp 0)
-if count > 0: FIRST ← min(FIRST, c)                    atomically; FIRST starts at the maximum
-barrier
-table[v]   ← round((c - FIRST) × 255 / (N - FIRST))
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:60:70}}
 ```
 
-<p class="listing"><b>Listing 24.3</b> The table kernel.</p>
+</div>
+</div>
+
+In Rust, `thread::index_1d()` is line 1, and the test of line 2 is the call `gray.get_mut(idx)`. The
+output is a `DisjointSlice`, a slice that hands each thread only the element of its own index, and
+`get_mut` returns `None` for a thread whose index lies past the end, so the write needs no `unsafe`
+block. The attribute `#[launch_contract(domain = 1, block = (256, 1, 1))]` records the block shape;
+the host must prepare every launch against it, and a launch with another shape is refused on the
+host before it reaches the GPU. The C++ kernel tests the index itself and writes through a raw
+pointer. In both languages the levels are widened to 32-bit integers before the multiplication,
+because \\(77 \cdot 255 = 19{,}635\\) does not fit in a byte.
+
+### 24.3.3 Weights that do not sum to 256
+
+The 3 weights are easy to get wrong by truncating them instead of rounding: \\(0.299 \cdot 256 =
+76.54\\) truncates to 76, and the 3 weights 76, 150 and 29 then sum to 255. Every level comes out
+slightly too dark, and the error grows with the level. The sky keeps level 144, since
+\\((76 \cdot 120 + 22{,}500 + 5{,}220 + 128) \gg 8 = 36{,}968 \gg 8 = 144\\), but a white pixel
+gives \\((255 \cdot 255 + 128) \gg 8 = 65{,}153 \gg 8 = 254\\) instead of 255. A test image with no white pixel does not
+reveal the mistake; a test that converts (255, 255, 255) does.
+
+<div class="exercises">
+
+Exercises
+
+24.7 Convert the pixels (255, 0, 0), (0, 255, 0) and (0, 0, 255) with the integer weights. Explain
+why the 3 results differ.<br>
+24.8 A warp of the gray kernel reads 96 bytes with 3 load instructions. How many bytes would each
+load instruction move if each thread converted 4 pixels and read its 12 bytes as 3 words of 4
+bytes?<br>
+24.9 Without the 128 in line 4, which of the 4 colours of the example changes its gray level?
+
+</div>
+
+## 24.4 Histogram equalisation
+
+### 24.4.1 The method on the example
+
+Equalisation moves each level to a new level in proportion to the number of pixels at or below it.
+It needs 2 quantities.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.5</span> **Histogram and cumulative count.** The **histogram**
+of a gray image counts, for each level \\(v \in [0, 256)\\), the pixels whose level is \\(v\\); we
+call the counts \\(bins[v]\\). The **cumulative count** \\(c(v)\\) is the number of pixels whose
+level is at most \\(v\\), \\(c(v) = \sum_{u \le v} bins[u]\\). The sequence \\(c\\) is the
+**inclusive scan** of the histogram (Chapter 21).
+
+*Example.* The gray image of Figure 24.1 has \\(bins[96] = bins[112] = bins[120] = bins[144] = 16\\)
+and every other count 0. Its cumulative counts are \\(c(96) = 16\\), \\(c(112) = 32\\), \\(c(120) =
+48\\) and \\(c(144) = 64\\).
+
+</div>
+
+If 50% of the pixels have a level of at most \\(v\\), equalisation moves \\(v\\) to about 50%
+of 255. The darkest level in use should become 0 and the brightest 255, so we subtract the cumulative
+count \\(c_{\min}\\) of the darkest level in use and divide by what remains.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.6</span> **Equalisation table.** For an image of \\(N\\)
+pixels, let \\(c_{\min}\\) be the cumulative count at the lowest level in use. The equalisation
+table maps level \\(v\\) to
+\\[ \mathrm{new}(v) = \mathrm{round}\left(\frac{\max(c(v) - c_{\min}, 0)}{N - c_{\min}} \cdot
+255\right), \\]
+and the equalised image replaces each level \\(v\\) by \\(\mathrm{new}(v)\\).
+
+*Example.* With \\(N = 64\\) and \\(c_{\min} = c(96) = 16\\), \\(\mathrm{new}(112) =
+\mathrm{round}(16 \cdot 255 / 48) = 85\\).
+
+</div>
+
+Figure 24.5 works the whole table. Level 96 moves to \\(\mathrm{round}(0 \cdot 255 / 48) = 0\\),
+level 120 to \\(\mathrm{round}(32 \cdot 255 / 48) = 170\\) and level 144 to
+\\(\mathrm{round}(48 \cdot 255 / 48) = 255\\). The 4 levels, once within 48 of each other, now cover
+the whole scale in equal steps of 85, because each of them holds a quarter of the pixels. In the
+programs, line 14 of Image-Pipeline performs the rounding in integers: for a numerator \\(a\\) and a
+denominator \\(s\\), \\(\lfloor (a + \lfloor s/2 \rfloor) / s \rfloor\\) is \\(a / s\\) rounded to
+the nearest integer, and for level 112 it gives \\(\lfloor (4{,}080 + 24) / 48 \rfloor = 85\\).
+
+<figure>
+<img src="../../figures/ch24-equalise.svg" alt="Left top: the histogram of the gray image has 4 bars of 16 pixels at levels 96, 112, 120 and 144. Left bottom: a table with level, count, cumulative count c(v) and new level: 96, 16, 16, 0; 112, 16, 32, 85; 120, 16, 48, 170; 144, 16, 64, 255. new(112) = round((32 - 16) times 255 / (64 - 16)) = 85. Right: the equalised image: rows 0 and 1 are 255, rows 2 to 5 are 85 85 170 170 170 170 85 85, rows 6 and 7 are 0.">
+<figcaption><b>Figure 24.5</b> The histogram, the cumulative counts and the table of the example, and the equalised image.</figcaption>
+</figure>
+
+The cumulative count never decreases as \\(v\\) grows, so neither does \\(\mathrm{new}(v)\\): 2
+pixels that were in a given order of brightness keep that order. Equalisation changes contrast, not
+the arrangement of light and dark.
+
+The method splits into 3 steps with different patterns: the histogram (a global operation), the
+table of 256 entries (a scan), and the replacement of each level (a map). Each step needs the
+previous one complete, so the programs use 1 kernel for each.
+
+### 24.4.2 The histogram kernel
+
+Many threads add to the same few counters, so the additions must not interfere. The histogram of
+Chapter 22 solves this with atomic operations and private counters per block; we restate the terms.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.7</span> **Shared memory, barrier and atomic operation.**
+**Shared memory** is a small memory on each SM that the threads of 1 block share; it answers in a
+few cycles, and its contents last as long as the block. A **barrier** is a point in a kernel that no
+thread of a block passes until every thread of the block has reached it. An **atomic operation**
+reads a memory word, changes it and writes it back as 1 step, so that no other thread can access the
+word in between.
+
+*Example.* 2 threads that add 1 to the same counter with an atomic addition always leave it 2
+higher.
+
+</div>
+
+Each block of the histogram kernel counts into its own 256 counters in shared memory, and adds them
+to the global counters once at the end.
+
+<div class="algo">
+<p class="algo-name">Histogram-Kernel(\(gray, bins, N\))</p>
+<ol>
+<li>\(t = threadIdx.x\)</li>
+<li>\(local[t] = 0\) <span class="c">// 256 threads clear 256 counters</span></li>
+<li><span class="sc">Barrier</span>()</li>
+<li>for \(i = blockIdx.x \cdot 256 + t\); \(i &lt; N\); \(i = i + gridDim.x \cdot 256\) {</li>
+<li style="--d:1"><span class="sc">Atomic-Add</span>\((local[gray[i]], 1)\) <span class="c">// shared memory</span></li>
+<li>}</li>
+<li><span class="sc">Barrier</span>()</li>
+<li>if \(local[t] > 0\) {</li>
+<li style="--d:1"><span class="sc">Atomic-Add</span>\((bins[t], local[t])\) <span class="c">// global memory</span></li>
+<li>}</li>
+</ol>
+</div>
+
+Line 2 clears the counters, 1 per thread. The loop of lines 4 to 6 walks through the image with a
+stride of the whole grid, and line 5 counts each pixel in the block's own counter of its level. The
+barrier of line 3 keeps every count from starting before every counter is 0, and the barrier of line
+7 keeps every block total from being read before every count of the block is done. Lines 8 to 10 add
+the block's 256 totals to the global histogram, skipping counters that stayed at 0.
+
+For the image of 1,920 × 1,080 pixels the programs launch 64 blocks of 256 threads, 16,384 threads
+in all, so each thread counts 2,073,600 / 16,384 = 126.6 pixels, that is 126 or 127. The global
+counters receive at most \\(64 \cdot 256 = 16{,}384\\) atomic additions instead of 2,073,600. For
+the 8 × 8 example, 1 block would do: threads 0 to 63 each count 1 pixel, and threads 96, 112, 120 and
+144 each add 16 to the global counter of their level.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:36:46}}
-
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:92:140}}
-    // ...
-}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:70:99}}
 ```
 
-The first statement reads the count of level v with `bins[v].swap(0, ...)`, an atomic exchange that returns the old
-value and stores 0 in its place. The kernel therefore leaves the global histogram cleared, ready for
-the next image, and the pipeline needs no separate launch to clear it.
+</div>
+<div class="code-tab" data-lang="C++">
 
-The scan is the 2-level scan of Section 8.7.3. The device function `warp_scan` gives each lane the
-sum of the counts of its own lane and of all lanes before it in the warp. Lane 31 holds the total
-of its warp and stores it in the shared array `WARPS`. After the first barrier, warp 0 scans the 8
-warp totals. After the second barrier, each thread adds the total of all warps before its own,
-and `cdf` is the cumulative count \\(c(v)\\).
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:72:90}}
+```
 
-The value \\(c_{\min}\\) is the cumulative count at the lowest level in use. Every level in use
-has a count greater than 0, and the cumulative count grows with the level, so \\(c_{\min}\\) is the
-smallest cumulative count among the levels whose count is greater than 0. Thread 0 sets the shared
-word `FIRST` to the largest `u32` before the first barrier. Each thread whose count is
-greater than 0 then applies an atomic minimum to `FIRST`, and after the third barrier
-every thread reads the result. The total number of pixels is the last of the scanned warp totals,
-`WARPS[7]`, so the kernel needs no parameter for \\(N\\).
+</div>
+</div>
 
-The last lines of the kernel evaluate the formula in 64-bit integers, because \\((c(v) - c_{\min}) \times
-255\\) can reach 2,073,600 × 255 = 528,768,000, which is close to the limit of a `u32`. For levels
-below the lowest level in use, \\(c(v) = 0 < c_{\min}\\), and `saturating_sub` gives 0 rather than
-a negative difference that a `u32` cannot represent. If the image contains a single level, the
-denominator is 0, and the kernel leaves every level unchanged.
+The 2 kernels follow Histogram-Kernel line by line, and differ in how they reach shared memory. C++
+declares `__shared__ unsigned local[256]` and calls `atomicAdd` on an element. Rust declares
+`static mut LOCAL: SharedArray<u32, 256>` and turns the address of an element into a
+`BlockAtomicU32`, an atomic integer whose operations are atomic among the threads of 1 block, which is
+all that shared memory needs. The global counters are a slice of `DeviceAtomicU32`, atomic among all
+threads of the device. Every direct access to `LOCAL` is `unsafe`, because the compiler cannot check
+how concurrent threads use shared memory; each `// SAFETY:` comment states the argument, which is the
+2 barriers of the pseudocode.
 
-### 24.3.4 Applying the table
+### 24.4.3 The table kernel
 
-The last step of equalisation is a point operation. Each thread reads 1 gray pixel and writes the
-table's entry for its level.
+The table needs the scan of 256 counts and the value \\(c_{\min}\\). A scan of 256 values is
+small, so a single block of 256 threads computes it, with thread \\(v\\) responsible for level
+\\(v\\). The block scans each warp with register shuffles, then scans the 8 warp totals, as in the
+block scan of Chapter 21.
 
-<p class="listing"><b>Listing 24.4</b> Applying the table.</p>
+<div class="algo">
+<p class="algo-name">Table-Kernel(\(bins, table\))</p>
+<ol>
+<li>\(v = threadIdx.x\), \(\;lane = v \bmod 32\), \(\;w = \lfloor v / 32 \rfloor\)</li>
+<li>\(count = \) <span class="sc">Atomic-Exchange</span>\((bins[v], 0)\) <span class="c">// read and clear</span></li>
+<li>\(s = \) <span class="sc">Warp-Scan</span>\((count)\) <span class="c">// inclusive, within the warp</span></li>
+<li>if \(lane = 31\) { \(warps[w] = s\) }</li>
+<li>if \(v = 0\) { \(first = \infty\) }</li>
+<li><span class="sc">Barrier</span>()</li>
+<li>if \(w = 0\) and \(lane &lt; 8\) { \(warps[lane] = \) <span class="sc">Warp-Scan</span>\((warps[lane])\) }</li>
+<li><span class="sc">Barrier</span>()</li>
+<li>\(c = s + warps[w - 1]\) if \(w > 0\), else \(c = s\) <span class="c">// c = c(v)</span></li>
+<li>if \(count > 0\) { <span class="sc">Atomic-Min</span>\((first, c)\) }</li>
+<li><span class="sc">Barrier</span>()</li>
+<li>\(span = warps[7] - first\)</li>
+<li>\(table[v] = \lfloor (\max(c - first, 0) \cdot 255 + \lfloor span/2 \rfloor) / span \rfloor\)</li>
+</ol>
+</div>
+
+On the example, the 4 levels in use belong to 2 warps. Warp 3 holds threads 96 to 127: its scan
+gives 16 at lane 0 (level 96), 32 at lane 16 (level 112) and 48 from lane 24 (level 120) to lane
+31, so \\(warps[3] = 48\\). Warp 4 holds level 144 at lane 16, so \\(warps[4] = 16\\). After line 7
+the warp totals are 0, 0, 0, 48, 64, 64, 64, 64, and line 9 gives thread 144 the count \\(c = 16 +
+48 = 64\\). Line 10 leaves \\(first = 16\\), the smallest cumulative count among the 4 levels in
+use, which is \\(c_{\min}\\). The total number of pixels is the last warp total, \\(warps[7] = 64\\),
+so the kernel needs no parameter for \\(N\\).
+
+Line 2 reads each count with an atomic exchange, which returns the old value and stores 0. The kernel
+therefore leaves the global histogram cleared for the next image, and the pipeline needs no separate
+launch to clear it. Line 13 works in 64-bit integers in the programs, because
+\\(\max(c - first, 0) \cdot 255\\) reaches \\(2{,}073{,}600 \cdot 255 = 528{,}768{,}000\\) for the large image, close to
+the limit of a 32-bit integer, and line 12 gives a span of 0 for an image of a single level, in
+which case the programs keep every level unchanged.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:142:152}}
-    // ...
-}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:101:149}}
 ```
 
-The read `table[gray[i] as usize]` is a **gather**: the address depends on the data. The 32 threads
-of a warp read 32 entries of the table at unpredictable positions. The table is only 256 bytes,
-however, so after the first accesses it stays in the L1 cache of each SM, and the gathers cost
-little.
+</div>
+<div class="code-tab" data-lang="C++">
 
-## 24.4 A separable Gaussian blur
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:92:130}}
+```
 
-### 24.4.1 The weights
+</div>
+</div>
+
+The 3 barriers of Table-Kernel are the 3 calls to `sync_threads()` and `__syncthreads()`, and all of
+them lie outside every `if`, so every thread of the block reaches them. Line 13 writes the table
+through `table.get_mut(...)` in Rust, a `DisjointSlice` again, and through a plain store in C++.
+The scan inside a warp is the device function `warp_scan` (`warpScan` in C++), which adds the value
+of the lane 1, 2, 4, 8 and 16 places lower with `shuffle_up_sync` (`__shfl_up_sync`); Chapter 21
+derives it.
+
+### 24.4.4 Applying the table
+
+The last step is a map. Each thread reads 1 gray level and writes the table's entry for it.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:151:161}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:132:139}}
+```
+
+</div>
+</div>
+
+The read `table[gray[i]]` is a **gather**, a read whose address depends on data. The 32 threads of a
+warp read 32 entries of the table at unpredictable positions, which is the opposite of a coalesced
+access. The table holds only 256 bytes, however, so after the first accesses it stays in the L1 cache
+of each SM, and the gathers cost little.
+
+### 24.4.5 A histogram without atomic additions
+
+The easy mistake in the histogram is to count with a plain addition, `local[gray[i]] += 1`. The
+addition is 3 steps, a read, an add and a write, and 2 threads that count the same level can
+interleave them (Figure 24.6). Both read the old count 7, both write 8, and 1 of the 2 pixels is
+lost.
+
+<figure>
+<img src="../../figures/ch24-race.svg" alt="A timeline of 2 threads. Thread 5 reads bin 144, which holds 7, adds 1 and writes 8. Thread 9 reads the same bin before thread 5 has written it, also reads 7, adds 1 and writes 8. 2 pixels were counted and the bin grew by 1.">
+<figcaption><b>Figure 24.6</b> 2 threads count a pixel of level 144 with a plain addition; the bin grows by 1 instead of 2.</figcaption>
+</figure>
+
+On the example, 16 threads of 1 block count the 16 sky pixels, all of them level 144. If they lose
+any of their additions, \\(bins[144]\\) ends below 16, the total \\(warps[7]\\) below 64, and the
+table changes. We ran the C++ program with this 1 change.
+
+```console
+$ ./capstone                                  # local[gray[i]] += 1, no atomicAdd
+...
+image      pixels that differ from the CPU
+  gray              0
+  equalised   1961635   first at (0, 0): GPU 104, CPU 97
+  blurred     1988211   first at (0, 0): GPU 112, CPU 106
+  edges       1302442   first at (0, 0): GPU 9, CPU 10
+...
+FAILED
+```
+
+The gray image is still right, and 1,961,635 of the 2,073,600 equalised pixels, 95%, are wrong. A
+lost count lowers the cumulative count of its level and of every level above it, and with it the
+table entry of almost every level; pixel \\((0, 0)\\) became 104 instead of 97. The error then passes
+through the blur and the edges. The histogram stage of this broken program also ran in 0.050 ms
+instead of about 0.12 ms, because plain additions do not wait for one another. A faster kernel is
+no evidence of a correct one.
+
+<div class="exercises">
+
+Exercises
+
+24.10 Compute the equalisation table for an image of 10 pixels with the levels 4, 4, 4, 5, 5, 6, 6,
+6, 6, 7, on a scale of 8 levels (replace 255 by 7).<br>
+24.11 In Table-Kernel, why must line 10 run after the barrier of line 8 and not before it?<br>
+24.12 Histogram-Kernel is launched with 64 blocks. How many atomic additions reach global memory
+for the 8 × 8 example with 1 block, and for the large image with 64 blocks?
+
+</div>
+
+## 24.5 A separable Gaussian blur
+
+### 24.5.1 The weights
 
 A **blur** replaces each pixel by a weighted average of the pixels around it. A **Gaussian blur**
 uses weights that fall off with the distance from the centre in the shape of the normal
-distribution. We use the 5 weights 1, 4, 6, 4, 1 in each direction. These are the binomial
-coefficients of order 4, and they approximate a normal distribution with a standard deviation of 1
-pixel: the variance of the binomial distribution of order 4 with probability 1/2 is 4 × 1/2 × 1/2 =
-1. The weights of each direction sum to 16.
+distribution. We use the 5 weights \\(w = (1, 4, 6, 4, 1)\\) in each direction. They are the
+binomial coefficients of order 4, which approximate a normal distribution with a standard deviation
+of 1 pixel (the binomial distribution of order 4 with probability 1/2 has variance \\(4 \cdot
+\tfrac12 \cdot \tfrac12 = 1\\)). They sum to 16.
 
-A 2-dimensional blur over a window of 5 × 5 pixels has 25 weights. The weight of the pixel in row
-i and column j of the window is the product of weight i of the column direction and weight j of
-the row direction, as figure 21.4 shows. A filter whose weights are such products is called
-**separable**. It can be applied in 2 passes: the first pass blurs each row with the 5 row weights,
-and the second pass blurs each column of the result with the 5 column weights. Each output then
-costs 5 + 5 = 10 multiply-adds instead of 25.
+The 2-dimensional blur over a window of 5 × 5 pixels gives the pixel in row \\(i\\) and column \\(j\\)
+of the window the weight \\(w_i w_j\\) (Figure 24.7, left). The 25 weights run from 1 at the corners
+to 36 at the centre and sum to \\(16 \cdot 16 = 256\\), so a region of constant level keeps its
+level after the division by 256.
 
-<figure>
-<img src="../../figures/ch24-blur.svg" alt="Top: the row weights 1, 4, 6, 4, 1 and the column weights 1, 4, 6, 4, 1, each summing to 16. Middle: their products form a 5 by 5 grid from 1 at the corners to 36 in the centre, summing to 256; 2 passes need 10 multiply-adds per pixel instead of 25. Bottom: the shared tile of 1 block of blur rows, slots 0 to 131. Slot t holds pixel t minus 2 clamped to the row: slots 0 and 1 hold pixel 0, slot 129 holds pixel 127, slots 130 and 131 hold pixels 128 and 129, loaded by threads 0 to 3.">
-<figcaption><b>Figure 24.4</b> The 25 weights of the blur as the product of 2 passes of 5, and the shared tile of the row pass.</figcaption>
-</figure>
+<div class="definition">
 
-Both passes work in integers. The row pass stores its sums without dividing them: the largest is
-16 × 255 = 4,080, which needs 12 bits, so the intermediate image `rows` has 2 bytes per pixel. The
-column pass multiplies by another 16, so its sums reach 16 × 4,080 = 65,280, and the result is the
-sum divided by 256 and rounded: (sum + 128) >> 8. For example, a row of levels 10, 20, 30, 40, 50
-gives a row sum at the centre of 10 + 4 × 20 + 6 × 30 + 4 × 40 + 50 = 480. A pixel whose 5 × 5
-window has the level 100 everywhere gives 100 × 16 = 1,600 in every row sum, and 1,600 × 16 =
-25,600 in the column pass, which is level 100 again.
+<span class="box-label">Definition 24.8</span> **Separable filter.** A filter on a window of
+\\(k \times k\\) pixels is **separable** if its weight at row \\(i\\) and column \\(j\\) of the window
+is a product \\(a_i b_j\\) of a column weight and a row weight. Its **row pass** replaces each pixel
+by the sum of its \\(k\\) row neighbours weighted by \\(b\\), and its **column pass** does the same
+along the columns with the weights \\(a\\).
 
-The window of a pixel near the border of the image reaches past the border. We use the rule that a
-position outside the image takes the value of the nearest pixel inside it. The device function
-`tap` implements this rule: given a position i in a coordinate system shifted right by 2, it
-returns i − 2, clamped to the range from 0 to n − 1.
+*Example.* The blur is separable with \\(a = b = (1, 4, 6, 4, 1)\\); the weight 36 at the centre is
+\\(6 \cdot 6\\), and the weight 4 at row 0 and column 1 is \\(1 \cdot 4\\).
 
-<p class="listing"><b>Listing 24.5</b> The clamped index of a window position.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:30:34}}
-    // ...
-}
-```
-
-### 24.4.2 The row pass
-
-Each output pixel of the row pass reads 5 input pixels, and each input pixel is read by 5 output
-pixels. A kernel that reads its inputs directly from global memory therefore loads every pixel 5
-times. The tiling idea of Section 9.4 removes the repetition: the threads of a block first copy the
-pixels that the block needs into shared memory, and then every thread reads its 5 inputs from
-there.
-
-A block of 128 threads computes 128 consecutive outputs of 1 row. Output x needs the pixels from x
-− 2 to x + 2, so the block needs 128 + 4 = 132 pixels: its own 128 and 2 on each side. The 4 extra
-pixels are the **halo** of the tile. Slot t of the tile holds pixel x0 + t − 2 of the row, where x0
-is the first output of the block. Thread `tx` loads slot `tx`, and threads 0 to 3 also load slots
-128 to 131. After the barrier, thread `tx` reads slots `tx` to `tx + 4`, which hold pixels x0 + tx
-− 2 to x0 + tx + 2.
-
-```text
-TILE[tx]        ← src[row, clamp(x0 + tx - 2)]               every thread
-TILE[128 + tx]  ← src[row, clamp(x0 + 128 + tx - 2)]         threads 0 to 3
-barrier
-out[row, x0 + tx] ← TILE[tx] + 4 TILE[tx+1] + 6 TILE[tx+2] + 4 TILE[tx+3] + TILE[tx+4]
-```
-
-The block loads 132 pixels from global memory for 128 outputs, instead of 5 × 128 = 640. Figure
-21.4 shows the tile of the first block of a row. Its slots 0 and 1 lie left of the image, and the
-clamp gives them the value of pixel 0.
-
-<p class="listing"><b>Listing 24.6</b> The row pass of the blur.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:154:180}}
-    // ...
-}
-```
-
-The kernel is launched on a 2-dimensional grid of 15 × 1,080 blocks: 15 blocks of 128 threads
-cover a row of 1,920 pixels exactly, and there is 1 row of blocks for each of the 1,080 rows of the
-image. The launch contract declares the block shape (128, 1, 1), so a launch with any other shape
-is rejected on the host before it reaches the GPU. The first 3 statements compute the thread's position
-in the tile, the first column of the block, and the offset of the block's row in the image.
-
-The output is declared as `DisjointSlice<u16, Index2D<W>>`, a slice whose elements are addressed by
-2-dimensional thread indices with a row length of `W` = 1,920. The call `thread::index_2d::<W>()`
-returns the thread's index, row × 1,920 + column, or `None` if the thread's column lies
-beyond 1,920. The `get_mut` that follows checks the index against the length of the slice, so the
-write to the output needs no `unsafe` block, exactly as in the 1-dimensional kernels. Since every
-thread has a distinct (row, column), no 2 threads can obtain the same element.
-
-The tile is a different matter. Shared memory is accessible to every thread of the block, and the
-compiler cannot verify that a thread reads only slots that some thread has written. Accesses to
-`TILE` are therefore `unsafe`, and the `SAFETY` comments state the argument that makes them correct:
-each slot is written by exactly 1 thread before the barrier, and after the barrier the tile is only
-read. Section 24.10 shows what happens when that argument is broken. The closure `t`
-reads slot `tx + k` of the tile; it keeps the 5-term sum on 1 line.
-
-### 24.4.3 The column pass
-
-The column pass works in the same way along the columns. A block of 32 × 8 threads computes a tile
-of 8 rows and 32 columns. Each output needs 2 rows above it and 2 below, so the block loads 8 + 4
-= 12 rows of 32 values of `rows` into shared memory. Thread (tx, ty) loads row ty of the tile, and
-threads with ty < 4 also load rows 8 to 11.
-
-<p class="listing"><b>Listing 24.7</b> The column pass of the blur.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:182:208}}
-    // ...
-}
-```
-
-The block is 32 threads wide so that a warp reads 32 consecutive values of 1 row, which are 64
-consecutive bytes. The launch uses a grid of 60 × 135 blocks: 60 × 32 = 1,920 columns and 135 × 8 =
-1,080 rows. The last statement divides by 256 with rounding and stores the blurred level as a byte.
-
-## 24.5 Sobel edges
-
-An **edge** in an image is a place where the level changes quickly from one pixel to the next. The
-**Sobel operator** estimates the rate of change at each pixel in 2 directions from its 3 × 3
-neighbourhood. The horizontal component gx is the weighted sum of the column to the right of the
-pixel minus the weighted sum of the column to its left, with weights 1, 2, 1 from top to bottom.
-The vertical component gy is the weighted sum of the row below minus the row above, with the same
-weights from left to right. The length of the vector (gx, gy) is the **gradient magnitude**, which
-is large at an edge and close to 0 in a uniform region.
-
-\\[ \text{edge} = \min\left(\operatorname{round}\sqrt{g_x^2 + g_y^2},\ 255\right) \\]
-
-Figure 24.5 applies the operator to a neighbourhood on the left side of a vertical edge. The
-column to the right is 60, 60, 60 and the column to the left is 20, 20, 20, so gx = 240 − 80 =
-160. The rows differ only in their middle pixel, so gy = 140 − 120 = 20 is small. The magnitude is
-\\(\sqrt{26{,}000} = 161.2\\), and the edge pixel is 161.
+</div>
 
 <figure>
-<img src="../../figures/ch24-sobel.svg" alt="Left: a 3 by 3 neighbourhood with columns 20, 20, 60 and a bottom row 20, 30, 60. Middle: the Gx mask, -1 0 1 in each row with the middle row doubled. Right: the Gy mask, -1 -2 -1 on top and 1 2 1 at the bottom. Worked: gx = 240 - 80 = 160, gy = 140 - 120 = 20, magnitude = square root of 26,000 = 161.2, rounded to 161.">
-<figcaption><b>Figure 24.5</b> The Sobel operator applied to 1 neighbourhood.</figcaption>
+<img src="../../figures/ch24-separable.svg" alt="Left: the column weights 1, 4, 6, 4, 1 and the row weights 1, 4, 6, 4, 1, and their 25 products from 1 at the corners to 36 in the centre, summing to 256. Right: pixel (3, 3) of the example. The row pass gives 4,080 in row 1 and 2,635 in rows 2 to 5; the column pass gives 4,080 + 15 times 2,635 = 43,605, and (43,605 + 128) >> 8 = 170. 1 pass over 25 weights gives the same 43,605. 2 passes cost 10 multiply-adds per pixel instead of 25.">
+<figcaption><b>Figure 24.7</b> The 25 weights of the blur as products of 2 sets of 5, and pixel (3, 3) of the example computed both ways.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 24.8</b> The Sobel kernel.</p>
+### 24.5.2 Separability
+
+Let us blur pixel \\((3, 3)\\) of the equalised image by hand in 2 passes (Figure 24.8). The row pass
+at \\((3, y)\\) reads pixels 1 to 5 of row \\(y\\). In rows 2 to 5 these are 85, 170, 170, 170 and
+170, so the row sum is \\(85 + 4 \cdot 170 + 6 \cdot 170 + 4 \cdot 170 + 170 = 2{,}635\\); in row 1
+all 5 are 255, and the sum is \\(16 \cdot 255 = 4{,}080\\). The column pass at \\((3, 3)\\) reads the
+row sums of rows 1 to 5:
+\\[ 4{,}080 + 4 \cdot 2{,}635 + 6 \cdot 2{,}635 + 4 \cdot 2{,}635 + 2{,}635 = 4{,}080 + 15 \cdot
+2{,}635 = 43{,}605, \\]
+and \\((43{,}605 + 128) \gg 8 = 170\\). Adding the 25 products of the 5 × 5 window with the weights of
+Figure 24.7 gives the same 43,605. The agreement is not a coincidence of the example.
+
+<div class="theorem">
+
+<span class="box-label">Theorem 24.1</span> Let \\(e\\) be an image of \\(W \times H\\) levels, let
+\\(R(x, y) = \sum_{j \in [0,5)} w_j\\, e(\mathrm{clamp}(x + j - 2, W), y)\\) be its row sums, and let
+\\(B(x, y) = (\sum_{i \in [0,5)} w_i\\, R(x, \mathrm{clamp}(y + i - 2, H)) + 128) \gg 8\\). Then for
+every pixel,
+\\[ B(x, y) = \Big(\sum_{i \in [0,5)} \sum_{j \in [0,5)} w_i w_j\\, e(\mathrm{clamp}(x + j - 2, W),
+\mathrm{clamp}(y + i - 2, H)) + 128\Big) \gg 8, \\]
+the 2-dimensional blur with the 25 weights \\(w_i w_j\\).
+
+</div>
+
+<div class="proof">
+
+*Proof.* Fix \\((x, y)\\) and write \\(y_i = \mathrm{clamp}(y + i - 2, H)\\) and \\(x_j =
+\mathrm{clamp}(x + j - 2, W)\\). By the definition of \\(R\\), \\(R(x, y_i) = \sum_j w_j\\, e(x_j,
+y_i)\\): the clamp acts on each coordinate separately, so the columns \\(x_j\\) that the row pass
+reads in row \\(y_i\\) do not depend on \\(i\\). Hence
+\\[ \sum_i w_i\\, R(x, y_i) = \sum_i w_i \sum_j w_j\\, e(x_j, y_i) = \sum_i \sum_j w_i w_j\\, e(x_j,
+y_i), \\]
+since multiplication distributes over the inner sum. Every quantity is a non-negative integer: a row
+sum is at most \\(16 \cdot 255 = 4{,}080\\), and a column sum at most \\(16 \cdot 4{,}080 =
+65{,}280\\), far below \\(2^{32}\\). Every addition and multiplication is therefore exact, the 2 sides
+are the same integer before the shift, and the shift gives the same result.
+
+</div>
+
+The proof needs the row pass to keep its sums whole. A program that divides by 16 with rounding after
+each pass instead of by 256 once at the end computes a different image: on the example, the row sum
+2,635 becomes 165 and 4,080 becomes 255, and pixel \\((3, 3)\\) becomes \\((255 + 15 \cdot 165 + 8)
+\gg 4 = 171\\) instead of 170. 16 of the 64 pixels of the example change in this way. Our programs
+therefore store the row sums unscaled, in 2 bytes per pixel.
+
+### 24.5.3 Counting the savings
+
+The 2-dimensional blur performs 25 multiply-adds per pixel; the 2 passes perform \\(5 + 5 = 10\\).
+For a window of \\(k \times k\\) the counts are \\(k^2\\) and \\(2k\\), so the saving grows with the
+window: 2.5 times for \\(k = 5\\), and 7.5 times for \\(k = 15\\), with 225 multiply-adds against 30.
+For the image of 1,920 × 1,080 pixels, the 2 passes save \\(15 \cdot 2{,}073{,}600 = 31{,}104{,}000\\)
+multiply-adds per image.
+
+The 2 passes cost memory traffic instead. The row pass writes its sums to an intermediate image of 2
+bytes per pixel, 4.1 MB for the large image, and the column pass reads it back. Section 24.9 shows
+that the time of the blur is set by this traffic, not by the multiply-adds.
+
+<figure>
+<img src="../../figures/ch24-blur.svg" alt="3 grids of the example. The equalised image, with the 5 by 5 window of pixel (3, 3) outlined. The row sums: 4,080 in rows 0 and 1; 1,445, 1,785, 2,295, 2,635, 2,635, 2,295, 1,785, 1,445 in rows 2 to 5; 0 in rows 6 and 7, with the 5 sums that pixel (3, 3) reads outlined. The blurred image, from 245 at the top left down to 6 at the bottom left, with pixel (3, 3) = 170 outlined.">
+<figcaption><b>Figure 24.8</b> The blur of the example, pass by pass: the equalised image, the row sums and the blurred image.</figcaption>
+</figure>
+
+### 24.5.4 The tile and its halo
+
+Each output of the row pass reads 5 pixels, and each pixel is read by 5 outputs. A kernel that reads
+its inputs from global memory therefore fetches every pixel 5 times. The tiling of Chapter 20 removes
+the repetition: the threads of a block first copy the pixels that the block needs into shared memory
+once, and every thread then reads its 5 inputs from the copy.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.9</span> **Tile and halo.** A **tile** is the piece of the
+input that a block copies into shared memory. For a block of \\(T\\) outputs of a filter that reads
+\\(r\\) positions on each side, the tile holds \\(T + 2r\\) inputs: the \\(T\\) positions of the
+block's own outputs and \\(r\\) more on each side. The \\(2r\\) extra positions are the **halo**.
+
+*Example.* A block of 8 outputs of the row pass, with \\(r = 2\\), needs a tile of 12 pixels; its
+halo is 2 pixels on the left and 2 on the right.
+
+</div>
+
+Figure 24.9 shows the tile of row 2 of the example for a block of 8 threads. Slot \\(s\\) of the tile
+holds pixel \\(x_0 + s - 2\\) of the row, clamped, where \\(x_0\\) is the first output of the block.
+Thread \\(t\\) copies its own pixel into slot \\(t + 2\\), and threads 0 and 1 also copy the 4 halo
+slots. After a barrier, thread \\(t\\) reads slots \\(t\\) to \\(t + 4\\), which hold pixels
+\\(x_0 + t - 2\\) to \\(x_0 + t + 2\\).
+
+<figure>
+<img src="../../figures/ch24-tile.svg" alt="12 slots of a shared tile for row 2 of the equalised image, block of 8 threads. Slots 0 and 1 hold pixel 0, value 85, the clamped left halo; slots 2 to 9 hold pixels 0 to 7: 85, 85, 170, 170, 170, 170, 85, 85; slots 10 and 11 hold pixel 7, 85, the clamped right halo. Thread 0 reads slots 0 to 4 and sums 1,445; thread 3 reads slots 3 to 7 and sums 2,635; thread 7 reads slots 7 to 11 and sums 1,445.">
+<figcaption><b>Figure 24.9</b> The tile of row 2 for a block of 8 threads, with its halo, and the windows of 3 threads.</figcaption>
+</figure>
+
+<div class="algo">
+<p class="algo-name">Blur-Rows(\(src, rows, W\))</p>
+<ol>
+<li>\(t = threadIdx.x\), \(\;x_0 = blockIdx.x \cdot T\), \(\;y = blockIdx.y\)</li>
+<li>\(tile[t + 2] = src[y][\mathrm{clamp}(x_0 + t, W)]\) <span class="c">// own pixel</span></li>
+<li>if \(t &lt; 2\) {</li>
+<li style="--d:1">\(tile[t] = src[y][\mathrm{clamp}(x_0 + t - 2, W)]\) <span class="c">// left halo</span></li>
+<li style="--d:1">\(tile[T + 2 + t] = src[y][\mathrm{clamp}(x_0 + T + t, W)]\) <span class="c">// right halo</span></li>
+<li>}</li>
+<li><span class="sc">Barrier</span>()</li>
+<li>\(rows[y][x_0 + t] = \sum_{k \in [0,5)} w_k \cdot tile[t + k]\)</li>
+</ol>
+</div>
+
+Lines 2 to 6 are the joint copy, line 7 separates the copy from the reads, and line 8 is line 20 of
+Image-Pipeline with every read taken from the tile. A block now fetches \\(T + 4\\) pixels from
+global memory for \\(T\\) outputs, instead of \\(5T\\). The programs use \\(T = 128\\): 132 fetches
+instead of 640 per block, and 15 blocks cover a row of 1,920 pixels exactly.
+
+The column pass works in the same way along the columns. A block of 32 × 8 threads computes 8 rows
+of 32 columns, and its tile holds the 8 + 4 = 12 rows of 32 row sums that those outputs read. The
+block is 32 threads wide so that a warp reads 32 consecutive row sums of 1 row, 64 consecutive
+bytes. It finishes with the rounding of line 23 of Image-Pipeline, \\((sum + 128) \gg 8\\).
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:210:232}}
-}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:163:221}}
 ```
 
-The kernel reads its 9 inputs directly from global memory, without a shared tile. Each thread
-clamps its neighbours to the image and reads them through the closure `p`. The
-same input pixel is read by up to 9 threads, but those threads belong to the same block or to
-neighbouring blocks, and most of the repeated reads are served by the L1 cache. Exercise 4 asks you
-to measure whether a shared tile helps here.
+</div>
+<div class="code-tab" data-lang="C++">
 
-The largest possible component is 4 × 255 = 1,020, so the sum of squares is at most 2 × 1,020² =
-2,080,800. This value is an integer below 2²⁴ = 16,777,216, so its conversion to `f32` is exact.
-The square root is computed by `sqrt_rn_f32`, the square root of cuda-oxide's `float` module that
-rounds to the nearest representable `f32`. The IEEE 754 standard requires the square root to be
-rounded in this way, and Rust's `f32::sqrt` on the CPU does so too, so both processors obtain the
-same `f32` for every input. The last statement then rounds to the nearest integer by adding 0.5 and
-truncating, and clamps the result to 255, because a magnitude of up to √2,080,800 = 1,442 does not
-fit in a byte.
-
-## 24.6 The host program
-
-### 24.6.1 Buffers
-
-The host program keeps the device buffers of 1 image in a structure, so that the pipeline can run
-several images at once with 1 set of buffers for each.
-
-<p class="listing"><b>Listing 24.9</b> The device buffers of 1 image.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:235:260}}
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:141:182}}
 ```
 
-A set of buffers occupies 6.2 MB for the colour image, 2.1 MB for each of the 4 gray images, 4.1 MB
-for the row sums of 2 bytes per pixel, and 1,280 bytes for the counts and the table: 18.7 MB in
-all. When the structure is dropped, each `DeviceBuffer` frees its memory, as Chapter 10 described.
+</div>
+</div>
 
-### 24.6.2 Launching the stages
+In the row pass, the line that writes `TILE[tx + 2]` (C++: `tile[tx + 2]`) is line 2 of Blur-Rows,
+the `if tx < 2` block is lines 3 to 6, and the barrier is line 7. The device function `tap(i, n)`
+computes \\(\mathrm{clamp}(i - 2, n)\\), so `tap(x0 + s, W)` is the pixel that belongs in slot
+\\(s\\). The 2 languages declare the tile differently. C++ writes `__shared__ unsigned tile[ROW_T +
+4]`. Rust writes `static mut TILE: SharedArray<u32, { ROW_T + 4 }>`, a type whose length is part of
+the type and must be a constant, which is why the tile widths are the constants `ROW_T`, `COL_W` and
+`COL_H`. Every access to the tile is `unsafe` in Rust, and the 2 `// SAFETY:` comments state the
+argument that the next section proves. The output is a `DisjointSlice<u16, Index2D<W>>`, addressed
+by the thread's 2-dimensional index `thread::index_2d::<W>()`, so the write needs no `unsafe` block.
 
-The function `stage` launches stage k of the pipeline on a given stream, and `process` launches the
-7 stages in order. The kernels of 1 image are all placed on the same stream, so each one starts
-only after the previous one has finished, and no further synchronisation is needed between them.
+### 24.5.5 Correctness of the tile
 
-<p class="listing"><b>Listing 24.10</b> The 7 stages on 1 stream.</p>
+The tiled row pass is correct if every slot holds the right pixel at the moment it is read.
 
-```rust,ignore
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:273:327}}
-```
+<div class="theorem">
 
-Each arm of the `match` prepares the launch configuration of its kernel and launches it. The 3
-configurations correspond to the 3 kernel shapes. `line` covers the image with 8,100 blocks of
-256 threads for the point operations. `rows` gives 1 row of 15 blocks of 128 threads to each
-image row. `tiles` covers the image with 60 × 135 blocks of 32 × 8 threads. The histogram uses a
-fixed grid of 64 blocks, because each of its blocks pays for clearing and flushing 256 counters,
-and the table kernel uses 1 block. Each `prepare_` call checks the configuration against the launch
-contract of its kernel and returns an error if the block shape differs.
+<span class="box-label">Theorem 24.2</span> After the barrier of line 7 of Blur-Rows, slot \\(s\\)
+of the tile holds \\(src[y][\mathrm{clamp}(x_0 + s - 2, W)]\\) for every \\(s \in [0, T + 4)\\), and
+line 8 computes the row sum \\(R(x_0 + t, y)\\) of Theorem 24.1.
 
-## 24.7 Checking against the CPU
+</div>
 
-A GPU program can produce an image that looks plausible and is wrong in a few thousand pixels.
-To detect such errors, the program computes the whole pipeline a second time on the CPU and
-compares the 2 results pixel by pixel. The CPU version uses the same integer formulas, the same
-clamping and a correctly rounded square root, so every pixel must agree exactly; a tolerance, as
-Section 16.8 discusses for floating-point results, is not needed.
+<div class="proof">
 
-The CPU version is also the baseline for the speed of the GPU, so it uses all cores of the CPU.
-The function `par_rows` divides the rows of an output image into 1 band per core and processes the
-bands on separate threads with `std::thread::scope`. Each thread writes only the rows of its own
-band, which `chunks_mut` hands out as separate mutable slices, so the compiler can verify that no
-2 threads write the same row.
+*Proof.* Line 2 writes slot \\(t + 2\\) for \\(t \in [0, T)\\), that is the slots \\([2, T + 2)\\).
+Lines 4 and 5 write slots \\(t\\) and \\(T + 2 + t\\) for \\(t \in [0, 2)\\), that is the slots
+\\([0, 2)\\) and \\([T + 2, T + 4)\\). The 3 ranges are disjoint and together cover \\([0, T + 4)\\),
+so every slot is written exactly once, and each write stores the pixel \\(x_0 + s - 2\\), clamped,
+for its slot \\(s\\). No thread passes the barrier of line 7 before every thread has finished lines
+2 to 6, so every slot holds its value before any thread reads. After the barrier the tile is only
+read. Thread \\(t\\) reads slots \\(t + k\\) for \\(k \in [0, 5)\\), which hold
+\\(src[y][\mathrm{clamp}(x_0 + t + k - 2, W)]\\), and line 8 adds them with the weights \\(w_k\\),
+which is \\(R(x_0 + t, y)\\).
 
-<p class="listing"><b>Listing 24.11</b> The rows of an image on every core, and the Sobel stage on the CPU.</p>
+</div>
 
-```rust,ignore
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:383:398}}
+The same argument, with rows in place of columns, proves the column pass.
 
-fn cpu_pipeline(rgb: &[u8]) -> Images {
-    // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:456:471}}
-    // ...
-}
-```
+### 24.5.6 A missing halo
 
-The program reports the number of pixels in which each of the 4 output images of the GPU differs
-from the CPU's.
+The halo is easy to forget, because the block has \\(T\\) threads and it seems natural to copy
+\\(T\\) values. Suppose lines 3 to 6 of Blur-Rows are left out. Slots 0, 1, \\(T + 2\\) and \\(T +
+3\\) are then never written, and the proof of Theorem 24.2 fails at its first step. The threads whose
+windows reach into those slots read whatever the memory held before: threads 0 and 1 on the left,
+and threads \\(T - 2\\) and \\(T - 1\\) on the right.
+
+Figure 24.10 shows the effect on the example, with a block of 8 threads per row and with 0 in the
+4 slots that are never written. Thread 0 of row 2 should add \\(85 + 4 \cdot 85 + 6 \cdot 85 + 4
+\cdot 85 + 170 = 1{,}445\\); it adds \\(0 + 0 + 6 \cdot 85 + 4 \cdot 85 + 170 = 1{,}020\\) instead.
+The column pass spreads the error down the column, and pixel \\((0, 3)\\) of the blurred image
+becomes 71 instead of 101. 30 of the 64 blurred pixels are wrong, all in columns 0, 1, 6 and 7.
+
+<figure>
+<img src="../../figures/ch24-halo-bug.svg" alt="The tile of row 2 with slots 0, 1, 10 and 11 marked as never written. Thread 0 should sum 85 + 4 times 85 + 6 times 85 + 4 times 85 + 170 = 1,445; with 0 in slots 0 and 1 it sums 1,020. Below, the blurred image computed this way, with the 30 wrong pixels outlined in red, all in columns 0, 1, 6 and 7; pixel (0, 3) is 71 instead of 101.">
+<figcaption><b>Figure 24.10</b> The row pass without its halo loads, on the example: 4 of 8 threads read slots that no thread wrote.</figcaption>
+</figure>
+
+In the programs, the block has 128 threads, so threads 0, 1, 126 and 127 of each block read an
+unwritten slot. A row has 15 blocks, so 60 columns of the image are at risk, and \\(60 \cdot 1{,}080
+= 64{,}800\\) blurred pixels. We removed the `if tx < 2` block from the Rust kernel and ran it.
 
 ```console
-$ cargo oxide run
+$ cargo oxide run                             # blur_rows without the `if tx < 2` block
+...
+image      pixels that differ from the CPU
+  gray              0
+  equalised         0
+  blurred       56548   first at (0, 0): GPU 164, CPU 106
+  edges         81436   first at (0, 0): GPU 84, CPU 10
+...
+FAILED
+```
+
+The program compiled without a warning: the reads of the tile are inside `unsafe` blocks, and the
+compiler accepts the argument of their `// SAFETY:` comments without checking it. 56,548 of the
+64,800 blurred pixels at risk are wrong, 87%; in the others, the old contents of shared memory
+happened to give the right sum. Pixel \\((0, 0)\\) is 164 instead of 106. The edge image has more
+wrong pixels, 81,436, because the Sobel operator reads a 3 × 3 window and every wrong blurred pixel
+spoils the edges of its neighbours: the 60 columns at risk become 90 columns of edges at risk, 97,200
+pixels. The C++ program with the same change gave 56,646 wrong blurred pixels and 81,212 wrong edge
+pixels. In the picture the errors form thin vertical stripes, 1 every 128 columns, which a look at
+the image does not reveal; the comparison with the CPU does.
+
+<div class="rule-box">
+
+<span class="box-label">Rule</span> A tile for \\(T\\) outputs of a filter that reads \\(r\\)
+positions on each side holds \\(T + 2r\\) inputs, and every one of them must be written before the
+barrier. Count the slots, not the threads.
+
+</div>
+
+<div class="exercises">
+
+Exercises
+
+24.13 Compute the row sum and the blurred level of pixel \\((1, 2)\\) of the example by hand, and
+check them against Figure 24.8.<br>
+24.14 A block of the row pass has 256 threads instead of 128. How many pixels does it fetch, and
+what fraction of its fetches are halo? How many columns of the image would a missing halo put at
+risk?<br>
+24.15 Prove that rounding after each pass, \\((sum + 8) \gg 4\\) twice, can differ from rounding once
+at the end, using pixel \\((3, 3)\\) of the example.
+
+</div>
+
+## 24.6 Sobel edges
+
+### 24.6.1 The gradient
+
+An **edge** in an image is a place where the level changes quickly from 1 pixel to the next. The
+**Sobel operator** estimates the rate of change at each pixel in 2 directions from its 3 × 3
+neighbourhood. The horizontal component \\(g_x\\) is the weighted sum of the column to the right of
+the pixel minus the weighted sum of the column to its left, with weights 1, 2, 1 from top to
+bottom. The vertical component \\(g_y\\) is the weighted sum of the row below minus the row above,
+with the same weights from left to right.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.10</span> **Gradient magnitude.** The **gradient magnitude**
+at a pixel is the length \\(\sqrt{g_x^2 + g_y^2}\\) of the vector \\((g_x, g_y)\\). Our edge image
+stores it divided by 4, rounded to the nearest integer and limited to 255:
+\\[ \mathrm{edge}(x, y) = \min\big(\lfloor \sqrt{g_x^2 + g_y^2} / 4 + 1/2 \rfloor, 255\big). \\]
+
+*Example.* At pixel \\((3, 1)\\) of the blurred example, \\(g_x = 30\\) and \\(g_y = -238\\), and
+the edge level is 60 (Figure 24.11).
+
+</div>
+
+The division by 4 scales the result to the range of a byte. A sharp step from level 0 to level 255
+gives \\(g_x = (1 + 2 + 1) \cdot 255 = 1{,}020\\), and \\(1{,}020 / 4 = 255\\), the brightest level.
+Figure 24.11 works pixel \\((3, 1)\\), which lies where the sky meets the house. Its neighbourhood
+in the blurred image has rows 248, 249, 249; 220, 227, 227; and 178, 193, 193, so
+\\[ g_x = (249 + 2 \cdot 227 + 193) - (248 + 2 \cdot 220 + 178) = 896 - 866 = 30, \\]
+\\[ g_y = (178 + 2 \cdot 193 + 193) - (248 + 2 \cdot 249 + 249) = 757 - 995 = -238. \\]
+The level falls by about 70 from the row above to the row below, and barely changes from left to
+right. The magnitude is \\(\sqrt{900 + 56{,}644} = \sqrt{57{,}544} = 239.88\\), and \\(239.88 / 4 =
+59.97\\) rounds to 60.
+
+<figure>
+<img src="../../figures/ch24-sobel.svg" alt="Top: the 3 by 3 neighbourhood of pixel (3, 1) in the blurred image, 248 249 249, 220 227 227, 178 193 193, beside the Gx mask, -1 0 1 with the middle row doubled, and the Gy mask, -1 -2 -1 on top and 1 2 1 at the bottom. gx = 896 - 866 = 30, gy = 757 - 995 = -238, the square root of 57,544 is 239.88, and 239.88 / 4 rounds to 60. Below: the edge image of the example, with values from 24 to 100; pixel (3, 1) = 60 is outlined.">
+<figcaption><b>Figure 24.11</b> The Sobel operator at pixel (3, 1) of the blurred example, and the edge image.</figcaption>
+</figure>
+
+### 24.6.2 The kernel
+
+The Sobel operator is a stencil of radius 1, the pattern of Chapter 19, and its kernel gives each
+output pixel a thread.
+
+<div class="algo">
+<p class="algo-name">Sobel-Kernel(\(src, edges, W, H\))</p>
+<ol>
+<li>\(x = blockIdx.x \cdot blockDim.x + threadIdx.x\), \(\;y = blockIdx.y \cdot blockDim.y + threadIdx.y\)</li>
+<li>\(p(r, c) = src[\mathrm{clamp}(r, H)][\mathrm{clamp}(c, W)]\)</li>
+<li>\(g_x = (p(y{-}1, x{+}1) + 2p(y, x{+}1) + p(y{+}1, x{+}1)) - (p(y{-}1, x{-}1) + 2p(y, x{-}1) + p(y{+}1, x{-}1))\)</li>
+<li>\(g_y = (p(y{+}1, x{-}1) + 2p(y{+}1, x) + p(y{+}1, x{+}1)) - (p(y{-}1, x{-}1) + 2p(y{-}1, x) + p(y{-}1, x{+}1))\)</li>
+<li>\(edges[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
+</ol>
+</div>
+
+Each thread uses the 8 pixels around its own, since the centre has weight 0 in both masks, and
+writes 1 byte. The kernel reads the 8 pixels from global memory without a shared tile. A pixel is read by up to 9 threads, but
+those threads belong to the same block or to neighbouring blocks, and most of the repeated reads are
+served by the L1 cache of the SM; Exercise 24.18 asks whether a tile would help.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:223:245}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:184:204}}
+```
+
+</div>
+</div>
+
+The kernels compute the 4 weighted sums of lines 3 and 4 as `right`, `left`, `below` and `above`,
+and the clamped neighbours `xl`, `xr`, `yu` and `yd` of line 2. The largest possible component is
+\\(4 \cdot 255 = 1{,}020\\), so the sum of squares is at most \\(2 \cdot 1{,}020^2 = 2{,}080{,}800\\),
+an integer below \\(2^{24} = 16{,}777{,}216\\), and its conversion to a 32-bit float is exact. The
+square root is `sqrt_rn_f32` in Rust and `sqrtf` in C++; both round to the nearest float, as the IEEE
+754 standard requires of a square root, and so do the CPU's `f32::sqrt` and `std::sqrt`. The
+multiplication by 0.25 is exact, because 0.25 is a power of 2.
+
+We also compiled the C++ program with `--use_fast_math`, which replaces `sqrtf` by an approximate
+square root. The edge image still agreed with the CPU's in every pixel, with the same checksum. The
+rounding of line 5 depends on the root exactly at the sums of squares \\((4k + 2)^2\\): for \\(g_x =
+10\\) and \\(g_y = 0\\), \\(\sqrt{100} = 10\\) and \\(10 / 4 + 1/2 = 3\\) exactly, and a root a little
+below 10 would give 2. The approximate root of the measured GPU returned these integer roots
+exactly. The programs keep the correctly rounded root, because it agrees with the CPU by its
+definition, not by a test on 1 GPU and 1 image.
+
+### 24.6.3 Neighbours outside the image
+
+The easy mistake in a stencil is to forget the clamp of line 2 of Sobel-Kernel. At pixel \\((3,
+0)\\) the kernel then reads row \\(-1\\), which does not exist. In a buffer stored row by row, row
+\\(-1\\) lies before the start of the image, and column \\(-1\\) of row \\(y\\) is the last pixel of
+row \\(y - 1\\). If the memory before the image holds 0, pixel \\((3, 0)\\) of the example gets
+\\(g_y = (220 + 2 \cdot 227 + 227) - 0 = 901\\) and the edge level 225 instead of 24, and 27 of the
+28 border pixels of the example change. We removed the 4 clamps from the C++ kernel and ran it.
+
+```console
+$ ./capstone                                  # sobel with xl = x - 1, xr = x + 1, ...
+...
+image      pixels that differ from the CPU
+  gray              0
+  equalised         0
+  blurred           0
+  edges          5852   first at (0, 0): GPU 129, CPU 10
+...
+FAILED
+```
+
+The image has \\(2 \cdot 1{,}920 + 2 \cdot 1{,}078 = 5{,}996\\) border pixels, and 5,852 of them are
+wrong; every interior pixel is right. Pixel \\((0, 0)\\) became 129 instead of 10. The kernel did not
+stop: the reads before the first row and after the last one landed in other memory of the program,
+and the device reported no error. In Rust the same reads would be caught, because cuda-oxide checks
+every slice index against the length of the slice and stops the kernel when it lies outside; the
+column wrap of \\(x - 1\\) at \\(x = 0\\), which stays inside the slice, would not be caught.
+
+<div class="exercises">
+
+Exercises
+
+24.16 Compute the edge level of pixel \\((0, 1)\\) of the example from the blurred image of Figure
+24.8.<br>
+24.17 Which levels of a blurred image of constant level give an edge level other than 0?<br>
+24.18 Write a Sobel kernel that copies a tile of \\((8 + 2) \times (32 + 2)\\) pixels into shared
+memory, and compare its time with the kernel above. Explain the result with the role of the L1
+cache.
+
+</div>
+
+## 24.7 The host pipeline
+
+### 24.7.1 Buffers
+
+The host is the CPU and its memory; the device is the GPU and its memory. The host program keeps the
+device buffers of 1 image in a structure, so that it can process several images at once with 1 set
+of buffers for each.
+
+| Buffer | Element | Elements | Size |
+|---|---|---|---|
+| `rgb` | byte | 3 per pixel | 6.2 MB |
+| `gray`, `equal`, `blurred`, `edges` | byte | 1 per pixel | 2.1 MB each |
+| `rows` | 16-bit integer | 1 per pixel | 4.1 MB |
+| `bins` | 32-bit atomic integer | 256 | 1,024 bytes |
+| `table` | byte | 256 | 256 bytes |
+
+A set occupies \\(6.2 + 4 \cdot 2.1 + 4.1 = 18.7\\) MB. In Rust each buffer is a `DeviceBuffer`, which
+frees its memory when the structure is dropped; in C++ the function `freeBuffers` calls `cudaFree`
+for each.
+
+### 24.7.2 Streams
+
+The 7 kernels of 1 image must run in order, and the copies must run before the first kernel and after
+the last. A stream gives that order.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.11</span> **Stream.** A **stream** is a queue of device work,
+copies and kernel launches, that the device executes in the order in which the host issued it. Work
+in 1 stream starts only after the previous work in the same stream has finished. Work in different
+streams has no order and may run at the same time.
+
+*Example.* The 7 kernels of 1 image, issued on stream 0, run 1 after the other; the kernels of a
+second image, on stream 1, may run while the first image is copied.
+
+</div>
+
+The host functions `stage` and `process` issue the 7 launches of 1 image on 1 stream. A launch
+returns to the host as soon as the work is queued, so the host issues all 7 without waiting, and the
+stream keeps them in order.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:286:341}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:261:299}}
+```
+
+</div>
+</div>
+
+The launch configurations match the 3 shapes of kernel. `line` covers the image with 8,100 blocks of
+256 threads for the 2 maps. `rows` gives each of the 1,080 image rows 15 blocks of 128 threads. The
+column pass and the Sobel kernel use 60 × 135 blocks of 32 × 8 threads, because \\(60 \cdot 32 =
+1{,}920\\) and \\(135 \cdot 8 = 1{,}080\\). The histogram uses a fixed grid of 64 blocks, and the
+table kernel 1 block. In Rust each `prepare_` call checks a configuration against the launch contract
+of its kernel and returns an error if the block shape differs, and the launch itself takes the
+prepared value; in C++ the triple-angle-bracket launch takes any configuration.
+
+## 24.8 Checking against the CPU
+
+A GPU program can produce an image that looks right and is wrong in a few thousand pixels, as Section
+24.5.6 showed. Both programs therefore compute the whole pipeline a second time on the CPU and compare
+the 2 results pixel by pixel. The CPU version uses the same integer formulas, the same clamping and
+a correctly rounded square root, so every pixel must agree exactly; no tolerance is needed.
+
+The CPU version is also the baseline for the speed of the GPU, so it uses every core. The function
+`par_rows` (`parRows` in C++) divides the rows of an output image into 1 band per core and processes
+the bands on separate threads. In Rust, `chunks_mut` hands each thread its own band as a separate
+mutable slice, so the compiler verifies that no 2 threads write the same row.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:397:412}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:345:363}}
+```
+
+</div>
+</div>
+
+The test image is generated by the programs themselves: a house below a hill, a sky that brightens
+towards the horizon, a sun, and random grain of up to 8 levels on every pixel. Its colours lie in a
+narrow range of levels, so the image has low contrast and equalisation has a visible effect (Figure
+24.3). Both programs print, for each of the 4 images, the number of pixels in which the GPU differs
+from the CPU.
+
+```console
+$ ./capstone                                  # C++, Jetson Orin NX
 GPU: Orin, 8 SMs   image 1920 x 1080 = 2073600 pixels
 ...
-pixels that differ from the CPU, gray     : 0
-pixels that differ from the CPU, equalised: 0
-pixels that differ from the CPU, blurred  : 0
-pixels that differ from the CPU, edges    : 0
+image      pixels that differ from the CPU
+  gray              0
+  equalised         0
+  blurred           0
+  edges             0
+edge image checksum: 166b66c2
 ```
 
-All 4 images agree in all 2,073,600 pixels. The batch of Section 24.9 checks the GPU's output once
-more: the last edge image that each stream copies back is compared with the CPU's edge image of the
-same input.
+All 4 images agree in all 2,073,600 pixels. The last line is a checksum of the GPU's edge image, and
+the Rust and the C++ programs print the same value, 166b66c2: the 2 languages produce the same edge
+image, byte for byte. The batch of Section 24.10 checks the output once more, by comparing the last
+edge image that each stream copies back with the CPU's edge image of the same input.
 
-The square root deserves a remark. cuda-oxide also provides `sqrt_approx_f32`, a faster square
-root whose result may differ from the correctly rounded value in the last bits. We replaced
-`sqrt_rn_f32` with it and ran the program: the edge image still agreed with the CPU in every
-pixel. The reason is the rounding to an integer that follows. A square root of an integer up to
-2,080,800 changes its rounded value only where it crosses a value k + 0.5. The integer closest
-to such a crossing, k² + k, has a square root about 1 / (8k) below k + 0.5. For k up to 255, this
-distance is at least 0.0005, far larger than the error of the approximation. The correctly rounded
-version remains the one in the listing, because it agrees with the CPU by definition rather than
-by an argument about this particular range of inputs.
+## 24.9 Time per stage
 
-## 24.8 The time of each stage
+### 24.9.1 Measurements
 
-The program times each stage separately, 20 launches after 1 warm-up launch, once the GPU's clocks
-have risen under load (Section 16.7). It reports the time and the effective bandwidth: the bytes
-that the stage must read and write, divided by its time.
+The measurements come from an integrated GPU, a Jetson Orin NX (8 SMs, 102 GB/s). Each stage is timed alone, as the mean of 100 launches after the GPU has run the
+pipeline for 0.4 s to raise its clock. The programs report the time and the effective bandwidth, the
+bytes that the stage must read and write divided by its time. Times drift by about 10% between runs.
 
-```console
-stage              ms     GB/s
-  grayscale       0.201     41.2
-  histogram       0.123     16.8
-  table           0.007      0.0
-  apply table     0.186     22.3
-  blur rows       0.263     23.7
-  blur columns    0.264     23.6
-  sobel           0.350     11.9
-  sum of stages   1.394
-  all 7 in turn   1.406
-```
+| Stage | Bytes per pixel | Rust | C++ | C++, effective |
+|---|---|---|---|---|
+| grayscale | 4 | 0.200 ms | 0.183 ms | 45.4 GB/s |
+| histogram | 1 | 0.056 ms | 0.055 ms | 38.0 GB/s |
+| equalise table | 0 | 0.007 ms | 0.007 ms | |
+| apply table | 2 | 0.185 ms | 0.192 ms | 21.6 GB/s |
+| blur rows | 3 | 0.301 ms | 0.208 ms | 29.9 GB/s |
+| blur columns | 3 | 0.280 ms | 0.210 ms | 29.7 GB/s |
+| sobel | 2 | 0.350 ms | 0.225 ms | 18.4 GB/s |
+| sum of the 7 stages | 15 | 1.380 ms | 1.079 ms | 28.8 GB/s |
+| the 7 stages in turn | | 1.489 ms | 1.165 ms | |
 
-Figure 24.6 shows the same times as bars. The whole pipeline takes about 1.41 ms per image, so
-the GPU can process at most about 710 images per second when the copies are not counted.
+The bytes per pixel are those a stage must move: the gray kernel reads 3 bytes and writes 1, the
+row pass reads 1 byte and writes a 2-byte row sum, and so on. The histogram was the 1 stage whose
+time changed by much more than 10% between runs, from 0.054 to 0.117 ms in both languages; the table
+quotes the more frequent value. The 7 stages issued 1 after the other take 1.165 ms in C++, a little
+more than the sum of their separate times.
 
 <figure>
-<img src="../../figures/ch24-stages.svg" alt="Horizontal bars of the measured time of each stage for 1 image: grayscale 0.201 ms, histogram 0.123 ms, table 0.007 ms, apply table 0.186 ms, blur rows 0.263 ms, blur columns 0.264 ms, sobel 0.350 ms. The 7 stages run in turn in 1.406 ms.">
-<figcaption><b>Figure 24.6</b> The time of each stage for 1 image of 1,920 × 1,080 pixels.</figcaption>
+<img src="../../figures/ch24-stages.svg" alt="Paired horizontal bars of the measured time of each stage for 1 image, Rust then C++: grayscale 0.200 ms and 0.183 ms; histogram 0.056 ms and 0.055 ms; table 0.007 ms and 0.007 ms; apply table 0.185 ms and 0.192 ms; blur rows 0.301 ms and 0.208 ms; blur columns 0.280 ms and 0.210 ms; sobel 0.350 ms and 0.225 ms. The sums are 1.380 ms in Rust and 1.079 ms in C++.">
+<figcaption><b>Figure 24.12</b> The time of each stage for 1 image of 1,920 × 1,080 pixels, in Rust and in C++.</figcaption>
 </figure>
 
-The effective bandwidths lie between 11.9 and 41.2 GB/s, well below the 102 GB/s of
-the GPU's memory. Each kernel moves only 2 to 8 MB, so the fixed costs of a launch and of the last,
-partly filled wave of blocks take a noticeable share of each fraction of a millisecond. The larger
-reason is the size of the loads. Every thread of these kernels loads single bytes, so a warp's load
-instruction moves at most 32 bytes, a quarter of what it moves for 32 floats. Section 8.8 measured
-the same effect on a histogram: 13.7 GB/s with 1-byte loads against 82.9 GB/s with 16-byte loads.
-The Sobel kernel is the slowest per byte because each of its threads issues 9 loads to produce 1
-byte of output.
+The table kernel, a single block of 256 threads, takes 0.007 ms, about the cost of launching any
+kernel. A kernel with almost no parallelism costs nothing noticeable when it handles 256 values
+between 2 kernels that handle 2 million.
 
-The table kernel takes about 7 µs. It is a single block that does 256 units of work, and
-its time is close to the time of a launch. Its share of the pipeline is negligible, which shows that
-a kernel with very little parallelism is acceptable when it handles a small amount of data between
-2 large kernels.
+### 24.9.2 Which stage dominates, and why
 
-## 24.9 A batch of images on streams
+The blur dominates. Its 2 passes take \\(0.208 + 0.210 = 0.418\\) ms in C++, 39% of the 1.079 ms of
+the 7 stages. The Sobel kernel follows with 21%, the apply-table kernel with 18% and the gray kernel
+with 17%; the histogram and the table together take 6%.
 
-### 24.9.1 Copies and kernels
+The arithmetic does not explain this order. The 2 blur passes perform 10 multiply-adds per pixel,
+20.7 million per image. The measured GPU has 1,024 lanes (8 SMs of 128) at up to 1.17 GHz,
+about \\(1.2 \cdot 10^{12}\\) simple integer operations per second. The multiply-adds therefore account
+for about 0.02 ms of the 0.418 ms. The square roots of the Sobel kernel are likewise a small part of its
+time.
 
-A program that processes a stream of video frames must also copy each frame to the device and each
-result back. Per image, the copy in moves 6.2 MB and the copy out moves 2.1 MB. On 1 stream these
-copies and the 7 kernels run 1 after the other, and the GPU is idle during the copies. Chapter 6
-showed how to overlap copies with kernels: the work is divided into independent pieces, here
-images, and consecutive pieces are placed on different streams. A copy engine then transfers 1
-image while the SMs process another.
+What the stages share is memory traffic. Together they must read and write 15 bytes per pixel,
+\\(15 \cdot 2{,}073{,}600 = 31.1\\) MB per image. At the 102 GB/s of the memory that would take 0.305
+ms; the stages take 1.079 ms, an effective 28.8 GB/s, 28% of the peak. The blur takes the largest
+share because it moves the most bytes, 6 per pixel: the row pass reads the equalised image and writes
+2-byte row sums, and the column pass reads them back and writes the blurred image. The intermediate
+image of 4.1 MB is the price of the separable form. Theorem 24.1 saves 15 multiply-adds per pixel,
+which cost little here, and the 2 passes add 4 bytes of traffic per pixel, which cost more. A 1-pass
+blur with a tile of \\((8 + 4) \times (32 + 4)\\) inputs would move about 2 bytes per pixel and perform
+25 multiply-adds; Exercise 7 at the end of the chapter asks for it.
 
-```text
-for i in 0 .. count:
-    k ← i mod (number of streams)
-    on stream k:  copy input i to lane k;  7 stages on lane k;  copy edges of lane k to output k
-wait for every stream
-```
+The effective rates stay far below 102 GB/s because every access is narrow. Each thread of these
+kernels reads and writes 1 or 2 bytes, so 1 load instruction of a warp moves 32 or 64 bytes. Chapter
+8 measured the same effect with a histogram: 13.7 GB/s with 1-byte loads and 82.9 GB/s
+with 16-byte loads. The Sobel kernel has the lowest rate, 18.4 GB/s, because it issues the most load
+instructions per byte. For each byte it writes, its code reads 12 bytes, most of them answered by
+the L1 cache, and takes a square root. The apply-table kernel, at 21.6 GB/s, adds a gather to its 2 bytes. Each
+kernel also lives only a fraction of a millisecond, so its start-up and its last, partly filled wave
+of blocks are a visible part of its time.
 
-Each stream has its own set of buffers, called a lane. The kernels of image i and image i + 3 use
-the same lane on the same stream, so they run in order and cannot overwrite each other's data.
-The asynchronous copies require host memory that is pinned (Section 4.2), and the program keeps 4
-input images and 3 output images in `PinnedHostBuffer`s.
+### 24.9.3 Rust and C++
 
-<p class="listing"><b>Listing 24.12</b> A batch of images on several streams.</p>
+The Rust kernels take 1.380 ms against 1.079 ms in C++, 28% more. The difference lies in 3 kernels:
+the row pass (0.301 against 0.208 ms), the column pass (0.280 against 0.210 ms) and the Sobel kernel
+(0.350 against 0.225 ms); the 2 maps and the histogram are within 10% of each other. These are the 3
+kernels that index slices most. Every index into a slice, such as `src[r * W + c]`, compiles in
+cuda-oxide to a comparison with the length of the slice and a branch that stops the kernel if the
+index lies outside. The Sobel kernel performs 12 such reads per pixel. We ran the Rust program
+with `#[kernel(unchecked_indexing)]` on every kernel, which removes the checks. It gave 0.228 ms for
+each blur pass, 0.268 ms for the Sobel kernel and 1.175 ms for the 7 stages, with the same edge
+image. The
+checks therefore account for about 2/3 of the difference. The flag makes an index out of range
+undefined behaviour, as it is in C++; the programs keep the checks.
+
+## 24.10 A batch of images on streams
+
+### 24.10.1 Copies and kernels
+
+A program that processes a sequence of video frames must also copy each frame to the device and each
+result back. Per image, the copy in moves 6.2 MB and the copy out 2.1 MB. On 1 stream the 2 copies
+and the 7 kernels run 1 after the other, and the SMs wait during the copies. The copies, however, are
+not performed by the SMs.
+
+<div class="definition">
+
+<span class="box-label">Definition 24.12</span> **Copy engine and pinned memory.** A **copy engine**
+is a unit of the GPU that moves data between host memory and device memory while the SMs run
+kernels. **Pinned memory** is host memory that the operating system keeps at a fixed physical
+address, so that a copy engine can read and write it without the CPU. An asynchronous copy, one that
+returns to the host before it is done, requires pinned memory.
+
+*Example.* While the SMs blur image 0, a copy engine can copy image 1 from pinned host memory into
+the buffers of a second stream.
+
+</div>
+
+The batch therefore gives image \\(i\\) to stream \\(i \bmod S\\), with 1 set of buffers for each of
+the \\(S\\) streams (Chapter 6). The programs call such a set a lane; it has nothing to do with the
+lanes of a warp.
+
+<div class="algo">
+<p class="algo-name">Batch(\(images, n, S\))</p>
+<ol>
+<li>for \(i \in [0, n)\) {</li>
+<li style="--d:1">\(k = i \bmod S\)</li>
+<li style="--d:1">on stream \(k\): copy \(images[i]\) into \(lanes[k].rgb\) <span class="c">// host to device</span></li>
+<li style="--d:1">on stream \(k\): the 7 kernels on \(lanes[k]\)</li>
+<li style="--d:1">on stream \(k\): copy \(lanes[k].edges\) into \(out[k]\) <span class="c">// device to host</span></li>
+<li>}</li>
+<li>wait for every stream</li>
+</ol>
+</div>
+
+The kernels of images \\(i\\) and \\(i + S\\) use the same lane on the same stream, so they run in
+order and cannot overwrite each other's buffers. The host loop issues all the work at once and then
+waits in line 7.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:346:373}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:360:387}}
 ```
 
-The 2 copies are `unsafe` because the GPU accesses the host buffers after the call has returned.
-The `SAFETY` comment states the condition that makes them correct: no host buffer is read, written
-or dropped until every stream has been synchronized. Images that use the same output buffer are on
-the same stream, so their copies out happen in order.
+</div>
+<div class="code-tab" data-lang="C++">
 
-### 24.9.2 Measured rates
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:317:338}}
+```
 
-The program processes a batch of 128 images on 1, 2 and 3 streams, after 1 warm-up batch, and
-processes 4 images with the CPU version on all 8 cores.
+</div>
+</div>
+
+In Rust, the 2 asynchronous copies are `unsafe`, because the device reads and writes the host buffers
+after the call has returned, and the compiler cannot see when it is done. The `// SAFETY:` comment
+states the condition that makes them correct: no host buffer is read, written or dropped until every
+stream has been synchronised. The C++ calls `cudaMemcpyAsync` carry the same condition without a
+marker.
+
+### 24.10.2 Measured overlap
+
+The programs first time the 2 copies alone, then process a batch of 128 images on 1, 2 and 3
+streams, after 1 batch to warm up. The C++ program printed the following.
 
 ```console
+copy in   0.201 ms   30.9 GB/s
+copy out  0.070 ms   29.8 GB/s
 batch of 128 images: copy in, 7 stages, copy out
-  1 stream(s)           587.6 images/s
-  2 stream(s)           692.8 images/s
-  3 stream(s)           699.9 images/s
-  CPU, 8 threads         46.3 images/s
+  1 stream(s)           695.3 images/s
+  2 stream(s)           835.3 images/s
+  3 stream(s)           859.5 images/s
+  CPU, 8 threads         37.7 images/s
 batch outputs match the CPU: yes
 PASSED
 ```
 
+The Rust program measured 573.4, 686.7 and 689.9 images/s on 1, 2 and 3 streams, and 51.0 images/s
+for its CPU version. The CPU rates varied between runs from 37.7 to 51.0 images/s.
+
 <figure>
-<img src="../../figures/ch24-streams.svg" alt="Top: on 1 stream each image is copied in, processed and copied out before the next starts. On 3 streams the copy of 1 image overlaps the kernels of another. Bottom, measured images per second for a batch of 128 images: 1 stream 587.6, 2 streams 692.8, 3 streams 699.9, and the CPU on 8 cores 46.3.">
-<figcaption><b>Figure 24.7</b> Copies and kernels on 1 and on 3 streams, and the measured rates.</figcaption>
+<img src="../../figures/ch24-streams.svg" alt="Top: on 1 stream each image is copied in (0.20 ms), processed by the 7 kernels (1.17 ms) and copied out (0.07 ms) before the next one starts. On 2 streams the kernels of images 0, 1 and 2 run back to back, and the copies of each image overlap the kernels of the image before. Bottom, measured rates of the C++ program for a batch of 128 images: 1 stream 695.3, 2 streams 835.3, 3 streams 859.5 images/s; the CPU on 8 cores 37.7 images/s.">
+<figcaption><b>Figure 24.13</b> Copies and kernels on 1 and on 2 streams, and the measured rates of the C++ program.</figcaption>
 </figure>
 
-The rates can be checked with a simple account. On 1 stream, an image takes 1 / 587.6 = 1.70
-ms. Its 7 kernels take 1.41 ms, so the 2 copies, 8.3 MB together, take about 0.30 ms, which is
-about 28 GB/s. With several streams, the copies of 1 image overlap with the kernels of another,
-and the rate approaches the limit of the kernels alone, 1 / 1.41 ms = 710 images per second. 3
-streams reach 699.9 images per second, 99% of that limit. A third stream adds little over a
-second one, because 2 streams already keep the SMs busy while the copies run.
+The rates follow from the measured times. On 1 stream an image costs its copy in, its 7
+kernels and its copy out in turn: \\(0.201 + 1.165 + 0.070 = 1.436\\) ms, or 696 images/s, and the
+measured 695.3 images/s agrees. The copies are 0.271 ms of the 1.436 ms, 19%. If they were hidden
+completely, the kernels alone would set the rate: 1 image per 1.165 ms, 858 images/s.
 
-The CPU version processes 46.3 images per second on 8 cores. The GPU, with 3 streams, is
-15 times faster, for exactly the same output.
+2 streams reach 835.3 images/s, 1.197 ms per image. Of the 0.271 ms of copies per image, 0.239 ms,
+88%, now run while kernels run. 3 streams reach 859.5 images/s, 1.163 ms per image, so the copies are hidden
+completely and the kernels of consecutive images run back to back (Figure 24.13). More streams cannot
+help, because the SMs are then busy all the time. On this integrated GPU the copies and the kernels
+share the same memory, and they still overlap well. The copy engine moves about 31 GB/s and the
+kernels about 29 GB/s, together well under the 102 GB/s of the memory.
 
-## 24.10 A missing halo
+The Rust program follows the same account. Its times, \\(0.203 + 1.489 + 0.072 = 1.764\\) ms,
+predict 567 images/s on 1 stream, against 573.4 measured. On 3 streams its 689.9 images/s, 1.450 ms
+per image, are again the rate of its kernels alone. On 3 streams the GPU processes images 22.8 times as
+fast as the CPU version in the C++ run, 859.5 against 37.7 images/s. In the Rust run the factor is
+13.5, 689.9 against 51.0 images/s. Both produce exactly the same output as the CPU.
 
-The correctness of the tiled kernels rests on the argument in their `SAFETY` comments: every slot
-of the tile is written before the barrier. To see what happens when the argument is false, we
-removed the `if tx < 4` block that loads the halo in `blur_rows`, so that slots 128 to 131 of
-the tile are never written. The program still compiles, because the reads are inside `unsafe`
-blocks and the compiler accepts the programmer's argument without checking it.
+<div class="exercises">
 
-```console
-pixels that differ from the CPU, gray     : 0
-pixels that differ from the CPU, equalised: 0
-pixels that differ from the CPU, blurred  : 60129
-pixels that differ from the CPU, edges    : 93316
-batch outputs match the CPU: no
-FAILED
-```
+Exercises
 
-The count of wrong pixels can be predicted. Threads 124 to 127 of each block read at least 1 of the
-slots 128 to 131. A row has 15 blocks, so 15 × 4 = 60 pixels of each row read uninitialised shared
-memory. Over 1,080 rows, 60 × 1,080 = 64,800 pixels of the blurred image are at risk. 60,129 of them were
-wrong; in the others, the leftover contents of shared memory happened to produce the right value.
-The edge image has more wrong pixels, 93,316, because the Sobel operator reads a 3 × 3 window, and
-every wrong blurred pixel spoils the edges of its neighbours as well.
+24.19 Use the measured times of the copies and of the 7 kernels to predict the rate on 1 stream and
+the best possible rate on many streams. Compare with the measurements.<br>
+24.20 Run the batch with 4 and 6 streams. Explain why the rate stops growing.<br>
+24.21 The Rust program spends more time per image in its kernels than the C++ program. Does the
+benefit of a second stream, as a fraction, grow or shrink when the kernels are slower?
 
-The image looked normal at a glance: the errors form thin vertical stripes of slightly wrong levels,
-1 every 128 columns. Only the comparison with the CPU revealed them.
+</div>
 
-## 24.11 The complete program
+## 24.11 The complete programs
 
-<p class="listing"><b>Listing 24.13</b> The complete program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch24_capstone/src/main.rs">code/oxide/ch24_capstone/src/main.rs</a></p>
+The whole Rust program, `src/main.rs`, and the whole C++ program, `capstone.cu`.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch24_capstone/src/main.rs}}
 ```
 
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu}}
+```
+
+</div>
+</div>
+
 ## Common mistakes
 
-- **Computing in floating point and comparing exactly.** A float expression may be evaluated
+- **Computing in floating point and comparing exactly.** A floating-point expression may be evaluated
   differently on the GPU, for example with a fused multiply-add. Use integer arithmetic where the
-  result must match exactly, or compare floats with a tolerance.
-- **Forgetting the halo of a tile.** A tile of n outputs of a filter of radius r needs n + 2r
-  inputs. The missing slots hold whatever an earlier block left in shared memory, and the result is
-  wrong in a few columns only (Section 24.10).
-- **Clearing a global histogram with a separate copy or launch, or not at all.** A histogram kernel
-  adds to its counts. Without clearing, the second image's histogram includes the first image's
-  counts; here the table kernel clears each count as it reads it.
-- **Overflowing an intermediate value.** The row sums of the blur reach 4,080 and do not fit in a
-  byte; the equalisation formula reaches 528,768,000 before the division and is evaluated in 64
-  bits.
+  result must match exactly, or compare with a tolerance.
+- **Fixed-point weights that do not sum to the scale.** Weights of 76, 150 and 29 sum to 255, and
+  white becomes 254 (Section 24.3.3).
+- **Counting with a plain addition.** 2 threads that count the same level lose 1 of the 2 counts;
+  count with an atomic addition (Section 24.4.5).
+- **Rounding each pass of a separable filter.** Theorem 24.1 holds only if the row pass keeps its
+  sums whole and the rounding happens once at the end.
+- **Forgetting the halo of a tile.** A tile of \\(T\\) outputs of a filter of radius \\(r\\) needs
+  \\(T + 2r\\) inputs. The missing slots hold whatever the memory held before, and the result is
+  wrong in a few columns only (Section 24.5.6).
+- **Leaving a global histogram uncleared.** A histogram kernel adds to its counts. Here the table
+  kernel clears each count as it reads it.
 - **Reusing a pinned output buffer on 2 streams.** 2 streams that copy into the same host buffer can
-  do so in either order. Give each stream its own output buffer, or synchronise before reusing it.
+  do so in either order. Give each stream its own buffer, or synchronise before reusing it.
 
 ## Summary
 
-- Image operations are point, neighbourhood or global operations, and each kind maps to a kernel
-  pattern of the earlier chapters: 1 thread per pixel, a tile with a halo in shared memory, and a
-  reduction with shared and global atomic counters.
-- Conversion to gray, equalisation and the blur are computed in integer arithmetic, so that the GPU
-  and the CPU produce identical images and can be compared pixel by pixel.
-- Histogram equalisation is a histogram, a scan of 256 counts in 1 block, and a table lookup. The
-  table kernel clears the counts with an atomic exchange as it reads them.
-- A separable blur of 5 × 5 weights costs 2 passes of 5 multiply-adds. Each pass loads a tile of n +
-  4 values into shared memory for n outputs.
-- `DisjointSlice` with `Index2D` makes the output writes of 2-dimensional kernels safe; reads from
-  shared tiles remain `unsafe`, and their correctness rests on the barrier argument in the `SAFETY`
-  comment.
-- On the measured GPU the 7 kernels take about 1.41 ms per image of 1,920 × 1,080 pixels; with 3
-  streams a batch runs at 699.9 images per second, 15 times the rate of the CPU on 8
-  cores.
+- The 4 stages of the pipeline are patterns of Part V: gray conversion and the table lookup are maps,
+  equalisation needs a histogram and a scan of 256 counts, and the blur and the Sobel detector are
+  stencils.
+- The worked example of 8 × 8 pixels goes from levels 96, 112, 120 and 144 to 0, 85, 170 and 255,
+  to a blurred image in which pixel (3, 3) is 170, and to an edge image in which pixel (3, 1) is 60.
+- Integer arithmetic, a correctly rounded square root and 1 rounding at the end of the blur make
+  the GPU's images equal to the CPU's in every pixel, and the Rust and C++ programs equal to each
+  other.
+- A separable filter of \\(k \times k\\) weights costs \\(2k\\) multiply-adds instead of \\(k^2\\), and
+  Theorem 24.1 proves the 2 passes exact.
+- A tile for \\(T\\) outputs of radius \\(r\\) holds \\(T + 2r\\) inputs; without the halo, 4 threads
+  of each block read unwritten slots.
+- On the measured GPU the 7 kernels take 1.079 ms per image of 1,920 × 1,080 pixels in C++ and
+  1.380 ms in Rust. The blur takes the largest share, 39%, because it moves the most bytes, and every
+  stage runs at 18 to 45 GB/s because its accesses are 1 or 2 bytes wide.
+- On 3 streams the copies hide completely behind the kernels: 859.5 images/s in C++ and 689.9 in
+  Rust, against 37.7 to 51.0 images/s for the CPU version on 8 cores.
 
 ## Exercises
 
-1. Work the grayscale formula by hand for the pixels (255, 0, 0), (0, 255, 0) and (0, 0, 255), and
-   explain why the 3 results differ.
-2. Compute the equalisation table for an image of 10 pixels with the levels 4, 4, 4, 5, 5, 6, 6, 6,
-   6, 7 on a scale of 8 levels (0 to 7).
-3. The row pass loads 132 pixels for 128 outputs. How many pixels would a block of 256 threads load,
-   and what fraction of its loads would be halo? Change the block size in `blur_rows` and its launch
-   configuration, and measure the time.
-4. Write a version of `sobel` that loads a tile of (8 + 2) × (32 + 2) pixels into shared memory, and
-   compare its time with the version in Listing 24.8. Explain the result with the role of the L1
-   cache.
-5. The kernels `grayscale` and `apply_table` cannot be fused, because equalisation needs the whole
-   histogram first. Which other pairs of consecutive kernels could be fused into 1, and how many bytes
-   per pixel would each fusion save? Fuse `blur_cols` and `sobel` conceptually: what halo would the
-   fused kernel need?
-6. Change `grayscale` to process 4 pixels per thread, reading the 12 colour bytes as 3 `u32` values.
-   Measure the effective bandwidth, and compare the result with the 1-byte and 16-byte loads of
+1. Carry an 8 × 8 image whose top 4 rows have level 100 and bottom 4 rows level 140 through the whole
+   pipeline by hand: the equalised levels, the row sums, the blurred column 0, and the edge level of
+   pixel \\((0, 3)\\).
+2. The grayscale and apply-table kernels cannot be fused into 1, because equalisation needs the whole
+   histogram first. Which other pairs of consecutive kernels could be fused, and how many bytes per
+   pixel would each fusion save?
+3. Fuse the column pass of the blur and the Sobel kernel. What halo does the fused kernel need, and
+   how many rows of row sums must its tile hold for a block of 8 output rows?
+4. Change the gray kernel to convert 4 pixels per thread, reading its 12 colour bytes as 3 words of
+   4 bytes. Measure the effective bandwidth, and compare it with the 1-byte and 16-byte loads of
    Section 8.8.
-7. Replace the row pass of the blur with a version that reads its 5 inputs directly from global
-   memory, and measure the difference.
-8. Run the batch with 4 and 6 streams. Explain why the rate stops growing.
+5. Replace the tiled row pass by a kernel that reads its 5 inputs directly from global memory, and
+   measure the difference. Explain it with the L1 cache.
+6. Add `#[kernel(unchecked_indexing)]` to 1 Rust kernel at a time and find which kernels gain most.
+7. Write a 1-pass blur that copies a tile of \\((8 + 4) \times (32 + 4)\\) equalised pixels into shared
+   memory and applies the 25 weights of Figure 24.7 directly. Count the bytes it moves per pixel and
+   the multiply-adds it performs, measure it against the 2 passes, and explain the result with
+   Section 24.9.2.
+8. Make the equalisation table kernel work for images of 16-bit levels (65,536 bins). Which parts of
+   Table-Kernel no longer fit in 1 block?
 
 ## Sources and further reading
 
 - ITU-R Recommendation BT.601, *Studio encoding parameters of digital television for standard 4:3
   and wide-screen 16:9 aspect ratios*: the luma weights 0.299, 0.587 and 0.114.
 - R. C. Gonzalez and R. E. Woods, *Digital Image Processing*, 4th ed., Pearson, 2018: histogram
-  equalisation (chapter 3), smoothing and Sobel filters (chapter 3), separable filters.
+  equalisation, smoothing filters, separable filters and the Sobel operator (chapter 3).
 - I. Sobel and G. Feldman, "A 3 × 3 isotropic gradient operator for image processing", 1968,
   presented at the Stanford Artificial Intelligence Project.
+- T. H. Cormen, C. E. Leiserson, R. L. Rivest and C. Stein, *Introduction to Algorithms*, 4th ed.,
+  MIT Press, 2022: the style of the pseudocode, and loop-invariant proofs.
+- A. Pathak, *An Introduction to Tiled Parallel Programming, Simplified*, 2026: tiles, barriers and
+  their proof on a worked example.
 - IEEE 754-2019, *Standard for Floating-Point Arithmetic*: the correctly rounded square root.
-- NVIDIA, *CUDA C++ Programming Guide*: shared memory, streams and asynchronous copies.
-- cuda-oxide source, rev b7fe543: `cuda_device::float::sqrt_rn_f32`, `thread::index_2d`,
-  `DisjointSlice` with `Index2D`, `DeviceAtomicU32::swap` and `BlockAtomicU32::fetch_min`.
+- NVIDIA, *CUDA C++ Programming Guide*: shared memory, atomic functions, streams and asynchronous
+  copies, and `--use_fast_math`.
+- cuda-oxide source, rev b7fe543: `SharedArray`, `DisjointSlice` with `Index2D`, `BlockAtomicU32`,
+  `DeviceAtomicU32::swap`, `sqrt_rn_f32` and `#[kernel(unchecked_indexing)]`.
