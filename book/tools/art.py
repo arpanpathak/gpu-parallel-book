@@ -538,6 +538,153 @@ def tortoise(cx, base, s=1.0, look=1):
     ])
 
 
+def goose(cx, base, s=1.0, look=1, parcel=None):
+    """A standing goose facing `look`, its feet at `base`, holding a numbered parcel in its beak
+    when `parcel` is given. 1.0 is 190 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    white, grey, wing, beak, ink = "#f7f5ef", "#d9dde3", "#b9c1cc", "#f29a2e", "#2a2418"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    neck = f"M{X(30)},{Y(78)} Q{X(52)},{Y(118)} {X(40)},{Y(150)}"
+    parts = [
+        shadow(cx, base, 58 * s),
+        line(X(-8), Y(0), X(-6), Y(42), beak, 5 * s), line(X(14), Y(0), X(12), Y(42), beak, 5 * s),
+        path(f"M{X(-20)},{Y(0)} L{X(4)},{Y(0)} L{X(-6)},{Y(8)} Z", beak, ink, 1.6 * s),
+        path(f"M{X(2)},{Y(0)} L{X(26)},{Y(0)} L{X(14)},{Y(8)} Z", beak, ink, 1.6 * s),
+        path(f"M{X(-50)},{Y(70)} L{X(-86)},{Y(92)} L{X(-58)},{Y(56)} Z", grey, ink, 2.2 * s),
+        ellipse(cx, Y(64), 58 * s, 34 * s, white, stroke),
+        path(f"M{X(-44)},{Y(74)} Q{X(-6)},{Y(104)} {X(34)},{Y(70)} Q{X(-4)},{Y(52)} {X(-44)},{Y(74)} Z", wing, ink, 2.2 * s),
+        path(neck, "none", ink, 21 * s),
+        path(neck, "none", white, 16 * s),
+        circle(X(38), Y(158), 19 * s, white, stroke),
+        path(f"M{X(52)},{Y(164)} L{X(84)},{Y(156)} L{X(52)},{Y(150)} Z", beak, ink, 2 * s),
+        eye(X(42), Y(164), 5 * s, look * 0.6),
+    ]
+    if parcel:
+        parts.append(cell(X(84) + f * 18, Y(157), parcel, "#f7d9a0", NIGHT, 36, 17))
+    return "".join(parts)
+
+
+def spider(cx, cy, s=1.0, look=0.0):
+    """A round spider seen from the front, its body centred on (cx, cy), 8 bent legs. 1.0 is
+    about 220 units across the legs."""
+    body, dark, ink = "#3d3550", "#2a2338", "#14101c"
+    legs = []
+    for side in (-1, 1):
+        for k, (rise, reach, drop) in enumerate(((46, 62, 4), (26, 84, 30), (6, 94, 58), (-14, 82, 84))):
+            hip = (cx + side * 30 * s, cy + 14 * s + k * 9 * s)
+            knee = (cx + side * reach * s, cy - rise * s)
+            foot = (cx + side * (reach + 24) * s, cy + drop * s)
+            legs.append(path(f"M{hip[0]:.1f},{hip[1]:.1f} L{knee[0]:.1f},{knee[1]:.1f} "
+                             f"L{foot[0]:.1f},{foot[1]:.1f}", "none", ink, 6 * s))
+    return "".join([
+        *legs,
+        ellipse(cx, cy + 34 * s, 44 * s, 40 * s, dark, f'stroke="{ink}" stroke-width="{2.6 * s}"'),
+        path(f"M{cx - 18 * s},{cy + 24 * s} Q{cx},{cy + 14 * s} {cx + 18 * s},{cy + 24 * s}",
+             "none", "#c89b3c", 3 * s),
+        path(f"M{cx - 14 * s},{cy + 40 * s} Q{cx},{cy + 30 * s} {cx + 14 * s},{cy + 40 * s}",
+             "none", "#c89b3c", 3 * s),
+        circle(cx, cy - 8 * s, 30 * s, body, f'stroke="{ink}" stroke-width="{2.6 * s}"'),
+        eye(cx - 11 * s, cy - 14 * s, 8 * s, look), eye(cx + 11 * s, cy - 14 * s, 8 * s, look),
+        circle(cx - 4 * s, cy - 28 * s, 3 * s, SNOW, 'opacity="0.8"'),
+        circle(cx + 4 * s, cy - 28 * s, 3 * s, SNOW, 'opacity="0.8"'),
+        path(f"M{cx - 8 * s},{cy + 6 * s} Q{cx},{cy + 12 * s} {cx + 8 * s},{cy + 6 * s}",
+             "none", SNOW, 2 * s),
+    ])
+
+
+def gpu_chip(cx, cy, name, w=74, h=50):
+    """A green GPU package with pins on 2 sides and its name on the die."""
+    pins = [rect(cx - w / 2 + 8 + 11 * k, cy - h / 2 - 6, 5, 6, "#c8ccd2") for k in range(6)]
+    pins += [rect(cx - w / 2 + 8 + 11 * k, cy + h / 2, 5, 6, "#c8ccd2") for k in range(6)]
+    return "".join([
+        *pins,
+        rect(cx - w / 2, cy - h / 2, w, h, "#2f6a2a", 7, "#173514", 2.4),
+        rect(cx - w / 2 + 10, cy - h / 2 + 9, w - 20, h - 18, "#76b900", 4),
+        label(cx, cy + 6, name, 15, NIGHT, font=MONO, fit=textw(name, 15, MONO)),
+    ])
+
+
+def woodpecker(cx, cy, s=1.0, look=1):
+    """A woodpecker clinging upright to a trunk on its side `look` (1: the trunk is to its right).
+    (cx, cy) is the middle of its body; 1.0 is about 190 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: cy - dy * s
+    black, white, red, beak, ink = "#23262d", "#f4f1ea", "#d8402a", "#c9a46a", "#14161a"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    spots = [ellipse(X(-14 + 8 * (k % 2)), Y(14 - 13 * k), 4 * s, 2.6 * s, white) for k in range(4)]
+    return "".join([
+        path(f"M{X(-6)},{Y(-40)} L{X(-30)},{Y(-96)} L{X(6)},{Y(-58)} Z", black, ink, 2.2 * s),
+        ellipse(cx, Y(0), 30 * s, 52 * s, white, stroke),
+        path(f"M{X(-30)},{Y(6)} Q{X(-34)},{Y(-40)} {X(-4)},{Y(-50)} Q{X(-10)},{Y(10)} {X(-6)},{Y(42)}"
+             f" Q{X(-26)},{Y(36)} {X(-30)},{Y(6)} Z", black, ink, 2.2 * s),
+        *spots,
+        path(f"M{X(22)},{Y(-30)} l{f * 16 * s},{-6 * s} M{X(22)},{Y(-40)} l{f * 16 * s},{4 * s}", "none", ink, 3 * s),
+        circle(X(6), Y(62), 25 * s, white, stroke),
+        path(f"M{X(-18)},{Y(62)} Q{X(-16)},{Y(92)} {X(10)},{Y(88)} Q{X(-2)},{Y(74)} {X(-18)},{Y(62)} Z", black, ink, 1.8 * s),
+        path(f"M{X(-14)},{Y(78)} Q{X(0)},{Y(98)} {X(20)},{Y(84)} Q{X(6)},{Y(80)} {X(-14)},{Y(78)} Z", red, ink, 1.8 * s),
+        path(f"M{X(-16)},{Y(52)} Q{X(6)},{Y(46)} {X(26)},{Y(54)}", "none", black, 5 * s),
+        path(f"M{X(26)},{Y(68)} L{X(70)},{Y(62)} L{X(26)},{Y(56)} Z", beak, ink, 2 * s),
+        eye(X(14), Y(66), 5 * s, look * 0.7),
+    ])
+
+
+def stopwatch(cx, cy, r, angle=40):
+    """A stopwatch: a steel case, a crown and button on top, a face with 12 ticks and 1 hand."""
+    ink = "#1b2430"
+    ticks = [line(cx + 0.78 * r * math.sin(math.radians(30 * k)), cy - 0.78 * r * math.cos(math.radians(30 * k)),
+                  cx + 0.9 * r * math.sin(math.radians(30 * k)), cy - 0.9 * r * math.cos(math.radians(30 * k)),
+                  ink, 0.09 * r if k % 3 == 0 else 0.05 * r) for k in range(12)]
+    hand = (cx + 0.7 * r * math.sin(math.radians(angle)), cy - 0.7 * r * math.cos(math.radians(angle)))
+    return "".join([
+        rect(cx - 0.16 * r, cy - 1.36 * r, 0.32 * r, 0.26 * r, STEEL, 0.06 * r, ink, 0.06 * r),
+        rect(cx - 0.3 * r, cy - 1.5 * r, 0.6 * r, 0.16 * r, "#c9d2dc", 0.08 * r, ink, 0.06 * r),
+        line(cx + 0.72 * r, cy - 0.72 * r, cx + 0.92 * r, cy - 0.92 * r, STEEL, 0.16 * r),
+        circle(cx, cy, r, "#c9d2dc", f'stroke="{ink}" stroke-width="{0.08 * r:.1f}"'),
+        circle(cx, cy, 0.86 * r, "#fffdf6", f'stroke="{ink}" stroke-width="{0.04 * r:.1f}"'),
+        *ticks,
+        line(cx, cy, *hand, RUST, 0.07 * r),
+        circle(cx, cy, 0.08 * r, ink),
+    ])
+
+
+def hawk(cx, base, s=1.0, look=1):
+    """A hawk perched upright, facing `look`, its talons at `base`. 1.0 is about 250 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    back, wing, chest, streak, beak, ink = "#8a5a32", "#6e4526", "#f3e6cf", "#b98a5a", "#f2b53d", "#2a1d10"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    streaks = [path(f"M{X(dx - 5)},{Y(dy)} q{f * 5 * s},{5 * s} {f * 10 * s},0", "none", streak, 2.6 * s)
+               for dx, dy in ((14, 150), (30, 140), (6, 124), (24, 112), (40, 120), (12, 96), (32, 86), (20, 70))]
+    feathers = [path(f"M{X(-36)},{Y(dy)} q{f * 22 * s},{-8 * s} {f * 40 * s},{-2 * s}", "none", ink, 1.6 * s,
+                     'opacity="0.55"') for dy in (150, 126, 102, 78)]
+    return "".join([
+        shadow(cx, base, 56 * s),
+        path(f"M{X(-30)},{Y(60)} L{X(-58)},{Y(-30)} L{X(-24)},{Y(-26)} L{X(-4)},{Y(50)} Z", wing, ink, 2.4 * s),
+        ellipse(X(4), Y(112), 50 * s, 78 * s, back, stroke),
+        ellipse(X(18), Y(110), 32 * s, 62 * s, chest),
+        *streaks,
+        path(f"M{X(-44)},{Y(170)} C{X(-56)},{Y(120)} {X(-48)},{Y(64)} {X(-26)},{Y(40)} "
+             f"C{X(-6)},{Y(70)} {X(4)},{Y(130)} {X(-8)},{Y(170)} Z", wing, ink, 2.4 * s),
+        *feathers,
+        line(X(-4), Y(36), X(-8), Y(4), beak, 6 * s), line(X(18), Y(36), X(20), Y(4), beak, 6 * s),
+        *[path(f"M{X(dx)},{Y(4)} q{f * 6 * s},{-2 * s} {f * 8 * s},{5 * s}", "none", ink, 2.4 * s)
+          for dx in (-12, -4, 14, 22)],
+        circle(X(14), Y(196), 36 * s, back, stroke),
+        path(f"M{X(8)},{Y(178)} Q{X(30)},{Y(160)} {X(46)},{Y(180)} Q{X(30)},{Y(196)} {X(8)},{Y(178)} Z", chest),
+        path(f"M{X(40)},{Y(206)} Q{X(62)},{Y(208)} {X(70)},{Y(190)} Q{X(66)},{Y(180)} {X(58)},{Y(178)} "
+             f"Q{X(60)},{Y(190)} {X(42)},{Y(190)} Z", beak, ink, 2.2 * s),
+        path(f"M{X(62)},{Y(190)} Q{X(70)},{Y(184)} {X(64)},{Y(176)}", "none", ink, 3 * s),
+        circle(X(30), Y(204), 8.5 * s, "#f5c542", f'stroke="{ink}" stroke-width="{1.6 * s}"'),
+        circle(X(32), Y(204), 4.4 * s, ink),
+        circle(X(33.5), Y(206), 1.5 * s, SNOW),
+        path(f"M{X(16)},{Y(214)} Q{X(30)},{Y(220)} {X(44)},{Y(212)}", "none", ink, 4 * s),
+    ])
+
+
 def owl(cx, base, s=1.0, look=1, hat=None):
     """A barn-brown owl seen from the front, its claws at `base`. `look` turns the pupils
     (1 right, -1 left, 0 ahead); `hat` is None or "mortarboard". 1.0 is 200 units tall."""
@@ -662,151 +809,7 @@ def chameleon(cx, base, s=1.0, look=1, hues=("#4f8fd6", "#3fa3a0", "#5fb85a", "#
         circle(X(112), Y(84), 17 * s, hues[-2], stroke),
         eye(X(114), Y(84), 9 * s, look * 0.7),
         path(f"M{X(124)},{Y(64)} L{X(158)},{Y(74)}", "none", ink, 2.2 * s),
-
-
-def stopwatch(cx, cy, r, angle=40):
-    """A stopwatch: a steel case, a crown and button on top, a face with 12 ticks and 1 hand."""
-    ink = "#1b2430"
-    ticks = [line(cx + 0.78 * r * math.sin(math.radians(30 * k)), cy - 0.78 * r * math.cos(math.radians(30 * k)),
-                  cx + 0.9 * r * math.sin(math.radians(30 * k)), cy - 0.9 * r * math.cos(math.radians(30 * k)),
-                  ink, 0.09 * r if k % 3 == 0 else 0.05 * r) for k in range(12)]
-    hand = (cx + 0.7 * r * math.sin(math.radians(angle)), cy - 0.7 * r * math.cos(math.radians(angle)))
-    return "".join([
-        rect(cx - 0.16 * r, cy - 1.36 * r, 0.32 * r, 0.26 * r, STEEL, 0.06 * r, ink, 0.06 * r),
-        rect(cx - 0.3 * r, cy - 1.5 * r, 0.6 * r, 0.16 * r, "#c9d2dc", 0.08 * r, ink, 0.06 * r),
-        line(cx + 0.72 * r, cy - 0.72 * r, cx + 0.92 * r, cy - 0.92 * r, STEEL, 0.16 * r),
-        circle(cx, cy, r, "#c9d2dc", f'stroke="{ink}" stroke-width="{0.08 * r:.1f}"'),
-        circle(cx, cy, 0.86 * r, "#fffdf6", f'stroke="{ink}" stroke-width="{0.04 * r:.1f}"'),
-        *ticks,
-        line(cx, cy, *hand, RUST, 0.07 * r),
-        circle(cx, cy, 0.08 * r, ink),
     ])
-
-
-def hawk(cx, base, s=1.0, look=1):
-    """A hawk perched upright, facing `look`, its talons at `base`. 1.0 is about 250 units tall."""
-    f = look
-    X = lambda dx: cx + f * dx * s
-    Y = lambda dy: base - dy * s
-    back, wing, chest, streak, beak, ink = "#8a5a32", "#6e4526", "#f3e6cf", "#b98a5a", "#f2b53d", "#2a1d10"
-    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
-    streaks = [path(f"M{X(dx - 5)},{Y(dy)} q{f * 5 * s},{5 * s} {f * 10 * s},0", "none", streak, 2.6 * s)
-               for dx, dy in ((14, 150), (30, 140), (6, 124), (24, 112), (40, 120), (12, 96), (32, 86), (20, 70))]
-    feathers = [path(f"M{X(-36)},{Y(dy)} q{f * 22 * s},{-8 * s} {f * 40 * s},{-2 * s}", "none", ink, 1.6 * s,
-                     'opacity="0.55"') for dy in (150, 126, 102, 78)]
-    return "".join([
-        shadow(cx, base, 56 * s),
-        path(f"M{X(-30)},{Y(60)} L{X(-58)},{Y(-30)} L{X(-24)},{Y(-26)} L{X(-4)},{Y(50)} Z", wing, ink, 2.4 * s),
-        ellipse(X(4), Y(112), 50 * s, 78 * s, back, stroke),
-        ellipse(X(18), Y(110), 32 * s, 62 * s, chest),
-        *streaks,
-        path(f"M{X(-44)},{Y(170)} C{X(-56)},{Y(120)} {X(-48)},{Y(64)} {X(-26)},{Y(40)} "
-             f"C{X(-6)},{Y(70)} {X(4)},{Y(130)} {X(-8)},{Y(170)} Z", wing, ink, 2.4 * s),
-        *feathers,
-        line(X(-4), Y(36), X(-8), Y(4), beak, 6 * s), line(X(18), Y(36), X(20), Y(4), beak, 6 * s),
-        *[path(f"M{X(dx)},{Y(4)} q{f * 6 * s},{-2 * s} {f * 8 * s},{5 * s}", "none", ink, 2.4 * s)
-          for dx in (-12, -4, 14, 22)],
-        circle(X(14), Y(196), 36 * s, back, stroke),
-        path(f"M{X(8)},{Y(178)} Q{X(30)},{Y(160)} {X(46)},{Y(180)} Q{X(30)},{Y(196)} {X(8)},{Y(178)} Z", chest),
-        path(f"M{X(40)},{Y(206)} Q{X(62)},{Y(208)} {X(70)},{Y(190)} Q{X(66)},{Y(180)} {X(58)},{Y(178)} "
-             f"Q{X(60)},{Y(190)} {X(42)},{Y(190)} Z", beak, ink, 2.2 * s),
-        path(f"M{X(62)},{Y(190)} Q{X(70)},{Y(184)} {X(64)},{Y(176)}", "none", ink, 3 * s),
-        circle(X(30), Y(204), 8.5 * s, "#f5c542", f'stroke="{ink}" stroke-width="{1.6 * s}"'),
-        circle(X(32), Y(204), 4.4 * s, ink),
-        circle(X(33.5), Y(206), 1.5 * s, SNOW),
-        path(f"M{X(16)},{Y(214)} Q{X(30)},{Y(220)} {X(44)},{Y(212)}", "none", ink, 4 * s),
-
-
-def woodpecker(cx, cy, s=1.0, look=1):
-    """A woodpecker clinging upright to a trunk on its side `look` (1: the trunk is to its right).
-    (cx, cy) is the middle of its body; 1.0 is about 190 units tall."""
-    f = look
-    X = lambda dx: cx + f * dx * s
-    Y = lambda dy: cy - dy * s
-    black, white, red, beak, ink = "#23262d", "#f4f1ea", "#d8402a", "#c9a46a", "#14161a"
-    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
-    spots = [ellipse(X(-14 + 8 * (k % 2)), Y(14 - 13 * k), 4 * s, 2.6 * s, white) for k in range(4)]
-    return "".join([
-        path(f"M{X(-6)},{Y(-40)} L{X(-30)},{Y(-96)} L{X(6)},{Y(-58)} Z", black, ink, 2.2 * s),
-        ellipse(cx, Y(0), 30 * s, 52 * s, white, stroke),
-        path(f"M{X(-30)},{Y(6)} Q{X(-34)},{Y(-40)} {X(-4)},{Y(-50)} Q{X(-10)},{Y(10)} {X(-6)},{Y(42)}"
-             f" Q{X(-26)},{Y(36)} {X(-30)},{Y(6)} Z", black, ink, 2.2 * s),
-        *spots,
-        path(f"M{X(22)},{Y(-30)} l{f * 16 * s},{-6 * s} M{X(22)},{Y(-40)} l{f * 16 * s},{4 * s}", "none", ink, 3 * s),
-        circle(X(6), Y(62), 25 * s, white, stroke),
-        path(f"M{X(-18)},{Y(62)} Q{X(-16)},{Y(92)} {X(10)},{Y(88)} Q{X(-2)},{Y(74)} {X(-18)},{Y(62)} Z", black, ink, 1.8 * s),
-        path(f"M{X(-14)},{Y(78)} Q{X(0)},{Y(98)} {X(20)},{Y(84)} Q{X(6)},{Y(80)} {X(-14)},{Y(78)} Z", red, ink, 1.8 * s),
-        path(f"M{X(-16)},{Y(52)} Q{X(6)},{Y(46)} {X(26)},{Y(54)}", "none", black, 5 * s),
-        path(f"M{X(26)},{Y(68)} L{X(70)},{Y(62)} L{X(26)},{Y(56)} Z", beak, ink, 2 * s),
-        eye(X(14), Y(66), 5 * s, look * 0.7),
-
-
-def spider(cx, cy, s=1.0, look=0.0):
-    """A round spider seen from the front, its body centred on (cx, cy), 8 bent legs. 1.0 is
-    about 220 units across the legs."""
-    body, dark, ink = "#3d3550", "#2a2338", "#14101c"
-    legs = []
-    for side in (-1, 1):
-        for k, (rise, reach, drop) in enumerate(((46, 62, 4), (26, 84, 30), (6, 94, 58), (-14, 82, 84))):
-            hip = (cx + side * 30 * s, cy + 14 * s + k * 9 * s)
-            knee = (cx + side * reach * s, cy - rise * s)
-            foot = (cx + side * (reach + 24) * s, cy + drop * s)
-            legs.append(path(f"M{hip[0]:.1f},{hip[1]:.1f} L{knee[0]:.1f},{knee[1]:.1f} "
-                             f"L{foot[0]:.1f},{foot[1]:.1f}", "none", ink, 6 * s))
-    return "".join([
-        *legs,
-        ellipse(cx, cy + 34 * s, 44 * s, 40 * s, dark, f'stroke="{ink}" stroke-width="{2.6 * s}"'),
-        path(f"M{cx - 18 * s},{cy + 24 * s} Q{cx},{cy + 14 * s} {cx + 18 * s},{cy + 24 * s}",
-             "none", "#c89b3c", 3 * s),
-        path(f"M{cx - 14 * s},{cy + 40 * s} Q{cx},{cy + 30 * s} {cx + 14 * s},{cy + 40 * s}",
-             "none", "#c89b3c", 3 * s),
-        circle(cx, cy - 8 * s, 30 * s, body, f'stroke="{ink}" stroke-width="{2.6 * s}"'),
-        eye(cx - 11 * s, cy - 14 * s, 8 * s, look), eye(cx + 11 * s, cy - 14 * s, 8 * s, look),
-        circle(cx - 4 * s, cy - 28 * s, 3 * s, SNOW, 'opacity="0.8"'),
-        circle(cx + 4 * s, cy - 28 * s, 3 * s, SNOW, 'opacity="0.8"'),
-        path(f"M{cx - 8 * s},{cy + 6 * s} Q{cx},{cy + 12 * s} {cx + 8 * s},{cy + 6 * s}",
-             "none", SNOW, 2 * s),
-    ])
-
-
-def gpu_chip(cx, cy, name, w=74, h=50):
-    """A green GPU package with pins on 2 sides and its name on the die."""
-    pins = [rect(cx - w / 2 + 8 + 11 * k, cy - h / 2 - 6, 5, 6, "#c8ccd2") for k in range(6)]
-    pins += [rect(cx - w / 2 + 8 + 11 * k, cy + h / 2, 5, 6, "#c8ccd2") for k in range(6)]
-    return "".join([
-        *pins,
-        rect(cx - w / 2, cy - h / 2, w, h, "#2f6a2a", 7, "#173514", 2.4),
-        rect(cx - w / 2 + 10, cy - h / 2 + 9, w - 20, h - 18, "#76b900", 4),
-        label(cx, cy + 6, name, 15, NIGHT, font=MONO, fit=textw(name, 15, MONO)),
-    ])
-
-
-def goose(cx, base, s=1.0, look=1, parcel=None):
-    """A standing goose facing `look`, its feet at `base`, holding a numbered parcel in its beak
-    when `parcel` is given. 1.0 is 190 units tall."""
-    f = look
-    X = lambda dx: cx + f * dx * s
-    Y = lambda dy: base - dy * s
-    white, grey, wing, beak, ink = "#f7f5ef", "#d9dde3", "#b9c1cc", "#f29a2e", "#2a2418"
-    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
-    neck = f"M{X(30)},{Y(78)} Q{X(52)},{Y(118)} {X(40)},{Y(150)}"
-    parts = [
-        shadow(cx, base, 58 * s),
-        line(X(-8), Y(0), X(-6), Y(42), beak, 5 * s), line(X(14), Y(0), X(12), Y(42), beak, 5 * s),
-        path(f"M{X(-20)},{Y(0)} L{X(4)},{Y(0)} L{X(-6)},{Y(8)} Z", beak, ink, 1.6 * s),
-        path(f"M{X(2)},{Y(0)} L{X(26)},{Y(0)} L{X(14)},{Y(8)} Z", beak, ink, 1.6 * s),
-        path(f"M{X(-50)},{Y(70)} L{X(-86)},{Y(92)} L{X(-58)},{Y(56)} Z", grey, ink, 2.2 * s),
-        ellipse(cx, Y(64), 58 * s, 34 * s, white, stroke),
-        path(f"M{X(-44)},{Y(74)} Q{X(-6)},{Y(104)} {X(34)},{Y(70)} Q{X(-4)},{Y(52)} {X(-44)},{Y(74)} Z", wing, ink, 2.2 * s),
-        path(neck, "none", ink, 21 * s),
-        path(neck, "none", white, 16 * s),
-        circle(X(38), Y(158), 19 * s, white, stroke),
-        path(f"M{X(52)},{Y(164)} L{X(84)},{Y(156)} L{X(52)},{Y(150)} Z", beak, ink, 2 * s),
-        eye(X(42), Y(164), 5 * s, look * 0.6),
-    ]
-    if parcel:
-        parts.append(cell(X(84) + f * 18, Y(157), parcel, "#f7d9a0", NIGHT, 36, 17))
-    return "".join(parts)
 
 
 def plain_crate(x, y, w, h, fill="#c9a46a"):
@@ -1179,6 +1182,57 @@ def ch12():
             tag(480, 52, "written, compiled and loaded while the program runs", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
+@plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
+       "cells. Each claw picks up one input, a[i] in one and b[i] in the other, and the sum goes into the row c below. At the "
+       "end of the row two small crabs have no cell to fill: they are the spare threads of the last block, and they doze.")
+def ch13():
+    a = ["0", "1", "2", "3", "4"]
+    b = ["0", "2", "4", "6", "8"]
+    c = ["0", "3", "6", "9", "12"]
+    rows = []
+
+    for k in range(5):
+        x = 380 + 70 * k
+        rows += [cell(x, 104, a[k], "#bfe3f7"), cell(x, 158, b[k], "#f7d9a0"), cell(x, 222, c[k], "#c8f0d0" if k < 4 else "#ffe7a3")]
+
+    rows += [label(330, 110, "a", 22, SNOW, font=MONO), label(330, 164, "b", 22, SNOW, font=MONO), label(330, 228, "c", 22, SNOW, font=MONO),
+             path("M660,124 C690,150 690,190 660,214", stroke=SNOW, sw=3, extra='stroke-dasharray="5 6" opacity="0.8"'),
+             label(706, 176, "+", 34, HONEY, weight=900)]
+
+    return [backdrop(seed=13, **SHORE),
+            rect(350, 76, 330, 186, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.55"'),
+            *rows,
+            crab(190, s=1.15, mood="happy", look=1, hat="hard"),
+            crab(790, s=0.42, mood="sleepy", shade=True), crab(880, s=0.42, mood="sleepy", shade=True),
+            rect(752, 222, 168, 30, "#ffffffcc", 15), label(836, 243, "i ≥ N: no work", 16, "#27405a", font=MONO, weight=600)]
+
+
+@plate("ch16", "Profiling & Debugging", "Lens the hawk", "Lens, a hawk, perches on a fence post at dusk "
+       "with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, "
+       "kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change 1 thing.")
+def ch16():
+    lanes = [("in", "#7aa6ff", [(0, 34), (40, 74), (80, 114), (120, 154)]),
+             ("kernel", "#f5c542", [(36, 84), (86, 134), (136, 184), (186, 234)]),
+             ("out", "#8fd19e", [(86, 118), (136, 168), (186, 218), (236, 268)])]
+    board = [rect(520, 92, 380, 176, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.78"')]
+    for row, (name, colour, bars) in enumerate(lanes):
+        y = 122 + row * 46
+        board.append(label(536, y + 18, name, 15, "#c9d2dc", "start", MONO, 600))
+        board += [rect(612 + a, y, b - a - 3, 24, colour, 5) for a, b in bars]
+    board.append(line(612, 254, 884, 254, "#6f8196", 2))
+    wing = f"M366,{GROUND - 190} Q396,{GROUND - 214} 420,{GROUND - 236}"
+    return [backdrop(seed=16, **DUSK),
+            rect(330, GROUND - 92, 26, 96, WOOD, 4, "#5a3d28", 3),
+            rect(310, GROUND - 100, 66, 14, "#8a6a44", 5, "#5a3d28", 3),
+            rect(520 + 186, GROUND - 54, 10, 58, WOOD, 3, "#5a3d28", 2),
+            *board,
+            hawk(338, GROUND - 98, 0.74, look=1),
+            path(wing, "none", "#2a1d10", 17),
+            path(wing, "none", "#6e4526", 12),
+            stopwatch(440, GROUND - 256, 28, angle=130),
+            tag(710, 52, "measure, then change 1 thing", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
 @plate("ch17", "GPU Systems Programming & Memory-Mapped I/O", "Knock the woodpecker", "Knock, a woodpecker, "
        "clings to a tree trunk and taps its beak on a brass doorbell plate fixed to the bark, marked with a register "
        "address. Beside the tree hangs a board with a ring of 8 slots: 5 of them hold work tickets, a PUT marker points "
@@ -1243,57 +1297,6 @@ def ch18():
             *spokes, *rings, *knots, *chips,
             spider(hub[0], hub[1] - 14, 0.78, look=0.4),
             tag(230, 30, "1 link to the switch, not 7 to the others", 16, "#fff6e2", "#2a1a10")]
-
-
-@plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "
-       "cells. Each claw picks up one input, a[i] in one and b[i] in the other, and the sum goes into the row c below. At the "
-       "end of the row two small crabs have no cell to fill: they are the spare threads of the last block, and they doze.")
-def ch13():
-    a = ["0", "1", "2", "3", "4"]
-    b = ["0", "2", "4", "6", "8"]
-    c = ["0", "3", "6", "9", "12"]
-    rows = []
-
-    for k in range(5):
-        x = 380 + 70 * k
-        rows += [cell(x, 104, a[k], "#bfe3f7"), cell(x, 158, b[k], "#f7d9a0"), cell(x, 222, c[k], "#c8f0d0" if k < 4 else "#ffe7a3")]
-
-    rows += [label(330, 110, "a", 22, SNOW, font=MONO), label(330, 164, "b", 22, SNOW, font=MONO), label(330, 228, "c", 22, SNOW, font=MONO),
-             path("M660,124 C690,150 690,190 660,214", stroke=SNOW, sw=3, extra='stroke-dasharray="5 6" opacity="0.8"'),
-             label(706, 176, "+", 34, HONEY, weight=900)]
-
-    return [backdrop(seed=13, **SHORE),
-            rect(350, 76, 330, 186, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.55"'),
-            *rows,
-            crab(190, s=1.15, mood="happy", look=1, hat="hard"),
-            crab(790, s=0.42, mood="sleepy", shade=True), crab(880, s=0.42, mood="sleepy", shade=True),
-            rect(752, 222, 168, 30, "#ffffffcc", 15), label(836, 243, "i ≥ N: no work", 16, "#27405a", font=MONO, weight=600)]
-
-
-@plate("ch16", "Profiling & Debugging", "Lens the hawk", "Lens, a hawk, perches on a fence post at dusk "
-       "with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, "
-       "kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change 1 thing.")
-def ch16():
-    lanes = [("in", "#7aa6ff", [(0, 34), (40, 74), (80, 114), (120, 154)]),
-             ("kernel", "#f5c542", [(36, 84), (86, 134), (136, 184), (186, 234)]),
-             ("out", "#8fd19e", [(86, 118), (136, 168), (186, 218), (236, 268)])]
-    board = [rect(520, 92, 380, 176, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.78"')]
-    for row, (name, colour, bars) in enumerate(lanes):
-        y = 122 + row * 46
-        board.append(label(536, y + 18, name, 15, "#c9d2dc", "start", MONO, 600))
-        board += [rect(612 + a, y, b - a - 3, 24, colour, 5) for a, b in bars]
-    board.append(line(612, 254, 884, 254, "#6f8196", 2))
-    wing = f"M366,{GROUND - 190} Q396,{GROUND - 214} 420,{GROUND - 236}"
-    return [backdrop(seed=16, **DUSK),
-            rect(330, GROUND - 92, 26, 96, WOOD, 4, "#5a3d28", 3),
-            rect(310, GROUND - 100, 66, 14, "#8a6a44", 5, "#5a3d28", 3),
-            rect(520 + 186, GROUND - 54, 10, 58, WOOD, 3, "#5a3d28", 2),
-            *board,
-            hawk(338, GROUND - 98, 0.74, look=1),
-            path(wing, "none", "#2a1d10", 17),
-            path(wing, "none", "#6e4526", 12),
-            stopwatch(440, GROUND - 256, 28, angle=130),
-            tag(710, 52, "measure, then change 1 thing", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch19", "NCCL & Multi-GPU Collective Communication", "The ring of geese", "4 geese stand in a ring on "

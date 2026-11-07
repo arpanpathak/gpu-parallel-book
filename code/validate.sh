@@ -61,12 +61,6 @@ run "ch11_fft_rand" \
 run "ch12_nvrtc" \
     bash -c 'cd ch12_nvrtc && nvcc -arch="$1" nvrtc.cu -o nvrtc -lnvrtc -lcuda && ./nvrtc' _ "$ARCH"
 
-run "ch17_systems" \
-    bash -c 'cd ch17_systems && nvcc -arch="$1" -O3 systems.cu -o systems && ./systems' _ "$ARCH"
-
-run "ch19_collectives" \
-    bash -c 'cd ch19_collectives && nvcc -arch="$1" allreduce.cu -o allreduce && ./allreduce' _ "$ARCH"
-
 run "ch15_capstone" \
     bash -c 'cd ch15_capstone && nvcc -arch="$1" pipeline.cu -o pipeline && ./pipeline 96 64 2' _ "$ARCH"
 
@@ -75,8 +69,15 @@ for prog in measure latency verify; do
     run "ch16_$prog" \
         bash -c 'cd ch16_profiling && nvcc -arch="$1" "$2.cu" -o "$2" && "./$2"' _ "$ARCH" "$prog"
 done
+
+run "ch17_systems" \
+    bash -c 'cd ch17_systems && nvcc -arch="$1" -O3 systems.cu -o systems && ./systems' _ "$ARCH"
+
 run "ch18_peer" \
     bash -c 'cd ch18_peer && nvcc -arch="$1" peer.cu -o peer && ./peer' _ "$ARCH"
+
+run "ch19_collectives" \
+    bash -c 'cd ch19_collectives && nvcc -arch="$1" allreduce.cu -o allreduce && ./allreduce' _ "$ARCH"
 
 # --- Rust examples (optional toolchains) -------------------------------------
 if command -v cargo >/dev/null 2>&1; then
