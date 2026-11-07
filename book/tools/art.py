@@ -1487,26 +1487,45 @@ def abacus(x, y, w, rows, frame="#8a5a32"):
     return "\n".join(parts)
 
 
-@plate("ch21", "Scan and Histogram in Rust", "Tally the crab", "Tally, a crab, stands on the sand in front "
-       "of a row of 8 numbered pebbles, 3, 8, 1, 9, 4, 7, 2, 6. Below the row stand 2 crates, marked x < 5 and "
-       "x >= 5, with a count chalked on each: 4 and 4. Tally holds the pebble 9 in one claw, on its way to the "
-       "second crate. A tag reads count, scan, then place: a histogram and a scan decide where every item goes.")
+@plate("ch21", "Scan and Stream Compaction", "Tally the crab", "Tally, a crab, stands on the sand in front "
+       "of a row of 8 numbered pebbles, 3, 1, 7, 0, 4, 1, 6, 3. Under each pebble a running total is chalked on "
+       "the sand: 3, 4, 11, 11, 15, 16, 22, 25. Tally holds a ninth pebble, the total 25, in one claw. A tag "
+       "reads each total adds the one before it: a scan.")
 def ch21():
-    keys = ["3", "8", "1", "9", "4", "7", "2", "6"]
-    row = [cell(330 + 52 * k, 112, keys[k], "#c8f0d0" if int(keys[k]) >= 5 else "#e6e0d2") for k in range(8)]
-    bins = []
-    for k, (name, fill) in enumerate((("x < 5", "#c9a46a"), ("x >= 5", "#a8c98a"))):
-        x = 420 + 210 * k
-        bins += [plain_crate(x, GROUND - 92, 150, 92, fill),
-                 tag(x + 75, GROUND - 112, name, 16, "#fff6e2", "#2a1a10", MONO, 700),
-                 tag(x + 75, GROUND - 46, "4", 18, "#ffffffdd", "#27405a", MONO, 700)]
+    values = [3, 1, 7, 0, 4, 1, 6, 3]
+    totals = [3, 4, 11, 11, 15, 16, 22, 25]
+    row = [cell(330 + 70 * k, 120, str(v), "#e6e0d2") for k, v in enumerate(values)]
+    chalk = [cell(330 + 70 * k, 222, str(t), "#c8f0d0", size=46, font_size=19) for k, t in enumerate(totals)]
+    arrows = [line(330 + 70 * k, 140, 330 + 70 * k, 194, "#fff6e2", 2.5, 'opacity="0.8"') for k in range(8)]
+    links = [line(330 + 70 * k + 25, 222, 330 + 70 * (k + 1) - 25, 222, "#fff6e2", 3, 'opacity="0.8"')
+             for k in range(7)]
     return [backdrop(seed=19, **SAND),
-            rect(300, 84, 436, 56, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'),
-            *row,
-            *bins,
-            crab(200, s=1.05, mood="happy", look=1),
-            cell(286, GROUND - 128, "9", "#c8f0d0"),
-            tag(518, 52, "count, scan, then place", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+            rect(298, 92, 544, 56, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'),
+            *row, *arrows, *links, *chalk,
+            crab(170, s=1.05, mood="happy", look=1),
+            cell(256, GROUND - 128, "25", "#c8f0d0", size=46, font_size=19),
+            tag(575, 52, "each total adds the one before it", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch22", "Radix Sort and Histograms", "Bins the crab", "Bins, a crab, stands on the sand beside 4 "
+       "crates labelled with the 2-bit digits 00, 01, 10 and 11. Chalked on each crate is the number of keys "
+       "with that digit, 1, 2, 3 and 2, and above each crate the place where its first key goes, 0, 1, 3 "
+       "and 6. Bins holds up a pebble marked 5, binary 101, on its way to crate 01. A tag reads count, scan, then "
+       "place.")
+def ch22():
+    parts = [backdrop(seed=22, **SAND)]
+    digits, counts, starts = ["00", "01", "10", "11"], [1, 2, 3, 2], [0, 1, 3, 6]
+    for k in range(4):
+        x = 330 + 150 * k
+        parts += [plain_crate(x, GROUND - 100, 120, 100, ("#c9a46a", "#b9c98a", "#a8c0d8", "#d8b0a0")[k]),
+                  tag(x + 60, GROUND - 120, digits[k], 17, "#fff6e2", "#2a1a10", MONO, 700),
+                  tag(x + 60, GROUND - 50, f"{counts[k]} key" + ("s" if counts[k] > 1 else ""), 15, "#ffffffdd", "#27405a", SANS, 700),
+                  tag(x + 60, 112, f"start {starts[k]}", 15, "#0f1c2bcc", "#fff6e2", MONO, 700)]
+    parts += [crab(175, s=1.05, mood="cute", look=1),
+              cell(276, GROUND - 150, "5", "#c8f0d0", size=40, font_size=19),
+              label(304, GROUND - 145, "101", 15, "#fff6e2", anchor="start", font=MONO),
+              tag(575, 52, "count, scan, then place", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+    return parts
 
 
 @plate("ch23", "Softmax and Layer Normalization", "Lumen the crab", "Lumen, a crab, stands on a beach at dusk "
