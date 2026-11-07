@@ -879,7 +879,7 @@ and how large is the table for 16,777,216 keys?<br>
 ### 22.10.1 Platform and method
 
 The measurements come from a Jetson Orin NX 16 GB, an integrated GPU with 8 SMs (sm_87) and 102
-GB/s of memory bandwidth; both programs also pass on a Jetson AGX Thor (20 SMs, sm_110). The
+GB/s of memory bandwidth. The
 histograms count the low 4 bits of 16,777,216 keys of 4 bytes, 64 MiB, with 1,024 blocks of 256
 threads, on random keys and on keys that are all 7; each time is the average of 20 runs after 0.4
 s of warm-up. The sorts take 16,777,216 random keys of 32 bits, and each time is the best of 3
@@ -926,7 +926,7 @@ only to 5.19 billion per second.
 
 <figure>
 <img src="../../figures/ch22-hist-measured.svg" alt="Measured histogram times. random keys: global 3.23 ms, shared 1.02 ms, aggregated 1.91 ms; all 7 keys: global 15.15 ms, shared 1.01 ms, aggregated 1.31 ms.">
-<figcaption><b>Figure 22.10</b> Histograms of 16,777,216 keys into 16 bins on the Orin NX.</figcaption>
+<figcaption><b>Figure 22.10</b> Histograms of 16,777,216 keys into 16 bins on the measured GPU.</figcaption>
 </figure>
 
 With private bins the 2 inputs took the same time, 1.02 and 1.01 ms, and both read the keys at 66

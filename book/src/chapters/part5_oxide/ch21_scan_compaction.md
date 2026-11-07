@@ -1146,7 +1146,7 @@ must change in `scan_tiles`?
 ### 21.11.1 Platform and method
 
 The measurements come from a Jetson Orin NX 16 GB, an integrated GPU with 8 SMs (sm_87) and 102
-GB/s of memory bandwidth; both programs also pass on a Jetson AGX Thor (20 SMs, sm_110). The
+GB/s of memory bandwidth. The
 programs scan 16,777,216 values of 4 bytes, 64 MiB, in \\([0, 4)\\), and compact 16,777,216
 values in \\([0, 100)\\) at 3 thresholds. Every result is compared value by value with the CPU.
 Each time is the average of 20 runs after 0.4 s of warm-up; between runs of the same program,
@@ -1182,7 +1182,7 @@ them. Figure 21.15 draws the C++ times.
 
 <figure>
 <img src="../../figures/ch21-measured.svg" alt="Measured times. Scans of 16,777,216 values, tiles only and whole: Hillis-Steele 5.54 ms and 7.12 ms; Blelloch 4.72 ms and 6.33 ms; warp shuffles 1.75 ms and 3.40 ms. Compaction with 50 % kept: 3 passes 8.05 ms, warp votes 2.41 ms.">
-<figcaption><b>Figure 21.15</b> Measured scans and compaction of 16,777,216 values on the Orin NX.</figcaption>
+<figcaption><b>Figure 21.15</b> Measured scans and compaction of 16,777,216 values on the measured GPU.</figcaption>
 </figure>
 
 ### 21.11.3 Why the work-efficient scan is not 4.5 times faster
@@ -1207,7 +1207,7 @@ run in the meantime.
 number of its threads, or warps, that an SM holds at the same time, often given as a fraction of
 the most the SM can hold.
 
-*Example.* An SM of the Orin NX holds at most 1,536 threads. A block of 1,024 threads leaves room
+*Example.* An SM of the measured GPU holds at most 1,536 threads. A block of 1,024 threads leaves room
 for no second block: 1 block per SM, 2/3 of the maximum.
 
 </div>
