@@ -79,6 +79,16 @@ run "ch18_peer" \
 run "ch19_collectives" \
     bash -c 'cd ch19_collectives && nvcc -arch="$1" allreduce.cu -o allreduce && ./allreduce' _ "$ARCH"
 
+# --- Part V, CUDA C++ (code/cuda): each file states its build line ----------
+for src in cuda/ch*/*.cu; do
+    dir=$(dirname "$src")
+    build=$(sed -n 's|^// Build: ||p' "$src" | head -n 1)
+    build=${build//-arch=native/-arch=$ARCH}
+    bin=${build##* -o }
+
+    run "$dir" bash -c 'cd "$1" && $2 && "./$3"' _ "$dir" "$build" "$bin"
+done
+
 # --- Rust examples (optional toolchains) -------------------------------------
 if command -v cargo >/dev/null 2>&1; then
     run "ch13_rust_vector_add" \
@@ -92,8 +102,16 @@ if command -v cargo-oxide >/dev/null 2>&1; then
         bash -c 'cd ch14_cuda_oxide && cargo oxide run host_closure'
     run "oxide/ch19_collectives" \
         bash -c 'cd oxide/ch19_collectives && cargo oxide run'
+
+    for crate in oxide/ch1[4-9]_* oxide/ch2[0-4]_*; do
+        case "$crate" in
+            oxide/ch16_latency|oxide/ch17_systems|oxide/ch18_peer|oxide/ch19_collectives) continue ;;
+        esac
+
+        run "$crate" bash -c 'cd "$1" && cargo oxide run' _ "$crate"
+    done
 else
-    echo "SKIP ch14_cuda_oxide, oxide/ch19_collectives (cargo-oxide not found)"
+    echo "SKIP ch14_cuda_oxide and the oxide/ crates (cargo-oxide not found)"
 fi
 
 echo
