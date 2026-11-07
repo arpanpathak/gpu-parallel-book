@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 528" width="660" height="528" role="img" aria-label="Eight columns, ranks 0 to 7, and 6 rows of arrows. Reduce: in step 1 ranks 1, 3, 5 and 7 send to 0, 2, 4 and 6; in step 2 ranks 2 and 6 send to 0 and 4; in step 3 rank 4 sends to 0. Broadcast mirrors it: rank 0 sends to 4, then 0 and 4 send to 2 and 6, then 0, 2, 4 and 6 send to 1, 3, 5 and 7. 6 steps; rank 0 sends and receives the whole message 3 times.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="528" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Tree all-reduce for 8 ranks</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Sums climb a binary tree to rank 0, then the total comes back down.</text>
+  <rect x="38.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="64.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 0</text>
+  <rect x="110.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="136.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 1</text>
+  <rect x="182.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="208.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 2</text>
+  <rect x="254.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="280.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 3</text>
+  <rect x="326.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="352.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 4</text>
+  <rect x="398.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="424.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 5</text>
+  <rect x="470.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="496.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 6</text>
+  <rect x="542.0" y="108.0" width="52.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="568.0" y="124.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">rank 7</text>
+  <text x="18.0" y="164.0" class="sub" text-anchor="start" xml:space="preserve">step 1</text>
+  <line x1="64.0" y1="146.0" x2="64.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="136.0" y1="146.0" x2="136.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="208.0" y1="146.0" x2="208.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="280.0" y1="146.0" x2="280.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="352.0" y1="146.0" x2="352.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="424.0" y1="146.0" x2="424.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="496.0" y1="146.0" x2="496.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="568.0" y1="146.0" x2="568.0" y2="174.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="136" cy="160" r="5" fill="#2F6FDB"/>
+  <path d="M136,160 H75" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="64" cy="160" r="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="2"/>
+  <circle cx="280" cy="160" r="5" fill="#2F6FDB"/>
+  <path d="M280,160 H219" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="208" cy="160" r="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="2"/>
+  <circle cx="424" cy="160" r="5" fill="#2F6FDB"/>
+  <path d="M424,160 H363" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="352" cy="160" r="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="2"/>
+  <circle cx="568" cy="160" r="5" fill="#2F6FDB"/>
+  <path d="M568,160 H507" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="496" cy="160" r="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="2"/>
+  <text x="18.0" y="208.0" class="sub" text-anchor="start" xml:space="preserve">step 2</text>
+  <line x1="64.0" y1="190.0" x2="64.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="136.0" y1="190.0" x2="136.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="208.0" y1="190.0" x2="208.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="280.0" y1="190.0" x2="280.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="352.0" y1="190.0" x2="352.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="424.0" y1="190.0" x2="424.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="496.0" y1="190.0" x2="496.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="568.0" y1="190.0" x2="568.0" y2="218.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="208" cy="204" r="5" fill="#2F6FDB"/>
+  <path d="M208,204 H75" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="64" cy="204" r="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="2"/>
+  <circle cx="496" cy="204" r="5" fill="#2F6FDB"/>
+  <path d="M496,204 H363" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="352" cy="204" r="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="2"/>
+  <text x="18.0" y="252.0" class="sub" text-anchor="start" xml:space="preserve">step 3</text>
+  <line x1="64.0" y1="234.0" x2="64.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="136.0" y1="234.0" x2="136.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="208.0" y1="234.0" x2="208.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="280.0" y1="234.0" x2="280.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="352.0" y1="234.0" x2="352.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="424.0" y1="234.0" x2="424.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="496.0" y1="234.0" x2="496.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="568.0" y1="234.0" x2="568.0" y2="262.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="352" cy="248" r="5" fill="#2F6FDB"/>
+  <path d="M352,248 H75" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="64" cy="248" r="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="2"/>
+  <text x="18.0" y="314.0" class="sub" text-anchor="start" xml:space="preserve">step 4</text>
+  <line x1="64.0" y1="296.0" x2="64.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="136.0" y1="296.0" x2="136.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="208.0" y1="296.0" x2="208.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="280.0" y1="296.0" x2="280.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="352.0" y1="296.0" x2="352.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="424.0" y1="296.0" x2="424.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="496.0" y1="296.0" x2="496.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="568.0" y1="296.0" x2="568.0" y2="324.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="64" cy="310" r="5" fill="#2E8B3D"/>
+  <path d="M64,310 H341" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="352" cy="310" r="7" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="18.0" y="358.0" class="sub" text-anchor="start" xml:space="preserve">step 5</text>
+  <line x1="64.0" y1="340.0" x2="64.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="136.0" y1="340.0" x2="136.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="208.0" y1="340.0" x2="208.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="280.0" y1="340.0" x2="280.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="352.0" y1="340.0" x2="352.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="424.0" y1="340.0" x2="424.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="496.0" y1="340.0" x2="496.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="568.0" y1="340.0" x2="568.0" y2="368.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="64" cy="354" r="5" fill="#2E8B3D"/>
+  <path d="M64,354 H197" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="208" cy="354" r="7" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="2"/>
+  <circle cx="352" cy="354" r="5" fill="#2E8B3D"/>
+  <path d="M352,354 H485" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="496" cy="354" r="7" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="18.0" y="402.0" class="sub" text-anchor="start" xml:space="preserve">step 6</text>
+  <line x1="64.0" y1="384.0" x2="64.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="136.0" y1="384.0" x2="136.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="208.0" y1="384.0" x2="208.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="280.0" y1="384.0" x2="280.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="352.0" y1="384.0" x2="352.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="424.0" y1="384.0" x2="424.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="496.0" y1="384.0" x2="496.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="568.0" y1="384.0" x2="568.0" y2="412.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="64" cy="398" r="5" fill="#2E8B3D"/>
+  <path d="M64,398 H125" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="136" cy="398" r="7" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="2"/>
+  <circle cx="208" cy="398" r="5" fill="#2E8B3D"/>
+  <path d="M208,398 H269" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="280" cy="398" r="7" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="2"/>
+  <circle cx="352" cy="398" r="5" fill="#2E8B3D"/>
+  <path d="M352,398 H413" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="424" cy="398" r="7" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="2"/>
+  <circle cx="496" cy="398" r="5" fill="#2E8B3D"/>
+  <path d="M496,398 H557" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <circle cx="568" cy="398" r="7" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="2"/>
+  <text x="600.0" y="156.0" class="sub" text-anchor="start" xml:space="preserve"></text>
+  <path d="M16,278 H644" fill="none" stroke="#D5DBE3" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <rect x="20.0" y="134" width="205.4" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="122.7" y="146.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">reduce: add the whole message</text>
+  <rect x="20.0" y="284" width="212.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="126.0" y="296.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">broadcast: copy the total down</text>
+  <text x="16.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">Each arrow moves the whole message, m bytes. 8 = 2³ ranks need log₂ 8 = 3 steps up and 3</text>
+  <text x="16.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">down: 6 steps against the ring&#x27;s 14. Rank 0 receives 3 messages and sends 3, so its link</text>
+  <text x="16.0" y="506.0" class="note" text-anchor="start" xml:space="preserve">carries 3m each way against 1.75m in a ring of 8.</text>
+</svg>

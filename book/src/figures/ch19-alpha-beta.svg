@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 524" width="660" height="524" role="img" aria-label="A log-log chart of time against message size from 1 KB to 1 GB for an all-reduce over 8 ranks with alpha = 10 microseconds and B = 25 GB/s. The tree line starts lower, at 60 microseconds for small messages, against 140 for the ring. The lines cross at 470 KB and 0.17 ms. For large messages the ring is lower, 1.75 m / B against 6 m / B for the tree.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="524" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Latency or bandwidth</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Time of 1 all-reduce over 8 ranks, from the model T = steps × α + bytes ÷ B.</text>
+  <rect x="96" y="120" width="500" height="300" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <line x1="96.0" y1="120.0" x2="96.0" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="96.0" y="438.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 KB</text>
+  <line x1="179.3" y1="120.0" x2="179.3" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="179.3" y="438.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10 KB</text>
+  <line x1="262.7" y1="120.0" x2="262.7" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="262.7" y="438.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">100 KB</text>
+  <line x1="346.0" y1="120.0" x2="346.0" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="346.0" y="438.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 MB</text>
+  <line x1="429.3" y1="120.0" x2="429.3" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="429.3" y="438.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10 MB</text>
+  <line x1="512.7" y1="120.0" x2="512.7" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="512.7" y="438.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">100 MB</text>
+  <line x1="596.0" y1="120.0" x2="596.0" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="596.0" y="438.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 GB</text>
+  <line x1="96.0" y1="420.0" x2="596.0" y2="420.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="424.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10 µs</text>
+  <line x1="96.0" y1="360.0" x2="596.0" y2="360.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="364.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">100 µs</text>
+  <line x1="96.0" y1="300.0" x2="596.0" y2="300.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="304.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1 ms</text>
+  <line x1="96.0" y1="240.0" x2="596.0" y2="240.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="244.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10 ms</text>
+  <line x1="96.0" y1="180.0" x2="596.0" y2="180.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="184.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">100 ms</text>
+  <line x1="96.0" y1="120.0" x2="596.0" y2="120.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="124.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1 s</text>
+  <path d="M96.0,351.2 L100.2,351.2 L104.3,351.2 L108.5,351.2 L112.7,351.2 L116.8,351.2 L121.0,351.2 L125.2,351.2 L129.3,351.2 L133.5,351.2 L137.7,351.2 L141.8,351.2 L146.0,351.2 L150.2,351.2 L154.3,351.2 L158.5,351.2 L162.7,351.2 L166.8,351.1 L171.0,351.1 L175.2,351.1 L179.3,351.1 L183.5,351.1 L187.7,351.1 L191.8,351.0 L196.0,351.0 L200.2,351.0 L204.3,351.0 L208.5,350.9 L212.7,350.9 L216.8,350.9 L221.0,350.8 L225.2,350.8 L229.3,350.7 L233.5,350.7 L237.7,350.6 L241.8,350.5 L246.0,350.4 L250.2,350.3 L254.3,350.2 L258.5,350.1 L262.7,350.0 L266.8,349.8 L271.0,349.6 L275.2,349.5 L279.3,349.2 L283.5,349.0 L287.7,348.8 L291.8,348.5 L296.0,348.1 L300.2,347.8 L304.3,347.4 L308.5,347.0 L312.7,346.5 L316.8,346.0 L321.0,345.4 L325.2,344.8 L329.3,344.1 L333.5,343.3 L337.7,342.5 L341.8,341.6 L346.0,340.7 L350.2,339.6 L354.3,338.5 L358.5,337.3 L362.7,336.0 L366.8,334.7 L371.0,333.2 L375.2,331.7 L379.3,330.0 L383.5,328.3 L387.7,326.5 L391.8,324.6 L396.0,322.7 L400.2,320.7 L404.3,318.5 L408.5,316.4 L412.7,314.1 L416.8,311.8 L421.0,309.4 L425.2,307.0 L429.3,304.5 L433.5,302.0 L437.7,299.5 L441.8,296.8 L446.0,294.2 L450.2,291.5 L454.3,288.8 L458.5,286.1 L462.7,283.3 L466.8,280.5 L471.0,277.7 L475.2,274.9 L479.3,272.0 L483.5,269.2 L487.7,266.3 L491.8,263.4 L496.0,260.5 L500.2,257.6 L504.3,254.6 L508.5,251.7 L512.7,248.8 L516.8,245.8 L521.0,242.9 L525.2,239.9 L529.3,237.0 L533.5,234.0 L537.7,231.0 L541.8,228.1 L546.0,225.1 L550.2,222.1 L554.3,219.1 L558.5,216.1 L562.7,213.2 L566.8,210.2 L571.0,207.2 L575.2,204.2 L579.3,201.2 L583.5,198.2 L587.7,195.2 L591.8,192.2 L596.0,189.2" fill="none" stroke="#2F6FDB" stroke-width="2.6"/>
+  <path d="M96.0,373.2 L100.2,373.2 L104.3,373.2 L108.5,373.2 L112.7,373.1 L116.8,373.1 L121.0,373.1 L125.2,373.1 L129.3,373.1 L133.5,373.0 L137.7,373.0 L141.8,372.9 L146.0,372.9 L150.2,372.8 L154.3,372.8 L158.5,372.7 L162.7,372.7 L166.8,372.6 L171.0,372.5 L175.2,372.4 L179.3,372.3 L183.5,372.2 L187.7,372.0 L191.8,371.9 L196.0,371.7 L200.2,371.5 L204.3,371.3 L208.5,371.1 L212.7,370.8 L216.8,370.5 L221.0,370.2 L225.2,369.9 L229.3,369.5 L233.5,369.0 L237.7,368.5 L241.8,368.0 L246.0,367.4 L250.2,366.8 L254.3,366.1 L258.5,365.4 L262.7,364.5 L266.8,363.7 L271.0,362.7 L275.2,361.6 L279.3,360.5 L283.5,359.3 L287.7,358.0 L291.8,356.6 L296.0,355.2 L300.2,353.6 L304.3,352.0 L308.5,350.3 L312.7,348.5 L316.8,346.6 L321.0,344.6 L325.2,342.6 L329.3,340.5 L333.5,338.3 L337.7,336.1 L341.8,333.7 L346.0,331.4 L350.2,328.9 L354.3,326.5 L358.5,323.9 L362.7,321.4 L366.8,318.8 L371.0,316.1 L375.2,313.4 L379.3,310.7 L383.5,308.0 L387.7,305.2 L391.8,302.4 L396.0,299.6 L400.2,296.8 L404.3,293.9 L408.5,291.1 L412.7,288.2 L416.8,285.3 L421.0,282.4 L425.2,279.5 L429.3,276.5 L433.5,273.6 L437.7,270.7 L441.8,267.7 L446.0,264.8 L450.2,261.8 L454.3,258.9 L458.5,255.9 L462.7,252.9 L466.8,250.0 L471.0,247.0 L475.2,244.0 L479.3,241.0 L483.5,238.0 L487.7,235.1 L491.8,232.1 L496.0,229.1 L500.2,226.1 L504.3,223.1 L508.5,220.1 L512.7,217.1 L516.8,214.1 L521.0,211.1 L525.2,208.1 L529.3,205.1 L533.5,202.2 L537.7,199.2 L541.8,196.2 L546.0,193.2 L550.2,190.2 L554.3,187.2 L558.5,184.2 L562.7,181.2 L566.8,178.2 L571.0,175.2 L575.2,172.2 L579.3,169.2 L583.5,166.2 L587.7,163.2 L591.8,160.2 L596.0,157.2" fill="none" stroke="#B7791F" stroke-width="2.6"/>
+  <circle cx="318.7" cy="345.7" r="5" fill="#FFFFFF" stroke="#1B2430" stroke-width="2"/>
+  <line x1="318.7" y1="351.7" x2="318.7" y2="420.0" stroke="#1B2430" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="328.7" y="355.72609545796695" width="185.6" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="421.5" y="368.3" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">crossover: 470 KB, 0.17 ms</text>
+  <rect x="110.0" y="380.89730250010734" width="99.8" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="159.9" y="393.5" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">tree: 6 steps</text>
+  <rect x="110.0" y="325.18025456743214" width="106.4" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="163.2" y="337.8" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">ring: 14 steps</text>
+  <rect x="355.2" y="246.8018238442624" width="93.2" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="401.8" y="259.4" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">tree: 6m / B</text>
+  <rect x="477.1" y="288.98511889995024" width="113.0" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="533.6" y="301.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">ring: 1.75m / B</text>
+  <text x="346.0" y="460.0" class="sub" text-anchor="middle" xml:space="preserve">message size m</text>
+  <text x="36.0" y="108.0" class="sub" text-anchor="start" xml:space="preserve">time</text>
+  <text x="16.0" y="484.0" class="note" text-anchor="start" xml:space="preserve">k = 8 ranks, α = 10 µs per message, B = 25 GB/s per link. Below 470 KB the tree&#x27;s 6 steps</text>
+  <text x="16.0" y="502.0" class="note" text-anchor="start" xml:space="preserve">beat the ring&#x27;s 14; above it the ring&#x27;s 1.75m of traffic per link beats the tree&#x27;s 6m.</text>
+</svg>
