@@ -22,6 +22,12 @@ __pycache__/
 /code/ch11_libraries/gemm
 /code/ch11_libraries/fft_rand
 /code/ch12_nvrtc/nvrtc
+/code/ch19_collectives/allreduce
+/code/ch10_device_buffer/test
+/code/ch11_library_examples/thrust_example
+/code/ch11_library_examples/cub_reduce
+/code/ch11_library_examples/cublas_sgemm
+/code/ch12_nvrtc/nvrtc_example
 /code/ch15_capstone/pipeline
 /code/ch16_profiling/bugs
 /code/ch16_profiling/bugs_debug

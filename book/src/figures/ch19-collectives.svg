@@ -1,0 +1,376 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 610" width="660" height="610" role="img" aria-label="Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds 1 0 2 1, and afterwards every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 1, and afterwards rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends with all 4, 4 6 7 5.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="610" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The 5 collectives</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4 ranks, 4 numbers each: what every rank holds before and after.</text>
+  <rect x="36" y="94" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="57.0" y="105.5" class="note" text-anchor="start" xml:space="preserve">input</text>
+  <rect x="112.0" y="94" width="14" height="14" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="133.0" y="105.5" class="note" text-anchor="start" xml:space="preserve">result</text>
+  <rect x="194.6" y="94" width="14" height="14" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="215.6" y="105.5" class="note" text-anchor="start" xml:space="preserve">unchanged</text>
+  <rect x="16" y="128" width="306" height="148" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="32.0" y="152.0" class="name" text-anchor="start" xml:space="preserve">broadcast</text>
+  <text x="32.0" y="169.0" class="sub" text-anchor="start" xml:space="preserve">root = rank 0</text>
+  <text x="32.0" y="196.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 0</text>
+  <rect x="86.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="94.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="222.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <rect x="105.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="113.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="241.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="124.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="132.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="260.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
+  <rect x="143.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="151.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="279.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <text x="32.0" y="218.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 1</text>
+  <rect x="86.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="222.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <rect x="105.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="241.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="124.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="260.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
+  <rect x="143.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="279.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <text x="32.0" y="240.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 2</text>
+  <rect x="86.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="222.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <rect x="105.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="241.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="124.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="260.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
+  <rect x="143.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="279.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <text x="32.0" y="262.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 3</text>
+  <rect x="86.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="222.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <rect x="105.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="241.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
+  <rect x="124.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="260.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
+  <rect x="143.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="279.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
+  <path d="M176,226 H211" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="338" y="128" width="306" height="148" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="354.0" y="152.0" class="name" text-anchor="start" xml:space="preserve">reduce</text>
+  <text x="354.0" y="169.0" class="sub" text-anchor="start" xml:space="preserve">root = rank 0, sum</text>
+  <text x="354.0" y="196.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 0</text>
+  <rect x="408.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="544.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="552.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="427.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="563.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="571.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="446.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="582.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="590.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="465.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="601.0" y="182.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="609.0" y="194.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <text x="354.0" y="218.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 1</text>
+  <rect x="408.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="544.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="552.0" y="216.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">2</text>
+  <rect x="427.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="563.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="571.0" y="216.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">1</text>
+  <rect x="446.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="582.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="590.0" y="216.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
+  <rect x="465.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="216.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="601.0" y="204.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="609.0" y="216.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
+  <text x="354.0" y="240.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 2</text>
+  <rect x="408.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="544.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="552.0" y="238.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
+  <rect x="427.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="563.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="571.0" y="238.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
+  <rect x="446.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="582.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="590.0" y="238.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">1</text>
+  <rect x="465.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="238.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="601.0" y="226.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="609.0" y="238.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
+  <text x="354.0" y="262.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 3</text>
+  <rect x="408.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="544.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="552.0" y="260.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">1</text>
+  <rect x="427.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="563.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="571.0" y="260.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">2</text>
+  <rect x="446.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
+  <rect x="582.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="590.0" y="260.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
+  <rect x="465.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="260.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="601.0" y="248.0" width="16.0" height="16.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <text x="609.0" y="260.0" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">1</text>
+  <path d="M498,226 H533" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="16" y="290" width="306" height="148" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="32.0" y="314.0" class="name" text-anchor="start" xml:space="preserve">all-reduce</text>
+  <text x="32.0" y="331.0" class="sub" text-anchor="start" xml:space="preserve">sum, everywhere</text>
+  <text x="32.0" y="358.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 0</text>
+  <rect x="86.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="94.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="222.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="113.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="241.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="132.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="260.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="151.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="279.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <text x="32.0" y="380.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 1</text>
+  <rect x="86.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="94.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="222.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="113.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="241.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="132.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="260.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="151.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="279.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <text x="32.0" y="402.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 2</text>
+  <rect x="86.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="94.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="222.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="113.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="241.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="132.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="260.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="151.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="279.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <text x="32.0" y="424.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 3</text>
+  <rect x="86.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="94.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="222.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="113.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="241.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="132.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
+  <rect x="260.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="151.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="279.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <path d="M176,388 H211" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="338" y="290" width="306" height="148" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="354.0" y="314.0" class="name" text-anchor="start" xml:space="preserve">reduce-scatter</text>
+  <text x="354.0" y="331.0" class="sub" text-anchor="start" xml:space="preserve">rank r keeps piece r of the sum</text>
+  <text x="354.0" y="358.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 0</text>
+  <rect x="408.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="544.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="552.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="427.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="563.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="446.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="582.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="465.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="356.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="601.0" y="344.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="354.0" y="380.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 1</text>
+  <rect x="408.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="544.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="427.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="563.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="571.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="446.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="582.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="465.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="378.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="601.0" y="366.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="354.0" y="402.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 2</text>
+  <rect x="408.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="544.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="427.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
+  <rect x="563.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="446.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="582.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="590.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="465.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="400.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="601.0" y="388.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="354.0" y="424.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 3</text>
+  <rect x="408.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="416.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="544.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="427.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="435.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2</text>
+  <rect x="563.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="446.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="454.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
+  <rect x="582.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="465.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="473.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <rect x="601.0" y="410.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="609.0" y="422.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <path d="M498,388 H533" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="16" y="452" width="306" height="148" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2" filter="url(#lift)"/>
+  <text x="32.0" y="476.0" class="name" text-anchor="start" xml:space="preserve">all-gather</text>
+  <text x="32.0" y="493.0" class="sub" text-anchor="start" xml:space="preserve">every rank gets every piece</text>
+  <text x="32.0" y="520.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 0</text>
+  <rect x="86.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="94.0" y="518.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
+  <rect x="222.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="518.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="241.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="518.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="260.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="518.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="279.0" y="506.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="518.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <text x="32.0" y="542.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 1</text>
+  <rect x="86.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="222.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="540.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="113.0" y="540.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">6</text>
+  <rect x="241.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="540.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="260.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="540.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="279.0" y="528.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="540.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <text x="32.0" y="564.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 2</text>
+  <rect x="86.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="222.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="562.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="241.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="562.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="132.0" y="562.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">7</text>
+  <rect x="260.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="562.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="279.0" y="550.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="562.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <text x="32.0" y="586.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">rank 3</text>
+  <rect x="86.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="222.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="230.0" y="584.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">4</text>
+  <rect x="105.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="241.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="249.0" y="584.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
+  <rect x="124.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect x="260.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="268.0" y="584.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">7</text>
+  <rect x="143.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="151.0" y="584.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">5</text>
+  <rect x="279.0" y="572.0" width="16.0" height="16.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="287.0" y="584.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">5</text>
+  <path d="M176,550 H211" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="354.0" y="486.0" class="note" text-anchor="start" xml:space="preserve">4 ranks hold 4 numbers each.</text>
+  <text x="354.0" y="504.0" class="note" text-anchor="start" xml:space="preserve">The sum of the 4 inputs is 4, 6, 7, 5.</text>
+  <text x="354.0" y="522.0" class="note" text-anchor="start" xml:space="preserve">All-reduce = reduce-scatter, then</text>
+  <text x="354.0" y="540.0" class="note" text-anchor="start" xml:space="preserve">all-gather: 2 rows of this figure.</text>
+</svg>

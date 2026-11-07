@@ -781,6 +781,34 @@ def gpu_chip(cx, cy, name, w=74, h=50):
     ])
 
 
+def goose(cx, base, s=1.0, look=1, parcel=None):
+    """A standing goose facing `look`, its feet at `base`, holding a numbered parcel in its beak
+    when `parcel` is given. 1.0 is 190 units tall."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    white, grey, wing, beak, ink = "#f7f5ef", "#d9dde3", "#b9c1cc", "#f29a2e", "#2a2418"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    neck = f"M{X(30)},{Y(78)} Q{X(52)},{Y(118)} {X(40)},{Y(150)}"
+    parts = [
+        shadow(cx, base, 58 * s),
+        line(X(-8), Y(0), X(-6), Y(42), beak, 5 * s), line(X(14), Y(0), X(12), Y(42), beak, 5 * s),
+        path(f"M{X(-20)},{Y(0)} L{X(4)},{Y(0)} L{X(-6)},{Y(8)} Z", beak, ink, 1.6 * s),
+        path(f"M{X(2)},{Y(0)} L{X(26)},{Y(0)} L{X(14)},{Y(8)} Z", beak, ink, 1.6 * s),
+        path(f"M{X(-50)},{Y(70)} L{X(-86)},{Y(92)} L{X(-58)},{Y(56)} Z", grey, ink, 2.2 * s),
+        ellipse(cx, Y(64), 58 * s, 34 * s, white, stroke),
+        path(f"M{X(-44)},{Y(74)} Q{X(-6)},{Y(104)} {X(34)},{Y(70)} Q{X(-4)},{Y(52)} {X(-44)},{Y(74)} Z", wing, ink, 2.2 * s),
+        path(neck, "none", ink, 21 * s),
+        path(neck, "none", white, 16 * s),
+        circle(X(38), Y(158), 19 * s, white, stroke),
+        path(f"M{X(52)},{Y(164)} L{X(84)},{Y(156)} L{X(52)},{Y(150)} Z", beak, ink, 2 * s),
+        eye(X(42), Y(164), 5 * s, look * 0.6),
+    ]
+    if parcel:
+        parts.append(cell(X(84) + f * 18, Y(157), parcel, "#f7d9a0", NIGHT, 36, 17))
+    return "".join(parts)
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -1266,6 +1294,30 @@ def ch16():
             path(wing, "none", "#6e4526", 12),
             stopwatch(440, GROUND - 256, 28, angle=130),
             tag(710, 52, "measure, then change 1 thing", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch19", "NCCL & Multi-GPU Collective Communication", "The ring of geese", "4 geese stand in a ring on "
+       "a meadow at dusk, each one a GPU of a ring all-reduce. A dashed path with arrows joins them in a circle. Each "
+       "goose holds a parcel in its beak and faces the next goose, to which it hands its parcel. Around the ring from rank 0 the "
+       "parcels read 1, 3, 6 and 10: a partial sum that grows as it travels. A tag says pass a chunk on, add your own, pass it on.")
+def ch19():
+    cx, cy, rx, ry = 480, 238, 300, 54
+    ring_path = f"M{cx - rx},{cy} A{rx},{ry} 0 1 0 {cx + rx},{cy} A{rx},{ry} 0 1 0 {cx - rx},{cy}"
+    arrows = []
+    for x, y, turn in ((cx, cy + ry, 0), (cx + rx, cy, -90), (cx, cy - ry, 180), (cx - rx, cy, 90)):
+        arrows.append(path(f"M{x - 9},{y - 7} L{x + 7},{y} L{x - 9},{y + 7}", "none", SNOW, 3,
+                           f'opacity="0.85" {rot(turn, x, y)}'))
+    note = lambda x, y, body: tag(x, y, body, 14, "#fff6e2", "#2a1a10", MONO, 700, 10)
+    return [backdrop(seed=19, **DUSK),
+            path(ring_path, "none", SNOW, 3, 'stroke-dasharray="10 9" opacity="0.7"'),
+            *arrows,
+            goose(cx + 30, cy - ry + 12, 0.5, look=-1, parcel="6"),
+            goose(cx - rx + 70, cy + 18, 0.62, look=1, parcel="10"),
+            goose(cx + rx - 70, cy + 18, 0.62, look=-1, parcel="3"),
+            goose(cx - 120, cy + ry + 40, 0.66, look=1, parcel="1"),
+            note(cx + 30, cy - ry + 30, "rank 2"), note(cx - rx + 70, cy + 44, "rank 3"),
+            note(cx + rx - 70, cy + 44, "rank 1"), note(cx + 40, cy + ry + 30, "rank 0"),
+            tag(480, 50, "pass a chunk on, add your own, pass it on", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 def main(names):

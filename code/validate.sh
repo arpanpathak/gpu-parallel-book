@@ -64,6 +64,9 @@ run "ch12_nvrtc" \
 run "ch17_systems" \
     bash -c 'cd ch17_systems && nvcc -arch="$1" -O3 systems.cu -o systems && ./systems' _ "$ARCH"
 
+run "ch19_collectives" \
+    bash -c 'cd ch19_collectives && nvcc -arch="$1" allreduce.cu -o allreduce && ./allreduce' _ "$ARCH"
+
 run "ch15_capstone" \
     bash -c 'cd ch15_capstone && nvcc -arch="$1" pipeline.cu -o pipeline && ./pipeline 96 64 2' _ "$ARCH"
 
@@ -86,8 +89,10 @@ fi
 if command -v cargo-oxide >/dev/null 2>&1; then
     run "ch14_cuda_oxide" \
         bash -c 'cd ch14_cuda_oxide && cargo oxide run host_closure'
+    run "oxide/ch19_collectives" \
+        bash -c 'cd oxide/ch19_collectives && cargo oxide run'
 else
-    echo "SKIP ch14_cuda_oxide (cargo-oxide not found)"
+    echo "SKIP ch14_cuda_oxide, oxide/ch19_collectives (cargo-oxide not found)"
 fi
 
 echo

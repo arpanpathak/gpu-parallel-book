@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 534" width="660" height="534" role="img" aria-label="A log-log chart of measured all-reduce time against message size on 8 simulated ranks of 1 GPU, with dashed model lines. Ring: 0.162 ms at 4 KiB, 0.226 at 64 KiB, 0.913 at 1 MiB, 7.184 at 16 MiB. Tree: 0.070, 0.143, 0.795 and 6.645 ms. At 4 KiB each step costs about 11.6 microseconds; at 16 MiB both move 587 MB of memory traffic at about 84 GB/s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="534" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Measured on 1 GPU</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Time of 1 all-reduce over 8 simulated ranks, against the model.</text>
+  <rect x="96" y="120" width="500" height="280" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <line x1="132.2" y1="120.0" x2="132.2" y2="400.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="132.2" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">4 KiB</text>
+  <line x1="272.2" y1="120.0" x2="272.2" y2="400.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="272.2" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">64 KiB</text>
+  <line x1="412.2" y1="120.0" x2="412.2" y2="400.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="412.2" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1 MiB</text>
+  <line x1="552.1" y1="120.0" x2="552.1" y2="400.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="552.1" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">16 MiB</text>
+  <line x1="96.0" y1="400.0" x2="596.0" y2="400.0" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="404.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10 µs</text>
+  <line x1="96.0" y1="315.2" x2="596.0" y2="315.2" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="319.2" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">100 µs</text>
+  <line x1="96.0" y1="230.4" x2="596.0" y2="230.4" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="234.4" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1 ms</text>
+  <line x1="96.0" y1="145.5" x2="596.0" y2="145.5" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="88.0" y="149.5" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10 ms</text>
+  <path d="M107.5,297.1 L110.4,297.1 L113.3,297.1 L116.2,297.0 L119.1,297.0 L122.0,297.0 L124.9,297.0 L127.8,297.0 L130.8,296.9 L133.7,296.9 L136.6,296.9 L139.5,296.9 L142.4,296.8 L145.3,296.8 L148.2,296.8 L151.1,296.8 L154.0,296.7 L156.9,296.7 L159.8,296.7 L162.7,296.6 L165.6,296.6 L168.5,296.5 L171.4,296.5 L174.3,296.4 L177.3,296.4 L180.2,296.3 L183.1,296.3 L186.0,296.2 L188.9,296.1 L191.8,296.1 L194.7,296.0 L197.6,295.9 L200.5,295.8 L203.4,295.8 L206.3,295.7 L209.2,295.6 L212.1,295.5 L215.0,295.4 L217.9,295.3 L220.9,295.1 L223.8,295.0 L226.7,294.9 L229.6,294.7 L232.5,294.6 L235.4,294.4 L238.3,294.3 L241.2,294.1 L244.1,293.9 L247.0,293.7 L249.9,293.5 L252.8,293.3 L255.7,293.1 L258.6,292.9 L261.5,292.6 L264.4,292.4 L267.4,292.1 L270.3,291.8 L273.2,291.5 L276.1,291.2 L279.0,290.8 L281.9,290.5 L284.8,290.1 L287.7,289.7 L290.6,289.3 L293.5,288.9 L296.4,288.5 L299.3,288.0 L302.2,287.5 L305.1,287.0 L308.0,286.5 L310.9,285.9 L313.9,285.3 L316.8,284.7 L319.7,284.1 L322.6,283.5 L325.5,282.8 L328.4,282.1 L331.3,281.4 L334.2,280.6 L337.1,279.8 L340.0,279.0 L342.9,278.1 L345.8,277.3 L348.7,276.4 L351.6,275.4 L354.5,274.5 L357.4,273.5 L360.4,272.4 L363.3,271.4 L366.2,270.3 L369.1,269.2 L372.0,268.0 L374.9,266.9 L377.8,265.7 L380.7,264.4 L383.6,263.1 L386.5,261.9 L389.4,260.5 L392.3,259.2 L395.2,257.8 L398.1,256.4 L401.0,254.9 L403.9,253.5 L406.9,252.0 L409.8,250.5 L412.7,248.9 L415.6,247.4 L418.5,245.8 L421.4,244.2 L424.3,242.6 L427.2,240.9 L430.1,239.2 L433.0,237.5 L435.9,235.8 L438.8,234.1 L441.7,232.4 L444.6,230.6 L447.5,228.8 L450.4,227.0 L453.4,225.2 L456.3,223.4 L459.2,221.5 L462.1,219.7 L465.0,217.8 L467.9,215.9 L470.8,214.0 L473.7,212.1 L476.6,210.2 L479.5,208.3 L482.4,206.3 L485.3,204.4 L488.2,202.4 L491.1,200.5 L494.0,198.5 L496.9,196.5 L499.9,194.5 L502.8,192.5 L505.7,190.5 L508.6,188.5 L511.5,186.5 L514.4,184.5 L517.3,182.5 L520.2,180.4 L523.1,178.4 L526.0,176.4 L528.9,174.3 L531.8,172.3 L534.7,170.2 L537.6,168.2 L540.5,166.1 L543.4,164.1 L546.4,162.0 L549.3,159.9 L552.2,157.9 L555.1,155.8 L558.0,153.7 L560.9,151.6 L563.8,149.5 L566.7,147.5 L569.6,145.4 L572.5,143.3 L575.4,141.2 L578.3,139.1 L581.2,137.0" fill="none" stroke="#2F6FDB" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <circle cx="132.2" cy="297.4" r="5.5" fill="#2F6FDB" stroke="#FFFFFF" stroke-width="1.5"/>
+  <circle cx="272.2" cy="285.1" r="5.5" fill="#2F6FDB" stroke="#FFFFFF" stroke-width="1.5"/>
+  <circle cx="412.2" cy="233.7" r="5.5" fill="#2F6FDB" stroke="#FFFFFF" stroke-width="1.5"/>
+  <circle cx="552.1" cy="157.7" r="5.5" fill="#2F6FDB" stroke="#FFFFFF" stroke-width="1.5"/>
+  <path d="M107.5,328.0 L110.4,327.9 L113.3,327.9 L116.2,327.9 L119.1,327.8 L122.0,327.8 L124.9,327.8 L127.8,327.7 L130.8,327.7 L133.7,327.6 L136.6,327.6 L139.5,327.5 L142.4,327.4 L145.3,327.4 L148.2,327.3 L151.1,327.2 L154.0,327.2 L156.9,327.1 L159.8,327.0 L162.7,326.9 L165.6,326.8 L168.5,326.7 L171.4,326.6 L174.3,326.5 L177.3,326.4 L180.2,326.3 L183.1,326.1 L186.0,326.0 L188.9,325.9 L191.8,325.7 L194.7,325.5 L197.6,325.4 L200.5,325.2 L203.4,325.0 L206.3,324.8 L209.2,324.6 L212.1,324.4 L215.0,324.1 L217.9,323.9 L220.9,323.6 L223.8,323.4 L226.7,323.1 L229.6,322.8 L232.5,322.5 L235.4,322.1 L238.3,321.8 L241.2,321.4 L244.1,321.1 L247.0,320.7 L249.9,320.2 L252.8,319.8 L255.7,319.3 L258.6,318.9 L261.5,318.4 L264.4,317.8 L267.4,317.3 L270.3,316.7 L273.2,316.1 L276.1,315.5 L279.0,314.9 L281.9,314.2 L284.8,313.5 L287.7,312.8 L290.6,312.0 L293.5,311.2 L296.4,310.4 L299.3,309.6 L302.2,308.7 L305.1,307.8 L308.0,306.9 L310.9,306.0 L313.9,305.0 L316.8,303.9 L319.7,302.9 L322.6,301.8 L325.5,300.7 L328.4,299.6 L331.3,298.4 L334.2,297.2 L337.1,296.0 L340.0,294.7 L342.9,293.4 L345.8,292.1 L348.7,290.8 L351.6,289.4 L354.5,288.0 L357.4,286.6 L360.4,285.1 L363.3,283.6 L366.2,282.1 L369.1,280.6 L372.0,279.0 L374.9,277.5 L377.8,275.9 L380.7,274.2 L383.6,272.6 L386.5,270.9 L389.4,269.2 L392.3,267.5 L395.2,265.8 L398.1,264.1 L401.0,262.3 L403.9,260.5 L406.9,258.7 L409.8,256.9 L412.7,255.1 L415.6,253.3 L418.5,251.4 L421.4,249.5 L424.3,247.7 L427.2,245.8 L430.1,243.9 L433.0,242.0 L435.9,240.0 L438.8,238.1 L441.7,236.2 L444.6,234.2 L447.5,232.2 L450.4,230.3 L453.4,228.3 L456.3,226.3 L459.2,224.3 L462.1,222.3 L465.0,220.3 L467.9,218.3 L470.8,216.3 L473.7,214.3 L476.6,212.2 L479.5,210.2 L482.4,208.2 L485.3,206.1 L488.2,204.1 L491.1,202.0 L494.0,200.0 L496.9,197.9 L499.9,195.9 L502.8,193.8 L505.7,191.7 L508.6,189.6 L511.5,187.6 L514.4,185.5 L517.3,183.4 L520.2,181.3 L523.1,179.3 L526.0,177.2 L528.9,175.1 L531.8,173.0 L534.7,170.9 L537.6,168.8 L540.5,166.7 L543.4,164.6 L546.4,162.5 L549.3,160.4 L552.2,158.3 L555.1,156.2 L558.0,154.1 L560.9,152.0 L563.8,149.9 L566.7,147.8 L569.6,145.7 L572.5,143.6 L575.4,141.5 L578.3,139.4 L581.2,137.3" fill="none" stroke="#B7791F" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <circle cx="132.2" cy="328.3" r="5.5" fill="#B7791F" stroke="#FFFFFF" stroke-width="1.5"/>
+  <circle cx="272.2" cy="302.0" r="5.5" fill="#B7791F" stroke="#FFFFFF" stroke-width="1.5"/>
+  <circle cx="412.2" cy="238.8" r="5.5" fill="#B7791F" stroke="#FFFFFF" stroke-width="1.5"/>
+  <circle cx="552.1" cy="160.6" r="5.5" fill="#B7791F" stroke="#FFFFFF" stroke-width="1.5"/>
+  <rect x="96" y="94" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="117.0" y="105.5" class="note" text-anchor="start" xml:space="preserve">ring, 14 steps</text>
+  <rect x="231.4" y="94" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="252.4" y="105.5" class="note" text-anchor="start" xml:space="preserve">tree, 6 steps</text>
+  <text x="396.0" y="108.0" class="sub" text-anchor="start" xml:space="preserve">dots measured, dashes model</text>
+  <rect x="144.2" y="239.40650508575084" width="225.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="256.8" y="252.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0.162 ms ÷ 14 = 11.6 µs per step</text>
+  <rect x="144.2" y="338.31708542036563" width="218.6" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="253.5" y="350.9" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0.070 ms ÷ 6 = 11.7 µs per step</text>
+  <rect x="346.3" y="151.7172665273772" width="165.8" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="429.2" y="164.3" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">587 MB ÷ 84 GB/s ≈ 7 ms</text>
+  <text x="346.0" y="440.0" class="sub" text-anchor="middle" xml:space="preserve">message size</text>
+  <text x="16.0" y="476.0" class="note" text-anchor="start" xml:space="preserve">8 simulated ranks on 1 GPU of 102 GB/s. Small messages cost 1 step time each, so the tree&#x27;s</text>
+  <text x="16.0" y="494.0" class="note" text-anchor="start" xml:space="preserve">6 steps win; large ones move 35 bytes of memory traffic per message byte in both, and the</text>
+  <text x="16.0" y="512.0" class="note" text-anchor="start" xml:space="preserve">times meet, because all the simulated links share 1 memory.</text>
+</svg>
