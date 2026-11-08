@@ -1,0 +1,2 @@
+# Keep the drawing and tooling scripts out of GitHub's language statistics.
+*.py linguist-detectable=false
