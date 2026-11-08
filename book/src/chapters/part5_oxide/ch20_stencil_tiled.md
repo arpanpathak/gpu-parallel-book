@@ -295,17 +295,17 @@ thread.
 <div class="algo">
 <p class="algo-name">Tiled-Jacobi-Kernel(\(u, v, W, H\))</p>
 <ol>
-<li>\(tx = \text{threadIdx.x}\), \(ty = \text{threadIdx.y}\)</li>
-<li>\(top = \text{blockIdx.y} \cdot T_y\), \(left = \text{blockIdx.x} \cdot T_x\)</li>
-<li>for \(i = ty, ty + T_y, \ldots\) while \(i &lt; T_y + 2\) { <span class="c">// load the tile and its halo</span></li>
-<li style="--d:1">for \(j = tx, tx + T_x, \ldots\) while \(j &lt; T_x + 2\) {</li>
-<li style="--d:2">\(\mathit{tile}[i][j] = u_{top+i-1,\, left+j-1}\) if that cell is in the grid, else 0</li>
+<li>\(tx = \mathsf{threadIdx{.}x}\), \(ty = \mathsf{threadIdx{.}y}\)</li>
+<li>\(top = \mathsf{blockIdx{.}y} \cdot T_y\), \(left = \mathsf{blockIdx{.}x} \cdot T_x\)</li>
+<li><b class="kw">for</b> \(i = ty, ty + T_y, \ldots\) <b class="kw">while</b> \(i &lt; T_y + 2\) { <span class="c">// load the tile and its halo</span></li>
+<li style="--d:1"><b class="kw">for</b> \(j = tx, tx + T_x, \ldots\) <b class="kw">while</b> \(j &lt; T_x + 2\) {</li>
+<li style="--d:2">\(\mathsf{tile}[i][j] = u_{top+i-1,\, left+j-1}\) <b class="kw">if</b> that cell is in the grid, <b class="kw">else</b> 0</li>
 <li style="--d:1">}</li>
 <li>}</li>
 <li><span class="sc">Barrier</span>() <span class="c">// wait until the whole tile is loaded</span></li>
 <li>\(row = top + ty\), \(col = left + tx\)</li>
-<li>if \(row \in [1, H - 1)\) and \(col \in [1, W - 1)\) {</li>
-<li style="--d:1">\(v_{row,col} = (\mathit{tile}[ty][tx{+}1] + \mathit{tile}[ty{+}2][tx{+}1] + \mathit{tile}[ty{+}1][tx] + \mathit{tile}[ty{+}1][tx{+}2]) / 4\)</li>
+<li><b class="kw">if</b> \(row \in [1, H - 1)\) and \(col \in [1, W - 1)\) {</li>
+<li style="--d:1">\(v_{row,col} = (\mathsf{tile}[ty][tx{+}1] + \mathsf{tile}[ty{+}2][tx{+}1] + \mathsf{tile}[ty{+}1][tx] + \mathsf{tile}[ty{+}1][tx{+}2]) / 4\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -790,15 +790,15 @@ tile, and \\(A\\) and \\(B\\) are the 2 tiles in shared memory.
 <p class="algo-name">Temporal-Jacobi-Kernel(\(u, v, W, H\))</p>
 <ol>
 <li>\((r, c)\) = cell of this thread, \(K\) cells before the block's first own cell</li>
-<li>\(A[ty][tx] = u_{r,c}\) if \((r, c)\) is in the grid, else 0</li>
+<li>\(A[ty][tx] = u_{r,c}\) <b class="kw">if</b> \((r, c)\) is in the grid, <b class="kw">else</b> 0</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>for \(s \in [1, K]\) { <span class="c">// src = A, dst = B for odd s, the reverse for even s</span></li>
-<li style="--d:1">if \(tx, ty \in [s, 32 - s)\) {</li>
-<li style="--d:2">\(\mathit{dst}[ty][tx]\) = mean of the 4 neighbors in \(\mathit{src}\) if \((r, c)\) is interior, else \(\mathit{src}[ty][tx]\)</li>
+<li><b class="kw">for</b> \(s \in [1, K]\) { <span class="c">// src = A, dst = B for odd s, the reverse for even s</span></li>
+<li style="--d:1"><b class="kw">if</b> \(tx, ty \in [s, 32 - s)\) {</li>
+<li style="--d:2">\(\mathsf{dst}[ty][tx]\) = mean of the 4 neighbors in \(\mathsf{src}\) <b class="kw">if</b> \((r, c)\) is interior, <b class="kw">else</b> \(\mathsf{src}[ty][tx]\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
-<li>if \(tx, ty \in [K, 32 - K)\) and \((r, c)\) is interior { \(v_{r,c}\) = the tile written in step \(K\) at \([ty][tx]\) }</li>
+<li><b class="kw">if</b> \(tx, ty \in [K, 32 - K)\) and \((r, c)\) is interior { \(v_{r,c}\) = the tile written in step \(K\) at \([ty][tx]\) }</li>
 </ol>
 </div>
 
@@ -807,8 +807,8 @@ halo of width \\(K\\) surrounds them. Line 2 loads the whole tile, 1 slot per th
 waits until the tile is complete. In step \\(s\\), line 5 lets only the threads whose slot lies at
 least \\(s\\) positions from every edge of the tile compute. In step 1, for example, these are the
 positions 1 to 30 in each direction, which form the 30 × 30 region of Definition 20.4. Line 6
-reads from the tile written in the previous step, called \\(\mathit{src}\\), and writes into the
-other tile, called \\(\mathit{dst}\\). Line 8 is the barrier between steps. Finally, line 10 writes
+reads from the tile written in the previous step, called \\(\mathsf{src}\\), and writes into the
+other tile, called \\(\mathsf{dst}\\). Line 8 is the barrier between steps. Finally, line 10 writes
 the block's own cells, the positions \\([K, 32 - K)\\), from the tile written in step \\(K\\).
 
 <div class="theorem">
@@ -823,7 +823,7 @@ cell of \\(v\\).
 
 *Proof.* We show that the loop of lines 4 to 9 maintains the invariant: at the start of pass \\(s\\),
 for every position \\((ty, tx)\\) with \\(tx, ty \in [s - 1, 33 - s)\\) whose cell lies in the
-grid, the tile \\(\mathit{src}\\) holds \\(u^{(k+s-1)}\\) of that cell.
+grid, the tile \\(\mathsf{src}\\) holds \\(u^{(k+s-1)}\\) of that cell.
 
 *Initialization.* At \\(s = 1\\) the region is the whole tile, and line 2 stored \\(u^{(k)}\\) in
 every position whose cell is in the grid; the barrier of line 3 makes the stores visible.

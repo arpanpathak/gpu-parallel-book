@@ -131,11 +131,11 @@ is the list of keys whose bit is 1.
 <div class="algo">
 <p class="algo-name">Radix-Sort-Bits(\(K, n, B\))</p>
 <ol>
-<li>for \(b \in [0, B)\) { <span class="c">// 1 pass per bit, bit 0 first</span></li>
+<li><b class="kw">for</b> \(b \in [0, B)\) { <span class="c">// 1 pass per bit, bit 0 first</span></li>
 <li style="--d:1">\(Z\) = empty list, \(O\) = empty list</li>
-<li style="--d:1">for \(i \in [0, n)\) {</li>
-<li style="--d:2">if bit \(b\) of \(K_i\) is 0: append \(K_i\) to \(Z\)</li>
-<li style="--d:2">else: append \(K_i\) to \(O\)</li>
+<li style="--d:1"><b class="kw">for</b> \(i \in [0, n)\) {</li>
+<li style="--d:2"><b class="kw">if</b> bit \(b\) of \(K_i\) is 0: append \(K_i\) to \(Z\)</li>
+<li style="--d:2"><b class="kw">else</b>: append \(K_i\) to \(O\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1">\(K\) = \(Z\) followed by \(O\) <span class="c">// the split on bit \(b\)</span></li>
 <li>}</li>
@@ -277,13 +277,13 @@ the exclusive scan \\(e_i\\), and line 3 reads \\(Z\\) as the last inclusive val
 <div class="algo">
 <p class="algo-name">Parallel-Split(\(K, out, n, b\))</p>
 <ol>
-<li>for every \(i \in [0, n)\) in parallel: \(z_i = 1\) if bit \(b\) of \(K_i\) is 0, else 0</li>
+<li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: \(z_i = 1\) <b class="kw">if</b> bit \(b\) of \(K_i\) is 0, <b class="kw">else</b> 0</li>
 <li>\(s\) = the inclusive scan of \(z\) <span class="c">// Scan of Section 21.7</span></li>
 <li>\(Z = s_{n-1}\) <span class="c">// the keys with bit 0</span></li>
-<li>for every \(i \in [0, n)\) in parallel {</li>
+<li><b class="kw">for</b> every \(i \in [0, n)\) in parallel {</li>
 <li style="--d:1">\(e_i = s_i - z_i\) <span class="c">// the exclusive scan</span></li>
-<li style="--d:1">if \(z_i = 1\): \(out_{e_i} = K_i\)</li>
-<li style="--d:1">else: \(out_{Z + i - e_i} = K_i\)</li>
+<li style="--d:1"><b class="kw">if</b> \(z_i = 1\): \(out_{e_i} = K_i\)</li>
+<li style="--d:1"><b class="kw">else</b>: \(out_{Z + i - e_i} = K_i\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -405,8 +405,8 @@ adds 1 to its bin.
 <div class="algo">
 <p class="algo-name">Histogram(\(K, h, n, R\))</p>
 <ol>
-<li>for \(v \in [0, R)\): \(h_v = 0\)</li>
-<li>for \(i \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(v \in [0, R)\): \(h_v = 0\)</li>
+<li><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1">\(h_{K_i} = h_{K_i} + 1\) <span class="c">// a read, an addition and a write</span></li>
 <li>}</li>
 </ol>
@@ -493,13 +493,13 @@ number of the block, \\(t\\) is the index of the thread in its block, and \\(p\\
 <div class="algo">
 <p class="algo-name">Histogram-Private(\(K, h, n, R\)) <span class="c">// block \(b\) of \(G\), thread \(t\) of \(T\)</span></p>
 <ol>
-<li>if \(t &lt; R\): \(p[t] = 0\) <span class="c">// \(p\) in shared memory</span></li>
+<li><b class="kw">if</b> \(t &lt; R\): \(p[t] = 0\) <span class="c">// \(p\) in shared memory</span></li>
 <li><span class="sc">Barrier</span>() <span class="c">// every private bin is 0</span></li>
-<li>for \(i = bT + t\); \(i &lt; n\); \(i = i + GT\) {</li>
-<li style="--d:1"><span class="sc">Atomic-Add</span>(\(p[\text{digit}(K_i)]\), 1)</li>
+<li><b class="kw">for</b> \(i = bT + t\); \(i &lt; n\); \(i = i + GT\) {</li>
+<li style="--d:1"><span class="sc">Atomic-Add</span>(\(p[\mathsf{digit}(K_i)]\), 1)</li>
 <li>}</li>
 <li><span class="sc">Barrier</span>() <span class="c">// every key of the block is counted</span></li>
-<li>if \(t &lt; R\): <span class="sc">Atomic-Add</span>(\(h_t\), \(p[t]\)) <span class="c">// the merge</span></li>
+<li><b class="kw">if</b> \(t &lt; R\): <span class="sc">Atomic-Add</span>(\(h_t\), \(p[t]\)) <span class="c">// the merge</span></li>
 </ol>
 </div>
 
@@ -617,7 +617,7 @@ Definition 22.1, and \\(start[d]\\) is the next free output position for a key w
 <ol>
 <li>\(h\) = the histogram of the digits \(\lfloor K_i / 2^s \rfloor \bmod 2^r\) over \(2^r\) bins</li>
 <li>\(start\) = the exclusive scan of \(h\)</li>
-<li>for \(i \in [0, n)\) { <span class="c">// in input order</span></li>
+<li><b class="kw">for</b> \(i \in [0, n)\) { <span class="c">// in input order</span></li>
 <li style="--d:1">\(d\) = the digit of \(K_i\)</li>
 <li style="--d:1">\(out_{start[d]} = K_i\)</li>
 <li style="--d:1">\(start[d] = start[d] + 1\) <span class="c">// the next key with digit \(d\)</span></li>
@@ -684,16 +684,16 @@ digit \\(d\\) in warp \\(w\\) in the current step.
 <div class="algo">
 <p class="algo-name">Scatter-Digits(\(K, out, c, s\)) <span class="c">// tile \(b\) of \(m\), thread \(t\), lane \(\ell\) of warp \(w\)</span></p>
 <ol>
-<li>if \(t &lt; 16\): \(start[t] = s_{tm + b} - c_{tm + b}\) <span class="c">// the exclusive scan of the table</span></li>
-<li>for \(k \in [0, 4)\) { <span class="c">// 4 steps of 256 keys, in order</span></li>
+<li><b class="kw">if</b> \(t &lt; 16\): \(start[t] = s_{tm + b} - c_{tm + b}\) <span class="c">// the exclusive scan of the table</span></li>
+<li><b class="kw">for</b> \(k \in [0, 4)\) { <span class="c">// 4 steps of 256 keys, in order</span></li>
 <li style="--d:1">set \(wc[\cdot][\cdot]\) to 0; <span class="sc">Barrier</span>() <span class="c">// \(wc[w][d]\): keys of digit \(d\) in warp \(w\)</span></li>
 <li style="--d:1">\(i = 1024b + 256k + t\), \(d\) = the digit of \(K_i\)</li>
 <li style="--d:1">\(peers\) = <span class="sc">Match</span>(\(d\)), \(rank\) = <span class="sc">Popc</span>(\(peers \wedge (2^{\ell} - 1)\))</li>
-<li style="--d:1">if \(rank = 0\): \(wc[w][d]\) = <span class="sc">Popc</span>(\(peers\)) <span class="c">// 1 lane per digit and warp</span></li>
+<li style="--d:1"><b class="kw">if</b> \(rank = 0\): \(wc[w][d]\) = <span class="sc">Popc</span>(\(peers\)) <span class="c">// 1 lane per digit and warp</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li style="--d:1">\(out[start[d] + wc[0][d] + \cdots + wc[w-1][d] + rank] = K_i\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1">if \(t &lt; 16\): \(start[t] = start[t] + wc[0][t] + \cdots + wc[7][t]\)</li>
+<li style="--d:1"><b class="kw">if</b> \(t &lt; 16\): \(start[t] = start[t] + wc[0][t] + \cdots + wc[7][t]\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
 </ol>

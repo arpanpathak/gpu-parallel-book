@@ -152,25 +152,25 @@ values, and a block of the tiled kernel has \\(T \times T = T^2\\) threads, so t
 evenly. We let each thread copy exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
 \\(B\\). The natural choice is to let every thread copy the value that belongs at its own position
 in the tile. Recall from Chapter 16 that thread \\((ty, tx)\\) is the thread in row \\(ty\\) and
-column \\(tx\\) of its block, and that it computes the entry of \\(C\\) in row \\(\textit{row}\\)
-and column \\(\textit{col}\\). We call the 2 tiles in shared memory *tileA* and *tileB*. In phase
+column \\(tx\\) of its block, and that it computes the entry of \\(C\\) in row \\(\mathsf{row}\\)
+and column \\(\mathsf{col}\\). We call the 2 tiles in shared memory *tileA* and *tileB*. In phase
 \\(t\\), thread \\((ty, tx)\\) performs the 2 copies
 
-\\[ \textit{tileA}[ty][tx] = a_{\textit{row},\\; tT + tx}, \qquad
-\textit{tileB}[ty][tx] = b_{tT + ty,\\; \textit{col}}. \\]
+\\[ \mathsf{tileA}[ty][tx] = a_{\mathsf{row},\\; tT + tx}, \qquad
+\mathsf{tileB}[ty][tx] = b_{tT + ty,\\; \mathsf{col}}. \\]
 
 The first copy reads from the thread's own row of \\(A\\), at column \\(tT + tx\\): the tile of
 phase \\(t\\) begins at column \\(tT\\), and the thread takes the value \\(tx\\) places further
 along. The second copy reads from the thread's own column of \\(B\\), at row \\(tT + ty\\), that is,
 \\(ty\\) places below the first row of the tile. For example, in phase 1, thread \\((0, 1)\\) of
-block \\((0, 0)\\) has \\(\textit{row} = 0\\) and \\(\textit{col} = 1\\), and copies
+block \\((0, 0)\\) has \\(\mathsf{row} = 0\\) and \\(\mathsf{col} = 1\\), and copies
 \\(a_{0,\\, 2 + 1} = a_{03} = 4\\) into *tileA*[0][1] and \\(b_{2 + 0,\\, 1} = b_{21} = 1\\) into
 *tileB*[0][1].
 
 | Symbol | Meaning | Thread \\((0, 1)\\), phase 1 |
 |---|---|---|
 | \\(ty, tx\\) | row and column of the thread within its block | 0, 1 |
-| \\(\textit{row}, \textit{col}\\) | row and column of the entry of \\(C\\) the thread computes | 0, 1 |
+| \\(\mathsf{row}, \mathsf{col}\\) | row and column of the entry of \\(C\\) the thread computes | 0, 1 |
 | \\(tT + tx\\) | column of \\(A\\) the thread copies | \\(1 \cdot 2 + 1 = 3\\) |
 | \\(tT + ty\\) | row of \\(B\\) the thread copies | \\(1 \cdot 2 + 0 = 2\\) |
 
@@ -225,8 +225,8 @@ and \\(tx\\) in terms of \\(i\\), \\(s\\), \\(by\\), \\(t\\) and \\(T\\).
 
 In Section 17.3, we let every thread copy 1 value of each tile and then compute with values that
 other threads had copied. In Figure 17.4, for example, thread \\((0, 1)\\) uses
-\\(\textit{tileA}[0][0] = 1\\), which thread \\((0, 0)\\) copied, and
-\\(\textit{tileB}[1][1] = 1\\), which thread \\((1, 1)\\) copied. This is correct only if thread
+\\(\mathsf{tileA}[0][0] = 1\\), which thread \\((0, 0)\\) copied, and
+\\(\mathsf{tileB}[1][1] = 1\\), which thread \\((1, 1)\\) copied. This is correct only if thread
 \\((0, 1)\\) reads these 2 slots after its neighbors have stored their values in them. The
 threads of a block, however, do not move in lockstep. One thread may run ahead while another falls
 behind, because their warps are scheduled independently and their memory reads finish at different
@@ -277,21 +277,21 @@ memory, and each block has its own pair of them.
 <div class="algo">
 <p class="algo-name">Tiled-Kernel(\(A, B, C, M, K, N\))</p>
 <ol>
-<li>\(tx = \textit{threadIdx.x}\), \(ty = \textit{threadIdx.y}\)</li>
-<li>\(\textit{row} = \textit{blockIdx.y} \cdot T + ty\), \(\textit{col} = \textit{blockIdx.x} \cdot T + tx\)</li>
-<li>\(\textit{sum} = 0\)</li>
-<li>for \(t \in [0, \lceil K/T \rceil)\) {</li>
+<li>\(tx = \mathsf{threadIdx{.}x}\), \(ty = \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + ty\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + tx\)</li>
+<li>\(\mathsf{sum} = 0\)</li>
+<li><b class="kw">for</b> \(t \in [0, \lceil K/T \rceil)\) {</li>
 <li style="--d:1"><span class="c" style="float:none;margin-left:0">// copy 1 value of each tile; 0 outside the matrix</span></li>
-<li style="--d:1">\(\textit{tileA}[ty][tx] = a_{\textit{row},\, tT + tx}\) if \(\textit{row} \in [0, M)\) and \(tT + tx \in [0, K)\), else 0</li>
-<li style="--d:1">\(\textit{tileB}[ty][tx] = b_{tT + ty,\, \textit{col}}\) if \(tT + ty \in [0, K)\) and \(\textit{col} \in [0, N)\), else 0</li>
+<li style="--d:1">\(\mathsf{tileA}[ty][tx] = a_{\mathsf{row},\, tT + tx}\) <b class="kw">if</b> \(\mathsf{row} \in [0, M)\) and \(tT + tx \in [0, K)\), <b class="kw">else</b> 0</li>
+<li style="--d:1">\(\mathsf{tileB}[ty][tx] = b_{tT + ty,\, \mathsf{col}}\) <b class="kw">if</b> \(tT + ty \in [0, K)\) and \(\mathsf{col} \in [0, N)\), <b class="kw">else</b> 0</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until both tiles are full</span></li>
-<li style="--d:1">for \(u \in [0, T)\) {</li>
-<li style="--d:2">\(\textit{sum} = \textit{sum} + \textit{tileA}[ty][u] \cdot \textit{tileB}[u][tx]\)</li>
+<li style="--d:1"><b class="kw">for</b> \(u \in [0, T)\) {</li>
+<li style="--d:2">\(\mathsf{sum} = \mathsf{sum} + \mathsf{tileA}[ty][u] \cdot \mathsf{tileB}[u][tx]\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until every thread has read the tiles</span></li>
 <li>}</li>
-<li>if \(\textit{row} \in [0, M)\) and \(\textit{col} \in [0, N)\) {</li>
-<li style="--d:1">\(c_{\textit{row}, \textit{col}} = \textit{sum}\)</li>
+<li><b class="kw">if</b> \(\mathsf{row} \in [0, M)\) and \(\mathsf{col} \in [0, N)\) {</li>
+<li style="--d:1">\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{sum}\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -300,13 +300,13 @@ Lines 1 and 2 are the same as in
 <span style="font-variant: small-caps">Direct-Kernel</span>. They compute the position
 \\((ty, tx)\\) of the thread within its block, and the row and column of the entry of \\(C\\) that
 the thread computes. For thread \\((0, 1)\\) of block \\((0, 0)\\) with \\(T = 2\\), they give
-\\(ty = 0\\), \\(tx = 1\\), \\(\textit{row} = 0 \cdot 2 + 0 = 0\\) and
-\\(\textit{col} = 0 \cdot 2 + 1 = 1\\). Line 3 sets the sum to 0, and line 4 starts the loop over
+\\(ty = 0\\), \\(tx = 1\\), \\(\mathsf{row} = 0 \cdot 2 + 0 = 0\\) and
+\\(\mathsf{col} = 0 \cdot 2 + 1 = 1\\). Line 3 sets the sum to 0, and line 4 starts the loop over
 the \\(\lceil K/T \rceil\\) phases, of which there are 2 in our example. Lines 6 and 7 are the joint
 copy of Section 17.3. Lines 9 to 11 add 1 phase of the sum, that is, the inner sum over \\(u\\) of
 the formula in Section 17.2. In phase 0, for thread \\((0, 1)\\), they compute
-\\(\textit{tileA}[0][0] \cdot \textit{tileB}[0][1] + \textit{tileA}[0][1] \cdot
-\textit{tileB}[1][1] = 1 \cdot 0 + 2 \cdot 1 = 2\\). Lines 8 and 12 are the 2 barriers. The
+\\(\mathsf{tileA}[0][0] \cdot \mathsf{tileB}[0][1] + \mathsf{tileA}[0][1] \cdot
+\mathsf{tileB}[1][1] = 1 \cdot 0 + 2 \cdot 1 = 2\\). Lines 8 and 12 are the 2 barriers. The
 conditions in lines 6 and 7, which store 0 in place of a value outside the matrix, handle matrices
 whose size is not a multiple of \\(T\\); we treat both the barriers and these zeros in
 Section 17.6. Finally, lines 14 to 16 store the result. They replace the early return of the
@@ -394,8 +394,8 @@ matrices of any size.
 
 Suppose that we delete line 8, the first barrier. Consider phase 1 of block \\((0, 0)\\). Thread
 \\((0, 0)\\) finishes its copies early and goes on to line 10, where it computes
-\\(\textit{tileA}[0][0] \cdot \textit{tileB}[0][0] + \textit{tileA}[0][1] \cdot
-\textit{tileB}[1][0]\\). The slot \\(\textit{tileB}[1][0]\\) belongs to thread \\((1, 0)\\), which
+\\(\mathsf{tileA}[0][0] \cdot \mathsf{tileB}[0][0] + \mathsf{tileA}[0][1] \cdot
+\mathsf{tileB}[1][0]\\). The slot \\(\mathsf{tileB}[1][0]\\) belongs to thread \\((1, 0)\\), which
 in phase 1 is to fill it with \\(b_{30} = 1\\). Thread \\((1, 0)\\), however, is running late, and
 it has not yet stored this value when thread \\((0, 0)\\) reads the slot (Figure 17.8).
 
@@ -415,7 +415,7 @@ has finished copying.
 Now we restore line 8 and delete line 12, the second barrier, instead. This time, the error occurs
 at the end of a phase rather than at its start. In phase 0, thread \\((1, 1)\\) finishes its
 multiply-adds early and moves on to phase 1, where its first task is to store \\(b_{31} = 2\\) in
-\\(\textit{tileB}[1][1]\\). Thread \\((0, 1)\\), however, is still in phase 0, and it still needs
+\\(\mathsf{tileB}[1][1]\\). Thread \\((0, 1)\\), however, is still in phase 0, and it still needs
 the old value of that slot, \\(b_{11} = 1\\) (Figure 17.9).
 
 <figure>
@@ -439,11 +439,11 @@ again before the next copy.
 The two errors are of different kinds. The first barrier orders a write of a slot before a read of
 the same slot. Here, the reading thread needs the value that the writing thread produces, and such
 an ordering is called a **read-after-write** dependence. In Section 17.6.1, thread \\((0, 0)\\) had
-to read \\(\textit{tileB}[1][0]\\) after thread \\((1, 0)\\) had written it. The second barrier
+to read \\(\mathsf{tileB}[1][0]\\) after thread \\((1, 0)\\) had written it. The second barrier
 orders a read of a slot before the next write of the same slot. Here, the writing thread needs
 nothing from the reading thread, and the conflict exists only because both use the same slot in
 consecutive phases. Such an ordering is called a **write-after-read** dependence. In
-Section 17.6.2, thread \\((1, 1)\\) had to write \\(\textit{tileB}[1][1]\\) only after thread
+Section 17.6.2, thread \\((1, 1)\\) had to write \\(\mathsf{tileB}[1][1]\\) only after thread
 \\((0, 1)\\) had read it. Both errors are data races in the sense of Definition 16.8.
 
 ### 17.6.3 The broken kernels on the GPU
@@ -512,28 +512,28 @@ finishes, every entry of \\(C\\) equals the corresponding entry of \\(AB\\).
 
 <div class="proof">
 
-*Proof.* Fix a thread with \\(\textit{row} \in [0, M)\\) and \\(\textit{col} \in [0, N)\\), and
+*Proof.* Fix a thread with \\(\mathsf{row} \in [0, M)\\) and \\(\mathsf{col} \in [0, N)\\), and
 treat entries beyond the edge of a matrix as 0. We show that the loop of lines 4 to 13 maintains
 the invariant
 
-\\[ \text{at the start of phase } t, \qquad \textit{sum} = \sum_{s \in [0,\\, tT)}
-a_{\textit{row}, s}\\; b_{s, \textit{col}}. \\]
+\\[ \text{at the start of phase } t, \qquad \mathsf{sum} = \sum_{s \in [0,\\, tT)}
+a_{\mathsf{row}, s}\\; b_{s, \mathsf{col}}. \\]
 
 | Symbol | Meaning | Thread \\((0, 0)\\), start of phase 1 |
 |---|---|---|
 | \\(t\\) | phase about to begin | 1 |
 | \\(tT\\) | number of terms already added | \\(1 \cdot 2 = 2\\) |
 | \\(s \in [0, tT)\\) | indices of the terms already added | 0 and 1 |
-| \\(a_{\textit{row}, s}\\, b_{s, \textit{col}}\\) | term \\(s\\) of the dot product | \\(1 \cdot 1\\) and \\(2 \cdot 0\\) |
-| \\(\textit{sum}\\) | value of the variable | 1 |
+| \\(a_{\mathsf{row}, s}\\, b_{s, \mathsf{col}}\\) | term \\(s\\) of the dot product | \\(1 \cdot 1\\) and \\(2 \cdot 0\\) |
+| \\(\mathsf{sum}\\) | value of the variable | 1 |
 
-*Initialization.* Before phase 0, \\(\textit{sum} = 0\\), which is the empty sum.
+*Initialization.* Before phase 0, \\(\mathsf{sum} = 0\\), which is the empty sum.
 
 *Maintenance.* Assume that the invariant holds at the start of phase \\(t\\). In lines 6 and 7,
 the threads of the block fill both tiles completely (Section 17.3). Because of the barrier in
 line 8, every one of these stores is complete and visible before any thread reaches line 10; this
-excludes the error of Section 17.6.1. Hence \\(\textit{tileA}[ty][u] = a_{\textit{row}, tT + u}\\)
-and \\(\textit{tileB}[u][tx] = b_{tT + u, \textit{col}}\\) for every \\(u \in [0, T)\\), and lines 9
+excludes the error of Section 17.6.1. Hence \\(\mathsf{tileA}[ty][u] = a_{\mathsf{row}, tT + u}\\)
+and \\(\mathsf{tileB}[u][tx] = b_{tT + u, \mathsf{col}}\\) for every \\(u \in [0, T)\\), and lines 9
 to 11 add exactly the terms with \\(s \in [tT, tT + T)\\). For thread \\((0, 0)\\) in phase 1, these
 are the terms with \\(s = 2\\) and \\(s = 3\\), which add \\(3 \cdot 2 + 4 \cdot 1 = 10\\). Because
 of the barrier in line 12, no thread overwrites a tile for phase \\(t + 1\\) while another thread is
@@ -541,7 +541,7 @@ still reading it in phase \\(t\\); this excludes the error of Section 17.6.2. Th
 invariant holds at the start of phase \\(t + 1\\).
 
 *Termination.* The loop ends with \\(t = \lceil K/T \rceil\\), so \\(tT \ge K\\). All terms with
-\\(s \ge K\\) are 0, hence \\(\textit{sum} = c_{\textit{row}, \textit{col}}\\), and line 15
+\\(s \ge K\\) are 0, hence \\(\mathsf{sum} = c_{\mathsf{row}, \mathsf{col}}\\), and line 15
 stores it.
 
 </div>
@@ -577,10 +577,10 @@ tiled kernel, it must not return, because a barrier releases the block only when
 arrived. A thread that has returned never arrives, so the rest of the block would wait forever,
 or, on some GPUs, continue with an undefined result. Instead, these threads stay in the loop, copy
 zeros, wait at every barrier together with the other threads, and skip only the final store in
-lines 14 to 16. For example, thread \\((1, 1)\\) of block \\((1, 1)\\) has \\(\textit{row} = 3\\)
-and \\(\textit{col} = 3\\), outside the 3 × 3 matrix \\(C\\). In both phases, it copies 0 into both
+lines 14 to 16. For example, thread \\((1, 1)\\) of block \\((1, 1)\\) has \\(\mathsf{row} = 3\\)
+and \\(\mathsf{col} = 3\\), outside the 3 × 3 matrix \\(C\\). In both phases, it copies 0 into both
 tiles, since row 3 of \\(A\\) and column 3 of \\(B\\) do not exist, and it waits at all 4 barriers.
-At line 14, the condition \\(\textit{row} \in [0, M)\\) is false, so it stores nothing. Both
+At line 14, the condition \\(\mathsf{row} \in [0, M)\\) is false, so it stores nothing. Both
 programs check 3 shapes of this kind, comparing every entry: the 3 × 3 product with \\(T = 2\\), a
 128 × 64 by 64 × 96 product, and a 1,000 × 1,000 product with \\(T = 16\\).
 
@@ -595,7 +595,7 @@ barrier where some threads of the block can skip it.
 
 Exercises
 
-17.7 Without line 8, thread \\((1, 1)\\) might read \\(\textit{tileA}[1][0]\\) in phase 1 before
+17.7 Without line 8, thread \\((1, 1)\\) might read \\(\mathsf{tileA}[1][0]\\) in phase 1 before
 the slot is refilled. Which value would it use, and what would \\(c_{11}\\) become?<br>
 17.8 Explain why the proof of Theorem 17.1 breaks when a thread returns early, even though that
 thread writes no entry of \\(C\\).<br>
@@ -760,9 +760,9 @@ stores need no marking. The argument for their correctness is the same, but the 
 ask for it.
 
 The inner loop is lines 9 to 11 of the pseudocode. In Rust, `tile_a.add(ty * T + u)` is the
-address of \\(\textit{tileA}[ty][u]\\), so as `u` runs from 0 to \\(T - 1\\), the thread walks along
+address of \\(\mathsf{tileA}[ty][u]\\), so as `u` runs from 0 to \\(T - 1\\), the thread walks along
 row `ty` of *tileA*. Likewise, `tile_b.add(u * T + tx)` is the address of
-\\(\textit{tileB}[u][tx]\\), and the thread walks down column `tx` of *tileB*. For thread
+\\(\mathsf{tileB}[u][tx]\\), and the thread walks down column `tx` of *tileB*. For thread
 \\((0, 1)\\) with \\(T = 2\\), the flat indices are 0 and 1 in *tileA* and 1 and 3 in *tileB*. The
 Rust loop is a `while` loop marked `#[unroll]`. Inside each specialization of the generic kernel,
 `T` is a constant, so the loop has a fixed count, and the compiler replaces it by \\(T\\) copies of
@@ -967,8 +967,8 @@ stays there for exactly 1 phase, by construction, at every matrix size. The tile
 memory is no longer what limits it.
 
 What limits the tiled kernel now is shared memory. Each execution of line 10 performs 1
-multiply-add and reads 2 values from shared memory, \\(\textit{tileA}[ty][u]\\) and
-\\(\textit{tileB}[u][tx]\\). The shared memory of an SM serves 1 read instruction of a warp per
+multiply-add and reads 2 values from shared memory, \\(\mathsf{tileA}[ty][u]\\) and
+\\(\mathsf{tileB}[u][tx]\\). The shared memory of an SM serves 1 read instruction of a warp per
 cycle, that is, 32 values of 4 bytes, or 128 bytes per cycle, provided that the 32 addresses fall
 in different banks or coincide. The 128 FP32 units of the SM, on the other hand, can perform 128
 multiply-adds per cycle. Let us count for 1 warp. Its 32 multiply-adds need 2 read instructions, 1

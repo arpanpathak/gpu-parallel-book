@@ -155,7 +155,7 @@ another and updates each of them.
 <div class="algo">
 <p class="algo-name">Saxpy<span style="font-variant: normal">(\(a, x, y, n\))</span></p>
 <ol>
-<li>for \(i \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1">\(y_i = a \cdot x_i + y_i\) <span class="c">// 2 reads, 1 write, 2 FLOP</span></li>
 <li>}</li>
 </ol>
@@ -272,14 +272,14 @@ The first thread of block \\(b\\) therefore gets the number \\(b \cdot\\) `block
 threads of block \\(b\\) follow it, so we add the index of a thread within its block. The result
 is called the **global index** of the thread.
 
-\\[ i = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}. \\]
+\\[ i = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
 
 | Symbol | Meaning | Thread 1 of block 1 |
 |---|---|---|
-| \\(\textit{blockIdx.x}\\) | number of the thread's block in the grid | 1 |
-| \\(\textit{blockDim.x}\\) | number of threads in every block | 8 |
-| \\(\textit{blockIdx.x} \cdot \textit{blockDim.x}\\) | number of threads in the blocks before this one | \\(1 \cdot 8 = 8\\) |
-| \\(\textit{threadIdx.x}\\) | index of the thread within its block | 1 |
+| \\(\mathsf{blockIdx{.}x}\\) | number of the thread's block in the grid | 1 |
+| \\(\mathsf{blockDim{.}x}\\) | number of threads in every block | 8 |
+| \\(\mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\\) | number of threads in the blocks before this one | \\(1 \cdot 8 = 8\\) |
+| \\(\mathsf{threadIdx{.}x}\\) | index of the thread within its block | 1 |
 | \\(i\\) | global index, the thread's number in the whole grid | \\(8 + 1 = 9\\) |
 
 In our example, thread 1 of block 1 has the global index \\(1 \cdot 8 + 1 = 9\\). We therefore use
@@ -324,8 +324,8 @@ the following procedure.
 <div class="algo">
 <p class="algo-name">Saxpy-Kernel<span style="font-variant: normal">(\(a, x, y, n\))</span></p>
 <ol>
-<li>\(i = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}\)</li>
-<li>if \(i \lt n\) { <span class="c">// the guard</span></li>
+<li>\(i = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\)</li>
+<li><b class="kw">if</b> \(i \lt n\) { <span class="c">// the guard</span></li>
 <li style="--d:1">\(y_i = a \cdot x_i + y_i\) <span class="c">// 2 reads, 1 write in global memory</span></li>
 <li>}</li>
 </ol>
@@ -522,7 +522,7 @@ Harris of NVIDIA gave the pattern this name in a widely read article in 2013.[^h
 
 <span class="box-label">Definition 14.8</span> **Grid-stride loop.** In a grid-stride loop, each
 thread starts at its global index \\(t\\) and moves forward by the number of threads in the grid,
-\\(P = \textit{gridDim.x} \cdot \textit{blockDim.x}\\). Here `gridDim.x` is the number of blocks of
+\\(P = \mathsf{gridDim{.}x} \cdot \mathsf{blockDim{.}x}\\). Here `gridDim.x` is the number of blocks of
 the grid. The distance \\(P\\) is called the **stride**.
 
 *Example.* With 2 blocks of 2 threads, \\(P = 4\\). Thread 1 of block 0, whose global index is 1,
@@ -533,9 +533,9 @@ visits elements 1, 5 and 9.
 <div class="algo">
 <p class="algo-name">Grid-Stride-Saxpy<span style="font-variant: normal">(\(a, x, y, n\))</span></p>
 <ol>
-<li>\(P = \textit{gridDim.x} \cdot \textit{blockDim.x}\) <span class="c">// threads in the grid</span></li>
-<li>\(i = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}\)</li>
-<li>while \(i \lt n\) {</li>
+<li>\(P = \mathsf{gridDim{.}x} \cdot \mathsf{blockDim{.}x}\) <span class="c">// threads in the grid</span></li>
+<li>\(i = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\)</li>
+<li><b class="kw">while</b> \(i \lt n\) {</li>
 <li style="--d:1">\(y_i = a \cdot x_i + y_i\)</li>
 <li style="--d:1">\(i = i + P\)</li>
 <li>}</li>

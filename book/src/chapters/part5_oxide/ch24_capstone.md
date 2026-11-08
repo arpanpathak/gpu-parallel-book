@@ -163,31 +163,31 @@ the width or the height. For example, with \\(n = 8\\), \\(\mathrm{clamp}(-2, 8)
 <div class="algo">
 <p class="algo-name">Image-Pipeline(\(rgb, W, H\))</p>
 <ol>
-<li>for \(p \in [0, WH)\) {</li>
+<li><b class="kw">for</b> \(p \in [0, WH)\) {</li>
 <li style="--d:1">\(gray[p] = (77\, rgb[3p] + 150\, rgb[3p+1] + 29\, rgb[3p+2] + 128) \gg 8\)</li>
 <li>}</li>
-<li>\(bins[v] = 0\) for every \(v \in [0, 256)\)</li>
-<li>for \(p \in [0, WH)\) {</li>
+<li>\(bins[v] = 0\) <b class="kw">for</b> every \(v \in [0, 256)\)</li>
+<li><b class="kw">for</b> \(p \in [0, WH)\) {</li>
 <li style="--d:1">\(bins[gray[p]] = bins[gray[p]] + 1\) <span class="c">// histogram</span></li>
 <li>}</li>
 <li>\(c = 0\)</li>
-<li>for \(v \in [0, 256)\) {</li>
+<li><b class="kw">for</b> \(v \in [0, 256)\) {</li>
 <li style="--d:1">\(c = c + bins[v]\), \(\;cdf[v] = c\) <span class="c">// scan</span></li>
 <li>}</li>
-<li>\(c_{\min} = cdf[v]\) for the lowest \(v\) with \(bins[v] > 0\), \(\;s = WH - c_{\min}\)</li>
-<li>for \(v \in [0, 256)\) {</li>
+<li>\(c_{\min} = cdf[v]\) <b class="kw">for</b> the lowest \(v\) with \(bins[v] > 0\), \(\;s = WH - c_{\min}\)</li>
+<li><b class="kw">for</b> \(v \in [0, 256)\) {</li>
 <li style="--d:1">\(table[v] = \lfloor (\max(cdf[v] - c_{\min}, 0) \cdot 255 + \lfloor s/2 \rfloor) / s \rfloor\)</li>
 <li>}</li>
-<li>for \(p \in [0, WH)\) {</li>
+<li><b class="kw">for</b> \(p \in [0, WH)\) {</li>
 <li style="--d:1">\(equal[p] = table[gray[p]]\)</li>
 <li>}</li>
-<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
 <li style="--d:1">\(rows[y][x] = \sum_{j \in [0,5)} w_j \cdot equal[y][\mathrm{clamp}(x + j - 2, W)]\)</li>
 <li>}</li>
-<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
 <li style="--d:1">\(blurred[y][x] = (\sum_{i \in [0,5)} w_i \cdot rows[\mathrm{clamp}(y + i - 2, H)][x] + 128) \gg 8\)</li>
 <li>}</li>
-<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
 <li style="--d:1">\((g_x, g_y) = \) <span class="sc">Sobel</span>\((blurred, x, y)\)</li>
 <li style="--d:1">\(edges[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
 <li>}</li>
@@ -314,7 +314,7 @@ converts pixel \\((3, 0)\\).
 <p class="algo-name">Gray-Kernel(\(rgb, gray, W, H\))</p>
 <ol>
 <li>\(i = blockIdx.x \cdot blockDim.x + threadIdx.x\)</li>
-<li>if \(i \in [0, WH)\) {</li>
+<li><b class="kw">if</b> \(i \in [0, WH)\) {</li>
 <li style="--d:1">\(r = rgb[3i]\), \(\;g = rgb[3i + 1]\), \(\;b = rgb[3i + 2]\) <span class="c">// 3 reads</span></li>
 <li style="--d:1">\(gray[i] = (77r + 150g + 29b + 128) \gg 8\) <span class="c">// 1 write</span></li>
 <li>}</li>
@@ -510,11 +510,11 @@ them to the global counters only once, at the end. The following procedure gives
 <li>\(t = threadIdx.x\)</li>
 <li>\(local[t] = 0\) <span class="c">// 256 threads clear 256 counters</span></li>
 <li><span class="sc">Barrier</span>()</li>
-<li>for \(i = blockIdx.x \cdot 256 + t\); \(i &lt; N\); \(i = i + gridDim.x \cdot 256\) {</li>
+<li><b class="kw">for</b> \(i = blockIdx.x \cdot 256 + t\); \(i &lt; N\); \(i = i + gridDim.x \cdot 256\) {</li>
 <li style="--d:1"><span class="sc">Atomic-Add</span>\((local[gray[i]], 1)\) <span class="c">// shared memory</span></li>
 <li>}</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>if \(local[t] > 0\) {</li>
+<li><b class="kw">if</b> \(local[t] > 0\) {</li>
 <li style="--d:1"><span class="sc">Atomic-Add</span>\((bins[t], local[t])\) <span class="c">// global memory</span></li>
 <li>}</li>
 </ol>
@@ -577,13 +577,13 @@ and then scans the 8 warp totals.
 <li>\(v = threadIdx.x\), \(\;lane = v \bmod 32\), \(\;w = \lfloor v / 32 \rfloor\)</li>
 <li>\(count = \) <span class="sc">Atomic-Exchange</span>\((bins[v], 0)\) <span class="c">// read and clear</span></li>
 <li>\(s = \) <span class="sc">Warp-Scan</span>\((count)\) <span class="c">// inclusive, within the warp</span></li>
-<li>if \(lane = 31\) { \(warps[w] = s\) }</li>
-<li>if \(v = 0\) { \(first = \infty\) }</li>
+<li><b class="kw">if</b> \(lane = 31\) { \(warps[w] = s\) }</li>
+<li><b class="kw">if</b> \(v = 0\) { \(first = \infty\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>if \(w = 0\) and \(lane &lt; 8\) { \(warps[lane] = \) <span class="sc">Warp-Scan</span>\((warps[lane])\) }</li>
+<li><b class="kw">if</b> \(w = 0\) and \(lane &lt; 8\) { \(warps[lane] = \) <span class="sc">Warp-Scan</span>\((warps[lane])\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(c = s + warps[w - 1]\) if \(w > 0\), else \(c = s\) <span class="c">// c = c(v)</span></li>
-<li>if \(count > 0\) { <span class="sc">Atomic-Min</span>\((first, c)\) }</li>
+<li>\(c = s + warps[w - 1]\) <b class="kw">if</b> \(w > 0\), <b class="kw">else</b> \(c = s\) <span class="c">// c = c(v)</span></li>
+<li><b class="kw">if</b> \(count > 0\) { <span class="sc">Atomic-Min</span>\((first, c)\) }</li>
 <li><span class="sc">Barrier</span>()</li>
 <li>\(span = warps[7] - first\)</li>
 <li>\(table[v] = \lfloor (\max(c - first, 0) \cdot 255 + \lfloor span/2 \rfloor) / span \rfloor\)</li>
@@ -869,7 +869,7 @@ slots 3 to 7, which hold pixels 1 to 5.
 <ol>
 <li>\(t = threadIdx.x\), \(\;x_0 = blockIdx.x \cdot T\), \(\;y = blockIdx.y\)</li>
 <li>\(tile[t + 2] = src[y][\mathrm{clamp}(x_0 + t, W)]\) <span class="c">// own pixel</span></li>
-<li>if \(t &lt; 2\) {</li>
+<li><b class="kw">if</b> \(t &lt; 2\) {</li>
 <li style="--d:1">\(tile[t] = src[y][\mathrm{clamp}(x_0 + t - 2, W)]\) <span class="c">// left halo</span></li>
 <li style="--d:1">\(tile[T + 2 + t] = src[y][\mathrm{clamp}(x_0 + T + t, W)]\) <span class="c">// right halo</span></li>
 <li>}</li>
@@ -1411,13 +1411,13 @@ has nothing to do with the lanes of a warp.
 <div class="algo">
 <p class="algo-name">Batch(\(images, n, S\))</p>
 <ol>
-<li>for \(i \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1">\(k = i \bmod S\)</li>
 <li style="--d:1">on stream \(k\): copy \(images[i]\) into \(lanes[k].rgb\) <span class="c">// host to device</span></li>
 <li style="--d:1">on stream \(k\): the 7 kernels on \(lanes[k]\)</li>
 <li style="--d:1">on stream \(k\): copy \(lanes[k].edges\) into \(out[k]\) <span class="c">// device to host</span></li>
 <li>}</li>
-<li>wait for every stream</li>
+<li>wait <b class="kw">for</b> every stream</li>
 </ol>
 </div>
 

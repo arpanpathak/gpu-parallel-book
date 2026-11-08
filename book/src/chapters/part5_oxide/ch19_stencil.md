@@ -250,8 +250,8 @@ and \\(K\\) is the number of steps to perform.
 <div class="algo">
 <p class="algo-name">Jacobi-Step(\(u, v, W, H\))</p>
 <ol>
-<li>for \(r \in [1, H - 1)\) {</li>
-<li style="--d:1">for \(c \in [1, W - 1)\) {</li>
+<li><b class="kw">for</b> \(r \in [1, H - 1)\) {</li>
+<li style="--d:1"><b class="kw">for</b> \(c \in [1, W - 1)\) {</li>
 <li style="--d:2">\(v_{r,c} = (u_{r-1,c} + u_{r+1,c} + u_{r,c-1} + u_{r,c+1}) / 4\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
@@ -262,11 +262,11 @@ and \\(K\\) is the number of steps to perform.
 <p class="algo-name">Jacobi(\(u, W, H, K\))</p>
 <ol>
 <li>\(v = u\) <span class="c">// both grids hold the boundary</span></li>
-<li>for \(k \in [0, K)\) {</li>
+<li><b class="kw">for</b> \(k \in [0, K)\) {</li>
 <li style="--d:1"><span class="sc">Jacobi-Step</span>(\(u, v, W, H\))</li>
 <li style="--d:1">exchange the names \(u\) and \(v\) <span class="c">// u is the newest grid</span></li>
 <li>}</li>
-<li>return \(u\)</li>
+<li><b class="kw">return</b> \(u\)</li>
 </ol>
 </div>
 
@@ -446,8 +446,8 @@ buffers in global memory, the large memory of the GPU that every thread can read
 <div class="algo">
 <p class="algo-name">Jacobi-Kernel(\(u, v, W, H\))</p>
 <ol>
-<li>\(row = \text{blockIdx.y} \cdot B_y + \text{threadIdx.y}\), \(col = \text{blockIdx.x} \cdot B_x + \text{threadIdx.x}\)</li>
-<li>if \(row \in [1, H - 1)\) and \(col \in [1, W - 1)\) { <span class="c">// interior cells only</span></li>
+<li>\(row = \mathsf{blockIdx{.}y} \cdot B_y + \mathsf{threadIdx{.}y}\), \(col = \mathsf{blockIdx{.}x} \cdot B_x + \mathsf{threadIdx{.}x}\)</li>
+<li><b class="kw">if</b> \(row \in [1, H - 1)\) and \(col \in [1, W - 1)\) { <span class="c">// interior cells only</span></li>
 <li style="--d:1">\(v_{row,col} = (u_{row-1,col} + u_{row+1,col} + u_{row,col-1} + u_{row,col+1}) / 4\)</li>
 <li>}</li>
 </ol>
@@ -457,7 +457,7 @@ buffers in global memory, the large memory of the GPU that every thread can read
 <p class="algo-name">Jacobi-GPU(\(u, W, H, K\))</p>
 <ol>
 <li>copy \(u\) into 2 device buffers \(a\) and \(b\) <span class="c">// both hold the boundary</span></li>
-<li>for \(k \in [0, K)\) {</li>
+<li><b class="kw">for</b> \(k \in [0, K)\) {</li>
 <li style="--d:1">launch <span class="sc">Jacobi-Kernel</span>(\(a, b, W, H\)) on \(\lceil W/B_x \rceil \times \lceil H/B_y \rceil\) blocks</li>
 <li style="--d:1">exchange the names \(a\) and \(b\)</li>
 <li>}</li>

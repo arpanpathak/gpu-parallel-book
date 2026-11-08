@@ -198,10 +198,10 @@ for that entry.
 <div class="algo">
 <p class="algo-name">Matrix-Multiply(\(A, B, C, M, K, N\))</p>
 <ol>
-<li>for \(i \in [0, M)\) {</li>
-<li style="--d:1">for \(j \in [0, N)\) {</li>
+<li><b class="kw">for</b> \(i \in [0, M)\) {</li>
+<li style="--d:1"><b class="kw">for</b> \(j \in [0, N)\) {</li>
 <li style="--d:2">\(c_{ij} = 0\)</li>
-<li style="--d:2">for \(s \in [0, K)\) {</li>
+<li style="--d:2"><b class="kw">for</b> \(s \in [0, K)\) {</li>
 <li style="--d:3">\(c_{ij} = c_{ij} + a_{is} \cdot b_{sj}\)</li>
 <li style="--d:2">}</li>
 <li style="--d:1">}</li>
@@ -316,17 +316,17 @@ the position of the thread along the axis \\(x\\). We first see how a thread use
 3 blocks lie side by side, as in Figure 16.6. Consider thread 1 of block 2. Blocks 0 and 1 come
 before block 2, and together they cover elements 0 to 7. Block 2 therefore starts at element 8,
 and its thread 1 handles element \\(8 + 1 = 9\\). In general, block \\(b\\) starts at element
-\\(b \cdot \textit{blockDim.x}\\), because each of the \\(b\\) blocks before it covers
-\\(\textit{blockDim.x}\\) elements. A thread then adds its own position within the block, so it
+\\(b \cdot \mathsf{blockDim{.}x}\\), because each of the \\(b\\) blocks before it covers
+\\(\mathsf{blockDim{.}x}\\) elements. A thread then adds its own position within the block, so it
 handles element
 
-\\[ i = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}. \\]
+\\[ i = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
 
 | Symbol | Meaning | Thread 1 of block 2 |
 |---|---|---|
-| \\(\textit{blockIdx.x}\\) | position of the block in the grid | 2 |
-| \\(\textit{blockDim.x}\\) | number of threads in a block | 4 |
-| \\(\textit{threadIdx.x}\\) | position of the thread within its block | 1 |
+| \\(\mathsf{blockIdx{.}x}\\) | position of the block in the grid | 2 |
+| \\(\mathsf{blockDim{.}x}\\) | number of threads in a block | 4 |
+| \\(\mathsf{threadIdx{.}x}\\) | position of the thread within its block | 1 |
 | \\(i\\) | element that the thread handles | \\(2 \cdot 4 + 1 = 9\\) |
 
 <figure>
@@ -358,29 +358,29 @@ block column covers \\(T\\) columns, so the top-left corner of block \\((0, 1)\\
 \\(0 \cdot T = 0\\) and column \\(1 \cdot T = 2\\). Within the block, the thread lies 1 row down
 and 0 columns across from that corner. It therefore computes the entry in row \\(0 + 1 = 1\\) and
 column \\(2 + 0 = 2\\), which is \\(c_{12}\\). The same reasoning applies to every thread. We call
-the row and the column of the entry that a thread computes \\(\textit{row}\\) and
-\\(\textit{col}\\), and they are
+the row and the column of the entry that a thread computes \\(\mathsf{row}\\) and
+\\(\mathsf{col}\\), and they are
 
-\\[ \textit{row} = \textit{blockIdx.y} \cdot T + \textit{threadIdx.y}, \qquad
-\textit{col} = \textit{blockIdx.x} \cdot T + \textit{threadIdx.x}. \\]
+\\[ \mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + \mathsf{threadIdx{.}y}, \qquad
+\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + \mathsf{threadIdx{.}x}. \\]
 
 | Symbol | Meaning | Thread \\((1, 0)\\) of block \\((0, 1)\\) |
 |---|---|---|
-| \\(\textit{blockIdx.y}\\), or \\(by\\) | row of the block within the grid | 0 |
-| \\(\textit{blockIdx.x}\\), or \\(bx\\) | column of the block within the grid | 1 |
-| \\(\textit{threadIdx.y}\\), or \\(ty\\) | row of the thread within its block | 1 |
-| \\(\textit{threadIdx.x}\\), or \\(tx\\) | column of the thread within its block | 0 |
+| \\(\mathsf{blockIdx{.}y}\\), or \\(by\\) | row of the block within the grid | 0 |
+| \\(\mathsf{blockIdx{.}x}\\), or \\(bx\\) | column of the block within the grid | 1 |
+| \\(\mathsf{threadIdx{.}y}\\), or \\(ty\\) | row of the thread within its block | 1 |
+| \\(\mathsf{threadIdx{.}x}\\), or \\(tx\\) | column of the thread within its block | 0 |
 | \\(T\\) | number of threads along each side of a block | 2 |
-| \\(\textit{row}\\) | row of the entry of \\(C\\) that the thread computes | \\(0 \cdot 2 + 1 = 1\\) |
-| \\(\textit{col}\\) | column of the entry of \\(C\\) that the thread computes | \\(1 \cdot 2 + 0 = 2\\) |
+| \\(\mathsf{row}\\) | row of the entry of \\(C\\) that the thread computes | \\(0 \cdot 2 + 1 = 1\\) |
+| \\(\mathsf{col}\\) | column of the entry of \\(C\\) that the thread computes | \\(1 \cdot 2 + 0 = 2\\) |
 
 As a second example, thread \\((0, 1)\\) of block \\((0, 0)\\) has \\(ty = 0\\) and \\(tx = 1\\),
-and it computes the entry with \\(\textit{row} = 0 \cdot 2 + 0 = 0\\) and
-\\(\textit{col} = 0 \cdot 2 + 1 = 1\\), that is, \\(c_{01} = 13\\). Within block \\((0, 0)\\),
+and it computes the entry with \\(\mathsf{row} = 0 \cdot 2 + 0 = 0\\) and
+\\(\mathsf{col} = 0 \cdot 2 + 1 = 1\\), that is, \\(c_{01} = 13\\). Within block \\((0, 0)\\),
 the 4 threads \\((0, 0)\\), \\((0, 1)\\), \\((1, 0)\\) and \\((1, 1)\\) compute \\(c_{00}\\),
 \\(c_{01}\\), \\(c_{10}\\) and \\(c_{11}\\), so for this block, the position of a thread and the
-position of its entry coincide. In cuda-oxide, the values \\(\textit{row}\\) and
-\\(\textit{col}\\) are returned by `thread::index_2d_row()` and `thread::index_2d_col()`.
+position of its entry coincide. In cuda-oxide, the values \\(\mathsf{row}\\) and
+\\(\mathsf{col}\\) are returned by `thread::index_2d_row()` and `thread::index_2d_col()`.
 
 The choice of \\(x\\) for the column is deliberate. The GPU executes the threads of a block in
 groups of 32 threads with consecutive positions, and it counts positions along \\(x\\) first.
@@ -408,7 +408,7 @@ found it to be 5.4 times slower.
 axis \\(z\\) and reason in the same way along each of the 3 axes. Along \\(x\\), a thread has the
 position
 
-\\[ x = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}, \\]
+\\[ x = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}, \\]
 
 and the positions \\(y\\) and \\(z\\) are computed in the same way from the components \\(y\\) and
 \\(z\\) of the 3 values. Figure 16.7 covers a 4 × 2 × 4 volume with 4 blocks of 2 × 2 × 2
@@ -418,9 +418,9 @@ threads. Here, we write positions in the order \\((x, y, z)\\). Thread \\((1, 0,
 
 | Symbol | Meaning | Thread \\((1, 0, 0)\\) of block \\((1, 0, 1)\\), along \\(x\\) |
 |---|---|---|
-| \\(\textit{blockIdx.x}\\) | position of the block along \\(x\\) | 1 |
-| \\(\textit{blockDim.x}\\) | number of threads in a block along \\(x\\) | 2 |
-| \\(\textit{threadIdx.x}\\) | position of the thread within its block along \\(x\\) | 1 |
+| \\(\mathsf{blockIdx{.}x}\\) | position of the block along \\(x\\) | 1 |
+| \\(\mathsf{blockDim{.}x}\\) | number of threads in a block along \\(x\\) | 2 |
+| \\(\mathsf{threadIdx{.}x}\\) | position of the thread within its block along \\(x\\) | 1 |
 | \\(x\\) | position of the thread in the volume along \\(x\\) | \\(1 \cdot 2 + 1 = 3\\) |
 
 <figure>
@@ -538,22 +538,22 @@ We obtain the simplest GPU kernel from <span style="font-variant: small-caps">Ma
 by removing its 2 outer loops. In the sequential algorithm, these loops chose the entry
 \\(c_{ij}\\) to compute. In the kernel, there is one thread for every entry of \\(C\\), and the
 position of a thread in the grid takes the place of \\(i\\) and \\(j\\): the thread computes the
-entry in row \\(\textit{row}\\) and column \\(\textit{col}\\), given by the formulas of
+entry in row \\(\mathsf{row}\\) and column \\(\mathsf{col}\\), given by the formulas of
 Section 16.3.2. Every thread executes the following procedure.
 
 <div class="algo">
 <p class="algo-name">Direct-Kernel(\(A, B, C, M, K, N\))</p>
 <ol>
-<li>\(tx = \textit{threadIdx.x}\), \(ty = \textit{threadIdx.y}\)</li>
-<li>\(\textit{row} = \textit{blockIdx.y} \cdot T + ty\), \(\textit{col} = \textit{blockIdx.x} \cdot T + tx\)</li>
-<li>if \(\textit{row} \notin [0, M)\) or \(\textit{col} \notin [0, N)\) { <span class="c">// thread lies outside C</span></li>
-<li style="--d:1">return</li>
+<li>\(tx = \mathsf{threadIdx{.}x}\), \(ty = \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + ty\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + tx\)</li>
+<li><b class="kw">if</b> \(\mathsf{row} \notin [0, M)\) or \(\mathsf{col} \notin [0, N)\) { <span class="c">// thread lies outside C</span></li>
+<li style="--d:1"><b class="kw">return</b></li>
 <li>}</li>
-<li>\(\textit{sum} = 0\)</li>
-<li>for \(s \in [0, K)\) {</li>
-<li style="--d:1">\(\textit{sum} = \textit{sum} + a_{\textit{row}, s} \cdot b_{s, \textit{col}}\) <span class="c">// 2 fetches from global memory</span></li>
+<li>\(\mathsf{sum} = 0\)</li>
+<li><b class="kw">for</b> \(s \in [0, K)\) {</li>
+<li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + a_{\mathsf{row}, s} \cdot b_{s, \mathsf{col}}\) <span class="c">// 2 fetches from global memory</span></li>
 <li>}</li>
-<li>\(c_{\textit{row}, \textit{col}} = \textit{sum}\)</li>
+<li>\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{sum}\)</li>
 </ol>
 </div>
 
@@ -561,7 +561,7 @@ Lines 1 and 2 compute the position of the thread's entry with the formulas of Se
 Lines 3 to 5 end the thread at once if its entry lies outside \\(C\\), which happens when the
 size of the matrix is not a multiple of \\(T\\). Lines 6 to 9 are the inner loop of
 <span style="font-variant: small-caps">Matrix-Multiply</span>, with the partial sum kept in the
-variable \\(\textit{sum}\\), which lives in a register. Line 10 stores the result in global
+variable \\(\mathsf{sum}\\), which lives in a register. Line 10 stores the result in global
 memory. We let every thread write a different entry of \\(C\\), and every thread reads only \\(A\\) and
 \\(B\\), which no thread writes. Therefore, the threads never interfere with one another. In
 Figure 16.11, we follow a single thread through its work.
@@ -572,37 +572,37 @@ Figure 16.11, we follow a single thread through its work.
 </figure>
 
 The thread is thread \\((1, 0)\\) of block \\((0, 1)\\), with \\(T = 2\\). Line 1 gives
-\\(tx = 0\\) and \\(ty = 1\\), and line 2 gives \\(\textit{row} = 0 \cdot 2 + 1 = 1\\) and
-\\(\textit{col} = 1 \cdot 2 + 0 = 2\\). Both values lie inside \\(C\\), so the test of line 3
+\\(tx = 0\\) and \\(ty = 1\\), and line 2 gives \\(\mathsf{row} = 0 \cdot 2 + 1 = 1\\) and
+\\(\mathsf{col} = 1 \cdot 2 + 0 = 2\\). Both values lie inside \\(C\\), so the test of line 3
 fails and the thread continues. The loop runs for \\(s = 0, 1, 2, 3\\). In the pass with
 \\(s = 0\\), line 8 reads \\(a_{10} = 5\\) and \\(b_{02} = 2\\) and adds their product, 10, to
-\\(\textit{sum}\\). The remaining 3 passes add \\(6 \cdot 1\\), \\(7 \cdot 0\\) and
-\\(8 \cdot 1\\), so that \\(\textit{sum}\\) ends at
+\\(\mathsf{sum}\\). The remaining 3 passes add \\(6 \cdot 1\\), \\(7 \cdot 0\\) and
+\\(8 \cdot 1\\), so that \\(\mathsf{sum}\\) ends at
 \\(5 \cdot 2 + 6 \cdot 1 + 7 \cdot 0 + 8 \cdot 1 = 24\\), and line 10 stores 24 in \\(c_{12}\\).
 Each pass of line 8 fetches 1 value of \\(A\\) and 1 value of \\(B\\) from global memory, so the
 thread makes \\(4 \cdot 2 = 8\\) fetches and 1 write.
 
 ### 16.4.2 Correctness
 
-The direct kernel needs only a short argument. Fix a thread with \\(\textit{row} \in [0, M)\\) and
-\\(\textit{col} \in [0, N)\\). We claim that before the pass of line 8 with index \\(s\\), the
+The direct kernel needs only a short argument. Fix a thread with \\(\mathsf{row} \in [0, M)\\) and
+\\(\mathsf{col} \in [0, N)\\). We claim that before the pass of line 8 with index \\(s\\), the
 variable `sum` holds the first \\(s\\) terms of the dot product, that is,
 
-\\[ \textit{sum} = \sum_{s' \in [0, s)} a_{\textit{row}, s'}\\, b_{s', \textit{col}}. \\]
+\\[ \mathsf{sum} = \sum_{s' \in [0, s)} a_{\mathsf{row}, s'}\\, b_{s', \mathsf{col}}. \\]
 
 Here \\(s'\\) runs over the terms that have already been added, from 0 to \\(s - 1\\). For
 example, for thread \\((1, 0)\\) of block \\((0, 1)\\), before the pass with \\(s = 2\\), `sum`
 holds \\(a_{10}\\, b_{02} + a_{11}\\, b_{12} = 5 \cdot 2 + 6 \cdot 1 = 16\\). The claim holds for
 \\(s = 0\\), where the sum is empty and `sum` is 0 by line 6, and each pass of line 8 adds the
 next term, so the claim holds before every pass. When the loop ends, \\(s = K\\), and `sum` holds
-all \\(K\\) terms, which is \\(c_{\textit{row}, \textit{col}}\\) by Definition 16.1. Finally, no
-other thread has the same \\((\textit{row}, \textit{col})\\), because any 2 threads differ either
+all \\(K\\) terms, which is \\(c_{\mathsf{row}, \mathsf{col}}\\) by Definition 16.1. Finally, no
+other thread has the same \\((\mathsf{row}, \mathsf{col})\\), because any 2 threads differ either
 in their block or in their position within it. Therefore, no other thread writes that entry.
 
 The only part of the kernel that requires care is the guard of lines 3 to 5. Without the guard, a
-thread past the last column computes an index \\(\textit{row} \cdot N + \textit{col}\\) that lands
-in the next row. For example, with \\(N = 1{,}000\\), the thread with \\(\textit{row} = 0\\) and
-\\(\textit{col} = 1{,}000\\) would write location 1,000, which holds the entry in row 1 and column
+thread past the last column computes an index \\(\mathsf{row} \cdot N + \mathsf{col}\\) that lands
+in the next row. For example, with \\(N = 1{,}000\\), the thread with \\(\mathsf{row} = 0\\) and
+\\(\mathsf{col} = 1{,}000\\) would write location 1,000, which holds the entry in row 1 and column
 0. A thread past the last row writes beyond the end of \\(C\\). To observe this, we removed lines
 3 to 5 from the C++ kernel and ran it on matrices of 1,000 × 1,000. A grid of 63 × 63 blocks of
 16 × 16 threads covers 1,008 rows and 1,008 columns, so it overhangs the matrices by 8 rows and 8
@@ -714,8 +714,8 @@ line. In Rust, `index_2d_row()` and `index_2d_col()` compute line 2 of the pseud
 the 2 expressions with `blockIdx` compute the same line, with `blockDim` in place of \\(T\\). The
 test of `row` and `col` corresponds to lines 3 to 5, and the loop over `s` corresponds to lines 7
 to 9. Every index follows Definition 16.2. The expression `a[row * k + s]` is
-\\(a_{\textit{row}, s}\\) in a matrix of row width \\(k\\), and `b[s * n + col]` is
-\\(b_{s, \textit{col}}\\) in a matrix of row width \\(n\\). For example, for thread \\((1, 0)\\) of
+\\(a_{\mathsf{row}, s}\\) in a matrix of row width \\(k\\), and `b[s * n + col]` is
+\\(b_{s, \mathsf{col}}\\) in a matrix of row width \\(n\\). For example, for thread \\((1, 0)\\) of
 block \\((0, 1)\\) with \\(s = 0\\), these are `a[1 * 4 + 0]`, which is `a[4]` and holds 5, and
 `b[0 * 4 + 2]`, which is `b[2]` and holds 2.
 
@@ -752,7 +752,7 @@ space `Runtime2DIndex`, which works in 3 steps. First, the host binds the row wi
 buffer with `RowWidth::new(&mut c, n)`. Second, in the kernel, `thread::index_2d_runtime(&c)`
 returns a witness that holds the thread's row and column, or `None` if the column is not less
 than the bound width. Third, `c.get_mut(idx)` returns a mutable reference to element
-\\(\textit{row} \cdot n + \textit{col}\\), or `None` if that element lies past the end of `c`.
+\\(\mathsf{row} \cdot n + \mathsf{col}\\), or `None` if that element lies past the end of `c`.
 For example, with \\(n = 4\\), thread \\((1, 0)\\) of block \\((0, 1)\\) receives a witness for
 row 1 and column 2, and `get_mut` gives it element \\(1 \cdot 4 + 2 = 6\\) of `c`, which is
 \\(c_{12}\\).
@@ -760,7 +760,7 @@ row 1 and column 2, and `get_mut` gives it element \\(1 \cdot 4 + 2 = 6\\) of `c
 The argument of Section 16.4.2 that no 2 threads write the same entry is now carried by the
 types. Any 2 threads have different coordinates. For a fixed width \\(n\\) and columns less than
 \\(n\\), different coordinates (row, col) give different elements
-\\(\textit{row} \cdot n + \textit{col}\\), so 2 threads never hold the same element. As a result,
+\\(\mathsf{row} \cdot n + \mathsf{col}\\), so 2 threads never hold the same element. As a result,
 the kernel needs no `unsafe` block.
 
 A second index space, `Index2D<W>`, makes the row width part of the type. The following code shows
@@ -789,7 +789,7 @@ mod kernels {
 </div>
 
 In the Rust kernel, `thread::index_2d::<FIXED>()` computes
-\\(\textit{row} \cdot 1{,}024 + \textit{col}\\) and returns it as a witness of type
+\\(\mathsf{row} \cdot 1{,}024 + \mathsf{col}\\) and returns it as a witness of type
 `ThreadIndex<Index2D<1024>>`. The method `get_mut` of a `DisjointSlice<f32, Index2D<1024>>`
 accepts only a witness of this type. A witness made for another width has another type, and
 passing it to this slice is a compile error. The C++ template `matmulFixed<W>` also has the width
@@ -1168,7 +1168,7 @@ the C++ program, we run
   \\(rW + c\\).
 - A kernel runs as many threads. The threads are grouped in blocks of up to 1,024 threads, each of
   which runs on 1 SM and shares shared memory, and the blocks form a grid. Along each axis, a
-  thread finds its entry from \\(\textit{blockIdx} \cdot T + \textit{threadIdx}\\).
+  thread finds its entry from \\(\mathsf{blockIdx} \cdot T + \mathsf{threadIdx}\\).
 - Registers are fast and private to a thread, shared memory is fast and belongs to a block, and
   global memory is large and shared by all threads, but slow.
 - The direct kernel gives each thread 1 entry of \\(C\\). It is correct, but it fetches every value

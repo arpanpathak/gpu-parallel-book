@@ -311,14 +311,14 @@ passes and moves \\(12 \cdot 4 + 4 \cdot 4 = 64\\) bytes.
 <p class="algo-name">Softmax-3-Pass(\(x, p, n\))</p>
 <ol>
 <li>\(m = -\infty\)</li>
-<li>for \(j \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(m = \max(m, x_j)\) <span class="c">// pass 1: the maximum</span></li>
 <li>}</li>
 <li>\(s = 0\)</li>
-<li>for \(j \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(s = s + e^{x_j - m}\) <span class="c">// pass 2: the sum</span></li>
 <li>}</li>
-<li>for \(j \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(p_j = e^{x_j - m} / s\) <span class="c">// pass 3: the outputs</span></li>
 <li>}</li>
 </ol>
@@ -376,11 +376,11 @@ pass instead of 2, as the following procedure shows.
 <p class="algo-name">LayerNorm-Sum-Of-Squares(\(x, y, n, \gamma, \beta\))</p>
 <ol>
 <li>\(a = 0\), \(b = 0\)</li>
-<li>for \(j \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(a = a + x_j\), \(b = b + x_j^2\) <span class="c">// pass 1: 2 sums</span></li>
 <li>}</li>
 <li>\(\mu = a / n\), \(\sigma^2 = b / n - \mu^2\)</li>
-<li>for \(j \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(y_j = (x_j - \mu) / \sqrt{\sigma^2 + \varepsilon} \cdot \gamma_j + \beta_j\) <span class="c">// pass 2: the outputs</span></li>
 <li>}</li>
 </ol>
@@ -551,15 +551,15 @@ describes a set \\(S\\) of values when \\(m = \max S\\) and \\(s = \sum_{x \in S
 <p class="algo-name">Online-Softmax(\(x, p, n\))</p>
 <ol>
 <li>\(m = -\infty\), \(s = 0\) <span class="c">// the empty state</span></li>
-<li>for \(j \in [0, n)\) {</li>
-<li style="--d:1">if \(x_j > m\) {</li>
+<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li style="--d:1"><b class="kw">if</b> \(x_j > m\) {</li>
 <li style="--d:2">\(s = s \cdot e^{m - x_j} + 1\) <span class="c">// move the sum to the new maximum</span></li>
 <li style="--d:2">\(m = x_j\)</li>
-<li style="--d:1">} else {</li>
+<li style="--d:1">} <b class="kw">else</b> {</li>
 <li style="--d:2">\(s = s + e^{x_j - m}\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
-<li>for \(j \in [0, n)\) {</li>
+<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(p_j = e^{x_j - m} / s\)</li>
 <li>}</li>
 </ol>
@@ -633,10 +633,10 @@ The key observation thus combines 2 states as easily as it adds 1 value.
 <p class="algo-name">Merge-Softmax(\((m_a, s_a), (m_b, s_b)\))</p>
 <ol>
 <li>\(m = \max(m_a, m_b)\)</li>
-<li>if \(m = -\infty\) {</li>
-<li style="--d:1">return \((-\infty, 0)\) <span class="c">// both states are empty</span></li>
+<li><b class="kw">if</b> \(m = -\infty\) {</li>
+<li style="--d:1"><b class="kw">return</b> \((-\infty, 0)\) <span class="c">// both states are empty</span></li>
 <li>}</li>
-<li>return \((m,\; s_a e^{m_a - m} + s_b e^{m_b - m})\)</li>
+<li><b class="kw">return</b> \((m,\; s_a e^{m_a - m} + s_b e^{m_b - m})\)</li>
 </ol>
 </div>
 
@@ -744,7 +744,7 @@ it multiplies 2 deviations, never 2 values.
 <li>\(\delta = x - \mu\) <span class="c">// deviation from the old mean</span></li>
 <li>\(\mu = \mu + \delta / n\)</li>
 <li>\(q = q + \delta \cdot (x - \mu)\) <span class="c">// old deviation times new deviation</span></li>
-<li>return \((n, \mu, q)\)</li>
+<li><b class="kw">return</b> \((n, \mu, q)\)</li>
 </ol>
 </div>
 
@@ -819,13 +819,13 @@ and LeVeque.
 <p class="algo-name">Merge-Welford(\((n_a, \mu_a, q_a), (n_b, \mu_b, q_b)\))</p>
 <ol>
 <li>\(n = n_a + n_b\)</li>
-<li>if \(n = 0\) {</li>
-<li style="--d:1">return \((0, 0, 0)\) <span class="c">// both states are empty</span></li>
+<li><b class="kw">if</b> \(n = 0\) {</li>
+<li style="--d:1"><b class="kw">return</b> \((0, 0, 0)\) <span class="c">// both states are empty</span></li>
 <li>}</li>
 <li>\(\delta = \mu_b - \mu_a\)</li>
 <li>\(\mu = \mu_a + \delta \, n_b / n\)</li>
 <li>\(q = q_a + q_b + \delta^2 \, n_a n_b / n\)</li>
-<li>return \((n, \mu, q)\)</li>
+<li><b class="kw">return</b> \((n, \mu, q)\)</li>
 </ol>
 </div>
 
@@ -1015,18 +1015,18 @@ broadcast of the result afterward. The following procedure, shown in Figure 23.1
 butterfly with these 3 steps.
 
 <div class="algo">
-<p class="algo-name">Block-Reduce(\(v, \otimes, \mathit{slots}\))</p>
+<p class="algo-name">Block-Reduce(\(v, \otimes, \mathsf{slots}\))</p>
 <ol>
-<li>for \(k \in (16, 8, 4, 2, 1)\) {</li>
-<li style="--d:1">\(v = v \otimes \text{Shuffle-Xor}(v, k)\) <span class="c">// the butterfly of Section 23.4.2</span></li>
+<li><b class="kw">for</b> \(k \in (16, 8, 4, 2, 1)\) {</li>
+<li style="--d:1">\(v = v \otimes \mathsf{Shuffle-Xor}(v, k)\) <span class="c">// the butterfly of Section 23.4.2</span></li>
 <li>}</li>
-<li>if \(t \bmod 32 = 0\) {</li>
-<li style="--d:1">\(\mathit{slots}[\lfloor t / 32 \rfloor] = v\) <span class="c">// lane 0 writes its warp's slot</span></li>
+<li><b class="kw">if</b> \(t \bmod 32 = 0\) {</li>
+<li style="--d:1">\(\mathsf{slots}[\lfloor t / 32 \rfloor] = v\) <span class="c">// lane 0 writes its warp's slot</span></li>
 <li>}</li>
 <li><span class="sc">Barrier</span>() <span class="c">// barrier 1: all slots written</span></li>
-<li>\(r = \mathit{slots}[0] \otimes \mathit{slots}[1] \otimes \dots \otimes \mathit{slots}[7]\)</li>
+<li>\(r = \mathsf{slots}[0] \otimes \mathsf{slots}[1] \otimes \dots \otimes \mathsf{slots}[7]\)</li>
 <li><span class="sc">Barrier</span>() <span class="c">// barrier 2: all slots read</span></li>
-<li>return \(r\)</li>
+<li><b class="kw">return</b> \(r\)</li>
 </ol>
 </div>
 
@@ -1054,11 +1054,11 @@ block, and \\(C\\) is the length of a row, 4 for \\(X\\) and 4,096 in the measur
 <p class="algo-name">Softmax-Online-Kernel(\(X, P, C\))</p>
 <ol>
 <li>\((m, s) = (-\infty, 0)\)</li>
-<li>for \(j = t, t + B, t + 2B, \dots\) while \(j \lt C\) {</li>
+<li><b class="kw">for</b> \(j = t, t + B, t + 2B, \dots\) <b class="kw">while</b> \(j \lt C\) {</li>
 <li style="--d:1">update \((m, s)\) with \(x_{bj}\) <span class="c">// lines 3 to 8 of Online-Softmax</span></li>
 <li>}</li>
 <li>\((m, s) = \) <span class="sc">Block-Reduce</span>\(((m, s),\) <span class="sc">Merge-Softmax</span>\()\)</li>
-<li>for \(j = t, t + B, t + 2B, \dots\) while \(j \lt C\) {</li>
+<li><b class="kw">for</b> \(j = t, t + B, t + 2B, \dots\) <b class="kw">while</b> \(j \lt C\) {</li>
 <li style="--d:1">\(p_{bj} = e^{x_{bj} - m} / s\)</li>
 <li>}</li>
 </ol>
@@ -1098,15 +1098,15 @@ and the output, so it reads each value from memory once.
 <div class="algo">
 <p class="algo-name">Softmax-Fused-Kernel(\(X, P\))</p>
 <ol>
-<li>for \(k \in [0, 16)\) {</li>
+<li><b class="kw">for</b> \(k \in [0, 16)\) {</li>
 <li style="--d:1">\(r_k = x_{b,\, kB + t}\) <span class="c">// the only read of the row</span></li>
 <li>}</li>
 <li>\(m = \) <span class="sc">Block-Reduce</span>\((\max_k r_k, \max)\)</li>
-<li>for \(k \in [0, 16)\) {</li>
+<li><b class="kw">for</b> \(k \in [0, 16)\) {</li>
 <li style="--d:1">\(r_k = e^{r_k - m}\)</li>
 <li>}</li>
 <li>\(s = \) <span class="sc">Block-Reduce</span>\((\sum_k r_k, +)\)</li>
-<li>for \(k \in [0, 16)\) {</li>
+<li><b class="kw">for</b> \(k \in [0, 16)\) {</li>
 <li style="--d:1">\(p_{b,\, kB + t} = r_k / s\)</li>
 <li>}</li>
 </ol>
