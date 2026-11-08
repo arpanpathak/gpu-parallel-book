@@ -19,6 +19,21 @@ In this part we write GPU kernels in Rust with **cuda-oxide**, NVIDIA's compiler
 
 The first kernel adds 2 vectors. We choose this computation because its arithmetic is trivial, so that we can concentrate on the structure of a GPU program: how threads are mapped to data, how data is moved between host and device, and how a kernel is launched. The kernels of the later chapters in this part, dot products, matrix multiplication, stencils and scans, use the same structure.
 
+<div class="callout note">
+
+**cuda-oxide is experimental.** cuda-oxide is a young project, and its API changes much faster than
+the API of CUDA C++. We wrote the Rust programs of this book in November 2026 against commit
+`b7fe543` of cuda-oxide (21 August 2026), with Rust `nightly-2026-04-03` and CUDA 12.6, and every
+program pins that commit in its `Cargo.toml`. The API has changed since then: later versions of
+cuda-oxide require CUDA 13 and a stable Rust toolchain, and some of the names and signatures used
+here may differ in them. A reader who needs an API that does not break between releases should use
+CUDA C++, which we show beside every Rust program. The concepts do not depend on the version. The
+mapping of threads to data, the launch configuration, shared memory, barriers and the arguments
+for why a kernel is correct carry over unchanged to any version of cuda-oxide and to CUDA C++, and
+so does everything we learn with them.
+
+</div>
+
 ## 13.1 Vector addition
 
 Vector addition takes 2 vectors `a` and `b` of the same length `N` and produces a third vector `c`, each of whose elements is the sum of the 2 input elements at the same position:

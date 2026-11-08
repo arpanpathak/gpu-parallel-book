@@ -42,6 +42,12 @@ driver JIT-compiles on any CUDA 12.x GPU (Pascal or newer), including T4,
 P100, A100, Jetson Orin and H100. For native SASS use `-arch=sm_87` on Jetson
 Orin, `-arch=sm_80` on A100, or `-arch=sm_90` on H100.
 
+**cuda-oxide version.** cuda-oxide is experimental and its API changes quickly. The Rust crates
+in `oxide/` were written in November 2026 against cuda-oxide commit `b7fe543` (21 August 2026),
+with Rust `nightly-2026-04-03` and CUDA 12.6, and each crate pins that commit. Later cuda-oxide
+versions need CUDA 13 and a stable Rust toolchain and have changed parts of the API. For an API
+that does not break between releases, use the CUDA C++ programs, which compute the same results.
+
 ## Requirements
 
 - **CUDA Toolkit 12.x** for all C/CUDA targets (`nvcc`). Every example has
