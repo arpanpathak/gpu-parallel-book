@@ -471,7 +471,7 @@ the page run at full speed.
 
 The function `unifiedMemory` allocates 64 MiB with `cudaMallocManaged` and sets every element
 to 1.0 on the host. It then launches a kernel that doubles every element, first once and then
-10 more times, and times both. Finally the host reads the first element. The kernel has
+10 more times, and times both. Finally, the host reads the first element. The kernel has
 doubled 1.0 11 times, so the expected value is 2<sup>11</sup> = 2,048; the printed value
 confirms that the host and the device worked on the same memory.
 

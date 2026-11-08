@@ -2,7 +2,7 @@
 
 # Chapter 28: NCCL & Multi-GPU Collective Communication
 
-In Chapter 27 we described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
+In Chapter 27, we described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
 we turn to the data that programs send over those connections. When several GPUs work on 1
 problem, each GPU computes a partial result, and the partial results must be combined, usually
 in every iteration of the program. The time that this combination takes depends not only on the
@@ -150,7 +150,7 @@ therefore takes 24 ms. During those 24 ms, the links of ranks 1, 2 and 3 each ca
 in each direction, a third of what the link of rank 0 carries.
 
 In general, the link of the collector carries k − 1 times the message in each direction, so the
-time grows with the number of ranks while the other links are mostly idle. In Section 28.4 we present
+time grows with the number of ranks while the other links are mostly idle. In Section 28.4, we present
 an algorithm in which every link carries the same share, 150 MB in this example, and the same
 exchange takes 6 ms.
 
@@ -817,7 +817,7 @@ r n + n − 1, where n is the number of floats per rank. A send from rank r to r
 becomes a read from 1 slice and a write into another.
 
 Note that the program measures the algorithms, not a network. All the simulated links share the
-memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. In Section 28.6.4
+memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. In Section 28.6.4,
 we show how this affects the measured times.
 
 The program first converts an algorithm into a **plan**: a list of steps, each of which is a list of
@@ -1106,7 +1106,7 @@ Before ranks in different processes can communicate, they must agree that they b
 group. 1 rank calls `ncclGetUniqueId`, which returns a `ncclUniqueId`, 128 bytes that identify the
 group. The program sends these 128 bytes to every other rank through a channel of its own choice,
 such as a file, a TCP connection, or a broadcast of MPI, the Message Passing Interface used in
-supercomputer programs. Then every rank calls `ncclCommInitRank` with the size of the group, the
+supercomputer programs. Then, every rank calls `ncclCommInitRank` with the size of the group, the
 ID and its own rank number. The following code shows these calls:
 
 ```cpp

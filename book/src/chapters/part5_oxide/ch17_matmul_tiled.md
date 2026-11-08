@@ -10,7 +10,7 @@ first copy a small piece of each input matrix into the fast on-chip shared memor
 thread of the block takes its operands from that copy. A value that would otherwise be read from
 global memory by many threads is then read from global memory only once per block.
 
-In this chapter we develop the tiled kernel step by step, using the same pair of 4 × 4 matrices
+In this chapter, we develop the tiled kernel step by step, using the same pair of 4 × 4 matrices
 as in Chapter 16, so that every number can be checked by hand. We first determine which values
 one block needs and how often the direct kernel reads them. We then split each dot product into
 phases, let the threads of a block load the pieces they need into shared memory together, and
@@ -69,7 +69,7 @@ times, half as often.
 
 This plan has one difficulty. Shared memory is small: a block can use at most 48 KB of it by
 default, and a streaming multiprocessor (SM) has between 48 KB and 228 KB in total, shared by all
-the blocks that it runs. In our example the rows are only 4 values long, but in a real problem a
+the blocks that it runs. In our example, the rows are only 4 values long, but in a real problem a
 row of \\(A\\) holds thousands of values. For example, with \\(K = 4{,}096\\), a block of 16 × 16
 threads needs 16 rows of \\(A\\) and 16 columns of \\(B\\), which hold
 \\(2 \cdot 16 \cdot 4{,}096 = 131{,}072\\) floats, or 512 KB. Such a strip of rows and columns
@@ -95,7 +95,7 @@ Now consider all 4 threads of the block. For its first pair of terms, every thre
 columns 0 and 1 of rows 0 and 1 of \\(A\\), which form a 2 × 2 piece of \\(A\\), and rows 0 and 1
 of columns 0 and 1 of \\(B\\), which form a 2 × 2 piece of \\(B\\). For its second pair, every
 thread needs the 2 × 2 pieces next to these: columns 2 and 3 of \\(A\\), and rows 2 and 3 of
-\\(B\\). The block can therefore work in 2 rounds. In each round it copies 1 small piece of
+\\(B\\). The block can therefore work in 2 rounds. In each round, it copies 1 small piece of
 \\(A\\) and 1 small piece of \\(B\\) into shared memory, and every thread adds the matching pair of
 terms to its sum. At any moment the block holds only 2 pieces of 4 values each in shared memory,
 however long the rows are.
@@ -108,7 +108,7 @@ number \\(T\\) is called the **tile width**. A **phase** is 1 round of the tiled
 copies 1 tile of \\(A\\) and 1 tile of \\(B\\) into shared memory, and every thread adds \\(T\\)
 products to its sum.
 
-*Example.* With \\(T = 2\\), block \\((0, 0)\\) runs 2 phases. In phase 0 it uses the tile of
+*Example.* With \\(T = 2\\), block \\((0, 0)\\) runs 2 phases. In phase 0, it uses the tile of
 \\(A\\) in rows 0 and 1 and columns 0 and 1; in phase 1, the tile of \\(A\\) in rows 0 and 1 and
 columns 2 and 3.
 
@@ -138,7 +138,7 @@ Definition 16.1 becomes a sum over the phases of a sum within each phase:
 | \\(a_{i,\\, tT+u}\\) | value of \\(A\\) in row \\(i\\), column \\(tT + u\\) | \\(a_{0,3} = 4\\) for \\(i = 0\\), \\(t = 1\\), \\(u = 1\\) |
 
 The number of phases is \\(\lceil K/T \rceil\\), the quotient \\(K/T\\) rounded up, because when
-\\(K\\) is not a multiple of \\(T\\) the last phase is only partly filled. In that case we treat the
+\\(K\\) is not a multiple of \\(T\\), the last phase is only partly filled. In that case, we treat the
 entries beyond the edge of a matrix as 0, so that the missing terms add nothing to the sum. Note
 also how the tiles move. From 1 phase to the next, the tile of \\(A\\) moves \\(T\\) columns to the
 right along the rows of the block, and the tile of \\(B\\) moves \\(T\\) rows down along its
@@ -147,7 +147,7 @@ them 1 tile at a time.
 
 ## 17.3 Loading a tile together
 
-Next we decide which thread copies which value of a tile. A tile holds \\(T \times T = T^2\\)
+Next, we decide which thread copies which value of a tile. A tile holds \\(T \times T = T^2\\)
 values, and a block of the tiled kernel has \\(T \times T = T^2\\) threads, so the work divides
 evenly: each thread copies exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
 \\(B\\). The natural choice is to let every thread copy the value that belongs at its own position
@@ -186,10 +186,10 @@ marks the values that the thread copies as well as the sum that it accumulates.
 <figcaption><b>Figure 17.3</b> Block (0, 0) in 2 phases. Each colour marks 1 thread: the values it copies, the shared-memory slots it fills, and the sum it accumulates.</figcaption>
 </figure>
 
-Let us follow thread \\((0, 0)\\). In phase 0 it copies \\(a_{00} = 1\\) and \\(b_{00} = 1\\),
+Let us follow thread \\((0, 0)\\). In phase 0, it copies \\(a_{00} = 1\\) and \\(b_{00} = 1\\),
 while the other 3 threads of the block copy the remaining 6 values of the 2 tiles. Once both tiles
 are complete, the thread multiplies row 0 of *tileA* by column 0 of *tileB* and obtains
-\\(1 \cdot 1 + 2 \cdot 0 = 1\\). In phase 1 the tiles hold the next 2 pieces of \\(A\\) and
+\\(1 \cdot 1 + 2 \cdot 0 = 1\\). In phase 1, the tiles hold the next 2 pieces of \\(A\\) and
 \\(B\\), and the thread adds \\(3 \cdot 2 + 4 \cdot 1 = 10\\), which brings its sum to
 \\(c_{00} = 11\\). Thread \\((0, 1)\\) performs the same steps with column 1 of each tile of
 \\(B\\). It obtains \\(1 \cdot 0 + 2 \cdot 1 = 2\\) in phase 0, and \\(2 + 3 \cdot 1 + 4 \cdot 2 =
@@ -299,7 +299,7 @@ the direct kernel. Over all 4 blocks we count 64 fetches instead of 128 (Figure 
 <figcaption><b>Figure 17.7</b> Fetches from global memory in the 4 × 4 example.</figcaption>
 </figure>
 
-In general a block makes \\(2T^2\\) fetches per phase. When \\(T\\) divides every dimension, the
+In general, a block makes \\(2T^2\\) fetches per phase. When \\(T\\) divides every dimension, the
 grid has \\((M/T)(N/T)\\) blocks and each block runs \\(K/T\\) phases, so the total is
 
 \\[ \frac{M}{T} \cdot \frac{N}{T} \cdot \frac{K}{T} \cdot 2T^2 = \frac{2MNK}{T}. \\]
@@ -311,7 +311,7 @@ Chapter 9, the kernel performs \\(T\\) FLOP per float fetched from global memory
 
 What limits \\(T\\)? A block holds at most 1,024 threads, so \\(T \le 32\\). The 2 tiles take
 \\(2T^2\\) values of 4 bytes, which for \\(T = 16\\) is 2 KB of shared memory and for \\(T = 32\\)
-8 KB, well within the 48 KB a block may use. In Section 17.8 we will see that the largest \\(T\\) is
+8 KB, well within the 48 KB a block may use. In Section 17.8, we will see that the largest \\(T\\) is
 not the fastest.
 
 <div class="exercises">
@@ -478,7 +478,7 @@ for a column that does not exist (Figure 17.12).
 
 For a missing value, lines 6 and 7 store 0, and a product with 0 adds nothing. Threads with no
 entry need more care, and they explain the only structural difference between the 2 kernels. In
-the direct kernel such a thread returns at once. In the tiled kernel it must not: a barrier
+the direct kernel such a thread returns at once. In the tiled kernel, it must not: a barrier
 releases the block only when every thread has arrived, and a thread that has returned never
 arrives, so the rest of the block would wait forever, or, on some GPUs, continue with an undefined
 result. Instead, these threads stay in the loop, copy zeros, wait at every barrier with everyone
@@ -845,7 +845,7 @@ multiples of the tile width.
 ### 17.8.2 Why the speedup is 1.5, not 16
 
 Our model in Section 17.5 counted fetches as if every fetch went all the way to global memory.
-In Section 16.6.3 we saw that this is not true for the direct kernel: it requested 738 GB/s, 7.2
+In Section 16.6.3, we saw that this is not true for the direct kernel: it requested 738 GB/s, 7.2
 times what global memory can deliver, so at least 86% of its fetches were answered by the L1 and L2
 caches. Tiling removes 15 of every 16 requested fetches, but most of the fetches it removes were
 already cheap. The hardware caches had recovered part of the reuse that tiling makes explicit.
@@ -959,7 +959,7 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 
 </div>
 
-In Chapter 18 we remove the second limit by letting each thread compute several entries of \\(C\\)
+In Chapter 18, we remove the second limit by letting each thread compute several entries of \\(C\\)
 and keep their sums in registers, so that each value read from shared memory is used several times.
 
 ## Exercises

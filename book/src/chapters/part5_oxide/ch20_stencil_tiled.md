@@ -8,7 +8,7 @@ every value of the grid is read by up to 4 different threads. The tiled matrix p
 shared memory once and then read it from there. A stencil can be tiled in the same way, with 1
 complication: the cells a block computes need neighbours that belong to other blocks.
 
-In this chapter we derive the tiled stencil kernel on the 6 × 6 plate of Chapter 19. We count how
+In this chapter, we derive the tiled stencil kernel on the 6 × 6 plate of Chapter 19. We count how
 often the direct kernel reads each value, define the tile and its halo, compare 2 ways of loading
 the halo, and break the kernel twice, once without its barrier and once without its halo, to show
 the exact wrong values. We then count the memory traffic as a function of the tile size and
@@ -74,7 +74,7 @@ into shared memory, and the other 3 can read it from there.
 
 </div>
 
-In Chapter 19 we found that the caches already serve many of these repeated reads. The tile makes
+In Chapter 19, we found that the caches already serve many of these repeated reads. The tile makes
 the reuse explicit instead of leaving it to the caches; we measure the difference in Section 20.7.
 
 <div class="exercises">
@@ -499,7 +499,7 @@ mod kernels {
 </div>
 </div>
 
-Here the thread at position \\((ty, tx)\\) of the block no longer owns cell \\((top + ty, left +
+Here, the thread at position \\((ty, tx)\\) of the block no longer owns cell \\((top + ty, left +
 tx)\\): it owns slot \\((ty, tx)\\), which holds cell \\((top + ty - 1, left + tx - 1)\\). The
 launch contract of the Rust kernel states the new block shape, `block = (34, 10, 1)`. Because the
 thread's position is not its cell, `index_2d_runtime` and `get_mut` no longer apply, and the Rust
@@ -586,7 +586,7 @@ positions in 64-bit integers and derive the height with a division.
 
 ### 20.7.2 Why the tile gains nothing here
 
-In Chapter 19 we measured that the direct kernel already moves only about 9 bytes per cell from
+In Chapter 19, we measured that the direct kernel already moves only about 9 bytes per cell from
 memory, 1.25 reads and 1 write, and runs within 12% of a copy. The 4 reads per cell that the direct
 kernel requests are mostly answered by the L1 and L2 caches, which keep the 3 rows that
 neighbouring warps share (Figure 19.11). The tile loads 1.33 values per result, 340 cells for 256

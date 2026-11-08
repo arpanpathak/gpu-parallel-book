@@ -319,7 +319,7 @@ close the kernel came to the peak rate of the arithmetic units and to that of th
 percentages. A kernel that comes close to 100% for one of these units is limited by that unit, as
 the roofline model of Chapter 1 predicts. Recall that the **roofline model** bounds the rate of a
 kernel by the smaller of 2 limits: the peak arithmetic rate, and the memory bandwidth multiplied by
-the number of operations the kernel performs per byte it moves. In Section 25.3.3 we compute these
+the number of operations the kernel performs per byte it moves. In Section 25.3.3, we compute these
 percentages by hand.
 
 The `Occupancy` section reports how fully the kernel uses the SMs. Recall that an SM runs
@@ -871,7 +871,7 @@ be checked in the same way as C++ programs.
 
 A clean run, moreover, is evidence only about the inputs and the timing of that run. A race
 that did not occur in 1 run may occur in the next, and an out-of-bounds index that depends on the
-input may not be reached by the test input. In Section 25.8 we add tests that check the result itself.
+input may not be reached by the test input. In Section 25.8, we add tests that check the result itself.
 
 <div class="bee bee-shocked" markdown="1">
 
@@ -932,7 +932,7 @@ increments once per cycle of its own clock. The difference between 2 readings ta
 thread is the number of cycles between them. The counters of different SMs are not synchronized,
 so 2 readings can be compared only when the same thread took both.
 
-In Chapter 1 we assumed 2 latencies, about 4 cycles for an addition and about 500 cycles for a
+In Chapter 1, we assumed 2 latencies, about 4 cycles for an addition and about 500 cycles for a
 read from main memory, and argued from them that a GPU needs many threads. The program `latency.cu`
 measures these latencies.
 
@@ -1405,7 +1405,7 @@ Worked example: \\(d\\) for the 2-launch sum
 
 The test runs the sum twice: once correctly, and once through a caller that passes \\(n - 1\\)
 instead of \\(n\\). An **off-by-one error** is a count or an index that is 1 too large or 1 too
-small, and it is among the most common bugs in loops over arrays. Here the faulty sum leaves out
+small, and it is among the most common bugs in loops over arrays. Here, the faulty sum leaves out
 the last element.
 
 ```console
@@ -1615,7 +1615,7 @@ which the memory system moves data. The procedure above is how each of these exp
 
 </div>
 
-In Chapter 26 we move from the single program to the GPU as a device in the whole system: how the CPU
+In Chapter 26, we move from the single program to the GPU as a device in the whole system: how the CPU
 reaches the GPU's registers, and how the GPU's copy engines reach memory.
 
 ## Exercises

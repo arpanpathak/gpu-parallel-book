@@ -15,7 +15,7 @@ This chapter covers
 
 </div>
 
-In this part we write GPU kernels in Rust with **cuda-oxide**, NVIDIA's compiler backend that compiles ordinary Rust functions into GPU code. The kernel and the host program that launches it are written in the same `.rs` file, and both are built with a single command.
+In this part, we write GPU kernels in Rust with **cuda-oxide**, NVIDIA's compiler backend that compiles ordinary Rust functions into GPU code. The kernel and the host program that launches it are written in the same `.rs` file, and both are built with a single command.
 
 The first kernel adds 2 vectors. We choose this computation because its arithmetic is trivial, so that we can concentrate on the structure of a GPU program: how threads are mapped to data, how data is moved between host and device, and how a kernel is launched. The kernels of the later chapters in this part, dot products, matrix multiplication, stencils and scans, use the same structure.
 
@@ -248,7 +248,7 @@ We examine its parts from the outside in.
 
 **`#[launch_bounds(256)]`** tells the compiler that a block never contains more than 256 threads. With this limit known, the compiler can decide how many registers each thread may use.
 
-**`#[launch_contract(domain = 1, block = (256, 1, 1))]`** states how the kernel must be launched: with a 1-dimensional grid, and with blocks of exactly 256 threads. The host checks the contract before every launch. In Section 13.9 we show what happens when a launch violates it.
+**`#[launch_contract(domain = 1, block = (256, 1, 1))]`** states how the kernel must be launched: with a 1-dimensional grid, and with blocks of exactly 256 threads. The host checks the contract before every launch. In Section 13.9, we show what happens when a launch violates it.
 
 **The parameters** have ordinary Rust types. `a` and `b` are shared slices, `&[f32]`, because every thread may read any element of them. The output `c` has the type `DisjointSlice<f32>`, which is what makes the kernel free of data races.
 
@@ -457,7 +457,7 @@ The output agrees with the hand calculation:
 
 The timing lines show that the GPU took longer than 1 CPU core. The reason lies in the ratio of arithmetic to memory traffic.
 
-For each element, the kernel reads 8 bytes, writes 4 bytes, and performs 1 addition: 1 floating-point operation for every 12 bytes moved. In Chapter 1 we called this ratio the **arithmetic intensity**, and a value of 1/12 FLOP/byte is among the lowest a kernel can have. The arithmetic units of the GPU spend almost all their time waiting for memory. In addition, the `gpu + copy` timer includes the copy of 4 MB back to the CPU and the first kernel launch of the process.
+For each element, the kernel reads 8 bytes, writes 4 bytes, and performs 1 addition: 1 floating-point operation for every 12 bytes moved. In Chapter 1, we called this ratio the **arithmetic intensity**, and a value of 1/12 FLOP/byte is among the lowest a kernel can have. The arithmetic units of the GPU spend almost all their time waiting for memory. In addition, the `gpu + copy` timer includes the copy of 4 MB back to the CPU and the first kernel launch of the process.
 
 2 runs on the same machine gave 2.8 ms and 3.1 ms for the GPU line, and 1.8 ms and 2.2 ms for the CPU line, so these values are approximate. The conclusion does not depend on them. A GPU is faster when each byte it loads is used for many arithmetic operations, or when the data remain on the GPU across many kernels. Matrix multiplication, later in this part, is the first kernel in this part for which this holds.
 
@@ -565,7 +565,7 @@ FAILED: 67 elements differ from the CPU
 - The host program copies the inputs to the GPU, launches the kernel, copies the result back, and checks it against the CPU.
 - Vector addition is memory-bound: it performs 1 addition for every 12 bytes. The GPU is faster on kernels that perform more arithmetic per byte.
 
-In the next chapter we make the kernel generic. A single `map` kernel takes any closure, so that `c[i] = a[i] + b[i]`, SAXPY (`y = αx + y`) and other element-wise operations share 1 kernel. It also launches fewer threads than there are elements, using the *grid-stride loop*.
+In the next chapter, we make the kernel generic. A single `map` kernel takes any closure, so that `c[i] = a[i] + b[i]`, SAXPY (`y = αx + y`) and other element-wise operations share 1 kernel. It also launches fewer threads than there are elements, using the *grid-stride loop*.
 
 ## Exercises
 

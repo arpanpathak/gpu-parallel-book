@@ -21,7 +21,7 @@ direct formulas compute in 2 passes, and 2 partial results computed by different
 the result of their union. The online softmax and Welford's method are the 2 algorithms built on
 this idea, and both are proved correct with a loop invariant.
 
-In Chapter 23 we derive both operations on a matrix of 2 rows of 4 values. We show 2 numerical
+In Chapter 23, we derive both operations on a matrix of 2 rows of 4 values. We show 2 numerical
 failures of the direct formulas in `f32`, an overflow and a cancellation, and the remedies, then
 develop the 1-pass algorithms, their merge rules, the block-wide reduction with warp shuffles and
 barriers, and fused kernels that read each value once. We build on the reductions and warp

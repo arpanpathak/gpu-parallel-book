@@ -7,7 +7,7 @@ GPU's own memory, and the only other memory involved was host memory, reached ov
 described in Chapter 4. Many applications need more than a single GPU. A model whose
 parameters do not fit in the memory of a GPU must be divided among several GPUs, and a
 computation that takes too long on a GPU can be shared among several GPUs to finish sooner.
-In both cases the GPUs must exchange data while they compute, and the time spent on that
+In both cases, the GPUs must exchange data while they compute, and the time spent on that
 exchange determines how much faster the program runs when GPUs are added.
 
 In this chapter, we study the hardware that carries data between GPUs. We start by counting
@@ -86,7 +86,7 @@ the parameters.
 
 In data parallelism, each GPU computes gradients from its own share of the batch, so the
 gradients differ from GPU to GPU. Before any GPU updates its copy of the model, the gradients
-of all GPUs must be added, and every GPU must receive the sum. Otherwise the copies of the
+of all GPUs must be added, and every GPU must receive the sum. Otherwise, the copies of the
 model would diverge. The operation that adds a value held by every GPU and gives the sum to
 every GPU is called an **all-reduce**. We develop the all-reduce algorithms in Chapter 28; here we
 only need their cost. With the commonly used ring algorithm, each of \\(N\\) GPUs sends, and
@@ -104,7 +104,7 @@ The exchange therefore takes longer than the computation it serves. Figure 27.1 
 resulting step. On 8 GPUs connected by PCIe, a step takes 50 + 54.7 = 104.7 ms, so the 8 GPUs
 together are only 400 / 104.7 = 3.8 times as fast as a single GPU. With the NVLink of an A100,
 which carries 300 GB/s in each direction, the exchange takes 1.75 / 300 = 5.8 ms, and the 8
-GPUs are 400 / 55.8 = 7.2 times as fast. In Section 27.6 we generalise this example into a model.
+GPUs are 400 / 55.8 = 7.2 times as fast. In Section 27.6, we generalise this example into a model.
 
 <figure>
 <img src="../../figures/ch27-step.svg" alt="Three timelines of 1 training step. On 1 GPU, 400 ms of compute. On 8 GPUs joined by PCIe 4.0, 50 ms of compute and 54.7 ms of gradient exchange, 104.7 ms, 3.8 times as fast. On 8 GPUs joined by NVLink 3, 50 ms of compute and 5.8 ms of exchange, 55.8 ms, 7.2 times as fast.">
@@ -824,7 +824,7 @@ it, which is within the spread between runs.
 
 On a server with 8 GPUs connected through NVSwitch, the matrix contains `yes` in every cell off
 the diagonal, because every GPU can reach every other GPU through the switches. On a desktop
-with 2 consumer GPUs on PCIe, it may contain `no`. In that case the copy still works, but it is
+with 2 consumer GPUs on PCIe, it may contain `no`. In that case, the copy still works, but it is
 staged through host memory. When GPU 0 can access GPU 1, the program prints `buffer b lives on
 GPU1`, and the 2 rates are those of the link rather than of memory; between 2 H100s they can
 approach 450 GB/s in each direction. The rate of a copy within a single GPU is an upper bound
@@ -842,7 +842,7 @@ that the copies are being staged through the host; check the matrix for `no`.
 
 ### 27.6.1 A model of a training step
 
-In Section 27.1.3 we computed the time of a step by hand. Writing the same arithmetic with symbols
+In Section 27.1.3, we computed the time of a step by hand. Writing the same arithmetic with symbols
 tells us when a faster link improves performance. Let a step take \\(T_1\\) on a single GPU. On
 \\(N\\) GPUs, each GPU computes for \\(T_1 / N\\) and then exchanges data for \\(T_x\\), a time
 that does not decrease with \\(N\\):
@@ -1021,7 +1021,7 @@ table above, and `nvmlDeviceGetNvLinkState` reports the state of each link.
 
 </div>
 
-In Chapter 28 we develop the all-reduce algorithms whose cost we used in this chapter, and NCCL,
+In Chapter 28, we develop the all-reduce algorithms whose cost we used in this chapter, and NCCL,
 the library that runs them over the links that the topology provides.
 
 ## Exercises

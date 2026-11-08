@@ -4,7 +4,7 @@
 
 So far, we have used the GPU only through the CUDA API. `cudaMalloc` returns a pointer,
 `cudaMemcpy` moves data, and a kernel launch with `<<<grid, block>>>` returns to the host after
-a few microseconds while the kernel continues to run on the device. In Chapter 6 we measured a
+a few microseconds while the kernel continues to run on the device. In Chapter 6, we measured a
 launch at 3.77 µs. Because the CPU and the GPU are separate devices, a launch cannot be an
 ordinary function call: the CPU must deliver the work to the GPU through the hardware that
 connects them. The **driver** is the software that operates the GPU on behalf of programs; in section
@@ -129,7 +129,7 @@ operating system keeps ordinary programs away from these addresses.
 ### 26.1.2 PCIe: links, functions and addresses
 
 Most devices in a computer are not built into the processor chip but attached through
-**PCIe** (PCI Express), the standard connection for expansion devices. In Section 4.1.2 we described
+**PCIe** (PCI Express), the standard connection for expansion devices. In Section 4.1.2, we described
 its physical side: a **link** of 1 to 16 **lanes**, each lane a pair of wires in each
 direction, carrying about 2 GB/s each way per lane in generation 4.0 and 4 GB/s in 5.0.
 
@@ -613,7 +613,7 @@ a block wait for each other; a memory barrier orders the accesses of 1 thread. I
 and Rust, a store with **release ordering** is a store that becomes visible only after every
 access that precedes it in the program; it places the barrier before the store. Linux's `writel()`, the function a driver uses to
 write a 32-bit register, puts a write barrier before the store for exactly this case, so that a
-device started by the register sees every earlier write to memory. In Section 26.4.6 we show what
+device started by the register sees every earlier write to memory. In Section 26.4.6, we show what
 happens when the order is wrong.
 
 <div class="rule-box">
@@ -1247,7 +1247,7 @@ pages, that is, to move them to the processor that touched them. **Peer access**
 
 </div>
 
-In Chapter 27 we extend the picture from 1 GPU to several, joined by NVLink: the same DMA, now from
+In Chapter 27, we extend the picture from 1 GPU to several, joined by NVLink: the same DMA, now from
 1 GPU's memory to another's.
 
 ## Exercises

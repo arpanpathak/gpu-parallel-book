@@ -8,7 +8,7 @@ program packs, sorts or distributes data. Its sequential algorithm is a single l
 iteration of that loop needs the result of the one before. A scan therefore looks at first like
 the opposite of a parallel computation.
 
-In this chapter we derive 2 parallel scans from the sequential loop, on 1 example of 8 small
+In this chapter, we derive 2 parallel scans from the sequential loop, on 1 example of 8 small
 integers: the Hillis-Steele scan, which takes the fewest steps, and the Blelloch scan, which
 performs no more additions than necessary. We show why each barrier of these algorithms is
 needed, prove 1 of them correct, extend both to arrays of any length, and use the scan for stream
@@ -33,7 +33,7 @@ The code of the chapter is in
 [`code/oxide/ch21_scan_compaction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch21_scan_compaction)
 for Rust and in
 [`code/cuda/ch21_scan_compaction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/cuda/ch21_scan_compaction)
-for C++. In Chapter 8 we already built a fast scan from warp shuffles (Section 8.7). Here we derive the
+for C++. In Chapter 8, we already built a fast scan from warp shuffles (Section 8.7). Here, we derive the
 scan from the beginning, and we reuse the kernel of Chapter 8 as the third of our measured
 methods.
 
@@ -59,7 +59,7 @@ second, the total at position \\(i\\) stops before \\(x_i\\), so position 4 hold
 <figcaption><b>Figure 21.1</b> The 8 values and their 2 scans. Position 4 holds 15 in the inclusive scan and 11 in the exclusive scan.</figcaption>
 </figure>
 
-Keep 2 entries in mind, \\(y_2 = 11\\) and \\(y_6 = 22\\). In Section 21.6 we will see 2 faulty
+Keep 2 entries in mind, \\(y_2 = 11\\) and \\(y_6 = 22\\). In Section 21.6, we will see 2 faulty
 kernels that produce 8 and 14 in place of \\(y_2 = 11\\).
 
 ### 21.1.2 Definitions
@@ -98,7 +98,7 @@ We write ranges as in the rest of the book: \\([a, b)\\) is the set of integers
 The exclusive scan has a direct use. Suppose some of the values are to be copied, in order, to
 the front of another array. Write 1 for every copied value and 0 for the others. The exclusive scan of these 1s and 0s
 at position \\(i\\) is the number of copied values before position \\(i\\), and that number is
-exactly the output position of value \\(i\\). In Section 21.8 we build
+exactly the output position of value \\(i\\). In Section 21.8, we build
 stream compaction on this fact, and in Chapter 22 a radix sort.
 
 <div class="exercises">
@@ -168,7 +168,7 @@ GPU, we need an algorithm whose number of steps grows much more slowly than \\(n
 Exercises
 
 21.4 How many additions and how many steps does Sequential-Scan need for \\(n = 2^{20}\\)?<br>
-21.5 The sum of all \\(n\\) values is the last output of the scan. In Chapter 15 we computed a sum in
+21.5 The sum of all \\(n\\) values is the last output of the scan. In Chapter 15, we computed a sum in
 \\(\log_2 n\\) steps. Why does the tree of a sum not give all \\(n\\) outputs of a scan?
 
 </div>
@@ -363,14 +363,14 @@ in shared memory.
 Line 2 copies the input into shared memory, and the barrier in line 3 makes sure that every
 value is there before any thread reads a neighbour's value. Lines 5 and 6 are 1 step of Figure
 21.4. Line 7 is the barrier that ends the step, and line 8 makes the array written in this step the input of the
-next step. In Section 21.6 we remove line 7 and then line 8, and show the wrong values
+next step. In Section 21.6, we remove line 7 and then line 8, and show the wrong values
 that each removal produces.
 
 ### 21.4.4 Counting the work
 
 In the step with offset \\(d\\), the \\(n - d\\) threads with \\(i \ge d\\) perform 1 addition each.
 Our example performs \\(7 + 6 + 4 = 17\\) additions in 3 steps, against 7 additions in 7 steps
-for the sequential loop. In general the offsets are \\(1, 2, \ldots, n/2\\) for \\(n\\) a power
+for the sequential loop. In general, the offsets are \\(1, 2, \ldots, n/2\\) for \\(n\\) a power
 of 2, there are \\(\log_2 n\\) steps, and the work is
 
 \\[ \sum_{k=0}^{\log_2 n - 1} (n - 2^k) = n \log_2 n - (n - 1). \\]
@@ -1235,7 +1235,7 @@ which reads and writes all 16,777,216 values again: 134.2 MB in 1.65 ms is 81 GB
 ### 21.11.4 Why the warp votes are 3.3 times faster, not 3.8
 
 With half of the values kept, the 3-pass compaction took 8.05 ms and the warp votes 2.41 ms, a
-ratio of 3.3. In Section 21.9.1 we predicted the ratio of the bytes moved, 38 / 10 = 3.8. Dividing the
+ratio of 3.3. In Section 21.9.1, we predicted the ratio of the bytes moved, 38 / 10 = 3.8. Dividing the
 bytes each method moves by its time gives the rate at which it used the memory: \\(38 \times
 16{,}777{,}216 = 637.5\\) MB in 8.05 ms, 79.2 GB/s, for the 3 passes, and \\(10 \times
 16{,}777{,}216 = 167.8\\) MB in 2.41 ms, 69.6 GB/s, for the warp votes. Both run close to the
@@ -1313,7 +1313,7 @@ and compare with the measured value.
   compute the same positions inside each block and reduce the traffic from 38 to 10 bytes per
   value.
 
-In Chapter 22 we use the exclusive scan as the core of a radix sort, and combine it with a histogram.
+In Chapter 22, we use the exclusive scan as the core of a radix sort, and combine it with a histogram.
 
 ## Exercises
 

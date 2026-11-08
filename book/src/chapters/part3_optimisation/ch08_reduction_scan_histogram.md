@@ -462,7 +462,7 @@ prefix sums, because \\(y_i\\) is the sum of the prefix of the array that ends a
 | exclusive | 0 | 3 | 4 | 8 | 9 | 14 | 23 | 25 |
 
 A scan gives each element the position at which it is stored when selected elements are packed
-together. For this reason it is the core of **stream compaction**, which keeps the elements that
+together. For this reason, it is the core of **stream compaction**, which keeps the elements that
 pass a test and stores them contiguously in a shorter array. For example, to keep the values above
 3 from 3, 1, 4, 1, 5, 9, 2, 6, we first set a flag of 1 for each value above 3, which gives
 0, 0, 1, 0, 1, 1, 0, 1. The exclusive scan of the flags is 0, 0, 0, 1, 1, 2, 3, 3. Each kept value
@@ -663,7 +663,7 @@ as the version with global atomics. Measured as a bandwidth, however, its speed 
 Listing 5.7, run here as `histBytes`, read 64 MiB at 13.7 GB/s on the first GPU, 13% of the
 memory's rated bandwidth.
 
-An input in which every byte is 7 shows where the time goes. In that case every atomic operation
+An input in which every byte is 7 shows where the time goes. In that case, every atomic operation
 of a warp targets the same bin, which is the worst possible contention. Yet these bytes were
 counted no more slowly than random bytes: 16.8 GB/s against 13.7 GB/s. Contention was therefore
 not the limit. Each byte cost 1 load instruction, and the 1-byte loads of a warp fetch only 32

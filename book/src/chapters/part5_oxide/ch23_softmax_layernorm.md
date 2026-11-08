@@ -9,7 +9,7 @@ statistic of its whole row: the largest value and the sum of exponentials for so
 and the variance for layer normalization. Each operation is therefore a reduction over the row
 followed by an element-by-element computation that uses the result of the reduction.
 
-In this chapter we derive both operations on a matrix of 2 rows of 4 values, small enough to check
+In this chapter, we derive both operations on a matrix of 2 rows of 4 values, small enough to check
 with a pencil. We first find 2 numerical failures in the direct formulas, an overflow in softmax
 and a cancellation in the variance, and the standard remedies for each. We then remove the extra
 passes over the row that the remedies seem to require: the online softmax finds the maximum and
@@ -60,7 +60,7 @@ results we compute by hand in this section, the softmax \\(P\\) and the layer no
 <figcaption><b>Figure 23.1</b> The worked example \(X\), its softmax \(P\) and its layer normalization \(Y\). Row 0 of each result depends only on row 0 of \(X\).</figcaption>
 </figure>
 
-Keep 2 entries in mind: \\(p_{03} = 0.6439\\) and \\(y_{00} = -1.3416\\). In Section 23.2 the
+Keep 2 entries in mind: \\(p_{03} = 0.6439\\) and \\(y_{00} = -1.3416\\). In Section 23.2, the
 direct formulas turn both into NaN for rows that differ from row 0 only by a constant.
 
 The matrix is stored in **row-major order**: row 0 first, then row 1, so that value \\(x_{rj}\\)
@@ -268,7 +268,7 @@ on row 1. Pass 1 finds \\(m = 5\\). Pass 2 adds \\(e^{-3} + e^{-1} + e^{-1} + e^
 </figure>
 
 Each pass reads all 4 values, so the row of 16 bytes is read 3 times, and 16 bytes of output are
-written: 64 bytes, or 16 bytes per element. In general a matrix of \\(R\\) rows of \\(C\\) values
+written: 64 bytes, or 16 bytes per element. In general, a matrix of \\(R\\) rows of \\(C\\) values
 costs \\(16RC\\) bytes. For \\(R = C = 4{,}096\\) that is 268 MB, which takes 2.63 ms on a GPU
 whose memory delivers 102 GB/s. The arithmetic, 3 operations per element, is small beside the
 traffic, so the passes decide the time.
@@ -642,7 +642,7 @@ is what line 4 adds, \\(\delta (x_{k-1} - \mu_k)\\).
 </div>
 
 Welford's method costs 1 division per value, on line 3, where the sum of squares costs 1
-multiplication. In Section 23.7 we measure what the division costs on a GPU.
+multiplication. In Section 23.7, we measure what the division costs on a GPU.
 
 ### 23.3.5 Merging 2 Welford states
 
@@ -673,7 +673,7 @@ returns the state of \\(A \cup B\\).
 
 <div class="proof">
 
-*Proof.* If both sets are empty, line 3 returns the empty state. Otherwise the mean of the union is
+*Proof.* If both sets are empty, line 3 returns the empty state. Otherwise, the mean of the union is
 the weighted mean \\((n_a \mu_a + n_b \mu_b)/n = \mu_a + \delta n_b / n\\), line 6. Each value of
 \\(A\\) deviates from the new mean \\(\mu\\) by its deviation from \\(\mu_a\\) minus
 \\(\mu - \mu_a = \delta n_b / n\\). As in the proof of Theorem 23.5, the cross terms vanish, so
@@ -792,7 +792,7 @@ holds the state of its own set of columns. After the steps with masks 16 down to
 \\(i\\) holds the merge over all lanes whose numbers differ from \\(i\\) only in the bits of value
 \\(k\\) or more. The step with mask \\(k / 2\\) merges this group with the group of lane
 \\(i \oplus k/2\\), which is disjoint from it and together with it forms the group for
-\\(k / 2\\). After the step with mask 1, the group is the whole warp. In Chapter 8 we used a different
+\\(k / 2\\). After the step with mask 1, the group is the whole warp. In Chapter 8, we used a different
 shuffle, `shfl_down`, which leaves the result in lane 0 only; the xor shuffle leaves it in every
 lane.
 
@@ -813,7 +813,7 @@ the block has reached it.
 </div>
 
 Lane 0 of each warp writes its warp's result to its slot. A barrier makes sure all 8 slots are
-written. Then every thread reads all 8 slots and merges them itself, so every thread ends with the
+written. Then, every thread reads all 8 slots and merges them itself, so every thread ends with the
 row's result. Reading 8 slots costs less than a second round of shuffles, and it needs no
 broadcast afterwards (Figure 23.13).
 
@@ -837,7 +837,7 @@ Here \\(\otimes\\) is the merge: \\(\max\\) for the maximum, \\(+\\) for a sum,
 <span class="sc">Merge-Softmax</span> or <span class="sc">Merge-Welford</span> for a state. Line 7
 is needed because line 8 reads slots that other warps write on line 5. Line 9 is needed when the
 same slots are used again by a second reduction: no warp may write a slot of the second reduction
-while another warp still reads the first. In Section 23.5 we remove line 9 and show the result.
+while another warp still reads the first. In Section 23.5, we remove line 9 and show the result.
 
 <figure>
 <img src="../../figures/ch23-block-reduce.svg" alt="8 warps each reduce their 32 values by shuffles, and lane 0 of each writes the result into its slot in shared memory. After barrier 1 every thread adds the 8 slots. Barrier 2 waits until every thread has read them, so that a later reduction may write the slots again.">
@@ -991,7 +991,7 @@ layernorm sum of squares: 11 of 100 runs wrong, 12 rows
 
 11 of 100 launches produced at least 1 row of NaN, 12 rows in all, and the first wrong row of the
 first failing launch was row 94. The other 89 launches were correct. A race is therefore hard to find:
-a test that runs the kernel once passes 9 times in 10. On the example \\(X\\) the race
+a test that runs the kernel once passes 9 times in 10. On the example \\(X\\), the race
 cannot change the output at all: only warp 0 of each block holds values, and the other warps
 write sums of 0, which do not change any total (Exercise 23.13).
 
@@ -1163,7 +1163,7 @@ Block \\(b\\) starts at element `base = b × cols` of the matrix, the row-major 
 `block_sum` between them. The kernel works for any row length, including the 4 of \\(X\\).
 
 The Rust kernel writes through a `DisjointSlice<f32>`, the output type of Chapter 13, whose safe
-method lets each thread write only the element at its own global index. Here thread \\(t\\) of
+method lets each thread write only the element at its own global index. Here, thread \\(t\\) of
 block \\(b\\) writes the elements \\(b \cdot C + t + 256k\\), which no other thread writes, but
 which are not its global index, so the kernel calls `get_unchecked_mut` and states that argument
 in the `SAFETY` comment. The C++ kernel writes through a plain pointer. The attribute

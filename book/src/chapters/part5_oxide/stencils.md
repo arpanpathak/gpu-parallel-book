@@ -2,14 +2,14 @@
 
 A stencil computation updates every cell of a grid from a fixed pattern of its neighbours. The
 temperature of a heated plate, the potential between charged conductors, the blur of an image and
-the step of a fluid simulation are all stencils. In the next 2 chapters we study the most
+the step of a fluid simulation are all stencils. In the next 2 chapters, we study the most
 common one, the 5-point stencil of the Laplace equation, iterated with Jacobi's method, on a
 single 6 × 6 plate whose values every reader can check by hand.
 
 The idea that connects the 2 chapters is the separation of old values from new ones. Every update of
 a Jacobi step reads only values of the previous step. That makes all updates of a step independent,
 so a GPU may run them at the same time, but only if no update overwrites a value that another still
-has to read. In Chapter 19 we enforce the separation between steps with 2 buffers in global memory;
+has to read. In Chapter 19, we enforce the separation between steps with 2 buffers in global memory;
 in Chapter 20 we enforce it within a block with a tile in shared memory and a barrier, and, for
 temporal blocking, with 2 tiles used in turn.
 

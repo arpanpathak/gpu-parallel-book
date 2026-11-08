@@ -117,7 +117,7 @@ operations per second. The ratio of the 2 is the number of operations that each 
 memory must supply if the arithmetic units are never to wait. We count reuse in this unit,
 **FLOP per float**, which is 4 times the FLOP per byte of Chapter 2 because a float occupies 4
 bytes. For the smaller GPU, 102 GB/s is 102 × 10<sup>9</sup> / 4 = 25.5 × 10<sup>9</sup> floats
-per second, and the FP32 units perform 2,400 × 10<sup>9</sup> FLOP per second. Therefore each
+per second, and the FP32 units perform 2,400 × 10<sup>9</sup> FLOP per second. Therefore, each
 float loaded from memory must supply 2,400 / 25.5 = 94 operations. The table gives the same ratio
 for other GPUs.
 
@@ -380,7 +380,7 @@ kernel that performs fewer shared-memory reads per multiply-add can remove this 
 
 ### 9.5.1 Computing several outputs per thread
 
-In the tiled kernel each thread computes 1 sum, so each multiply-add needs 2 new operands. A
+In the tiled kernel, each thread computes 1 sum, so each multiply-add needs 2 new operands. A
 thread that computes a 4 × 4 **patch** of \\(C\\) keeps 16 sums in registers. For each \\(k\\), it
 reads 4 values of \\(A\\), 1 from each of its 4 rows, and 4 values of \\(B\\), 1 from each of its 4
 columns, and multiplies every pair. Figure 9.5 shows 1 value of \\(k\\): the values 1, 2, 0, 3 of

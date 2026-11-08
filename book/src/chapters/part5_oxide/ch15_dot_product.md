@@ -134,7 +134,7 @@ measured at the end of the chapter have \\(n = 2^{24}\\) elements, 33.6 million 
 
 The loop of SAXPY in Chapter 14 had iterations that shared nothing. This loop is different.
 Iteration \\(i\\) reads \\(s\\), which iteration \\(i - 1\\) wrote, so it cannot start before
-iteration \\(i - 1\\) has finished. On the example the running sum takes the values 2, 8, 11, 15,
+iteration \\(i - 1\\) has finished. On the example, the running sum takes the values 2, 8, 11, 15,
 20, 21, 29, 32, 35, 37, 41, 47, 48, 57, 59 and 63, each obtained from the one before (Figure
 15.2). The 16 multiplications are independent; the 16 additions form a chain of 16 steps, and no
 number of threads can shorten that chain while the additions are performed in this order.
@@ -187,7 +187,7 @@ perform each of them.
 </div>
 
 Floating-point addition is associative only approximately, because every addition rounds its
-result. In Section 15.6.3 we show what that changes; until then, we work with the exact integers
+result. In Section 15.6.3, we show what that changes; until then, we work with the exact integers
 of the example.
 
 <div class="exercises">
@@ -906,7 +906,7 @@ every run, while the fused kernels ran at the same speed in both languages.
 The tree with 9 barriers and the warp shuffles with 1 run at the same speed, 1.409 ms and 1.405 ms
 in Rust. Each thread adds 64 products in its register before the block sum begins, so a block pays
 for its 9 barriers once per \\(64 \cdot 256 = 16{,}384\\) products, a small part of its time.
-In Chapter 8 we found the same for the plain sum: after coarsening, its tree and its shuffle sum
+In Chapter 8, we found the same for the plain sum: after coarsening, its tree and its shuffle sum
 ran at 64.1 GB/s and 64.4 GB/s. Shuffles matter where a combination is frequent, as in the many short
 reductions of a softmax over the rows of a matrix (Chapter 23).
 

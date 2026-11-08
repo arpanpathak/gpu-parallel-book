@@ -2,14 +2,14 @@
 
 # Chapter 24: Capstone: An Image Pipeline
 
-In Chapters 14 to 23 we derived 1 parallel algorithm at a time: a map, a reduction, a matrix product, a
+In Chapters 14 to 23, we derived 1 parallel algorithm at a time: a map, a reduction, a matrix product, a
 stencil, a scan, a histogram and a normalisation. A real program chains several of them. Each kernel
 reads what the previous kernel wrote, the data travel from host memory to the device and back, and
 the slowest stage sets the rate of the whole program. Image processing shows this well, because its
 common operations fall into the patterns of Part V: some compute each output pixel from 1 input
 pixel, some from a small window around it, and some from every pixel of the image.
 
-In this chapter we build a pipeline of 4 stages that turns a colour image into a map of its edges:
+In this chapter, we build a pipeline of 4 stages that turns a colour image into a map of its edges:
 conversion to gray, histogram equalisation, a Gaussian blur and the Sobel edge detector. We carry an
 image of 8 × 8 pixels through every stage by hand, derive each kernel from the chapter of Part V
 in which we developed its pattern, and prove that a blur in 2 passes of 5 weights equals the blur with 25
@@ -181,7 +181,7 @@ weights of the blur are \\(w = (1, 4, 6, 4, 1)\\), and we explain them in Sectio
 
 Lines 1 to 3 convert to gray, lines 4 to 18 equalise, lines 19 to 24 blur in 2 passes, and lines 25
 to 28 compute the edges. The symbol \\(\gg 8\\) is a shift right by 8 bits, a division by 256 that
-discards the remainder. In Sections 24.3 to 24.6 we explain each group of lines on the example; here we
+discards the remainder. In Sections 24.3 to 24.6, we explain each group of lines on the example; here we
 count the work and look at what each line depends on.
 
 ### 24.2.2 Counting the work
@@ -195,7 +195,7 @@ weighted terms for the edges, and the CPU performs them one after another.
 
 In general, with \\(N = WH\\) pixels, every line except 10 and 14 runs \\(N\\) times. For an image of
 1,920 × 1,080 pixels, \\(N = 2{,}073{,}600\\), and the 2 blur passes alone perform
-\\(2 \cdot 5N = 20{,}736{,}000\\) multiply-adds. In Section 24.10 we measure the whole sequence on 8
+\\(2 \cdot 5N = 20{,}736{,}000\\) multiply-adds. In Section 24.10, we measure the whole sequence on 8
 CPU cores at 38 to 51 images per second.
 
 ### 24.2.3 What each line depends on
@@ -748,7 +748,7 @@ For the image of 1,920 × 1,080 pixels, the 2 passes save \\(15 \cdot 2{,}073{,}
 multiply-adds per image.
 
 The 2 passes cost memory traffic instead. The row pass writes its sums to an intermediate image of 2
-bytes per pixel, 4.1 MB for the large image, and the column pass reads it back. In Section 24.9 we show
+bytes per pixel, 4.1 MB for the large image, and the column pass reads it back. In Section 24.9, we show
 that the time of the blur is set by this traffic, not by the multiply-adds.
 
 <figure>
@@ -1426,7 +1426,7 @@ The whole Rust program, `src/main.rs`, and the whole C++ program, `capstone.cu`.
 - **Forgetting the halo of a tile.** A tile of \\(T\\) outputs of a filter of radius \\(r\\) needs
   \\(T + 2r\\) inputs. The missing slots hold whatever the memory held before, and the result is
   wrong in a few columns only (Section 24.5.6).
-- **Leaving a global histogram uncleared.** A histogram kernel adds to its counts. Here the table
+- **Leaving a global histogram uncleared.** A histogram kernel adds to its counts. Here, the table
   kernel clears each count as it reads it.
 - **Reusing a pinned output buffer on 2 streams.** 2 streams that copy into the same host buffer can
   do so in either order. Give each stream its own buffer, or synchronise before reusing it.

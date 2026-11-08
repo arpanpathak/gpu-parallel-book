@@ -1,10 +1,10 @@
 # Scan-Based Algorithms
 
-In the next 2 chapters we treat algorithms whose output positions are not known in advance.
+In the next 2 chapters, we treat algorithms whose output positions are not known in advance.
 A stream compaction keeps some of the elements of an array and packs them together; how far an
 element moves depends on how many elements before it were kept. A radix sort moves every key to
 a place that depends on how many keys have a smaller digit, and how many keys before it have the
-same digit. In both cases each element could compute its position on its own, if it knew a
+same digit. In both cases, each element could compute its position on its own, if it knew a
 count of the elements before it.
 
 That count is a scan. The exclusive scan of an array of 0s and 1s gives every element the number of

@@ -553,7 +553,7 @@ dropped, so `drop` needs no such test.
 
 ### 10.2.4 Error reporting without a macro
 
-In Chapters 3 to 9 we checked each CUDA call with a small function that printed the error and
+In Chapters 3 to 9, we checked each CUDA call with a small function that printed the error and
 ended the program. Many CUDA programs use a macro instead, `CHECK(call)`. A **macro** is a name that
 the **preprocessor**, a text-substitution step that runs before the compiler proper, replaces
 with other text wherever the name appears. Programs use a macro here for 1 reason: the
@@ -1672,7 +1672,7 @@ of its memory rise only under sustained load.
 
 </div>
 
-In Chapter 11 we find these techniques in NVIDIA's libraries. Thrust's `device_vector` is a
+In Chapter 11, we find these techniques in NVIDIA's libraries. Thrust's `device_vector` is a
 `DeviceBuffer` with algorithms, CUB is a library of template building blocks, and cuBLAS
 provides the matrix product of Chapter 9.
 

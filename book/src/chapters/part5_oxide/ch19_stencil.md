@@ -10,7 +10,7 @@ in which every point of a grid is updated from a fixed pattern of neighbours is 
 computation. Stencils are among the most common workloads of a GPU, because all points of a grid
 can be updated at the same time.
 
-In this chapter we derive the parallel algorithm for 1 stencil, the 5-point stencil of the Laplace
+In this chapter, we derive the parallel algorithm for 1 stencil, the 5-point stencil of the Laplace
 equation, and its standard solver, Jacobi iteration. We work on a single 6 × 6 plate from the
 first section to the last. We compute its steps by hand and show why an update in place produces a
 different answer. We then prove that 2 buffers used in turn compute Jacobi iteration exactly, and
@@ -82,7 +82,7 @@ the mean of the temperatures of its 4 neighbours,
 
 A cell warmer than all its neighbours would lose heat to them, and a cell colder than all of them
 would gain heat, so in the final state neither can exist. We can check the rule on the answer.
-In Section 19.2 we compute the final temperatures of our plate; there, cell (1, 1) holds 45.45 and
+In Section 19.2, we compute the final temperatures of our plate; there, cell (1, 1) holds 45.45 and
 its neighbours hold 100 above, 22.35 below, 0 to the left and 59.47 to the right. Their mean is
 \\((100 + 22.35 + 0 + 59.47) / 4 = 181.82 / 4 = 45.45\\), the value of the cell itself (Figure
 19.2).
@@ -396,7 +396,7 @@ memory and 1 write, and none of the values it reads was written in the same step
 
 Over the whole step, the 16 interior threads of the plate read 64 values and write 16. A grid of
 4096 × 4096 cells has 16.7 million interior threads per step, which read 67 million values,
-268 MB, and write 16.7 million, 67 MB. In Section 19.8 we will see that most of those reads never
+268 MB, and write 16.7 million, 67 MB. In Section 19.8, we will see that most of those reads never
 reach the memory chips.
 
 <div class="exercises">
@@ -886,7 +886,7 @@ writes 1: 9 bytes per cell instead of 8. At the copy's rate, 9 bytes per cell ta
 </figure>
 
 The step is thus close to the best it can be. It moves about 9 bytes per cell where 8 are needed,
-and its speed follows from that count. In Chapter 20 we ask whether a block can do better by
+and its speed follows from that count. In Chapter 20, we ask whether a block can do better by
 copying its 10 rows into shared memory itself.
 
 ### 19.8.4 Why the Rust step is slower

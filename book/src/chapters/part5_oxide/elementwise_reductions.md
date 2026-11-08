@@ -1,6 +1,6 @@
 # Elementwise Operations and Reductions
 
-In the next 2 chapters we derive the 2 simplest patterns of parallel computation. In an
+In the next 2 chapters, we derive the 2 simplest patterns of parallel computation. In an
 elementwise operation, or map, every element of the output is computed from the elements at the
 same position in the inputs. In a reduction, all elements of the input are combined into 1 value,
 such as a sum, a maximum or a count. Almost every GPU program contains both: the activation of a
@@ -16,13 +16,13 @@ be regrouped into a tree whose levels each consist of independent additions. Bot
 share 1 measurement result. Each element is used exactly once, so neither pattern can reuse data,
 and the speed of both is set by the memory bandwidth of the GPU.
 
-In Chapter 14 we derive the map on SAXPY, \\(y \leftarrow a x + y\\), worked by hand on 12 elements.
+In Chapter 14, we derive the map on SAXPY, \\(y \leftarrow a x + y\\), worked by hand on 12 elements.
 We cover a grid of \\(\lceil n / B \rceil\\) blocks with a guard for the threads beyond the end,
 then the grid-stride loop, in which fewer threads than elements cover the array, with a proof that
 each element is updated exactly once. We write a generic map that takes a Rust closure or a C++
 lambda, and measure how close SAXPY comes to the bandwidth.
 
-In Chapter 15 we derive the reduction on the dot product of 2 vectors of 16 small integers. We
+In Chapter 15, we derive the reduction on the dot product of 2 vectors of 16 small integers. We
 turn the tree of additions into a kernel that works in shared memory, step by step between
 barriers, prove the tree correct with a loop invariant, replace most barriers by warp shuffles,
 and combine the sums of the blocks with a second launch or with atomic additions, whose order

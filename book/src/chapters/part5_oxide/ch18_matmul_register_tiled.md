@@ -4,12 +4,12 @@
 # Chapter 18: Register Tiling, Several Entries per Thread
 
 The tiled kernel of Chapter 17 fetches each value from global memory 16 times less often than the
-direct kernel, yet on the GPU measured there it ran only about 1.5 times as fast. In Section 17.8.2
+direct kernel, yet on the GPU measured there it ran only about 1.5 times as fast. In Section 17.8.2,
 we located the new limit in shared memory: every multiply-add of the tiled kernel reads 2 values
 from shared memory, and shared memory cannot deliver them as fast as the arithmetic units consume
 them. The kernel ends near 1/8 of the arithmetic peak on every GPU, whatever the tile width.
 
-In this chapter we remove that limit with the same idea that removed the first one, applied 1
+In this chapter, we remove that limit with the same idea that removed the first one, applied 1
 level closer to the arithmetic units. We start from Exercise 17.12 on the 4 × 4 matrices of
 Chapter 16: each thread of the tiled kernel performs 2 FLOP per 2 shared-memory reads. We let 1
 thread compute 2 entries of \\(C\\), then a 2 × 2 block of entries, and find that the inner loop
@@ -38,7 +38,7 @@ The code of the chapter is in
 [`code/oxide/ch18_matmul_register_tiled/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch18_matmul_register_tiled)
 for Rust and in
 [`code/cuda/ch18_matmul_register_tiled/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/cuda/ch18_matmul_register_tiled)
-for C++. In Chapter 9 we built a kernel with a 4 × 4 patch per thread in C++ and in Rust; here we
+for C++. In Chapter 9, we built a kernel with a 4 × 4 patch per thread in C++ and in Rust; here we
 derive that kernel from the tiled kernel step by step and generalize its shape.
 
 ## 18.1 The reads of the tiled kernel
@@ -67,7 +67,7 @@ Section 16.4.3, 1 level closer to the arithmetic.
 
 ### 18.1.2 What the reads cost
 
-In Section 17.8.2 we turned this count into a limit. An SM's shared memory serves 1 read instruction
+In Section 17.8.2, we turned this count into a limit. An SM's shared memory serves 1 read instruction
 of a warp per cycle, 32 values, and the SM's 128 FP32 units could perform 128 multiply-adds in that
 cycle. At 2 reads per multiply-add, the SM completes at most 16 multiply-adds per cycle, 1/8 of its
 peak: 300 GFLOP/s on the GPU of Chapter 17, against which the tiled kernel measured 272 GFLOP/s. A larger
@@ -207,7 +207,7 @@ when \\(T_M = T_N\\).
 
 ## 18.3 Registers as the third level
 
-The sums of Section 18.2 live in registers. In Chapter 16 we described 3 kinds of storage: global
+The sums of Section 18.2 live in registers. In Chapter 16, we described 3 kinds of storage: global
 memory, shared memory and registers. The direct kernel took its operands from the first, the tiled
 kernel from the second, and the new kernel takes most of them from the third.
 
@@ -231,7 +231,7 @@ sums and 8 for the values of the current step, plus registers for addresses and 
 
 Figure 18.6 shows the 3 levels with the counts of a kernel in which each thread computes a 4 × 4
 tile, as in Chapter 9. A block of 256 threads, 16 × 16, then computes a 64 × 64 tile of \\(C\\).
-In each phase the block copies 64 × 16 values of \\(A\\) and 16 × 64 values of \\(B\\) from global
+In each phase, the block copies 64 × 16 values of \\(A\\) and 16 × 64 values of \\(B\\) from global
 memory into shared memory, 2,048 floats, 8 per thread. In each of the 16 steps of a phase, a thread
 reads 8 floats from shared memory and performs 16 multiply-adds on registers.
 
@@ -271,7 +271,7 @@ SM? What occupancy does that give on an SM that holds 1,536 threads?
 A block now has \\((B_M / T_M) \cdot (B_N / T_N)\\) threads, arranged as \\(B_M/T_M\\) rows and
 \\(B_N/T_N\\) columns. Thread \\((ty, tx)\\) of block \\((by, bx)\\) owns the \\(T_M \times T_N\\)
 block of \\(C\\) whose top-left entry is at row \\(by \cdot B_M + ty \cdot T_M\\) and column
-\\(bx \cdot B_N + tx \cdot T_N\\). In our example we take \\(B_M = B_N = 4\\), \\(B_K = 2\\) and
+\\(bx \cdot B_N + tx \cdot T_N\\). In our example, we take \\(B_M = B_N = 4\\), \\(B_K = 2\\) and
 \\(T_M = T_N = 2\\): a single block of 2 × 2 threads covers all of \\(C\\), and each thread owns a
 2 × 2 block of it (Figure 18.7). Thread \\((0, 0)\\) alone now computes what the 4 threads of block
 \\((0, 0)\\) computed in Chapter 17.
@@ -281,10 +281,10 @@ block of \\(C\\) whose top-left entry is at row \\(by \cdot B_M + ty \cdot T_M\\
 <figcaption><b>Figure 18.7</b> In the example, each thread of the single 2 × 2 block owns a 2 × 2 block of C and copies 2 values of each tile.</figcaption>
 </figure>
 
-The tiles are no longer square. In phase \\(t\\) the block needs the \\(B_M \times B_K\\) piece of
+The tiles are no longer square. In phase \\(t\\), the block needs the \\(B_M \times B_K\\) piece of
 \\(A\\) in its rows and in columns \\([tB_K, tB_K + B_K)\\), and the \\(B_K \times B_N\\) piece of
-\\(B\\) in rows \\([tB_K, tB_K + B_K)\\) and its columns. In the example both tiles hold 8 values and
-the block has 4 threads, so each thread copies 2 values of each. In general we number the threads
+\\(B\\) in rows \\([tB_K, tB_K + B_K)\\) and its columns. In the example, both tiles hold 8 values and
+the block has 4 threads, so each thread copies 2 values of each. In general, we number the threads
 of a block \\(\textit{id} = ty \cdot (B_N/T_N) + tx\\), number the slots of each tile in row-major
 order, and let thread \\(\textit{id}\\) copy slots \\(\textit{id}\\),
 \\(\textit{id} + P\\), \\(\textit{id} + 2P\\), and so on, where \\(P\\) is the number of threads.
@@ -329,7 +329,7 @@ into registers, and line 15 adds their outer product, \\(T_M T_N\\) multiply-add
 Lines 19 to 22 store the \\(T_M T_N\\) results. As in Chapter 17, every thread stays in the loop to
 the end and reaches every barrier, and only the stores are guarded.
 
-In Figure 18.8 we run the procedure for thread \\((0, 0)\\) of the example. In phase 0, *tileA*
+In Figure 18.8, we run the procedure for thread \\((0, 0)\\) of the example. In phase 0, *tileA*
 holds columns 0 and 1 of \\(A\\) and *tileB* rows 0 and 1 of \\(B\\). For \\(u = 0\\) the thread reads
 *aReg* = (1, 5) and *bReg* = (1, 0) and adds their outer product; for \\(u = 1\\) it reads (2, 6)
 and (0, 1). After phase 0 its sums are \\(\begin{pmatrix} 1 & 2 \\\\ 5 & 6 \end{pmatrix}\\), the
@@ -864,7 +864,7 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 
 </div>
 
-In Chapter 19 we turn to stencil computations, in which each output depends on a small
+In Chapter 19, we turn to stencil computations, in which each output depends on a small
 neighbourhood of the input, and apply the same staging in shared memory to a grid with borders.
 
 ## Exercises

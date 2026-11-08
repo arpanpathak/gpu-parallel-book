@@ -8,7 +8,7 @@ time in it. It is also the standard first example of a parallel algorithm, becau
 of the result can be computed independently of every other entry, and because the same input
 values are needed by many entries, which makes the cost of reading memory easy to count.
 
-In this chapter we derive the simplest GPU kernel for the matrix product. We work with a single
+In this chapter, we derive the simplest GPU kernel for the matrix product. We work with a single
 pair of 4 × 4 matrices from the first section to the last, small enough to check every number
 with a pencil. We first compute the product by hand and on a CPU, then introduce the parts of
 the GPU that the kernel needs: threads, blocks and grids, and the memories of the device. We
@@ -70,7 +70,7 @@ of \\(A\\) with column 1 of \\(B\\), \\(1 \cdot 0 + 2 \cdot 1 + 3 \cdot 1 + 4 \c
 </figure>
 
 We ask the reader to keep 2 of these entries in mind, \\(c_{00} = 11\\) and \\(c_{01} = 13\\).
-In Chapter 17 we will remove 1 line at a time from a correct kernel, and the 2 broken kernels
+In Chapter 17, we will remove 1 line at a time from a correct kernel, and the 2 broken kernels
 will produce 7 and 15 in their place.
 
 ### 16.1.2 Definition
@@ -308,7 +308,7 @@ to \\((1, 15)\\) form warp 0.
 With \\(x\\) along the columns, the threads of a warp compute neighbouring entries of a row of
 \\(C\\). At each step of the dot product they read the same entry of \\(A\\) and neighbouring
 entries of a row of \\(B\\), which lie next to each other in memory. Memory delivers such
-neighbouring values together in 1 transaction. In Section 9.3 we measured the opposite choice,
+neighbouring values together in 1 transaction. In Section 9.3, we measured the opposite choice,
 \\(x\\) along the rows, as 5.4 times slower.
 
 **3 dimensions.** For data in a volume, such as temperatures on a 3-dimensional mesh, we add the
@@ -446,7 +446,7 @@ of \\(T\\). Lines 6 to 9 are the inner loop of
 <span style="font-variant: small-caps">Matrix-Multiply</span>, with the partial sum kept in a
 register, and line 10 stores the result. Since every thread writes a different entry of \\(C\\)
 and reads only \\(A\\) and \\(B\\), which no thread writes, the threads never interfere with one
-another. In Figure 16.11 we follow a single thread through its work.
+another. In Figure 16.11, we follow a single thread through its work.
 
 <figure>
 <img src="../../figures/ch16-one-thread.svg" alt="Matrices A, B and C. Row 1 of A, 5 6 7 8, is shaded lavender; column 2 of B, 2 1 0 1, is shaded amber; in C only the entry c12 = 24 is filled. Text below: thread (1, 0) of block (0, 1) has row 1 and column 2; sum = 5 times 2 + 6 times 1 + 7 times 0 + 8 times 1 = 24, stored in c12; 8 reads from global memory and 1 write.">
@@ -481,7 +481,7 @@ kernel: an illegal memory access was encountered
 
 The threads in the 8 extra rows read past the end of \\(A\\) and write past the end of \\(C\\),
 and the GPU stopped the kernel. A smaller overhang can stay inside memory that the program owns,
-and then the kernel finishes and the error shows only in the values. In Section 16.5.6 we make
+and then the kernel finishes and the error shows only in the values. In Section 16.5.6, we make
 the same change in Rust, where the outcome is different.
 
 ### 16.4.3 Counting the fetches
@@ -518,7 +518,7 @@ the same value \\(a_{01}\\). If these threads belong to the same block, 1 of the
 
 </div>
 
-In Chapter 17 we turn this observation into the tiled kernel. In the rest of this chapter we
+In Chapter 17, we turn this observation into the tiled kernel. In the rest of this chapter, we
 implement the direct kernel and measure how much the waste costs.
 
 <div class="exercises">
@@ -766,7 +766,7 @@ require all 64 to be equal. They also run the 4 × 4 example with blocks of 2 ×
 
 ### 16.5.6 Removing the guard in Rust
 
-In Section 16.4.2 we removed lines 3 to 5 from the C++ kernel and the kernel faulted. In the Rust
+In Section 16.4.2, we removed lines 3 to 5 from the C++ kernel and the kernel faulted. In the Rust
 kernel, the guard is the condition `row < m && col < n` in front of the 2 `let` patterns. We removed
 it and ran the kernel on matrices of 1,000 × 1,000, comparing all 1,000,000 entries with the CPU:
 
@@ -959,7 +959,7 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 
 </div>
 
-In Chapter 17 we let the threads of a block share the values they fetch, through shared memory,
+In Chapter 17, we let the threads of a block share the values they fetch, through shared memory,
 and derive the tiled kernel from the key observation of Section 16.4.3.
 
 ## Exercises

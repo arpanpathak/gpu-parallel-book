@@ -234,7 +234,7 @@ blocks. The number of blocks is an integer, so we round up:
 
 With \\(n = 12\\) and \\(B = 8\\), \\(\lceil 12 / 8 \rceil = 2\\) blocks hold 16 threads. Threads
 0 to 11 each own 1 element, and threads 12 to 15, the last 4 threads of block 1, have no element
-at all. In general the grid has \\(B \lceil n / B \rceil - n\\) such threads, fewer than \\(B\\);
+at all. In general, the grid has \\(B \lceil n / B \rceil - n\\) such threads, fewer than \\(B\\);
 for the measured arrays, \\(n = 2^{24}\\) and \\(B = 256\\) give exactly 65,536 blocks and none.
 
 <figure>
@@ -291,7 +291,7 @@ The parallel algorithm therefore does the same work as the sequential one: 24 FL
 on the example, 12 bytes per element in general. What changes is the time. The \\(n\\) iterations
 no longer form a sequence of \\(n\\) steps; with enough threads they all fit in 1 step. The cost
 that remains, 12 bytes per element from global memory, cannot be reduced by any arrangement of
-threads, because every value of \\(x\\) and \\(y\\) is used exactly once. In Section 14.6 we show
+threads, because every value of \\(x\\) and \\(y\\) is used exactly once. In Section 14.6, we show
 that this cost decides the speed of SAXPY.
 
 <div class="exercises">
@@ -327,7 +327,7 @@ lead to a grid with fewer threads than elements.
 ### 14.4.2 Which elements a thread takes
 
 Suppose the grid has \\(P\\) threads and \\(P < n\\). Each thread must take several elements, and
-together the threads must take each element exactly once. On the example we use \\(P = 4\\)
+together the threads must take each element exactly once. On the example, we use \\(P = 4\\)
 threads, 2 blocks of 2, for 12 elements, so each thread takes 3. 2 assignments come to mind
 (Figure 14.6).
 
@@ -347,7 +347,7 @@ block with consecutive indices, threads 0 to 31, 32 to 63, and so on. The SM iss
 instruction for a whole warp at once, so the 32 threads of a warp execute their loads at the same
 moment. The position of a thread within its warp, 0 to 31, is called its **lane**.
 
-*Example.* A block of 256 threads consists of 8 warps. In the example the 4 threads stand for the
+*Example.* A block of 256 threads consists of 8 warps. In the example, the 4 threads stand for the
 lanes of 1 warp.
 
 </div>
@@ -582,7 +582,7 @@ stride. Which elements of the example are updated twice, and which never?
 
 ### 14.6.1 Arithmetic intensity
 
-In Section 14.3.3 we found that SAXPY moves 12 bytes for every 2 FLOP. To decide whether the memory or
+In Section 14.3.3, we found that SAXPY moves 12 bytes for every 2 FLOP. To decide whether the memory or
 the arithmetic limits its speed, we compare this ratio with the corresponding ratio of the GPU.
 
 <div class="definition">
@@ -643,7 +643,7 @@ SAXPY at all; only a faster memory would. Table 14.2 gives the bound for 4 GPUs.
 
 Even on an H100, SAXPY at its bound performs 558 GFLOP/s, less than 1% of that GPU's
 single-precision peak of 67 TFLOP/s. The speed of a map is therefore measured in bytes per second,
-and an implementation is judged by how close it comes to the memory bandwidth. In Section 14.8
+and an implementation is judged by how close it comes to the memory bandwidth. In Section 14.8,
 we measure how close ours come.
 
 <div class="exercises">
@@ -935,7 +935,7 @@ GB/s of the memory.
 
 ### 14.8.3 Why 91 GB/s, not 102 GB/s
 
-In Section 14.6.2 we predicted at least 1.97 ms at 102 GB/s; the kernels took 2.16 ms to 2.24 ms, 10%
+In Section 14.6.2, we predicted at least 1.97 ms at 102 GB/s; the kernels took 2.16 ms to 2.24 ms, 10%
 to 14% longer. The figure of 102 GB/s is the rate at the pins of the memory chips: the measured GPU
 moves 16 bytes per transfer over a 128-bit bus at 6,400 million transfers per second, and
 \\(16 \text{ B} \cdot 6.4 \cdot 10^9 \text{ /s} = 102.4 \text{ GB/s}\\). The memory cannot
@@ -972,7 +972,7 @@ requests, the **throughput** \\(X\\) is the number of requests completed per uni
 
 </div>
 
-In each iteration a thread issues its 2 loads, 8 bytes, and it cannot issue the loads of the next
+In each iteration, a thread issues its 2 loads, 8 bytes, and it cannot issue the loads of the next
 iteration before it has stored the current result. Each thread therefore keeps about 8 bytes in
 flight. With 1 block per SM the GPU runs \\(8 \cdot 256 = 2{,}048\\) threads, which keep
 \\(2{,}048 \cdot 8 = 16{,}384\\) bytes in flight. The measured 32.9 GB/s then implies a latency of

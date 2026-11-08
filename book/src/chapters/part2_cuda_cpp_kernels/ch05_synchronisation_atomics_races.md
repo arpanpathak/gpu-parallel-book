@@ -215,7 +215,7 @@ written without `unsafe`. As we will see in section 5.3, accesses to shared memo
 
 Recall from Chapter 2 that a warp issues 1 instruction at a time for all 32 of its threads. A
 branch therefore needs special handling when some threads of a warp take the `if` path and the
-others take the `else` path. In this case the warp executes both paths. It first executes the
+others take the `else` path. In this case, the warp executes both paths. It first executes the
 `if` path, with the threads that took it active and the other threads idle. It then executes the
 `else` path with the roles reversed. After the branch, the threads continue together. Executing
 more than one path within a warp is called **control divergence**. Its cost is proportional to the

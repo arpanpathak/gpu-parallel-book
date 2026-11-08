@@ -441,7 +441,7 @@ compiles the string in 44 to 88 ms and returns either 2,237 bytes of PTX or a cu
 bytes for `sm_87`. The driver loads the image into the context as a module: the cubin in 0.05
 ms, the PTX in 13 to 45 ms because the driver must first JIT-compile it, or in about 0.7 ms if
 it finds the result of an earlier compilation in its cache (section 12.7). The program looks up
-`poly` in the module and launches it with `cuLaunchKernel`. In Sections 12.4 and 12.5 we take
+`poly` in the module and launches it with `cuLaunchKernel`. In Sections 12.4 and 12.5, we take
 these steps in order: compile, load and look up, launch.
 
 A compilation consists of 5 steps:
@@ -1125,7 +1125,7 @@ the choices.
 
 </div>
 
-In Chapter 13 we begin Part V, in which every kernel is written in Rust with cuda-oxide. The
+In Chapter 13, we begin Part V, in which every kernel is written in Rust with cuda-oxide. The
 `kernels::load` call in each of those programs is the driver API load described in this chapter.
 
 ## Exercises

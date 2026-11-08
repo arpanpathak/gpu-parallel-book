@@ -2,7 +2,7 @@
 
 # Chapter 11: The Library Ecosystem - Thrust, CUB & cuBLAS
 
-In Chapters 8 and 9 we wrote a sum, a scan, a histogram and a matrix product as our own
+In Chapters 8 and 9, we wrote a sum, a scan, a histogram and a matrix product as our own
 kernels and measured each version. The CUDA toolkit already contains tuned implementations
 of all of these operations. A **library** is a collection of routines written, tested and
 tuned by other programmers, which a program calls instead of implementing the operation
@@ -98,7 +98,7 @@ reduction, returns the result to the host. A CUB device-wide call performs the s
 leaves 2 decisions to the caller: where the temporary storage comes from, and when the host
 waits for the result. A CUB block-level call performs only 1 step of an algorithm, inside a
 kernel that the programmer writes. Since Thrust is built on CUB, the kernels launched at the
-top 2 levels are the same. In Sections 11.2 and 11.3 we measure what the difference in
+top 2 levels are the same. In Sections 11.2 and 11.3, we measure what the difference in
 convenience costs.
 
 ### 11.1.2 Advantages and limits of a library
@@ -1061,7 +1061,7 @@ C = A B with A 2 x 3 and B 3 x 2, stored row by row
   C, operands swapped    = [58 64; 139 154]
 ```
 
-Both lines agree with the values computed by hand. In Chapter 9 we called cuBLAS in the same
+Both lines agree with the values computed by hand. In Chapter 9, we called cuBLAS in the same
 way for square matrices. There the 2 outer dimensions are equal, so only the order of the
 operands differs, and a test with square matrices alone would not have exposed a wrong
 leading dimension.
@@ -1465,7 +1465,7 @@ The 3 Rust programs run with `cargo oxide run`, `cargo oxide run --bin gemm` and
 
 </div>
 
-In Chapter 12 we go below the libraries. We compile CUDA source code while the program runs,
+In Chapter 12, we go below the libraries. We compile CUDA source code while the program runs,
 with NVRTC, and load and launch the result through the driver API.
 
 ## Exercises

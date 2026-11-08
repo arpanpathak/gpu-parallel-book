@@ -9,7 +9,7 @@ pass, and in each pass every key computes its output position from counts: how m
 smaller digit, and how many keys before it have the same digit. Both counts come from the scan of
 Chapter 21, and the first one also from a histogram, the count of the keys of each digit value.
 
-In this chapter we derive a radix sort on 8 keys of 3 bits. We start with passes of 1 bit, each of
+In this chapter, we derive a radix sort on 8 keys of 3 bits. We start with passes of 1 bit, each of
 which is 2 stream compactions, and show why every pass must keep equal digits in their input
 order. We then count keys with atomic operations, measure what happens when many threads count
 into the same bin, and remove most of that contention with private bins in shared memory.
@@ -34,7 +34,7 @@ The code of the chapter is in
 for Rust and in
 [`code/cuda/ch22_radix_sort_histogram/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/cuda/ch22_radix_sort_histogram)
 for C++. It uses the scan of Chapter 21 (the warp-shuffle version of Section 21.10.3) without
-change. In Chapters 5 and 8 we measured histograms of bytes in C++ and Rust; we cite their results where
+change. In Chapters 5 and 8, we measured histograms of bytes in C++ and Rust; we cite their results where
 we reuse them.
 
 ## 22.1 The problem
@@ -97,7 +97,7 @@ shift 0.<br>
 
 ### 22.2.1 The sequential algorithm
 
-A radix sort processes the bits from the least significant to the most significant. In each pass
+A radix sort processes the bits from the least significant to the most significant. In each pass,
 it reads the keys in their current order and splits them in 2 lists: the keys whose current bit
 is 0, then the keys whose bit is 1, each list in the order in which the keys were read.
 
@@ -168,7 +168,7 @@ bits, so the keys are sorted, and equal keys are in input order.
 
 </div>
 
-The proof uses stability in exactly 1 place, the case of equal bits. In Section 22.4 we show what
+The proof uses stability in exactly 1 place, the case of equal bits. In Section 22.4, we show what
 happens to our keys when that case fails.
 
 <div class="exercises">
@@ -382,7 +382,7 @@ for the other (Figure 22.5).
 </figure>
 
 Atomic operations on global memory are performed in the L2 cache, which all SMs share, and
-requests to 1 address are queued there. In Chapter 5 we measured the queue: a histogram of 64 MiB of
+requests to 1 address are queued there. In Chapter 5, we measured the queue: a histogram of 64 MiB of
 bytes into 256 global bins took 33.40 ms for random bytes and 134.65 ms for bytes that were all
 7, 4 times as long, because every request went to the same address (Section 5.5.2). A radix pass
 with digits of 4 bits has only 16 bins, so even random keys send 1/16 of all requests to each
@@ -917,7 +917,7 @@ that are all 7, and 255.32 ms and 39.89 ms for the 2 sorts.
 ### 22.10.2 Contention, measured
 
 Figure 22.10 draws the histogram times. With global bins, the keys that are all 7 took 15.15 ms
-and the random keys 3.23 ms, 4.7 times less. In Chapter 5 we measured a factor of 4 for bytes in 256
+and the random keys 3.23 ms, 4.7 times less. In Chapter 5, we measured a factor of 4 for bytes in 256
 global bins (Section 5.5.2). With all keys equal, every one of the 16,777,216 atomic additions
 went to 1 address, and the L2 cache performed them at \\(16{,}777{,}216 / 15.15\\ \text{ms} =
 1.11\\) billion per second, 1 after the other. Spreading them over 16 addresses raised the rate
@@ -931,7 +931,7 @@ only to 5.19 billion per second.
 With private bins the 2 inputs took the same time, 1.02 and 1.01 ms, and both read the keys at 66
 GB/s, 65% of the memory bandwidth. The 1,024 blocks merged 16,384 counts into global memory
 instead of 16,777,216, and the contention in shared memory, where every key of the second input
-also went to 1 bin, no longer set the time. In Chapter 8 we found the same for bytes: once the bins were
+also went to 1 bin, no longer set the time. In Chapter 8, we found the same for bytes: once the bins were
 private, the speed of the histogram was set by its loads (Section 8.8).
 
 Warp aggregation made the histogram slower: 1.91 ms against 1.02 ms on random keys, and 1.31 ms
@@ -1021,7 +1021,7 @@ steps.
 - Passes of 4 bits move 96 bytes per key for a 32-bit sort, against 1,280 for passes of 1 bit;
   the measured sort ran 6.5 times as fast.
 
-In Chapter 23 we turn to softmax and layer normalization, which combine reductions with arithmetic on
+In Chapter 23, we turn to softmax and layer normalization, which combine reductions with arithmetic on
 every element.
 
 ## Exercises
