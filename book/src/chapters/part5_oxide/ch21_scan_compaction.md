@@ -345,8 +345,8 @@ In the third step, every position \\(i \ge 4\\) adds the value of position \\(i 
 adds \\(S[0..3] = 11\\) and then holds \\(S[0..7] = 25\\), which is \\(y_7\\).
 
 We call the distance between a position and the position whose value it adds the **offset** of
-the step, and write it \\(d\\). In our example, the offsets are \\(d = 1\\), 2 and 4. A position
-whose index is smaller than the offset has no partner, because position \\(i - d\\) would be
+the step, and write it \\(\mathsf{distance}\\). In our example, the offsets are \\(\mathsf{distance} = 1\\), 2 and 4. A position
+whose index is smaller than the offset has no partner, because position \\(i - \mathsf{distance}\\) would be
 negative. Such a position already holds the sum of a range that starts at position 0, so its value
 is final, and it keeps it. Figure 21.4 shows all 3 steps on our values, with the range that
 each cell sums written under the cell.
@@ -397,50 +397,50 @@ arrays. Every step reads 1 array and writes the other, and the next step exchang
 <div class="definition">
 
 <span class="box-label">Definition 21.8</span> **Double buffer.** A double buffer is a pair of
-arrays \\(a\\) and \\(b\\) in which each step of an algorithm reads only \\(a\\) and writes only
-\\(b\\), after which the 2 names are exchanged.
+arrays \\(\mathsf{current}\\) and \\(\mathsf{next}\\) in which each step of an algorithm reads only \\(\mathsf{current}\\) and writes only
+\\(\mathsf{next}\\), after which the 2 names are exchanged.
 
-*Example.* In the step with offset 1, thread 2 reads \\(a[2] = 7\\) and \\(a[1] = 1\\) and writes
-\\(b[2] = 8\\); \\(a[1]\\) keeps the value 1 until the step is over, whatever thread 1 does.
+*Example.* In the step with offset 1, thread 2 reads \\(\mathsf{current}[2] = 7\\) and \\(\mathsf{current}[1] = 1\\) and writes
+\\(\mathsf{next}[2] = 8\\); \\(\mathsf{current}[1]\\) keeps the value 1 until the step is over, whatever thread 1 does.
 
 </div>
 
 ### 21.4.3 The algorithm
 
-Every thread of the block executes the following procedure. The arrays \\(a\\) and \\(b\\) are
-stored in shared memory, and \\(d\\) is the offset of the current step.
+Every thread of the block executes the following procedure. The arrays \\(\mathsf{current}\\) and \\(\mathsf{next}\\) are
+stored in shared memory, and \\(\mathsf{distance}\\) is the offset of the current step.
 
 <div class="algo">
 <p class="algo-name">Hillis-Steele-Scan(\(x, y, n\))</p>
 <ol>
 <li>\(i\) = the index of this thread in the block <span class="c">// 1 thread per value, \(n\) threads</span></li>
-<li>\(a[i] = x_i\)</li>
-<li><span class="sc">Barrier</span>() <span class="c">// every value is in \(a\)</span></li>
-<li><b class="kw">for</b> \(d = 1, 2, 4, \ldots\) <b class="kw">while</b> \(d &lt; n\) {</li>
-<li style="--d:1"><b class="kw">if</b> \(i \ge d\): \(b[i] = a[i] + a[i - d]\) <span class="c">// reads only \(a\), writes only \(b\)</span></li>
-<li style="--d:1"><b class="kw">else</b>: \(b[i] = a[i]\)</li>
+<li>\(\mathsf{current}[i] = x_i\)</li>
+<li><span class="sc">Barrier</span>() <span class="c">// every value is in \(\mathsf{current}\)</span></li>
+<li><b class="kw">for</b> \(\mathsf{distance} = 1, 2, 4, \ldots\) <b class="kw">while</b> \(\mathsf{distance} &lt; n\) {</li>
+<li style="--d:1"><b class="kw">if</b> \(i \ge \mathsf{distance}\): \(\mathsf{next}[i] = \mathsf{current}[i] + \mathsf{current}[i - \mathsf{distance}]\) <span class="c">// reads only \(\mathsf{current}\), writes only \(\mathsf{next}\)</span></li>
+<li style="--d:1"><b class="kw">else</b>: \(\mathsf{next}[i] = \mathsf{current}[i]\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// the step is complete</span></li>
-<li style="--d:1">exchange the names \(a\) and \(b\)</li>
+<li style="--d:1">exchange the names \(\mathsf{current}\) and \(\mathsf{next}\)</li>
 <li>}</li>
-<li>\(y_i = a[i]\)</li>
+<li>\(y_i = \mathsf{current}[i]\)</li>
 </ol>
 </div>
 
 Line 2 copies the input into shared memory, and the barrier in line 3 makes sure that every value
 is there before any thread reads the value of a neighbor. Lines 5 and 6 perform 1 step of
-Figure 21.4. For example, in the step with \\(d = 2\\), thread 6 executes line 5 and computes
-\\(b[6] = a[6] + a[4] = 7 + 4 = 11\\), while thread 1 has \\(i < d\\) and executes line 6, which
-copies \\(a[1] = 4\\) unchanged. Line 7 is the barrier that ends the step, and line 8 makes the
+Figure 21.4. For example, in the step with \\(\mathsf{distance} = 2\\), thread 6 executes line 5 and computes
+\\(\mathsf{next}[6] = \mathsf{current}[6] + \mathsf{current}[4] = 7 + 4 = 11\\), while thread 1 has \\(i < \mathsf{distance}\\) and executes line 6, which
+copies \\(\mathsf{current}[1] = 4\\) unchanged. Line 7 is the barrier that ends the step, and line 8 makes the
 array written in this step the input of the next step. In Section 21.6, we remove line 7 and then
 line 8, and we show the wrong values that each removal produces.
 
 ### 21.4.4 Counting the work
 
-In the step with offset \\(d\\), the threads with \\(i \ge d\\) perform 1 addition each, and there
-are \\(n - d\\) such threads. In our example, the 3 steps therefore perform \\(8 - 1 = 7\\),
+In the step with offset \\(\mathsf{distance}\\), the threads with \\(i \ge \mathsf{distance}\\) perform 1 addition each, and there
+are \\(n - \mathsf{distance}\\) such threads. In our example, the 3 steps therefore perform \\(8 - 1 = 7\\),
 \\(8 - 2 = 6\\) and \\(8 - 4 = 4\\) additions, \\(7 + 6 + 4 = 17\\) in all, in 3 steps, whereas
 the sequential loop performs 7 additions in 7 steps. In general, when \\(n\\) is a power of 2, the
-offsets are \\(d = 2^k\\) for \\(k = 0, 1, \ldots, \log_2 n - 1\\), that is,
+offsets are \\(\mathsf{distance} = 2^k\\) for \\(k = 0, 1, \ldots, \log_2 n - 1\\), that is,
 \\(1, 2, \ldots, n/2\\). There are \\(\log_2 n\\) steps, and the work is
 
 \\[ \sum_{k=0}^{\log_2 n - 1} (n - 2^k) = n \log_2 n - (n - 1). \\]
@@ -448,8 +448,8 @@ offsets are \\(d = 2^k\\) for \\(k = 0, 1, \ldots, \log_2 n - 1\\), that is,
 | Symbol | Meaning | In the example |
 |---|---|---|
 | \\(k\\) | number of the step, starting from 0 | 0, 1 or 2 |
-| \\(2^k\\) | the offset \\(d\\) of step \\(k\\) | 1, 2 or 4 |
-| \\(n - 2^k\\) | additions in step \\(k\\), 1 per thread with \\(i \ge d\\) | 7, 6 or 4 |
+| \\(2^k\\) | the offset \\(\mathsf{distance}\\) of step \\(k\\) | 1, 2 or 4 |
+| \\(n - 2^k\\) | additions in step \\(k\\), 1 per thread with \\(i \ge \mathsf{distance}\\) | 7, 6 or 4 |
 | \\(\log_2 n\\) | number of steps | \\(\log_2 8 = 3\\) |
 
 The right-hand side follows because the \\(\log_2 n\\) terms \\(n\\) add up to \\(n \log_2 n\\),
@@ -488,15 +488,15 @@ steps. The scan works in 2 phases on a single array, which we now describe in tu
 ### 21.5.2 The up-sweep
 
 The first phase builds the tree of Figure 21.3 in place, in the array itself. As before, we call
-the distance between the 2 positions that are added \\(d\\). At distance \\(d = 1\\), every odd
-position \\(i\\) adds the value of position \\(i - 1\\), so that positions 1, 3, 5 and 7 receive the
+the distance between the 2 positions that are added \\(\mathsf{distance}\\). At distance 1, every odd
+position \\(\mathsf{right}\\) adds the value of position \\(\mathsf{right} - 1\\), so that positions 1, 3, 5 and 7 receive the
 pair sums 4, 7, 5 and 9. At distance 2, positions 3 and 7 add the values of positions 1 and 5, and
 receive \\(7 + 4 = 11\\) and \\(9 + 5 = 14\\). At distance 4, position 7 adds the value of
 position 3 and receives \\(14 + 11 = 25\\). Figure 21.5 shows the 3 levels.
 
 <figure>
 <img src="../../figures/ch21-upsweep.svg" alt="The up-sweep of the Blelloch scan on 3, 1, 7, 0, 4, 1, 6, 3. Distance 1: elements 1, 3, 5, 7 become 4, 7, 5, 9. Distance 2: elements 3 and 7 become 11 and 14. Distance 4: element 7 becomes 25. The small labels give the range each cell sums.">
-<figcaption><b>Figure 21.5</b> The up-sweep. At distance \(d\), positions \(2d - 1, 4d - 1, \ldots\) add the position \(d\) to their left.</figcaption>
+<figcaption><b>Figure 21.5</b> The up-sweep. At each distance, positions \(2 \cdot \mathsf{distance} - 1, 4 \cdot \mathsf{distance} - 1, \ldots\) add the position \(\mathsf{distance}\) places to their left.</figcaption>
 </figure>
 
 At each level, the number of additions halves. The up-sweep performs \\(4 + 2 + 1 = 7\\)
@@ -524,7 +524,7 @@ position 3, and the value \\(x_4 = 4\\), which sits at position 4: \\(e_5 = 11 +
 
 The second phase starts by setting the last position, the root of the tree, to 0, since nothing
 lies to the left of the whole array. Then, from the root downwards, the down-sweep visits every
-pair \\((i - d, i)\\) of the up-sweep again, in the reverse order of the levels. At each pair, the
+pair \\((\mathsf{right} - \mathsf{distance}, \mathsf{right})\\) of the up-sweep again, in the reverse order of the levels. At each pair, the
 left position receives the value of the right position, which is the sum of everything to the left
 of the pair. The right position receives that same value plus the old value of the left position,
 which is the total of its left sibling. Figure 21.6 shows the 3 levels on our values.
@@ -543,56 +543,57 @@ scan.
 
 ### 21.5.4 The algorithm
 
-A block of \\(n/2\\) threads scans \\(n\\) values, 2 per thread, in 1 array \\(s\\) in shared
-memory. At each level, every pair is handled by 1 thread. At distance \\(d\\), thread \\(t\\)
+A block of \\(n/2\\) threads scans \\(n\\) values, 2 per thread, in 1 array \\(\mathsf{cells}\\) in shared
+memory. At each level, every pair is handled by 1 thread. At a given distance, thread \\(\mathsf{threadIdx{.}x}\\)
 handles the pair whose right position is
 
-\\[ i = (2t + 2)d - 1, \\]
+\\[ \mathsf{right} = (2 \cdot \mathsf{threadIdx{.}x} + 2) \cdot \mathsf{distance} - 1, \\]
 
-and only the first \\(n/(2d)\\) threads have a pair.
+and only the first \\(n/(2 \cdot \mathsf{distance})\\) threads have a pair.
 
-| Symbol | Meaning | In the example, \\(d = 2\\) |
+| Symbol | Meaning | In the example, \\(\mathsf{distance} = 2\\) |
 |---|---|---|
-| \\(t\\) | index of the thread in the block, from 0 to \\(n/2 - 1\\) | 0 to 3 |
-| \\(d\\) | distance between the 2 positions of a pair | 2 |
-| \\(i\\) | right position of the pair of thread \\(t\\) | 3 for \\(t = 0\\), 7 for \\(t = 1\\) |
-| \\(i - d\\) | left position of the pair | 1 for \\(t = 0\\), 5 for \\(t = 1\\) |
-| \\(n/(2d)\\) | number of pairs, and of threads with a pair | \\(8/4 = 2\\) |
+| \\(\mathsf{threadIdx{.}x}\\) | index of the thread in the block, from 0 to \\(n/2 - 1\\) | 0 to 3 |
+| \\(\mathsf{distance}\\) | distance between the 2 positions of a pair | 2 |
+| \\(\mathsf{right}\\) | right position of the pair of thread \\(\mathsf{threadIdx{.}x}\\) | 3 for \\(\mathsf{threadIdx{.}x} = 0\\), 7 for \\(\mathsf{threadIdx{.}x} = 1\\) |
+| \\(\mathsf{right} - \mathsf{distance}\\) | left position of the pair | 1 for \\(\mathsf{threadIdx{.}x} = 0\\), 5 for \\(\mathsf{threadIdx{.}x} = 1\\) |
+| \\(n/(2 \cdot \mathsf{distance})\\) | number of pairs, and of threads with a pair | \\(8/4 = 2\\) |
 
-The right positions of the pairs at distance \\(d\\) are spaced \\(2d\\) apart, starting at
-\\(2d - 1\\), and the formula numbers them in that order. At distance 2, for instance, thread 0
+The right positions of the pairs at a given distance are spaced \\(2 \cdot \mathsf{distance}\\) apart, starting at
+\\(2 \cdot \mathsf{distance} - 1\\), and the formula numbers them in that order. At distance 2, for instance, thread 0
 handles the pair (1, 3) and thread 1 the pair (5, 7), while threads 2 and 3 have no pair, since
-\\(n/(2d) = 2\\).
+\\(n/(2 \cdot \mathsf{distance}) = 2\\).
 
 <div class="algo">
 <p class="algo-name">Blelloch-Scan(\(x, y, n\))</p>
 <ol>
-<li>\(t\) = the index of this thread in the block <span class="c">// \(n/2\) threads</span></li>
-<li>\(s[2t] = x_{2t}\), \(s[2t + 1] = x_{2t+1}\)</li>
-<li><b class="kw">for</b> \(d = 1, 2, 4, \ldots\) <b class="kw">while</b> \(d &lt; n\) { <span class="c">// up-sweep</span></li>
+<li>\(\mathsf{first} = 2 \cdot \mathsf{threadIdx{.}x}\) <span class="c">// this thread owns positions first and first + 1; \(n/2\) threads</span></li>
+<li>\(\mathsf{cells}[\mathsf{first}] = x_{\mathsf{first}}\), \(\mathsf{cells}[\mathsf{first} + 1] = x_{\mathsf{first}+1}\)</li>
+<li><b class="kw">for</b> \(\mathsf{distance} = 1, 2, 4, \ldots\) <b class="kw">while</b> \(\mathsf{distance} &lt; n\) { <span class="c">// up-sweep</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1"><b class="kw">if</b> \(t &lt; n/(2d)\) {</li>
-<li style="--d:2">\(i = (2t + 2)d - 1\)</li>
-<li style="--d:2">\(s[i] = s[i] + s[i - d]\)</li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; n/(2 \cdot \mathsf{distance})\) {</li>
+<li style="--d:2">\(\mathsf{right} = (2 \cdot \mathsf{threadIdx{.}x} + 2) \cdot \mathsf{distance} - 1\)</li>
+<li style="--d:2">\(\mathsf{cells}[\mathsf{right}] = \mathsf{cells}[\mathsf{right}] + \mathsf{cells}[\mathsf{right} - \mathsf{distance}]\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
 <li><span class="sc">Barrier</span>()</li>
-<li><b class="kw">if</b> \(t = 0\): \(s[n - 1] = 0\) <span class="c">// the root: nothing to its left</span></li>
-<li><b class="kw">for</b> \(d = n/2, n/4, \ldots, 1\) { <span class="c">// down-sweep</span></li>
+<li><b class="kw">if</b> \(\mathsf{threadIdx{.}x} = 0\): \(\mathsf{cells}[n - 1] = 0\) <span class="c">// the root: nothing to its left</span></li>
+<li><b class="kw">for</b> \(\mathsf{distance} = n/2, n/4, \ldots, 1\) { <span class="c">// down-sweep</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1"><b class="kw">if</b> \(t &lt; n/(2d)\) {</li>
-<li style="--d:2">\(i = (2t + 2)d - 1\)</li>
-<li style="--d:2">\((s[i - d],\ s[i]) = (s[i],\ s[i] + s[i - d])\) <span class="c">// swap and add</span></li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; n/(2 \cdot \mathsf{distance})\) {</li>
+<li style="--d:2">\(\mathsf{right} = (2 \cdot \mathsf{threadIdx{.}x} + 2) \cdot \mathsf{distance} - 1\)</li>
+<li style="--d:2">\(\mathsf{left} = \mathsf{right} - \mathsf{distance}\)</li>
+<li style="--d:2">\((\mathsf{cells}[\mathsf{left}],\ \mathsf{cells}[\mathsf{right}]) = (\mathsf{cells}[\mathsf{right}],\ \mathsf{cells}[\mathsf{right}] + \mathsf{cells}[\mathsf{left}])\) <span class="c">// swap and add</span></li>
 <li style="--d:1">}</li>
 <li>}</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(y_{2t} = s[2t]\), \(y_{2t+1} = s[2t+1]\) <span class="c">// the exclusive scan</span></li>
+<li>\(y_{\mathsf{first}} = \mathsf{cells}[\mathsf{first}]\), \(y_{\mathsf{first}+1} = \mathsf{cells}[\mathsf{first}+1]\) <span class="c">// the exclusive scan</span></li>
 </ol>
 </div>
 
-Lines 3 to 9 are the up-sweep of Figure 21.5, and lines 12 to 18 are the down-sweep of
+Lines 3 to 9 are the up-sweep of Figure 21.5, and lines 12 to 19 are the down-sweep of
 Figure 21.6. Within 1 level, the pairs of different threads do not overlap, so no 2 threads touch
-the same position between 2 barriers. Line 16 assigns both positions at once from their old
+the same position between 2 barriers. Line 17 assigns both positions at once from their old
 values. In code, this means that the old left value must be kept in a register before the left
 position is overwritten.
 
@@ -618,9 +619,9 @@ in Section 21.11.
 Exercises
 
 21.11 Carry out the up-sweep and the down-sweep on \\((2, 0, 5, 1, 1, 3, 0, 4)\\).<br>
-21.12 At distance \\(d = 2\\) of the up-sweep, which threads have a pair, and which positions
+21.12 At distance 2 of the up-sweep, which threads have a pair, and which positions
 do they read and write?<br>
-21.13 Why must line 11 set \\(s[n-1]\\) to 0 rather than leave the total there? What would the
+21.13 Why must line 11 set \\(\mathsf{cells}[n-1]\\) to 0 rather than leave the total there? What would the
 last row of Figure 21.6 be without it?
 
 </div>
@@ -636,18 +637,18 @@ happens on our example.
 ### 21.6.1 The barrier at the end of a step
 
 Suppose that we delete line 7, the barrier that ends each step. In the step with offset 1, thread 2
-computes \\(b[2] = a[2] + a[1] = 7 + 1 = 8\\) and moves on to the step with offset 2. In that step,
-the names have been exchanged, so thread 2 reads the array that was \\(b\\) in the previous step,
+computes \\(\mathsf{next}[2] = \mathsf{current}[2] + \mathsf{current}[1] = 7 + 1 = 8\\) and moves on to the step with offset 2. In that step,
+the names have been exchanged, so thread 2 reads the array that was \\(\mathsf{next}\\) in the previous step,
 and it needs the value at position 0. Thread 0, however, is running late and has not yet written
-\\(b[0] = a[0] = 3\\), as Figure 21.8 shows.
+\\(\mathsf{next}[0] = \mathsf{current}[0] = 3\\), as Figure 21.8 shows.
 
 <figure>
-<img src="../../figures/ch21-race-barrier.svg" alt="A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterward. Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.">
-<figcaption><b>Figure 21.8</b> Without line 7. Thread 2 reads \(b[0]\) before thread 0 has written it.</figcaption>
+<img src="../../figures/ch21-race-barrier.svg" alt="A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with next[2] = 8 and starts step 2, where it reads next[0]. Thread 0 is late and writes next[0] = 3 only afterward. Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.">
+<figcaption><b>Figure 21.8</b> Without line 7. Thread 2 reads \(\mathsf{next}[0]\) before thread 0 has written it.</figcaption>
 </figure>
 
 The slot still holds whatever it held before the kernel started, and thread 2 computes its new
-value as \\(8 + b[0]\\) from that content. On the GPU we measured, the slot held 0, so the result
+value as \\(8 + \mathsf{next}[0]\\) from that content. On the GPU we measured, the slot held 0, so the result
 is \\(y_2 = 8\\) instead of 11. We removed the barrier from the C++ program and ran it, and it
 printed the following lines.
 
@@ -665,16 +666,16 @@ no thread may start a step until every thread has finished the previous one.
 ### 21.6.2 The second buffer
 
 Now we restore line 7 and delete line 8 instead, so that every step reads and writes the same
-array, and line 5 becomes \\(a[i] = a[i] + a[i - d]\\). In the step with offset 1, thread 1
-computes \\(a[1] = a[1] + a[0] = 1 + 3 = 4\\). Thread 2 is late, and when it reads \\(a[1]\\), it
+array, and line 5 becomes \\(\mathsf{current}[i] = \mathsf{current}[i] + \mathsf{current}[i - \mathsf{distance}]\\). In the step with offset 1, thread 1
+computes \\(\mathsf{current}[1] = \mathsf{current}[1] + \mathsf{current}[0] = 1 + 3 = 4\\). Thread 2 is late, and when it reads \\(\mathsf{current}[1]\\), it
 finds the new value 4 instead of the old value 1, as Figure 21.9 shows.
 
 <figure>
-<img src="../../figures/ch21-race-inplace.svg" alt="A timeline of threads 1 and 2 when the scan updates 1 buffer in place. Thread 1 adds a[0] to a[1], making it 4, before the late thread 2 reads a[1]. Thread 2 computes 7 + 4 = 11 instead of 8, and after the next step y2 is 14 instead of 11.">
+<img src="../../figures/ch21-race-inplace.svg" alt="A timeline of threads 1 and 2 when the scan updates 1 buffer in place. Thread 1 adds current[0] to current[1], making it 4, before the late thread 2 reads current[1]. Thread 2 computes 7 + 4 = 11 instead of 8, and after the next step y2 is 14 instead of 11.">
 <figcaption><b>Figure 21.9</b> Without line 8. Thread 2 reads a value that the current step has already changed.</figcaption>
 </figure>
 
-Thread 2 therefore computes \\(a[2] = 7 + 4 = 11\\) instead of 8, and its range now counts
+Thread 2 therefore computes \\(\mathsf{current}[2] = 7 + 4 = 11\\) instead of 8, and its range now counts
 \\(x_0\\) twice. After the step with offset 2, it holds \\(11 + 3 = 14\\), and we get
 \\(y_2 = 14\\) instead of 11. We deleted line 8 from the C++ program and ran it 3 times. The 8
 values came out right every time, as in the following output.
@@ -694,7 +695,7 @@ the wrong values and the position of the first one, and the 3 runs printed the f
   Hillis-Steele: 16764032 of 16777216 values wrong, first at 6848 (tile 6, position 704)
 ```
 
-In almost every tile, every thread read \\(a[i - d]\\) before the thread that owns that slot had
+In almost every tile, every thread read \\(\mathsf{current}[i - \mathsf{distance}]\\) before the thread that owns that slot had
 updated it, and the tile was scanned correctly. A single block, scanned on its own 1,000 times in a
 separate test, never went wrong. In a few of the 16,384 tiles, however, 1 warp updated its values
 before another warp had read them, as in Figure 21.9, and the wrong total of that tile reached
@@ -706,28 +707,28 @@ argument fails at Figure 21.9.
 ### 21.6.3 A proof of correctness
 
 With lines 7 and 8 in place, we can prove that Hillis-Steele-Scan computes the inclusive scan.
-The idea is to watch the value \\(a[i]\\) of 1 thread grow step by step, as in Figure 21.10. At the
-start of the step with offset \\(d\\), this value is the sum of the last \\(d\\) inputs up to and
-including position \\(i\\), or of all inputs from position 0 if there are fewer than \\(d\\) of
+The idea is to watch the value \\(\mathsf{current}[i]\\) of 1 thread grow step by step, as in Figure 21.10. At the
+start of the step with offset \\(\mathsf{distance}\\), this value is the sum of the last \\(\mathsf{distance}\\) inputs up to and
+including position \\(i\\), or of all inputs from position 0 if there are fewer than \\(\mathsf{distance}\\) of
 them. We call this range of inputs the **window** of thread \\(i\\). For thread 6, the window has
 length 1, 2 and 4 at the start of the 3 steps, and it then covers all 7 inputs \\(x_0\\) to
 \\(x_6\\).
 
 <figure>
-<img src="../../figures/ch21-invariant.svg" alt="The window of inputs summed by a[6] in the Hillis-Steele scan. At the start of offset 1 it is x6 alone, 6; at offset 2 it is x5 and x6, 7; at offset 4 it is x3 to x6, 11; at the end it is x0 to x6, 22.">
-<figcaption><b>Figure 21.10</b> The loop invariant for thread 6. Before the step with offset \(d\), \(a[6]\) sums a window of \(d\) inputs.</figcaption>
+<img src="../../figures/ch21-invariant.svg" alt="The window of inputs summed by current[6] in the Hillis-Steele scan. At the start of offset 1 it is x6 alone, 6; at offset 2 it is x5 and x6, 7; at offset 4 it is x3 to x6, 11; at the end it is x0 to x6, 22.">
+<figcaption><b>Figure 21.10</b> The loop invariant for thread 6. Before the step with offset \(\mathsf{distance}\), \(\mathsf{current}[6]\) sums a window of \(\mathsf{distance}\) inputs.</figcaption>
 </figure>
 
-The window of \\(d\\) inputs that ends at position \\(i\\) begins at position \\(i - d + 1\\), but
+The window of \\(\mathsf{distance}\\) inputs that ends at position \\(i\\) begins at position \\(i - \mathsf{distance} + 1\\), but
 never before position 0. We write its first position as
 
-\\[ \ell(i, d) = \max(0,\ i - d + 1). \\]
+\\[ \ell(i, \mathsf{distance}) = \max(0,\ i - \mathsf{distance} + 1). \\]
 
 | Symbol | Meaning | Thread 6 |
 |---|---|---|
 | \\(i\\) | position of the thread, and last position of its window | 6 |
-| \\(d\\) | offset of the step, and length of the window when it fits | 1, 2, 4, then 8 |
-| \\(\ell(i, d)\\) | first position of the window | 6, 5, 3, then \\(\max(0, -1) = 0\\) |
+| \\(\mathsf{distance}\\) | offset of the step, and length of the window when it fits | 1, 2, 4, then 8 |
+| \\(\ell(i, \mathsf{distance})\\) | first position of the window | 6, 5, 3, then \\(\max(0, -1) = 0\\) |
 
 For example, at the start of the step with offset 4, thread 6 holds
 \\(S[\ell(6, 4)..6] = S[3..6] = 0 + 4 + 1 + 6 = 11\\), as in Figure 21.10.
@@ -741,29 +742,29 @@ for every \\(i \in [0, n)\\).
 
 <div class="proof">
 
-*Proof.* Write \\(\ell(i, d) = \max(0, i - d + 1)\\) for the first position of the window. We show
+*Proof.* Write \\(\ell(i, \mathsf{distance}) = \max(0, i - \mathsf{distance} + 1)\\) for the first position of the window. We show
 that the loop of lines 4 to 9 maintains the invariant
 
-\\[ a[i] = S[\ell(i, d)\\,..\\,i] \quad \text{for every } i \in [0, n), \text{ at the start of the
+\\[ \mathsf{current}[i] = S[\ell(i, \mathsf{distance})\\,..\\,i] \quad \text{for every } i \in [0, n), \text{ at the start of the
 iteration with offset } d. \\]
 
-*Initialization.* Before the first iteration, \\(d = 1\\), and line 2 stored \\(a[i] = x_i =
+*Initialization.* Before the first iteration, \\(\mathsf{distance} = 1\\), and line 2 stored \\(\mathsf{current}[i] = x_i =
 S[i..i]\\). The barrier in line 3 makes all \\(n\\) stores complete before any thread reads
-\\(a\\).
+\\(\mathsf{current}\\).
 
-*Maintenance.* Assume that the invariant holds at the start of the iteration with offset \\(d\\).
-In lines 5 and 6, each thread reads only \\(a\\) and writes only its own slot of \\(b\\), so every
+*Maintenance.* Assume that the invariant holds at the start of the iteration with offset \\(\mathsf{distance}\\).
+In lines 5 and 6, each thread reads only \\(\mathsf{current}\\) and writes only its own slot of \\(\mathsf{next}\\), so every
 value it reads is a value from the start of the iteration; this excludes the error of
-Section 21.6.2. If \\(i \ge d\\), thread \\(i\\) writes
-\\(S[\ell(i, d)..i] + S[\ell(i - d, d)..i - d]\\). The second range ends at \\(i - d\\), 1 position
-before the first range begins, and it starts at \\(\ell(i, 2d)\\), so by Definition 21.5 the sum
-is \\(S[\ell(i, 2d)..i]\\). If \\(i < d\\), then \\(\ell(i, d) = \ell(i, 2d) = 0\\), and thread
-\\(i\\) copies \\(S[0..i]\\) unchanged. The barrier in line 7 completes every write to \\(b\\)
+Section 21.6.2. If \\(i \ge \mathsf{distance}\\), thread \\(i\\) writes
+\\(S[\ell(i, \mathsf{distance})..i] + S[\ell(i - \mathsf{distance}, \mathsf{distance})..i - \mathsf{distance}]\\). The second range ends at \\(i - \mathsf{distance}\\), 1 position
+before the first range begins, and it starts at \\(\ell(i, 2 \cdot \mathsf{distance})\\), so by Definition 21.5 the sum
+is \\(S[\ell(i, 2 \cdot \mathsf{distance})..i]\\). If \\(i < \mathsf{distance}\\), then \\(\ell(i, \mathsf{distance}) = \ell(i, 2 \cdot \mathsf{distance}) = 0\\), and thread
+\\(i\\) copies \\(S[0..i]\\) unchanged. The barrier in line 7 completes every write to \\(\mathsf{next}\\)
 before any thread passes it; this excludes the error of Section 21.6.1. After line 8 exchanges the
-names, \\(a[i] = S[\ell(i, 2d)..i]\\) at the start of the iteration with offset \\(2d\\).
+names, \\(\mathsf{current}[i] = S[\ell(i, 2 \cdot \mathsf{distance})..i]\\) at the start of the iteration with offset \\(2 \cdot \mathsf{distance}\\).
 
-*Termination.* The loop ends with the first offset \\(d \ge n\\). Then \\(i - d + 1 \le 0\\) for
-every \\(i < n\\), so \\(\ell(i, d) = 0\\) and \\(a[i] = S[0..i]\\), and line 10 stores this
+*Termination.* The loop ends with the first offset \\(\mathsf{distance} \ge n\\). Then \\(i - \mathsf{distance} + 1 \le 0\\) for
+every \\(i < n\\), so \\(\ell(i, \mathsf{distance}) = 0\\) and \\(\mathsf{current}[i] = S[0..i]\\), and line 10 stores this
 value.
 
 </div>
@@ -795,10 +796,10 @@ Exercises
 
 21.14 Without line 7, could thread 7 read a wrong value in the step with offset 4? Give a
 schedule in which it does, and the value of \\(y_7\\) it produces.<br>
-21.15 Explain why the proof of Theorem 21.1 breaks if a thread with \\(i < d\\) leaves the loop
+21.15 Explain why the proof of Theorem 21.1 breaks if a thread with \\(i < \mathsf{distance}\\) leaves the loop
 early, even though its value no longer changes.<br>
 21.16 State an invariant for the up-sweep of Blelloch-Scan: what does \\(s[i]\\) hold after the
-level with distance \\(d\\)?
+level with distance \\(\mathsf{distance}\\)?
 
 </div>
 
@@ -828,19 +829,19 @@ Adding 11 to every value of tile 1 gives \\((15, 16, 22, 25)\\), and the whole s
 
 The scan of the tile totals is itself a scan, of an array 1,024 times shorter than the input, so
 the procedure can call itself. For example, 16,777,216 values form 16,384 tiles, whose 16,384
-totals form 16 tiles, whose 16 totals fit in a single tile. In the following procedure, \\(m\\) is
-the number of tiles, \\(t_k\\) is the total of tile \\(k\\), and \\(t'\\) is the inclusive scan of
-the totals, so that \\(t'_{k-1}\\) is the sum of all values before tile \\(k\\). In our example,
-\\(m = 2\\), \\(t = (11, 14)\\), \\(t' = (11, 25)\\), and tile 1 receives \\(t'_0 = 11\\).
+totals form 16 tiles, whose 16 totals fit in a single tile. In the following procedure, \\(\mathsf{tiles}\\) is
+the number of tiles, \\(\mathsf{totals}_{\mathsf{tile}}\\) is the total of tile \\(\mathsf{tile}\\), and \\(\mathsf{offsets}\\) is the inclusive scan of
+the totals, so that \\(\mathsf{offsets}_{\mathsf{tile}-1}\\) is the sum of all values before tile \\(\mathsf{tile}\\). In our example,
+\\(\mathsf{tiles} = 2\\), \\(\mathsf{totals} = (11, 14)\\), \\(\mathsf{offsets} = (11, 25)\\), and tile 1 receives \\(\mathsf{offsets}_0 = 11\\).
 
 <div class="algo">
 <p class="algo-name">Scan(\(x, y, n\))</p>
 <ol>
-<li>\(m = \lceil n / 1024 \rceil\) <span class="c">// the number of tiles</span></li>
-<li>launch 1 block per tile: scan tile \(k\) of \(x\) into \(y\), write its total to \(t_k\)</li>
-<li><b class="kw">if</b> \(m > 1\) {</li>
-<li style="--d:1"><span class="sc">Scan</span>(\(t, t', m\)) <span class="c">// the tile totals, recursively</span></li>
-<li style="--d:1">launch 1 block per tile: add \(t'_{k-1}\) to every value of tile \(k \ge 1\)</li>
+<li>\(\mathsf{tiles} = \lceil n / 1024 \rceil\) <span class="c">// the number of tiles</span></li>
+<li>launch 1 block per tile: scan the tile of \(x\) into \(y\), write its total to \(\mathsf{totals}_{\mathsf{tile}}\)</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{tiles} > 1\) {</li>
+<li style="--d:1"><span class="sc">Scan</span>(\(\mathsf{totals}, \mathsf{offsets}, \mathsf{tiles}\)) <span class="c">// the tile totals, recursively</span></li>
+<li style="--d:1">launch 1 block per tile: add \(\mathsf{offsets}_{\mathsf{tile}-1}\) to every value of tile \(\mathsf{tile} \ge 1\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -881,29 +882,29 @@ simulation, rays that hit a surface, or detections above a threshold. In our exa
 values with \\(x \ge 3\\). These are 3, 7, 4, 6 and 3, at positions 0, 2, 4, 6 and 7, and the
 output is \\((3, 7, 4, 6, 3)\\).
 
-On a CPU, compaction is a single loop with a counter \\(j\\) of the values written so far.
+On a CPU, compaction is a single loop with a counter \\(\mathsf{count}\\) of the values written so far.
 
 <div class="algo">
 <p class="algo-name">Sequential-Compact(\(x, \mathsf{out}, n\))</p>
 <ol>
-<li>\(j = 0\) <span class="c">// values written so far</span></li>
+<li>\(\mathsf{count} = 0\) <span class="c">// values written so far</span></li>
 <li><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1"><b class="kw">if</b> \(x_i \ge 3\) {</li>
-<li style="--d:2">\(\mathsf{out}_j = x_i\)</li>
-<li style="--d:2">\(j = j + 1\)</li>
+<li style="--d:2">\(\mathsf{out}_{\mathsf{count}} = x_i\)</li>
+<li style="--d:2">\(\mathsf{count} = \mathsf{count} + 1\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
-<li><b class="kw">return</b> \(j\) <span class="c">// the number of kept values</span></li>
+<li><b class="kw">return</b> \(\mathsf{count}\) <span class="c">// the number of kept values</span></li>
 </ol>
 </div>
 
-The counter \\(j\\) forms a chain like the one of Figure 21.2, because the position of a kept value
+The counter \\(\mathsf{count}\\) forms a chain like the one of Figure 21.2, because the position of a kept value
 depends on every earlier decision. For example, when line 4 writes \\(x_4 = 4\\), the counter
-holds \\(j = 2\\), because 2 values, at positions 0 and 2, were kept before it.
+holds \\(\mathsf{count} = 2\\), because 2 values, at positions 0 and 2, were kept before it.
 
 <div class="key-observation">
 
-<span class="box-label">Key observation</span> When line 4 writes \\(x_i\\), the counter \\(j\\)
+<span class="box-label">Key observation</span> When line 4 writes \\(x_i\\), the counter \\(\mathsf{count}\\)
 equals the number of kept values before position \\(i\\). With a flag \\(f_i\\) that is 1 for a
 kept value and 0 otherwise, that number is the exclusive scan of the flags at \\(i\\). A parallel
 scan gives every kept value its output position at once.
@@ -1028,7 +1029,7 @@ introduce.
 
 <span class="box-label">Definition 21.10</span> **Warp and lane.** A **warp** is a group of 32
 threads of a block that the SM executes together, 1 instruction for all 32 at a time. Threads
-\\(32w\\) to \\(32w + 31\\) of a block form warp \\(w\\). The position of a thread inside its warp,
+\\(32 \cdot \mathsf{warp}\\) to \\(32 \cdot \mathsf{warp} + 31\\) of a block form warp \\(\mathsf{warp}\\). The position of a thread inside its warp,
 0 to 31, is its **lane**.
 
 *Example.* A block of 256 threads has 8 warps; thread 70 is lane 6 of warp 2.
@@ -1037,14 +1038,14 @@ threads of a block that the SM executes together, 1 instruction for all 32 at a 
 
 In the example of Definition 21.10, warp 2 consists of threads \\(32 \cdot 2 = 64\\) to
 \\(64 + 31 = 95\\), and thread 70 lies \\(70 - 64 = 6\\) places after the first of them. In
-general, thread \\(t\\) belongs to warp \\(\lfloor t / 32 \rfloor\\), and its lane is
-\\(t \bmod 32\\).
+general, thread \\(\mathsf{threadIdx{.}x}\\) belongs to warp \\(\lfloor \mathsf{threadIdx{.}x} / 32 \rfloor\\), and its lane is
+\\(\mathsf{threadIdx{.}x} \bmod 32\\).
 
 <div class="definition">
 
 <span class="box-label">Definition 21.11</span> **Ballot and population count.** A **ballot** is
 an instruction that all 32 lanes of a warp execute together, each with a condition; it returns to
-every lane the same 32-bit word, whose bit \\(k\\) is 1 if the condition of lane \\(k\\) is true.
+every lane the same 32-bit word, whose bit \\(\mathsf{step}\\) is 1 if the condition of lane \\(\mathsf{step}\\) is true.
 The **population count** of a word, popcount for short, is the number of its bits that are 1.
 
 *Example.* For 8 lanes holding our values, the ballot of \\(x \ge 3\\) has the bits
@@ -1053,12 +1054,12 @@ The **population count** of a word, popcount for short, is the number of its bit
 </div>
 
 A ballot thus hands every lane the flags of the whole warp in 1 instruction, and every lane can
-compute its own exclusive scan from it. Lane \\(k\\) needs the number of kept values in the lanes
-below it, that is, the number of 1 bits among bits 0 to \\(k - 1\\) of the ballot. The word
-\\(2^k - 1\\) has exactly these \\(k\\) bits set to 1 and all others set to 0. For \\(k = 4\\), for
+compute its own exclusive scan from it. Lane \\(\mathsf{step}\\) needs the number of kept values in the lanes
+below it, that is, the number of 1 bits among bits 0 to \\(\mathsf{step} - 1\\) of the ballot. The word
+\\(2^\mathsf{step} - 1\\) has exactly these \\(\mathsf{step}\\) bits set to 1 and all others set to 0. For \\(\mathsf{step} = 4\\), for
 example, \\(2^4 - 1 = 15\\), which is 1111 in binary. Combining the ballot with this mask by a
-bitwise AND keeps only the bits of the lanes below lane \\(k\\), and the popcount of the result is
-the exclusive scan of lane \\(k\\). Figure 21.14 does this for lane 4 of a warp drawn with 8 lanes.
+bitwise AND keeps only the bits of the lanes below lane \\(\mathsf{step}\\), and the popcount of the result is
+the exclusive scan of lane \\(\mathsf{step}\\). Figure 21.14 does this for lane 4 of a warp drawn with 8 lanes.
 The bits of lanes 0 to 3 are \\((1, 0, 1, 0)\\), their popcount is 2, and \\(x_4 = 4\\) therefore
 goes to position 2, as in Figure 21.12.
 
@@ -1075,48 +1076,48 @@ thread handles 4 values. The first kernel counts the kept values of every tile. 
 values again and places every kept value after the kept values of the earlier tiles, of the earlier
 steps of its own tile, of the earlier warps of the step, and of the earlier lanes of its warp.
 
-In the following procedure, \\(b\\) is the number of the block, which is also the number of its
-tile, \\(t\\) is the index of the thread in the block, \\(w\\) is its warp, and \\(\mathsf{lane}\\) is its
-lane. The block processes its tile in 4 steps \\(k = 0, 1, 2, 3\\) of 256 values each. The shared
-array \\(c\\) holds the count of kept values of each of the 8 warps in the current step, and
+In the following procedure, \\(\mathsf{blockIdx{.}x}\\) is the number of the block, which is also the number of its
+tile, \\(\mathsf{threadIdx{.}x}\\) is the index of the thread in the block, \\(\mathsf{warp}\\) is its warp, and \\(\mathsf{lane}\\) is its
+lane. The block processes its tile in 4 steps \\(\mathsf{step} = 0, 1, 2, 3\\) of 256 values each. The shared
+array \\(\mathsf{counts}\\) holds the count of kept values of each of the 8 warps in the current step, and
 \\(\mathsf{next}\\) is the output position at which the kept values of the current step begin.
 
 <div class="algo">
-<p class="algo-name">Compact-Votes(\(x, \mathsf{out}, n\)) <span class="c">// block \(b\), thread \(t\) in warp \(w\)</span></p>
+<p class="algo-name">Compact-Votes(\(x, \mathsf{out}, n\))</p>
 <ol>
-<li>\(\mathsf{next}\) = the scanned count of tiles \(0\) to \(b - 1\) <span class="c">// 0 for \(b = 0\)</span></li>
-<li><b class="kw">for</b> \(k \in [0, 4)\) {</li>
-<li style="--d:1">\(i = 1024b + 256k + t\), \(\mathsf{keep} = (i &lt; n\) and \(x_i \ge 3)\)</li>
-<li style="--d:1">\(v\) = <span class="sc">Ballot</span>(\(\mathsf{keep}\))</li>
-<li style="--d:1">lane 0 of warp \(w\): \(c[w]\) = <span class="sc">Popc</span>(\(v\)) <span class="c">// \(c\) in shared memory</span></li>
+<li>\(\mathsf{next}\) = the scanned count of tiles \(0\) to \(\mathsf{blockIdx{.}x} - 1\) <span class="c">// 0 for \(\mathsf{blockIdx{.}x} = 0\)</span></li>
+<li><b class="kw">for</b> \(\mathsf{step} \in [0, 4)\) {</li>
+<li style="--d:1">\(i = 1024 \cdot \mathsf{blockIdx{.}x} + 256 \cdot \mathsf{step} + \mathsf{threadIdx{.}x}\), \(\mathsf{keep} = (i &lt; n\) and \(x_i \ge 3)\)</li>
+<li style="--d:1">\(\mathsf{votes}\) = <span class="sc">Ballot</span>(\(\mathsf{keep}\))</li>
+<li style="--d:1">lane 0 of warp \(\mathsf{warp}\): \(\mathsf{counts}[\mathsf{warp}]\) = <span class="sc">Popc</span>(\(\mathsf{votes}\)) <span class="c">// \(\mathsf{counts}\) in shared memory</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1">\(\mathsf{before} = c[0] + \cdots + c[w - 1]\), \(\mathsf{total} = c[0] + \cdots + c[7]\)</li>
-<li style="--d:1"><b class="kw">if</b> \(\mathsf{keep}\): \(\mathsf{out}[\mathsf{next} + \mathsf{before} + \)<span class="sc">Popc</span>\((v \wedge (2^{lane} - 1))] = x_i\)</li>
+<li style="--d:1">\(\mathsf{before} = \mathsf{counts}[0] + \cdots + \mathsf{counts}[\mathsf{warp} - 1]\), \(\mathsf{total} = \mathsf{counts}[0] + \cdots + \mathsf{counts}[7]\)</li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{keep}\): \(\mathsf{out}[\mathsf{next} + \mathsf{before} + \)<span class="sc">Popc</span>\((\mathsf{votes} \wedge (2^{lane} - 1))] = x_i\)</li>
 <li style="--d:1">\(\mathsf{next} = \mathsf{next} + \mathsf{total}\)</li>
-<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// \(c\) is read before the next step writes it</span></li>
+<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// \(\mathsf{counts}\) is read before the next step writes it</span></li>
 <li>}</li>
 </ol>
 </div>
 
 | Symbol | Meaning | Thread 70 of block 1, step 2 |
 |---|---|---|
-| \\(b\\) | number of the block and of its tile | 1 |
-| \\(k\\) | step within the tile, 256 values per step | 2 |
-| \\(t\\) | index of the thread in the block | 70 |
-| \\(i = 1024b + 256k + t\\) | index of the value the thread handles | \\(1{,}024 + 512 + 70 = 1{,}606\\) |
-| \\(w\\), \\(\mathsf{lane}\\) | warp of the thread and its lane in the warp | 2 and 6 |
-| \\(\mathsf{before}\\) | kept values in warps 0 to \\(w - 1\\) of this step | \\(c[0] + c[1]\\) |
-| \\(\mathsf{total}\\) | kept values in all 8 warps of this step | \\(c[0] + \cdots + c[7]\\) |
+| \\(\mathsf{blockIdx{.}x}\\) | number of the block and of its tile | 1 |
+| \\(\mathsf{step}\\) | step within the tile, 256 values per step | 2 |
+| \\(\mathsf{threadIdx{.}x}\\) | index of the thread in the block | 70 |
+| \\(i = 1024 \cdot \mathsf{blockIdx{.}x} + 256 \cdot \mathsf{step} + \mathsf{threadIdx{.}x}\\) | index of the value the thread handles | \\(1{,}024 + 512 + 70 = 1{,}606\\) |
+| \\(\mathsf{warp}\\), \\(\mathsf{lane}\\) | warp of the thread and its lane in the warp | 2 and 6 |
+| \\(\mathsf{before}\\) | kept values in warps 0 to \\(\mathsf{warp} - 1\\) of this step | \\(\mathsf{counts}[0] + \mathsf{counts}[1]\\) |
+| \\(\mathsf{total}\\) | kept values in all 8 warps of this step | \\(\mathsf{counts}[0] + \cdots + \mathsf{counts}[7]\\) |
 
-The index \\(i\\) in line 3 is built from three parts. The tile of block \\(b\\) begins at value
-\\(1024b\\), step \\(k\\) begins \\(256k\\) values later, and thread \\(t\\) takes the value \\(t\\)
+The index \\(i\\) in line 3 is built from three parts. The tile of block \\(\mathsf{blockIdx{.}x}\\) begins at value
+\\(1024 \cdot \mathsf{blockIdx{.}x}\\), step \\(\mathsf{step}\\) begins \\(256 \cdot \mathsf{step}\\) values later, and thread \\(\mathsf{threadIdx{.}x}\\) takes the value \\(\mathsf{threadIdx{.}x}\\)
 places after that. Line 8 then adds 4 counts to find the output position of a kept value: the kept
 values of the earlier tiles and earlier steps, which are in \\(\mathsf{next}\\), those of the earlier warps
 of the step, which are in \\(\mathsf{before}\\), and those of the earlier lanes of the warp, which are the
 popcount of the ballot under the mask \\(2^{lane} - 1\\).
 
-The order of the positions is therefore the order of the input. Value \\(1024b + 256k + t\\) is
-processed in step \\(k\\), by warp \\(\lfloor t / 32 \rfloor\\), in lane \\(t \bmod 32\\). Line 8
+The order of the positions is therefore the order of the input. Value \\(1024 \cdot \mathsf{blockIdx{.}x} + 256 \cdot \mathsf{step} + \mathsf{threadIdx{.}x}\\) is
+processed in step \\(\mathsf{step}\\), by warp \\(\lfloor \mathsf{threadIdx{.}x} / 32 \rfloor\\), in lane \\(\mathsf{threadIdx{.}x} \bmod 32\\). Line 8
 orders the kept values first by tile, then by step, then by warp, and then by lane, which is the
 order of their indices. The argument of Theorem 21.2 then applies unchanged. The first kernel,
 Count-Kept, consists of lines 2 to 6, with \\(\mathsf{next}\\) replaced by a running count, followed by the
@@ -1162,15 +1163,15 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:50:78}}
+{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:50:77}}
 ```
 
 </div>
 </div>
 
 The load into the first buffer is line 2 of the pseudocode, and the first barrier is line 3. The
-loop over `step` is lines 4 to 9, with \\(d = 2^{step}\\), so that steps 0, 1 and 2 have the
-offsets 1, 2 and 4. The 2 buffers \\(a\\) and \\(b\\) are the two halves of 1 shared array of 2,048
+loop over `step` is lines 4 to 9, with \\(\mathsf{distance} = 2^{\mathsf{step}}\\), so that steps 0, 1
+and 2 have the distances 1, 2 and 4. The 2 buffers \\(\mathsf{current}\\) and \\(\mathsf{next}\\) are the two halves of 1 shared array of 2,048
 values, and `src` and `dst` are the offsets of these halves, 0 or 1,024. The assignment
 `src = dst` at the end of the loop is line 8, the exchange of the names. The barrier inside the
 loop is line 7, and it stands outside every `if`, so every thread reaches it. Finally, the last
@@ -1185,16 +1186,16 @@ which can be written only through `get_mut(idx)`, with the index that `thread::i
 to this thread. With 1 thread per value, the type itself proves that no 2 threads write the same
 element, and the write needs no `unsafe`. The total, which is written at the block number rather
 than at the thread index, uses `get_unchecked_mut` with its own safety comment. Third, the loop
-runs over a counter `step` rather than over `d`. For a loop that doubles `d`, the cuda-oxide
+runs over a counter `step` rather than over `distance`. For a loop that doubles `distance`, the cuda-oxide
 compiler did not unroll the loop and reported "no recognized induction variable". A counter that
-grows by 1 is recognized, and `d` is computed from it.
+grows by 1 is recognized, and `distance` is computed from it.
 
 ### 21.10.2 The Blelloch kernel
 
 The following listing implements Blelloch-Scan for blocks of 512 threads, each of which handles 2
-of the 1,024 values of a tile. The kernel converts the exclusive result of line 20 into the
+of the 1,024 values of a tile. The kernel converts the exclusive result of line 21 into the
 inclusive scan by adding the 2 inputs, which each thread kept in registers. Thread 0 also saves the
-total from \\(s[1023]\\) before line 11 replaces it with 0.
+total from \\(\mathsf{cells}[1023]\\) before line 11 replaces it with 0.
 
 <p class="listing"><b>Listing 21.2</b> The Blelloch scan of 1 tile.</p>
 
@@ -1213,18 +1214,18 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:80:122}}
+{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:79:120}}
 ```
 
 </div>
 </div>
 
-The loops of the up-sweep and the down-sweep are lines 3 to 9 and lines 12 to 18 of the
-pseudocode, with `i = (2 * t + 2) * d - 1` as in line 6. The swap-and-add of line 16 keeps the old
+The loops of the up-sweep and the down-sweep are lines 3 to 9 and lines 12 to 19 of the
+pseudocode, with `right = (2 * thread_idx + 2) * distance - 1` as in line 6. The swap-and-add of line 17 keeps the old
 left value in the register `left` before it overwrites the left position. We let each thread write 2
-elements of `y`, at \\(2t\\) and \\(2t + 1\\), which are not the index of the thread, so the Rust
-kernel writes them through `get_unchecked_mut`, and the safety comment states that the 2 positions
-belong to thread \\(t\\) alone.
+elements of `y`, at \\(\mathsf{first}\\) and \\(\mathsf{first} + 1\\), which are not the index of the
+thread, so the Rust kernel writes them through `get_unchecked_mut`, and the safety comment states
+that the 2 positions belong to that thread alone.
 
 ### 21.10.3 The scan of many tiles
 
@@ -1238,18 +1239,18 @@ tile kernels have the same interface, so the functions take the method as a para
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:425:453}}
+{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:427:455}}
 
-{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:455:474}}
+{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:457:476}}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:191:202}}
+{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:189:200}}
 
-{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:204:214}}
+{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:202:212}}
 ```
 
 </div>
@@ -1276,7 +1277,7 @@ whose flag is 1 writes its value to the position given by the scan.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:269:286}}
+{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:271:288}}
     // ...
 }
 ```
@@ -1285,7 +1286,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:225:233}}
+{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:223:231}}
 ```
 
 </div>
@@ -1309,7 +1310,7 @@ step, it computes the output positions with a ballot and the counts of its 8 war
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:327:378}}
+{{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:329:380}}
 }
 ```
 
@@ -1317,7 +1318,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:261:293}}
+{{#include ../../../../code/cuda/ch21_scan_compaction/scan_compaction.cu:259:291}}
 ```
 
 </div>
@@ -1327,7 +1328,7 @@ The call `warp::ballot(keep)` in Rust and the call `__ballot_sync(0xffffffff, ke
 line 4 of Compact-Votes, and `count_ones()` and `__popc` compute the popcount. The variable
 `below` is the mask \\(2^{lane} - 1\\) of line 8. Every lane calls the ballot, including the lanes
 whose index lies beyond the end of the array, because a ballot needs all 32 lanes of the warp;
-those lanes vote false. The shared array \\(c\\) is named `WARPS` in Rust and `warps` in C++, and
+those lanes vote false. The shared array \\(\mathsf{counts}\\) is named `WARPS` in Rust and `warps` in C++, and
 the 2 barriers that protect it are lines 6 and 10.
 
 <div class="exercises">
@@ -1533,8 +1534,8 @@ histogram.
 
 1. Run Hillis-Steele-Scan by hand on 16 values \\(1, 2, \ldots, 16\\), and check the last row
    against \\(y_i = (i + 1)(i + 2)/2\\).
-2. Prove that the up-sweep of Blelloch-Scan leaves \\(S[i - 2d + 1..i]\\) at every position
-   \\(i = 2d - 1, 4d - 1, \ldots\\) after the level with distance \\(d\\).
+2. Prove that the up-sweep of Blelloch-Scan leaves \\(S[i - 2 \cdot \mathsf{distance} + 1..i]\\) at every position
+   \\(i = 2 \cdot \mathsf{distance} - 1, 4 \cdot \mathsf{distance} - 1, \ldots\\) after the level with distance \\(\mathsf{distance}\\).
 3. A segmented scan restarts the running total at every position where a second array holds 1.
    Write the sequential algorithm, and show how Hillis-Steele-Scan can carry the segment flags.
 4. Change `scan_hillis_steele` to keep 1 buffer and a register, as suggested in Common mistakes,

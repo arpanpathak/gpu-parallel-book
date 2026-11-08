@@ -179,7 +179,7 @@ def ex_regroup():
 def ex_hillis():
     rows = hillis_steele(X)
     kinds = ["client", "outside", "store", "service"]
-    names = ["x", "d = 1", "d = 2", "d = 4"]
+    names = ["x", "distance = 1", "distance = 2", "distance = 4"]
     parts = header(96)
     for r, vals in enumerate(rows):
         y = 106 + r * 86
@@ -195,7 +195,7 @@ def ex_hillis():
     parts.append(marker("outside"))
     parts.append(marker("store"))
     parts.append(marker("service"))
-    parts += notes(470, ["At offset d, element i adds element i - d of the previous row (gray cells, i < d,",
+    parts += notes(470, ["Element i adds element i - distance of the previous row (gray cells, i < distance,",
                          "are copied). The small labels give the range of x that each cell sums; the arrows",
                          "show element 7: 9 = 6 + 3, then 14 = 9 + 5, then 25 = 14 + 11."])
     save(OUT + "ch21-hillis.svg", 680, 536,
@@ -203,7 +203,7 @@ def ex_hillis():
          "offset 2: 3, 4, 11, 11, 12, 12, 11, 14. After offset 4: 3, 4, 11, 11, 15, 16, 22, 25. Under each "
          "cell, the range of inputs it sums doubles at every step. Arrows show element 7 adding elements 6, 5 "
          "and 3 of the rows above.",
-         "The Hillis-Steele scan of the 8 values", "3 steps; at each step every element adds the one d to its left.",
+         "The Hillis-Steele scan of the 8 values", "3 steps; at each step every element adds the one at that distance to its left.",
          parts)
 
 
@@ -230,7 +230,7 @@ def blelloch_rows():
 def ex_upsweep():
     up, _ = blelloch_rows()
     kinds = ["client", "outside", "store", "service"]
-    names = ["x", "d = 1", "d = 2", "d = 4"]
+    names = ["x", "distance = 1", "distance = 2", "distance = 4"]
     subs_by_level = [[rng(i, i) for i in range(8)]]
     for lv in range(1, 4):
         d = 2 ** (lv - 1)
@@ -251,8 +251,8 @@ def ex_upsweep():
                 parts.append(elbow(cx(i - d), top, cx(i) - 6, y, y - 16, kinds[lv]))
                 parts.append(down(cx(i) + 6, top, y, kinds[lv]))
     parts += [marker("outside"), marker("store"), marker("service")]
-    parts += notes(470, ["At distance d, element i = 2d - 1, 4d - 1, ... adds element i - d. 4 + 2 + 1 = 7",
-                         "additions build a tree of partial sums; element 7 ends with the total, 25."])
+    parts += notes(470, ["Element i = 2 · distance - 1, 4 · distance - 1, ... adds element i - distance.",
+                         "4 + 2 + 1 = 7 additions build a tree of partial sums; element 7 ends with 25."])
     save(OUT + "ch21-upsweep.svg", 680, 516,
          "The up-sweep of the Blelloch scan on 3, 1, 7, 0, 4, 1, 6, 3. Distance 1: elements 1, 3, 5, 7 become 4, "
          "7, 5, 9. Distance 2: elements 3 and 7 become 11 and 14. Distance 4: element 7 becomes 25. The small "
@@ -263,7 +263,7 @@ def ex_upsweep():
 def ex_downsweep():
     _, dn = blelloch_rows()
     kinds = ["danger", "service", "store", "outside"]
-    names = ["clear 7", "d = 4", "d = 2", "d = 1"]
+    names = ["clear 7", "distance = 4", "distance = 2", "distance = 1"]
     excl = [s - x for s, x in zip(inclusive(X), X)]
     parts = header(96)
     for lv, vals in enumerate(dn):
@@ -282,9 +282,9 @@ def ex_downsweep():
                 parts.append(elbow(cx(i) + 6, top, cx(i - d) + 6, y, y - 16, kinds[lv]))
         parts += row(y, names[lv], vals, ks)
     parts += [marker("service"), marker("store"), marker("outside")]
-    parts += notes(458, ["Each pair (i - d, i) swaps and adds: the left element receives the right one's value,",
-                         "the right one adds the old left value. The last row, " + ", ".join(map(str, excl)) + ",",
-                         "is the exclusive scan of the 8 values."])
+    parts += notes(458, ["Each pair (i - distance, i) swaps and adds: the left element receives the right",
+                         "one's value, and the right one adds the old left value. The last row,",
+                         ", ".join(map(str, excl)) + ", is the exclusive scan of the 8 values."])
     save(OUT + "ch21-downsweep.svg", 680, 520,
          "The down-sweep of the Blelloch scan. Element 7 is set to 0. Distance 4: elements 3 and 7 become 0 and "
          "11. Distance 2: elements 1, 3, 5, 7 become 0, 4, 11, 16. Distance 1: all 8 become 0, 3, 4, 11, 11, "
@@ -331,50 +331,56 @@ def timeline(y, name, pieces, x0=170, scale=1.0):
 
 def ex_race_barrier():
     red = KINDS["danger"][0]
-    parts = [mono(170, 100, "step d = 1", "start", MUTED), mono(420, 100, "step d = 2", "start", MUTED)]
-    parts += timeline(112, "thread 2", [(0, 200, "client", "b[2] = a[2] + a[1] = 8"),
-                                        (240, 230, "client", "a[2] = b[2] + b[0]")])
-    parts += timeline(176, "thread 0", [(0, 60, "idle", "late"), (300, 170, "store", "b[0] = a[0] = 3")])
-    parts += [line(410, 92, 410, 216, MUTED, 1.2, "4 4"),
-              small(404, 230, "barrier removed", "end"),
-              f'  <circle cx="430" cy="140" r="4" fill="{red}"/>',
-              line(430, 140, 430, 216, red, 1.6, "3 3"),
-              small(438, 230, "read of b[0]", "start", red),
-              f'  <circle cx="470" cy="190" r="4" fill="{red}"/>',
-              text(400, 266, "thread 2 reads b[0] before thread 0 has written it, and finds the 0", "note",
+    parts = [mono(170, 100, "step with distance 1", "start", MUTED),
+             mono(470, 100, "step with distance 2", "start", MUTED)]
+    parts += timeline(112, "thread 2", [(0, 260, "client", "next[2] = current[2] + current[1] = 8"),
+                                        (300, 270, "client", "current[2] = next[2] + next[0]")])
+    parts += timeline(176, "thread 0", [(0, 70, "idle", "late"),
+                                        (360, 210, "store", "next[0] = current[0] = 3")])
+    parts += [line(460, 92, 460, 216, MUTED, 1.2, "4 4"),
+              small(454, 230, "barrier removed", "end"),
+              f'  <circle cx="480" cy="140" r="4" fill="{red}"/>',
+              line(480, 140, 480, 216, red, 1.6, "3 3"),
+              small(488, 230, "read of next[0]", "start", red),
+              f'  <circle cx="530" cy="190" r="4" fill="{red}"/>',
+              text(450, 266, "thread 2 reads next[0] before thread 0 has written it, and finds the 0", "note",
                    "middle", red),
-              text(400, 286, "left in the slot: a[2] = 8 + 0 = 8, and y2 = 8 in place of 11", "note", "middle",
-                   red)]
-    parts += notes(324, ["With the barrier, no thread starts step d = 2 until every thread has written its",
-                         "slot of b in step d = 1, and thread 2 reads b[0] = 3: a[2] = 8 + 3 = 11."])
-    save(OUT + "ch21-race-barrier.svg", 680, 370,
-         "A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with "
-         "b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterward. "
-         "Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.",
+              text(450, 286, "left in the slot: current[2] = 8 + 0 = 8, and y2 = 8 in place of 11", "note",
+                   "middle", red)]
+    parts += notes(324, ["With the barrier, no thread starts the step with distance 2 until every thread has",
+                         "written its slot of next in the step with distance 1, and thread 2 reads next[0] = 3:",
+                         "current[2] = 8 + 3 = 11. The names are those of the step with distance 1."])
+    save(OUT + "ch21-race-barrier.svg", 820, 390,
+         "A timeline of threads 0 and 2 without the barrier at the end of a step, with the buffer names of "
+         "step 1. Thread 2 finishes step 1 with next[2] = 8 and starts step 2, where it reads next[0]. Thread 0 "
+         "is late and writes next[0] = 3 only afterward. Thread 2 reads the 0 left in the slot, and y2 becomes 8 "
+         "instead of 11.",
          "Without the barrier: a read before the write", "Thread 2 runs ahead into the next step.", parts)
 
 
 def ex_race_inplace():
     red = KINDS["danger"][0]
-    parts = [mono(170, 100, "step d = 1, 1 buffer a", "start", MUTED)]
-    parts += timeline(112, "thread 1", [(0, 220, "store", "a[1] = a[1] + a[0] = 4")])
-    parts += timeline(176, "thread 2", [(0, 120, "idle", "late"), (250, 230, "client", "a[2] = a[2] + a[1]")])
-    parts += [f'  <circle cx="390" cy="126" r="4" fill="{red}"/>',
-              line(390, 126, 390, 216, red, 1.6, "3 3"),
-              small(386, 230, "a[1] = 4 written", "end", red),
-              f'  <circle cx="420" cy="190" r="4" fill="{red}"/>',
-              small(424, 230, "a[1] read", "start", red),
-              text(410, 264, "thread 2 reads a[1] after thread 1 has already added a[0] to it:", "note",
-                   "middle", red),
-              text(410, 284, "a[2] = 7 + 4 = 11 in place of 8, so x0 = 3 is counted twice; after step d = 2,", "note",
-                   "middle", red),
-              text(410, 304, "a[2] = 11 + 3 = 14, and y2 = 14 in place of 11", "note", "middle", red)]
-    parts += notes(340, ["With 2 buffers, step d = 1 writes only b and reads only a, so thread 2 reads a[1] = 1",
-                         "whether thread 1 has finished or not."])
-    save(OUT + "ch21-race-inplace.svg", 680, 384,
-         "A timeline of threads 1 and 2 when the scan updates 1 buffer in place. Thread 1 adds a[0] to a[1], "
-         "making it 4, before the late thread 2 reads a[1]. Thread 2 computes 7 + 4 = 11 instead of 8, and after "
-         "the next step y2 is 14 instead of 11.",
+    parts = [mono(170, 100, "step with distance 1, 1 buffer current", "start", MUTED)]
+    parts += timeline(112, "thread 1", [(0, 300, "store", "current[1] = current[1] + current[0] = 4")])
+    parts += timeline(176, "thread 2", [(0, 150, "idle", "late"),
+                                        (320, 290, "client", "current[2] = current[2] + current[1]")])
+    parts += [f'  <circle cx="470" cy="126" r="4" fill="{red}"/>',
+              line(470, 126, 470, 216, red, 1.6, "3 3"),
+              small(466, 230, "current[1] = 4 written", "end", red),
+              f'  <circle cx="500" cy="190" r="4" fill="{red}"/>',
+              small(504, 230, "current[1] read", "start", red),
+              text(470, 264, "thread 2 reads current[1] after thread 1 has already added current[0] to it:",
+                   "note", "middle", red),
+              text(470, 284, "current[2] = 7 + 4 = 11 in place of 8, so x0 = 3 is counted twice; after the",
+                   "note", "middle", red),
+              text(470, 304, "step with distance 2, current[2] = 11 + 3 = 14, and y2 = 14 in place of 11",
+                   "note", "middle", red)]
+    parts += notes(340, ["With 2 buffers, the step with distance 1 writes only next and reads only current,",
+                         "so thread 2 reads current[1] = 1 whether thread 1 has finished or not."])
+    save(OUT + "ch21-race-inplace.svg", 820, 400,
+         "A timeline of threads 1 and 2 when the scan updates 1 buffer in place. Thread 1 adds current[0] to "
+         "current[1], making it 4, before the late thread 2 reads current[1]. Thread 2 computes 7 + 4 = 11 "
+         "instead of 8, and after the next step y2 is 14 instead of 11.",
          "In place: a read after the write", "Thread 2 reads a value of the current step, not of the last one.",
          parts)
 
@@ -382,8 +388,8 @@ def ex_race_inplace():
 def ex_invariant():
     parts = header(96)
     parts += row(106, "x", X, ["client" if k <= 6 else "idle" for k in range(8)])
-    windows = [(6, 6, 6, "start of d = 1", "6"), (5, 6, 7, "start of d = 2", "1 + 6 = 7"),
-               (3, 6, 11, "start of d = 4", "0 + 4 + 1 + 6 = 11"),
+    windows = [(6, 6, 6, "distance 1", "6"), (5, 6, 7, "distance 2", "1 + 6 = 7"),
+               (3, 6, 11, "distance 4", "0 + 4 + 1 + 6 = 11"),
                (0, 6, 22, "end", "3 + 1 + 7 + 0 + 4 + 1 + 6 = 22")]
     for r, (lo, hi, _, name, label) in enumerate(windows):
         y = 168 + r * 44
@@ -391,13 +397,13 @@ def ex_invariant():
         width = (hi - lo) * STEP + W
         parts.append(mono(X0 - 14, y + 17, name, "end", MUTED))
         parts.append(bar(left, y, width, 24, "service", label))
-    parts += notes(362, ["Before the step with offset d, a[6] holds the sum of the last d inputs that end at",
-                         "position 6 (fewer at the left edge). Each step doubles the window; once d > 6 it",
-                         "reaches x0, and a[6] = y6 = 22."])
+    parts += notes(362, ["Before each step, current[6] holds the sum of the last distance inputs that end",
+                         "at position 6 (fewer at the left edge). Each step doubles the window; once",
+                         "distance > 6, it reaches x0, and current[6] = y6 = 22."])
     save(OUT + "ch21-invariant.svg", 660, 420,
-         "The window of inputs summed by a[6] in the Hillis-Steele scan. At the start of offset 1 it is x6 alone, "
+         "The window of inputs summed by current[6] in the Hillis-Steele scan. At the start of offset 1 it is x6 alone, "
          "6; at offset 2 it is x5 and x6, 7; at offset 4 it is x3 to x6, 11; at the end it is x0 to x6, 22.",
-         "The invariant for thread 6", "The window of inputs that a[6] sums doubles at every step.", parts)
+         "The invariant for thread 6", "The window of inputs that current[6] sums doubles at every step.", parts)
 
 
 def ex_blocks():

@@ -44,27 +44,27 @@ mod kernels {
     ) {
         static mut BUF: SharedArray<u32, 2048> = SharedArray::UNINIT;
         let idx = thread::index_1d();
-        let g = idx.get();
-        let i = thread::threadIdx_x() as usize;
+        let index = idx.get();
+        let thread_idx = thread::threadIdx_x() as usize;
 
-        // SAFETY: each thread writes only its own slot i, before the barrier.
-        unsafe { BUF[i] = if g < x.len() { x[g] } else { 0 } };
+        // SAFETY: each thread writes only its own slot thread_idx, before the barrier.
+        unsafe { BUF[thread_idx] = if index < x.len() { x[index] } else { 0 } };
         thread::sync_threads();
 
         let mut src = 0;
         let mut step = 0usize;
         #[unroll]
         while step < 10 {
-            let d = 1 << step; // 1, 2, 4, ..., 512
+            let distance = 1 << step; // 1, 2, 4, ..., 512
             let dst = TILE - src;
-            // SAFETY: a step reads only buffer src and writes only slot i of buffer dst;
-            // the barrier ends the step before the next one reads buffer dst.
+            // SAFETY: a step reads only buffer src and writes only this thread's slot of
+            // buffer dst; the barrier ends the step before the next one reads buffer dst.
             unsafe {
-                let mut v = BUF[src + i];
-                if i >= d {
-                    v += BUF[src + i - d];
+                let mut value = BUF[src + thread_idx];
+                if thread_idx >= distance {
+                    value += BUF[src + thread_idx - distance];
                 }
-                BUF[dst + i] = v;
+                BUF[dst + thread_idx] = value;
             }
             thread::sync_threads();
             src = dst;
@@ -72,11 +72,11 @@ mod kernels {
         }
 
         // SAFETY: after the last barrier the buffers are only read.
-        let total = unsafe { BUF[src + i] };
+        let total = unsafe { BUF[src + thread_idx] };
         if let Some(out) = y.get_mut(idx) {
             *out = total;
         }
-        if i == TILE - 1 {
+        if thread_idx == TILE - 1 {
             let block = thread::blockIdx_x() as usize;
             // SAFETY: only the last thread of each block writes, at its own block number.
             unsafe { *sums.get_unchecked_mut(block) = total };
@@ -91,86 +91,86 @@ mod kernels {
         mut y: DisjointSlice<u32>,
         mut sums: DisjointSlice<u32>,
     ) {
-        static mut S: SharedArray<u32, 1024> = SharedArray::UNINIT;
-        let t = thread::threadIdx_x() as usize;
+        static mut CELLS: SharedArray<u32, 1024> = SharedArray::UNINIT;
+        let thread_idx = thread::threadIdx_x() as usize;
         let block = thread::blockIdx_x() as usize;
-        let g = block * TILE + 2 * t;
+        let index = block * TILE + 2 * thread_idx;
 
-        let x0 = if g < x.len() { x[g] } else { 0 };
-        let x1 = if g + 1 < x.len() { x[g + 1] } else { 0 };
-        // SAFETY: each thread writes only its own slots 2t and 2t + 1, before a barrier.
+        let first = if index < x.len() { x[index] } else { 0 };
+        let second = if index + 1 < x.len() { x[index + 1] } else { 0 };
+        // SAFETY: each thread writes only its own 2 slots, before a barrier.
         unsafe {
-            S[2 * t] = x0;
-            S[2 * t + 1] = x1;
+            CELLS[2 * thread_idx] = first;
+            CELLS[2 * thread_idx + 1] = second;
         }
 
         let mut step = 0usize;
         #[unroll]
         while step < 10 {
-            let d = 1 << step; // up-sweep: 1, 2, 4, ..., 512
+            let distance = 1 << step; // up-sweep: 1, 2, 4, ..., 512
             thread::sync_threads();
-            if t < TILE / (2 * d) {
-                let i = (2 * t + 2) * d - 1;
-                // SAFETY: at distance d, the pairs (i - d, i) of different threads are
-                // disjoint, and the barriers separate the levels.
-                unsafe { S[i] += S[i - d] };
+            if thread_idx < TILE / (2 * distance) {
+                let right = (2 * thread_idx + 2) * distance - 1;
+                // SAFETY: at each distance, the pairs (right - distance, right) of
+                // different threads are disjoint, and the barriers separate the levels.
+                unsafe { CELLS[right] += CELLS[right - distance] };
             }
             step += 1;
         }
         thread::sync_threads();
-        if t == 0 {
+        if thread_idx == 0 {
             // SAFETY: thread 0 alone touches slot TILE - 1 between 2 barriers.
             unsafe {
-                *sums.get_unchecked_mut(block) = S[TILE - 1];
-                S[TILE - 1] = 0;
+                *sums.get_unchecked_mut(block) = CELLS[TILE - 1];
+                CELLS[TILE - 1] = 0;
             }
         }
 
         let mut step = 0usize;
         #[unroll]
         while step < 10 {
-            let d = 512 >> step; // down-sweep: 512, 256, ..., 1
+            let distance = 512 >> step; // down-sweep: 512, 256, ..., 1
             thread::sync_threads();
-            if t < TILE / (2 * d) {
-                let i = (2 * t + 2) * d - 1;
+            if thread_idx < TILE / (2 * distance) {
+                let right = (2 * thread_idx + 2) * distance - 1;
                 // SAFETY: as in the up-sweep, each pair belongs to 1 thread per level.
                 unsafe {
-                    let left = S[i - d];
-                    S[i - d] = S[i];
-                    S[i] += left;
+                    let left = CELLS[right - distance];
+                    CELLS[right - distance] = CELLS[right];
+                    CELLS[right] += left;
                 }
             }
             step += 1;
         }
         thread::sync_threads();
 
-        // SAFETY: after the last barrier S is only read; thread t alone writes 2t and
-        // 2t + 1 of y, and both lie below y.len() when the test passes.
+        // SAFETY: after the last barrier CELLS is only read; each thread alone writes its 2
+        // elements of y, and both lie below y.len() when the test passes.
         unsafe {
-            if g < y.len() {
-                *y.get_unchecked_mut(g) = S[2 * t] + x0;
+            if index < y.len() {
+                *y.get_unchecked_mut(index) = CELLS[2 * thread_idx] + first;
             }
-            if g + 1 < y.len() {
-                *y.get_unchecked_mut(g + 1) = S[2 * t + 1] + x1;
+            if index + 1 < y.len() {
+                *y.get_unchecked_mut(index + 1) = CELLS[2 * thread_idx + 1] + second;
             }
         }
     }
 
     /// The inclusive scan of 1 value per lane across a warp (Section 8.7.2).
     #[device]
-    fn warp_scan(mut v: u32) -> u32 {
+    fn warp_scan(mut value: u32) -> u32 {
         let lane = warp::lane_id();
         let mut step = 0u32;
         #[unroll]
         while step < 5 {
             let offset = 1 << step; // 1, 2, 4, 8, 16
-            let left = warp::shuffle_up_sync(u32::MAX, v, offset);
+            let left = warp::shuffle_up_sync(u32::MAX, value, offset);
             if lane >= offset {
-                v += left;
+                value += left;
             }
             step += 1;
         }
-        v
+        value
     }
 
     /// The scan of Chapter 8: 256 threads, 4 elements each, warp shuffles and 2 barriers.
@@ -186,49 +186,51 @@ mod kernels {
         let lane = warp::lane_id() as usize;
         let warp = thread::threadIdx_x() as usize / 32;
 
-        let mut a = [0u32; 4];
+        let mut prefix = [0u32; 4];
         let mut own = 0;
-        let mut k = 0;
+        let mut element = 0;
         #[unroll]
-        while k < 4 {
-            if first + k < x.len() {
-                own += x[first + k];
+        while element < 4 {
+            if first + element < x.len() {
+                own += x[first + element];
             }
-            a[k] = own;
-            k += 1;
+            prefix[element] = own;
+            element += 1;
         }
 
-        let v = warp_scan(own);
+        let warp_prefix = warp_scan(own);
         if lane == 31 {
             // SAFETY: lane 31 of each warp writes its own slot, before the barrier.
-            unsafe { WARPS[warp] = v };
+            unsafe { WARPS[warp] = warp_prefix };
         }
         thread::sync_threads();
 
         if warp == 0 {
             // SAFETY: only warp 0 touches the slots between the 2 barriers.
-            let w = warp_scan(if lane < 8 { unsafe { WARPS[lane] } } else { 0 });
+            let warp_total = if lane < 8 { unsafe { WARPS[lane] } } else { 0 };
+            let scanned_total = warp_scan(warp_total);
             if lane < 8 {
-                unsafe { WARPS[lane] = w };
+                unsafe { WARPS[lane] = scanned_total };
             }
         }
         thread::sync_threads();
 
         // SAFETY: after the second barrier the slots are only read.
-        let before = v - own + if warp > 0 { unsafe { WARPS[warp - 1] } } else { 0 };
-        let mut k = 0;
+        let earlier_warps = if warp > 0 { unsafe { WARPS[warp - 1] } } else { 0 };
+        let before = warp_prefix - own + earlier_warps;
+        let mut element = 0;
         #[unroll]
-        while k < 4 {
-            if first + k < y.len() {
-                // SAFETY: thread t alone writes elements 4t to 4t + 3.
-                unsafe { *y.get_unchecked_mut(first + k) = before + a[k] };
+        while element < 4 {
+            if first + element < y.len() {
+                // SAFETY: each thread alone writes its own 4 elements.
+                unsafe { *y.get_unchecked_mut(first + element) = before + prefix[element] };
             }
-            k += 1;
+            element += 1;
         }
         if thread::threadIdx_x() == 255 {
             let block = thread::blockIdx_x() as usize;
             // SAFETY: only the last thread of each block writes, at its own block number.
-            unsafe { *sums.get_unchecked_mut(block) = before + a[3] };
+            unsafe { *sums.get_unchecked_mut(block) = before + prefix[3] };
         }
     }
 
@@ -241,15 +243,15 @@ mod kernels {
 
         if block > 0 {
             let offset = scanned[block - 1];
-            let mut k = 0;
+            let mut step = 0;
             #[unroll]
-            while k < 4 {
-                let g = block * TILE + k * 256 + tid;
-                if g < y.len() {
+            while step < 4 {
+                let index = block * TILE + step * 256 + tid;
+                if index < y.len() {
                     // SAFETY: element g is this thread's alone and lies below y.len().
-                    unsafe { *y.get_unchecked_mut(g) += offset };
+                    unsafe { *y.get_unchecked_mut(index) += offset };
                 }
-                k += 1;
+                step += 1;
             }
         }
     }
@@ -259,14 +261,14 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn keep_flags(x: &[u32], threshold: u32, mut flags: DisjointSlice<u32>) {
         let idx = thread::index_1d();
-        let i = idx.get();
+        let index = idx.get();
 
         if let Some(flag) = flags.get_mut(idx) {
-            *flag = (x[i] >= threshold) as u32;
+            *flag = (x[index] >= threshold) as u32;
         }
     }
 
-    /// Writes kept element i at its exclusive scan: the inclusive scan minus its flag 1.
+    /// Writes each kept element at its exclusive scan: the inclusive scan minus its flag 1.
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn scatter_kept(
@@ -275,13 +277,13 @@ mod kernels {
         scanned: &[u32],
         mut out: DisjointSlice<u32>,
     ) {
-        let i = thread::index_1d().get();
+        let index = thread::index_1d().get();
 
-        if i < x.len() && flags[i] == 1 {
-            let at = (scanned[i] - 1) as usize;
+        if index < x.len() && flags[index] == 1 {
+            let at = (scanned[index] - 1) as usize;
             // SAFETY: the kept elements receive the distinct positions 0 to count - 1,
             // and out holds x.len() >= count elements.
-            unsafe { *out.get_unchecked_mut(at) = x[i] };
+            unsafe { *out.get_unchecked_mut(at) = x[index] };
         }
     }
 
@@ -294,13 +296,13 @@ mod kernels {
         let base = thread::blockIdx_x() as usize * TILE;
 
         let mut count = 0;
-        let mut k = 0;
+        let mut step = 0;
         #[unroll]
-        while k < 4 {
-            let i = base + k * 256 + tid;
-            let keep = i < x.len() && x[i] >= threshold;
+        while step < 4 {
+            let index = base + step * 256 + tid;
+            let keep = index < x.len() && x[index] >= threshold;
             count += warp::ballot(keep).count_ones();
-            k += 1;
+            step += 1;
         }
 
         if warp::lane_id() == 0 {
@@ -311,12 +313,12 @@ mod kernels {
 
         if tid == 0 {
             let mut total = 0;
-            let mut w = 0;
+            let mut other = 0;
             #[unroll]
-            while w < 8 {
+            while other < 8 {
                 // SAFETY: after the barrier the slots are only read.
-                total += unsafe { WARPS[w] };
-                w += 1;
+                total += unsafe { WARPS[other] };
+                other += 1;
             }
             let block = thread::blockIdx_x() as usize;
             // SAFETY: only thread 0 of each block writes, at its own block number.
@@ -341,11 +343,11 @@ mod kernels {
         let below = (1u32 << lane) - 1; // the lanes to the left of this one
 
         let mut next = if block > 0 { scanned[block - 1] } else { 0 };
-        let mut k = 0;
+        let mut step = 0;
         #[unroll]
-        while k < 4 {
-            let i = block * TILE + k * 256 + tid;
-            let keep = i < x.len() && x[i] >= threshold;
+        while step < 4 {
+            let index = block * TILE + step * 256 + tid;
+            let keep = index < x.len() && x[index] >= threshold;
             let votes = warp::ballot(keep);
             if lane == 0 {
                 // SAFETY: lane 0 of each warp writes its own slot, before the barrier.
@@ -355,25 +357,25 @@ mod kernels {
 
             let mut before = 0;
             let mut total = 0;
-            let mut w = 0;
+            let mut other = 0;
             #[unroll]
-            while w < 8 {
+            while other < 8 {
                 // SAFETY: between the 2 barriers the slots are only read.
-                let c = unsafe { WARPS[w] };
-                before += if w < warp { c } else { 0 };
-                total += c;
-                w += 1;
+                let count = unsafe { WARPS[other] };
+                before += if other < warp { count } else { 0 };
+                total += count;
+                other += 1;
             }
 
             if keep {
                 let at = (next + before + (votes & below).count_ones()) as usize;
                 // SAFETY: the kept elements receive the distinct positions 0 to count - 1,
                 // in input order, and out holds x.len() >= count elements.
-                unsafe { *out.get_unchecked_mut(at) = x[i] };
+                unsafe { *out.get_unchecked_mut(at) = x[index] };
             }
             next += total;
             thread::sync_threads();
-            k += 1;
+            step += 1;
         }
     }
 }
