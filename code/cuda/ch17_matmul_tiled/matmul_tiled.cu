@@ -28,8 +28,8 @@ __global__ void matmulDirect(int m, int n, int k, const float* a, const float* b
     }
 
     float sum = 0.0f;
-    for (int s = 0; s < k; ++s) {
-        sum += a[row * k + s] * b[s * n + col];
+    for (int inner = 0; inner < k; ++inner) {
+        sum += a[row * k + inner] * b[inner * n + col];
     }
     c[row * n + col] = sum;
 }
@@ -42,22 +42,22 @@ __global__ void matmulTiled(int m, int n, int k, const float* a, const float* b,
     __shared__ float tile_a[T][T];
     __shared__ float tile_b[T][T];
 
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    int row = blockIdx.y * T + ty;
-    int col = blockIdx.x * T + tx;
+    int row = blockIdx.y * T + threadIdx.y;
+    int col = blockIdx.x * T + threadIdx.x;
 
     float sum = 0.0f;
     int phases = (k + T - 1) / T;
-    for (int t = 0; t < phases; ++t) {
-        int a_col = t * T + tx;
-        int b_row = t * T + ty;
-        tile_a[ty][tx] = row < m && a_col < k ? a[row * k + a_col] : 0.0f;
-        tile_b[ty][tx] = b_row < k && col < n ? b[b_row * n + col] : 0.0f;
+    for (int phase = 0; phase < phases; ++phase) {
+        int a_col = phase * T + threadIdx.x;
+        int b_row = phase * T + threadIdx.y;
+        float a_value = row < m && a_col < k ? a[row * k + a_col] : 0.0f;
+        float b_value = b_row < k && col < n ? b[b_row * n + col] : 0.0f;
+        tile_a[threadIdx.y][threadIdx.x] = a_value;
+        tile_b[threadIdx.y][threadIdx.x] = b_value;
         __syncthreads();
 
-        for (int u = 0; u < T; ++u) {
-            sum += tile_a[ty][u] * tile_b[u][tx];
+        for (int offset = 0; offset < T; ++offset) {
+            sum += tile_a[threadIdx.y][offset] * tile_b[offset][threadIdx.x];
         }
         __syncthreads();
     }
@@ -127,15 +127,15 @@ int exactEntries(const Matrix& a, const Matrix& b, const Matrix& c,
 {
     int count = m * n < samples ? m * n : samples;
     int exact = 0;
-    for (int s = 0; s < count; ++s) {
-        int i = count == m * n ? s / n : s * 977 % m;
-        int j = count == m * n ? s % n : (s * 1231 + 7) % n;
+    for (int sample = 0; sample < count; ++sample) {
+        int row = count == m * n ? sample / n : sample * 977 % m;
+        int col = count == m * n ? sample % n : (sample * 1231 + 7) % n;
 
         double sum = 0.0;
-        for (int p = 0; p < k; ++p) {
-            sum += double(a[i * k + p]) * double(b[p * n + j]);
+        for (int inner = 0; inner < k; ++inner) {
+            sum += double(a[row * k + inner]) * double(b[inner * n + col]);
         }
-        exact += double(c[i * n + j]) == sum;
+        exact += double(c[row * n + col]) == sum;
     }
     return exact;
 }
