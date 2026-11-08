@@ -25,7 +25,7 @@ type Error = Box<dyn std::error::Error>;
 mod kernels {
     use super::*;
 
-    /// 1 Jacobi step, 1 thread per cell, every neighbour read from global memory.
+    /// 1 Jacobi step, 1 thread per cell, every neighbor read from global memory.
     #[kernel]
     #[launch_contract(domain = 2, block = (32, 8, 1))]
     pub fn jacobi(old: &[f32], mut new: DisjointSlice<f32, Runtime2DIndex>) {

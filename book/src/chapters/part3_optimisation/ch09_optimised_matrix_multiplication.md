@@ -1,6 +1,6 @@
 <img class="plate" src="../../art/ch09.svg" alt="Shell, a tortoise, walks across a meadow. Its domed shell is laid with square tiles in rows, like a matrix cut into blocks. Ahead of it lie 2 stacks of tiles, 1 marked A and 1 marked B, and behind it a finished row of tiles marked C. A tag says load a tile once, use it many times: the idea of a tiled matrix multiplication.">
 
-# Chapter 9: Optimised Matrix Multiplication
+# Chapter 9: Optimized Matrix Multiplication
 
 Matrix multiplication is one of the most important computations in science, engineering and
 machine learning. The kernels of Chapters 7 and 8 read each input value once and performed 1 or
@@ -312,7 +312,7 @@ reads falls by a factor of 16.
 Animation 1 shows the same block through all 4 steps.
 
 <figure class="anim">
-<video class="motion" src="../../figures/ch09-tiles-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labelled shared memory, the used tiles turn grey, and the 4 sums of the C tile fill up from 0 to 8 products." data-chapters="[[0.0, &quot;the strips&quot;], [6.3, &quot;step 1&quot;], [22.98, &quot;steps 2 to 4&quot;]]"><img src="../../figures/ch09-tiles-anim.gif" alt="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labelled shared memory, the used tiles turn grey, and the 4 sums of the C tile fill up from 0 to 8 products."></video>
+<video class="motion" src="../../figures/ch09-tiles-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labeled shared memory, the used tiles turn gray, and the 4 sums of the C tile fill up from 0 to 8 products." data-chapters="[[0.0, &quot;the strips&quot;], [6.3, &quot;step 1&quot;], [22.98, &quot;steps 2 to 4&quot;]]"><img src="../../figures/ch09-tiles-anim.gif" alt="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labeled shared memory, the used tiles turn gray, and the 4 sums of the C tile fill up from 0 to 8 products."></video>
 <figcaption><b>Animation 1</b> 4 steps of 2 × 2 tiles: each sum gains 2 products per step.</figcaption>
 </figure>
 
@@ -608,7 +608,7 @@ the `while` loops of the listings.
 | tiles of 16 × 16 | 201.8 GFLOP/s | 275.1 GFLOP/s | 274.7 GFLOP/s |
 | 4 × 4 per thread | 575.6 GFLOP/s | 595.4 GFLOP/s | 844.9 GFLOP/s |
 
-With `#[kernel(unchecked_indexing)]`, an index out of range is undefined behaviour, as in C++.
+With `#[kernel(unchecked_indexing)]`, an index out of range is undefined behavior, as in C++.
 Removing the checks helped the tiled kernel, whose cost was the checks, but not the patch kernel,
 whose cost was keeping its arrays in memory. The listings therefore keep the bounds checks and
 unroll the loops.

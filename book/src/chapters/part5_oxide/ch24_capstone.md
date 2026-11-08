@@ -1,17 +1,17 @@
-<img class="plate" src="../../art/ch24.svg" alt="The whole crew of crabs stands on a beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. The first picture is in colour, the second in gray, the third blurred, and the last shows only white outlines on black. Arrows lead from each picture to the next, and a crab stands under each one, labelled grayscale, equalise, blur and sobel. A tag reads 4 stages, many images in flight.">
+<img class="plate" src="../../art/ch24.svg" alt="The whole crew of crabs stands on a beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. The first picture is in color, the second in gray, the third blurred, and the last shows only white outlines on black. Arrows lead from each picture to the next, and a crab stands under each one, labeled grayscale, equalize, blur and sobel. A tag reads 4 stages, many images in flight.">
 
 # Chapter 24: Capstone: An Image Pipeline
 
 In Chapters 14 to 23, we derived 1 parallel algorithm at a time: a map, a reduction, a matrix
-product, a stencil, a scan, a histogram and a normalisation. A real program, however, chains several
+product, a stencil, a scan, a histogram and a normalization. A real program, however, chains several
 of them. Each kernel reads what the previous kernel wrote, the data travel from host memory to the
 device and back, and the slowest stage sets the rate of the whole program. Image processing
 illustrates this well, because its common operations fall into the patterns of Part V. Some of them
 compute each output pixel from 1 input pixel, some from a small window around it, and some from
 every pixel of the image.
 
-In this chapter, we build a pipeline of 4 stages that turns a colour image into a map of its edges.
-The stages are conversion to gray, histogram equalisation, a Gaussian blur and the Sobel edge
+In this chapter, we build a pipeline of 4 stages that turns a color image into a map of its edges.
+The stages are conversion to gray, histogram equalization, a Gaussian blur and the Sobel edge
 detector. We carry an image of 8 × 8 pixels through every stage by hand, derive each kernel from the
 chapter of Part V in which we developed its pattern, and prove that a blur in 2 passes of 5 weights
 equals the blur with 25 weights. We then run the pipeline in Rust and in CUDA C++ on images of
@@ -23,7 +23,7 @@ computation.
 
 This chapter covers
 
-- An 8 × 8 image carried by hand through gray conversion, equalisation, blur and edge detection
+- An 8 × 8 image carried by hand through gray conversion, equalization, blur and edge detection
 - The pattern behind each stage: a map, a histogram with a scan, and 2 stencils
 - The proof that 2 passes of 5 weights equal 1 pass of 25 weights, and the work it saves
 - A shared tile with a halo, and the wrong pixels a missing halo produces
@@ -51,12 +51,12 @@ write any kernel, we must therefore fix how the rectangle is laid out along the 
 
 <span class="box-label">Definition 24.1</span> **Pixel and image.** A **pixel** is the smallest
 element of an image. A pixel of a gray image is 1 byte, a **level** from 0 (black) to 255 (white).
-A pixel of a colour image is 3 bytes, the levels of red, green and blue. An image of width \\(W\\)
+A pixel of a color image is 3 bytes, the levels of red, green and blue. An image of width \\(W\\)
 and height \\(H\\) stores its pixels row by row: pixel \\((x, y)\\), in column \\(x\\) of row
 \\(y\\), is byte \\(yW + x\\) of a gray image, and its 3 bytes start at byte \\(3(yW + x)\\) of a
-colour image.
+color image.
 
-*Example.* In an image of width 8, pixel \\((3, 0)\\) is byte 3 of the gray image, and its colour
+*Example.* In an image of width 8, pixel \\((3, 0)\\) is byte 3 of the gray image, and its color
 bytes are bytes 9, 10 and 11.
 
 </div>
@@ -64,20 +64,20 @@ bytes are bytes 9, 10 and 11.
 The formula \\(yW + x\\) counts the pixels that come before pixel \\((x, y)\\): the \\(y\\) whole
 rows above it, of \\(W\\) pixels each, and the \\(x\\) pixels to its left in its own row. For
 example, in an image of width 8, pixel \\((2, 3)\\) is byte \\(3 \cdot 8 + 2 = 26\\) of the gray
-image, and its colour bytes start at byte \\(3 \cdot 26 = 78\\). We always write a pixel position as
+image, and its color bytes start at byte \\(3 \cdot 26 = 78\\). We always write a pixel position as
 \\((x, y)\\), column first, as in the figures of this chapter, whose column numbers run across the
 top and whose row numbers run down the left side.
 
 ### 24.1.2 The worked example
 
-We use 1 image throughout the chapter, shown in Figure 24.1. It has 8 × 8 pixels of 4 colours, 16
-pixels of each colour. There are 2 rows of sky at the top and 2 rows of ground at the bottom, and
+We use 1 image throughout the chapter, shown in Figure 24.1. It has 8 × 8 pixels of 4 colors, 16
+pixels of each color. There are 2 rows of sky at the top and 2 rows of ground at the bottom, and
 between them, a house of 4 × 4 pixels with hill on both sides. The test image of the programs,
 described in Section 24.8, is the same kind of scene at 1,920 × 1,080 pixels.
 
 <figure>
-<img src="../../figures/ch24-example.svg" alt="Left: an 8 by 8 colour image. Rows 0 and 1 are sky blue, rows 6 and 7 are brown ground, and rows 2 to 5 hold a red-brown house in columns 2 to 5 between green hill pixels in columns 0, 1, 6 and 7. Right: the gray levels of the same pixels: 144 for the sky, 112 for the hill, 120 for the house and 96 for the ground. Below, the 4 colours: sky (120, 150, 180) gives (36,960 + 128) >> 8 = 144; hill (70, 140, 80) gives 112; house (170, 100, 90) gives 120; ground (120, 90, 60) gives 96. Each colour covers 16 pixels.">
-<figcaption><b>Figure 24.1</b> The worked example: an 8 × 8 colour image and its gray levels.</figcaption>
+<img src="../../figures/ch24-example.svg" alt="Left: an 8 by 8 color image. Rows 0 and 1 are sky blue, rows 6 and 7 are brown ground, and rows 2 to 5 hold a red-brown house in columns 2 to 5 between green hill pixels in columns 0, 1, 6 and 7. Right: the gray levels of the same pixels: 144 for the sky, 112 for the hill, 120 for the house and 96 for the ground. Below, the 4 colors: sky (120, 150, 180) gives (36,960 + 128) >> 8 = 144; hill (70, 140, 80) gives 112; house (170, 100, 90) gives 120; ground (120, 90, 60) gives 96. Each color covers 16 pixels.">
+<figcaption><b>Figure 24.1</b> The worked example: an 8 × 8 color image and its gray levels.</figcaption>
 </figure>
 
 The 4 gray levels, 96, 112, 120 and 144, lie within 48 of each other, on a scale that runs from 0
@@ -85,8 +85,8 @@ to 255. The image therefore has low contrast. Its darkest pixel is a dark gray, 
 is a light gray, and the hill and the house differ by only 8 levels. The pipeline improves the image
 in 4 stages.
 
-1. **Gray conversion** replaces each colour pixel by 1 level (Figure 24.1, right).
-2. **Histogram equalisation** spreads the levels in use over the whole scale. The 4 levels move to
+1. **Gray conversion** replaces each color pixel by 1 level (Figure 24.1, right).
+2. **Histogram equalization** spreads the levels in use over the whole scale. The 4 levels move to
    0, 85, 170 and 255.
 3. **A Gaussian blur** replaces each pixel by a weighted average of the 5 × 5 pixels around it, which
    removes noise and softens the steps between regions.
@@ -99,34 +99,34 @@ We name the three cases that occur.
 
 <div class="definition">
 
-<span class="box-label">Definition 24.2</span> **Point, neighbourhood and global operations.** An
+<span class="box-label">Definition 24.2</span> **Point, neighborhood and global operations.** An
 image operation is a **point operation** if each output pixel depends only on the input pixel at the
-same position. It is a **neighbourhood operation** if each output pixel depends on a small window of
+same position. It is a **neighborhood operation** if each output pixel depends on a small window of
 input pixels around its position. It is a **global operation** if its result depends on every pixel
 of the image.
 
 *Example.* Gray conversion is a point operation; the blur, with a window of 5 × 5, and the Sobel
-detector, with a window of 3 × 3, are neighbourhood operations; equalisation contains a global
+detector, with a window of 3 × 3, are neighborhood operations; equalization contains a global
 operation, the histogram of all 64 levels.
 
 </div>
 
 Figure 24.2 shows the pipeline as the 7 kernels of our programs, together with the buffers between
-them. The equalisation takes three kernels and the blur takes 2, for reasons that we explain in
+them. The equalization takes three kernels and the blur takes 2, for reasons that we explain in
 Sections 24.4 and 24.5. Figure 24.3 shows what the programs produce for their test image of
 1,920 × 1,080 pixels.
 
 <figure>
-<img src="../../figures/ch24-pipeline.svg" alt="The pipeline in 2 columns. Equalise: the RGB image of 3 bytes per pixel goes to grayscale, a map; histogram counts the gray levels into 256 bins; equalise table scans the 256 counts; apply table maps each pixel through the table. Blur and edges: blur rows and blur columns are stencils with a halo, sobel is a stencil, and the edge image has 1 byte per pixel, 2.1 MB.">
+<img src="../../figures/ch24-pipeline.svg" alt="The pipeline in 2 columns. Equalize: the RGB image of 3 bytes per pixel goes to grayscale, a map; histogram counts the gray levels into 256 bins; equalize table scans the 256 counts; apply table maps each pixel through the table. Blur and edges: blur rows and blur columns are stencils with a halo, sobel is a stencil, and the edge image has 1 byte per pixel, 2.1 MB.">
 <figcaption><b>Figure 24.2</b> The 7 kernels of the pipeline, the pattern of each, and the buffers between them.</figcaption>
 </figure>
 
 <figure>
-<img src="../../figures/ch24-images.png" alt="4 panels from the program's real output. Input: a dull colour scene with a blue-gray sky, a pale sun, a pink house with a dark window, and a green hill. Equalised: the same scene in gray with strong contrast, a white sun, a light sky and a dark hill; the grain of the image is also stronger. A 4 times enlargement of the corner of the window, before and after the blur: before, the grain is a pattern of single bright and dark pixels; after, it is a smooth texture and the edge of the window is slightly soft. Edges: a dark image with light outlines of the house, the window, the roof, the hill and the sun.">
-<figcaption><b>Figure 24.3</b> The programs' output for their test image: the input, the equalised image, the blur at 4 × enlargement, and the edges.</figcaption>
+<img src="../../figures/ch24-images.png" alt="4 panels from the program's real output. Input: a dull color scene with a blue-gray sky, a pale sun, a pink house with a dark window, and a green hill. Equalized: the same scene in gray with strong contrast, a white sun, a light sky and a dark hill; the grain of the image is also stronger. A 4 times enlargement of the corner of the window, before and after the blur: before, the grain is a pattern of single bright and dark pixels; after, it is a smooth texture and the edge of the window is slightly soft. Edges: a dark image with light outlines of the house, the window, the roof, the hill and the sun.">
+<figcaption><b>Figure 24.3</b> The programs' output for their test image: the input, the equalized image, the blur at 4 × enlargement, and the edges.</figcaption>
 </figure>
 
-Note that equalisation strengthens the grain of the test image together with the scene, because it
+Note that equalization strengthens the grain of the test image together with the scene, because it
 stretches every difference between levels, including the small random ones. The blur removes most
 of the grain before the edge detector runs, so the edge image shows the outlines of the objects and
 only a faint texture elsewhere.
@@ -136,11 +136,11 @@ only a faint texture elsewhere.
 Exercises
 
 24.1 At which byte of a gray image of width 1,920 is pixel \\((10, 2)\\) stored? At which bytes are
-its 3 colour bytes?<br>
+its 3 color bytes?<br>
 24.2 In the example, which pixels does the blur of pixel \\((0, 0)\\) depend on, if positions
-outside the image are not counted? Which pixels does the equalised level of pixel \\((0, 0)\\)
+outside the image are not counted? Which pixels does the equalized level of pixel \\((0, 0)\\)
 depend on?<br>
-24.3 Classify as point, neighbourhood or global: inverting an image (\\(255 - v\\)); finding its
+24.3 Classify as point, neighborhood or global: inverting an image (\\(255 - v\\)); finding its
 brightest level; replacing each pixel by the median of its 3 × 3 window.
 
 </div>
@@ -194,7 +194,7 @@ the width or the height. For example, with \\(n = 8\\), \\(\mathrm{clamp}(-2, 8)
 </ol>
 </div>
 
-Lines 1 to 3 convert to gray, lines 4 to 18 equalise, lines 19 to 24 blur in 2 passes, and lines 25
+Lines 1 to 3 convert to gray, lines 4 to 18 equalize, lines 19 to 24 blur in 2 passes, and lines 25
 to 28 compute the edges. The symbol \\(\gg 8\\) is a shift right by 8 bits, which is a division by
 256 that discards the remainder; for example, \\(37{,}088 \gg 8 = 144\\). In lines 12 and 14,
 \\(c_{\min}\\) is the cumulative count of the darkest level in use, and \\(s\\) is the number of
@@ -207,7 +207,7 @@ work and examine what each line depends on.
 Line 2 runs once for each pixel, 64 times in our example, with 3 multiplications each time. Lines 6
 and 17 also run 64 times. Lines 10 and 14 run 256 times, once for each possible level, whatever the
 size of the image. Lines 20 and 23 each run 64 times with 5 multiply-adds, which makes 320
-multiply-adds per pass. Line 26 reads the 8 neighbours of each of the 64 outputs and adds 12
+multiply-adds per pass. Line 26 reads the 8 neighbors of each of the 64 outputs and adds 12
 weighted terms. The example therefore needs 192 multiplications for the gray levels, 640
 multiply-adds for the blur and 768 weighted terms for the edges, and the CPU performs them one after
 another.
@@ -228,7 +228,7 @@ at the same time as every other output, as soon as its few inputs exist.
 Lines 4 to 14 are different. The table entry of line 14 needs \\(cdf[v]\\), which counts every pixel
 of the image with a level of at most \\(v\\). For example, \\(cdf[112] = 32\\) counts the 16 pixels of
 level 96 and the 16 pixels of level 112, wherever they lie in the image. No entry of the table, and
-therefore no pixel of the equalised image, can be computed until the histogram of the whole image is
+therefore no pixel of the equalized image, can be computed until the histogram of the whole image is
 complete.
 
 <div class="key-observation">
@@ -244,7 +244,7 @@ pipeline connects them, in an order that only the histogram constrains.
 
 Exercises
 
-24.4 How many times does line 20 read each pixel of the equalised image, away from the border? How
+24.4 How many times does line 20 read each pixel of the equalized image, away from the border? How
 many times does line 26 read each pixel of the blurred image?<br>
 24.5 Lines 10 and 14 run 256 times for an image of any size. What fraction of the work of
 Image-Pipeline do they represent for the image of 1,920 × 1,080 pixels?<br>
@@ -257,7 +257,7 @@ pixel? Which could not, and why?
 
 ### 24.3.1 The weights
 
-A gray image needs 1 level per pixel, so we must combine the 3 levels of a colour pixel into 1. The
+A gray image needs 1 level per pixel, so we must combine the 3 levels of a color pixel into 1. The
 plain average would be the simplest choice, but it does not match what a viewer sees, because the
 eye is most sensitive to green and least sensitive to blue. A pure green pixel therefore looks
 brighter than a pure blue pixel of the same level. The ITU-R BT.601 standard weighs the 3 levels
@@ -267,7 +267,7 @@ accordingly:
 | Symbol | Meaning | For the sky of the example |
 |---|---|---|
 | \\(R, G, B\\) | levels of red, green and blue of the pixel | 120, 150, 180 |
-| 0.299, 0.587, 0.114 | weights of the 3 colours, summing to 1 | |
+| 0.299, 0.587, 0.114 | weights of the 3 colors, summing to 1 | |
 | \\(Y\\) | perceived brightness, the gray level | 144.45 |
 
 For the sky, \\(Y = 0.299 \cdot 120 + 0.587 \cdot 150 + 0.114 \cdot 180 = 35.88 + 88.05 + 20.52 =
@@ -282,7 +282,7 @@ division round to the nearest level instead of down. For the sky, we obtain
 \\[ 77 \cdot 120 + 150 \cdot 150 + 29 \cdot 180 = 9{,}240 + 22{,}500 + 5{,}220 = 36{,}960, \qquad
 (36{,}960 + 128) \gg 8 = 144, \\]
 which is the floating-point value 144.45, rounded. Figure 24.1 lists the same computation for the
-other 3 colours.
+other 3 colors.
 
 We use integers for a reason that we make precise in Section 24.8. The programs compare every pixel
 of the GPU's output with the CPU's output, and they can demand exact equality only if both
@@ -327,7 +327,7 @@ follows thread 3 of the example. It reads bytes 9, 10 and 11, computes 144, and 
 gray image. This makes 3 reads from global memory and 1 write, and no other thread is involved.
 
 <figure>
-<img src="../../figures/ch24-thread.svg" alt="Row 0 of the colour image as 12 bytes in memory, 120, 150, 180 repeated for pixels 0 to 3, one colour per pixel. Thread 3 computes p = 9, reads bytes 9, 10 and 11, computes 77 times 120 plus 150 times 150 plus 29 times 180 = 36,960, adds 128 and shifts right by 8 to get 144, and writes element 3 of the gray image.">
+<img src="../../figures/ch24-thread.svg" alt="Row 0 of the color image as 12 bytes in memory, 120, 150, 180 repeated for pixels 0 to 3, one color per pixel. Thread 3 computes p = 9, reads bytes 9, 10 and 11, computes 77 times 120 plus 150 times 150 plus 29 times 180 = 36,960, adds 128 and shifts right by 8 to get 144, and writes element 3 of the gray image.">
 <figcaption><b>Figure 24.4</b> The work of 1 thread of the gray kernel: 3 bytes in, 1 byte out.</figcaption>
 </figure>
 
@@ -343,7 +343,7 @@ warp to global memory is **coalesced** when its 32 addresses fall into as few al
 32 bytes as the data allow, so that the memory system serves the whole warp with a few transfers.
 
 *Example.* The 32 threads of a warp of the gray kernel read pixels \\(i\\) to \\(i + 31\\), which
-are 96 consecutive bytes of the colour image, and the memory system serves each of the 3 read
+are 96 consecutive bytes of the color image, and the memory system serves each of the 3 read
 instructions from the same 3 segments of 32 bytes.
 
 </div>
@@ -401,17 +401,17 @@ why the 3 results differ.<br>
 24.8 A warp of the gray kernel reads 96 bytes with 3 load instructions. How many bytes would each
 load instruction move if each thread converted 4 pixels and read its 12 bytes as 3 words of 4
 bytes?<br>
-24.9 Without the 128 in line 4, which of the 4 colours of the example changes its gray level?
+24.9 Without the 128 in line 4, which of the 4 colors of the example changes its gray level?
 
 </div>
 
-## 24.4 Histogram equalisation
+## 24.4 Histogram equalization
 
 ### 24.4.1 The method on the example
 
 The image of the example uses only 4 levels, which lie between 96 and 144, while the scale offers
 256 levels between 0 and 255. We would like the levels in use to spread over the whole scale, with
-the darkest level in use becoming black and the brightest becoming white. Equalisation achieves this
+the darkest level in use becoming black and the brightest becoming white. Equalization achieves this
 by moving each level to a new level in proportion to the number of pixels at or below it. It needs 2
 quantities, which we now define.
 
@@ -430,18 +430,18 @@ and every other count 0. Its cumulative counts are \\(c(96) = 16\\), \\(c(112) =
 </div>
 
 The cumulative count tells us what fraction of the pixels is at least as dark as a given level. If
-50% of the pixels have a level of at most \\(v\\), equalisation moves \\(v\\) to about 50% of 255.
+50% of the pixels have a level of at most \\(v\\), equalization moves \\(v\\) to about 50% of 255.
 Since the darkest level in use should become 0 and the brightest should become 255, we subtract the
 cumulative count \\(c_{\min}\\) of the darkest level in use, and we divide by what remains.
 
 <div class="definition">
 
-<span class="box-label">Definition 24.6</span> **Equalisation table.** For an image of \\(N\\)
-pixels, let \\(c_{\min}\\) be the cumulative count at the lowest level in use. The equalisation
+<span class="box-label">Definition 24.6</span> **Equalization table.** For an image of \\(N\\)
+pixels, let \\(c_{\min}\\) be the cumulative count at the lowest level in use. The equalization
 table maps level \\(v\\) to
 \\[ \mathrm{new}(v) = \mathrm{round}\left(\frac{\max(c(v) - c_{\min}, 0)}{N - c_{\min}} \cdot
 255\right), \\]
-and the equalised image replaces each level \\(v\\) by \\(\mathrm{new}(v)\\).
+and the equalized image replaces each level \\(v\\) by \\(\mathrm{new}(v)\\).
 
 *Example.* With \\(N = 64\\) and \\(c_{\min} = c(96) = 16\\), \\(\mathrm{new}(112) =
 \mathrm{round}(16 \cdot 255 / 48) = 85\\).
@@ -455,7 +455,7 @@ and the equalised image replaces each level \\(v\\) by \\(\mathrm{new}(v)\\).
 | \\(c_{\min}\\) | cumulative count at the darkest level in use | \\(c(96) = 16\\) |
 | \\(c(v) - c_{\min}\\) | pixels above the darkest level and at most \\(v\\) | 16 |
 | \\(N - c_{\min}\\) | pixels above the darkest level | 48 |
-| \\(\mathrm{new}(v)\\) | equalised level | \\(\mathrm{round}(16 / 48 \cdot 255) = 85\\) |
+| \\(\mathrm{new}(v)\\) | equalized level | \\(\mathrm{round}(16 / 48 \cdot 255) = 85\\) |
 
 The fraction in the formula runs from 0 at the darkest level in use to 1 at the brightest level in
 use, and the factor 255 stretches it over the whole scale. Figure 24.5 works the whole table. Level
@@ -469,13 +469,13 @@ and a denominator \\(s\\), the expression \\(\lfloor (a + \lfloor s/2 \rfloor) /
 \\(\lfloor (4{,}080 + 24) / 48 \rfloor = 85\\).
 
 <figure>
-<img src="../../figures/ch24-equalise.svg" alt="Left top: the histogram of the gray image has 4 bars of 16 pixels at levels 96, 112, 120 and 144. Left bottom: a table with level, count, cumulative count c(v) and new level: 96, 16, 16, 0; 112, 16, 32, 85; 120, 16, 48, 170; 144, 16, 64, 255. new(112) = round((32 - 16) times 255 / (64 - 16)) = 85. Right: the equalised image: rows 0 and 1 are 255, rows 2 to 5 are 85 85 170 170 170 170 85 85, rows 6 and 7 are 0.">
-<figcaption><b>Figure 24.5</b> The histogram, the cumulative counts and the table of the example, and the equalised image.</figcaption>
+<img src="../../figures/ch24-equalise.svg" alt="Left top: the histogram of the gray image has 4 bars of 16 pixels at levels 96, 112, 120 and 144. Left bottom: a table with level, count, cumulative count c(v) and new level: 96, 16, 16, 0; 112, 16, 32, 85; 120, 16, 48, 170; 144, 16, 64, 255. new(112) = round((32 - 16) times 255 / (64 - 16)) = 85. Right: the equalized image: rows 0 and 1 are 255, rows 2 to 5 are 85 85 170 170 170 170 85 85, rows 6 and 7 are 0.">
+<figcaption><b>Figure 24.5</b> The histogram, the cumulative counts and the table of the example, and the equalized image.</figcaption>
 </figure>
 
 The cumulative count never decreases as \\(v\\) grows, and therefore neither does
 \\(\mathrm{new}(v)\\). Hence 2 pixels that were in a given order of brightness keep that order.
-Equalisation changes the contrast of an image, not its arrangement of light and dark.
+Equalization changes the contrast of an image, not its arrangement of light and dark.
 
 The method splits into 3 steps with different patterns: the histogram, which is a global operation,
 the table of 256 entries, which is a scan, and the replacement of each level, which is a map. Each
@@ -640,7 +640,7 @@ derived this function in Chapter 21.
 
 ### 24.4.4 Applying the table
 
-The last step of the equalisation is a map. In the following kernels, each thread reads 1 gray level
+The last step of the equalization is a map. In the following kernels, each thread reads 1 gray level
 and writes the entry of the table for that level.
 
 <div class="code-tabs">
@@ -698,7 +698,7 @@ image      pixels that differ from the CPU
 FAILED
 ```
 
-The gray image is still right, but 1,961,635 of the 2,073,600 equalised pixels, 95%, are wrong. A
+The gray image is still right, but 1,961,635 of the 2,073,600 equalized pixels, 95%, are wrong. A
 lost count lowers the cumulative count of its level and of every level above it, and with it, the
 table entry of almost every level. For example, pixel \\((0, 0)\\) became 104 instead of 97. The
 error then passes through the blur and the edges. Note also that the histogram stage of this broken
@@ -709,7 +709,7 @@ another. A faster kernel is therefore no evidence of a correct one.
 
 Exercises
 
-24.10 Compute the equalisation table for an image of 10 pixels with the levels 4, 4, 4, 5, 5, 6, 6,
+24.10 Compute the equalization table for an image of 10 pixels with the levels 4, 4, 4, 5, 5, 6, 6,
 6, 6, 7, on a scale of 8 levels (replace 255 by 7).<br>
 24.11 In Table-Kernel, why must line 10 run after the barrier of line 8 and not before it?<br>
 24.12 Histogram-Kernel is launched with 64 blocks. How many atomic additions reach global memory
@@ -722,9 +722,9 @@ for the 8 × 8 example with 1 block, and for the large image with 64 blocks?
 ### 24.5.1 The weights
 
 A **blur** replaces each pixel by a weighted average of the pixels around it. Averaging removes
-small random differences between neighbouring pixels, such as the grain of the test image, at the
+small random differences between neighboring pixels, such as the grain of the test image, at the
 cost of softening the edges between regions. A **Gaussian blur** uses weights that fall off with the
-distance from the centre in the shape of the normal distribution, so that near pixels count more
+distance from the center in the shape of the normal distribution, so that near pixels count more
 than far ones. We use the 5 weights \\(w = (1, 4, 6, 4, 1)\\) in each direction. They are the
 binomial coefficients of order 4, which approximate a normal distribution with a standard deviation
 of 1 pixel, since the binomial distribution of order 4 with probability 1/2 has variance
@@ -733,7 +733,7 @@ of 1 pixel, since the binomial distribution of order 4 with probability 1/2 has 
 The 2-dimensional blur over a window of 5 × 5 pixels gives the pixel in row \\(i\\) and column \\(j\\)
 of the window the weight \\(w_i w_j\\), as shown on the left of Figure 24.7. For example, the pixel
 in row 0 and column 2 of the window has the weight \\(w_0 w_2 = 1 \cdot 6 = 6\\). The 25 weights run
-from 1 at the corners to 36 at the centre, and they sum to \\(16 \cdot 16 = 256\\), so a region of
+from 1 at the corners to 36 at the center, and they sum to \\(16 \cdot 16 = 256\\), so a region of
 constant level keeps its level after the division by 256.
 
 <div class="definition">
@@ -741,16 +741,16 @@ constant level keeps its level after the division by 256.
 <span class="box-label">Definition 24.8</span> **Separable filter.** A filter on a window of
 \\(k \times k\\) pixels is **separable** if its weight at row \\(i\\) and column \\(j\\) of the window
 is a product \\(a_i b_j\\) of a column weight and a row weight. Its **row pass** replaces each pixel
-by the sum of its \\(k\\) row neighbours weighted by \\(b\\), and its **column pass** does the same
+by the sum of its \\(k\\) row neighbors weighted by \\(b\\), and its **column pass** does the same
 along the columns with the weights \\(a\\).
 
-*Example.* The blur is separable with \\(a = b = (1, 4, 6, 4, 1)\\); the weight 36 at the centre is
+*Example.* The blur is separable with \\(a = b = (1, 4, 6, 4, 1)\\); the weight 36 at the center is
 \\(6 \cdot 6\\), and the weight 4 at row 0 and column 1 is \\(1 \cdot 4\\).
 
 </div>
 
 <figure>
-<img src="../../figures/ch24-separable.svg" alt="Left: the column weights 1, 4, 6, 4, 1 and the row weights 1, 4, 6, 4, 1, and their 25 products from 1 at the corners to 36 in the centre, summing to 256. Right: pixel (3, 3) of the example. The row pass gives 4,080 in row 1 and 2,635 in rows 2 to 5; the column pass gives 4,080 + 15 times 2,635 = 43,605, and (43,605 + 128) >> 8 = 170. 1 pass over 25 weights gives the same 43,605. 2 passes cost 10 multiply-adds per pixel instead of 25.">
+<img src="../../figures/ch24-separable.svg" alt="Left: the column weights 1, 4, 6, 4, 1 and the row weights 1, 4, 6, 4, 1, and their 25 products from 1 at the corners to 36 in the center, summing to 256. Right: pixel (3, 3) of the example. The row pass gives 4,080 in row 1 and 2,635 in rows 2 to 5; the column pass gives 4,080 + 15 times 2,635 = 43,605, and (43,605 + 128) >> 8 = 170. 1 pass over 25 weights gives the same 43,605. 2 passes cost 10 multiply-adds per pixel instead of 25.">
 <figcaption><b>Figure 24.7</b> The 25 weights of the blur as products of 2 sets of 5, and pixel (3, 3) of the example computed both ways.</figcaption>
 </figure>
 
@@ -759,9 +759,9 @@ along the columns with the weights \\(a\\).
 A direct blur multiplies 25 pixels by 25 weights for every output. Since each weight is a product
 of a weight for its row and a weight for its column, we may hope to apply the 2 factors one after
 the other, first along the rows and then along the columns. Let us blur pixel \\((3, 3)\\) of the
-equalised image by hand in this way, in 2 passes, as shown in Figure 24.8.
+equalized image by hand in this way, in 2 passes, as shown in Figure 24.8.
 
-The row pass at \\((3, y)\\) reads pixels 1 to 5 of row \\(y\\), the window of width 5 centred on
+The row pass at \\((3, y)\\) reads pixels 1 to 5 of row \\(y\\), the window of width 5 centered on
 column 3. In rows 2 to 5, these pixels are 85, 170, 170, 170 and 170, so the row sum is
 \\(85 + 4 \cdot 170 + 6 \cdot 170 + 4 \cdot 170 + 170 = 2{,}635\\). In row 1, all 5 pixels are 255,
 and the sum is \\(16 \cdot 255 = 4{,}080\\). The column pass at \\((3, 3)\\) then reads the row sums
@@ -787,7 +787,7 @@ the 2-dimensional blur with the 25 weights \\(w_i w_j\\).
 
 | Symbol | Meaning | For pixel \\((3, 3)\\) of the example |
 |---|---|---|
-| \\(e(x, y)\\) | level of pixel \\((x, y)\\) of the equalised image | \\(e(1, 2) = 85\\) |
+| \\(e(x, y)\\) | level of pixel \\((x, y)\\) of the equalized image | \\(e(1, 2) = 85\\) |
 | \\(w_j\\) | weight \\(j\\) of the 5 weights \\((1, 4, 6, 4, 1)\\) | \\(w_2 = 6\\) |
 | \\(x + j - 2\\) | column \\(j\\) of the window, which starts 2 columns left of \\(x\\) | columns 1 to 5 |
 | \\(R(x, y)\\) | row sum, the result of the row pass | \\(R(3, 2) = 2{,}635\\) |
@@ -827,8 +827,8 @@ bytes per pixel, 4.1 MB for the large image, and the column pass reads this imag
 Section 24.9, we show that the time of the blur is set by this traffic, not by the multiply-adds.
 
 <figure>
-<img src="../../figures/ch24-blur.svg" alt="3 grids of the example. The equalised image, with the 5 by 5 window of pixel (3, 3) outlined. The row sums: 4,080 in rows 0 and 1; 1,445, 1,785, 2,295, 2,635, 2,635, 2,295, 1,785, 1,445 in rows 2 to 5; 0 in rows 6 and 7, with the 5 sums that pixel (3, 3) reads outlined. The blurred image, from 245 at the top left down to 6 at the bottom left, with pixel (3, 3) = 170 outlined.">
-<figcaption><b>Figure 24.8</b> The blur of the example, pass by pass: the equalised image, the row sums and the blurred image.</figcaption>
+<img src="../../figures/ch24-blur.svg" alt="3 grids of the example. The equalized image, with the 5 by 5 window of pixel (3, 3) outlined. The row sums: 4,080 in rows 0 and 1; 1,445, 1,785, 2,295, 2,635, 2,635, 2,295, 1,785, 1,445 in rows 2 to 5; 0 in rows 6 and 7, with the 5 sums that pixel (3, 3) reads outlined. The blurred image, from 245 at the top left down to 6 at the bottom left, with pixel (3, 3) = 170 outlined.">
+<figcaption><b>Figure 24.8</b> The blur of the example, pass by pass: the equalized image, the row sums and the blurred image.</figcaption>
 </figure>
 
 ### 24.5.4 The tile and its halo
@@ -860,7 +860,7 @@ threads 0 and 1 also copy the 4 halo slots. After a barrier, thread \\(t\\) read
 slots 3 to 7, which hold pixels 1 to 5.
 
 <figure>
-<img src="../../figures/ch24-tile.svg" alt="12 slots of a shared tile for row 2 of the equalised image, block of 8 threads. Slots 0 and 1 hold pixel 0, value 85, the clamped left halo; slots 2 to 9 hold pixels 0 to 7: 85, 85, 170, 170, 170, 170, 85, 85; slots 10 and 11 hold pixel 7, 85, the clamped right halo. Thread 0 reads slots 0 to 4 and sums 1,445; thread 3 reads slots 3 to 7 and sums 2,635; thread 7 reads slots 7 to 11 and sums 1,445.">
+<img src="../../figures/ch24-tile.svg" alt="12 slots of a shared tile for row 2 of the equalized image, block of 8 threads. Slots 0 and 1 hold pixel 0, value 85, the clamped left halo; slots 2 to 9 hold pixels 0 to 7: 85, 85, 170, 170, 170, 170, 85, 85; slots 10 and 11 hold pixel 7, 85, the clamped right halo. Thread 0 reads slots 0 to 4 and sums 1,445; thread 3 reads slots 3 to 7 and sums 2,635; thread 7 reads slots 7 to 11 and sums 1,445.">
 <figcaption><b>Figure 24.9</b> The tile of row 2 for a block of 8 threads, with its halo, and the windows of 3 threads.</figcaption>
 </figure>
 
@@ -992,7 +992,7 @@ and the compiler accepts the argument of their `// SAFETY:` comments without che
 64,800 blurred pixels at risk, 56,548, or 87%, are wrong; in the others, the old contents of shared
 memory happened to give the right sum. Pixel \\((0, 0)\\) is 164 instead of 106. The edge image has
 more wrong pixels, 81,436, because the Sobel operator reads a 3 × 3 window, and every wrong blurred
-pixel spoils the edges of its neighbours. The 60 columns at risk thus become 90 columns of edges at
+pixel spoils the edges of its neighbors. The 60 columns at risk thus become 90 columns of edges at
 risk, 97,200 pixels. The C++ program with the same change gave 56,646 wrong blurred pixels and
 81,212 wrong edge pixels. In the picture, the errors form thin vertical stripes, 1 every 128
 columns, which are hard to see by looking at the image, whereas the comparison with the CPU finds
@@ -1025,15 +1025,15 @@ at the end, using pixel \\((3, 3)\\) of the example.
 ### 24.6.1 The gradient
 
 An **edge** in an image is a place where the level changes quickly from 1 pixel to the next. Inside
-a region of the example, such as the sky, neighbouring pixels have almost the same level, while at
+a region of the example, such as the sky, neighboring pixels have almost the same level, while at
 the border between the sky and the house, the level drops by about 70 within 2 rows. To find edges,
 we therefore estimate how fast the level changes at each pixel. The **Sobel operator** makes this
-estimate in two directions from the 3 × 3 neighbourhood of the pixel. Its horizontal component
+estimate in two directions from the 3 × 3 neighborhood of the pixel. Its horizontal component
 \\(g_x\\) is the weighted sum of the column to the right of the pixel minus the weighted sum of the
 column to its left, with the weights 1, 2 and 1 from top to bottom. Its vertical component \\(g_y\\)
 is the weighted sum of the row below the pixel minus that of the row above, with the same weights
 from left to right. The middle pixel of each column or row receives the weight 2 because it is
-closest to the centre.
+closest to the center.
 
 <div class="definition">
 
@@ -1057,18 +1057,18 @@ the edge level is 60 (Figure 24.11).
 
 The division by 4 scales the result to the range of a byte. A sharp step from level 0 to level 255
 gives \\(g_x = (1 + 2 + 1) \cdot 255 = 1{,}020\\), and \\(1{,}020 / 4 = 255\\), the brightest level.
-Figure 24.11 works pixel \\((3, 1)\\), which lies where the sky meets the house. Its neighbourhood
+Figure 24.11 works pixel \\((3, 1)\\), which lies where the sky meets the house. Its neighborhood
 in the blurred image has the rows 248, 249, 249; 220, 227, 227; and 178, 193, 193. Therefore,
 \\[ g_x = (249 + 2 \cdot 227 + 193) - (248 + 2 \cdot 220 + 178) = 896 - 866 = 30, \\]
 \\[ g_y = (178 + 2 \cdot 193 + 193) - (248 + 2 \cdot 249 + 249) = 757 - 995 = -238. \\]
-In \\(g_x\\), the first bracket is the right column of the neighbourhood, from top to bottom, and
+In \\(g_x\\), the first bracket is the right column of the neighborhood, from top to bottom, and
 the second bracket is the left column. In \\(g_y\\), the first bracket is the row below, from left
 to right, and the second bracket is the row above. The level falls by about 70 from the row above
 to the row below, and it barely changes from left to right. The magnitude is
 \\(\sqrt{900 + 56{,}644} = \sqrt{57{,}544} = 239.88\\), and \\(239.88 / 4 = 59.97\\) rounds to 60.
 
 <figure>
-<img src="../../figures/ch24-sobel.svg" alt="Top: the 3 by 3 neighbourhood of pixel (3, 1) in the blurred image, 248 249 249, 220 227 227, 178 193 193, beside the Gx mask, -1 0 1 with the middle row doubled, and the Gy mask, -1 -2 -1 on top and 1 2 1 at the bottom. gx = 896 - 866 = 30, gy = 757 - 995 = -238, the square root of 57,544 is 239.88, and 239.88 / 4 rounds to 60. Below: the edge image of the example, with values from 24 to 100; pixel (3, 1) = 60 is outlined.">
+<img src="../../figures/ch24-sobel.svg" alt="Top: the 3 by 3 neighborhood of pixel (3, 1) in the blurred image, 248 249 249, 220 227 227, 178 193 193, beside the Gx mask, -1 0 1 with the middle row doubled, and the Gy mask, -1 -2 -1 on top and 1 2 1 at the bottom. gx = 896 - 866 = 30, gy = 757 - 995 = -238, the square root of 57,544 is 239.88, and 239.88 / 4 rounds to 60. Below: the edge image of the example, with values from 24 to 100; pixel (3, 1) = 60 is outlined.">
 <figcaption><b>Figure 24.11</b> The Sobel operator at pixel (3, 1) of the blurred example, and the edge image.</figcaption>
 </figure>
 
@@ -1089,9 +1089,9 @@ blurred image in row \\(r\\) and column \\(c\\), with both coordinates clamped t
 </ol>
 </div>
 
-Each thread uses the 8 pixels around its own, since the centre has weight 0 in both masks, and it
+Each thread uses the 8 pixels around its own, since the center has weight 0 in both masks, and it
 writes 1 byte. The kernel reads the 8 pixels from global memory without a shared tile. A pixel is
-read by up to 9 threads, but those threads belong to the same block or to neighbouring blocks, and
+read by up to 9 threads, but those threads belong to the same block or to neighboring blocks, and
 most of the repeated reads are served by the L1 cache of the SM. Exercise 24.18 asks whether a tile
 would help. The following kernels implement the procedure.
 
@@ -1116,7 +1116,7 @@ mod kernels {
 </div>
 
 The kernels compute the 4 weighted sums of lines 3 and 4 as `right`, `left`, `below` and `above`,
-and the clamped neighbours `xl`, `xr`, `yu` and `yd` of line 2. The largest possible component is
+and the clamped neighbors `xl`, `xr`, `yu` and `yd` of line 2. The largest possible component is
 \\(4 \cdot 255 = 1{,}020\\), so the sum of squares is at most \\(2 \cdot 1{,}020^2 = 2{,}080{,}800\\).
 This is an integer below \\(2^{24} = 16{,}777{,}216\\), and its conversion to a 32-bit float is
 therefore exact. The square root is `sqrt_rn_f32` in Rust and `sqrtf` in C++. Both round to the
@@ -1132,7 +1132,7 @@ and a root a little below 10 would give 2. The approximate root of the measured 
 integer roots exactly. The programs nevertheless keep the correctly rounded root, because it agrees
 with the CPU by its definition, not by a test on 1 GPU and 1 image.
 
-### 24.6.3 Neighbours outside the image
+### 24.6.3 Neighbors outside the image
 
 A common mistake in a stencil is to forget the clamp of line 2 of Sobel-Kernel. At pixel
 \\((3, 0)\\), the kernel then reads row \\(-1\\), which does not exist. In a buffer stored row by
@@ -1273,8 +1273,8 @@ a separate mutable slice, so the compiler verifies that no 2 threads write the s
 </div>
 
 The programs generate the test image themselves. It shows a house below a hill, a sky that brightens
-towards the horizon, and a sun, with random grain of up to 8 levels on every pixel. Its colours lie
-in a narrow range of levels, so the image has low contrast, and equalisation has a visible effect
+toward the horizon, and a sun, with random grain of up to 8 levels on every pixel. Its colors lie
+in a narrow range of levels, so the image has low contrast, and equalization has a visible effect
 (Figure 24.3). For each of the 4 images, both programs print the number of pixels in which the GPU
 differs from the CPU, as follows.
 
@@ -1309,7 +1309,7 @@ about 10% between runs.
 |---|---|---|---|---|
 | grayscale | 4 | 0.200 ms | 0.183 ms | 45.4 GB/s |
 | histogram | 1 | 0.056 ms | 0.055 ms | 38.0 GB/s |
-| equalise table | 0 | 0.007 ms | 0.007 ms | |
+| equalize table | 0 | 0.007 ms | 0.007 ms | |
 | apply table | 2 | 0.185 ms | 0.192 ms | 21.6 GB/s |
 | blur rows | 3 | 0.301 ms | 0.208 ms | 29.9 GB/s |
 | blur columns | 3 | 0.280 ms | 0.210 ms | 29.7 GB/s |
@@ -1349,7 +1349,7 @@ What the stages have in common is memory traffic. Together, they must read and w
 pixel, which is \\(15 \cdot 2{,}073{,}600 = 31.1\\) MB per image. At the 102 GB/s of the memory, this
 would take 0.305 ms, but the stages take 1.079 ms, an effective 28.8 GB/s, or 28% of the peak. The
 blur takes the largest share because it moves the most bytes, 6 per pixel. The row pass reads the
-equalised image and writes 2-byte row sums, and the column pass reads them back and writes the
+equalized image and writes 2-byte row sums, and the column pass reads them back and writes the
 blurred image. The intermediate image of 4.1 MB is the price of the separable form. Theorem 24.1
 saves 15 multiply-adds per pixel, which cost little here, while the 2 passes add 4 bytes of traffic
 per pixel, which cost more. A 1-pass blur with a tile of \\((8 + 4) \times (32 + 4)\\) inputs would
@@ -1376,7 +1376,7 @@ branch that stops the kernel if the index lies outside. The Sobel kernel perform
 pixel. We ran the Rust program with `#[kernel(unchecked_indexing)]` on every kernel, which removes
 the checks. It gave 0.228 ms for each blur pass, 0.268 ms for the Sobel kernel and 1.175 ms for the
 7 stages, with the same edge image. The checks therefore account for about 2/3 of the difference.
-The flag makes an index out of range undefined behaviour, as it is in C++, and so the programs keep
+The flag makes an index out of range undefined behavior, as it is in C++, and so the programs keep
 the checks.
 
 ## 24.10 A batch of images on streams
@@ -1445,7 +1445,7 @@ waits in line 7. The following code implements the procedure.
 In Rust, the 2 asynchronous copies are `unsafe`, because the device reads and writes the host buffers
 after the call has returned, and the compiler cannot see when the device is done. The `// SAFETY:`
 comment states the condition that makes the copies correct, namely that no host buffer is read,
-written or dropped until every stream has been synchronised. The C++ calls to `cudaMemcpyAsync`
+written or dropped until every stream has been synchronized. The C++ calls to `cudaMemcpyAsync`
 carry the same condition without a marker.
 
 ### 24.10.2 Measured overlap
@@ -1544,12 +1544,12 @@ The following listings give the whole Rust program, `src/main.rs`, and the whole
 - **Leaving a global histogram uncleared.** A histogram kernel adds to its counts. Here, the table
   kernel clears each count as it reads it.
 - **Reusing a pinned output buffer on 2 streams.** 2 streams that copy into the same host buffer can
-  do so in either order. Give each stream its own buffer, or synchronise before reusing it.
+  do so in either order. Give each stream its own buffer, or synchronize before reusing it.
 
 ## Summary
 
 - The 4 stages of the pipeline are patterns of Part V: gray conversion and the table lookup are maps,
-  equalisation needs a histogram and a scan of 256 counts, and the blur and the Sobel detector are
+  equalization needs a histogram and a scan of 256 counts, and the blur and the Sobel detector are
   stencils.
 - The worked example of 8 × 8 pixels goes from levels 96, 112, 120 and 144 to 0, 85, 170 and 255,
   to a blurred image in which pixel (3, 3) is 170, and to an edge image in which pixel (3, 1) is 60.
@@ -1569,24 +1569,24 @@ The following listings give the whole Rust program, `src/main.rs`, and the whole
 ## Exercises
 
 1. Carry an 8 × 8 image whose top 4 rows have level 100 and bottom 4 rows level 140 through the whole
-   pipeline by hand: the equalised levels, the row sums, the blurred column 0, and the edge level of
+   pipeline by hand: the equalized levels, the row sums, the blurred column 0, and the edge level of
    pixel \\((0, 3)\\).
-2. The grayscale and apply-table kernels cannot be fused into 1, because equalisation needs the whole
+2. The grayscale and apply-table kernels cannot be fused into 1, because equalization needs the whole
    histogram first. Which other pairs of consecutive kernels could be fused, and how many bytes per
    pixel would each fusion save?
 3. Fuse the column pass of the blur and the Sobel kernel. What halo does the fused kernel need, and
    how many rows of row sums must its tile hold for a block of 8 output rows?
-4. Change the gray kernel to convert 4 pixels per thread, reading its 12 colour bytes as 3 words of
+4. Change the gray kernel to convert 4 pixels per thread, reading its 12 color bytes as 3 words of
    4 bytes. Measure the effective bandwidth, and compare it with the 1-byte and 16-byte loads of
    Section 8.8.
 5. Replace the tiled row pass by a kernel that reads its 5 inputs directly from global memory, and
    measure the difference. Explain it with the L1 cache.
 6. Add `#[kernel(unchecked_indexing)]` to 1 Rust kernel at a time and find which kernels gain most.
-7. Write a 1-pass blur that copies a tile of \\((8 + 4) \times (32 + 4)\\) equalised pixels into shared
+7. Write a 1-pass blur that copies a tile of \\((8 + 4) \times (32 + 4)\\) equalized pixels into shared
    memory and applies the 25 weights of Figure 24.7 directly. Count the bytes it moves per pixel and
    the multiply-adds it performs, measure it against the 2 passes, and explain the result with
    Section 24.9.2.
-8. Make the equalisation table kernel work for images of 16-bit levels (65,536 bins). Which parts of
+8. Make the equalization table kernel work for images of 16-bit levels (65,536 bins). Which parts of
    Table-Kernel no longer fit in 1 block?
 
 ## Sources and further reading
@@ -1594,7 +1594,7 @@ The following listings give the whole Rust program, `src/main.rs`, and the whole
 - ITU-R Recommendation BT.601, *Studio encoding parameters of digital television for standard 4:3
   and wide-screen 16:9 aspect ratios*: the luma weights 0.299, 0.587 and 0.114.
 - R. C. Gonzalez and R. E. Woods, *Digital Image Processing*, 4th ed., Pearson, 2018: histogram
-  equalisation, smoothing filters, separable filters and the Sobel operator (chapter 3).
+  equalization, smoothing filters, separable filters and the Sobel operator (chapter 3).
 - I. Sobel and G. Feldman, "A 3 × 3 isotropic gradient operator for image processing", 1968,
   presented at the Stanford Artificial Intelligence Project.
 - T. H. Cormen, C. E. Leiserson, R. L. Rivest and C. Stein, *Introduction to Algorithms*, 4th ed.,

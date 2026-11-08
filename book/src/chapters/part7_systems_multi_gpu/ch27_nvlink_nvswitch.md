@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch27.svg" alt="Weave, a spider, hangs at the centre of a web strung across a night sky. 8 green GPU chips, GPU 0 to GPU 7, sit at the ends of the spokes, and every spoke runs from a chip to the hub where Weave hangs. 4 silver knots on the spokes near the hub stand for the switches. With 1 thread from each chip to the hub, every GPU reaches every other through the hub, without a separate thread for each pair. A tag reads 1 link to the switch, not 7 to the others.">
+<img class="plate" src="../../art/ch27.svg" alt="Weave, a spider, hangs at the center of a web strung across a night sky. 8 green GPU chips, GPU 0 to GPU 7, sit at the ends of the spokes, and every spoke runs from a chip to the hub where Weave hangs. 4 silver knots on the spokes near the hub stand for the switches. With 1 thread from each chip to the hub, every GPU reaches every other through the hub, without a separate thread for each pair. A tag reads 1 link to the switch, not 7 to the others.">
 
 # Chapter 27: NVLink & NVSwitch - The Multi-GPU Interconnect
 
@@ -61,7 +61,7 @@ finishes sooner.
 
 ### 27.1.2 Dividing the work among GPUs
 
-A program can be divided among GPUs in three ways, summarised in the following table. The
+A program can be divided among GPUs in three ways, summarized in the following table. The
 division determines what data the GPUs must send to each other.
 
 | Division | Each GPU holds | What crosses between GPUs |
@@ -104,7 +104,7 @@ The exchange therefore takes longer than the computation it serves. Figure 27.1 
 resulting step. On 8 GPUs connected by PCIe, a step takes 50 + 54.7 = 104.7 ms, so the 8 GPUs
 together are only 400 / 104.7 = 3.8 times as fast as a single GPU. With the NVLink of an A100,
 which carries 300 GB/s in each direction, the exchange takes 1.75 / 300 = 5.8 ms, and the 8
-GPUs are 400 / 55.8 = 7.2 times as fast. In Section 27.6, we generalise this example into a model.
+GPUs are 400 / 55.8 = 7.2 times as fast. In Section 27.6, we generalize this example into a model.
 
 <figure>
 <img src="../../figures/ch27-step.svg" alt="Three timelines of 1 training step. On 1 GPU, 400 ms of compute. On 8 GPUs joined by PCIe 4.0, 50 ms of compute and 54.7 ms of gradient exchange, 104.7 ms, 3.8 times as fast. On 8 GPUs joined by NVLink 3, 50 ms of compute and 5.8 ms of exchange, 55.8 ms, 7.2 times as fast.">
@@ -167,7 +167,7 @@ therefore has 16 × 2 = 32 GB/s in each direction, the figure used in Section 27
 <div class="definition">
 
 <span class="box-label">Definition 27.3</span> **NVLink.** **NVLink** is NVIDIA's interconnect between
-GPUs, and in some systems between a GPU and a CPU. It is organised into links, each a bundle of
+GPUs, and in some systems between a GPU and a CPU. It is organized into links, each a bundle of
 pairs in both directions. A GPU has many NVLink links. It can connect each link to a different
 GPU, or connect several links to the same GPU.
 
@@ -180,7 +180,7 @@ Let us compute the bandwidth of 1 NVLink link from its pairs. A link of NVLink 4
 used by the H100, has 2 pairs in each direction, and each pair signals at 100 Gbit/s. A link
 therefore carries 2 × 100 = 200 Gbit/s in each direction, which is 200 / 8 = 25 GB/s. An H100 has
 18 links, for a total of 18 × 25 = 450 GB/s in each direction. The NVLink 3 of the A100 reached
-the same 25 GB/s per link with 4 pairs in each direction at half the signalling rate. NVLink 4
+the same 25 GB/s per link with 4 pairs in each direction at half the signaling rate. NVLink 4
 halved the number of pairs per link and doubled their rate, which leaves room on the chip for
 more links. Figure 27.2 shows a link and the 18 links of an H100.
 
@@ -200,7 +200,7 @@ direction, as in Chapter 4: 32 GB/s for PCIe 4.0 with 16 lanes and 64 GB/s for P
 A comparison between links must use the same convention for both. A GPU that sends its
 gradients to another GPU sends them in 1 direction, so in this chapter we quote every link per
 direction. In this unit, NVIDIA's statement that the NVLink of the H100 has 7 times the
-bandwidth of PCIe 5.0 is confirmed: 450 / 64 = 7.0. The following table summarises the
+bandwidth of PCIe 5.0 is confirmed: 450 / 64 = 7.0. The following table summarizes the
 quantities for an H100.
 
 | Symbol | Meaning | For an H100 |
@@ -212,7 +212,7 @@ quantities for an H100.
 
 ### 27.2.3 NVLink generations
 
-Each generation of NVIDIA's data-centre GPUs has introduced a new generation of NVLink. The
+Each generation of NVIDIA's data-center GPUs has introduced a new generation of NVLink. The
 following table lists NVIDIA's figures. The column for each direction is half of NVIDIA's
 total.
 
@@ -256,7 +256,7 @@ same system, and the memory of a peer is called **peer memory**.
 </div>
 
 For a program, the important quantity is how many times slower peer memory is to reach than the
-GPU's own memory. The following table uses the **SXM** versions of the data-centre GPUs, which
+GPU's own memory. The following table uses the **SXM** versions of the data-center GPUs, which
 are modules mounted on a server board with NVLink. The same GPUs are also sold as PCIe cards,
 with different links and memory.
 
@@ -387,7 +387,7 @@ collective operations of Chapter 28 must move.
 ### 27.3.4 Bisection bandwidth
 
 Topologies differ most when every GPU sends data at the same time, and a single number
-characterises this case. Let us derive it on 4 GPUs before we define it. Connect GPUs 0, 1, 2 and
+characterizes this case. Let us derive it on 4 GPUs before we define it. Connect GPUs 0, 1, 2 and
 3 in a ring, 0–1–2–3–0, with 1 link of 25 GB/s on each edge, and let GPUs 0 and 1 each send data
 to GPUs 2 and 3 at the same time. Every byte must cross from the half {0, 1} to the half {2, 3},
 and only 2 links join the halves: 1–2 and 3–0. The two halves can therefore exchange at most
@@ -419,7 +419,7 @@ connected in three ways.
 
 Worked example: the bisection bandwidth of 8 GPUs
 
-1. **Ring.** Each GPU connects to its 2 neighbours with 9 links each: 9 × 25 = 225 GB/s per
+1. **Ring.** Each GPU connects to its 2 neighbors with 9 links each: 9 × 25 = 225 GB/s per
    edge. A cut through the ring crosses 2 edges: 2 × 225 = 450 GB/s.
 2. **Mesh.** 4 GPUs on each side make 4 × 4 = 16 pairs that cross the cut, each with 2 links:
    16 × 2 × 25 = 800 GB/s.
@@ -556,7 +556,7 @@ The program of this section asks the system three questions and measures the ans
 On a machine with 2 GPUs that can access each other, the copies go from GPU 0 to GPU 1. On a
 machine with a single GPU, they stay within GPU 0, and the program measures the GPU's own
 memory, the baseline against which we compared every link in Section 27.2.4. The following
-pseudocode summarises the program.
+pseudocode summarizes the program.
 
 ```text
 count ← number of GPUs
@@ -610,7 +610,7 @@ cuda-core, the host library of cuda-oxide, provides the same query as
 `peer::can_access_peer(from, to)` between 2 `CudaContext`s. At revision `b7fe543` it has no
 function that returns the number of GPUs, so the Rust program calls the driver function
 `cuDeviceGetCount` through `cuda_core::sys`, the raw driver bindings, in a single `unsafe`
-line. The driver must already be initialised when the call is made, which
+line. The driver must already be initialized when the call is made, which
 `CudaContext::new(0)` ensures.
 
 ### 27.5.3 Enabling peer access and allocating the buffers
@@ -1034,7 +1034,7 @@ the library that runs them over the links that the topology provides.
 3. How many links does a full mesh of 16 GPUs need? With 18 links per GPU, how many links does
    each pair get, and what bandwidth in each direction at 25 GB/s per link?
 4. Compute the bisection bandwidth in each direction of 16 GPUs with 18 links each, connected
-   (a) in a ring with 9 links to each neighbour, and (b) through a non-blocking switch.
+   (a) in a ring with 9 links to each neighbor, and (b) through a non-blocking switch.
 5. In the model of Section 27.6, find the smallest \\(T_1\\) for which 8 A100s on NVLink 3
    reach a speedup of 6 with gradients of 1 GB.
 6. Run `peer` on your GPU. Compute the memory traffic of the copy, 2 times the rate, as a share

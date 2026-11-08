@@ -1,6 +1,6 @@
-<img class="plate" src="../../art/ch07.svg" alt="Inch, a caterpillar, walks along a branch laid with numbered cells, 0 to 9 in order. Each of its segments stands over the next cell, so all of them step together and none reaches past its neighbour. A tag says neighbours read neighbours: the rule of coalesced memory access.">
+<img class="plate" src="../../art/ch07.svg" alt="Inch, a caterpillar, walks along a branch laid with numbered cells, 0 to 9 in order. Each of its segments stands over the next cell, so all of them step together and none reaches past its neighbor. A tag says neighbors read neighbors: the rule of coalesced memory access.">
 
-# Chapter 7: Memory Optimisation Deep Dive
+# Chapter 7: Memory Optimization Deep Dive
 
 Most kernels perform only a few arithmetic operations for each byte they read from global memory.
 As we saw in Chapter 1, the speed of such a kernel is limited by the memory bandwidth of the GPU,
@@ -21,7 +21,7 @@ a checklist for memory-bound kernels that later chapters use.
 This chapter covers
 
 - effective bandwidth as the measure of a memory-bound kernel
-- 32-byte sectors, and the effect of the stride between neighbouring threads on the bytes moved
+- 32-byte sectors, and the effect of the stride between neighboring threads on the bytes moved
 - the grid-stride loop
 - shared memory as a program-managed cache, applied to a matrix transpose
 - bank conflicts, and the padding column that removes them
@@ -51,7 +51,7 @@ bandwidth of 102 GB/s, a copy kernel reached about 74 GB/s; on a Jetson AGX Thor
 273 GB/s, it reached about 225 GB/s. No kernel moves its bytes faster than a copy. A memory-bound
 kernel whose effective bandwidth is close to that of a copy has little left to gain, whereas a
 kernel far below it either transfers bytes that it does not use or accesses memory in an
-unfavourable pattern.
+unfavorable pattern.
 
 There are two ways to improve a memory-bound kernel:
 
@@ -71,7 +71,7 @@ When a warp executes a load instruction, the hardware collects the 32 addresses 
 fetches every sector that contains at least one of them. A warp's access is said to be **coalesced**
 when its addresses fall into as few sectors as possible.
 
-Consider a warp whose 32 threads read 32 neighbouring `float`s. These occupy 32 × 4 = 128 bytes,
+Consider a warp whose 32 threads read 32 neighboring `float`s. These occupy 32 × 4 = 128 bytes,
 exactly 4 sectors, so the warp moves 128 bytes and uses all 128 of them. If the threads instead read
 every other float, the 32 floats are spread over 256 bytes, or 8 sectors, and half of each sector is
 wasted. At a distance of 8 floats, which is 32 bytes, each float lies in a sector of its own. The
@@ -159,22 +159,22 @@ predictions are close to the measured values at strides 8 and 16 (figure 7.2).
 <figcaption><b>Figure 7.2</b> Useful bandwidth falls as the stride wastes more of each sector.</figcaption>
 </figure>
 
-Note that stride 32 ran faster than stride 16 on both GPUs. The DRAM chips are organised in rows and
+Note that stride 32 ran faster than stride 16 on both GPUs. The DRAM chips are organized in rows and
 banks, and some address patterns are distributed over them better than others. This effect lies
-below the level of the sector model, and we do not analyse it here. The stride-1 bandwidth on the
+below the level of the sector model, and we do not analyze it here. The stride-1 bandwidth on the
 Orin NX also varied between about 68 and 78 GB/s from run to run, as the GPU's clocks changed.
 Neither effect changes the conclusion:
 
 <div class="bee bee-happy" markdown="1">
 
-Neighbouring threads should read neighbouring addresses.
+Neighboring threads should read neighboring addresses.
 
 </div>
 
 The global index of Chapter 3, `blockIdx.x * blockDim.x + threadIdx.x`, satisfies this rule by
 construction, since consecutive threads receive consecutive indices. Row-major 2-D data satisfies
 it when `threadIdx.x` moves along a row: thread \\(x\\) reads `in[y * width + x]`. If the same data
-is read down a column, as in `in[x * width + y]`, neighbouring threads are `width` floats apart,
+is read down a column, as in `in[x * width + y]`, neighboring threads are `width` floats apart,
 which is the worst case in the measurements above.
 
 ## 7.3 The grid-stride loop
@@ -209,7 +209,7 @@ for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += stride) {
 </div>
 </div>
 
-In every iteration of the loop, neighbouring threads access neighbouring elements, so the loop
+In every iteration of the loop, neighboring threads access neighboring elements, so the loop
 keeps the coalescing of the kernel with one thread per element. It allows a kernel to process data of
 any size with a grid sized to the GPU, typically a few blocks per SM. It also allows each thread to
 accumulate a private result over many elements before it updates shared state, as the histogram
@@ -225,7 +225,7 @@ of the input, the read is coalesced, but the write goes down a column of the out
 of 32 rows (figure 7.3).
 
 <figure>
-<img src="../../figures/ch07-transpose-naive.svg" alt="Two 8 by 8 grids. In the input, a warp reads row 2: neighbouring elements, coalesced. In the output, the same warp writes column 2: 1 element in each of 8 rows, strided.">
+<img src="../../figures/ch07-transpose-naive.svg" alt="Two 8 by 8 grids. In the input, a warp reads row 2: neighboring elements, coalesced. In the output, the same warp writes column 2: 1 element in each of 8 rows, strided.">
 <figcaption><b>Figure 7.3</b> The naive transpose: a coalesced read and a strided write.</figcaption>
 </figure>
 
@@ -306,7 +306,7 @@ numbers are exchanged, because tile (bx, by) of the input becomes tile (by, bx) 
 additional column. Animation 2 follows a 4 × 4 tile through shared memory.
 
 <figure class="anim">
-<video class="motion" src="../../figures/ch07-tile-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Three 4 by 4 grids: input, shared tile and output, with cells labelled by row and column. Row by row, the input cells fly into the same rows of the shared tile. A barrier lights up. Then column by column, the tile's cells fly to the output, each column becoming a row, so cell r c lands at row c, column r." data-chapters="[[0.0, &quot;load rows&quot;], [11.22, &quot;store columns&quot;]]"><img src="../../figures/ch07-tile-anim.gif" alt="Three 4 by 4 grids: input, shared tile and output, with cells labelled by row and column. Row by row, the input cells fly into the same rows of the shared tile. A barrier lights up. Then column by column, the tile's cells fly to the output, each column becoming a row, so cell r c lands at row c, column r."></video>
+<video class="motion" src="../../figures/ch07-tile-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Three 4 by 4 grids: input, shared tile and output, with cells labeled by row and column. Row by row, the input cells fly into the same rows of the shared tile. A barrier lights up. Then column by column, the tile's cells fly to the output, each column becoming a row, so cell r c lands at row c, column r." data-chapters="[[0.0, &quot;load rows&quot;], [11.22, &quot;store columns&quot;]]"><img src="../../figures/ch07-tile-anim.gif" alt="Three 4 by 4 grids: input, shared tile and output, with cells labeled by row and column. Row by row, the input cells fly into the same rows of the shared tile. A barrier lights up. Then column by column, the tile's cells fly to the output, each column becoming a row, so cell r c lands at row c, column r."></video>
 <figcaption><b>Animation 2</b> A transpose through a tile: rows in, a barrier, columns out.</figcaption>
 </figure>
 
@@ -391,7 +391,7 @@ fall in bank 0 and rows 1, 3, 5, … in bank 16. With 32 rows, each of the 2 ban
 
 </details>
 
-## 7.6 Vectorised loads: `float4` and alignment
+## 7.6 Vectorized loads: `float4` and alignment
 
 A load instruction can move 4, 8 or 16 bytes per thread. `float4` is a built-in type that holds 4
 floats. With a `float4` load, 1 instruction moves 16 bytes per thread and 512 bytes per warp, 4
@@ -443,7 +443,7 @@ type `Float4`, 4 floats with the attribute `#[repr(C, align(16))]`, takes the pl
 **Constant memory** is a read-only space of 64 KB with a small cache of its own on each SM. The
 constant cache serves all 32 threads of a warp in 1 access when they read the same address; this is
 called a **broadcast**. When the threads read different addresses, the accesses are served 1 after
-another. This behaviour is the opposite of global and shared memory, which perform best when the
+another. This behavior is the opposite of global and shared memory, which perform best when the
 threads access different addresses.
 
 <div class="code-tabs">
@@ -483,20 +483,20 @@ memory, served through the caches, is faster.
 ## 7.8 Texture and surface memory
 
 **Texture memory** is a read-only path to global memory with 2 additional capabilities. Its cache
-is organised for 2-D neighbourhoods, which suits images read in small squares, and its hardware can
-interpolate, returning a weighted average of neighbouring pixels in 1 load. On current GPUs, the
+is organized for 2-D neighborhoods, which suits images read in small squares, and its hardware can
+interpolate, returning a weighted average of neighboring pixels in 1 load. On current GPUs, the
 ordinary L1 and L2 caches serve most access patterns as well as the texture cache does, so the main
 reason to use textures today is the interpolation hardware. Surfaces are the writable counterpart
 of textures. For data read in rows, as in every kernel of this chapter, coalesced accesses to
 global memory are as fast and simpler to program.
 
-## 7.9 Optimisation checklist
+## 7.9 Optimization checklist
 
 For a memory-bound kernel, check the following items in order, and measure after each change:
 
 1. **Effective bandwidth.** Compute it and compare it with a copy on the same GPU. A kernel close
    to the copy has little left to gain.
-2. **Coalescing.** Do neighbouring threads access neighbouring addresses in every load and every
+2. **Coalescing.** Do neighboring threads access neighboring addresses in every load and every
    store (section 7.2)?
 3. **Launch shape.** Does a grid-stride loop give each thread enough work (section 7.3)?
 4. **Reuse.** Is data read more than once, or read in a pattern that cannot be coalesced? Stage it
@@ -532,7 +532,7 @@ For a memory-bound kernel, check the following items in order, and measure after
 
 ## Common mistakes
 
-- **Indexing 2-D data with `threadIdx.x` down a column.** Neighbouring threads are then `width`
+- **Indexing 2-D data with `threadIdx.x` down a column.** Neighboring threads are then `width`
   floats apart. Let `threadIdx.x` move along rows.
 - **Measuring a small array.** When the data fits in the L2 cache, the measurement reflects the
   cache, not the memory: the Thor reported 432 GB/s, above the 273 GB/s peak of its memory, for a
@@ -543,7 +543,7 @@ For a memory-bound kernel, check the following items in order, and measure after
 - **A missing barrier between filling a tile and reading it.** We measured the consequences in Chapter 5.
 - **Casting an unaligned pointer to `float4*`.** Only offsets that are multiples of 4 floats are
   safe.
-- **Constant memory indexed differently by each thread.** The accesses are serialised.
+- **Constant memory indexed differently by each thread.** The accesses are serialized.
 
 <div class="summary" markdown="1">
 
@@ -551,7 +551,7 @@ For a memory-bound kernel, check the following items in order, and measure after
 
 - Effective bandwidth, the bytes a task requires divided by its running time, compared with a plain
   copy, shows how much a memory-bound kernel has left to gain.
-- Global memory transfers 32-byte sectors. When neighbouring threads access neighbouring
+- Global memory transfers 32-byte sectors. When neighboring threads access neighboring
   addresses, every byte is used; at a stride of 8 floats or more, a warp moves 8 times the bytes it
   needs, and the measured useful bandwidth fell 3 to 5 times.
 - A tile in shared memory allows a transpose to read and write global memory only along rows; a

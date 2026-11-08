@@ -332,7 +332,7 @@ these calls.
 ```
 
 <figure>
-<img src="../../figures/ch10-lifetime.svg" alt="A column of steps inside a zone labelled 1 scope. DeviceBuffer<float> in(host) calls the constructor, which allocates with cudaMallocAsync and copies; kernels then read in.view(). 3 ways out branch from there: return false, check() throws, and the closing brace. All 3 join into 1 box, the destructor, which calls cudaFreeAsync and gives the 8 MiB back to the pool.">
+<img src="../../figures/ch10-lifetime.svg" alt="A column of steps inside a zone labeled 1 scope. DeviceBuffer<float> in(host) calls the constructor, which allocates with cudaMallocAsync and copies; kernels then read in.view(). 3 ways out branch from there: return false, check() throws, and the closing brace. All 3 join into 1 box, the destructor, which calls cudaFreeAsync and gives the 8 MiB back to the pool.">
 <figcaption><b>Figure 10.3</b> All 3 ways out of a scope lead to the destructor.</figcaption>
 </figure>
 
@@ -415,7 +415,7 @@ Freeing the same allocation twice is called a **double free**. It corrupts the r
 allocator, which may later hand out memory that another buffer is still using.
 
 The same allocation can instead pass from `a` to `b` in 2 steps: copy the 2 fields to `b`, then
-write `nullptr` and 0 into the fields of `a`. Afterwards `b` holds 0x7f00 and `a` holds
+write `nullptr` and 0 into the fields of `a`. Afterward `b` holds 0x7f00 and `a` holds
 `nullptr`. At the end of the scope, the destructor of `b` frees 0x7f00, and the destructor of
 `a` finds `nullptr` and frees nothing. The allocation is freed exactly once. In both cases, only
 the 16 bytes of the 2 fields are copied, never the 8 MiB of data they describe.
@@ -594,13 +594,13 @@ the call, so the Rust `check` needs no macro either.
 function calls until a `catch` clause handles it. On its way, the exception leaves every scope
 it passes through, and every local object in those scopes is destroyed. The destruction of local
 objects while an exception travels up the chain of calls is called **stack unwinding**. It is
-the path labelled "check() throws" in Figure 10.3. For example, if `main` calls a function `f`
+the path labeled "check() throws" in Figure 10.3. For example, if `main` calls a function `f`
 that holds 2 buffers, and `check` throws inside `f`, the 2 destructors of `f` run first, and
 only then does the exception reach the `catch` in `main`. As a result, the buffers of a function
 that fails are freed before the error reaches the code that handles it.
 
 Note that the destructor itself does not call `check`. A destructor may run while an exception
-is already travelling, and if a second exception is thrown at that moment, the program ends with
+is already traveling, and if a second exception is thrown at that moment, the program ends with
 `std::terminate`, a standard function that stops the program immediately. The destructor
 therefore frees the memory and ignores the result. A program that needs to know whether a free
 succeeded can call `cudaDeviceSynchronize` through `check` before the buffer goes out of scope.
@@ -673,7 +673,7 @@ ownership
 
 All three errors are gone. The early returns leaked 0.0 MiB. The launch error became an exception
 that names line 134, the `check(cudaGetLastError())` after the launch, and the 2 buffers of
-`launchTooWide`, 16 MiB in total, were freed while the exception travelled to `main`. Every
+`launchTooWide`, 16 MiB in total, were freed while the exception traveled to `main`. Every
 element was copied correctly, because no caller states a byte count.
 
 ### 10.2.6 RAII in Rust
@@ -1633,7 +1633,7 @@ hand-written kernel at 74.5 GB/s.
 
 - **Copying an owner.** A struct that holds a raw device pointer and is copied leads to 2 frees
   of the same memory. Delete the copy operations and move with `std::move`.
-- **Throwing from a destructor.** A destructor can run while an exception is travelling, and a
+- **Throwing from a destructor.** A destructor can run while an exception is traveling, and a
   second exception ends the program. Free the memory and ignore the result there.
 - **Passing a host lambda to a kernel.** Mark the lambda `__device__` or `__host__ __device__` and
   compile with `--extended-lambda`.

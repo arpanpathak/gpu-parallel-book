@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch25.svg" alt="Lens, a hawk, perches on a fence post at dusk with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change one thing.">
+<img class="plate" src="../../art/ch25.svg" alt="Lens, a hawk, perches on a fence post at dusk with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of colored bars, copies in, kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change one thing.">
 
 # Chapter 25: Profiling, Debugging & Performance Engineering
 
@@ -1197,7 +1197,7 @@ as loading the kernel's code onto the GPU. Second, a **power governor**, the par
 firmware that sets the clock rate according to the load, lowers the GPU clock while the GPU is
 idle and raises it only after it has seen sustained load (Chapter 6). The governor of the Jetson
 modules behaves this way, so runs 2 to 8 executed at a lower clock. The runs after run 8 that took
-much longer than their neighbours, 10.43, 10.33, 12.91 and 9.80 ms, are **outliers**: single
+much longer than their neighbors, 10.43, 10.33, 12.91 and 9.80 ms, are **outliers**: single
 measurements far from the typical value, usually caused by something outside the program. When the program was run again
 immediately, while the clock was still high, its first run took 8.92 ms. A measurement taken
 without warm-up therefore depends on what the machine did in the seconds before it.

@@ -1,13 +1,13 @@
-<img class="plate" src="../../art/ch20.svg" alt="Rim, a hermit crab, carries on its back a square frame of 4 by 4 cells: the 4 inner cells are blue and the ring of 12 cells around them is amber, with the 4 corner cells grey. Behind it lies the sandy grid of a heated plate, with the same 4 by 4 square marked out where Rim lifted it. A tag says load the tile and its halo once.">
+<img class="plate" src="../../art/ch20.svg" alt="Rim, a hermit crab, carries on its back a square frame of 4 by 4 cells: the 4 inner cells are blue and the ring of 12 cells around them is amber, with the 4 corner cells gray. Behind it lies the sandy grid of a heated plate, with the same 4 by 4 square marked out where Rim lifted it. A tag says load the tile and its halo once.">
 
 # Chapter 20: Tiled Stencils with Halo Cells
 
-Recall that in the Jacobi kernel of Chapter 19, every thread reads its 4 neighbours from global
+Recall that in the Jacobi kernel of Chapter 19, every thread reads its 4 neighbors from global
 memory, so every value of the grid is read by up to 4 different threads. In Chapter 17, we removed
 exactly this kind of repetition from the matrix product. The threads of a block copied a piece of
 the input into shared memory once, and then every thread read its operands from that copy. A
 stencil can be tiled in the same way, with 1 complication: the cells that a block computes need
-neighbours that belong to other blocks.
+neighbors that belong to other blocks.
 
 In this chapter, we derive the tiled stencil kernel on the 6 × 6 plate of Chapter 19. We first
 count how often the direct kernel reads each value. We then define the tile and its halo, compare 2
@@ -53,22 +53,22 @@ direct kernel of Chapter 19, the thread of each interior cell \\((r, c)\\) reads
 the values above, below, to the left and to the right of the cell, and writes their mean. For
 example, the thread of cell (2, 2) reads 25, 0, 0 and 0 and writes 6.25.
 
-### 20.1.2 Each value is read by its neighbours
+### 20.1.2 Each value is read by its neighbors
 
 So far, we have counted the reads of 1 thread. To find the repetition, we now count the other way
 round and ask, for 1 value of the old grid, how many threads read it. The value \\(u_{2,2}\\) is a
-neighbour of the cells (1, 2), (3, 2), (2, 1) and (2, 3). All 4 of them are interior cells, so 4
+neighbor of the cells (1, 2), (3, 2), (2, 1) and (2, 3). All 4 of them are interior cells, so 4
 threads read \\(u_{2,2}\\), and each of them fetches it from global memory on its own, as shown in
-Figure 20.1. A value next to the boundary is read fewer times, because some of its neighbours are
+Figure 20.1. A value next to the boundary is read fewer times, because some of its neighbors are
 boundary cells, which have no thread that computes them. Thus \\(u_{1,1}\\) is read by 2 threads,
 \\(u_{1,2}\\) by 3, and a boundary value such as \\(u_{0,2} = 100\\) by 1.
 
 <figure>
-<img src="../../figures/ch20-reads.svg" alt="Left: the 6 by 6 plate after step 1. Value u(2,2) is highlighted and 4 arrows lead from it to the threads of cells (1,2), (3,2), (2,1) and (2,3), each of which fetches it from global memory. Right: the same plate with the number of threads that read each value: 4 in the 4 centre cells, 3 along the edges of the interior, 2 in the interior corners, 1 in the boundary cells next to the interior, 0 in the 4 corners of the plate. Totals: 64 reads of 32 different values.">
+<img src="../../figures/ch20-reads.svg" alt="Left: the 6 by 6 plate after step 1. Value u(2,2) is highlighted and 4 arrows lead from it to the threads of cells (1,2), (3,2), (2,1) and (2,3), each of which fetches it from global memory. Right: the same plate with the number of threads that read each value: 4 in the 4 center cells, 3 along the edges of the interior, 2 in the interior corners, 1 in the boundary cells next to the interior, 0 in the 4 corners of the plate. Totals: 64 reads of 32 different values.">
 <figcaption><b>Figure 20.1</b> In the direct kernel, value \(u_{2,2}\) is fetched by 4 threads. Over a step, 16 threads make 64 reads of 32 different values.</figcaption>
 </figure>
 
-Let us add up these counts over the whole plate. The 4 centre values are read 4 times each, and the
+Let us add up these counts over the whole plate. The 4 center values are read 4 times each, and the
 8 other values along the edges of the interior are read 3 times each. The 4 corners of the interior
 are read 2 times each, and the 16 boundary values next to the interior are read once each. In
 total, the step makes \\(16 + 24 + 8 + 16 = 64\\) reads of 32 different values. On a large grid,
@@ -79,7 +79,7 @@ million different values, or 67 MB.
 <div class="key-observation">
 
 <span class="box-label">Key observation</span> The 4 threads that read \\(u_{2,2}\\) compute 4
-neighbouring cells. If those threads belong to the same block, 1 of them can copy \\(u_{2,2}\\)
+neighboring cells. If those threads belong to the same block, 1 of them can copy \\(u_{2,2}\\)
 into shared memory, and the other 3 can read it from there.
 
 </div>
@@ -105,21 +105,21 @@ and how many different values does it read?
 To turn the observation into an algorithm, we divide the plate among blocks. For the worked
 example, we use blocks of \\(2 \times 2\\) threads with one thread per cell, so the 6 × 6 cells need
 \\(3 \times 3 = 9\\) blocks. The programs use blocks of 32 × 8 threads, and everything below
-carries over to them. We follow block (1, 1), which computes the 4 centre cells (2, 2), (2, 3),
+carries over to them. We follow block (1, 1), which computes the 4 center cells (2, 2), (2, 3),
 (3, 2) and (3, 3), as shown in Figure 20.2.
 
 <figure>
-<img src="../../figures/ch20-blocks.svg" alt="The 6 by 6 plate cut into 9 blocks of 2 by 2 cells, 1 colour per block. Block (1, 1) owns cells (2,2), (2,3), (3,2) and (3,3). Its tile, the 4 by 4 square of rows 1 to 4 and columns 1 to 4, is outlined: the 4 owned cells in the middle and 12 cells around them, which belong to the 8 neighbouring blocks.">
-<figcaption><b>Figure 20.2</b> 9 blocks of 2 × 2 threads. Block (1, 1) computes the 4 centre cells and needs the 4 × 4 square around them.</figcaption>
+<img src="../../figures/ch20-blocks.svg" alt="The 6 by 6 plate cut into 9 blocks of 2 by 2 cells, 1 color per block. Block (1, 1) owns cells (2,2), (2,3), (3,2) and (3,3). Its tile, the 4 by 4 square of rows 1 to 4 and columns 1 to 4, is outlined: the 4 owned cells in the middle and 12 cells around them, which belong to the 8 neighboring blocks.">
+<figcaption><b>Figure 20.2</b> 9 blocks of 2 × 2 threads. Block (1, 1) computes the 4 center cells and needs the 4 × 4 square around them.</figcaption>
 </figure>
 
-To compute its 4 cells, block (1, 1) needs their neighbours. Some of these neighbours are the
-block's own cells; cell (2, 2), for example, has cells (2, 3) and (3, 2) as neighbours. The others
+To compute its 4 cells, block (1, 1) needs their neighbors. Some of these neighbors are the
+block's own cells; cell (2, 2), for example, has cells (2, 3) and (3, 2) as neighbors. The others
 lie directly above, below, to the left and to the right of the block's square, such as cell (1, 2)
-above cell (2, 2), and they belong to the 4 neighbouring blocks. The block copies all of these
+above cell (2, 2), and they belong to the 4 neighboring blocks. The block copies all of these
 values into shared memory once. The simplest arrangement copies the whole square of rows 1 to 4 and
 columns 1 to 4, which holds 16 values. Of these, the 4 corner values (1, 1), (1, 4), (4, 1) and
-(4, 4) are copied but never read, because a 5-point stencil does not use diagonal neighbours.
+(4, 4) are copied but never read, because a 5-point stencil does not use diagonal neighbors.
 
 <div class="definition">
 
@@ -139,7 +139,7 @@ in shared memory.
 \\(T_y \times T_x\\) square of cells keeps a **tile** in shared memory: the \\((T_y + 2) \times
 (T_x + 2)\\) square of old values made of its own cells and a ring of cells 1 cell wide around
 them. The cells of the ring are the **halo** of the block. Halo cells are read by the block but
-computed by its neighbours.
+computed by its neighbors.
 
 *Example.* Block (1, 1) of the plate has \\(T_x = T_y = 2\\). Its tile covers rows 1 to 4 and
 columns 1 to 4: 4 own cells and 12 halo cells, of which 4 are corners that the 5-point stencil
@@ -166,20 +166,20 @@ tile position
 | \\(row - top + 1\\) | row of the cell inside the tile | \\(2 - 2 + 1 = 1\\) |
 | \\(col - left + 1\\) | column of the cell inside the tile | \\(2 - 2 + 1 = 1\\) |
 
-The 4 neighbours of the cell lie 1 position above, below, to the left and to the right of it in the
-tile. In block (1, 1), cell (2, 2) thus sits at tile position (1, 1), and its upper neighbour, cell
+The 4 neighbors of the cell lie 1 position above, below, to the left and to the right of it in the
+tile. In block (1, 1), cell (2, 2) thus sits at tile position (1, 1), and its upper neighbor, cell
 (1, 2), sits at tile position \\((1 - 2 + 1, 2 - 2 + 1) = (0, 1)\\).
 
 ### 20.2.2 Computing from the tile
 
 Figure 20.3 shows the tile of block (1, 1) in step 2. It holds the old values of rows 1 to 4 of the
 plate. Its top row is row 1 of the plate and holds 25, and its other rows hold 0. The thread of cell
-(2, 2) reads its 4 neighbours from the tile positions (0, 1), (2, 1), (1, 0) and (1, 2). It obtains
+(2, 2) reads its 4 neighbors from the tile positions (0, 1), (2, 1), (1, 0) and (1, 2). It obtains
 25, 0, 0 and 0, which are the same values that it read from global memory in the direct kernel, and
 it writes 6.25.
 
 <figure>
-<img src="../../figures/ch20-tile.svg" alt="The 4 by 4 tile of block (1, 1) in step 2, as it sits in shared memory. Its top row holds 25, 25, 25, 25 (row 1 of the plate) and the other 3 rows hold 0. The 4 inner positions are blue (own cells), the 8 edge positions amber (halo), the 4 corners grey (loaded, never read). For cell (2, 2), at tile position (1, 1), the 4 neighbours at positions (0, 1), (2, 1), (1, 0) and (1, 2) are outlined: 25 + 0 + 0 + 0, times 1/4, gives 6.25.">
+<img src="../../figures/ch20-tile.svg" alt="The 4 by 4 tile of block (1, 1) in step 2, as it sits in shared memory. Its top row holds 25, 25, 25, 25 (row 1 of the plate) and the other 3 rows hold 0. The 4 inner positions are blue (own cells), the 8 edge positions amber (halo), the 4 corners gray (loaded, never read). For cell (2, 2), at tile position (1, 1), the 4 neighbors at positions (0, 1), (2, 1), (1, 0) and (1, 2) are outlined: 25 + 0 + 0 + 0, times 1/4, gives 6.25.">
 <figcaption><b>Figure 20.3</b> The tile of block (1, 1) in step 2. Cell (2, 2) reads 25, 0, 0 and 0 from shared memory and writes 6.25.</figcaption>
 </figure>
 
@@ -189,7 +189,7 @@ Exercises
 
 20.3 Which cells does the tile of block (0, 1) cover? Which of its slots lie outside the plate?<br>
 20.4 At which tile position does cell (3, 3) of block (1, 1) sit, and from which positions does
-it read its neighbours?
+it read its neighbors?
 
 </div>
 
@@ -205,7 +205,7 @@ more. A block of \\(T_x \times T_y\\) threads must fill \\((T_x + 2)(T_y + 2)\\)
 Figure 20.4.
 
 <figure>
-<img src="../../figures/ch20-loaders.svg" alt="Two ways to load the 4 by 4 tile of block (1, 1). Left, extra threads: the block has 4 by 4 = 16 threads, 1 per slot; all 16 load, and only the inner 4 compute. Right, a loop: the block has 2 by 2 = 4 threads, and each loads 4 slots, at rows ty and ty + 2 and columns tx and tx + 2; the slots are coloured by the thread that loads them. A note gives the counts for the programs: 34 by 10 = 340 threads, 256 of which compute; or 256 threads, of which 180 load 1 slot, 72 load 2 and 4 load 4.">
+<img src="../../figures/ch20-loaders.svg" alt="Two ways to load the 4 by 4 tile of block (1, 1). Left, extra threads: the block has 4 by 4 = 16 threads, 1 per slot; all 16 load, and only the inner 4 compute. Right, a loop: the block has 2 by 2 = 4 threads, and each loads 4 slots, at rows ty and ty + 2 and columns tx and tx + 2; the slots are colored by the thread that loads them. A note gives the counts for the programs: 34 by 10 = 340 threads, 256 of which compute; or 256 threads, of which 180 load 1 slot, 72 load 2 and 4 load 4.">
 <figcaption><b>Figure 20.4</b> 2 ways to fill a 4 × 4 tile: 16 threads that load 1 slot each, or 4 threads that load 4 slots each.</figcaption>
 </figure>
 
@@ -250,7 +250,7 @@ Both ways give every slot exactly 1 loading thread, which is what the correctnes
 A block on the edge of the grid has slots that lie outside the grid. Block (0, 0) of the plate, for
 example, computes the cells (0, 0) to (1, 1), and its tile covers rows −1 to 2 and columns −1 to 2.
 The loader stores 0 in a slot outside the grid instead of reading it from memory. No thread ever
-reads such a slot, because only interior cells are computed, and every neighbour of an interior
+reads such a slot, because only interior cells are computed, and every neighbor of an interior
 cell lies inside the grid.
 
 <div class="exercises">
@@ -320,8 +320,8 @@ step 2 is 25. Line 8 is the barrier.
 
 Lines 9 to 12 are Jacobi-Kernel of Chapter 19, with each read from \\(u\\) replaced by a read from
 the tile. The cell \\((row, col)\\) of the thread sits at tile position \\((ty + 1, tx + 1)\\), so
-its upper neighbour sits at \\((ty, tx + 1)\\), its lower neighbour at \\((ty + 2, tx + 1)\\), and
-its left and right neighbours at \\((ty + 1, tx)\\) and \\((ty + 1, tx + 2)\\). For thread (0, 0)
+its upper neighbor sits at \\((ty, tx + 1)\\), its lower neighbor at \\((ty + 2, tx + 1)\\), and
+its left and right neighbors at \\((ty + 1, tx)\\) and \\((ty + 1, tx + 2)\\). For thread (0, 0)
 of block (1, 1), these are the positions (0, 1), (2, 1), (1, 0) and (1, 2) of Figure 20.3. Note that
 the barrier in line 8 lies outside every condition, so every thread of the block reaches it,
 including the threads whose cell is on the boundary or outside the grid. The host loop is
@@ -368,7 +368,7 @@ A tile of a \\(T_x \times T_y\\) block loads \\((T_x + 2)(T_y + 2)\\) values for
 results, so it loads \\((T_x + 2)(T_y + 2) / (T_x T_y)\\) values per result, as plotted in Figure
 20.6. For the 32 × 8 block of the programs, this is \\(340 / 256 = 1.33\\). A value of 1 would mean
 that every value is loaded exactly once. The part above 1 is the **halo overhead**, which comes
-from the halo cells that 2 or more neighbouring blocks each load for themselves. The following
+from the halo cells that 2 or more neighboring blocks each load for themselves. The following
 table gives both numbers for several block shapes.
 
 | Block | Tile | Loads per result | Halo overhead |
@@ -419,7 +419,7 @@ earlier block left in that part of shared memory. If it holds 0, cell (2, 2) bec
 \\((0 + 0 + 0 + 0) / 4 = 0\\) instead of 6.25, as shown in Figure 20.7.
 
 <figure>
-<img src="../../figures/ch20-nobarrier.svg" alt="A timeline of 2 threads of block (1, 1) without the barrier. Thread (0, 0) loads its 4 slots and goes on to compute cell (2, 2); it reads tile position (0, 1) at a moment marked in red. Thread (0, 1) is delayed and stores 25 into position (0, 1) only afterwards. The result: thread (0, 0) reads the stale value 0 and writes 0 instead of 6.25.">
+<img src="../../figures/ch20-nobarrier.svg" alt="A timeline of 2 threads of block (1, 1) without the barrier. Thread (0, 0) loads its 4 slots and goes on to compute cell (2, 2); it reads tile position (0, 1) at a moment marked in red. Thread (0, 1) is delayed and stores 25 into position (0, 1) only afterward. The result: thread (0, 0) reads the stale value 0 and writes 0 instead of 6.25.">
 <figcaption><b>Figure 20.7</b> Without the barrier, thread (0, 0) reads a halo slot before thread (0, 1) fills it, and cell (2, 2) becomes 0 in place of 6.25.</figcaption>
 </figure>
 
@@ -444,7 +444,7 @@ every block of practical size.
 
 Suppose next that the loader copies only the block's own cells, so that the halo slots stay at 0.
 In block (1, 1), cell (2, 2) then reads 0 above instead of 25, and it becomes 0 instead of 6.25.
-Cell (1, 1) belongs to block (0, 0), and its right neighbour (1, 2) belongs to block (0, 1). The
+Cell (1, 1) belongs to block (0, 0), and its right neighbor (1, 2) belongs to block (0, 1). The
 halo slot of block (0, 0) that should hold cell (1, 2) therefore holds 0, and cell (1, 1) becomes
 \\((100 + 0 + 0 + 0) / 4 = 25\\) instead of 31.25. We ran this variant with 2 × 2 blocks on the
 plate, and it printed the following grid.
@@ -465,8 +465,8 @@ was still correct, because in step 1 every halo value that a computed cell reads
 correct grid as well. A test of 1 step would therefore have passed.
 
 <figure>
-<img src="../../figures/ch20-nohalo.svg" alt="2 versions of the plate after step 2, side by side. Left, correct: row 1 reads 31.25, 37.5, 37.5, 31.25 and row 2 reads 6.25 in each interior cell. Right, without the halo: row 1 reads 25, 31.25, 31.25, 25 and row 2 reads 0; every differing cell is outlined in red. Block boundaries are drawn as thick lines, showing that each wrong cell has a neighbour in another block.">
-<figcaption><b>Figure 20.8</b> Step 2 without the halo: every cell whose neighbour belongs to another block loses that neighbour.</figcaption>
+<img src="../../figures/ch20-nohalo.svg" alt="2 versions of the plate after step 2, side by side. Left, correct: row 1 reads 31.25, 37.5, 37.5, 31.25 and row 2 reads 6.25 in each interior cell. Right, without the halo: row 1 reads 25, 31.25, 31.25, 25 and row 2 reads 0; every differing cell is outlined in red. Block boundaries are drawn as thick lines, showing that each wrong cell has a neighbor in another block.">
+<figcaption><b>Figure 20.8</b> Step 2 without the halo: every cell whose neighbor belongs to another block loses that neighbor.</figcaption>
 </figure>
 
 ### 20.5.3 A proof of correctness
@@ -500,8 +500,8 @@ and their stores are then visible to the whole block. The tile is not written af
 
 *The reads are the right ones.* Let \\((row, col) = (top + ty, left + tx)\\) be an interior cell.
 Tile position \\((ty, tx + 1)\\) holds the cell \\((top + ty - 1, left + tx) = (row - 1, col)\\),
-the upper neighbour; in the same way, \\((ty + 2, tx + 1)\\), \\((ty + 1, tx)\\) and
-\\((ty + 1, tx + 2)\\) hold the lower, left and right neighbours. All 4 lie in the grid, because
+the upper neighbor; in the same way, \\((ty + 2, tx + 1)\\), \\((ty + 1, tx)\\) and
+\\((ty + 1, tx + 2)\\) hold the lower, left and right neighbors. All 4 lie in the grid, because
 \\((row, col)\\) is interior, so their slots hold old values and not the 0 of line 5. Line 11
 therefore adds the same 4 values, in the same order, as line 3 of Jacobi-Kernel and writes the same
 result. Cells that are not interior are written by neither kernel.
@@ -510,7 +510,7 @@ result. Cells that are not interior are written by neither kernel.
 
 Each broken variant of this section breaks 1 fact of the proof. Without the barrier, the second
 fact fails. Without the halo, the first fact fails for every halo slot, and the third fact then
-reads 0 where it needs a neighbour. Since the tiled kernel writes what the direct kernel writes,
+reads 0 where it needs a neighbor. Since the tiled kernel writes what the direct kernel writes,
 Theorem 19.1 carries over unchanged, and with 2 buffers used in turn, the tiled kernel computes
 Jacobi iteration.
 
@@ -704,13 +704,13 @@ division.
 Recall from Section 19.8.3 that the direct kernel already moves only about 9 bytes per cell from
 memory, namely 1.25 reads and 1 write, and that it runs within 12% of a copy. The 4 reads per cell
 that the direct kernel requests are mostly answered by the L1 and L2 caches, which keep the rows
-that neighbouring warps share (Figure 19.11). The tile loads 1.33 values per result, 340 cells for
+that neighboring warps share (Figure 19.11). The tile loads 1.33 values per result, 340 cells for
 256 results, and with the write, this amounts to \\(4 \cdot 1.33 + 4 = 9.3\\) bytes per cell. This
 is no less than what the direct kernel already moves. A tile can remove only the traffic that
 reaches memory, and in this case, the caches have already removed it.
 
 Two further measurements support this explanation. First, we bypassed the L1 cache in the direct
-kernel by reading each neighbour with the C++ intrinsic `__ldcg`, which reads through the L2 cache
+kernel by reading each neighbor with the C++ intrinsic `__ldcg`, which reads through the L2 cache
 only. The kernel then ran at 61.4 to 63.7 GB/s, which is 7 to 10% slower. The L2 cache alone thus
 captures most of the reuse, since the 2 MiB L2 of the measured GPU holds the few rows that the
 blocks running at the same time share. Second, the tile is not free. The tiled kernels compute a
@@ -746,7 +746,7 @@ copy's rate. How much of the measured 3.089 ms is not explained by traffic?
 
 In Section 20.7, we saw that a single step reuses each value too little for the tile to pay. We can
 increase the reuse by letting a block perform more than 1 step on the values that it has loaded.
-The tile holds a block's cells and their neighbours, which is exactly what 1 step of the block's
+The tile holds a block's cells and their neighbors, which is exactly what 1 step of the block's
 cells needs. If the tile had 1 more ring of halo, it would hold everything needed to compute 2
 steps of the block's cells. The first step would be computed on the block's cells and on the inner
 ring of the halo, and the second step on the block's cells alone, from the values of the first. In
@@ -794,7 +794,7 @@ tile, and \\(A\\) and \\(B\\) are the 2 tiles in shared memory.
 <li><span class="sc">Barrier</span>()</li>
 <li>for \(s \in [1, K]\) { <span class="c">// src = A, dst = B for odd s, the reverse for even s</span></li>
 <li style="--d:1">if \(tx, ty \in [s, 32 - s)\) {</li>
-<li style="--d:2">\(\mathit{dst}[ty][tx]\) = mean of the 4 neighbours in \(\mathit{src}\) if \((r, c)\) is interior, else \(\mathit{src}[ty][tx]\)</li>
+<li style="--d:2">\(\mathit{dst}[ty][tx]\) = mean of the 4 neighbors in \(\mathit{src}\) if \((r, c)\) is interior, else \(\mathit{src}[ty][tx]\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
@@ -829,7 +829,7 @@ grid, the tile \\(\mathit{src}\\) holds \\(u^{(k+s-1)}\\) of that cell.
 every position whose cell is in the grid; the barrier of line 3 makes the stores visible.
 
 *Maintenance.* Let \\((ty, tx)\\) lie in \\([s, 32 - s)\\) with its cell in the grid. If the cell is
-interior, its 4 neighbours lie at positions in \\([s - 1, 33 - s)\\) and in the grid, so by the
+interior, its 4 neighbors lie at positions in \\([s - 1, 33 - s)\\) and in the grid, so by the
 invariant line 6 reads 4 values of \\(u^{(k+s-1)}\\) and stores \\(u^{(k+s)}\\). If the cell is a
 boundary cell, line 6 copies its value, which is the same in every step. The 2 tiles are different
 arrays, so no thread writes a value that another reads in the same pass, and the barrier of line 8
@@ -876,7 +876,7 @@ direct kernel reached 65.0 GB/s. The following table gives the results.
 | 8 | 16 × 16 | 2.50 | 4.00 | 43.7 GB/s |
 
 <figure>
-<img src="../../figures/ch20-temporal-sweep.svg" alt="A chart over K = 1, 2, 4, 6, 8 steps per load. Bars give the modelled bytes per cell and step: 8.55, 4.61, 2.78, 2.37, 2.50. Under each bar, the thread-steps per kept cell and step: 1.14, 1.31, 1.78, 2.56, 4.00. Points give the measured effective bandwidth: 30.3, 48.4, 62.4, 57.1, 43.7 GB/s, highest at K = 4. A dashed line marks the direct kernel in the same run at 65.0 GB/s.">
+<img src="../../figures/ch20-temporal-sweep.svg" alt="A chart over K = 1, 2, 4, 6, 8 steps per load. Bars give the modeled bytes per cell and step: 8.55, 4.61, 2.78, 2.37, 2.50. Under each bar, the thread-steps per kept cell and step: 1.14, 1.31, 1.78, 2.56, 4.00. Points give the measured effective bandwidth: 30.3, 48.4, 62.4, 57.1, 43.7 GB/s, highest at K = 4. A dashed line marks the direct kernel in the same run at 65.0 GB/s.">
 <figcaption><b>Figure 20.11</b> Temporal blocking on the measured GPU: traffic falls with \(K\), work grows, and the speed peaks at \(K = 4\), below the direct kernel.</figcaption>
 </figure>
 
@@ -934,7 +934,7 @@ fewer threads idle in the outer rings. Predict its thread-steps per cell for \\(
 - **Placing the barrier inside a condition.** A thread whose cell is on the boundary or outside the
   grid must still reach the barrier.
 - **Loading only the block's own cells.** The cells on the edge of the block then lose the
-  neighbours that belong to other blocks. Step 1 of the plate is still correct, so test more than 1
+  neighbors that belong to other blocks. Step 1 of the plate is still correct, so test more than 1
   step (Section 20.5.2).
 - **Reading outside the grid while loading the halo.** Blocks on the edge of the grid have slots
   outside it; store 0 there and never read it.
@@ -956,7 +956,7 @@ fewer threads idle in the outer rings. Predict its thread-steps per cell for \\(
   step on a 4096 × 4096 grid. Without the halo, row 1 of the plate becomes 25, 31.25, 31.25, 25 in
   step 2.
 - Theorem 20.1 shows that the tiled kernel writes exactly what the direct kernel writes, given 1
-  loader per slot, the barrier, and a tile that covers every neighbour.
+  loader per slot, the barrier, and a tile that covers every neighbor.
 - A tile of \\(T \times T\\) costs \\((T + 2)^2 / T^2\\) loads per result: 1.33 for 32 × 8, against 4
   requested by the direct kernel.
 - On the measured GPU, the caches already reduce the direct kernel to about 1.25 loads per cell, so
@@ -969,7 +969,7 @@ fewer threads idle in the outer rings. Predict its thread-steps per cell for \\(
 
 1. Draw the tile of block (0, 2) of the plate with 2 × 2 blocks in step 2, and compute its 4 cells
    from the tile.
-2. A 9-point stencil also reads the 4 diagonal neighbours. Which slots of the tile become
+2. A 9-point stencil also reads the 4 diagonal neighbors. Which slots of the tile become
    necessary, and how does the reuse per value change?
 3. Implement a 3-D 7-point stencil on a 256 × 256 × 256 grid, directly and with a tile of 32 × 8
    cells in each of 3 consecutive planes. Count the loads per result of both and measure them.

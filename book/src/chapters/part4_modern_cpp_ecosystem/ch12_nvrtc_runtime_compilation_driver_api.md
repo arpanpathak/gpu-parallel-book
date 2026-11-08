@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch12.svg" alt="Hue, a chameleon, grips a branch at dusk. On the left hangs a sheet of source code that the program has just written: float p, then lines of p = p * v plus a constant. Hue's body changes colour from tail to head, blue like the paper's ink at the tail, yellow at the head. Its tongue reaches out to a chip marked sm_87, the GPU the code is compiled for. A tag says written, compiled and loaded while the program runs.">
+<img class="plate" src="../../art/ch12.svg" alt="Hue, a chameleon, grips a branch at dusk. On the left hangs a sheet of source code that the program has just written: float p, then lines of p = p * v plus a constant. Hue's body changes color from tail to head, blue like the paper's ink at the tail, yellow at the head. Its tongue reaches out to a chip marked sm_87, the GPU the code is compiled for. A tag says written, compiled and loaded while the program runs.">
 
 # Chapter 12: NVRTC, Runtime Compilation & the Driver API
 
@@ -20,9 +20,9 @@ the result through the **driver API**, the lower-level interface on which the CU
 itself is built.
 
 We use one example throughout the chapter: a polynomial of degree 32, evaluated at 16,777,216
-points. A generic kernel reads the 33 coefficients from memory. A specialised kernel, generated
+points. A generic kernel reads the 33 coefficients from memory. A specialized kernel, generated
 by the program after the coefficients are known, contains them as constants. The two kernels
-produce bit-identical results, and we will measure both what the specialised kernel gains and
+produce bit-identical results, and we will measure both what the specialized kernel gains and
 what it costs to compile. The times in this chapter were measured on a Jetson Orin NX, an
 integrated GPU of compute capability 8.7 with 102 GB/s of memory bandwidth; the programs were
 also run on a Jetson AGX Thor, of compute capability 11.0.
@@ -34,7 +34,7 @@ This chapter covers
 - the services of the runtime API, and the driver API objects beneath it: context, module and
   function
 - PTX, cubin and fatbin, and the rules for which code runs on which GPU
-- Horner's rule, and a kernel specialised to its coefficients
+- Horner's rule, and a kernel specialized to its coefficients
 - compiling CUDA C++ source from a string with NVRTC, and reading the compilation log
 - loading a module, looking up a kernel, and launching it with an array of argument addresses
 - the same steps in Rust, where cuda-core is built directly on the driver API
@@ -115,7 +115,7 @@ The driver API exposes as explicit objects the things that the runtime API manag
 | module (`CUmodule`) | 1 loaded piece of GPU code, holding one or more kernels | `cuModuleLoadData` |
 | function (`CUfunction`) | 1 kernel inside a module, found by its name | `cuModuleGetFunction` |
 
-Let us follow the specialised kernel of this chapter through the 4 objects. The program asks for
+Let us follow the specialized kernel of this chapter through the 4 objects. The program asks for
 device 0, the Orin GPU, and receives a `CUdevice`. It obtains the context of that device, in
 which its arrays `X` and `Y` live. It hands the driver 3,624 bytes of compiled code that contain
 1 kernel, and the driver loads them into the context and returns a module. Finally, it asks the
@@ -175,7 +175,7 @@ GPU, because some of its instructions do not exist on the older generation.
 To allow code to run on GPUs that did not exist when it was compiled, NVIDIA defines a second,
 portable form of GPU code, and compilation is split into 2 steps. Let us follow the polynomial
 kernel of this chapter through them. The source text of the kernel is 1,315 bytes long. The
-first step translates it into a list of operations for an idealised GPU that no hardware
+first step translates it into a list of operations for an idealized GPU that no hardware
 implements directly, for example "multiply-add 3 registers of 32-bit floats", without choosing
 the binary encoding of any real GPU. For our kernel, this intermediate form is 2,237 bytes of
 text, and it is almost the same for every target: 2,237 bytes for the Orin and 2,250 bytes for
@@ -337,7 +337,7 @@ so it also works for any degree. Note the call to `mul_add`, which requests the 
 multiply-add explicitly. Unlike a C++ compiler, the Rust compiler does not fuse `p * v + c[k]`
 on its own, because fusing changes the rounding of the result.
 
-### 12.3.3 Generating the specialised kernel source
+### 12.3.3 Generating the specialized kernel source
 
 Once the program knows the coefficients, it can generate a kernel that contains them. Consider
 first the polynomial of degree 2 of Figure 12.3, with the coefficients 1, 0.5 and 0.3333. For
@@ -357,17 +357,17 @@ v = 0.5.
 
 <div class="definition">
 
-<span class="box-label">Definition 12.5</span> **Specialised kernel.** **Specialising** a kernel
+<span class="box-label">Definition 12.5</span> **Specialized kernel.** **Specializing** a kernel
 means compiling it for particular values that a generic kernel would receive as arguments, so
 that the values appear in the source as constants.
 
-*Example.* The polynomial kernel specialised to the coefficients \\(c_k = 1/(k + 1)\\) contains
+*Example.* The polynomial kernel specialized to the coefficients \\(c_k = 1/(k + 1)\\) contains
 the constant 3.125000000e-02 for \\(c_{31}\\) = 1/32, where the generic kernel reads `c[31]`
 from memory.
 
 </div>
 
-The specialised polynomial kernel of degree 32 has no loop and no reads of `c`. Its body
+The specialized polynomial kernel of degree 32 has no loop and no reads of `c`. Its body
 consists of 32 lines, each of which is 1 FMA with a constant:
 
 ```text
@@ -380,7 +380,7 @@ SPECIALISED SOURCE(c[0..d]):
     return text
 ```
 
-<p class="listing"><b>Listing 12.2</b> The program generates the source of the specialised kernel.</p>
+<p class="listing"><b>Listing 12.2</b> The program generates the source of the specialized kernel.</p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -421,8 +421,8 @@ Figure 12.4 compares the two kernels, together with the execution times that we 
 section 12.6.
 
 <figure>
-<img src="../../figures/ch12-specialise.svg" alt="Two code sheets. The generic kernel, built by nvcc, loops from c[degree] down, and each step reads c[k] from memory, counts k and does 1 multiply-add. The specialised kernel, built by NVRTC, is 32 straight lines such as p = p times v plus 3.13e-2f: each step is 1 multiply-add with the constant inside it. Below, bars: generic 2.61 ms, specialised 1.84 ms, and the time to move 134 MB at the rated 102 GB/s, 1.32 ms.">
-<figcaption><b>Figure 12.4</b> The generic kernel reads its coefficients from memory; the specialised kernel contains them as constants.</figcaption>
+<img src="../../figures/ch12-specialise.svg" alt="Two code sheets. The generic kernel, built by nvcc, loops from c[degree] down, and each step reads c[k] from memory, counts k and does 1 multiply-add. The specialized kernel, built by NVRTC, is 32 straight lines such as p = p times v plus 3.13e-2f: each step is 1 multiply-add with the constant inside it. Below, bars: generic 2.61 ms, specialized 1.84 ms, and the time to move 134 MB at the rated 102 GB/s, 1.32 ms.">
+<figcaption><b>Figure 12.4</b> The generic kernel reads its coefficients from memory; the specialized kernel contains them as constants.</figcaption>
 </figure>
 
 ## 12.4 Compiling source at run time with NVRTC
@@ -612,7 +612,7 @@ same number.
 
 ### 12.5.1 Contexts
 
-Listing 12.4 began with 4 driver API calls. `cuInit(0)` initialises the driver API. It must be
+Listing 12.4 began with 4 driver API calls. `cuInit(0)` initializes the driver API. It must be
 called before any other `cu` function, and its argument must be 0. `cuDeviceGet` converts the
 device number 0 into a `CUdevice`. `cuDevicePrimaryCtxRetain` returns the **primary context** of
 the device, which is the single context per GPU that the runtime API uses, and increments the
@@ -686,7 +686,7 @@ driver obtains the size of each parameter from the module, so it needs only 1 pi
 information from the program for each parameter: the **address** at which the value of the
 argument is stored. The program passes these addresses as an array of `void*`.
 
-For example, the specialised kernel is declared as `poly(const float* x, float* y, int n)`. The
+For example, the specialized kernel is declared as `poly(const float* x, float* y, int n)`. The
 host variables `X` and `Y` hold device addresses, and the host variable `n` holds 16,777,216.
 The argument array is therefore `args[0] = &X`, `args[1] = &Y` and `args[2] = &n`. At the
 launch, the driver reads 8 bytes at `args[0]`, 8 bytes at `args[1]` and 4 bytes at `args[2]`, a
@@ -836,7 +836,7 @@ arguments.
 ## 12.6 Cost and benefit of runtime compilation
 
 We now measure what runtime compilation costs and what it gains. The C++ program compiles the
-specialised kernel to PTX and to a cubin and loads both. It then runs the generic kernel for
+specialized kernel to PTX and to a cubin and loads both. It then runs the generic kernel for
 about 0.4 s so that the GPU reaches its steady clock frequency, and times 20 runs of each
 kernel. To verify the results, it compares all 16,777,216 outputs of the two kernels with each
 other, and checks every 4,099th output against Horner's rule evaluated in double precision on
@@ -867,13 +867,13 @@ cache; in section 12.7 we explain the cache and show that a load without it cost
 Loading the cubin took 0.05 ms, since a cubin is already machine code and only needs to be
 copied into the context.
 
-The specialised kernel ran 2.605 / 1.840 = 1.42 times as fast as the generic kernel. Across the
+The specialized kernel ran 2.605 / 1.840 = 1.42 times as fast as the generic kernel. Across the
 quiet runs, the ratio ranged from 1.3 to 1.46, because the GPU clock varies between runs, as we
 observed in Chapter 6. The two kernels agree to the last bit, a difference of 0.0, because both
 perform the same FMAs on the same `float` values in the same order. Both are within
 5.1 × 10<sup>−7</sup> of the double-precision value.
 
-To understand why the specialised kernel is faster, let us apply the analysis of arithmetic
+To understand why the specialized kernel is faster, let us apply the analysis of arithmetic
 intensity from Chapter 1. Recall that the **arithmetic intensity** of a kernel is the number of
 floating-point operations it performs per byte it moves to or from memory. For each point, the
 kernel performs 32 FMAs, which are 64 FLOP, and moves 8 bytes, so its arithmetic intensity is 64
@@ -883,16 +883,16 @@ memory bandwidth. A kernel below the ridge point waits for memory; a kernel abov
 arithmetic. The GPU on which we measured can perform 2,400 GFLOP/s, and its memory delivers 102
 GB/s, so its ridge point is 2,400 / 102 = 23.5 FLOP/B. Since 8 FLOP/B is below the ridge point,
 the computation is memory-bound, and its shortest possible time is the time to move 134.2 MB at
-102 GB/s, or 1.32 ms. The specialised kernel took 1.840 ms, which corresponds to 134.2 MB /
+102 GB/s, or 1.32 ms. The specialized kernel took 1.840 ms, which corresponds to 134.2 MB /
 1.840 ms = 72.9 GB/s, or 71% of the rated bandwidth. This is about the rate that a plain copy
 reaches on the same GPU, 68 to 78 GB/s in Chapter 7. The generic kernel, at 2.605 ms, reached
 only 51.5 GB/s.
 
-The specialised kernel therefore runs at the speed of memory, and its 32 FMAs per point add no
+The specialized kernel therefore runs at the speed of memory, and its 32 FMAs per point add no
 time. The generic kernel, however, issues more instructions per point: a read of `c[k]` and the
 loop control for `k` at each step. Since an intensity of 8 FLOP/B is not far below the ridge
 point, these additional instructions make the SMs, rather than memory, the limiting resource. A
-polynomial of lower degree would leave more headroom, and specialisation would gain less; a
+polynomial of lower degree would leave more headroom, and specialization would gain less; a
 polynomial of higher degree would gain more. Exercise 3 asks you to measure this.
 
 The Rust program gives the same result:
@@ -912,16 +912,16 @@ a source with a mistake
 PASSED
 ```
 
-The specialised kernel is the same NVRTC cubin as in C++, and its time of 1.96 ms against 1.84
+The specialized kernel is the same NVRTC cubin as in C++, and its time of 1.96 ms against 1.84
 ms is within the 10% by which runs vary. The generic Rust kernel, compiled by cuda-oxide, ran
-within 10% of the generic C++ kernel, and its results match those of the specialised kernel bit
+within 10% of the generic C++ kernel, and its results match those of the specialized kernel bit
 for bit, because `mul_add` performs the same fused operation. When you run the programs on your
 own GPU, the ratio of the 2 kernel times is the number to compare.
 
 Whether runtime compilation pays off depends on how often the kernel runs. Each run of the
-specialised kernel saves 2.61 − 1.84 = 0.77 ms, while compiling the cubin and loading it costs
+specialized kernel saves 2.61 − 1.84 = 0.77 ms, while compiling the cubin and loading it costs
 51.99 + 0.05 = 52 ms once. If \\(T_c\\) is the time to compile and load, and \\(t_g\\) and
-\\(t_s\\) are the times of 1 run of the generic and the specialised kernel, the number of runs
+\\(t_s\\) are the times of 1 run of the generic and the specialized kernel, the number of runs
 needed to break even is
 
 \\[ \frac{T_c}{t_g - t_s} = \frac{52 \text{ ms}}{0.77 \text{ ms}} = 68 \\]
@@ -931,7 +931,7 @@ evaluates it once loses about 51 ms. Figure 12.6 places all of these costs on a 
 logarithmic time axis.
 
 <figure>
-<img src="../../figures/ch12-costs.svg" alt="Horizontal bars on a logarithmic time axis from 0.01 ms to 100 ms, measured: compile to cubin 52 ms; load PTX with a cache miss 32 ms; 1 run of the generic kernel 2.61 ms; 1 run of the specialised kernel 1.84 ms; load PTX with a cache hit 0.77 ms; load cubin 0.05 ms. Below, a card: each run saves 0.77 ms, compiling costs 52 ms, so it pays back after 68 runs.">
+<img src="../../figures/ch12-costs.svg" alt="Horizontal bars on a logarithmic time axis from 0.01 ms to 100 ms, measured: compile to cubin 52 ms; load PTX with a cache miss 32 ms; 1 run of the generic kernel 2.61 ms; 1 run of the specialized kernel 1.84 ms; load PTX with a cache hit 0.77 ms; load cubin 0.05 ms. Below, a card: each run saves 0.77 ms, compiling costs 52 ms, so it pays back after 68 runs.">
 <figcaption><b>Figure 12.6</b> The costs of runtime compilation on 1 time axis. Compiling costs as much as 20 to 30 runs of the kernel and is repaid after 68 runs.</figcaption>
 </figure>
 
@@ -1054,7 +1054,7 @@ $ nvcc app.cu -o app -gencode arch=compute_87,code=[sm_87,sm_90,compute_87]
 
 Here, `arch=compute_87` names the virtual architecture for which the source is compiled, and
 `code=` lists the contents of the fatbin: cubins for `sm_87` and `sm_90`, and the `compute_87`
-PTX itself, which the driver can JIT-compile on any later GPU. The following table summarises
+PTX itself, which the driver can JIT-compile on any later GPU. The following table summarizes
 the choices.
 
 | Situation | Choose |
@@ -1117,7 +1117,7 @@ the choices.
   program finds. Its error messages are in the compilation log.
 - `cuModuleLoadData`, `cuModuleGetFunction` and `cuLaunchKernel` load, look up and launch the
   result. The argument array holds the address of each argument.
-- A polynomial of degree 32 specialised to its coefficients ran 1.3 to 1.46 times as fast as the
+- A polynomial of degree 32 specialized to its coefficients ran 1.3 to 1.46 times as fast as the
   generic kernel, at 71% of the rated memory bandwidth, with bit-identical results. Compiling
   it cost about 52 ms, which was repaid after 68 runs.
 - The JIT cache reduced a PTX load of 13 to 45 ms to about 0.7 ms for every later process.
@@ -1130,7 +1130,7 @@ In Chapter 13, we begin Part V, in which every kernel is written in Rust with cu
 
 ## Exercises
 
-1. Compile the specialised source to a cubin for `compute_87` instead of `sm_87`. What does
+1. Compile the specialized source to a cubin for `compute_87` instead of `sm_87`. What does
    `nvrtcGetCUBINSize` return, and why?
 2. Change the program to load only the PTX, with `CUDA_CACHE_DISABLE=1`, and time 10 loads in 1
    process. Does the driver compile the PTX again each time?
@@ -1147,11 +1147,11 @@ explain where the ratio of the 2 kernel times grows.
 7. In the Rust program, change `args` to hold `x_ptr as *mut c_void` instead of its address. Run
    it, and explain the result with figure 12.5.
 8. Using the break-even formula of section 12.6, how many runs would repay the compilation on a
-   GPU on which the specialised and generic kernels take 0.08 ms and 0.11 ms?
+   GPU on which the specialized and generic kernels take 0.08 ms and 0.11 ms?
 9. The program compiles for `sm_87` rather than for `compute_60`, which would run on every GPU
    since 2016. Explain why, using the load times of the cubin and the PTX in sections 12.6 and
    12.7, and what an older virtual architecture prevents the compiler from using.
-10. A data centre upgrades its GPU driver overnight. What happens to the first run of each
+10. A data center upgrades its GPU driver overnight. What happens to the first run of each
     program the next morning? Which programs are not affected, and why?
 
 ## Sources and further reading

@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch22.svg" alt="Bins, a crab, stands on the sand beside 4 crates labelled with the 2-bit digits 00, 01, 10 and 11. Chalked on each crate is the number of keys with that digit, 1, 2, 3 and 2, and above each crate the place where its first key goes, 0, 1, 3 and 6. Bins holds up a pebble marked 5, binary 101, on its way to crate 01. A tag reads count, scan, then place.">
+<img class="plate" src="../../art/ch22.svg" alt="Bins, a crab, stands on the sand beside 4 crates labeled with the 2-bit digits 00, 01, 10 and 11. Chalked on each crate is the number of keys with that digit, 1, 2, 3 and 2, and above each crate the place where its first key goes, 0, 1, 3 and 6. Bins holds up a pebble marked 5, binary 101, on its way to crate 01. A tag reads count, scan, then place.">
 
 # Chapter 22: Radix Sort and Histograms
 
@@ -55,7 +55,7 @@ The key 2 occurs twice, at positions 1 and 3, and so does the key 5, at position
 follow both pairs through the chapter.
 
 <figure>
-<img src="../../figures/ch22-keys.svg" alt="The keys 5, 2, 7, 2, 0, 6, 3, 5 with their binary digits 101, 010, 111, 010, 000, 110, 011, 101, and the sorted keys 0, 2, 2, 3, 5, 5, 6, 7, labelled with the positions they came from: 4, 1, 3, 6, 0, 7, 5, 2.">
+<img src="../../figures/ch22-keys.svg" alt="The keys 5, 2, 7, 2, 0, 6, 3, 5 with their binary digits 101, 010, 111, 010, 000, 110, 011, 101, and the sorted keys 0, 2, 2, 3, 5, 5, 6, 7, labeled with the positions they came from: 4, 1, 3, 6, 0, 7, 5, 2.">
 <figcaption><b>Figure 22.1</b> The 8 keys, their bits, and the sorted order.</figcaption>
 </figure>
 
@@ -150,7 +150,7 @@ and 3 (11). After the split on bit 2, the keys are sorted.
 
 <figure>
 <img src="../../figures/ch22-passes.svg" alt="Keys 5, 2, 7, 2, 0, 6, 3, 5. After a split on bit 0: 2, 2, 0, 6, 5, 7, 3, 5. After bit 1: 0, 5, 5, 2, 2, 6, 7, 3. After bit 2: 0, 2, 2, 3, 5, 5, 6, 7, sorted. Binary digits are written under every key.">
-<figcaption><b>Figure 22.2</b> A radix sort of the 8 keys in 3 passes, 1 bit per pass. The colour shows the bit of the next pass.</figcaption>
+<figcaption><b>Figure 22.2</b> A radix sort of the 8 keys in 3 passes, 1 bit per pass. The color shows the bit of the next pass.</figcaption>
 </figure>
 
 Line 4 or line 5 executes once per key and pass, that is, \\(nB\\) times: \\(8 \cdot 3 = 24\\)
@@ -511,7 +511,7 @@ number of the block, \\(t\\) is the index of the thread in its block, and \\(p\\
 | \\(R\\) | number of bins | 8 |
 
 Line 3 is a **grid-stride loop**. The \\(GT\\) threads of the grid take the keys in rounds, so that
-in each round, neighbouring threads read neighbouring keys. In the small grid of the table, thread 1
+in each round, neighboring threads read neighboring keys. In the small grid of the table, thread 1
 of block 1 starts at key \\(1 \cdot 2 + 1 = 3\\) and then moves on to key \\(3 + 4 = 7\\), while
 the 4 threads together read keys 0 to 3 in the first round and keys 4 to 7 in the second. The 2
 barriers separate 3 phases. Without the first barrier, a thread could count into a bin that another
@@ -795,7 +795,7 @@ FAILED
 
 On the 8 keys, the result was correct, because the 8 lanes of 1 warp happened to obtain their
 positions in lane order. On 16,777,216 keys, 15.3 million keys ended in the wrong place, 5.6
-million neighbours were out of order, and the counts differed from run to run. Every pass still
+million neighbors were out of order, and the counts differed from run to run. Every pass still
 grouped the keys correctly by its own digit. Only the order inside the groups was lost, and with it
 the work of the earlier passes, as in Figure 22.4.
 

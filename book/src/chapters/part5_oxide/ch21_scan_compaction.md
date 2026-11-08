@@ -333,7 +333,7 @@ start, this value is the input \\(x_i\\), which is the range sum \\(S[i..i]\\) o
 length 1 that ends at \\(i\\).
 
 In the first step, every position \\(i \ge 1\\) adds the value of position \\(i - 1\\), its left
-neighbour. For example, position 7 adds \\(S[6..6] = 6\\) to its own \\(S[7..7] = 3\\), and then
+neighbor. For example, position 7 adds \\(S[6..6] = 6\\) to its own \\(S[7..7] = 3\\), and then
 holds \\(S[6..7] = 9\\). After this step, every position holds the sum of a range of length 2 that
 ends at it.
 
@@ -353,7 +353,7 @@ each cell sums written under the cell.
 
 <figure>
 <img src="../../figures/ch21-hillis.svg" alt="The Hillis-Steele scan of 3, 1, 7, 0, 4, 1, 6, 3. After offset 1: 3, 4, 8, 7, 4, 5, 7, 9. After offset 2: 3, 4, 11, 11, 12, 12, 11, 14. After offset 4: 3, 4, 11, 11, 15, 16, 22, 25. Under each cell, the range of inputs it sums doubles at every step. Arrows show element 7 adding elements 6, 5 and 3 of the rows above.">
-<figcaption><b>Figure 21.4</b> The Hillis-Steele scan of the 8 values. Grey cells have no partner and are copied. The arrows follow position 7.</figcaption>
+<figcaption><b>Figure 21.4</b> The Hillis-Steele scan of the 8 values. Gray cells have no partner and are copied. The arrows follow position 7.</figcaption>
 </figure>
 
 After the step with offset 4, the range of every cell in the last row starts at position 0, so the
@@ -391,7 +391,7 @@ all 8 threads have finished the step with offset 1.
 
 A second difficulty remains. A step reads the values of the previous step and writes new ones. If
 the new values overwrite the old ones in the same array, a thread may read a value that its
-neighbour has already replaced with the new value of the current step. We avoid this with 2
+neighbor has already replaced with the new value of the current step. We avoid this with 2
 arrays. Every step reads 1 array and writes the other, and the next step exchanges their roles.
 
 <div class="definition">
@@ -427,7 +427,7 @@ stored in shared memory, and \\(d\\) is the offset of the current step.
 </div>
 
 Line 2 copies the input into shared memory, and the barrier in line 3 makes sure that every value
-is there before any thread reads the value of a neighbour. Lines 5 and 6 perform 1 step of
+is there before any thread reads the value of a neighbor. Lines 5 and 6 perform 1 step of
 Figure 21.4. For example, in the step with \\(d = 2\\), thread 6 executes line 5 and computes
 \\(b[6] = a[6] + a[4] = 7 + 4 = 11\\), while thread 1 has \\(i < d\\) and executes line 6, which
 copies \\(a[1] = 4\\) unchanged. Line 7 is the barrier that ends the step, and line 8 makes the
@@ -642,7 +642,7 @@ and it needs the value at position 0. Thread 0, however, is running late and has
 \\(b[0] = a[0] = 3\\), as Figure 21.8 shows.
 
 <figure>
-<img src="../../figures/ch21-race-barrier.svg" alt="A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterwards. Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.">
+<img src="../../figures/ch21-race-barrier.svg" alt="A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterward. Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.">
 <figcaption><b>Figure 21.8</b> Without line 7. Thread 2 reads \(b[0]\) before thread 0 has written it.</figcaption>
 </figure>
 

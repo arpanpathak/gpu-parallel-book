@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch03.svg" alt="The Queen bee, in her crown and sash, holds up a scroll that reads <<<4, 256>>>: a launch of 4 blocks of 256 threads. Beside her a wooden board holds 4 comb frames, labelled block 0 to block 3, and on each frame rows of worker bees wait for the order. The Queen gives one order and every bee on every frame carries it out.">
+<img class="plate" src="../../art/ch03.svg" alt="The Queen bee, in her crown and sash, holds up a scroll that reads <<<4, 256>>>: a launch of 4 blocks of 256 threads. Beside her a wooden board holds 4 comb frames, labeled block 0 to block 3, and on each frame rows of worker bees wait for the order. The Queen gives one order and every bee on every frame carries it out.">
 
 # Chapter 3: The CUDA Programming Model
 
@@ -42,7 +42,7 @@ the GPU and its memory the **device** (figure 3.1). The program's `main` functio
 the host. Kernels run on the device.
 
 <figure>
-<img src="../../figures/ch03-host-device.svg" alt="Two zones. Host: a CPU card that runs main and launches the kernel, above host memory holding h_a, h_b and h_c. Device: a GPU card that runs the kernel's threads, above global memory holding d_a, d_b and d_c. An arrow labelled launch runs from the CPU to the GPU. An arrow labelled copy in runs from host memory to global memory, and one labelled copy out runs back.">
+<img src="../../figures/ch03-host-device.svg" alt="Two zones. Host: a CPU card that runs main and launches the kernel, above host memory holding h_a, h_b and h_c. Device: a GPU card that runs the kernel's threads, above global memory holding d_a, d_b and d_c. An arrow labeled launch runs from the CPU to the GPU. An arrow labeled copy in runs from host memory to global memory, and one labeled copy out runs back.">
 <figcaption><b>Figure 3.1</b> Host and device. The host launches kernels and copies data; the device runs the kernels.</figcaption>
 </figure>
 
@@ -198,7 +198,7 @@ The 4 blocks of 4 × 4 threads cover an image of 8 × 8 pixels, 1 thread per pix
 for x and once for y.
 
 <figure>
-<img src="../../figures/ch03-image-2d.svg" alt="An 8 by 8 image, its pixels numbered 0 to 63 row by row, coloured by the 4 blocks of 4 by 4 threads that cover it. Pixel 14, at column 6 and row 1, is highlighted. It belongs to block (1, 0), where the thread is at position (2, 1). Its column is 1 × 4 + 2 = 6, its row 0 × 4 + 1 = 1, and its pixel number 1 × 8 + 6 = 14.">
+<img src="../../figures/ch03-image-2d.svg" alt="An 8 by 8 image, its pixels numbered 0 to 63 row by row, colored by the 4 blocks of 4 by 4 threads that cover it. Pixel 14, at column 6 and row 1, is highlighted. It belongs to block (1, 0), where the thread is at position (2, 1). Its column is 1 × 4 + 2 = 6, its row 0 × 4 + 1 = 1, and its pixel number 1 × 8 + 6 = 14.">
 <figcaption><b>Figure 3.3</b> A 2-dimensional launch over an 8 × 8 image. The highlighted thread computes its column, its row and the pixel's number.</figcaption>
 </figure>
 
@@ -219,7 +219,7 @@ is layers z = 2 and 3. The thread at (2, 0, 3), on top of the back layer, is num
 2 + 4 × 0 + 16 × 3 = 50, and 50 ÷ 32 = 1 remainder 18 places it in warp 1, lane 18.
 
 <figure>
-<img src="../../figures/ch03-cube.svg" alt="A block of 4 by 4 by 4 threads drawn as a cube of 64 small cubes, with x to the right, y downward and z going back. The front layer z = 0 is numbered 0 to 15. Layers z = 0 and 1 are coloured blue, warp 0, and layers z = 2 and 3 orange, warp 1. The thread at (2, 0, 3), on the top face at the back, is highlighted and numbered 50: 2 + 4 × 0 + 16 × 3 = 50, which is warp 1, lane 18.">
+<img src="../../figures/ch03-cube.svg" alt="A block of 4 by 4 by 4 threads drawn as a cube of 64 small cubes, with x to the right, y downward and z going back. The front layer z = 0 is numbered 0 to 15. Layers z = 0 and 1 are colored blue, warp 0, and layers z = 2 and 3 orange, warp 1. The thread at (2, 0, 3), on the top face at the back, is highlighted and numbered 50: 2 + 4 × 0 + 16 × 3 = 50, which is warp 1, lane 18.">
 <figcaption><b>Figure 3.5</b> A block of 4 × 4 × 4 threads as a cube. Each warp is a slab of 2 layers.</figcaption>
 </figure>
 
@@ -333,7 +333,7 @@ const int pixel = iy * width + ix;                      // rows are stored 1 aft
 </div>
 </div>
 
-An image stored row after row puts a row's pixels at consecutive addresses. Neighbouring
+An image stored row after row puts a row's pixels at consecutive addresses. Neighboring
 threads of a warp have consecutive `threadIdx.x`, so they read consecutive pixels of 1 row:
 the coalesced pattern of Chapter 2, section 2.7.
 

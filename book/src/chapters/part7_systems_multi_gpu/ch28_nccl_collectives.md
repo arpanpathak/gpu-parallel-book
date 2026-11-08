@@ -199,10 +199,10 @@ Each element of the sum adds 1 number from every rank. For example, element 1 of
 <div class="definition">
 
 <span class="box-label">Definition 28.5</span> **Broadcast.** In a **broadcast**, the root holds a
-buffer, and afterwards every rank holds a copy of it.
+buffer, and afterward every rank holds a copy of it.
 
 *Example.* With rank 0 as the root, the 4 numbers 1, 0, 2, 1 of rank 0 are copied to ranks 1, 2
-and 3. Afterwards all 4 ranks hold 1, 0, 2, 1, and the former data of ranks 1, 2 and 3 is
+and 3. Afterward all 4 ranks hold 1, 0, 2, 1, and the former data of ranks 1, 2 and 3 is
 overwritten.
 
 </div>
@@ -210,7 +210,7 @@ overwritten.
 <div class="definition">
 
 <span class="box-label">Definition 28.6</span> **Reduce.** In a **reduce**, every rank holds a
-buffer of the same length, and afterwards the root holds the element-by-element combination of all
+buffer of the same length, and afterward the root holds the element-by-element combination of all
 the buffers. The other ranks receive nothing.
 
 *Example.* With rank 0 as the root and the sum as the combination, rank 0 ends with 4, 6, 7, 5.
@@ -221,7 +221,7 @@ Ranks 1, 2 and 3 still hold their own data.
 <div class="definition">
 
 <span class="box-label">Definition 28.7</span> **All-reduce.** In an **all-reduce**, every rank
-holds a buffer of the same length, and afterwards every rank holds the element-by-element
+holds a buffer of the same length, and afterward every rank holds the element-by-element
 combination of all the buffers. An all-reduce has no root.
 
 *Example.* All 4 ranks end with 4, 6, 7, 5. The gradients of Section 28.1.1 are combined in the
@@ -232,7 +232,7 @@ same way, and there every rank ends with 6, 4, 4.
 <div class="definition">
 
 <span class="box-label">Definition 28.8</span> **Reduce-scatter.** In a **reduce-scatter**, every
-rank holds a buffer of the same length, which is divided into k pieces of equal length. Afterwards
+rank holds a buffer of the same length, which is divided into k pieces of equal length. Afterward
 rank r holds piece r of the combination, and only that piece.
 
 *Example.* With 4 ranks and 4 numbers, each piece is 1 number. Rank 0 ends with 4, rank 1 with 6,
@@ -244,9 +244,9 @@ rank 2 with 7 and rank 3 with 5. Rank 1, for instance, receives element 1 of the
 <div class="definition">
 
 <span class="box-label">Definition 28.9</span> **All-gather.** In an **all-gather**, rank r holds
-piece r of a buffer, and afterwards every rank holds all k pieces, in the order of the ranks.
+piece r of a buffer, and afterward every rank holds all k pieces, in the order of the ranks.
 
-*Example.* Rank 0 holds 4, rank 1 holds 6, rank 2 holds 7 and rank 3 holds 5. Afterwards every rank
+*Example.* Rank 0 holds 4, rank 1 holds 6, rank 2 holds 7 and rank 3 holds 5. Afterward every rank
 holds 4, 6, 7, 5.
 
 </div>
@@ -254,7 +254,7 @@ holds 4, 6, 7, 5.
 Figure 28.1 shows the 5 collectives on these 4 ranks.
 
 <figure>
-<img src="../../figures/ch28-collectives.svg" alt="Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds 1 0 2 1, and afterwards every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 1, and afterwards rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends with all 4, 4 6 7 5.">
+<img src="../../figures/ch28-collectives.svg" alt="Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds 1 0 2 1, and afterward every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 1, and afterward rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends with all 4, 4 6 7 5.">
 <figcaption><b>Figure 28.1</b> The 5 collectives on 4 ranks: the data on every rank before and after the operation.</figcaption>
 </figure>
 
@@ -327,7 +327,7 @@ must cross the link, and must be detected by the receiver, and these actions tak
 regardless of the number of bytes. The time of a message therefore has two parts: a fixed part that
 every message pays, and a part that grows with the number of bytes.
 
-In Section 4.3, we modelled a copy between the host and the device in exactly this way, as a fixed
+In Section 4.3, we modeled a copy between the host and the device in exactly this way, as a fixed
 start-up time plus the number of bytes divided by the bandwidth. The same model applies to a
 message between 2 ranks:
 
@@ -643,7 +643,7 @@ in Chapter 4.
 
 Note that NVIDIA quotes NVLink bandwidth as the total of both directions, 600, 900 and 1,800 GB/s
 for the 3 generations; the table gives half of each figure. SXM denotes the module form of a
-data-centre GPU, which is mounted on a server board, as opposed to a PCIe card, and NDR is the 400
+data-center GPU, which is mounted on a server board, as opposed to a PCIe card, and NDR is the 400
 Gb/s generation of **InfiniBand**, a network that connects servers. A machine with only 1 GPU, such
 as a single DGX Spark, has no link between GPUs.
 
@@ -1072,7 +1072,7 @@ requires 2 or more GPUs.
 
 **NCCL**, the NVIDIA Collective Communications Library (pronounced "nickel"), implements the
 collectives of Section 28.2, as well as point-to-point sends and receives, for NVIDIA GPUs. It is
-open source, under a BSD licence, and every major deep-learning framework uses it.
+open source, under a BSD license, and every major deep-learning framework uses it.
 
 When a group of ranks starts, NCCL discovers the **topology** of the system: which GPUs share
 NVLink or an NVSwitch, which GPUs are under the same PCIe switch, and which GPUs are in other
@@ -1173,7 +1173,7 @@ check(ncclGroupEnd());
 
 Without the group, the first call could block while it waits for ranks whose calls the same thread
 has not yet made. Group calls also combine a `ncclSend` and a `ncclRecv` into 1 exchange, which is
-how a halo is exchanged between neighbouring GPUs.
+how a halo is exchanged between neighboring GPUs.
 
 ## 28.8 NCCL in frameworks and performance tuning
 

@@ -1,6 +1,6 @@
 <img class="plate" src="../../art/ch05.svg" alt="Whistle, a meerkat with a whistle, stands on watch beside a striped gate across a path. 3 worker bees have reached the gate and wait in a row; a 4th is still flying in from the left. The gate stays down until every bee has arrived. A sign on the gate reads __syncthreads(), and a tag says all arrive, then all go.">
 
-# Chapter 5: Synchronisation, Atomics & Race Conditions
+# Chapter 5: Synchronization, Atomics & Race Conditions
 
 In every kernel so far, each thread wrote its own output element. Thread \\(i\\) of the vector
 addition kernel wrote `c[i]` and no other location, so the threads never needed to know about
@@ -25,7 +25,7 @@ This chapter covers
 - `__syncthreads()`, the barrier for the threads of a block, and the errors caused by a missing barrier
 - the visibility of writes across blocks: caches, memory fences and memory orderings
 - atomic operations, and the atomic types that safe Rust requires for a shared counter
-- privatisation of a histogram in shared memory, 6 to 28 times as fast as the direct version
+- privatization of a histogram in shared memory, 6 to 28 times as fast as the direct version
 - why a floating-point sum computed with atomic operations varies from run to run
 
 </div>
@@ -255,7 +255,7 @@ Divergence is therefore a property of warps, not of individual threads. A branch
 or on `threadIdx.x / 32` adds no cost, because all threads of each warp agree. The guard
 `if (i < n)` of Chapter 3 diverges only in the warp that contains element \\(n\\), which is at most
 1 warp in the entire grid, so its cost is negligible. Branches that depend on the data are more
-likely to diverge. When the data can be arranged so that neighbouring threads tend to take the same
+likely to diverge. When the data can be arranged so that neighboring threads tend to take the same
 path, the warps diverge less.
 
 <div class="bee bee-happy" markdown="1">
@@ -331,7 +331,7 @@ block sums 256 ones, so the correct result for every block is 256.
 ```
 
 Without barriers, 2,450 of the 4,096 block sums were wrong on the first GPU, and 3,057 on the
-second. A thread that reached the next level early read a value that its neighbour had not yet
+second. A thread that reached the next level early read a value that its neighbor had not yet
 written. Some blocks still produced the correct sum, because whether a warp runs ahead of the
 others depends on the scheduling of the warps. Errors of this kind are difficult to find, because
 a test can pass on some runs and fail on others. Animation 2 shows the 8-value tree with and
@@ -481,17 +481,17 @@ mod kernels {
 
 The launch uses 1,024 blocks of 256 threads, 262,144 threads in total, for 67,108,864 bytes, so
 each thread processes 256 bytes. The loop advances by `stride`, the total number of threads in the
-grid. This pattern is called a **grid-stride loop**. In every iteration, neighbouring threads read
-neighbouring bytes.
+grid. This pattern is called a **grid-stride loop**. In every iteration, neighboring threads read
+neighboring bytes.
 
 Every one of the 67,108,864 additions targets 1 of only 256 addresses in global memory. We can
-reduce this contention with **privatisation**. Each block counts into its own 256 bins in shared
+reduce this contention with **privatization**. Each block counts into its own 256 bins in shared
 memory, where atomic operations are fast and only the threads of the block compete for each bin.
 At the end, each block adds its totals to the global bins once (figure 5.6).
 
 <figure>
 <img src="../../figures/ch05-privatise.svg" alt="Phase 1: blocks 0, 1 and so on to 1,023 each count their 65,536 bytes into 256 bins in shared memory. Phase 2: each block adds its 256 counts to the 256 global bins. The global atomics drop from 67,108,864 to 262,144.">
-<figcaption><b>Figure 5.6</b> A privatised histogram: count in shared memory, then add each bin to global memory once.</figcaption>
+<figcaption><b>Figure 5.6</b> A privatized histogram: count in shared memory, then add each bin to global memory once.</figcaption>
 </figure>
 
 <p class="listing"><b>Listing 5.7</b> A histogram with shared bins.</p>
@@ -579,7 +579,7 @@ value, computes the new value, and attempts to swap it in. If another thread cha
 in the meantime, the swap fails, and the thread tries again with the value that `atomicCAS`
 returned. The same operation can be used to build a lock. However, a lock makes threads wait for
 each other on a machine designed to keep all of them busy, and a warp whose threads spin on 1 lock
-can stop making progress. Privatisation, partitioning the data, and plain atomic operations are
+can stop making progress. Privatization, partitioning the data, and plain atomic operations are
 almost always faster.
 
 ## 5.6 Floating-point non-determinism
@@ -635,7 +635,7 @@ example to compare results across software versions or to reproduce a training r
 fixed order. The tree sum of section 5.3 always adds the same pairs, so it gives the same result on
 every run. In Chapter 8, we develop fast sums of this kind.
 
-## 5.7 Choosing a synchronisation method
+## 5.7 Choosing a synchronization method
 
 When the threads of a kernel share memory, the answers to 4 questions determine what the kernel
 needs:
@@ -681,8 +681,8 @@ contains a race, even if every test so far has passed. The `racecheck` tool of C
   barrier, the same number of times, or the block hangs.
 - **Reading another thread's shared-memory value without a barrier.** The value may not have been
   written yet, and the result is correct on some runs and wrong on others.
-- **Expecting `__syncthreads()` to synchronise blocks.** It applies to 1 block. Use 2 launches.
-- **Many threads updating 1 global location.** The atomic operations are serialised. Privatise
+- **Expecting `__syncthreads()` to synchronize blocks.** It applies to 1 block. Use 2 launches.
+- **Many threads updating 1 global location.** The atomic operations are serialized. Privatize
   the counts in shared memory and add the totals once.
 - **Expecting a floating-point atomic sum to repeat exactly.** The order of the additions changes,
   so the last digits change.
@@ -701,8 +701,8 @@ contains a race, even if every test so far has passed. The `racecheck` tool of C
   of the same work.
 - `__syncthreads()` makes every thread of a block wait for the others and makes their writes
   visible to the block. Without it, 2,450 of 4,096 block sums were wrong.
-- Atomic operations make a read-modify-write indivisible, at the cost of serialising the
-  operations on a busy address. A privatised histogram was 6 to 28 times as fast as one with
+- Atomic operations make a read-modify-write indivisible, at the cost of serializing the
+  operations on a busy address. A privatized histogram was 6 to 28 times as fast as one with
   global atomic operations.
 - Floating-point atomic operations add in a different order on each run, so their sums differ in
   the last digits.

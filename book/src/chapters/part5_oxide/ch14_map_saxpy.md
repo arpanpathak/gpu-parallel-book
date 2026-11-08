@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch14.svg" alt="Shuttle, a crab, walks along a long table of numbered cells, 0 to 15, coloured in a repeating pattern of 4. Dashed arcs mark its hops: from cell 1 to 5, to 9, to 13, always 4 cells at a time, and it fills every cell it lands on. 3 more crabs further back would cover the other colours. A tag reads i, i + stride, i + 2 stride: the grid-stride loop.">
+<img class="plate" src="../../art/ch14.svg" alt="Shuttle, a crab, walks along a long table of numbered cells, 0 to 15, colored in a repeating pattern of 4. Dashed arcs mark its hops: from cell 1 to 5, to 9, to 13, always 4 cells at a time, and it fills every cell it lands on. 3 more crabs further back would cover the other colors. A tag reads i, i + stride, i + 2 stride: the grid-stride loop.">
 
 # Chapter 14: Map and SAXPY
 
@@ -428,7 +428,7 @@ threads, for the 12 elements. Each thread then processes \\(12 / 4 = 3\\) elemen
 
 There are 2 natural ways to divide the elements. Both are drawn in Figure 14.6, and in both we
 write \\(t\\) for the global index of a thread, from 0 to 3. In the first way, which we call
-chunks, thread \\(t\\) takes the 3 neighbouring elements \\(3t\\), \\(3t + 1\\) and \\(3t + 2\\).
+chunks, thread \\(t\\) takes the 3 neighboring elements \\(3t\\), \\(3t + 1\\) and \\(3t + 2\\).
 For example, thread 3 takes elements 9, 10 and 11. In the second way, which we call a stride,
 thread \\(t\\) takes every fourth element, starting at its own index. It takes elements \\(t\\),
 \\(t + 4\\) and \\(t + 8\\). For example, thread 1 takes elements 1, 5 and 9.
@@ -454,10 +454,10 @@ role of the lanes of one warp.
 
 <span class="box-label">Definition 14.7</span> **Coalesced access.** The memory system reads global
 memory in aligned pieces of 32 bytes, called segments. A read by a warp is **coalesced** when its
-32 threads use neighbouring addresses. The 32 reads of 4 bytes then fall into 4 segments of 32
+32 threads use neighboring addresses. The 32 reads of 4 bytes then fall into 4 segments of 32
 bytes, 128 bytes in all, and every byte that the memory delivers is used.
 
-*Example.* If lanes 0 to 31 read \\(x_0\\) to \\(x_{31}\\), the warp reads 128 neighbouring bytes,
+*Example.* If lanes 0 to 31 read \\(x_0\\) to \\(x_{31}\\), the warp reads 128 neighboring bytes,
 and the read is coalesced.
 
 </div>
@@ -465,9 +465,9 @@ and the read is coalesced.
 <div class="callout note" markdown="1">
 
 **Parcels on a delivery van.** Picture a courier company whose van always drives to one
-street and carries a crate of 8 parcels for 8 neighbouring houses. The crate is filled at the depot,
+street and carries a crate of 8 parcels for 8 neighboring houses. The crate is filled at the depot,
 and it goes out whole, even if only one house on that street ordered something. Suppose 32 people
-order parcels at the same time. If they live in 32 neighbouring houses, the company needs 4 trips,
+order parcels at the same time. If they live in 32 neighboring houses, the company needs 4 trips,
 and every parcel in every crate is wanted. If they live 3 houses apart from each other, the 32
 houses are spread over 12 streets. The company now needs 12 trips, and two thirds of each crate is
 unwanted.
@@ -490,14 +490,14 @@ span 384 bytes. That is 12 segments of 32 bytes. The memory delivers all 384 byt
 uses only the 128 bytes that hold its 32 floats. Two thirds of the bytes read are wasted.
 
 Now consider the first step of the stride division. The 4 threads read elements 0, 1, 2 and 3,
-which occupy 16 neighbouring bytes. In a warp of 32 threads, the 32 floats occupy 128 neighbouring
+which occupy 16 neighboring bytes. In a warp of 32 threads, the 32 floats occupy 128 neighboring
 bytes, which is exactly 4 segments. Every byte that the memory delivers is used. The same holds in
 every later step, because each step moves all addresses forward by the same amount. The stride
 division therefore keeps every read of every warp coalesced. Figure 14.6 shows all 3 steps.
 
 <figure>
-<img src="../../figures/ch14-assign.svg" alt="2 ways to give 12 elements to 4 threads, shown as 3 steps. Top, chunks: in step 0 the 4 threads touch elements 0, 3, 6 and 9, spread over 40 bytes. Bottom, stride 4: in step 0 they touch elements 0 to 3, then 4 to 7, then 8 to 11, each step 16 neighbouring bytes. Colours mark threads 0 to 3.">
-<figcaption><b>Figure 14.6</b> 12 elements on 4 threads. Chunks spread the 4 accesses of each step over 40 bytes; a stride of 4 keeps them in 16 neighbouring bytes.</figcaption>
+<img src="../../figures/ch14-assign.svg" alt="2 ways to give 12 elements to 4 threads, shown as 3 steps. Top, chunks: in step 0 the 4 threads touch elements 0, 3, 6 and 9, spread over 40 bytes. Bottom, stride 4: in step 0 they touch elements 0 to 3, then 4 to 7, then 8 to 11, each step 16 neighboring bytes. Colors mark threads 0 to 3.">
+<figcaption><b>Figure 14.6</b> 12 elements on 4 threads. Chunks spread the 4 accesses of each step over 40 bytes; a stride of 4 keeps them in 16 neighboring bytes.</figcaption>
 </figure>
 
 | Thread \\(t\\) | Block, thread in block | Elements | Values of \\(y\\) after SAXPY |
@@ -1021,7 +1021,7 @@ program cannot write down the name of that type. In Rust, we therefore make the 
 a type parameter `F` with the bound `Fn(f32, f32) -> f32 + Copy`. The bound says that we can call a
 value of type `F` with 2 floats and get a float back, and that we can copy its values byte for
 byte. The compiler then generates a separate copy of the kernel for every closure type with which
-we launch it. This process is called **monomorphisation**. In C++, the kernel is a template,
+we launch it. This process is called **monomorphization**. In C++, the kernel is a template,
 `template <typename F>`, and the compiler instantiates it once for every lambda type in the same
 way. Inside each copy, the call `f(...)` calls one known function, so the compiler can place its
 body directly into the loop. This step is called **inlining**.
@@ -1128,7 +1128,7 @@ every kernel. Table 14.3 collects the times of both languages.
 
 Figure 14.11 plots the same rates. We draw 3 conclusions from them. First, the 2 languages run at
 the same speed, within the variation between runs. Second, the generic map with a closure or a
-lambda is as fast as the hand-written SAXPY kernel. Monomorphisation produced the same arithmetic on
+lambda is as fast as the hand-written SAXPY kernel. Monomorphization produced the same arithmetic on
 the same data, and the value of `a` arrives in a kernel parameter in both cases. Third, no kernel
 exceeds 93.1 GB/s, which is 91% of the 102 GB/s of the memory.
 
@@ -1316,7 +1316,7 @@ error[E0308]: mismatched types
 
 A closure that refers to a host variable makes the GPU read a host address. The Rust closure
 `move |x: f32, y: f32| x + y + host[0]`, with `let host = &x0;`, compiles, because a reference is
-`Copy`. On the measured GPU, the next synchronisation then reports
+`Copy`. On the measured GPU, the next synchronization then reports
 `Error: DriverError(700, "an illegal memory access was encountered")`. A C++ lambda that captures a
 host pointer by value, `[hp]`, compiles and fails with the same error. `nvcc` rejects a capture by
 reference outright.

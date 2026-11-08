@@ -1,8 +1,8 @@
-// Chapter 5, 5.5.1 - privatised histogram and spinlock, verbatim from the book.
+// Chapter 5, 5.5.1 - privatized histogram and spinlock, verbatim from the book.
 
 // Count how many elements fall into each of 256 bins.
 // data   : device array of unsigned char (0..255), n elements
-// hist   : device array of 256 ints, zero-initialised on the host
+// hist   : device array of 256 ints, zero-initialized on the host
 // bins   : the bin count, 256
 __global__ void histogram(const unsigned char* data, int* hist, int n)
 {
@@ -24,7 +24,7 @@ __global__ void lockedCriticalSection(float* g_data, int n)
 {
     __shared__ int s_lock;    // 0 = unlocked, 1 = locked
 
-    // Thread 0 initialises the lock. (Alternatively use a static initialiser.)
+    // Thread 0 initializes the lock. (Alternatively use a static initializer.)
     if (threadIdx.x == 0) s_lock = 0;
     __syncthreads();          // everyone must see the lock before using it
 

@@ -86,7 +86,7 @@ i = block_index × threads_per_block + thread_index
 Consider `N = 20` elements and blocks of 8 threads. The grid must contain at least 20 threads, so the number of blocks is 20 / 8 = 2.5 rounded up to 3, which gives 24 threads (figure 13.2).
 
 <figure>
-<img src="../../figures/ch13-finding-i.svg" alt="Three blocks of eight threads laid over 24 cells numbered 0 to 23. Above each cell is the thread's place in its block, 0 to 7. Cells 20 to 23 are dashed and grey because N is 20. Below, the formula i = block times 8 plus thread is worked for block 2, thread 3, giving 19, and for block 2, thread 4, giving 20, which is past the end so that thread does nothing.">
+<img src="../../figures/ch13-finding-i.svg" alt="Three blocks of eight threads laid over 24 cells numbered 0 to 23. Above each cell is the thread's place in its block, 0 to 7. Cells 20 to 23 are dashed and gray because N is 20. Below, the formula i = block times 8 plus thread is worked for block 2, thread 3, giving 19, and for block 2, thread 4, giving 20, which is past the end so that thread does nothing.">
 <figcaption><b>Figure 13.2</b> 3 blocks of 8 threads cover 20 elements. The last 4 threads fall past the end and must do nothing.</figcaption>
 </figure>
 
@@ -259,7 +259,7 @@ If 2 threads wrote the same element at the same time, the final value would depe
 `DisjointSlice` never gives a thread access to the whole slice. Instead, each thread may request exactly 1 element, the element at its own global index (figure 13.4).
 
 <figure>
-<img src="../../figures/ch13-disjoint.svg" alt="Eight threads t0 to t7 above six cells c[0] to c[5]. Threads 0 to 5 each have an arrow labelled Some down to their own cell. Threads 6 and 7 get None and skip the add. No two threads can hold the same cell.">
+<img src="../../figures/ch13-disjoint.svg" alt="Eight threads t0 to t7 above six cells c[0] to c[5]. Threads 0 to 5 each have an arrow labeled Some down to their own cell. Threads 6 and 7 get None and skip the add. No two threads can hold the same cell.">
 <figcaption><b>Figure 13.4</b> <code>get_mut</code> returns <code>Some</code> with the thread's own element, or <code>None</code> for a thread past the end.</figcaption>
 </figure>
 
@@ -334,7 +334,7 @@ int main()
 </div>
 
 - `CudaContext::new(0)` opens GPU number 0. A **context** holds all the state that the program owns on that GPU, including its memory allocations and its loaded code.
-- A **stream** is a queue of GPU work. Operations issued to the same stream are executed in the order in which they were issued. This ordering guarantees that the copy, the launch and the copy back happen in sequence without any explicit synchronisation.
+- A **stream** is a queue of GPU work. Operations issued to the same stream are executed in the order in which they were issued. This ordering guarantees that the copy, the launch and the copy back happen in sequence without any explicit synchronization.
 - `DeviceBuffer::from_host` allocates GPU memory and copies a slice into it. `DeviceBuffer::zeroed` allocates GPU memory and fills it with zeros. Each buffer frees its GPU memory when it is dropped, in the same way that a `Vec` frees its heap memory.
 
 ### Loading the module and launching the kernel

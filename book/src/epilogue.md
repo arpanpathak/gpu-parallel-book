@@ -7,17 +7,17 @@ describes where the field is heading.
 ## Hardware
 
 Each GPU generation moves the ridge point of Chapter 1: more FLOPs, more
-bandwidth, and increasingly specialised arithmetic. Tensor cores, introduced
+bandwidth, and increasingly specialized arithmetic. Tensor cores, introduced
 with Volta and central to AI workloads since, execute dense matrix
 multiplication in hardware instead of looping over CUDA cores. Hopper added the
 Tensor Memory Accelerator (TMA) for bulk asynchronous copies and thread-block
 clusters. Blackwell continues the trend. The memory hierarchy, the warp, and
 the SM from Chapter 2 still define the machine; the arithmetic units are
-becoming more specialised.
+becoming more specialized.
 
 The skills in this book are foundational. Tensor-core programming is still
 thread-block programming with a different instruction set. TMA is still
-coalescing expressed in bulk. When the next specialised unit appears, it will
+coalescing expressed in bulk. When the next specialized unit appears, it will
 fit the same model.
 
 ## Software
@@ -37,14 +37,14 @@ Three currents are visible:
   for GPU hosts.
 - **Libraries continue to absorb implementation work.** Every year more of the
   hard work moves into tuned libraries (Chapter 11). The engineers who use
-  those libraries effectively are not the ones who memorised the APIs; they are
+  those libraries effectively are not the ones who memorized the APIs; they are
   the ones who can read a profiler, explain why a kernel is memory-bound, and
   decide when a custom kernel is worth writing.
 
 ## The Discipline
 
 The most durable idea in this book is the loop of Chapter 25: measure, profile,
-hypothesise, change one thing, re-measure, and verify. Hardware changes,
+hypothesize, change one thing, re-measure, and verify. Hardware changes,
 languages change, and libraries change. The loop does not.
 
 ## The Invitation

@@ -1,12 +1,12 @@
-<img class="plate" src="../../art/ch19.svg" alt="Ripple, a crab, stands on the sand beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and coloured red; the other edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the steady temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says each cell becomes the mean of its 4 neighbours.">
+<img class="plate" src="../../art/ch19.svg" alt="Ripple, a crab, stands on the sand beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and colored red; the other edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the steady temperatures of a heated plate. 1 inner cell and its 4 neighbors are outlined in white. A tag says each cell becomes the mean of its 4 neighbors.">
 
 # Chapter 19: Stencils and Jacobi Iteration
 
 The temperature inside a heated plate, the electric potential between charged conductors and the
 pressure of a fluid at rest are all described by the same partial differential equation, the
 Laplace equation. A computer solves this equation on a grid of points. The value at each point is
-computed again and again from the values of its 4 neighbours, until the values stop changing. A
-computation in which every point of a grid is updated from a fixed pattern of neighbours is called
+computed again and again from the values of its 4 neighbors, until the values stop changing. A
+computation in which every point of a grid is updated from a fixed pattern of neighbors is called
 a stencil computation. Stencils are among the most common workloads of a GPU, because all points of
 a grid can be updated at the same time.
 
@@ -54,7 +54,7 @@ columns are numbered from 0 to 5, as shown in Figure 19.1. The cells on the edge
 known temperatures, and the 16 cells inside them are the unknowns that we want to compute.
 
 <figure>
-<img src="../../figures/ch19-plate.svg" alt="A 6 by 6 grid of cells. The 6 cells of row 0 hold 100 and are coloured red. The other edge cells, in column 0, column 5 and row 5, hold 0 and are coloured blue. The 16 cells of rows 1 to 4 and columns 1 to 4 hold question marks. A legend explains that the 20 edge cells are boundary cells with fixed values and the 16 inner cells are interior cells, the unknowns.">
+<img src="../../figures/ch19-plate.svg" alt="A 6 by 6 grid of cells. The 6 cells of row 0 hold 100 and are colored red. The other edge cells, in column 0, column 5 and row 5, hold 0 and are colored blue. The 16 cells of rows 1 to 4 and columns 1 to 4 hold question marks. A legend explains that the 20 edge cells are boundary cells with fixed values and the 16 inner cells are interior cells, the unknowns.">
 <figcaption><b>Figure 19.1</b> The 6 × 6 plate: 20 boundary cells with fixed temperatures and 16 interior cells to compute.</figcaption>
 </figure>
 
@@ -80,14 +80,14 @@ The grid is stored in **row-major order**: the 6 cells of row 0 come first, foll
 of row 1, then those of row 2, until row 5 ends the array. Before cell \\((r, c)\\) there are
 \\(r\\) complete rows of \\(W\\) cells each, followed by \\(c\\) cells of its own row, so cell
 \\((r, c)\\) is element \\(rW + c\\) of the array. For example, cell (2, 3) of our plate is element
-\\(2 \cdot 6 + 3 = 15\\). It follows that the 2 neighbours of a cell in the same row are 1 element
-away from it, at elements 14 and 16 in this example, while the 2 neighbours in the same column are
+\\(2 \cdot 6 + 3 = 15\\). It follows that the 2 neighbors of a cell in the same row are 1 element
+away from it, at elements 14 and 16 in this example, while the 2 neighbors in the same column are
 \\(W\\) elements away, at elements \\(15 - 6 = 9\\) and \\(15 + 6 = 21\\).
 
 ### 19.1.2 The rule for the final temperature
 
 Physics gives a simple rule that the final temperatures obey. At every interior cell, the
-temperature is the mean of the temperatures of its 4 neighbours:
+temperature is the mean of the temperatures of its 4 neighbors:
 
 \\[ u_{r,c} = \frac{1}{4} \left( u_{r-1,c} + u_{r+1,c} + u_{r,c-1} + u_{r,c+1} \right). \\]
 
@@ -96,19 +96,19 @@ temperature is the mean of the temperatures of its 4 neighbours:
 | \\(u_{r,c}\\) | final temperature of the cell in row \\(r\\), column \\(c\\) | \\(u_{1,1} = 45.45\\) |
 | \\(u_{r-1,c}\\), \\(u_{r+1,c}\\) | temperatures of the cells above and below | 100 and 22.35 |
 | \\(u_{r,c-1}\\), \\(u_{r,c+1}\\) | temperatures of the cells to the left and right | 0 and 59.47 |
-| \\(\frac{1}{4}\\) | weight of each neighbour; 4 weights of 1/4 form a mean | 0.25 |
+| \\(\frac{1}{4}\\) | weight of each neighbor; 4 weights of 1/4 form a mean | 0.25 |
 
 The reason for the rule is that heat flows from warm to cold. If a cell were warmer than the mean
-of its neighbours, it would lose more heat to them than it receives, and its temperature would
+of its neighbors, it would lose more heat to them than it receives, and its temperature would
 still be falling. If it were colder, it would still be rising. Only when every cell equals the mean
-of its neighbours does the temperature stop changing. We can check the rule on the answer. In
+of its neighbors does the temperature stop changing. We can check the rule on the answer. In
 Section 19.2, we compute the final temperatures of our plate, and there cell (1, 1) holds 45.45,
-while its neighbours hold 100 above, 22.35 below, 0 to the left and 59.47 to the right. Their mean
+while its neighbors hold 100 above, 22.35 below, 0 to the left and 59.47 to the right. Their mean
 is \\((100 + 22.35 + 0 + 59.47) / 4 = 181.82 / 4 = 45.45\\), which is the value of the cell itself,
 as Figure 19.2 shows.
 
 <figure>
-<img src="../../figures/ch19-stencil.svg" alt="Left: a cross of 5 cells, the centre (r, c) and its neighbours (r-1, c) above, (r+1, c) below, (r, c-1) to the left and (r, c+1) to the right, with weight 1/4 on each neighbour and 0 on the centre. Right: cell (1, 1) of the final plate: up 100, down 22.35, left 0, right 59.47, sum 181.82, times 1/4 gives 45.45, the value of the cell.">
+<img src="../../figures/ch19-stencil.svg" alt="Left: a cross of 5 cells, the center (r, c) and its neighbors (r-1, c) above, (r+1, c) below, (r, c-1) to the left and (r, c+1) to the right, with weight 1/4 on each neighbor and 0 on the center. Right: cell (1, 1) of the final plate: up 100, down 22.35, left 0, right 59.47, sum 181.82, times 1/4 gives 45.45, the value of the cell.">
 <figcaption><b>Figure 19.2</b> The 5-point stencil, checked on cell (1, 1) of the final plate.</figcaption>
 </figure>
 
@@ -125,14 +125,14 @@ derivatives of \\(u\\) along \\(x\\) and along \\(y\\) is 0 at every point insid
 | \\(\partial^2 u / \partial y^2\\) | the same along \\(y\\), from top to bottom | a difference of the cells above and below |
 
 A grid has no derivatives, only values at cells, so we approximate each second derivative by a
-difference of neighbouring values. Let \\(h\\) be the spacing between the centres of 2 neighbouring
+difference of neighboring values. Let \\(h\\) be the spacing between the centers of 2 neighboring
 cells. The second derivative along \\(x\\) at cell \\((r, c)\\) is approximated by the **finite
 difference**
 
 \\[ \frac{\partial^2 u}{\partial x^2} \approx \frac{u_{r,c+1} - 2u_{r,c} + u_{r,c-1}}{h^2}, \\]
 
 and the second derivative along \\(y\\) by the same expression with the cells above and below. The
-numerator compares the cell with its 2 neighbours in the row. It is 0 when the 3 values lie on a
+numerator compares the cell with its 2 neighbors in the row. It is 0 when the 3 values lie on a
 straight line, and it measures how far they bend away from one when they do not. We can test the
 approximation on a function whose second derivative we know. For \\(f(x) = x^2\\), whose second
 derivative is 2 everywhere, the difference at \\(x = 1\\) with \\(h = 1\\) uses \\(f(2) = 4\\),
@@ -145,15 +145,15 @@ Substituting both differences into the Laplace equation gives
 
 Multiplying by \\(h^2\\) removes the spacing, and moving the 4 terms \\(-2u_{r,c}\\) to the right
 gives \\(u_{r-1,c} + u_{r+1,c} + u_{r,c-1} + u_{r,c+1} = 4u_{r,c}\\). Dividing by 4 gives the rule
-above. Note that the spacing \\(h\\) has cancelled, so the rule is the same however finely we cut
+above. Note that the spacing \\(h\\) has canceled, so the rule is the same however finely we cut
 the plate.
 
 <div class="definition">
 
 <span class="box-label">Definition 19.2</span> **Stencil.** A **stencil** is a fixed pattern of
-neighbours, with a weight for each, from which a new value of a cell is computed. A **stencil
+neighbors, with a weight for each, from which a new value of a cell is computed. A **stencil
 computation** applies the same stencil to every interior cell of a grid. The **5-point stencil**
-uses a cell and its 4 neighbours in the same row and column, with weight 1/4 on each neighbour and
+uses a cell and its 4 neighbors in the same row and column, with weight 1/4 on each neighbor and
 0 on the cell itself.
 
 *Example.* Applied to cell (1, 1) of the final plate, the 5-point stencil gives 45.45 (Figure
@@ -162,7 +162,7 @@ uses a cell and its 4 neighbours in the same row and column, with weight 1/4 on 
 </div>
 
 The rule gives 1 equation for each of the 16 interior cells, and each equation contains up to 4
-unknowns. For cell (1, 1), whose upper and left neighbours are boundary cells with the known values
+unknowns. For cell (1, 1), whose upper and left neighbors are boundary cells with the known values
 100 and 0, the equation reads \\(u_{1,1} = (100 + u_{2,1} + 0 + u_{1,2}) / 4\\). A system of 16
 equations can be solved by elimination, as in a first course in linear algebra. A grid of
 4096 × 4096 cells, however, has 16.7 million interior cells, and elimination on a system of that
@@ -172,7 +172,7 @@ size needs far more memory and time than the iterative method of the next sectio
 
 Exercises
 
-19.1 Write the equation of the rule for cell (2, 3) of the plate. Which of its neighbours are
+19.1 Write the equation of the rule for cell (2, 3) of the plate. Which of its neighbors are
 boundary cells?<br>
 19.2 At which element of the array is cell (4, 1) stored, in row-major order with \\(W = 6\\)?<br>
 19.3 Apply the finite difference to \\(f(x) = x^3\\) at \\(x = 1\\) with \\(h = 1\\) and with
@@ -185,9 +185,9 @@ boundary cells?<br>
 ### 19.2.1 Jacobi iteration
 
 We do not know the final temperatures, but we do know a property that they have. Each interior
-value is the mean of its neighbours. Jacobi iteration turns this property into a procedure. It
-starts from a guess and replaces every interior value by the mean of its neighbours, again and
-again. If the guess is wrong, the replacement moves each value towards the mean of its neighbours,
+value is the mean of its neighbors. Jacobi iteration turns this property into a procedure. It
+starts from a guess and replaces every interior value by the mean of its neighbors, again and
+again. If the guess is wrong, the replacement moves each value toward the mean of its neighbors,
 and after many repetitions the values settle at the point where the replacement no longer changes
 them, which is exactly the final state.
 
@@ -221,20 +221,20 @@ starting grid, \\(u^{(1)}\\) the grid after 1 step, and \\(u^{(k)}_{r,c}\\) the 
 
 The method is named after Carl Gustav Jacob Jacobi. Let us carry out its first 2 steps by hand,
 starting from 0 in every interior cell. Before step 1, each of the 4 cells of row 1 has the hot
-boundary cell above it and 3 neighbours at 0, so it becomes \\((100 + 0 + 0 + 0) / 4 = 25\\). Each
-cell of rows 2 to 4 has only neighbours at 0, and it stays at 0.
+boundary cell above it and 3 neighbors at 0, so it becomes \\((100 + 0 + 0 + 0) / 4 = 25\\). Each
+cell of rows 2 to 4 has only neighbors at 0, and it stays at 0.
 
 In step 2, every cell again reads the values that the grid held before the step, which are now the
 values of step 1. Cell (1, 1) has 100 above it, 0 below, 0 to its left and 25 to its right, so it
 becomes \\(125 / 4 = 31.25\\). Cell (1, 2) has 25 on both sides and becomes
 \\((100 + 0 + 25 + 25) / 4 = 37.5\\). Each cell of row 2 has 25 above it and 0 elsewhere, so it
 becomes \\(25 / 4 = 6.25\\). After 2 steps, heat has therefore moved 2 rows into the plate, 1 row
-per step, because a cell learns only about its direct neighbours in each step. Figure 19.3 shows
+per step, because a cell learns only about its direct neighbors in each step. Figure 19.3 shows
 the 2 steps, together with the plate after 100 steps, when the values agree with the final
 temperatures to 2 decimal places.
 
 <figure>
-<img src="../../figures/ch19-steps.svg" alt="4 copies of the 6 by 6 plate coloured by temperature. Step 0: top row 100, all else 0. Step 1: the 4 cells of row 1 are 25. Step 2: row 1 reads 31.25, 37.5, 37.5, 31.25 and row 2 reads 6.25 in each of its 4 interior cells. Step 100: rows 1 to 4 read 45.45, 59.47, 59.47, 45.45 / 22.35, 32.95, 32.95, 22.35 / 10.98, 17.05, 17.05, 10.98 / 4.55, 7.20, 7.20, 4.55.">
+<img src="../../figures/ch19-steps.svg" alt="4 copies of the 6 by 6 plate colored by temperature. Step 0: top row 100, all else 0. Step 1: the 4 cells of row 1 are 25. Step 2: row 1 reads 31.25, 37.5, 37.5, 31.25 and row 2 reads 6.25 in each of its 4 interior cells. Step 100: rows 1 to 4 read 45.45, 59.47, 59.47, 45.45 / 22.35, 32.95, 32.95, 22.35 / 10.98, 17.05, 17.05, 10.98 / 4.55, 7.20, 7.20, 4.55.">
 <figcaption><b>Figure 19.3</b> Jacobi iteration on the plate: steps 0, 1, 2 and 100.</figcaption>
 </figure>
 
@@ -309,19 +309,19 @@ us run step 1 in this way on our plate, visiting the cells row by row, in the or
 Jacobi-Step.
 
 Cell (1, 1) is visited first and becomes \\((100 + 0 + 0 + 0) / 4 = 25\\), as before. Cell (1, 2)
-is visited next. Its left neighbour is cell (1, 1), which now holds the new value 25 rather than
+is visited next. Its left neighbor is cell (1, 1), which now holds the new value 25 rather than
 the old value 0, so cell (1, 2) becomes \\((100 + 0 + 25 + 0) / 4 = 31.25\\) instead of 25. The
 error then spreads to later cells. Cell (1, 3) reads 31.25 on its left and becomes 32.81, and cell
-(2, 1), whose upper neighbour already holds 25, becomes 6.25 instead of 0, as shown in Figure 19.4.
+(2, 1), whose upper neighbor already holds 25, becomes 6.25 instead of 0, as shown in Figure 19.4.
 
 <figure>
-<img src="../../figures/ch19-inplace.svg" alt="Left: cell (1, 2) in step 1 computed from the old grid, (100 + 0 + 0 + 0) / 4 = 25. Right: the same cell computed in place after cell (1, 1) was already overwritten with 25: (100 + 0 + 25 + 0) / 4 = 31.25. Below, a timeline of 2 threads: the thread of cell (1, 1) writes 25; the thread of cell (1, 2) then reads that 25 as its left neighbour.">
-<figcaption><b>Figure 19.4</b> In place, cell (1, 2) reads a neighbour that step 1 has already overwritten, and becomes 31.25 in place of 25.</figcaption>
+<img src="../../figures/ch19-inplace.svg" alt="Left: cell (1, 2) in step 1 computed from the old grid, (100 + 0 + 0 + 0) / 4 = 25. Right: the same cell computed in place after cell (1, 1) was already overwritten with 25: (100 + 0 + 25 + 0) / 4 = 31.25. Below, a timeline of 2 threads: the thread of cell (1, 1) writes 25; the thread of cell (1, 2) then reads that 25 as its left neighbor.">
+<figcaption><b>Figure 19.4</b> In place, cell (1, 2) reads a neighbor that step 1 has already overwritten, and becomes 31.25 in place of 25.</figcaption>
 </figure>
 
 On a CPU, the update in place gives another well-defined method, called Gauss-Seidel iteration,
 which also converges. On a GPU, however, it gives no well-defined method at all, because the cells
-are updated by different threads. The thread of cell (1, 2) may read its left neighbour before or
+are updated by different threads. The thread of cell (1, 2) may read its left neighbor before or
 after the thread of cell (1, 1) writes it, and the order is decided by how the hardware schedules
 the 2 threads. The result can be 25, 31.25, or a mixture of both across the grid, and it can change
 from run to run. We run this variant in Section 19.5.
@@ -424,16 +424,16 @@ block with \\(col \ge 6\\) or \\(row \ge 6\\) have no cell, and of the 36 thread
 cell, the 20 on the boundary have nothing to compute.
 
 We choose blocks that are 32 threads wide because the 32 threads of a warp then lie along 1 row of
-the grid. When they read their neighbours, they read 32 neighbouring values, 128 bytes, at the same
+the grid. When they read their neighbors, they read 32 neighboring values, 128 bytes, at the same
 time, and the hardware can serve such a read efficiently.
 
 <div class="definition">
 
 <span class="box-label">Definition 19.6</span> **Coalesced access.** Global memory moves data in
 **sectors** of 32 bytes (Chapter 7). A warp's access is **coalesced** when its 32 threads read
-neighbouring addresses, so that the 32 values arrive in as few sectors as possible.
+neighboring addresses, so that the 32 values arrive in as few sectors as possible.
 
-*Example.* A warp reading 32 neighbouring floats of a row, 128 bytes, needs 4 sectors when the row
+*Example.* A warp reading 32 neighboring floats of a row, 128 bytes, needs 4 sectors when the row
 segment starts at a multiple of 32 bytes. A warp reading 32 floats of a column needs 32 sectors.
 
 </div>
@@ -483,7 +483,7 @@ makes 4 reads from global memory and 1 write, and none of the values that it rea
 the same step.
 
 <figure>
-<img src="../../figures/ch19-thread.svg" alt="Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbours of cell (2, 2) are outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer b on the right, where cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.">
+<img src="../../figures/ch19-thread.svg" alt="Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbors of cell (2, 2) are outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer b on the right, where cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.">
 <figcaption><b>Figure 19.5</b> The work of 1 thread in step 2: 4 reads from buffer a, 1 write into buffer b.</figcaption>
 </figure>
 
@@ -524,7 +524,7 @@ in place, 4096 x 4096, run 3: 28464 of 16777216 cells differ from Jacobi after 1
 
 The number of wrong cells changes from run to run, as we predicted in Section 19.3. On the 6 × 6
 plate, the same launch printed the correct values of Figure 19.3. There, all 36 cells belong to 1
-block, and in our runs every thread of the block read its neighbours before any of them wrote.
+block, and in our runs every thread of the block read its neighbors before any of them wrote.
 Nothing in the hardware guarantees that order, however. A test on a small grid therefore cannot
 show the error. The error appears where 1 block reads cells that another block, running earlier or
 later, writes.
@@ -656,10 +656,10 @@ the 6 × 6 plate did not?
 
 Listing 19.1 shows the kernel in both languages. Each thread computes its position, which is line 1
 of Jacobi-Kernel, keeps only interior cells, which is line 2, and stores the mean of its 4
-neighbours, which is line 3. In the flat array, the cell itself is element `c = row * width + col`.
-Its neighbours above and below are \\(W\\) elements away, at `c - width` and `c + width`, and those
+neighbors, which is line 3. In the flat array, the cell itself is element `c = row * width + col`.
+Its neighbors above and below are \\(W\\) elements away, at `c - width` and `c + width`, and those
 to the left and right are at `c - 1` and `c + 1`. For cell (2, 2) of the plate, `c` is
-\\(2 \cdot 6 + 2 = 14\\), and the 4 neighbours are elements 8, 20, 13 and 15. Both versions add the
+\\(2 \cdot 6 + 2 = 14\\), and the 4 neighbors are elements 8, 20, 13 and 15. Both versions add the
 4 values in the same order and multiply by 0.25 last, as the CPU reference of the programs does,
 so that the GPU and the CPU round identically.
 
@@ -800,7 +800,7 @@ After 100 steps, the plate agrees with the final temperatures to 2 decimal place
 however, the final temperatures are not known in advance, so a solver must decide by itself when
 to stop. It does so by measuring how much a step still changes the grid. When a step hardly
 changes any value, the grid is close to the state in which every cell equals the mean of its
-neighbours.
+neighbors.
 
 <div class="definition">
 
@@ -846,10 +846,10 @@ After the first few steps, the change shrinks by the same factor in every step, 
 
 This factor can be predicted. Let the **error** of a grid be its difference from the final
 temperatures, cell by cell. A Jacobi step leaves the final temperatures unchanged, since each of
-them already equals the mean of its neighbours. A step therefore applies the same averaging to the
-error that it applies to the grid, and the error after a step is the mean of the neighbouring
+them already equals the mean of its neighbors. A step therefore applies the same averaging to the
+error that it applies to the grid, and the error after a step is the mean of the neighboring
 errors before it. An error pattern that varies quickly from cell to cell, for example \\(+1\\) and
-\\(-1\\) in alternating cells, is averaged away in a few steps, because neighbouring values cancel.
+\\(-1\\) in alternating cells, is averaged away in a few steps, because neighboring values cancel.
 The pattern that survives longest is the smoothest one that is 0 on the boundary, a single bump
 that is largest in the middle of the plate. On a grid whose cells are numbered 0 to \\(n\\) along
 each side, this pattern is
@@ -859,14 +859,14 @@ each side, this pattern is
 | Symbol | Meaning | On the 6 × 6 plate |
 |---|---|---|
 | \\(n\\) | number of the last row and column; the boundary lies at 0 and \\(n\\) | 5 |
-| \\(e_{r,c}\\) | error of cell \\((r, c)\\) in the slowest pattern | 0 on the boundary, largest in the centre |
+| \\(e_{r,c}\\) | error of cell \\((r, c)\\) in the slowest pattern | 0 on the boundary, largest in the center |
 | \\(\sin(\pi r / n)\\) | a half wave along the rows, 0 at \\(r = 0\\) and at \\(r = n\\) | \\(\sin(\pi/5) = 0.588\\) at \\(r = 1\\) |
 
-Let us apply 1 step to this pattern. The 2 neighbours of cell \\((r, c)\\) in its column hold
+Let us apply 1 step to this pattern. The 2 neighbors of cell \\((r, c)\\) in its column hold
 \\(\sin(\pi(r - 1)/n)\\) and \\(\sin(\pi(r + 1)/n)\\), each multiplied by the same column factor
 \\(\sin(\pi c / n)\\). By the identity \\(\sin(x - y) + \sin(x + y) = 2 \sin x \cos y\\), their sum
-is \\(2\cos(\pi/n)\\) times the value of the cell, and the same holds for the 2 neighbours in its
-row. The sum of the 4 neighbours is therefore \\(4\cos(\pi/n)\\) times the value of the cell, their
+is \\(2\cos(\pi/n)\\) times the value of the cell, and the same holds for the 2 neighbors in its
+row. The sum of the 4 neighbors is therefore \\(4\cos(\pi/n)\\) times the value of the cell, their
 mean is \\(\cos(\pi/n)\\) times that value, and 1 step multiplies the whole pattern by
 
 \\[ \rho = \cos\frac{\pi}{n}. \\]
@@ -1016,7 +1016,7 @@ which is 1.7 times the 102 GB/s that the memory can deliver at all. At most 102 
 requested bytes can therefore have come from memory, and at least \\(1 - 102/171 = 40\\%\\) of
 them must have come from the L1 and L2 caches, the on-chip memories that keep recently read values.
 
-The caches find those values because neighbouring threads read neighbouring rows, as Figure 19.11
+The caches find those values because neighboring threads read neighboring rows, as Figure 19.11
 shows. The 32 threads of a warp read 3 row segments of the old grid: the row above, their own row
 with 1 extra cell at each end, and the row below. The 8 warps of a block cover 8 consecutive rows,
 so the row above warp 1 is the row of warp 0, and the row below warp 1 is the row of warp 2. A
@@ -1028,7 +1028,7 @@ measured 1.966 ms.
 
 <figure>
 <img src="../../figures/ch19-warp-reads.svg" alt="A block of 32 by 8 threads drawn as 8 rows of a grid. For warp 3, its 3 row segments are highlighted: row 2 above, row 3 itself with 1 extra cell at each end, row 4 below. Rows 2 and 4 are the rows of warps 2 and 4. Brackets show that the block as a whole touches 10 rows of the old grid, its 8 rows and 1 on each side, so each old value is fetched from memory about 1.25 times per cell written.">
-<figcaption><b>Figure 19.11</b> The rows read by 1 warp are the rows of its neighbours: a block of 8 rows needs 10 rows of the old grid.</figcaption>
+<figcaption><b>Figure 19.11</b> The rows read by 1 warp are the rows of its neighbors: a block of 8 rows needs 10 rows of the old grid.</figcaption>
 </figure>
 
 The step is thus close to the best it can be. It moves about 9 bytes per cell where 8 are needed,
@@ -1081,7 +1081,7 @@ Section 19.8.3, how many old values a block reads per cell. Then measure.
 
 ## Common mistakes
 
-- **Updating the grid in place.** Threads then read neighbours that other threads have already
+- **Updating the grid in place.** Threads then read neighbors that other threads have already
   replaced, and the result depends on their timing. On a small grid inside 1 block, the error may
   not appear at all (Section 19.5.1). Use 2 buffers; in Rust, the safe launch path rejects the same
   buffer as both arguments.
@@ -1100,8 +1100,8 @@ Section 19.8.3, how many old values a block reads per cell. Then measure.
 ## Summary
 
 - The Laplace equation, written with finite differences, says that in the final state every
-  interior cell equals the mean of its 4 neighbours. This is the 5-point stencil.
-- Jacobi iteration replaces every interior value by the mean of its old neighbours. On the 6 × 6
+  interior cell equals the mean of its 4 neighbors. This is the 5-point stencil.
+- Jacobi iteration replaces every interior value by the mean of its old neighbors. On the 6 × 6
   plate, step 1 gives 25 in row 1, step 2 gives 31.25, 37.5 and 6.25, and 100 steps reach the final
   temperatures to 2 decimal places.
 - An update in place computes a different value, 31.25 instead of 25 at cell (1, 2) in step 1. On
@@ -1120,9 +1120,9 @@ Section 19.8.3, how many old values a block reads per cell. Then measure.
 ## Exercises
 
 1. Change the boundary of the plate so that the top edge is at 100 and the left edge at 50. Predict
-   the mean of the 4 centre cells at the final state from the symmetry of the problem, and check it
+   the mean of the 4 center cells at the final state from the symmetry of the problem, and check it
    with the programs.
-2. A 9-point stencil also uses the 4 diagonal neighbours. How many reads per cell does it request,
+2. A 9-point stencil also uses the 4 diagonal neighbors. How many reads per cell does it request,
    and how many old rows does a block of 32 × 8 threads touch? Predict its effective bandwidth from
    the measurements of Section 19.8.
 3. Write a kernel that computes the RMS change on the GPU with a block reduction (Chapter 15) and
@@ -1135,7 +1135,7 @@ Section 19.8.3, how many old values a block reads per cell. Then measure.
 ## Sources and further reading
 
 - R. J. LeVeque, *Finite Difference Methods for Ordinary and Partial Differential Equations*, SIAM,
-  2007. Chapters 2 and 3 derive the 5-point Laplacian and its error; chapter 4 analyses Jacobi
+  2007. Chapters 2 and 3 derive the 5-point Laplacian and its error; chapter 4 analyzes Jacobi
   iteration and its convergence factor.
 - Y. Saad, *Iterative Methods for Sparse Linear Systems*, 2nd edition, SIAM, 2003. Jacobi and
   Gauss-Seidel iteration and their convergence.

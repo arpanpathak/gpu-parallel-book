@@ -578,7 +578,7 @@ ways in which data reaches a kernel, according to when the bytes move.
 
 ## 4.7 Choosing a kind of memory
 
-The table summarises the choice of memory for common situations.
+The table summarizes the choice of memory for common situations.
 
 | Situation | Choice | Reason |
 |---|---|---|

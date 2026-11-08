@@ -55,7 +55,7 @@ reduction. **GEMM** (general matrix multiply) is the matrix product \\(C = AB\\)
 and **SGEMM** is its single-precision version, on floats. **Temporary storage**, also called
 scratch memory, is device memory that an algorithm needs only while it runs. For example, a
 sum of 1,024 blocks writes 1 partial sum per block, 1,024 floats or 4 KiB, which the final step
-adds and which are not needed afterwards. A **header** is a source file that a program includes
+adds and which are not needed afterward. A **header** is a source file that a program includes
 with `#include`, and a **link flag** such as `-lcublas` tells the linker to add a compiled
 library file to the executable.
 
@@ -150,7 +150,7 @@ thrust::reduce(policy, first, last, initial value)
 
 The phrase "in any order" matters, and a small example shows why. Take the 8 values 3, 1, 2, 0,
 1, 2, 0, 1. A sequential loop adds them from left to right: 3, 4, 6, 6, 7, 9, 9, 10. A **tree**
-reduction, as in the kernels of Chapter 8, adds neighbouring pairs in rounds. Round 1 gives 3 +
+reduction, as in the kernels of Chapter 8, adds neighboring pairs in rounds. Round 1 gives 3 +
 1 = 4, 2 + 0 = 2, 1 + 2 = 3 and 0 + 1 = 1; round 2 gives 4 + 2 = 6 and 3 + 1 = 4; round 3 gives
 6 + 4 = 10. Both orders reach 10, but the tree takes 3 rounds instead of 7 steps, and the 4
 additions of round 1 can run at the same time on 4 threads. With integers the order makes no
@@ -482,7 +482,7 @@ Worked example: 53, 21, 37, 28, 15, 31
 </div>
 
 <figure>
-<img src="../../figures/ch11-radix.svg" alt="2 passes of a radix sort on the keys 53, 21, 37, 28, 15, 31. Each pass shows 3 rows. Pass 1, by the ones digit: the keys coloured by their digit; a histogram row of counts for digits 0 to 9, 0 2 0 1 0 1 0 1 1 0; the exclusive scan of the counts, 0 0 2 2 3 3 4 4 5 6; and the output 21 31 53 15 37 28 in groups of colour. Pass 2, by the tens digit: counts 0 1 2 2 0 1 and starts 0 0 1 3 5 5, and the sorted output 15 21 28 31 37 53.">
+<img src="../../figures/ch11-radix.svg" alt="2 passes of a radix sort on the keys 53, 21, 37, 28, 15, 31. Each pass shows 3 rows. Pass 1, by the ones digit: the keys colored by their digit; a histogram row of counts for digits 0 to 9, 0 2 0 1 0 1 0 1 1 0; the exclusive scan of the counts, 0 0 2 2 3 3 4 4 5 6; and the output 21 31 53 15 37 28 in groups of color. Pass 2, by the tens digit: counts 0 1 2 2 0 1 and starts 0 0 1 3 5 5, and the sorted output 15 21 28 31 37 53.">
 <figcaption><b>Figure 11.3</b> A radix sort. Each pass consists of a histogram, an exclusive scan and a stable scatter.</figcaption>
 </figure>
 
@@ -1135,7 +1135,7 @@ value in FP32. A sum of 4,096 such products carries this error into each element
 result.
 
 <figure>
-<img src="../../figures/ch11-tf32.svg" alt="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
+<img src="../../figures/ch11-tf32.svg" alt="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 grayed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
 <figcaption><b>Figure 11.7</b> TF32 keeps the range of FP32 and 10 of its 23 mantissa bits. The measured SGEMM ran 4.3 times as fast with 210 times the error.</figcaption>
 </figure>
 
@@ -1283,7 +1283,7 @@ PASSED
 ```
 
 <figure>
-<img src="../../figures/ch11-spectrum.svg" alt="Left: the first 128 samples of the signal sin(50 t) + 0.5 sin(120 t), a fast wobble on a slower wave. An arrow labelled cufftExecR2C leads right to the spectrum: 513 frequencies along the bottom, all 0 except a bar of height 512 at frequency 50 and a bar of height 256 at frequency 120.">
+<img src="../../figures/ch11-spectrum.svg" alt="Left: the first 128 samples of the signal sin(50 t) + 0.5 sin(120 t), a fast wobble on a slower wave. An arrow labeled cufftExecR2C leads right to the spectrum: 513 frequencies along the bottom, all 0 except a bar of height 512 at frequency 50 and a bar of height 256 at frequency 120.">
 <figcaption><b>Figure 11.8</b> 1,024 samples in, 513 frequencies out, with peaks at 50 and 120.</figcaption>
 </figure>
 
@@ -1340,7 +1340,7 @@ avoid the second pass, because no element can be scaled before the largest value
 so it would save nothing.
 
 **A 7-point blur of each frame of a video** reads 3 neighbors on each side of every pixel. A
-computation in which each output is computed from a fixed pattern of neighbouring inputs is
+computation in which each output is computed from a fixed pattern of neighboring inputs is
 called a **stencil**, and the inputs that a tile of outputs needs from beyond its own edges are
 its **halo**. For a row of 256 pixels, the blur needs 3 more pixels on each side, 262 in all. No
 library call fits a stencil with a halo of neighbors, so the blur requires a custom kernel.

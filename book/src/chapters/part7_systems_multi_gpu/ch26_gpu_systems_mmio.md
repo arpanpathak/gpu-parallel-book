@@ -196,7 +196,7 @@ $ lspci -nn                                           # Jetson AGX Thor
 The table puts the 7 GPUs of the earlier chapters side by side. The link column is the path
 between the CPU and the GPU, with the bandwidth of section 4.1.3. The last column names kinds of
 DRAM: LPDDR is built for low power and is used in mobile and embedded chips, while GDDR and HBM
-are built for high bandwidth and are used on graphics cards and data-centre GPUs.
+are built for high bandwidth and are used on graphics cards and data-center GPUs.
 
 | GPU | Attached by | Bandwidth each way | GPU memory |
 |---|---|---|---|
@@ -298,7 +298,7 @@ effects in section 26.3.1. An **interrupt** is a signal from a device that makes
 current work and run a routine of the driver; we return to them in section 26.7.
 
 <figure>
-<img src="../../figures/ch26-config.svg" alt="A grid of 64 bytes in 4 rows of 16, read without root from the PCIe-function GPU's configuration space. Coloured fields: bytes 0 to 3, de 10 00 2b, vendor 0x10de and device 0x2b00; bytes 4 and 5, 06 04, command 0x0406 with memory space and bus master enabled; bytes 9 to 11, 00 02 03, class 3D controller; bytes 16 to 23, 0c 00 00 c0 d0 00 00 00, BAR0 = 0xd0c000000c, address 0xd0c0000000; byte 52, 40, the capability pointer; byte 61, 01, interrupt pin A.">
+<img src="../../figures/ch26-config.svg" alt="A grid of 64 bytes in 4 rows of 16, read without root from the PCIe-function GPU's configuration space. Colored fields: bytes 0 to 3, de 10 00 2b, vendor 0x10de and device 0x2b00; bytes 4 and 5, 06 04, command 0x0406 with memory space and bus master enabled; bytes 9 to 11, 00 02 03, class 3D controller; bytes 16 to 23, 0c 00 00 c0 d0 00 00 00, BAR0 = 0xd0c000000c, address 0xd0c0000000; byte 52, 40, the capability pointer; byte 61, 01, interrupt pin A.">
 <figcaption><b>Figure 26.3</b> The configuration header of the PCIe-function GPU, byte by byte.</figcaption>
 </figure>
 
@@ -328,7 +328,7 @@ Worked example: decoding the configuration header
 2. **Command**, bytes 4 and 5: 0x0406 = binary 0000 0100 0000 0110. Bit 1 lets the function
    answer memory transactions (its BARs are live). Bit 2 lets it start transactions of its own
    (it may read and write memory: DMA, section 26.5). Bit 10 switches off the old interrupt
-   wire in favour of messages (section 26.7).
+   wire in favor of messages (section 26.7).
 3. **Class**, bytes 9 to 11: programming interface 0x00, subclass 0x02, class 0x03. Class 3 is
    "display controller" and subclass 2 is "3D controller", a GPU with no display output.
 4. **BAR0**, bytes 16 to 23: the 8 bytes read low first are 0x0000_00d0_c000_000c. Its low 4
@@ -436,7 +436,7 @@ NVIDIA's open-source kernel driver describes the windows of its GPUs. **BAR0** h
 registers. **BAR1** is a window onto the GPU's own memory, through which the CPU can read
 and write device memory with loads and stores. On consumer cards BAR1 has traditionally been
 256 MiB, a small sliding view of the whole memory. With **Resizable BAR**, a PCIe feature that
-lets the system grow a BAR at boot, it can cover all of the memory. Data-centre GPUs such as
+lets the system grow a BAR at boot, it can cover all of the memory. Data-center GPUs such as
 the A100 and the H100 offer a BAR1 at least as large as their memory.
 
 The PCIe-function GPU has only BAR0, 16 MiB of registers. It has no memory of its own to
@@ -466,7 +466,7 @@ be cleared, and the driver would never see the event at all.
 
 A processor keeps copies of memory in its **caches**, small fast memories near the core, and it
 performs **speculative reads**: loads issued ahead of a program, on a guess that the program will
-need the data soon. Both behaviours are wrong for a device, as the example shows: a cached copy
+need the data soon. Both behaviors are wrong for a device, as the example shows: a cached copy
 of a status register goes stale, and a load that the processor issued early may trigger a side
 effect the program never asked for. Every page in a program's address space therefore carries a
 **memory type** in its **page-table entry**, the record of the page table that holds the page's
@@ -485,8 +485,8 @@ accesses, and that a write may be acknowledged early (E), before it reaches the 
 buffer** is the memory that holds the image shown on a display.
 
 **Write-combining** memory is not cached, but the processor may gather several stores to
-neighbouring addresses in a small buffer and send them as 1 larger transaction. For example, 16
-stores of 4 bytes to the addresses 0x1000, 0x1004, ..., 0x103C fill 64 neighbouring bytes. Without
+neighboring addresses in a small buffer and send them as 1 larger transaction. For example, 16
+stores of 4 bytes to the addresses 0x1000, 0x1004, ..., 0x103C fill 64 neighboring bytes. Without
 combining they leave the core as 16 transactions of 4 bytes; with combining they leave as 1
 transaction of 64 bytes. A program that fills a frame buffer or a command buffer with a stream of
 stores runs much faster that way. Device memory forbids even that. Each store reaches the device
@@ -921,7 +921,7 @@ slots had to be atomics. The broken program is nevertheless free of data races i
 and it still loses entries. The compiler can
 prove that every access is safe, but not that the protocol, entry first and doorbell second, is
 followed. The C++ version is worse off. There the swap also creates a data race, and its
-behaviour is **undefined**: the language does not specify what the program does. In a driver, the same mistake causes the GPU to execute stale
+behavior is **undefined**: the language does not specify what the program does. In a driver, the same mistake causes the GPU to execute stale
 commands, rarely and usually under load.
 
 <div class="bee bee-angry" markdown="1">
@@ -996,7 +996,7 @@ kernel.
 </div>
 
 <figure>
-<img src="../../figures/ch26-iommu.svg" alt="3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighbouring 4 KiB pages; the SMMU page table maps page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.">
+<img src="../../figures/ch26-iommu.svg" alt="3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighboring 4 KiB pages; the SMMU page table maps page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.">
 <figcaption><b>Figure 26.9</b> An IOMMU translates and checks each page a device touches (example addresses).</figcaption>
 </figure>
 
@@ -1098,7 +1098,7 @@ event, such as a finished copy or a fault, and the CPU stops what it is doing to
 **handler**, the routine of the driver that deals with the event. The **interrupt controller** is
 the unit that collects the interrupts of all devices and delivers them to the CPU cores. The
 platform-device GPU uses wires into the interrupt controller, named in its device tree; the
-PCIe-function GPU sends **MSI** (message-signalled interrupts), which are memory writes to a
+PCIe-function GPU sends **MSI** (message-signaled interrupts), which are memory writes to a
 special address, so they need no wire.
 
 The device tree of the platform-device GPU gives it 4 interrupts, numbered 0x44, 0x46, 0x47 and

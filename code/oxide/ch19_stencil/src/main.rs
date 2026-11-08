@@ -20,7 +20,7 @@ type Error = Box<dyn std::error::Error>;
 mod kernels {
     use super::*;
 
-    /// 1 Jacobi step: each interior cell of `new` gets the mean of 4 neighbours in `old`.
+    /// 1 Jacobi step: each interior cell of `new` gets the mean of 4 neighbors in `old`.
     #[kernel]
     #[launch_contract(domain = 2, block = (32, 8, 1))]
     pub fn jacobi(old: &[f32], mut new: DisjointSlice<f32, Runtime2DIndex>) {

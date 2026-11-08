@@ -223,7 +223,7 @@ mod kernels {
 </div>
 </div>
 
-In every pass of the loop, neighbouring threads read neighbouring floats, so the loads of each
+In every pass of the loop, neighboring threads read neighboring floats, so the loads of each
 warp are coalesced. The loads of different passes do not depend on each other, so a thread can
 have several of them in flight while the memory serves them.
 
@@ -657,7 +657,7 @@ between 96 and 128 GB/s.
 
 ## 8.8 Histogram with wide loads
 
-In Chapter 5, section 5.5.2, we privatised a histogram of bytes. Each block counts into 256 bins
+In Chapter 5, section 5.5.2, we privatized a histogram of bytes. Each block counts into 256 bins
 in shared memory and adds them to the global bins once. This made the kernel 6 to 28 times as fast
 as the version with global atomics. Measured as a bandwidth, however, its speed was still low.
 Listing 5.7, run here as `histBytes`, read 64 MiB at 13.7 GB/s on the first GPU, 13% of the
@@ -766,8 +766,8 @@ provided the rest of the gain.
 
 <div class="bee bee-angry" markdown="1">
 
-Measure before optimising. The histogram was limited by its loads, not by the contention that
-privatisation was designed to avoid.
+Measure before optimizing. The histogram was limited by its loads, not by the contention that
+privatization was designed to avoid.
 
 </div>
 
@@ -782,7 +782,7 @@ privatisation was designed to avoid.
 The three kernels follow the same method. Each does as much of the work as possible in registers,
 combines values within a warp by shuffles, and then combines the warps of a block through shared
 memory. It combines results across blocks only once, through global memory or a second launch.
-Each optimisation was kept only when a measurement showed that it removed a cost.
+Each optimization was kept only when a measurement showed that it removed a cost.
 
 ## 8.10 The complete programs
 
@@ -837,7 +837,7 @@ Each optimisation was kept only when a measurement showed that it removed a cost
   bits on every run.
 - A scan within a warp takes 5 shuffle steps. A scan of many blocks scans the blocks, scans their
   totals, and adds the offsets, and it moves the output twice.
-- The privatised histogram of Chapter 5 was limited by its 1-byte loads; 16-byte loads made it
+- The privatized histogram of Chapter 5 was limited by its 1-byte loads; 16-byte loads made it
   3.8 to 6.1 times as fast.
 
 </div>

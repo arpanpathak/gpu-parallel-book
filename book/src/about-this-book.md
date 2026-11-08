@@ -14,7 +14,7 @@ The GPU is the clearest example of that change. A CPU has a few large cores, eac
 to finish one sequence of instructions as quickly as possible. A GPU has thousands of small
 arithmetic units and keeps tens of thousands of threads ready to run, and it is designed to
 finish a great many independent pieces of work in the same time. GPUs were first built to
-colour the pixels of a screen, a task made of millions of independent pieces. The same
+color the pixels of a screen, a task made of millions of independent pieces. The same
 design now runs scientific simulations, trains and serves machine-learning models, and
 processes images and signals.
 
@@ -32,7 +32,7 @@ This book covers the hardware model, the CUDA C++ programming model, and the C++
 
 ## What You Will Build
 
-Every chapter builds toward one project: **a complete GPU image-processing pipeline** - read an image, convert it to greyscale, apply a separable Gaussian blur, run a Sobel edge detector, and write the result - implemented three times:
+Every chapter builds toward one project: **a complete GPU image-processing pipeline** - read an image, convert it to grayscale, apply a separable Gaussian blur, run a Sobel edge detector, and write the result - implemented three times:
 
 1. in **CUDA C++** with hand-written, fully commented kernels;
 2. with the **Thrust/CUB/cuBLAS** library ecosystem;
@@ -45,7 +45,7 @@ You will build the same kind of pipeline a camera vendor would ship: pinned-memo
 You should read this book if:
 
 - You can write C++ or Rust, but every GPU program you have written so far was a library call you did not fully understand.
-- You have launched a kernel, seen it produce garbage, and had no idea whether the bug was in your index arithmetic, your memory layout, or your synchronisation.
+- You have launched a kernel, seen it produce garbage, and had no idea whether the bug was in your index arithmetic, your memory layout, or your synchronization.
 - You suspect that most GPU tutorials skip the hardware model and want to understand the primitives - the warp, the streaming multiprocessor, the memory hierarchy - before touching a single CUDA API.
 - You write Rust and want to know what CUDA-Oxide changes, and what it does not.
 - You do not own a GPU and want to learn on the free compute that the cloud gives away (see the next section).
@@ -71,13 +71,13 @@ Credit amounts and session limits change frequently; check the current terms bef
 
 ## The Structure
 
-The book is organised into six parts:
+The book is organized into six parts:
 
 **Part I - Foundations of GPU Computing** (Chapters 1-3) covers the mathematics of parallelism, the GPU hardware model, and the CUDA programming model. Read this part carefully; every later chapter assumes the primitives defined here.
 
-**Part II - Writing CUDA C++ Kernels** (Chapters 4-6) covers memory management, synchronisation, atomics, and asynchronous execution with streams and events.
+**Part II - Writing CUDA C++ Kernels** (Chapters 4-6) covers memory management, synchronization, atomics, and asynchronous execution with streams and events.
 
-**Part III - Optimisation & Advanced Patterns** (Chapters 7-9) covers memory optimisation, the canonical parallel algorithms (reduction, scan, histogram), and a complete, step-by-step optimisation of matrix multiplication.
+**Part III - Optimization & Advanced Patterns** (Chapters 7-9) covers memory optimization, the canonical parallel algorithms (reduction, scan, histogram), and a complete, step-by-step optimization of matrix multiplication.
 
 **Part IV - Modern C++ & The CUDA Ecosystem** (Chapters 10-12) covers RAII wrappers, templates and modern C++ idioms, the Thrust/CUB/cuBLAS libraries, and runtime compilation with NVRTC.
 

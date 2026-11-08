@@ -138,8 +138,8 @@ by \\(8 + 1 = 9\\) values, and since locations are numbered from 0, it is stored
 \\(2 \cdot 4 + 1 = 9\\).
 
 <figure>
-<img src="../../figures/ch16-rowmajor.svg" alt="Top: A as a 4 by 4 grid, 1 colour per row; the entry 10 in row 2, column 1 is outlined. A note reads: row 2, column 1 is stored at location 2 times 4 plus 1 = 9. Bottom: the same 16 values in memory, locations 0 to 15, row 0 at 0 to 3, row 1 at 4 to 7, row 2 at 8 to 11 and row 3 at 12 to 15. The value 10 is outlined at location 9.">
-<figcaption><b>Figure 16.2</b> Matrix A in row-major order, 1 colour per row. Entry 10, in row 2 and column 1, lands at location 2 · 4 + 1 = 9.</figcaption>
+<img src="../../figures/ch16-rowmajor.svg" alt="Top: A as a 4 by 4 grid, 1 color per row; the entry 10 in row 2, column 1 is outlined. A note reads: row 2, column 1 is stored at location 2 times 4 plus 1 = 9. Bottom: the same 16 values in memory, locations 0 to 15, row 0 at 0 to 3, row 1 at 4 to 7, row 2 at 8 to 11 and row 3 at 12 to 15. The value 10 is outlined at location 9.">
+<figcaption><b>Figure 16.2</b> Matrix A in row-major order, 1 color per row. Entry 10, in row 2 and column 1, lands at location 2 · 4 + 1 = 9.</figcaption>
 </figure>
 
 In general, to find the entry in row \\(r\\) and column \\(c\\), we skip the \\(r\\) complete rows
@@ -167,8 +167,8 @@ The number \\(W\\) is called the **row width** of the matrix.
 | \\(W\\) | row width, the number of entries in each row | 4 |
 | \\(r \cdot W + c\\) | location of the entry in memory | \\(2 \cdot 4 + 1 = 9\\) |
 
-Row-major order has a consequence that we use often in the later chapters. Neighbours in a row
-are neighbours in memory, while neighbours in a column lie \\(W\\) locations apart. For example,
+Row-major order has a consequence that we use often in the later chapters. Neighbors in a row
+are neighbors in memory, while neighbors in a column lie \\(W\\) locations apart. For example,
 \\(a_{21} = 10\\) and \\(a_{22} = 11\\) are stored at locations 9 and 10, whereas \\(a_{21} = 10\\)
 and \\(a_{31} = 14\\) are stored at locations 9 and 13. In the product, matrix \\(A\\) has rows of
 width \\(K\\), and matrices \\(B\\) and \\(C\\) have rows of width \\(N\\). Therefore, entry
@@ -299,8 +299,8 @@ wait for one another. The **grid** is the set of all blocks of 1 launch.
 </div>
 
 <figure>
-<img src="../../figures/ch16-grid.svg" alt="A grid of 2 by 2 blocks over the 4 by 4 matrix C, 1 colour per block: block (0, 0) lavender, (0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labelled (ty, tx) from (0, 0) to (1, 1). Thread (1, 0) of block (0, 1) is outlined. The panel on the right: the block covers rows 0 to 1 and columns 2 to 3; row = 0 times 2 + 1 = 1, col = 1 times 2 + 0 = 2, so the thread computes c12 = 24.">
-<figcaption><b>Figure 16.5</b> A grid of 2 × 2 blocks of 2 × 2 threads over C, 1 colour per block. Thread (1, 0) of block (0, 1) computes c<sub>12</sub>.</figcaption>
+<img src="../../figures/ch16-grid.svg" alt="A grid of 2 by 2 blocks over the 4 by 4 matrix C, 1 color per block: block (0, 0) lavender, (0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labeled (ty, tx) from (0, 0) to (1, 1). Thread (1, 0) of block (0, 1) is outlined. The panel on the right: the block covers rows 0 to 1 and columns 2 to 3; row = 0 times 2 + 1 = 1, col = 1 times 2 + 0 = 2, so the thread computes c12 = 24.">
+<figcaption><b>Figure 16.5</b> A grid of 2 × 2 blocks of 2 × 2 threads over C, 1 color per block. Thread (1, 0) of block (0, 1) computes c<sub>12</sub>.</figcaption>
 </figure>
 
 Blocks and grids can extend along 1, 2 or 3 axes, named \\(x\\), \\(y\\) and \\(z\\), and we choose
@@ -330,7 +330,7 @@ handles element
 | \\(i\\) | element that the thread handles | \\(2 \cdot 4 + 1 = 9\\) |
 
 <figure>
-<img src="../../figures/ch16-1d.svg" alt="12 elements in 3 blocks of 4 threads, 1 colour per block. Each block's threads are labelled t0 to t3, and below them the element index i runs from 0 to 11. Thread 1 of block 2 is outlined, above i = 9, and a line reads: block 2, thread 1: i = 2 times 4 plus 1 = 9.">
+<img src="../../figures/ch16-1d.svg" alt="12 elements in 3 blocks of 4 threads, 1 color per block. Each block's threads are labeled t0 to t3, and below them the element index i runs from 0 to 11. Thread 1 of block 2 is outlined, above i = 9, and a line reads: block 2, thread 1: i = 2 times 4 plus 1 = 9.">
 <figcaption><b>Figure 16.6</b> 1 dimension: 12 elements in 3 blocks of 4 threads. Thread 1 of block 2 handles element 2 · 4 + 1 = 9.</figcaption>
 </figure>
 
@@ -396,11 +396,11 @@ to \\((1, 15)\\) form warp 0.
 
 </div>
 
-Since \\(x\\) runs along the columns, the threads of a warp compute neighbouring entries of a row
+Since \\(x\\) runs along the columns, the threads of a warp compute neighboring entries of a row
 of \\(C\\). For example, the 16 threads \\((0, 0)\\) to \\((0, 15)\\) of warp 0 compute 16
-neighbouring entries of 1 row of \\(C\\). At each step of the dot product, these threads read the
-same entry of \\(A\\) and 16 neighbouring entries of a row of \\(B\\), which lie next to each other
-in memory by Definition 16.2. The memory delivers such neighbouring values together, in 1
+neighboring entries of 1 row of \\(C\\). At each step of the dot product, these threads read the
+same entry of \\(A\\) and 16 neighboring entries of a row of \\(B\\), which lie next to each other
+in memory by Definition 16.2. The memory delivers such neighboring values together, in 1
 transaction. In Section 9.3, we measured the opposite choice, with \\(x\\) along the rows, and
 found it to be 5.4 times slower.
 
@@ -424,7 +424,7 @@ threads. Here, we write positions in the order \\((x, y, z)\\). Thread \\((1, 0,
 | \\(x\\) | position of the thread in the volume along \\(x\\) | \\(1 \cdot 2 + 1 = 3\\) |
 
 <figure>
-<img src="../../figures/ch16-3d.svg" alt="A box of 4 by 2 by 4 cells drawn in perspective, cut into 4 blocks of 2 by 2 by 2 threads, 1 colour per block. Axes: x to the right, y downwards, z into the page. The cell of thread (1, 0, 0) in block (1, 0, 1) is outlined on the top and right faces. The text computes its position: x = 1 times 2 + 1 = 3, y = 0 times 2 + 0 = 0, z = 1 times 2 + 0 = 2.">
+<img src="../../figures/ch16-3d.svg" alt="A box of 4 by 2 by 4 cells drawn in perspective, cut into 4 blocks of 2 by 2 by 2 threads, 1 color per block. Axes: x to the right, y downwards, z into the page. The cell of thread (1, 0, 0) in block (1, 0, 1) is outlined on the top and right faces. The text computes its position: x = 1 times 2 + 1 = 3, y = 0 times 2 + 0 = 0, z = 1 times 2 + 0 = 2.">
 <figcaption><b>Figure 16.7</b> 3 dimensions: a 4 × 2 × 4 volume in 4 blocks of 2 × 2 × 2 threads. Thread (1, 0, 0) of block (1, 0, 1) sits at x = 3, y = 0, z = 2.</figcaption>
 </figure>
 
@@ -1082,7 +1082,7 @@ kernel requested \\(2 \cdot 4{,}096^3 \cdot 4\\) bytes, or 550 GB, in 0.743 s, w
 102 GB/s, at least \\(1 - 102/740 = 86\\%\\) of the requested fetches must have been answered by
 the L1 and L2 caches. The repeated fetches of Figure 16.12 happen close together in time. The 16
 threads of a warp that share a row of \\(C\\) request the same value of \\(A\\) in the same
-instruction, and the hardware delivers that value once to all of them. In addition, neighbouring
+instruction, and the hardware delivers that value once to all of them. In addition, neighboring
 blocks request the same rows and columns shortly after one another. The caches therefore recover
 much of the reuse, but only because the requests happen to be close in time, and the kernel spends
 the remaining time waiting for memory. The kernel is thus limited by how fast the memory system
@@ -1092,7 +1092,7 @@ The `f64` kernel ran at 35.2 GFLOP/s. The measured GPU reports a ratio of 32 bet
 FP64 rates, so its FP64 peak is \\(2{,}400 / 32 = 75\\) GFLOP/s, and the `f64` kernel reached 47%
 of that peak, compared with 7.7% for `f32`. Its operands are twice as large, and it requested
 282 GB/s, but on this GPU, the small number of FP64 units, not the memory, sets its speed. On a
-data-centre GPU with an FP32:FP64 ratio of 2, the `f64` kernel would be limited by memory, like
+data-center GPU with an FP32:FP64 ratio of 2, the `f64` kernel would be limited by memory, like
 the `f32` kernel.
 
 The two languages agree at 512 × 512 and in double precision. From 1,024 × 1,024 upwards, however,

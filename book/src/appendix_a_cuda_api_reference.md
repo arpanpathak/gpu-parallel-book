@@ -39,15 +39,15 @@ NVRTC lookup (Chapters 12, 13).
 | Type | Bytes | Alignment | Notes |
 |---|---|---|---|
 | `uchar3` | 3 | 1 | RGB pixels; no padding (Chapter 15) |
-| `float2`, `float4` | 8, 16 | 4, 16 | Vectorised loads (Chapter 7, §7.6) |
-| `int2`, `int4`, `double2`, `uint4` | 8/16/16/16 | as size | Same vectorisation rules |
+| `float2`, `float4` | 8, 16 | 4, 16 | Vectorized loads (Chapter 7, §7.6) |
+| `int2`, `int4`, `double2`, `uint4` | 8/16/16/16 | as size | Same vectorization rules |
 | `size_t` | platform | - | Byte sizes; use instead of `int` (Chapter 3) |
 
-Vectorised accesses require alignment to the vector size.
+Vectorized accesses require alignment to the vector size.
 
 ## A.4 Memory Management
 
-| Function | Behaviour | Chapter |
+| Function | Behavior | Chapter |
 |---|---|---|
 | `cudaMalloc(void** p, size_t n)` | Allocate `n` bytes in device global memory | 3 |
 | `cudaFree(void* p)` | Free a device allocation | 3 |
@@ -63,7 +63,7 @@ Vectorised accesses require alignment to the vector size.
 
 Memory kinds and when to use each: Chapter 4, §4.7.
 
-## A.5 Synchronisation and Memory Ordering
+## A.5 Synchronization and Memory Ordering
 
 | Primitive | Meaning | Chapter |
 |---|---|---|
@@ -79,7 +79,7 @@ The atomics table with semantics: Chapter 5, §5.5.
 
 ## A.6 Streams and Events
 
-| Function | Behaviour | Chapter |
+| Function | Behavior | Chapter |
 |---|---|---|
 | `cudaStreamCreate(&s)` | Create a stream | 6 |
 | `cudaStreamDestroy(s)` | Destroy a stream | 6 |
@@ -94,11 +94,11 @@ The atomics table with semantics: Chapter 5, §5.5.
 | `cudaGraphCreate/Instantiate/Launch/Destroy` | Capture and replay device work | 6 |
 | `cudaDeviceSynchronize()` | Wait for all device work | 3, 6 |
 
-The synchronisation cheat sheet: Chapter 6, §6.8.
+The synchronization cheat sheet: Chapter 6, §6.8.
 
 ## A.7 Error Handling
 
-| Primitive | Behaviour | Chapter |
+| Primitive | Behavior | Chapter |
 |---|---|---|
 | `cudaError_t` | Enum; `cudaSuccess == 0`, everything else is an error | 3 |
 | `cudaGetLastError()` | Return and clear the last asynchronous error | 3 |

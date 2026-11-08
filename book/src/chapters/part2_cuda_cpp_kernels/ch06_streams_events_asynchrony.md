@@ -23,7 +23,7 @@ This chapter covers
 
 - asynchronous launches and copies, and the work the host can do while the GPU runs
 - streams: ordered queues of GPU work, and the overlap of work in different streams
-- the default stream and the synchronisation it adds between streams
+- the default stream and the synchronization it adds between streams
 - events, which time work on the GPU's own clock
 - a pipeline of chunks on 2 streams, 43% faster on a Jetson Orin NX
 - why overlap gains less when the kernel dominates or the memory is shared
@@ -137,22 +137,22 @@ stream as its first argument. Note that an asynchronous copy requires pinned hos
 Chapter 4 introduced. The copy engine reads the host memory after the call has returned, so the
 operating system must not move the pages of that memory while the copy is in progress.
 
-## 6.3 The default stream and implicit synchronisation
+## 6.3 The default stream and implicit synchronization
 
 A launch or a copy that does not name a stream is placed in the **default stream**. In its
-original form, which is still the default behaviour in C++, the default stream synchronises with
+original form, which is still the default behavior in C++, the default stream synchronizes with
 every other stream of the device. An operation in the default stream waits for all earlier work in
 all streams, and work queued later in other streams waits for it. Therefore, a single launch or
-`cudaMemcpy` without a stream can serialise a program that was designed to overlap its operations.
+`cudaMemcpy` without a stream can serialize a program that was designed to overlap its operations.
 
-There are two ways to avoid this behaviour:
+There are two ways to avoid this behavior:
 
 - **Name a stream in every launch and copy.** The dependencies between operations are then
   visible in the code, at the place where the work is queued.
 - **Compile with `--default-stream per-thread`.** Each host thread then has its own default
-  stream, which does not synchronise with the streams of other threads.
+  stream, which does not synchronize with the streams of other threads.
 
-Streams created with `cudaStreamCreateWithFlags(&s, cudaStreamNonBlocking)` do not synchronise
+Streams created with `cudaStreamCreateWithFlags(&s, cudaStreamNonBlocking)` do not synchronize
 with the default stream at all.
 
 ## 6.4 CUDA events
@@ -206,7 +206,7 @@ a launch of a kernel over 128 MiB
 
 The host observed the kernel finish after 12.45 ms, whereas the events measured 11.15 ms. The
 difference of about 1.3 ms is time spent outside the kernel: the GPU starting the kernel and
-signalling its completion, and the host thread noticing that signal. For timing work on the GPU,
+signaling its completion, and the host thread noticing that signal. For timing work on the GPU,
 events therefore give the more accurate measurement.
 
 ## 6.5 A double-buffered pipeline
@@ -430,7 +430,7 @@ version therefore calls the driver functions `cuStreamBeginCapture_v2`, `cuStrea
 
 </div>
 
-## 6.8 Synchronisation calls
+## 6.8 Synchronization calls
 
 | C++ | Rust (cuda-oxide) | The host waits for |
 |---|---|---|
@@ -475,7 +475,7 @@ first stream and makes the second stream wait for that event.
   waits for every other stream. Name a stream in every call.
 - **Timing GPU work with the host clock alone.** The measurement includes launch time and the time
   the host takes to notice completion. Use events.
-- **Modifying a host buffer while an asynchronous copy still reads it.** Synchronise the stream, or
+- **Modifying a host buffer while an asynchronous copy still reads it.** Synchronize the stream, or
   wait for an event, first.
 - **Dividing the data into more and more chunks.** Once the longest stage dominates, additional
   chunks only add launch work.
@@ -489,7 +489,7 @@ first stream and makes the second stream wait for that event.
   12 ms.
 - A stream is an ordered queue. Work in 1 stream runs in order; work in different streams may run
   at the same time, on the copy engines and the SMs together.
-- The default stream synchronises with every other stream, so programs that overlap work name
+- The default stream synchronizes with every other stream, so programs that overlap work name
   their streams explicitly.
 - Events time work on the GPU's own clock.
 - A pipeline of chunks on 2 streams reduced 22.6 ms to 12.9 ms on an Orin NX, close to the bound

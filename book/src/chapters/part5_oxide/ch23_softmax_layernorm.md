@@ -135,9 +135,9 @@ rows as well as a few long ones, and in Section 23.7, we measure both cases.
 ### 23.1.3 Layer normalization
 
 The values that a layer of a model produces can drift: from 1 row to the next, or from 1 training
-step to the next, their centre may move and their spread may grow or shrink. Layer normalization
-removes this drift. It measures where the values of a row are centred and how widely they are
-spread, and then rescales the row so that it is centred at 0 with a spread of 1. The centre is
+step to the next, their center may move and their spread may grow or shrink. Layer normalization
+removes this drift. It measures where the values of a row are centered and how widely they are
+spread, and then rescales the row so that it is centered at 0 with a spread of 1. The center is
 measured by the mean, and the spread by the variance, which we now define.
 
 <div class="definition">
@@ -159,7 +159,7 @@ shift for column \\(j\\) that the model learns.
 
 | Symbol | Meaning | In the example (row 0, \\(j = 0\\)) |
 |---|---|---|
-| \\(\mu\\) | mean of the row, the centre of its values | 2.5 |
+| \\(\mu\\) | mean of the row, the center of its values | 2.5 |
 | \\(x_j - \mu\\) | deviation of value \\(j\\) from the mean | \\(1 - 2.5 = -1.5\\) |
 | \\(\sigma^2\\) | variance, the mean of the squared deviations | 1.25 |
 | \\(\sigma\\) | standard deviation, the square root of the variance | 1.118 |
@@ -167,10 +167,10 @@ shift for column \\(j\\) that the model learns.
 | \\(\gamma_j, \beta_j\\) | learned scale and shift of column \\(j\\) | 1 and 0 |
 | \\(y_j\\) | output in column \\(j\\) | \\(-1.3416\\) |
 
-The formula is easiest to read from the inside out. The deviation \\(x_j - \mu\\) moves the centre
+The formula is easiest to read from the inside out. The deviation \\(x_j - \mu\\) moves the center
 of the row to 0. Dividing by \\(\sqrt{\sigma^2 + \varepsilon}\\), which is almost exactly the
 standard deviation, makes the spread 1. Finally, \\(\gamma_j\\) and \\(\beta_j\\) let the model
-choose a different scale and centre for each column, if that serves it better. In this chapter, we
+choose a different scale and center for each column, if that serves it better. In this chapter, we
 take \\(\gamma_j = 1\\) and \\(\beta_j = 0\\) in all hand computations, so that the last step
 changes nothing.
 
@@ -396,9 +396,9 @@ as we show next.
 ### 23.2.5 Cancellation
 
 An `f32` number has only 24 bits of significand, so it can represent only a limited number of
-digits. Large numbers are therefore stored less finely than small ones: near 1, neighbouring `f32`
+digits. Large numbers are therefore stored less finely than small ones: near 1, neighboring `f32`
 numbers are very close together, while near \\(10^8\\), they are several units apart. A result that
-falls between 2 neighbours must be rounded to one of them. We make this precise before we apply
+falls between 2 neighbors must be rounded to one of them. We make this precise before we apply
 it to the variance.
 
 <div class="definition">
@@ -415,7 +415,7 @@ but the errors are not.
 </div>
 
 In the definition, \\(2^k\\) is the power of 2 just below the number, and \\(2^{k-23}\\) is the gap
-between 2 neighbouring `f32` numbers in that range. For example, for numbers near \\(10^8\\),
+between 2 neighboring `f32` numbers in that range. For example, for numbers near \\(10^8\\),
 \\(k = 26\\), and the gap is \\(2^{26-23} = 8\\).
 
 We now add 10,000 to every value of \\(X\\). Row 0 becomes 10,001, 10,002, 10,003 and 10,004. Its
@@ -431,7 +431,7 @@ layer normalization is still \\(-1.3416, -0.4472, 0.4472\\) and \\(1.3416\\). Fi
 Let us follow the roundings in order. The squares lie near \\(10^8\\), where `f32` numbers are 8
 apart, and 3 of the 4 squares are rounded. Once the running sum passes \\(2.68 \times 10^8\\), the
 spacing becomes 32. The last addition, \\(300{,}120{,}000 + 100{,}080{,}016 = 400{,}200{,}016\\),
-lies exactly halfway between 2 neighbours and is rounded to 400,200,000. Dividing by 4 gives the
+lies exactly halfway between 2 neighbors and is rounded to 400,200,000. Dividing by 4 gives the
 mean of the squares, 100,050,000. The mean itself is 10,002.5, which is exact in `f32`, but its
 square, 100,050,006.25, is rounded to 100,050,008. Line 5 then subtracts the 2 results:
 
@@ -713,8 +713,8 @@ new mean is the total of the \\(k\\) values divided by \\(k\\):
 | \\(\delta\\) | deviation of the new value from the old mean, \\(x - \mu\\) | 1.5 |
 | \\(\mu'\\) | mean of all \\(k\\) values, the new mean | \\(1.5 + 1.5 / 3 = 2\\) |
 
-In words, the mean moves towards the new value by \\(1/k\\) of the distance between them. The old
-values now deviate from \\(\mu'\\) instead of \\(\mu\\). Shifting the centre of \\(k - 1\\) values
+In words, the mean moves toward the new value by \\(1/k\\) of the distance between them. The old
+values now deviate from \\(\mu'\\) instead of \\(\mu\\). Shifting the center of \\(k - 1\\) values
 by \\(\mu' - \mu = \delta / k\\) adds \\((k - 1)(\delta / k)^2\\) to the sum of their squared
 deviations. No other term appears, because the cross terms contain the sum of the deviations from
 \\(\mu\\), which is 0. In the example, the old values 1 and 2 had the squared deviations 0.25 and
@@ -917,7 +917,7 @@ Figure 23.11.
 It may seem more natural to give each thread a contiguous piece of the row. The interleaved
 pattern is chosen instead because of the way the memory serves reads. The threads of a block run
 in groups of 32, and the hardware serves the reads of such a group together when they fall on
-neighbouring addresses.
+neighboring addresses.
 
 <div class="definition">
 
@@ -1011,7 +1011,7 @@ The exchange takes 3 steps. First, lane 0 of each warp writes its warp's result 
 warp. Then, a barrier makes sure that all 8 slots have been written before anyone reads them.
 Finally, every thread reads all 8 slots and merges them itself, so that every thread ends with the
 result of the row. Reading 8 slots costs less than a second round of shuffles, and it needs no
-broadcast of the result afterwards. The following procedure, shown in Figure 23.13, combines the
+broadcast of the result afterward. The following procedure, shown in Figure 23.13, combines the
 butterfly with these 3 steps.
 
 <div class="algo">
@@ -1673,12 +1673,12 @@ layer norm of 4096 rows x 4096 columns, values 1,000 + [-1, 1)
 PASSED
 ```
 
-The GB/s column divides the modelled bytes of Section 23.4.5 by the measured time. For example,
+The GB/s column divides the modeled bytes of Section 23.4.5 by the measured time. For example,
 the fused softmax moves \\(8 \cdot 4{,}096^2\\) bytes, 134 MB, in 1.435 ms, which gives 93.6 GB/s.
 The following table collects the times of both programs, together with those of the Rust program
 built with `cargo oxide run --unchecked-indexing`, an option that we explain in Section 23.7.5.
 
-| Kernel | Bytes per element | Rust (ms) | Rust, unchecked (ms) | C++ (ms) | C++, modelled (GB/s) |
+| Kernel | Bytes per element | Rust (ms) | Rust, unchecked (ms) | C++ (ms) | C++, modeled (GB/s) |
 |---|---|---|---|---|---|
 | softmax, 3 passes | 16 | 2.025 | 1.684 | 1.434 | 187.2 |
 | softmax, online | 12 | 2.255 | 1.545 | 1.480 | 136.1 |
@@ -1690,8 +1690,8 @@ built with `cargo oxide run --unchecked-indexing`, an option that we explain in 
 | layer norm, fused | 8 | 1.424 | 1.424 | 1.445 | 92.9 |
 
 <figure>
-<img src="../../figures/ch23-measured.svg" alt="Paired bars of Rust and C++ times per 4,096 by 4,096 matrix on the measured GPU. Softmax rows of 4,096: 3 passes 2.025 and 1.434 ms, online 2.255 and 1.480 ms, fused 1.435 and 1.417 ms. Rows of 65,536: 3 passes 3.985 and 3.129 ms, online 3.015 and 2.373 ms. Layer norm: sum of squares 1.808 and 1.464 ms, Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modelled byte count at 102 GB/s.">
-<figcaption><b>Figure 23.16</b> Measured time per 64 MiB matrix, Rust (upper bar) and C++ (lower bar). The dashed line of each kernel is its modelled bytes at 102 GB/s.</figcaption>
+<img src="../../figures/ch23-measured.svg" alt="Paired bars of Rust and C++ times per 4,096 by 4,096 matrix on the measured GPU. Softmax rows of 4,096: 3 passes 2.025 and 1.434 ms, online 2.255 and 1.480 ms, fused 1.435 and 1.417 ms. Rows of 65,536: 3 passes 3.985 and 3.129 ms, online 3.015 and 2.373 ms. Layer norm: sum of squares 1.808 and 1.464 ms, Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modeled byte count at 102 GB/s.">
+<figcaption><b>Figure 23.16</b> Measured time per 64 MiB matrix, Rust (upper bar) and C++ (lower bar). The dashed line of each kernel is its modeled bytes at 102 GB/s.</figcaption>
 </figure>
 
 We begin with the fused kernels, which match the model. They move 134 MB in 1.42 to 1.45 ms,
@@ -1702,7 +1702,7 @@ which we give in the next 4 sections.
 ### 23.7.3 Why 3 passes cost no more than 1 on rows of 4,096
 
 The C++ 3-pass softmax takes 1.434 ms, the same time as the fused kernel, although it reads each
-value 3 times. Its modelled rate, 187.2 GB/s, is 1.8 times the bandwidth of the memory, which would
+value 3 times. Its modeled rate, 187.2 GB/s, is 1.8 times the bandwidth of the memory, which would
 be impossible if every read reached the memory. We conclude that most of its second and third reads
 were served by the L2 cache.
 
@@ -1740,7 +1740,7 @@ cuda-oxide can remove the checks. Built with `cargo oxide run --unchecked-indexi
 program runs the online kernel in 1.545 ms, the long-row kernels in 3.088 and 2.453 ms, and the sum
 of squares in 1.433 ms, all within 5% of C++. The 3-pass kernel on short rows improves from 2.025
 to 1.684 ms, but it remains 17% slower than C++. The flag makes every out-of-range index
-undefined behaviour, exactly like `get_unchecked`, in every kernel of the program. The kernels of
+undefined behavior, exactly like `get_unchecked`, in every kernel of the program. The kernels of
 this chapter read only indices \\(b \cdot C + j\\) with \\(b < R\\) and \\(j < C\\), so they stay in
 range, but the compiler no longer checks this claim. A per-kernel form,
 `#[kernel(unchecked_indexing)]`, limits the trust to the kernels that need the speed.

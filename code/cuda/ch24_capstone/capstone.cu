@@ -1,4 +1,4 @@
-// Chapter 24: an image pipeline. Gray conversion, histogram equalisation, a separable
+// Chapter 24: an image pipeline. Gray conversion, histogram equalization, a separable
 // Gaussian blur and Sobel edges, checked pixel by pixel against the CPU, then a batch of
 // images on 1, 2 and 3 streams.
 // Build: nvcc -O3 -arch=native -Xcompiler -ffp-contract=off capstone.cu -o capstone
@@ -181,8 +181,8 @@ __global__ void blurCols(const uint16_t* src, uint8_t* out)
     out[(y0 + ty) * W + x] = (sum + 128) >> 8;
 }
 
-// Sobel gradient magnitude divided by 4, rounded and clamped to 255. The 8 neighbours
-// come from global memory; neighbouring threads share them through the L1 cache.
+// Sobel gradient magnitude divided by 4, rounded and clamped to 255. The 8 neighbors
+// come from global memory; neighboring threads share them through the L1 cache.
 __global__ void sobel(const uint8_t* src, uint8_t* out)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -337,7 +337,7 @@ double batch(cudaStream_t* streams, Buffers* lanes, int n, uint8_t** inputs,
     return count / ((nowMs() - t0) / 1e3);
 }
 
-// The 4 images of the pipeline that are kept: gray, equalised, blurred and edges.
+// The 4 images of the pipeline that are kept: gray, equalized, blurred and edges.
 struct Images {
     std::vector<uint8_t> gray, equal, blurred, edges;
 };

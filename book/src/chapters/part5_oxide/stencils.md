@@ -1,6 +1,6 @@
 # Stencils
 
-A stencil computation updates every cell of a grid from a fixed pattern of its neighbours. The
+A stencil computation updates every cell of a grid from a fixed pattern of its neighbors. The
 temperature of a heated plate, the potential between charged conductors, the blur of an image and
 the step of a fluid simulation are all stencil computations. In the next 2 chapters, we study the
 most common one, the 5-point stencil of the Laplace equation, iterated with Jacobi's method. We use

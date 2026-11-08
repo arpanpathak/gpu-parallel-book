@@ -276,7 +276,7 @@ the barrier.
 
 We now place the values of a block in a shared array, 1 value per thread, and call the elements of
 this array *cells*. In block 0 of our example, cell \\(k\\) holds the product \\(p_k\\), so the 8 cells
-hold 2, 6, 3, 4, 5, 1, 8 and 3. The tree of Figure 15.3 adds neighbouring cells: cells 0 and 1,
+hold 2, 6, 3, 4, 5, 1, 8 and 3. The tree of Figure 15.3 adds neighboring cells: cells 0 and 1,
 cells 2 and 3, cells 4 and 5, and cells 6 and 7. On a GPU, we prefer a different pairing, in which
 the 2 cells of a pair lie a fixed distance apart. In the step with **stride** \\(s\\), thread \\(t\\)
 adds cell \\(t + s\\) into cell \\(t\\), for every \\(t < s\\). With 8 cells, the strides are 4, 2 and
@@ -293,10 +293,10 @@ adds cell 1 into cell 0.
 
 The stride pairing adds \\(p_0 + p_4\\) where Figure 15.3 added \\(p_0 + p_1\\), so it relies on
 commutativity as well as on associativity. In return, the threads that work in each step are always
-the lowest \\(s\\) threads, 0 to \\(s - 1\\), and they read the neighbouring cells \\(s\\) to
+the lowest \\(s\\) threads, 0 to \\(s - 1\\), and they read the neighboring cells \\(s\\) to
 \\(2s - 1\\). This has 2 advantages in a block of 256 threads. In the first steps, whole warps are
 busy and whole warps are idle, instead of half the threads of every warp being idle, and the cells
-that a warp reads at once are neighbours in memory.
+that a warp reads at once are neighbors in memory.
 
 In Figure 15.4, we run this pairing in block 0 of the example. The 8 cells start with the products
 2, 6, 3, 4, 5, 1, 8 and 3. With \\(s = 4\\), threads 0 to 3 compute \\(2 + 5 = 7\\), \\(6 + 1 = 7\\),
@@ -305,8 +305,8 @@ In Figure 15.4, we run this pairing in block 0 of the example. The 8 cells start
 computes 4, 11, 6 and 10 in the first step, 10 and 21 in the second, and 31 in the third.
 
 <figure>
-<img src="../../figures/ch15-steps.svg" alt="The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. With s = 4, threads 0 to 3 add cell t + 4 into cell t, giving 7, 7, 11, 7. With s = 2, threads 0 and 1 give 18 and 14. With s = 1, thread 0 gives 32. A barrier separates the steps; cells no longer read are grey.">
-<figcaption><b>Figure 15.4</b> The tree in the shared memory of block 0. Each colour is 1 thread; a barrier separates the steps.</figcaption>
+<img src="../../figures/ch15-steps.svg" alt="The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. With s = 4, threads 0 to 3 add cell t + 4 into cell t, giving 7, 7, 11, 7. With s = 2, threads 0 and 1 give 18 and 14. With s = 1, thread 0 gives 32. A barrier separates the steps; cells no longer read are gray.">
+<figcaption><b>Figure 15.4</b> The tree in the shared memory of block 0. Each color is 1 thread; a barrier separates the steps.</figcaption>
 </figure>
 
 ### 15.3.3 The algorithm
@@ -527,7 +527,7 @@ a barrier inside a branch that only some threads of the block take, such as the 
 </div>
 
 A barrier inside `if t < s` would be reached by \\(s\\) threads but awaited by all \\(B\\) threads.
-The behaviour of such a kernel is undefined, and in practice, it hangs or returns wrong values.
+The behavior of such a kernel is undefined, and in practice, it hangs or returns wrong values.
 
 ### 15.4.3 Shared memory in Rust
 
@@ -713,7 +713,7 @@ returned 338,598 instead of 2,796,203, and the dot product of the random floats 
 different values in 100 runs, from 479,931.1 to 528,424.6, which is about 12% of the correct
 4,195,680. The worked example was launched with 1,024 blocks, of which only block 0 has a nonzero
 sum. It returned the correct 63 in 1 run and 0 in another run, because a block with the sum 0 read
-the result before block 0 wrote 63, and it wrote its 0 afterwards.
+the result before block 0 wrote 63, and it wrote its 0 afterward.
 
 ### 15.6.3 The order of float additions
 
@@ -911,7 +911,7 @@ operation. The kernel therefore needs no `unsafe`. `AtomicOrdering::Relaxed` ask
 nothing more, which suffices here, because the host reads the result only after the kernel has
 finished. A device buffer of `DeviceAtomicF32` cannot be copied with `to_host_vec`, so the Rust
 program uses 2 small kernels, `clear` and `publish`. The first sets the result to 0 before the
-launch, and the second copies it into an ordinary float afterwards. In C++, the program sets the
+launch, and the second copies it into an ordinary float afterward. In C++, the program sets the
 result to 0 with `cudaMemsetAsync`.
 
 The host prepares every launch once, and it runs the 4 designs with 1 closure in Rust and 1

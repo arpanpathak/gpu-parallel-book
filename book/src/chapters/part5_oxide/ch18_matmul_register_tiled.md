@@ -1,5 +1,5 @@
 
-<img class="plate" src="../../art/ch18.svg" alt="Patch, a crab, stands on the sand beside a slate board. To the left of the board stand 2 cells of A, 1 and 5, and above it 2 cells of B, 1 and 0. On the board are their 4 products, 1 0 / 5 0. Further right, a larger board holds the 4 by 4 matrix C, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, split into 4 coloured patches of 2 by 2, 1 per thread. A tag says read 4 values, make 4 products.">
+<img class="plate" src="../../art/ch18.svg" alt="Patch, a crab, stands on the sand beside a slate board. To the left of the board stand 2 cells of A, 1 and 5, and above it 2 cells of B, 1 and 0. On the board are their 4 products, 1 0 / 5 0. Further right, a larger board holds the 4 by 4 matrix C, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, split into 4 colored patches of 2 by 2, 1 per thread. A tag says read 4 values, make 4 products.">
 
 # Chapter 18: Register Tiling, Several Entries per Thread
 
@@ -426,7 +426,7 @@ Chapter 17.
 | \\(bx \cdot B_N + tx \cdot T_N\\) | first column of the thread's block of \\(C\\) | \\(0 \cdot 4 + 0 \cdot 2 = 0\\) |
 
 <figure>
-<img src="../../figures/ch18-ownership.svg" alt="Left: C of the example, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, coloured in 4 blocks of 2 by 2, 1 colour per thread of the single block of 2 by 2 threads: thread (ty, tx) owns rows 2ty and 2ty + 1 and columns 2tx and 2tx + 1. Right: the tiles of phase 0, tileA of 4 by 2 = columns 0 and 1 of A, 1 2 / 5 6 / 9 10 / 13 14, and tileB of 2 by 4 = rows 0 and 1 of B, 1 0 2 1 / 0 1 1 2, coloured by the thread that copies each value: thread id = 2ty + tx copies elements id and id + 4 of each tile in row-major order. A card recalls that in Chapter 17 with T = 2 the 4 threads of block (0, 0) computed c00, c01, c10 and c11; here thread (0, 0) alone computes them.">
+<img src="../../figures/ch18-ownership.svg" alt="Left: C of the example, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, colored in 4 blocks of 2 by 2, 1 color per thread of the single block of 2 by 2 threads: thread (ty, tx) owns rows 2ty and 2ty + 1 and columns 2tx and 2tx + 1. Right: the tiles of phase 0, tileA of 4 by 2 = columns 0 and 1 of A, 1 2 / 5 6 / 9 10 / 13 14, and tileB of 2 by 4 = rows 0 and 1 of B, 1 0 2 1 / 0 1 1 2, colored by the thread that copies each value: thread id = 2ty + tx copies elements id and id + 4 of each tile in row-major order. A card recalls that in Chapter 17 with T = 2 the 4 threads of block (0, 0) computed c00, c01, c10 and c11; here thread (0, 0) alone computes them.">
 <figcaption><b>Figure 18.7</b> In the example, each thread of the single 2 × 2 block owns a 2 × 2 block of C and copies 2 values of each tile.</figcaption>
 </figure>
 
@@ -1125,7 +1125,7 @@ program,
 </div>
 
 In Chapter 19, we turn to stencil computations, in which each output depends on a small
-neighbourhood of the input, and we apply the same staging in shared memory to a grid with borders.
+neighborhood of the input, and we apply the same staging in shared memory to a grid with borders.
 
 ## Exercises
 

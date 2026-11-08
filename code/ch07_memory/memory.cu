@@ -23,7 +23,7 @@ double nowMs()
     return duration<double, std::milli>(steady_clock::now().time_since_epoch()).count();
 }
 
-// 1. Thread i reads element i * stride, so neighbouring threads read `stride` floats apart.
+// 1. Thread i reads element i * stride, so neighboring threads read `stride` floats apart.
 __global__ void strided(const float* in, float* out, int n, int stride)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;

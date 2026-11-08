@@ -55,7 +55,7 @@ column \\(j\\) of \\(B\\), so together the 4 threads need rows 0 and 1 of \\(A\\
 1 of \\(B\\). These are 8 values from each matrix, 16 values in all, as shown in Figure 17.1.
 
 <figure>
-<img src="../../figures/ch17-block-needs.svg" alt="Matrices A, B and C of the 4 by 4 example. Rows 0 and 1 of A (1 2 3 4 and 5 6 7 8) are outlined in blue, columns 0 and 1 of B (1 0 2 1 and 0 1 1 2) in amber, and the other cells are faded. In C, the top-left 2 by 2 square is block (0, 0), its 4 cells coloured for threads (0,0), (0,1), (1,0) and (1,1). The note: block (0, 0) needs 16 values, and the direct kernel fetches them 32 times.">
+<img src="../../figures/ch17-block-needs.svg" alt="Matrices A, B and C of the 4 by 4 example. Rows 0 and 1 of A (1 2 3 4 and 5 6 7 8) are outlined in blue, columns 0 and 1 of B (1 0 2 1 and 0 1 1 2) in amber, and the other cells are faded. In C, the top-left 2 by 2 square is block (0, 0), its 4 cells colored for threads (0,0), (0,1), (1,0) and (1,1). The note: block (0, 0) needs 16 values, and the direct kernel fetches them 32 times.">
 <figcaption><b>Figure 17.1</b> The values needed by block (0, 0): 2 rows of A and 2 columns of B.</figcaption>
 </figure>
 
@@ -87,7 +87,7 @@ of row 0 of \\(A\\) and the first 2 values of column 0 of \\(B\\), and adds up t
 \\(c_{00}\\).
 
 <figure>
-<img src="../../figures/ch17-split.svg" alt="Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are coloured in 2 groups: columns 0 and 1 of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), and 1 + 10 = 11, the entry c00.">
+<img src="../../figures/ch17-split.svg" alt="Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are colored in 2 groups: columns 0 and 1 of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), and 1 + 10 = 11, the entry c00.">
 <figcaption><b>Figure 17.2</b> c<sub>00</sub> in 2 groups: phase 0 (blue) uses columns 0 and 1 of A and rows 0 and 1 of B, phase 1 (amber) the rest.</figcaption>
 </figure>
 
@@ -176,14 +176,14 @@ block \\((0, 0)\\) has \\(\textit{row} = 0\\) and \\(\textit{col} = 1\\), and co
 
 As \\((ty, tx)\\) runs over all threads of the block, these copies fill every position of both
 tiles exactly once, so no value is copied twice and none is missed. Note also that the threads
-with the same \\(ty\\) copy \\(T\\) neighbouring values of the same row of \\(A\\), which lie next
+with the same \\(ty\\) copy \\(T\\) neighboring values of the same row of \\(A\\), which lie next
 to each other in memory, so their reads can be combined into few memory transactions. In
-Figure 17.3, we follow block \\((0, 0)\\) through both phases. Each colour belongs to 1 thread and
+Figure 17.3, we follow block \\((0, 0)\\) through both phases. Each color belongs to 1 thread and
 marks the values that the thread copies as well as the sum that it accumulates.
 
 <figure>
-<img src="../../figures/ch17-phases.svg" alt="Block (0, 0) in 2 phases, 1 colour per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is coloured by the thread that copies it into the same slot of tileA or tileB in shared memory; the 4 sums are then 1, 2, 5 and 6. Phase 1: the tile of A moves to columns 2 and 3 (3 4, 7 8) and the tile of B to rows 2 and 3 (2 1, 1 2); the sums become 11, 13, 27 and 29, the top-left square of C.">
-<figcaption><b>Figure 17.3</b> Block (0, 0) in 2 phases. Each colour marks 1 thread: the values it copies, the shared-memory slots it fills, and the sum it accumulates.</figcaption>
+<img src="../../figures/ch17-phases.svg" alt="Block (0, 0) in 2 phases, 1 color per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is colored by the thread that copies it into the same slot of tileA or tileB in shared memory; the 4 sums are then 1, 2, 5 and 6. Phase 1: the tile of A moves to columns 2 and 3 (3 4, 7 8) and the tile of B to rows 2 and 3 (2 1, 1 2); the sums become 11, 13, 27 and 29, the top-left square of C.">
+<figcaption><b>Figure 17.3</b> Block (0, 0) in 2 phases. Each color marks 1 thread: the values it copies, the shared-memory slots it fills, and the sum it accumulates.</figcaption>
 </figure>
 
 Let us follow thread \\((0, 0)\\). In phase 0, it copies \\(a_{00} = 1\\) and \\(b_{00} = 1\\),
@@ -197,12 +197,12 @@ are complete, the thread multiplies row 0 of *tileA* by column 0 of *tileB* and 
 
 We can now see where the saving comes from. Consider thread \\((0, 1)\\) in phase 0, shown in
 Figure 17.4. It uses 4 values from shared memory, but it copied only 2 of them, \\(a_{01}\\) and
-\\(b_{01}\\); the other 2 were copied by its neighbours. In general, each value of *tileA* is used
+\\(b_{01}\\); the other 2 were copied by its neighbors. In general, each value of *tileA* is used
 by the \\(T\\) threads in its row of the block, and each value of *tileB* by the \\(T\\) threads
 in its column. Every value that the block reads from global memory is therefore used \\(T\\) times.
 
 <figure>
-<img src="../../figures/ch17-operands.svg" alt="The shared tiles of block (0, 0) in phase 0: tileA holds 1 2 and 5 6, tileB holds 1 0 and 0 1. Row 0 of tileA and column 1 of tileB are coloured by the threads that wrote them: 1 by thread (0,0), 2 by thread (0,1), 0 by thread (0,1) and 1 by thread (1,1). Thread (0, 1) computes 1 times 0 plus 2 times 1 = 2. It copied 2 of its 4 operands; its neighbours copied the other 2.">
+<img src="../../figures/ch17-operands.svg" alt="The shared tiles of block (0, 0) in phase 0: tileA holds 1 2 and 5 6, tileB holds 1 0 and 0 1. Row 0 of tileA and column 1 of tileB are colored by the threads that wrote them: 1 by thread (0,0), 2 by thread (0,1), 0 by thread (0,1) and 1 by thread (1,1). Thread (0, 1) computes 1 times 0 plus 2 times 1 = 2. It copied 2 of its 4 operands; its neighbors copied the other 2.">
 <figcaption><b>Figure 17.4</b> The operands of thread (0, 1) in phase 0. Other threads of the block copied 2 of the 4 operands.</figcaption>
 </figure>
 
@@ -227,7 +227,7 @@ In Section 17.3, we let every thread copy 1 value of each tile and then compute 
 other threads had copied. In Figure 17.4, for example, thread \\((0, 1)\\) uses
 \\(\textit{tileA}[0][0] = 1\\), which thread \\((0, 0)\\) copied, and
 \\(\textit{tileB}[1][1] = 1\\), which thread \\((1, 1)\\) copied. This is correct only if thread
-\\((0, 1)\\) reads these 2 slots after its neighbours have stored their values in them. The
+\\((0, 1)\\) reads these 2 slots after its neighbors have stored their values in them. The
 threads of a block, however, do not move in lockstep. One thread may run ahead while another falls
 behind, because their warps are scheduled independently and their memory reads finish at different
 times. From its own progress alone, thread \\((0, 1)\\) therefore cannot tell whether thread
@@ -267,7 +267,7 @@ tiles. The phase then begins again with the next pair of tiles. In Section 17.6,
 each of the 2 barriers is needed.
 
 <figure>
-<img src="../../figures/ch17-cycle.svg" alt="4 boxes in a row: load tiles, global to shared; barrier, all loads complete; compute, T multiply-adds; barrier, all reads complete. An arrow runs from the last box back to the first, labelled next phase: t = t + 1, while t is less than the ceiling of K over T.">
+<img src="../../figures/ch17-cycle.svg" alt="4 boxes in a row: load tiles, global to shared; barrier, all loads complete; compute, T multiply-adds; barrier, all reads complete. An arrow runs from the last box back to the first, labeled next phase: t = t + 1, while t is less than the ceiling of K over T.">
 <figcaption><b>Figure 17.6</b> 1 phase of the tiled kernel. The cycle repeats ⌈K/T⌉ times.</figcaption>
 </figure>
 
@@ -563,7 +563,7 @@ compute. If also \\(K = 3\\), the matrix \\(A\\) has only 3 columns, and in phas
 \\(A\\), which covers columns 2 and 3, reaches for a column that does not exist (Figure 17.12).
 
 <figure>
-<img src="../../figures/ch17-edges.svg" alt="Left: a 4 by 4 grid of threads from 4 blocks of 2 by 2 laid over a 3 by 3 matrix C, outlined in black. The 9 cells inside C are coloured by block; the 7 cells in row 3 and column 3 are dashed: threads with no entry. Right: tileA in phase 1 when K = 3. Its left column holds A[0][2] and A[1][2]; its right column would hold column 3 of A, which does not exist, so both slots hold 0.">
+<img src="../../figures/ch17-edges.svg" alt="Left: a 4 by 4 grid of threads from 4 blocks of 2 by 2 laid over a 3 by 3 matrix C, outlined in black. The 9 cells inside C are colored by block; the 7 cells in row 3 and column 3 are dashed: threads with no entry. Right: tileA in phase 1 when K = 3. Its left column holds A[0][2] and A[1][2]; its right column would hold column 3 of A, which does not exist, so both slots hold 0.">
 <figcaption><b>Figure 17.12</b> Left: 2 × 2 blocks over a 3 × 3 matrix; dashed cells are threads with no entry. Right: a tile that extends past the last column of A is filled with zeros.</figcaption>
 </figure>
 
@@ -677,7 +677,7 @@ kernel computes the index \\(ty \cdot T + tx\\) of Definition 16.2 itself. In ou
 \\((1, 0)\\) of a 2 × 2 tile is at index \\(1 \cdot 2 + 0 = 2\\).
 
 <figure>
-<img src="../../figures/ch17-flat-tile.svg" alt="Left: a 2 by 2 tile with slots (0,0), (0,1), (1,0) and (1,1), 1 colour per thread. Right: the same 4 slots in a flat array at indices 0 to 3, in row-major order; slot (1,0) at index 2 is outlined. The rule: index(ty, tx, T) = ty times T plus tx, so (1, 0) is at 1 times 2 plus 0 = 2. With T = 16 the array holds 256 values.">
+<img src="../../figures/ch17-flat-tile.svg" alt="Left: a 2 by 2 tile with slots (0,0), (0,1), (1,0) and (1,1), 1 color per thread. Right: the same 4 slots in a flat array at indices 0 to 3, in row-major order; slot (1,0) at index 2 is outlined. The rule: index(ty, tx, T) = ty times T plus tx, so (1, 0) is at 1 times 2 plus 0 = 2. With T = 16 the array holds 256 values.">
 <figcaption><b>Figure 17.13</b> A 2 × 2 tile stored as a flat array of 4 slots. Slot (1, 0) is at 1 · 2 + 0 = 2.</figcaption>
 </figure>
 
@@ -925,7 +925,7 @@ which the kernel requests data from global memory, whether or not a cache answer
 C++ program prints the same lines. The following table compares the two languages at the smallest
 and the largest size.
 
-| n | kernel | modelled fetches | C++ time | C++ rate | Rust time | Rust rate |
+| n | kernel | modeled fetches | C++ time | C++ rate | Rust time | Rust rate |
 |---|---|---|---|---|---|---|
 | 512 | direct | 1,024 MiB | 1.495 ms | 179.5 GFLOP/s | 1.462 ms | 183.6 GFLOP/s |
 | 512 | \\(T = 8\\) | 128 MiB | 1.809 ms | 148.4 GFLOP/s | 1.918 ms | 140.0 GFLOP/s |
