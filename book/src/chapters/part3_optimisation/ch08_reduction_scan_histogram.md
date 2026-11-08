@@ -151,7 +151,7 @@ the levels, because each level reads values that other threads wrote in the leve
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:25:51}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:25:54}}
     // ...
 }
 ```
@@ -208,7 +208,7 @@ launch adds only 1,024 partial sums.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:53:86}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:56:90}}
     // ...
 }
 ```
@@ -278,10 +278,10 @@ tree of section 8.3 needed 8 barriers for the same 256 values; this version need
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:88:94}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:92:98}}
 
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:108:139}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:112:143}}
     // ...
 }
 ```
@@ -333,10 +333,10 @@ many iterations.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:141:158}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:145:162}}
 
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:160:180}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:164:184}}
     // ...
 }
 ```
@@ -360,9 +360,9 @@ Listing 8.5 times the 4 stages. Each run consists of 2 launches: the stage itsel
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:348:360}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:353:365}}
 
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:362:403}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:367:410}}
 ```
 
 </div>
@@ -497,7 +497,7 @@ Animation 1 shows the values moving at each of the 3 offsets.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:96:106}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:100:110}}
     // ...
 }
 ```
@@ -540,7 +540,7 @@ phases:
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:182:233}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:186:237}}
     // ...
 }
 ```
@@ -591,11 +591,11 @@ steps on the 12 values of the figure.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:235:250}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:239:254}}
     // ...
 }
 
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:417:447}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:424:454}}
 ```
 
 </div>
@@ -675,10 +675,10 @@ It extracts the 4 bytes of each 32-bit word by shifting and masking: `(w >> 8 * 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:284:297}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:288:301}}
 
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:299:328}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:303:333}}
 }
 ```
 
@@ -729,7 +729,7 @@ Listing 8.10 reads 4-byte words, 4 bytes per load:
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:252:282}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:256:286}}
     // ...
 }
 ```

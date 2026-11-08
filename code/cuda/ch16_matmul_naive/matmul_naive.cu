@@ -267,11 +267,11 @@ int main()
     // A launch that claims k = 2 n for buffers of 256 x 256: the check refuses it.
     size_t len = 256 * 256;
     const char* broken = violated(256, 256, 512, len, len, len);
-    if (broken != nullptr) {
+    bool refused = broken != nullptr;
+    if (refused) {
         std::printf("k = 2 n refused before launch: %s is false\n", broken);
-    } else {
-        passed = false;
     }
+    passed &= refused;
 
     std::printf("%s\n", passed ? "PASSED" : "FAILED");
     return passed ? 0 : 1;

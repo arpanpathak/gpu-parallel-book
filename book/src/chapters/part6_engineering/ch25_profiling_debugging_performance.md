@@ -398,7 +398,7 @@ moves 2 × 8 bytes × 10<sup>9</sup> = 16 GB/s.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch16_measure/src/main.rs:66:105}}
+{{#include ../../../../code/oxide/ch16_measure/src/main.rs:66:109}}
 ```
 
 </div>
@@ -518,7 +518,7 @@ blocks of a given size fit on 1 SM, given the registers and shared memory of the
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch16_measure/src/main.rs:149:151}}
+{{#include ../../../../code/oxide/ch16_measure/src/main.rs:158:160}}
     // ...
 }
 ```
@@ -782,7 +782,7 @@ the even and odd threads of every warp wait at 2 different instructions.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:56:79}}
+{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:56:77}}
 }
 ```
 
@@ -829,7 +829,7 @@ a value that the program did not choose. Listing 25.6 sums 1,024 floats that not
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:81:92}}
+{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:79:91}}
 }
 ```
 
@@ -1312,7 +1312,7 @@ replaces standard math functions with faster and less accurate versions.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch16_verify/src/main.rs:78:93}}
+{{#include ../../../../code/oxide/ch16_verify/src/main.rs:78:95}}
 ```
 
 </div>
@@ -1384,7 +1384,7 @@ Worked example: \\(d\\) for the 2-launch sum
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch16_verify/src/main.rs:138:195}}
+{{#include ../../../../code/oxide/ch16_verify/src/main.rs:144:204}}
 ```
 
 </div>

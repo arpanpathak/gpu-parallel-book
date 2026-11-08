@@ -369,6 +369,7 @@ void histograms(int n)
     }
 
     check(cudaMemcpy(data, random.data(), n, cudaMemcpyHostToDevice));
+
     double ms4 = timeKernel([&] {
         check(cudaMemsetAsync(bins, 0, 256 * sizeof(unsigned)));
         histUint<<<GRID, BLOCK>>>((const unsigned*)data, bins, n / 4);
@@ -376,12 +377,15 @@ void histograms(int n)
 
     std::vector<unsigned> counts(256);
     check(cudaMemcpy(counts.data(), bins, 1024, cudaMemcpyDeviceToHost));
+
     long long total = 0;
     for (unsigned c : counts) {
         total += c;
     }
-    std::printf("  random bytes  4 bytes per load  %6.2f ms  %6.1f GB/s  total %lld\n", ms4,
-                n / ms4 / 1e6, total);
+
+    double gbPerS = n / ms4 / 1e6;
+    std::printf("  random bytes  4 bytes per load  %6.2f ms", ms4);
+    std::printf("  %6.1f GB/s  total %lld\n", gbPerS, total);
 
     check(cudaFree(data));
     check(cudaFree(bins));

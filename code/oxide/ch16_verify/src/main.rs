@@ -79,12 +79,14 @@ mod kernels {
 fn ulps(a: f32, b: f32) -> i64 {
     let ia = a.to_bits() as i32 as i64;
     let ib = b.to_bits() as i32 as i64;
+
     (ia - ib).abs()
 }
 
 /// The largest distance in ULPs between y and the nearest float to exp(x).
 fn exp_error(x: &[f32], y: &[f32]) -> i64 {
     let mut worst = 0;
+
     for (&x, &y) in x.iter().zip(y) {
         let exact = (x as f64).exp() as f32;
         worst = worst.max(ulps(y, exact));
@@ -103,6 +105,7 @@ fn gpu_sum(
 ) -> Result<f32, Error> {
     let many = module.prepare_sum(LaunchConfig1D::new(1024, 256, 0))?;
     let one = module.prepare_sum(LaunchConfig1D::new(1, 256, 0))?;
+
     module.sum(stream, &many, x, n, partial)?;
     module.sum(stream, &one, partial, 1024, total)?;
 
@@ -111,7 +114,8 @@ fn gpu_sum(
 
 fn exp_test(stream: &CudaStream, module: &kernels::LoadedModule) -> Result<(), Error> {
     let n = 1 << 20;
-    let x: Vec<f32> = (0..n).map(|i| -10.0 + 20.0 * i as f32 / n as f32).collect();
+    let point = |i: usize| -10.0 + 20.0 * i as f32 / n as f32;
+    let x: Vec<f32> = (0..n).map(point).collect();
 
     let dx = DeviceBuffer::from_host(stream, &x)?;
     let mut dy = DeviceBuffer::<f32>::zeroed(stream, n)?;
@@ -121,12 +125,14 @@ fn exp_test(stream: &CudaStream, module: &kernels::LoadedModule) -> Result<(), E
 
     let accurate = module.prepare_exp_accurate(LaunchConfig1D::new(blocks, 256, 0))?;
     module.exp_accurate(stream, &accurate, &dx, &mut dy)?;
-    let error = exp_error(&x, &dy.to_host_vec(stream)?);
+    let y = dy.to_host_vec(stream)?;
+    let error = exp_error(&x, &y);
     println!("  exp           largest error {error:3} ULPs");
 
     let fast = module.prepare_exp_fast(LaunchConfig1D::new(blocks, 256, 0))?;
     module.exp_fast(stream, &fast, &dx, &mut dy)?;
-    let error = exp_error(&x, &dy.to_host_vec(stream)?);
+    let y = dy.to_host_vec(stream)?;
+    let error = exp_error(&x, &y);
     println!("  ex2_approx    largest error {error:3} ULPs");
     Ok(())
 }
@@ -154,12 +160,14 @@ fn sum_test(
     let bad_sum = gpu_sum(stream, module, &dx, n - 1, &mut partial, &mut total)?;
     let good = (good_sum as f64 - exact).abs();
     let bad = (bad_sum as f64 - exact).abs();
+    let good_verdict = verdict(good, tolerance);
+    let bad_verdict = verdict(bad, tolerance);
 
     println!("{title}");
     println!("  exact sum       {exact:12.2}");
     println!("  tolerance       {tolerance:12.2}");
-    println!("  n elements      error {good:6.2}  {}", verdict(good, tolerance));
-    println!("  n - 1 elements  error {bad:6.2}  {}", verdict(bad, tolerance));
+    println!("  n elements      error {good:6.2}  {good_verdict}");
+    println!("  n - 1 elements  error {bad:6.2}  {bad_verdict}");
     Ok(())
 }
 
@@ -175,6 +183,7 @@ fn main() -> Result<(), Error> {
     let mut state: u32 = 1;
     let mut magnitude = 0.0;
     let mut random = Vec::with_capacity(n);
+
     for _ in 0..n {
         state = state.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
         let v = (state >> 8) as f32 / 16_777_216.0;

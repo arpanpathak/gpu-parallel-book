@@ -99,7 +99,7 @@ help: consider changing this to be a mutable reference
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:17:21}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:18:22}}
     // ...
 }
 ```
@@ -156,7 +156,7 @@ written this way.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:17:21}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:18:22}}
     // ...
 }
 ```
@@ -181,11 +181,11 @@ function `atomic_u32` then calls `cast_elem` to change the element type that the
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:148:154}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:158:164}}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:162:169}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:172:179}}
     // ...
 }
 ```
@@ -238,7 +238,7 @@ threads take each loop. The 2 runs of the kernel differ only in which threads ta
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:96:123}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:97:133}}
     // ...
 }
 ```
@@ -322,7 +322,7 @@ levels. Figure 5.4 shows the same tree for 8 values.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:64:94}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:65:95}}
     // ...
 }
 ```
@@ -482,7 +482,7 @@ with `atomicAdd`.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:23:33}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:24:34}}
     // ...
 }
 ```
@@ -520,7 +520,7 @@ At the end, each block adds its totals to the global bins once (figure 5.6).
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:35:62}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:36:63}}
     // ...
 }
 ```
@@ -620,7 +620,7 @@ value.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:125:133}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:135:143}}
 }
 ```
 

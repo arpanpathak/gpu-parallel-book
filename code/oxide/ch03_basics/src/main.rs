@@ -95,7 +95,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     module.pixel_numbers(&stream, &pixels, RowWidth::new(&mut image, 8))?;
 
     let numbers = image.to_host_vec(&stream)?;
-    if numbers.iter().enumerate().any(|(p, &number)| number != p as u32) {
+    let any_wrong = numbers.iter().enumerate().any(|(p, &number)| number != p as u32);
+    if any_wrong {
         return Err("a thread computed the wrong pixel number".into());
     }
 

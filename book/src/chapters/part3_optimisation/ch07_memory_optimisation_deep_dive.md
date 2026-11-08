@@ -191,7 +191,7 @@ the number of threads in the grid.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:44:56}}
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:44:57}}
     // ...
 }
 ```
@@ -237,7 +237,7 @@ of 32 rows (figure 7.3).
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:82:91}}
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:83:92}}
     // ...
 }
 ```
@@ -285,7 +285,7 @@ Global memory is accessed only along rows; the column access takes place in shar
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:93:110}}
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:94:111}}
     // ...
 }
 ```
@@ -408,7 +408,7 @@ instructions for the same number of bytes.
 
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:58:80}}
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:59:81}}
     // ...
 }
 ```
@@ -452,12 +452,12 @@ threads access different addresses.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:112:125}}
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:113:126}}
 }
 
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:223:224}}
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:227:228}}
     // ...
 }
 ```

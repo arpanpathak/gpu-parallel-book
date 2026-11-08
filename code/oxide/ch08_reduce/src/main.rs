@@ -29,8 +29,10 @@ mod kernels {
         static mut S: SharedArray<f32, 256> = SharedArray::UNINIT;
         let t = thread::threadIdx_x() as usize;
         let i = thread::index_1d().get();
+
+        let value = if i < input.len() { input[i] } else { 0.0 };
         // SAFETY: each thread writes only its own slot, before the first barrier.
-        unsafe { S[t] = if i < input.len() { input[i] } else { 0.0 } };
+        unsafe { S[t] = value };
 
         let mut step: usize = 0;
         #[unroll]
@@ -44,6 +46,7 @@ mod kernels {
             }
             step += 1;
         }
+
         if t == 0 {
             // SAFETY: only thread 0 of each block writes, at its own block number.
             unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = S[0] };
@@ -79,6 +82,7 @@ mod kernels {
             }
             step += 1;
         }
+
         if t == 0 {
             // SAFETY: only thread 0 of each block writes, at its own block number.
             unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = S[0] };
@@ -310,6 +314,7 @@ mod kernels {
 
         // SAFETY: the pointer is only used through atomics, between the 2 barriers.
         let local = unsafe { (*&raw mut LOCAL).as_mut_ptr() };
+
         let grid = (thread::gridDim_x() * BLOCK) as usize;
         let mut i = thread::index_1d().get();
         while i < quads.len() {
@@ -369,12 +374,14 @@ fn sums(
     let mut leaves = DeviceBuffer::<f32>::zeroed(stream, n / BLOCK as usize)?;
     let mut partial = DeviceBuffer::<f32>::zeroed(stream, GRID as usize)?;
     let mut total = DeviceBuffer::<f32>::zeroed(stream, 1)?;
+
     let full = LaunchConfig1D::new(GRID, BLOCK, 0);
     let tree = module.prepare_sum_tree(LaunchConfig1D::new(n as u32 / BLOCK, BLOCK, 0))?;
     let coarse = module.prepare_sum_coarse(full)?;
     let shuffle = module.prepare_sum_shuffle(full)?;
     let shuffle4 = module.prepare_sum_shuffle4(full)?;
     let last = module.prepare_sum_shuffle(LaunchConfig1D::new(1, BLOCK, 0))?;
+
     println!("sum of {n} floats, the 4 stages, average of 20 runs");
 
     let ms = time_ms(stream, || {
@@ -522,6 +529,7 @@ fn main() -> Result<(), Error> {
     module.hist_quads(&stream, &wide, &words, &bins)?;
     let counts = bins.cast_elem::<u32>().to_host_vec(&stream)?;
     let total: u64 = counts.iter().map(|&c| c as u64).sum();
+
     let gb = n as f64 / 1e9 / (ms / 1e3);
     println!("histogram of 64 MiB, 16 bytes per load");
     println!("  {ms:6.2} ms  {gb:6.1} GB/s  total {total}");

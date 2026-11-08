@@ -43,10 +43,10 @@ unsafe extern "C" {
 /// cuRAND and cuFFT return 0 for success and an error number otherwise.
 fn ok(result: c_int, call: &str) -> Result<(), Error> {
     if result == 0 {
-        Ok(())
-    } else {
-        Err(format!("{call} failed with error {result}").into())
+        return Ok(());
     }
+
+    Err(format!("{call} failed with error {result}").into())
 }
 
 /// The device address of a buffer, as the pointer type the C libraries take.
@@ -61,22 +61,28 @@ fn normal_numbers(stream: &Arc<CudaStream>) -> Result<bool, Error> {
     let x = DeviceBuffer::<f32>::zeroed(stream, n)?;
 
     let mut generator: Generator = std::ptr::null_mut();
-    // SAFETY: `generator` is a valid place for cuRAND to store its generator; `x` holds
-    // n floats; the stream outlives the generator.
+    let kind = CURAND_RNG_PSEUDO_PHILOX4_32_10;
+    let out = ptr(&x);
+
+    // SAFETY: `generator` is a valid place for cuRAND to store its generator; `out`
+    // addresses n floats; the stream outlives the generator.
     let ms = unsafe {
-        let kind = CURAND_RNG_PSEUDO_PHILOX4_32_10;
-        ok(curandCreateGenerator(&mut generator, kind), "curandCreateGenerator")?;
+        let result = curandCreateGenerator(&mut generator, kind);
+        ok(result, "curandCreateGenerator")?;
         let result = curandSetPseudoRandomGeneratorSeed(generator, 2024);
         ok(result, "curandSetPseudoRandomGeneratorSeed")?;
-        ok(curandSetStream(generator, stream.cu_stream().cast()), "curandSetStream")?;
+        let result = curandSetStream(generator, stream.cu_stream().cast());
+        ok(result, "curandSetStream")?;
 
-        let result = curandGenerateNormal(generator, ptr(&x), n, 0.0, 1.0); // warm-up
+        let result = curandGenerateNormal(generator, out, n, 0.0, 1.0); // warm-up
         ok(result, "curandGenerateNormal")?;
         stream.synchronize()?;
+
         let start = Instant::now();
-        let result = curandGenerateNormal(generator, ptr(&x), n, 0.0, 1.0);
+        let result = curandGenerateNormal(generator, out, n, 0.0, 1.0);
         ok(result, "curandGenerateNormal")?;
         stream.synchronize()?;
+
         start.elapsed().as_secs_f64() * 1e3
     };
 
@@ -88,12 +94,24 @@ fn normal_numbers(stream: &Arc<CudaStream>) -> Result<bool, Error> {
     let mean = sum / n as f64;
     let sd = (sum_of_squares / n as f64 - mean * mean).sqrt();
     let rate = n as f64 / ms / 1e3;
+
     println!("cuRAND, {n} normal numbers in {ms:.2} ms ({rate:.0} million per second)");
     println!("  mean {mean:.5}, standard deviation {sd:.5}");
 
     // SAFETY: the generator is live and is not used after this call.
-    ok(unsafe { curandDestroyGenerator(generator) }, "curandDestroyGenerator")?;
-    Ok(mean.abs() < 1e-3 && (sd - 1.0).abs() < 1e-3)
+    let result = unsafe { curandDestroyGenerator(generator) };
+    ok(result, "curandDestroyGenerator")?;
+
+    let mean_ok = mean.abs() < 1e-3;
+    let sd_ok = (sd - 1.0).abs() < 1e-3;
+    Ok(mean_ok && sd_ok)
+}
+
+/// 1 sample of sin(50 t) + 0.5 sin(120 t), at step t of n around the circle.
+fn sample(t: usize, n: usize) -> f32 {
+    let angle = 2.0 * std::f64::consts::PI * t as f64 / n as f64;
+    let wave = (50.0 * angle).sin() + 0.5 * (120.0 * angle).sin();
+    wave as f32
 }
 
 /// 1,024 samples of sin(50 t) + 0.5 sin(120 t), with t running once around the circle.
@@ -101,13 +119,7 @@ fn normal_numbers(stream: &Arc<CudaStream>) -> Result<bool, Error> {
 fn spectrum(stream: &Arc<CudaStream>) -> Result<bool, Error> {
     let n = 1024;
     let bins = n / 2 + 1; // a real signal needs only half the spectrum
-
-    let signal: Vec<f32> = (0..n)
-        .map(|t| {
-            let angle = 2.0 * std::f64::consts::PI * t as f64 / n as f64;
-            ((50.0 * angle).sin() + 0.5 * (120.0 * angle).sin()) as f32
-        })
-        .collect();
+    let signal: Vec<f32> = (0..n).map(|t| sample(t, n)).collect();
 
     let x = DeviceBuffer::from_host(stream, &signal)?;
     let spectrum = DeviceBuffer::<f32>::zeroed(stream, 2 * bins)?; // (re, im) pairs
@@ -116,26 +128,33 @@ fn spectrum(stream: &Arc<CudaStream>) -> Result<bool, Error> {
     // SAFETY: `plan` is a valid place for the plan; `x` holds n floats and `spectrum`
     // holds `bins` complex numbers, the sizes of a real-to-complex transform of n.
     unsafe {
-        ok(cufftPlan1d(&mut plan, n as c_int, CUFFT_R2C, 1), "cufftPlan1d")?;
-        ok(cufftSetStream(plan, stream.cu_stream().cast()), "cufftSetStream")?;
-        ok(cufftExecR2C(plan, ptr(&x), ptr(&spectrum)), "cufftExecR2C")?;
+        let result = cufftPlan1d(&mut plan, n as c_int, CUFFT_R2C, 1);
+        ok(result, "cufftPlan1d")?;
+        let result = cufftSetStream(plan, stream.cu_stream().cast());
+        ok(result, "cufftSetStream")?;
+        let result = cufftExecR2C(plan, ptr(&x), ptr(&spectrum));
+        ok(result, "cufftExecR2C")?;
     }
     let result = spectrum.to_host_vec(stream)?;
 
     println!("cuFFT, {n} samples of sin(50 t) + 0.5 sin(120 t)");
     let mut peaks = 0;
     let mut passed = true;
+
     for (f, pair) in result.chunks(2).enumerate() {
         let size = (pair[0] as f64).hypot(pair[1] as f64);
-        if size > 1.0 {
-            println!("  frequency {f:3}: magnitude {size:.1}");
-            peaks += 1;
-            passed &= f == 50 || f == 120;
+        if size <= 1.0 {
+            continue;
         }
+
+        println!("  frequency {f:3}: magnitude {size:.1}");
+        peaks += 1;
+        passed &= f == 50 || f == 120;
     }
 
     // SAFETY: the plan is live and is not used after this call.
-    ok(unsafe { cufftDestroy(plan) }, "cufftDestroy")?;
+    let result = unsafe { cufftDestroy(plan) };
+    ok(result, "cufftDestroy")?;
     Ok(passed && peaks == 2)
 }
 
@@ -145,6 +164,8 @@ fn main() -> Result<(), Error> {
 
     let mut passed = normal_numbers(&stream)?;
     passed &= spectrum(&stream)?;
-    println!("{}", if passed { "PASSED" } else { "FAILED" });
+
+    let verdict = if passed { "PASSED" } else { "FAILED" };
+    println!("{verdict}");
     Ok(())
 }

@@ -124,6 +124,7 @@ fn graphs(
     let s = stream.cu_stream();
     let mut graph = std::ptr::null_mut();
     let mut exec = std::ptr::null_mut();
+
     // SAFETY: `s` is a live stream, and no other thread queues work while it is captured.
     unsafe { sys::cuStreamBeginCapture_v2(s, GLOBAL).result()? };
     for _ in 0..launches {
@@ -133,8 +134,10 @@ fn graphs(
     unsafe {
         sys::cuStreamEndCapture(s, &mut graph).result()?;
         sys::cuGraphInstantiateWithFlags(&mut exec, graph, 0).result()?;
-        sys::cuGraphLaunch(exec, s).result()?; // warm up
     }
+
+    // SAFETY: `exec` is the graph instantiated above, and `s` is still live.
+    unsafe { sys::cuGraphLaunch(exec, s).result()? }; // warm up
     stream.synchronize()?;
 
     let t0 = Instant::now();
@@ -143,9 +146,11 @@ fn graphs(
     stream.synchronize()?;
     let replay = t0.elapsed().as_secs_f64() * 1e3 / launches as f64;
 
+    let direct_us = direct * 1e3;
+    let replay_us = replay * 1e3;
     println!("1,000 launches of an empty kernel, time per kernel");
-    println!("  launched one by one   {:6.2} us", direct * 1e3);
-    println!("  replayed from a graph {:6.2} us", replay * 1e3);
+    println!("  launched one by one   {direct_us:6.2} us");
+    println!("  replayed from a graph {replay_us:6.2} us");
 
     // SAFETY: the stream is synchronized, so the GPU no longer uses either handle.
     unsafe {

@@ -208,7 +208,8 @@ int main()
     for (int call = 0; call < 8; ++call) {
         leakOnGpu(host);
     }
-    std::printf("  8 calls with new and no delete: %.1f MiB lost\n", poolMiB() - before);
+    double leaked = poolMiB() - before;
+    std::printf("  8 calls with new and no delete: %.1f MiB lost\n", leaked);
 
     std::printf("1 template, 3 types, %d values\n", BIG);
     {

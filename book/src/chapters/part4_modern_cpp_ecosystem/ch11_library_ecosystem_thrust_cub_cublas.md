@@ -177,7 +177,7 @@ differently, though not less accurately. Listing 11.1 times `thrust::reduce` on 
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:300:306}}
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:306:312}}
     // ...
 }
 ```
@@ -276,10 +276,10 @@ that can be called on both the host and the device.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:101:140}}
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:101:142}}
 }
 
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:172:215}}
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:174:219}}
 ```
 
 </div>
@@ -391,7 +391,7 @@ of actual memory traffic, although its program reports 43.0 GB/s because it coun
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:309:315}}
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:315:321}}
     // ...
 }
 ```
@@ -776,7 +776,7 @@ fn small_sums(
     values: &[f32],
 ) -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:243:258}}
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:249:264}}
     // ...
 }
 ```
@@ -820,7 +820,7 @@ kernel, which is still 49 times the time the memory needs.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:217:260}}
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:221:266}}
 ```
 
 </div>
@@ -1011,7 +1011,7 @@ Worked example: \\(A\\) is 2 × 3, \\(B = [7\ 8;\ 9\ 10;\ 11\ 12]\\) is 3 × 2
 ```rust,ignore
 fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error> {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:97:120}}
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:99:126}}
     // ...
 }
 ```
@@ -1081,7 +1081,7 @@ instruction.
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:176:205}}
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:194:226}}
     // ...
 }
 ```
@@ -1177,7 +1177,7 @@ numbers that precede them.
 ```rust,ignore
 fn normal_numbers(stream: &Arc<CudaStream>) -> Result<bool, Error> {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:63:81}}
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:63:87}}
     // ...
 }
 ```
@@ -1249,7 +1249,7 @@ frequency.
 ```rust,ignore
 fn spectrum(stream: &Arc<CudaStream>) -> Result<bool, Error> {
     // ...
-{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:115:123}}
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:127:138}}
     // ...
 }
 ```

@@ -175,7 +175,7 @@ the kernel and the time it takes to notice that the kernel has finished (figure 
 ```rust,ignore
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:168:185}}
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:173:190}}
     // ...
 }
 ```
@@ -392,7 +392,7 @@ record a graph is **stream capture**: between the calls `cudaStreamBeginCapture`
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:107:156}}
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:107:161}}
 ```
 
 </div>

@@ -297,21 +297,28 @@ bool blockScans(int n)
     check(cudaMalloc(&in, n * sizeof(unsigned)));
     check(cudaMalloc(&out, n * sizeof(unsigned)));
     check(cudaMemcpy(in, values.data(), n * sizeof(unsigned), cudaMemcpyHostToDevice));
-    scanBlocks<<<(n + BLOCK - 1) / BLOCK, BLOCK>>>(in, out, n);
+
+    int blocks = (n + BLOCK - 1) / BLOCK;
+    scanBlocks<<<blocks, BLOCK>>>(in, out, n);
     check(cudaMemcpy(result.data(), out, n * sizeof(unsigned), cudaMemcpyDeviceToHost));
 
     bool ok = true;
     unsigned running = 0;
     for (int i = 0; i < n; ++i) {
-        running = (i % BLOCK == 0 ? 0 : running) + values[i];
+        if (i % BLOCK == 0) {
+            running = 0;  // each block starts a scan of its own
+        }
+        running += values[i];
         ok = ok && result[i] == running;
     }
+
+    const char* verdict = ok ? "yes" : "no";
     std::printf("cub::BlockScan of %d values, 256 per block\n", n);
     std::printf("  first block:");
     for (int i = 0; i < 8; ++i) {
         std::printf(" %u", result[i]);
     }
-    std::printf(" ... %u  correct: %s\n", result[BLOCK - 1], ok ? "yes" : "no");
+    std::printf(" ... %u  correct: %s\n", result[BLOCK - 1], verdict);
 
     check(cudaFree(in));
     check(cudaFree(out));

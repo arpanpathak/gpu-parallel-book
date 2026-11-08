@@ -65,17 +65,15 @@ mod kernels {
 
         if t % 2 == 0 {
             thread::sync_threads();
-            if let Some(o) = out.get_mut(thread::index_1d()) {
-                // SAFETY: after the barrier, no thread writes S.
-                *o = unsafe { S[255 - t] };
-            }
         } else {
             thread::sync_threads();
-            if let Some(o) = out.get_mut(thread::index_1d()) {
-                // SAFETY: as above.
-                *o = unsafe { S[255 - t] };
-            }
         }
+
+        let Some(o) = out.get_mut(thread::index_1d()) else {
+            return;
+        };
+        // SAFETY: after the barrier, no thread writes S.
+        *o = unsafe { S[255 - t] };
     }
 
     /// 4. A sum over memory that nothing has written.
@@ -88,6 +86,7 @@ mod kernels {
             sum += input[i];
             i += 32;
         }
+
         total[0].fetch_add(sum, AtomicOrdering::Relaxed);
     }
 }

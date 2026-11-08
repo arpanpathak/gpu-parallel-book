@@ -440,7 +440,8 @@ fn main() -> Result<(), Error> {
     passed &= lost == 0.0;
 
     let moved = move_once(&stream, &host)?;
-    println!("  after a move: {moved} values, {:.1} MiB in use", pool_mib(&ctx)? - before);
+    let in_use = pool_mib(&ctx)? - before;
+    println!("  after a move: {moved} values, {in_use:.1} MiB in use");
     passed &= moved == N;
 
     if let Err(error) = PoolBuffer::<f32>::new(&stream, 1 << 45) {
@@ -451,9 +452,11 @@ fn main() -> Result<(), Error> {
     let triple = move |v: f32| factor * v;
     let input = DeviceBuffer::from_host(&stream, &floats)?;
     let mut out = DeviceBuffer::<f32>::zeroed(&stream, BIG)?;
+
     let config = LaunchConfig1D::new(blocks_for(BIG), BLOCK, 0);
     let prepared = module.prepare_transform_for(&factor, &triple, config)?;
     module.transform(&stream, &prepared, triple, &input, &mut out)?;
+
     let result = out.to_host_vec(&stream)?;
     let correct = result.iter().zip(&floats).filter(|&(&y, &x)| y == triple(x)).count();
     println!("  transform with a closure: {correct} of {BIG} correct");
@@ -463,6 +466,7 @@ fn main() -> Result<(), Error> {
     let config = LaunchConfig1D::new(blocks_for(N), BLOCK, 0);
     let prepared = module.prepare_count_above(config)?;
     module.count_above(&stream, &prepared, &y, 1.5, &count)?;
+
     let gpu_count = count.cast_elem::<u32>().to_host_vec(&stream)?[0] as usize;
     let cpu_count = gpu.iter().filter(|&&v| v > 1.5).count();
     println!("slice and DeviceAtomicU32: {gpu_count} values above 1.5, CPU {cpu_count}");

@@ -47,6 +47,7 @@ mod kernels {
     pub fn copy_grid_stride(input: &[f32], mut out: DisjointSlice<f32>) {
         let stride = (thread::gridDim_x() * thread::blockDim_x()) as usize;
         let mut i = thread::index_1d().get();
+
         while i < out.len() {
             // SAFETY: thread t writes only the elements i with i % stride == t, and no 2
             // threads of the grid have the same t.
@@ -200,6 +201,7 @@ fn main() -> Result<(), Error> {
         .chunks_exact(4)
         .map(|c| Float4([c[0], c[1], c[2], c[3]]))
         .collect();
+
     let input4 = DeviceBuffer::from_host(&stream, &quads)?;
     let mut out4 = DeviceBuffer::from_host(&stream, &vec![Float4([0.0; 4]); N / 4])?;
     let one = module.prepare_copy1(LaunchConfig1D::new((N / 256) as u32, 256, 0))?;
@@ -207,17 +209,19 @@ fn main() -> Result<(), Error> {
 
     let ms1 = time_ms(&stream, || Ok(module.copy1(&stream, &one, &input, &mut out)?))?;
     let ms4 = time_ms(&stream, || Ok(module.copy4(&stream, &four, &input4, &mut out4)?))?;
+    let copied = out4.to_host_vec(&stream)? == quads;
 
-    let (gb1, gb4) = (gb_per_s(2 * N * 4, ms1), gb_per_s(2 * N * 4, ms4));
+    let gb1 = gb_per_s(2 * N * 4, ms1);
+    let gb4 = gb_per_s(2 * N * 4, ms4);
     println!("copy of 64 MiB");
     println!("  1 float per thread    {ms1:6.2} ms   {gb1:6.1} GB/s");
     println!("  4 floats per thread   {ms4:6.2} ms   {gb4:6.1} GB/s");
-    let copied = out4.to_host_vec(&stream)? == quads;
 
     let grid = module.prepare_copy_grid_stride(LaunchConfig1D::new(64, 256, 0))?;
     module.copy_grid_stride(&stream, &grid, &input, &mut out)?;
     let strided = out.to_host_vec(&stream)? == values;
-    println!("copies correct: {}", if copied && strided { "yes" } else { "no" });
+    let copies = if copied && strided { "yes" } else { "no" };
+    println!("copies correct: {copies}");
 
     // 4. A coefficient from constant memory, read by every thread.
     let coeffs: [f32; 16] = std::array::from_fn(|k| k as f32 * 0.5);
@@ -227,7 +231,8 @@ fn main() -> Result<(), Error> {
 
     let result = out.to_host_vec(&stream)?;
     let correct = result.iter().zip(&values).all(|(r, v)| *r == v * 1.5);
-    println!("constant memory correct: {}", if correct { "yes" } else { "no" });
+    let verdict = if correct { "yes" } else { "no" };
+    println!("constant memory correct: {verdict}");
 
     Ok(())
 }

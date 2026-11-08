@@ -277,7 +277,7 @@ operator passes any failure up to `main` instead of ignoring it.
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:135:155}}
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:143:163}}
     // ...
 }
 ```
@@ -312,7 +312,7 @@ the staging buffer. `copy_to_pinned_host` copies from the device into a `PinnedH
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:157:170}}
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:165:178}}
     // ...
 }
 ```
@@ -456,7 +456,7 @@ the page run at full speed.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:69:97}}
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:69:99}}
 ```
 
 </div>
@@ -536,7 +536,7 @@ a discrete GPU, every load or store that a kernel makes to zero-copy memory cros
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:99:132}}
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:101:140}}
 ```
 
 </div>

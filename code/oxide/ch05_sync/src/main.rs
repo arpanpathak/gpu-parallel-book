@@ -8,7 +8,8 @@ use std::time::Instant;
 
 use cuda_core::{CudaContext, CudaStream, DeviceBuffer, DriverError, LaunchConfig1D};
 use cuda_device::atomic::{AtomicOrdering, BlockAtomicU32, DeviceAtomicF32, DeviceAtomicU32};
-use cuda_device::{DisjointSlice, SharedArray, cuda_module, kernel, launch_contract, thread};
+use cuda_device::{DisjointSlice, SharedArray, cuda_module, device, kernel, launch_contract};
+use cuda_device::thread;
 
 #[cuda_module]
 mod kernels {
@@ -93,33 +94,42 @@ mod kernels {
         }
     }
 
+    /// The loop of the odd threads: 64 steps of v = sin(v) + 1.
+    #[device]
+    fn sin_loop(mut v: f32) -> f32 {
+        let mut k = 0;
+        #[unroll]
+        while k < 64 {
+            v = v.sin() + 1.0;
+            k += 1;
+        }
+        v
+    }
+
+    /// The loop of the even threads: 64 steps of v = sqrt(v) / 2 + 1 / 4.
+    #[device]
+    fn sqrt_loop(mut v: f32) -> f32 {
+        let mut k = 0;
+        #[unroll]
+        while k < 64 {
+            v = v.sqrt() * 0.5 + 0.25;
+            k += 1;
+        }
+        v
+    }
+
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn branches(mut x: DisjointSlice<f32>, by_warp: bool) {
         let tid = thread::threadIdx_x();
         let odd = if by_warp { (tid / 32) % 2 == 1 } else { tid % 2 == 1 };
 
-        if let Some(x_i) = x.get_mut(thread::index_1d()) {
-            let mut v = *x_i;
+        let Some(x_i) = x.get_mut(thread::index_1d()) else {
+            return;
+        };
 
-            if odd {
-                let mut k = 0;
-                #[unroll]
-                while k < 64 {
-                    v = v.sin() + 1.0;
-                    k += 1;
-                }
-            } else {
-                let mut k = 0;
-                #[unroll]
-                while k < 64 {
-                    v = v.sqrt() * 0.5 + 0.25;
-                    k += 1;
-                }
-            }
-
-            *x_i = v;
-        }
+        let v = *x_i;
+        *x_i = if odd { sin_loop(v) } else { sqrt_loop(v) };
     }
 
     #[kernel]

@@ -71,6 +71,7 @@ int main()
     check(cudaMalloc(&a_dev, bytes));
     check(cudaMalloc(&b_dev, bytes));
     check(cudaMalloc(&c_dev, bytes));
+
     check(cudaMemcpyAsync(a_dev, a.data(), bytes, cudaMemcpyHostToDevice, stream));
     check(cudaMemcpyAsync(b_dev, b.data(), bytes, cudaMemcpyHostToDevice, stream));
     check(cudaMemsetAsync(c_dev, 0, bytes, stream));
@@ -80,6 +81,7 @@ int main()
 
     // 5. Launch, then copy the result back. The copy waits for the kernel.
     std::vector<float> c(N);
+
     auto start = std::chrono::steady_clock::now();
     vectorAdd<<<blocks, BLOCK, 0, stream>>>(a_dev, b_dev, c_dev, N);
     check(cudaGetLastError());

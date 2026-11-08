@@ -1118,7 +1118,7 @@ fn main() -> Result<(), Error> {
 int main()
 {
     // ...
-{{#include ../../../../code/ch10_modern/modern.cu:237:258}}
+{{#include ../../../../code/ch10_modern/modern.cu:238:259}}
     // ...
 }
 ```

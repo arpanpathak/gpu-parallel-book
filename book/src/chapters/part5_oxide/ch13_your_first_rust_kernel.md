@@ -325,7 +325,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```cpp
 int main()
 {
-{{#include ../../../../code/cuda/ch13_vector_add/vector_add.cu:56:76}}
+{{#include ../../../../code/cuda/ch13_vector_add/vector_add.cu:56:77}}
     // ...
 }
 ```
@@ -357,7 +357,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 int main()
 {
     // ...
-{{#include ../../../../code/cuda/ch13_vector_add/vector_add.cu:78:88}}
+{{#include ../../../../code/cuda/ch13_vector_add/vector_add.cu:79:90}}
     // ...
 }
 ```
@@ -414,7 +414,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 int main()
 {
     // ...
-{{#include ../../../../code/cuda/ch13_vector_add/vector_add.cu:90:98}}
+{{#include ../../../../code/cuda/ch13_vector_add/vector_add.cu:92:100}}
     // ...
 }
 ```

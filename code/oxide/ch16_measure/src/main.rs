@@ -82,13 +82,17 @@ fn limits(ctx: &CudaContext) -> Result<(), DriverError> {
     let mem_clock_khz = attribute(device, MEM_CLOCK)?;
     let bus_bits = attribute(device, BUS_BITS)?;
     let shared_kib = attribute(device, SHM)? / 1024;
+    let l2_kib = attribute(device, L2_BYTES)? / 1024;
+    let registers = attribute(device, REGS)?;
+    let max_threads = ctx.max_threads_per_multiprocessor()?;
+    let name = ctx.device_name()?;
 
-    println!("{}, compute capability {major}.{minor}", ctx.device_name()?);
+    println!("{name}, compute capability {major}.{minor}");
     println!("  SMs                       {sms:8}");
-    println!("  threads per SM, at most   {:8}", ctx.max_threads_per_multiprocessor()?);
-    println!("  registers per SM          {:8}", attribute(device, REGS)?);
+    println!("  threads per SM, at most   {max_threads:8}");
+    println!("  registers per SM          {registers:8}");
     println!("  shared memory per SM      {shared_kib:8} KiB");
-    println!("  L2 cache                  {:8} KiB", attribute(device, L2_BYTES)? / 1024);
+    println!("  L2 cache                  {l2_kib:8} KiB");
     println!("  SM clock                  {:8} MHz", sm_clock_khz / 1000);
     println!("  memory clock              {:8} MHz", mem_clock_khz / 1000);
     println!("  memory bus                {bus_bits:8} bits");
@@ -114,8 +118,10 @@ fn main() -> Result<(), Error> {
 
     let n: usize = 64 << 20; // 67,108,864 floats, 256 MiB per array
     let bytes = 2.0 * (n * size_of::<f32>()) as f64;
+
     let mut x = DeviceBuffer::<f32>::zeroed(&stream, n)?;
     let mut y = DeviceBuffer::<f32>::zeroed(&stream, n)?;
+
     let fill = module.prepare_fill(LaunchConfig1D::new(n.div_ceil(256) as u32, 256, 0))?;
     module.fill(&stream, &fill, &mut x)?;
     stream.synchronize()?;
@@ -123,7 +129,8 @@ fn main() -> Result<(), Error> {
     // The first 40 runs of y = 2 x.
     let mut ms = Vec::with_capacity(40);
     for _ in 0..40 {
-        ms.push(time_scale(&stream, &module, &x, &mut y)?);
+        let t = time_scale(&stream, &module, &x, &mut y)?;
+        ms.push(t);
     }
 
     println!("y = 2 x over 256 MiB, the first 40 runs in ms");
@@ -132,7 +139,8 @@ fn main() -> Result<(), Error> {
         print!(" {t:5.2}{end}");
     }
 
-    let mean = ms.iter().map(|&t| t as f64).sum::<f64>() / ms.len() as f64;
+    let total: f64 = ms.iter().map(|&t| t as f64).sum();
+    let mean = total / ms.len() as f64;
 
     let mut last = ms[20..].to_vec();
     last.sort_by(f32::total_cmp);
@@ -143,7 +151,8 @@ fn main() -> Result<(), Error> {
 
     // The report by hand: bytes moved / time.
     let gbs = bytes / (median as f64 * 1e-3) / 1e9;
-    println!("bytes moved             {:7.0} MiB", bytes / (1 << 20) as f64);
+    let mib = bytes / (1 << 20) as f64;
+    println!("bytes moved             {mib:7.0} MiB");
     println!("achieved bandwidth      {gbs:7.1} GB/s");
 
     let scale = module.prepare_scale(LaunchConfig1D::new(1, 256, 0))?;
@@ -151,9 +160,14 @@ fn main() -> Result<(), Error> {
     println!("blocks of 256 per SM    {blocks:7} = {} threads", blocks * 256);
 
     let result = y.to_host_vec(&stream)?;
-    let wrong = (0..n).filter(|&i| result[i] != 2.0 * (i % 1000) as f32).count();
+    let expected = |i: usize| 2.0 * (i % 1000) as f32;
+    let wrong = (0..n).filter(|&i| result[i] != expected(i)).count();
+
     let verdict = if wrong == 0 { "PASSED" } else { "FAILED" };
     println!("{verdict}: {wrong} of {n} elements wrong");
 
-    if wrong == 0 { Ok(()) } else { Err("wrong elements".into()) }
+    if wrong > 0 {
+        return Err("wrong elements".into());
+    }
+    Ok(())
 }

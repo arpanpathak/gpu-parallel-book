@@ -76,6 +76,7 @@ fn unified_memory(
     let global = sys::CUmemAttach_flags_enum_CU_MEM_ATTACH_GLOBAL;
     // SAFETY: cuMemAllocManaged stores the address of N new floats in `ptr`.
     unsafe { sys::cuMemAllocManaged(&mut ptr, N * size_of::<f32>(), global) }.result()?;
+
     // SAFETY: `ptr` holds N floats; the buffer frees them with cuMemFree, as CUDA requires.
     let mut managed = unsafe { DeviceBuffer::<f32>::from_raw_parts(ptr, N, ctx.clone()) };
 
@@ -86,6 +87,7 @@ fn unified_memory(
     println!("unified memory, kernel over {} MiB", managed.num_bytes() >> 20);
     let first = time_scale(module, stream, &mut managed, 1)?;
     let next = time_scale(module, stream, &mut managed, 10)?;
+
     println!("  1st launch, after the host wrote it  {first:6.2} ms");
     println!("  next 10 launches, average            {next:6.2} ms");
 
@@ -107,24 +109,30 @@ fn zero_copy(
     let mut host: *mut c_void = std::ptr::null_mut();
     let mut ptr: sys::CUdeviceptr = 0;
     let mapped_flag = sys::CU_MEMHOSTALLOC_DEVICEMAP;
+
     // SAFETY: cuMemHostAlloc stores the address of `bytes` new pinned bytes in `host`.
     unsafe { sys::cuMemHostAlloc(&mut host, bytes, mapped_flag) }.result()?;
     // SAFETY: `host` is mapped memory; its address for kernels is stored in `ptr`.
     unsafe { sys::cuMemHostGetDevicePointer_v2(&mut ptr, host, 0) }.result()?;
+
     // SAFETY: `host` holds `bytes` bytes, and no kernel uses them yet.
     unsafe { std::ptr::write_bytes(host.cast::<u8>(), 0, bytes) };
+
     // SAFETY: `ptr` addresses N floats; into_raw_parts below stops the buffer freeing them.
     let mut mapped = unsafe { DeviceBuffer::<f32>::from_raw_parts(ptr, N, ctx.clone()) };
 
     time_scale(module, stream, device, 1)?; // warm up the kernel itself
     println!("kernel over {} MiB, average of 10 launches", bytes >> 20);
+
     let in_device = time_scale(module, stream, device, 10)?;
     println!("  in device memory      {in_device:6.2} ms");
+
     let in_mapped = time_scale(module, stream, &mut mapped, 10)?;
     println!("  in zero-copy memory   {in_mapped:6.2} ms");
 
     // Pinned host memory is freed with cuMemFreeHost, not with the buffer's cuMemFree.
     let _ = mapped.into_raw_parts();
+
     // SAFETY: time_scale waited for the kernels, so no kernel uses the memory any more.
     unsafe { sys::cuMemFreeHost(host) }.result()?;
 
@@ -171,6 +179,7 @@ fn main() -> Result<(), Error> {
 
     // SAFETY: the loaded code was compiled from the `kernels` module above.
     let module = unsafe { kernels::load(&ctx)? };
+
     unified_memory(&module, &ctx, &stream)?;
     zero_copy(&module, &ctx, &stream, &mut device)?;
 

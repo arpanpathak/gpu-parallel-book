@@ -46,10 +46,10 @@ unsafe extern "C" {
 /// cuBLAS returns 0 for success and an error number otherwise.
 fn ok(result: c_int, call: &str) -> Result<(), Error> {
     if result == 0 {
-        Ok(())
-    } else {
-        Err(format!("{call} failed with cuBLAS error {result}").into())
+        return Ok(());
     }
+
+    Err(format!("{call} failed with cuBLAS error {result}").into())
 }
 
 /// The device address of a buffer, as the pointer type cuBLAS takes.
@@ -74,13 +74,15 @@ where
     Ok(start.elapsed().as_secs_f64() * 1e3 / runs as f64)
 }
 
+/// 1 row of a matrix as text, its values separated by spaces.
+fn row_text(row: &[f32]) -> String {
+    let values: Vec<String> = row.iter().map(|v| v.to_string()).collect();
+    values.join(" ")
+}
+
 fn print(name: &str, m: &[f32], rows: usize, cols: usize) {
-    let rows: Vec<String> = m
-        .chunks(cols)
-        .take(rows)
-        .map(|row| row.iter().map(|v| v.to_string()).collect::<Vec<_>>().join(" "))
-        .collect();
-    println!("  {name} = [{}]", rows.join("; "));
+    let lines: Vec<String> = m.chunks(cols).take(rows).map(row_text).collect();
+    println!("  {name} = [{}]", lines.join("; "));
 }
 
 /// C = A B for a 2 x 3 matrix A and a 3 x 2 matrix B, all stored row by row.
@@ -96,6 +98,7 @@ fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error
 
     let (one, zero) = (1.0f32, 0.0f32);
     let op = CUBLAS_OP_N;
+
     println!("C = A B with A 2 x 3 and B 3 x 2, stored row by row");
     print("A", &a, 2, 3);
     print("B", &b, 3, 2);
@@ -107,7 +110,9 @@ fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error
         cublasSgemm_v2(handle, op, op, 2, 2, 3, &one, pa, 2, pb, 3, &zero, pc, 2)
     };
     ok(result, "cublasSgemm")?;
-    print("C, operands as given  ", &c_dev.to_host_vec(stream)?, 2, 2);
+
+    let c = c_dev.to_host_vec(stream)?;
+    print("C, operands as given  ", &c, 2, 2);
 
     // Right: in column-major terms our arrays hold A^T and B^T. Ask for B^T A^T = C^T,
     // whose column-major storage is C row by row.
@@ -116,6 +121,7 @@ fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error
         cublasSgemm_v2(handle, op, op, 2, 2, 3, &one, pb, 2, pa, 3, &zero, pc, 2)
     };
     ok(result, "cublasSgemm")?;
+
     let c = c_dev.to_host_vec(stream)?;
     print("C, operands swapped   ", &c, 2, 2);
 
@@ -124,12 +130,23 @@ fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error
 
 /// Values in [-0.5, 0.5) from a small linear congruential generator, as in Chapter 9.
 fn random_matrix(state: &mut u32) -> Vec<f32> {
-    (0..N * N)
-        .map(|_| {
-            *state = state.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
-            (*state >> 8) as f32 / 16_777_216.0 - 0.5
-        })
-        .collect()
+    let mut m = Vec::with_capacity(N * N);
+
+    for _ in 0..N * N {
+        *state = state.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+        m.push((*state >> 8) as f32 / 16_777_216.0 - 0.5);
+    }
+    m
+}
+
+/// Element (i, j) of A B, computed in double precision.
+fn exact_element(a: &[f32], b: &[f32], i: usize, j: usize) -> f64 {
+    let mut sum = 0.0;
+
+    for k in 0..N {
+        sum += a[i * N + k] as f64 * b[k * N + j] as f64;
+    }
+    sum
 }
 
 /// The largest difference from a double-precision product, over 64 elements of C.
@@ -139,11 +156,10 @@ fn max_error(a: &[f32], b: &[f32], c: &[f32]) -> f64 {
     for s in 0..64 {
         let i = s * 977 % N;
         let j = (s * 1231 + 7) % N;
-        let mut exact = 0.0;
-        for k in 0..N {
-            exact += a[i * N + k] as f64 * b[k * N + j] as f64;
-        }
-        worst = worst.max((exact - c[i * N + j] as f64).abs());
+
+        let exact = exact_element(a, b, i, j);
+        let error = (exact - c[i * N + j] as f64).abs();
+        worst = worst.max(error);
     }
     worst
 }
@@ -156,7 +172,8 @@ fn main() -> Result<(), Error> {
     let start = Instant::now();
     let mut handle: Handle = std::ptr::null_mut();
     // SAFETY: `handle` is a valid place for cuBLAS to store its handle.
-    ok(unsafe { cublasCreate_v2(&mut handle) }, "cublasCreate")?;
+    let result = unsafe { cublasCreate_v2(&mut handle) };
+    ok(result, "cublasCreate")?;
     println!("cublasCreate took {:.1} ms", start.elapsed().as_secs_f64() * 1e3);
 
     // SAFETY: the handle is live, and the stream lives until the program ends.
@@ -168,6 +185,7 @@ fn main() -> Result<(), Error> {
     let mut state = 1;
     let a = random_matrix(&mut state);
     let b = random_matrix(&mut state);
+
     let a_dev = DeviceBuffer::from_host(&stream, &a)?;
     let b_dev = DeviceBuffer::from_host(&stream, &b)?;
     let c_dev = DeviceBuffer::<f32>::zeroed(&stream, N * N)?;
@@ -176,6 +194,7 @@ fn main() -> Result<(), Error> {
     let (one, zero) = (1.0f32, 0.0f32);
     let op = CUBLAS_OP_N;
     let n = N as c_int;
+
     let mut gemm = || -> Result<(), Error> {
         // SAFETY: the 3 pointers address live buffers of N x N floats.
         let result = unsafe {
@@ -197,17 +216,21 @@ fn main() -> Result<(), Error> {
     }
 
     println!("C = A B, {N} x {N} floats, average of 10 runs");
-    let fp32 = report("cuBLAS, FP32", time_ms(&stream, 10, &mut gemm)?)?;
+    let ms = time_ms(&stream, 10, &mut gemm)?;
+    let fp32 = report("cuBLAS, FP32", ms)?;
 
     // SAFETY: the handle is live.
     let result = unsafe { cublasSetMathMode(handle, CUBLAS_TF32_TENSOR_OP_MATH) };
     ok(result, "cublasSetMathMode")?;
-    let tf32 = report("cuBLAS, TF32 tensor", time_ms(&stream, 10, &mut gemm)?)?;
+    let ms = time_ms(&stream, 10, &mut gemm)?;
+    let tf32 = report("cuBLAS, TF32 tensor", ms)?;
 
     passed &= fp32 < 1e-3 && tf32 < 1e-2;
-    println!("{}", if passed { "PASSED" } else { "FAILED" });
+    let verdict = if passed { "PASSED" } else { "FAILED" };
+    println!("{verdict}");
 
     // SAFETY: the handle is live and is not used after this call.
-    ok(unsafe { cublasDestroy_v2(handle) }, "cublasDestroy")?;
+    let result = unsafe { cublasDestroy_v2(handle) };
+    ok(result, "cublasDestroy")?;
     Ok(())
 }

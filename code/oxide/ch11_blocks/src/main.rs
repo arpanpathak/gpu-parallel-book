@@ -133,9 +133,11 @@ mod kernels {
         }
 
         sum = block_reduce::<f32, Sum, 8>(&block, sum, &raw mut WARPS);
+
         if thread::threadIdx_x() == 0 {
+            let b = thread::blockIdx_x() as usize;
             // SAFETY: only thread 0 of each block writes, at its own block number.
-            unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = sum };
+            unsafe { *partial.get_unchecked_mut(b) = sum };
         }
     }
 }
@@ -182,10 +184,12 @@ fn sums_of_squares(
     let mut squares = DeviceBuffer::<f32>::zeroed(stream, n)?;
     let mut partial = DeviceBuffer::<f32>::zeroed(stream, GRID as usize)?;
     let mut total = DeviceBuffer::<f32>::zeroed(stream, 1)?;
+
     let each = module.prepare_map(LaunchConfig1D::new(n as u32 / BLOCK, BLOCK, 0))?;
     let grid = module.prepare_map_sum(LaunchConfig1D::new(GRID, BLOCK, 0))?;
     let fused = module.prepare_map_sum(LaunchConfig1D::new(GRID, BLOCK, 0))?;
     let one = module.prepare_map_sum(LaunchConfig1D::new(1, BLOCK, 0))?;
+
     let square = |v: f32| v * v;
     let same = |v: f32| v;
 
@@ -225,9 +229,11 @@ fn small_sums(
     let n = 4096;
     let blocks = 16;
     let input = DeviceBuffer::from_host(stream, &values[..n])?;
+
     let grid = module.prepare_map_sum(LaunchConfig1D::new(blocks, BLOCK, 0))?;
     let one = module.prepare_map_sum(LaunchConfig1D::new(1, BLOCK, 0))?;
     let same = |v: f32| v;
+
     println!("sum of {n} floats, microseconds per sum");
 
     let ms = time_ms(stream, || {
