@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 456" width="640" height="456" role="img" aria-label="Two ways to load the 4 by 4 tile of block (1, 1). Left, extra threads: the block has 4 by 4 = 16 threads, 1 per slot; all 16 load, and only the inner 4 compute. Right, a loop: the block has 2 by 2 = 4 threads, and each loads 4 slots, at rows ty and ty + 2 and columns tx and tx + 2; the slots are colored by the thread that loads them. A note gives the counts for the programs: 34 by 10 = 340 threads, 256 of which compute; or 256 threads, of which 180 load 1 slot, 72 load 2 and 4 load 4.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 456" width="640" height="456" role="img" aria-label="Two ways to load the 4 by 4 tile of block (1, 1). Left, extra threads: the block has 4 by 4 = 16 threads, 1 per slot; all 16 load, and only the inner 4 compute. Right, a loop: the block has 2 by 2 = 4 threads, and each loads 4 slots, at rows threadIdx.y and threadIdx.y + 2 and columns threadIdx.x and threadIdx.x + 2; the slots are colored by the thread that loads them. A note gives the counts for the programs: 34 by 10 = 340 threads, 256 of which compute; or 256 threads, of which 180 load 1 slot, 72 load 2 and 4 load 4.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -113,8 +113,8 @@
   <text x="52.0" y="368.0" class="note" text-anchor="start" xml:space="preserve">the 4 green ones also compute.</text>
   <text x="52.0" y="396.0" class="note" text-anchor="start" xml:space="preserve">Programs: 34 × 10 = 340 threads,</text>
   <text x="52.0" y="412.0" class="note" text-anchor="start" xml:space="preserve">256 of them compute.</text>
-  <text x="348.0" y="352.0" class="note" text-anchor="start" xml:space="preserve">Each thread loads every slot (i, j)</text>
-  <text x="348.0" y="368.0" class="note" text-anchor="start" xml:space="preserve">with i ≡ ty, j ≡ tx (mod 2): 4 slots.</text>
+  <text x="348.0" y="352.0" class="note" text-anchor="start" xml:space="preserve">Each thread loads every slot whose</text>
+  <text x="348.0" y="368.0" class="note" text-anchor="start" xml:space="preserve">row and column match its own mod 2.</text>
   <text x="348.0" y="396.0" class="note" text-anchor="start" xml:space="preserve">Programs: 256 threads; 180 load 1 slot,</text>
   <text x="348.0" y="412.0" class="note" text-anchor="start" xml:space="preserve">72 load 2, and 4 load 4.</text>
 </svg>
