@@ -65,6 +65,13 @@ blocks of 256 threads, and every thread executes `*counter = *counter + 1` on th
 The second kernel, `countAtomic`, performs the same increment with `atomicAdd`, which we discuss
 in section 5.5.
 
+In Rust, the plain statement `counter[0] = counter[0] + 1` on a slice that all threads share
+does not compile: the kernel receives the slice as a shared reference, and the compiler rejects
+the write with error E0594. The Rust kernel `count_racy` therefore writes the same race
+explicitly. It reads the counter with an atomic load and writes the incremented value back with a
+separate atomic store, so another thread can store between the 2 operations, exactly as in the
+plain C++ addition.
+
 <p class="listing"><b>Listing 5.1</b> 2 ways to count. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
 
 <div class="code-tabs">
@@ -73,33 +80,7 @@ in section 5.5.
 ```rust,ignore
 mod kernels {
     // ...
-    #[kernel]
-    #[launch_contract(domain = 1, block = (256, 1, 1))]
-    pub fn count_racy(counter: &[u32]) {
-        counter[0] = counter[0] + 1;
-    }
-    // ...
-}
-```
-
-```console
-$ cargo oxide build
-error[E0594]: cannot assign to `counter[_]`, which is behind a `&` reference
-  --> src/main.rs:20:9
-   |
-20 |         counter[0] = counter[0] + 1;
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ `counter` is a `&` reference, so it cannot be written to
-   |
-help: consider changing this to be a mutable reference
-   |
-19 |     pub fn count_racy(counter: &mut [u32]) {
-   |                                 +++
-```
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:18:22}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:18:32}}
     // ...
 }
 ```
@@ -129,7 +110,8 @@ second GPU. Nearly every update was lost, because thousands of threads read the 
 the same time and wrote back almost the same value. The count also changes from one run to the
 next. Note that the kernel completed without any error. The hardware does not detect races, so a
 racy kernel stores a wrong result in exactly the same way as a correct kernel stores a right one.
-The atomic version counted all 1,048,576 additions.
+The atomic version counted all 1,048,576 additions. The Rust program behaves in the same way: its load-and-store kernel counted
+94 of the 1,048,576 additions, and its `fetch_add` kernel counted all of them.
 
 Animation 1 shows the race with 2 threads, followed by the same 2 additions performed with
 `atomicAdd`.
@@ -156,7 +138,7 @@ written this way.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:18:22}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:28:32}}
     // ...
 }
 ```
@@ -181,11 +163,11 @@ function `atomic_u32` then calls `cast_elem` to change the element type that the
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:158:164}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:168:174}}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:172:179}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:182:197}}
     // ...
 }
 ```
@@ -238,7 +220,7 @@ threads take each loop. The 2 runs of the kernel differ only in which threads ta
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:97:133}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:107:143}}
     // ...
 }
 ```
@@ -322,7 +304,7 @@ levels. Figure 5.4 shows the same tree for 8 values.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:65:95}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:75:105}}
     // ...
 }
 ```
@@ -482,7 +464,7 @@ with `atomicAdd`.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:24:34}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:34:44}}
     // ...
 }
 ```
@@ -520,7 +502,7 @@ At the end, each block adds its totals to the global bins once (figure 5.6).
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:36:63}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:46:73}}
     // ...
 }
 ```
@@ -620,7 +602,7 @@ value.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:135:143}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:145:153}}
 }
 ```
 

@@ -15,6 +15,16 @@ use cuda_device::thread;
 mod kernels {
     use super::*;
 
+    // A lost update on purpose. The load and the store are 2 separate operations,
+    // so another thread can store between them, exactly like the plain C++ add.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn count_racy(counter: &[DeviceAtomicU32]) {
+        let seen = counter[0].load(AtomicOrdering::Relaxed);
+
+        counter[0].store(seen + 1, AtomicOrdering::Relaxed);
+    }
+
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn count(counter: &[DeviceAtomicU32]) {
@@ -169,13 +179,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // SAFETY: the loaded code was compiled from the `kernels` module above.
     let module = unsafe { kernels::load(&ctx)? };
 
-    // 1. 1,048,576 threads each add 1 to 1 counter.
-    let counter = atomic_u32(&stream, 1)?;
-    let launch = module.prepare_count(LaunchConfig1D::new(4096, 256, 0))?;
-    module.count(&stream, &launch, &counter)?;
+    // 1. 1,048,576 threads each add 1 to 1 counter, with a race and with an atomic.
+    let grid = LaunchConfig1D::new(4096, 256, 0);
 
+    let racy = atomic_u32(&stream, 1)?;
+    let launch = module.prepare_count_racy(grid)?;
+    module.count_racy(&stream, &launch, &racy)?;
+    let lost = racy.cast_elem::<u32>().to_host_vec(&stream)?;
+
+    let counter = atomic_u32(&stream, 1)?;
+    let launch = module.prepare_count(grid)?;
+    module.count(&stream, &launch, &counter)?;
     let result = counter.cast_elem::<u32>().to_host_vec(&stream)?;
+
     println!("1,048,576 threads each add 1 to 1 counter");
+    println!("  load, store  counter = {}", lost[0]);
     println!("  fetch_add    counter = {}", result[0]);
 
     // 2. A histogram of 64 MiB of bytes, with global bins and with shared bins.
