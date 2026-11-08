@@ -892,7 +892,7 @@ need.
 function that the GPU runs many times at once; each run is a **thread** with its own variables. A
 **block** is a group of threads that run on the same streaming multiprocessor (SM), share a region
 of fast memory, and can wait for one another. The **grid** is the set of all blocks of 1 launch.
-Inside a block, a thread knows its index \\(\mathsf{threadIdx{.}x}\\), and the index of its block,
+Inside a block, each thread can read its index \\(\mathsf{threadIdx{.}x}\\), and the index of its block,
 \\(\mathsf{blockIdx{.}x}\\).
 
 *Example.* For the 4,096 rows of Section 23.7, the grid has 4,096 blocks of 256 threads; for

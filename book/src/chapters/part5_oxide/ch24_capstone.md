@@ -1130,7 +1130,7 @@ square root. The edge image still agreed with the CPU's edge image in every pixe
 checksum. The rounding of line 5 depends on the exact root only at the sums of squares
 \\((4k + 2)^2\\), where \\(k\\) is any non-negative integer. For example, for \\(g_x = 10\\) and
 \\(g_y = 0\\), with \\(k = 2\\), we have \\(\sqrt{100} = 10\\) and \\(10 / 4 + 1/2 = 3\\) exactly,
-and a root a little below 10 would give 2. The approximate root of the measured GPU returned these
+and a root slightly below 10 would give 2. The approximate root of the measured GPU returned these
 integer roots exactly. The programs nevertheless keep the correctly rounded root, because it agrees
 with the CPU by its definition, not by a test on 1 GPU and 1 image.
 
@@ -1324,7 +1324,7 @@ writes 1, and the row pass reads 1 byte and writes a 2-byte row sum. For the gra
 effective bandwidth is therefore \\(4 \cdot 2{,}073{,}600\\) bytes in 0.183 ms, about 45 GB/s. The
 histogram was the only stage whose time changed by much more than 10% between runs, from 0.054 to
 0.117 ms in both languages, and the table quotes the more frequent value. The 7 stages issued 1
-after the other take 1.165 ms in C++, a little more than the sum of their separate times.
+after the other take 1.165 ms in C++, slightly more than the sum of their separate times.
 
 <figure>
 <img src="../../figures/ch24-stages.svg" alt="Paired horizontal bars of the measured time of each stage for 1 image, Rust then C++: grayscale 0.200 ms and 0.183 ms; histogram 0.056 ms and 0.055 ms; table 0.007 ms and 0.007 ms; apply table 0.185 ms and 0.192 ms; blur rows 0.301 ms and 0.208 ms; blur columns 0.280 ms and 0.210 ms; sobel 0.350 ms and 0.225 ms. The sums are 1.380 ms in Rust and 1.079 ms in C++.">

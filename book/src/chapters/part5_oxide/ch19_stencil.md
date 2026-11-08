@@ -667,7 +667,7 @@ those to the left and right are at `center - 1` and `center + 1`. For cell (2, 2
 4 values in the same order and multiply by 0.25 last, as the CPU reference of the programs does,
 so that the GPU and the CPU round identically.
 
-<p class="listing"><b>Listing 19.1</b> 1 Jacobi step, 1 thread per cell.</p>
+<p class="listing"><b>Listing 19.1</b> One Jacobi step, one thread per cell.</p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">

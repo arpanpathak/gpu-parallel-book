@@ -480,7 +480,7 @@ since every thread works alone. The tiled kernel of Chapter 17, in contrast, dep
 ### 16.3.4 Memories of the device
 
 To compute \\(c_{12}\\), a thread needs row 1 of \\(A\\) and column 2 of \\(B\\). How long the
-thread waits for these values depends on where they are stored, so we now look at the memories
+thread waits for these values depends on where they are stored, so we now describe the memories
 inside the device, which are shown in Figure 16.10.
 
 <figure>
@@ -654,7 +654,7 @@ FLOP per float fetched from memory to keep its arithmetic units busy, namely 94 
 <div class="key-observation">
 
 <span class="box-label">Key observation</span> The 4 threads computing row 0 of \\(C\\) all need
-the same value \\(a_{01}\\). If these threads belong to the same block, 1 of them can copy
+the same value \\(a_{01}\\). If these threads belong to the same block, one of them can copy
 \\(a_{01}\\) into shared memory, and the other 3 can take it from there.
 
 </div>
@@ -846,7 +846,7 @@ pub fn matmul<T>(
 </div>
 
 In C++, we write the 3 relations ourselves, in the host function `violated`, and call it before a
-launch. In this way, the C++ program refuses the same launches as the Rust program.
+launch. In this way, the C++ program rejects the same launches as the launch contract does in Rust.
 
 In Rust, the host prepares a launch once with `module.prepare_matmul::<T>(config)`, which checks
 the grid and block shapes against the contract and against the limits of the GPU. It then

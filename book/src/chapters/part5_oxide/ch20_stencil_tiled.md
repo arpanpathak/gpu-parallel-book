@@ -46,7 +46,7 @@ is the range of integers from \\(a\\) to \\(b - 1\\).
 ### 20.1.1 The plate and the direct kernel
 
 We use the plate of Chapter 19, which has 6 × 6 cells, with the top edge held at 100 and the other
-edges at 0. We look at step 2, which reads the grid after step 1 and writes the grid of step 2. In
+edges at 0. Consider step 2, which reads the grid after step 1 and writes the grid of step 2. In
 the grid after step 1, row 1 holds 25 and every other interior cell holds 0. Recall that in the
 direct kernel of Chapter 19, the thread of each interior cell \\((r, c)\\) reads the 4 values
 \\(u_{r-1,c}\\), \\(u_{r+1,c}\\), \\(u_{r,c-1}\\) and \\(u_{r,c+1}\\) from global memory, which are
@@ -79,7 +79,7 @@ million different values, or 67 MB.
 <div class="key-observation">
 
 <span class="box-label">Key observation</span> The 4 threads that read \\(u_{2,2}\\) compute 4
-neighboring cells. If those threads belong to the same block, 1 of them can copy \\(u_{2,2}\\)
+neighboring cells. If those threads belong to the same block, one of them can copy \\(u_{2,2}\\)
 into shared memory, and the other 3 can read it from there.
 
 </div>
@@ -555,7 +555,7 @@ receives 0. The C++ version computes signed positions and tests `cell_row >= 0` 
 languages, the barrier, `thread::sync_threads()` in Rust and `__syncthreads()` in C++, lies
 outside every `if`.
 
-<p class="listing"><b>Listing 20.1</b> 1 Jacobi step from a tile, loaded with a loop.</p>
+<p class="listing"><b>Listing 20.1</b> One Jacobi step from a tile, loaded with a loop.</p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -591,10 +591,10 @@ through `get_mut` of the `DisjointSlice`.
 
 ### 20.6.2 The kernel with extra threads
 
-Listing 20.2 performs the same step with 34 × 10 threads per block, 1 thread per slot. Each thread
+Listing 20.2 performs the same step with 34 × 10 threads per block, one thread per slot. Each thread
 loads 1 slot, all threads wait at the barrier, and only the 32 × 8 inner threads compute a cell.
 
-<p class="listing"><b>Listing 20.2</b> 1 Jacobi step from a tile, loaded by 1 thread per slot.</p>
+<p class="listing"><b>Listing 20.2</b> One Jacobi step from a tile, loaded by one thread per slot.</p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -715,8 +715,8 @@ Recall from Section 19.8.3 that the direct kernel already moves only about 9 byt
 memory, namely 1.25 reads and 1 write, and that it runs within 12% of a copy. The 4 reads per cell
 that the direct kernel requests are mostly answered by the L1 and L2 caches, which keep the rows
 that neighboring warps share (Figure 19.11). The tile loads 1.33 values per result, 340 cells for
-256 results, and with the write, this amounts to \\(4 \cdot 1.33 + 4 = 9.3\\) bytes per cell. This
-is no less than what the direct kernel already moves. A tile can remove only the traffic that
+256 results, and with the write, this amounts to \\(4 \cdot 1.33 + 4 = 9.3\\) bytes per cell. The direct kernel
+already moves this much or less. A tile can remove only the traffic that
 reaches memory, and in this case, the caches have already removed it.
 
 Two further measurements support this explanation. First, we bypassed the L1 cache in the direct

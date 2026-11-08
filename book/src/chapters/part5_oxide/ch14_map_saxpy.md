@@ -187,7 +187,7 @@ Before we run the passes of the loop at the same time, we must know whether any 
 result of another pass. If pass 9 needed the value that pass 8 writes, pass 9 would have to wait
 for pass 8, and the two could not run together.
 
-Let us look at what each pass uses. Pass \\(i\\) reads \\(x_i\\) and \\(y_i\\), and it writes
+Consider what each pass uses. Pass \\(i\\) reads \\(x_i\\) and \\(y_i\\), and it writes
 \\(y_i\\). For example, pass 9 reads \\(x_9 = 8\\) and \\(y_9 = 3\\), and it writes 19. No other
 pass reads or writes position 9. The same is true at every position. The 12 passes therefore use 12
 separate pairs of memory locations, and no pass ever needs a value that another pass produces.

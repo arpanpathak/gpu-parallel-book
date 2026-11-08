@@ -1183,7 +1183,7 @@ array. Every access to the shared array is `unsafe` in Rust, because the compile
 barriers that make the accesses safe, so each `unsafe` block carries a `// SAFETY:` comment that
 states the argument of Section 21.6.3. Second, the output `y` has the type `DisjointSlice<u32>`,
 which can be written only through `get_mut(idx)`, with the index that `thread::index_1d()` returned
-to this thread. With 1 thread per value, the type itself proves that no 2 threads write the same
+to this thread. With one thread per value, the type itself proves that no 2 threads write the same
 element, and the write needs no `unsafe`. The total, which is written at the block number rather
 than at the thread index, uses `get_unchecked_mut` with its own safety comment. Third, the loop
 runs over a counter `step` rather than over `distance`. For a loop that doubles `distance`, the cuda-oxide
