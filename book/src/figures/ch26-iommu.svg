@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 496" width="660" height="496" role="img" aria-label="3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighbouring 4 KiB pages; the SMMU page table maps page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 496" width="660" height="496" role="img" aria-label="3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighboring 4 KiB pages; the SMMU page table maps page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -89,7 +89,7 @@
   <rect x="256.0" y="340.0" width="144.0" height="34.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
   <text x="328.0" y="361.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">no entry: fault</text>
   <path class="wire danger" d="M186,357 L256,357" marker-end="url(#head-danger)"/>
-  <text x="16.0" y="438.0" class="note" text-anchor="start" xml:space="preserve">The device sees 4 neighbouring pages; the SMMU maps each to wherever the OS put it. An</text>
+  <text x="16.0" y="438.0" class="note" text-anchor="start" xml:space="preserve">The device sees 4 neighboring pages; the SMMU maps each to wherever the OS put it. An</text>
   <text x="16.0" y="456.0" class="note" text-anchor="start" xml:space="preserve">address with no entry stops at the SMMU with a fault and never reaches the kernel&#x27;s data.</text>
   <text x="16.0" y="474.0" class="note" text-anchor="start" xml:space="preserve">A 64 MiB buffer in 4 KiB pages needs 64 MiB ÷ 4 KiB = 16,384 entries.</text>
 </svg>

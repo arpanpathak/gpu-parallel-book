@@ -195,7 +195,7 @@ def ex_hillis():
     parts.append(marker("outside"))
     parts.append(marker("store"))
     parts.append(marker("service"))
-    parts += notes(470, ["At offset d, element i adds element i - d of the previous row (grey cells, i < d,",
+    parts += notes(470, ["At offset d, element i adds element i - d of the previous row (gray cells, i < d,",
                          "are copied). The small labels give the range of x that each cell sums; the arrows",
                          "show element 7: 9 = 6 + 3, then 14 = 9 + 5, then 25 = 14 + 11."])
     save(OUT + "ch21-hillis.svg", 680, 536,
@@ -349,7 +349,7 @@ def ex_race_barrier():
                          "slot of b in step d = 1, and thread 2 reads b[0] = 3: a[2] = 8 + 3 = 11."])
     save(OUT + "ch21-race-barrier.svg", 680, 370,
          "A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with "
-         "b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterwards. "
+         "b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterward. "
          "Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.",
          "Without the barrier: a read before the write", "Thread 2 runs ahead into the next step.", parts)
 

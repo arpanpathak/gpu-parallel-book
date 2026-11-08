@@ -37,7 +37,7 @@ mod kernels {
 fn device_count() -> Result<usize, DriverError> {
     let mut count = 0;
     // SAFETY: `count` is a valid place for the driver to write 1 integer, and the driver
-    // was initialised by `CudaContext::new` before this call.
+    // was initialized by `CudaContext::new` before this call.
     unsafe { cuda_core::sys::cuDeviceGetCount(&mut count).result()? };
     Ok(count as usize)
 }

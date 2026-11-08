@@ -15,14 +15,14 @@
 # Part II  -  Writing CUDA C++ Kernels
 
 - [Chapter 4: Memory Management & Data Movement](chapters/part2_cuda_cpp_kernels/ch04_memory_management_data_movement.md)
-- [Chapter 5: Synchronisation, Atomics & Race Conditions](chapters/part2_cuda_cpp_kernels/ch05_synchronisation_atomics_races.md)
+- [Chapter 5: Synchronization, Atomics & Race Conditions](chapters/part2_cuda_cpp_kernels/ch05_synchronisation_atomics_races.md)
 - [Chapter 6: Streams, Events & Asynchronous Execution](chapters/part2_cuda_cpp_kernels/ch06_streams_events_asynchrony.md)
 
-# Part III  -  Optimisation & Advanced Patterns
+# Part III  -  Optimization & Advanced Patterns
 
-- [Chapter 7: Memory Optimisation Deep Dive](chapters/part3_optimisation/ch07_memory_optimisation_deep_dive.md)
+- [Chapter 7: Memory Optimization Deep Dive](chapters/part3_optimisation/ch07_memory_optimisation_deep_dive.md)
 - [Chapter 8: Reduction, Scan & Histogram](chapters/part3_optimisation/ch08_reduction_scan_histogram.md)
-- [Chapter 9: Optimised Matrix Multiplication](chapters/part3_optimisation/ch09_optimised_matrix_multiplication.md)
+- [Chapter 9: Optimized Matrix Multiplication](chapters/part3_optimisation/ch09_optimised_matrix_multiplication.md)
 
 # Part IV  -  Modern C++ & The CUDA Ecosystem
 

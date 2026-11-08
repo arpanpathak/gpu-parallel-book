@@ -261,7 +261,7 @@ save(OUT + "ch25-ulp.svg", 660, 530,
      "Bottom: 4 cards. Near 1, 1 ULP of a real float is 2 to the minus 23, about 0.000000119. Near e to the 10, "
      "22,026.47, 1 ULP is 2 to the minus 9, about 0.00195. expf was measured at most 2 ULPs from the nearest "
      "float to exp(x), __expf at most 8 ULPs, over x from minus 10 to 10.",
-     "Units in the last place", "The gap between neighbouring floats doubles at every power of 2.", parts)
+     "Units in the last place", "The gap between neighboring floats doubles at every power of 2.", parts)
 
 
 # 22.8  A tolerance that is too wide hides a bug; an input with a known answer does not.

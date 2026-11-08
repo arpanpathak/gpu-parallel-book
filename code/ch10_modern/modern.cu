@@ -134,6 +134,12 @@ void launchTooWide(const std::vector<float>& host)
     check(cudaGetLastError());
 }
 
+// The only way to skip a destructor: a buffer created with new and never deleted.
+void leakOnGpu(const std::vector<float>& host)
+{
+    new DeviceBuffer<float>(host);
+}
+
 // Time transform<T> on BIG values; return true if every result is right.
 template <Number T>
 bool timeType(const char* name, int runs)
@@ -198,6 +204,12 @@ int main()
     }
     std::printf("  copies sized by the type: %d of %d correct\n", correct, N);
     passed = passed && correct == N;
+
+    for (int call = 0; call < 8; ++call) {
+        leakOnGpu(host);
+    }
+    double leaked = poolMiB() - before;
+    std::printf("  8 calls with new and no delete: %.1f MiB lost\n", leaked);
 
     std::printf("1 template, 3 types, %d values\n", BIG);
     {

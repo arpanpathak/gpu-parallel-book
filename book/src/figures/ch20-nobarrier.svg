@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 310" width="640" height="310" role="img" aria-label="A timeline of 2 threads of block (1, 1) without the barrier. Thread (0, 0) loads its 4 slots and goes on to compute cell (2, 2); it reads tile position (0, 1) at a moment marked in red. Thread (0, 1) is delayed and stores 25 into position (0, 1) only afterwards. The result: thread (0, 0) reads the stale value 0 and writes 0 instead of 6.25.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 310" width="640" height="310" role="img" aria-label="A timeline of 2 threads of block (1, 1) without the barrier. Thread (0, 0) loads its 4 slots and goes on to compute cell (2, 2); it reads tile position (0, 1) at a moment marked in red. Thread (0, 1) is delayed and stores 25 into position (0, 1) only afterward. The result: thread (0, 0) reads the stale value 0 and writes 0 instead of 6.25.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

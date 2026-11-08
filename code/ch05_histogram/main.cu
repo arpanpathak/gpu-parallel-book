@@ -29,7 +29,7 @@ int main()
     const int n = 1 << 20;   // 1,048,576 elements
 
     // ------------------------------------------------------------------
-    // 5.5.1: privatised/atomic histogram
+    // 5.5.1: privatized/atomic histogram
     // ------------------------------------------------------------------
     std::vector<unsigned char> h_data(n);
     std::vector<int> h_ref(256, 0);

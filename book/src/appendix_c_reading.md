@@ -7,7 +7,7 @@
   B. Kirk and Wen-mei W. Hwu. The standard academic text on GPU programming;
   the source of many of the patterns this book presents from first principles
   (reduction, tiling, coalescing).
-- **CUDA C++ Best Practices Guide** - NVIDIA. The official optimisation
+- **CUDA C++ Best Practices Guide** - NVIDIA. The official optimization
   handbook; the §7.9 checklist in this book is a compressed version of its
   structure.
 - **Parallel Programming with C++** - Richard Vuduc et al. (course notes).

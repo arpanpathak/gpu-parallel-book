@@ -108,11 +108,11 @@ parts += [square(398, 140, 30, 30, heat(100), INK, width=1.6),
           note(440, 280, "rows 1 to 4, columns 1 to 4"),
           note(398, 330, "36 cells: 20 boundary, 16 interior."),
           note(398, 350, "Each interior cell must equal the"),
-          note(398, 366, "mean of its 4 neighbours:"),
+          note(398, 366, "mean of its 4 neighbors:"),
           note(398, 382, "16 equations, 16 unknowns.")]
 save(OUT + "ch19-plate.svg", 640, 460,
-     "A 6 by 6 grid of cells. The 6 cells of row 0 hold 100 and are coloured red. The other edge "
-     "cells, in column 0, column 5 and row 5, hold 0 and are coloured blue. The 16 cells of rows 1 "
+     "A 6 by 6 grid of cells. The 6 cells of row 0 hold 100 and are colored red. The other edge "
+     "cells, in column 0, column 5 and row 5, hold 0 and are colored blue. The 16 cells of rows 1 "
      "to 4 and columns 1 to 4 hold question marks. A legend explains that the 20 edge cells are "
      "boundary cells with fixed values and the 16 inner cells are interior cells, the unknowns.",
      "The plate as a grid of cells",
@@ -128,8 +128,8 @@ for (dx, dy), name, kind in cross:
     parts.append(square(cx + dx * s - 34, cy + dy * s - 34, 68, 68, tint, accent, name, width=1.6))
     if kind == "client":
         parts.append(note(cx + dx * s, cy + dy * s + 22, "× 1/4", "middle", fill=accent))
-parts += [note(48, 372, "weight 1/4 on each neighbour,"),
-          note(48, 390, "0 on the centre")]
+parts += [note(48, 372, "weight 1/4 on each neighbor,"),
+          note(48, 390, "0 on the center")]
 parts += [zone(302, 96, 306, 320, "cell (1, 1), final plate")]
 example = [("up", "u(0, 1)", FINAL[0][1]), ("down", "u(2, 1)", FINAL[2][1]),
            ("left", "u(1, 0)", FINAL[1][0]), ("right", "u(1, 2)", FINAL[1][2])]
@@ -140,15 +140,15 @@ total = sum(v for _, _, v in example)
 parts += [line(322, 272, 590, 272, INK, 1.2),
           mono(322, 296, "sum"), mono(586, 296, f"{total:.2f}", "end"),
           mono(322, 324, "× 1/4"), mono(586, 324, f"{total / 4:.2f}", "end", GREEN),
-          note(322, 362, f"The mean of the neighbours, {total / 4:.2f},"),
+          note(322, 362, f"The mean of the neighbors, {total / 4:.2f},"),
           note(322, 380, "equals the value of the cell itself.")]
 save(OUT + "ch19-stencil.svg", 640, 440,
-     "Left: a cross of 5 cells, the centre (r, c) and its neighbours (r-1, c) above, (r+1, c) "
-     "below, (r, c-1) to the left and (r, c+1) to the right, with weight 1/4 on each neighbour and "
-     "0 on the centre. Right: cell (1, 1) of the final plate: up 100, down 22.35, left 0, right "
+     "Left: a cross of 5 cells, the center (r, c) and its neighbors (r-1, c) above, (r+1, c) "
+     "below, (r, c-1) to the left and (r, c+1) to the right, with weight 1/4 on each neighbor and "
+     "0 on the center. Right: cell (1, 1) of the final plate: up 100, down 22.35, left 0, right "
      "59.47, sum 181.82, times 1/4 gives 45.45, the value of the cell.",
      "The 5-point stencil",
-     "Each interior value is the mean of its 4 neighbours: 4 reads and 4 operations.", parts)
+     "Each interior value is the mean of its 4 neighbors: 4 reads and 4 operations.", parts)
 
 # 19.3  The first steps of the plate, and the plate after 100 steps.
 parts = []
@@ -159,12 +159,12 @@ for k, (steps, title) in enumerate([(0, "step 0"), (1, "step 1"), (2, "step 2"),
     parts.append(text(x + 125, y, title, "name", "middle"))
     parts += plate(x, y + 14, jacobi(START, steps), 43, size=11)
 save(OUT + "ch19-steps.svg", 640, 690,
-     "4 copies of the 6 by 6 plate coloured by temperature. Step 0: top row 100, all else 0. Step "
+     "4 copies of the 6 by 6 plate colored by temperature. Step 0: top row 100, all else 0. Step "
      "1: the 4 cells of row 1 are 25. Step 2: row 1 reads 31.25, 37.5, 37.5, 31.25 and row 2 reads "
      "6.25 in each of its 4 interior cells. Step 100: rows 1 to 4 read 45.45, 59.47, 59.47, 45.45 / "
      "22.35, 32.95, 32.95, 22.35 / 10.98, 17.05, 17.05, 10.98 / 4.55, 7.20, 7.20, 4.55.",
      "Jacobi iteration on the plate",
-     "Each step replaces every interior cell by the mean of its old neighbours.", parts)
+     "Each step replaces every interior cell by the mean of its old neighbors.", parts)
 
 # 19.4  Updating in place: cell (1, 2) reads a neighbour that step 1 has already overwritten.
 parts = [zone(32, 96, 280, 190, "Jacobi: old values"),
@@ -202,9 +202,9 @@ save(OUT + "ch19-inplace.svg", 640, 480,
      "Left: cell (1, 2) in step 1 computed from the old grid, (100 + 0 + 0 + 0) / 4 = 25. Right: "
      "the same cell computed in place after cell (1, 1) was already overwritten with 25: (100 + 0 + "
      "25 + 0) / 4 = 31.25. Below, a timeline of 2 threads: the thread of cell (1, 1) writes 25; the "
-     "thread of cell (1, 2) then reads that 25 as its left neighbour.",
+     "thread of cell (1, 2) then reads that 25 as its left neighbor.",
      "Updating in place",
-     "In place, a thread can read a neighbour that the same step has already overwritten.", parts)
+     "In place, a thread can read a neighbor that the same step has already overwritten.", parts)
 
 # 19.5  The work of 1 thread: cell (2, 2) in step 2.
 side = 40
@@ -229,7 +229,7 @@ parts += [outline(52 + 2 * side - 2, 124 + 2 * side - 2, side + 1, side + 1, AMB
           note(32, 424, "Thread (2, 2) reads only buffer a and writes only its own cell of "
                         "buffer b: 4 reads, 1 write.")]
 save(OUT + "ch19-thread.svg", 640, 446,
-     "Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbours of cell (2, 2) are "
+     "Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbors of cell (2, 2) are "
      "outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer b on the right, where "
      "cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.",
      "The work of 1 thread",
@@ -453,5 +453,5 @@ save(OUT + "ch19-warp-reads.svg", 640, 436,
      "of warp 4 below. The block as a whole touches 10 rows of the old grid, its 8 rows and 1 on "
      "each side, so each old value is fetched from memory about 1.25 times per cell written.",
      "The rows read by a block",
-     "Neighbouring warps read each other's rows: 8 rows of results need 10 old rows.",
+     "Neighboring warps read each other's rows: 8 rows of results need 10 old rows.",
      parts)

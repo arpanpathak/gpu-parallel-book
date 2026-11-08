@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 436" width="640" height="436" role="img" aria-label="2 versions of the plate after step 2, side by side. Left, correct: row 1 reads 31.25, 37.5, 37.5, 31.25 and row 2 reads 6.25 in each interior cell. Right, without the halo: row 1 reads 25, 31.25, 31.25, 25 and row 2 reads 0; every differing cell is outlined in red. Block boundaries are drawn as thick lines, showing that each wrong cell has a neighbour in another block.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 436" width="640" height="436" role="img" aria-label="2 versions of the plate after step 2, side by side. Left, correct: row 1 reads 31.25, 37.5, 37.5, 31.25 and row 2 reads 6.25 in each interior cell. Right, without the halo: row 1 reads 25, 31.25, 31.25, 25 and row 2 reads 0; every differing cell is outlined in red. Block boundaries are drawn as thick lines, showing that each wrong cell has a neighbor in another block.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -38,7 +38,7 @@
   </defs>
   <rect width="640" height="436" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Without the halo</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Every cell whose neighbour belongs to another block loses that neighbour.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Every cell whose neighbor belongs to another block loses that neighbor.</text>
   <rect x="32" y="96" width="288" height="316" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="50" y="85" width="146.0" height="22" rx="11" fill="#1B2430"/>
   <text x="123.0" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">STEP 2, CORRECT</text>
@@ -206,6 +206,6 @@
   <rect x="484.0" y="210.0" width="45.0" height="45.0" rx="5" fill="none" stroke="#CF4526" stroke-width="2.2"/>
   <rect x="528.0" y="210.0" width="45.0" height="45.0" rx="5" fill="none" stroke="#CF4526" stroke-width="2.2"/>
   <text x="50.0" y="400.0" class="note" text-anchor="start" xml:space="preserve">Thick lines: borders between blocks of 2 × 2.</text>
-  <text x="354.0" y="400.0" class="note" text-anchor="start" xml:space="preserve">Red: 8 wrong cells, each with a neighbour</text>
+  <text x="354.0" y="400.0" class="note" text-anchor="start" xml:space="preserve">Red: 8 wrong cells, each with a neighbor</text>
   <text x="354.0" y="416.0" class="note" text-anchor="start" xml:space="preserve">in another block.</text>
 </svg>

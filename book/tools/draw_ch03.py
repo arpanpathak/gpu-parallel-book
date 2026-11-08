@@ -27,8 +27,8 @@ parts = [zone(16, 104, 280, 300, "host"), zone(364, 104, 280, 300, "device"),
 save(OUT + "ch03-host-device.svg", 660, 476,
      "Two zones. Host: a CPU card that runs main and launches the kernel, above host memory holding h_a, "
      "h_b and h_c. Device: a GPU card that runs the kernel's threads, above global memory holding d_a, d_b "
-     "and d_c. An arrow labelled launch runs from the CPU to the GPU. An arrow labelled copy in runs from "
-     "host memory to global memory, and one labelled copy out runs back.",
+     "and d_c. An arrow labeled launch runs from the CPU to the GPU. An arrow labeled copy in runs from "
+     "host memory to global memory, and one labeled copy out runs back.",
      "Host and device", "A CUDA program runs on 2 processors, each with its own memory.", parts)
 
 
@@ -108,7 +108,7 @@ parts += [tag(px, 140, "block (1, 0)", "service"),
           note(gx, gy + 8 * cs + 60, "Numbers above the grid are ix, the column; numbers on its left are iy, the row.",
                room=560)]
 save(OUT + "ch03-image-2d.svg", 660, gy + 8 * cs + 74,
-     "An 8 by 8 image, its pixels numbered 0 to 63 row by row, coloured by the 4 blocks of 4 by 4 threads "
+     "An 8 by 8 image, its pixels numbered 0 to 63 row by row, colored by the 4 blocks of 4 by 4 threads "
      "that cover it. Pixel 14, at column 6 and row 1, is highlighted. It belongs to block (1, 0), where the "
      "thread is at position (2, 1). Its column is 1 × 4 + 2 = 6, its row 0 × 4 + 1 = 1, and its pixel number "
      "1 × 8 + 6 = 14.",
@@ -244,7 +244,7 @@ parts += [swatches(nx, 130, [(warp_colour[0], "warp 0: z = 0 and 1")]),
           note(nx, 384, "so 1 warp of 32 is 2 layers.")]
 save(OUT + "ch03-cube.svg", 660, 420,
      "A block of 4 by 4 by 4 threads drawn as a cube of 64 small cubes, with x to the right, y downward and "
-     "z going back. The front layer z = 0 is numbered 0 to 15. Layers z = 0 and 1 are coloured blue, warp 0, "
+     "z going back. The front layer z = 0 is numbered 0 to 15. Layers z = 0 and 1 are colored blue, warp 0, "
      "and layers z = 2 and 3 orange, warp 1. The thread at (2, 0, 3), on the top face at the back, is "
      "highlighted and numbered 50: 2 + 4 × 0 + 16 × 3 = 50, which is warp 1, lane 18.",
      "A 3-D block as a cube", "4 × 4 × 4 threads, numbered x first, then y, then z.", parts)

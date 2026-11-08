@@ -4,16 +4,16 @@
 
 So far, we have used the GPU only through the CUDA API. `cudaMalloc` returns a pointer,
 `cudaMemcpy` moves data, and a kernel launch with `<<<grid, block>>>` returns to the host after
-a few microseconds while the kernel continues to run on the device. In Chapter 6 we measured a
+a few microseconds while the kernel continues to run on the device. In Chapter 6, we measured a
 launch at 3.77 µs. Because the CPU and the GPU are separate devices, a launch cannot be an
 ordinary function call: the CPU must deliver the work to the GPU through the hardware that
-connects them. The **driver** is the software that operates the GPU on behalf of programs; section
-26.7 shows that it consists of 2 parts. In this chapter, we study the hardware that connects the
+connects them. The **driver** is the software that operates the GPU on behalf of programs; in section
+26.7 we show that it consists of 2 parts. In this chapter, we study the hardware that connects the
 CPU and the GPU and the way the driver uses it.
 
 We start with the physical addresses through which a CPU reaches any device, and with the way
 the operating system finds a GPU and the address ranges that the GPU occupies. We then look at
-the 2 ways in which the CPU and the GPU exchange information: small stores into the GPU's
+the two ways in which the CPU and the GPU exchange information: small stores into the GPU's
 registers, called memory-mapped I/O, and bulk transfers that the GPU performs by itself, called
 direct memory access. With these mechanisms in place, we follow a kernel launch from the CPU to
 the GPU's streaming multiprocessors (SMs), the processors that run the threads of a kernel, and
@@ -25,7 +25,7 @@ This chapter covers
 
 - physical addresses, and memory-mapped I/O: devices that answer to addresses
 - PCIe devices, their configuration space and their base address registers (BARs)
-- 3 ways to attach a GPU: a discrete card on PCIe, an integrated GPU presented as a PCIe
+- Three ways to attach a GPU: a discrete card on PCIe, an integrated GPU presented as a PCIe
   function, and an integrated GPU described by the device tree
 - the control path (MMIO) and the data path (DMA), and why they differ
 - cached, write-combined and device memory, measured from the CPU
@@ -40,8 +40,8 @@ The code of the chapter is in
 [`code/ch17_systems/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch17_systems)
 for C++ and in
 [`code/oxide/ch17_systems/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch17_systems)
-for Rust. Neither needs **root**, the administrator account of Linux: everything the chapter
-shows can be read by an ordinary user.
+for Rust. Neither needs **root**, the administrator account of Linux: everything we show in the
+chapter can be read by an ordinary user.
 
 ## 26.1 The GPU is a device on a bus
 
@@ -123,13 +123,13 @@ the device tree must say about such a device, names the first 2 windows `bar0` a
 the BARs of a PCIe GPU that we introduce in section 26.2.
 
 A store by the CPU to 0x1700_0000 + \\(r\\) writes the GPU's register at offset \\(r\\) of
-`bar0`. The driver, not a program, decides which offsets to touch; section 26.7 shows how the
+`bar0`. The driver, not a program, decides which offsets to touch; in section 26.7 we show how the
 operating system keeps ordinary programs away from these addresses.
 
 ### 26.1.2 PCIe: links, functions and addresses
 
-Most devices in a computer are not built into the processor chip but attached through
-**PCIe** (PCI Express), the standard connection for expansion devices. Section 4.1.2 described
+Most devices in a computer are attached to the processor chip through
+**PCIe** (PCI Express), the standard connection for expansion devices. In Section 4.1.2, we described
 its physical side: a **link** of 1 to 16 **lanes**, each lane a pair of wires in each
 direction, carrying about 2 GB/s each way per lane in generation 4.0 and 4 GB/s in 5.0.
 
@@ -196,7 +196,7 @@ $ lspci -nn                                           # Jetson AGX Thor
 The table puts the 7 GPUs of the earlier chapters side by side. The link column is the path
 between the CPU and the GPU, with the bandwidth of section 4.1.3. The last column names kinds of
 DRAM: LPDDR is built for low power and is used in mobile and embedded chips, while GDDR and HBM
-are built for high bandwidth and are used on graphics cards and data-centre GPUs.
+are built for high bandwidth and are used on graphics cards and data-center GPUs.
 
 | GPU | Attached by | Bandwidth each way | GPU memory |
 |---|---|---|---|
@@ -211,11 +211,28 @@ are built for high bandwidth and are used on graphics cards and data-centre GPUs
 A program can ask the CUDA runtime how its GPU is attached. The first part of the chapter's
 program prints what `cudaGetDeviceProperties` and `cudaDeviceGetPCIBusId` report.
 
-<p class="listing"><b>Listing 26.1</b> What the runtime knows about the device, in C++.</p>
+<p class="listing"><b>Listing 26.1</b> What the runtime knows about the device.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:15:22}}
+
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:144:151}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu:36:60}}
 ```
+
+</div>
+</div>
 
 ```console
 device            Orin, sm_87                device            NVIDIA Thor, sm_110
@@ -233,28 +250,18 @@ hostNativeAtomic  1                          hostNativeAtomic  1
 Both GPUs report `integrated` = 1. The PCIe-function GPU reports the address that `lspci`
 showed, 0000:01:00.0. The platform-device GPU reports 0000:00:00.0: it has no PCIe address, and
 the runtime fills the field with zeros. Both report 2 **copy engines**, units that move data,
-which section 26.5 describes. `canMapHostMemory` = 1 means that a kernel can access pinned host
+which we describe in section 26.5. `canMapHostMemory` = 1 means that a kernel can access pinned host
 memory, host memory that the operating system may not move (Chapter 4), through a pointer. `unifiedAddressing` = 1 means that the CPU and the GPU share 1 range of
 virtual addresses for CUDA allocations, so that the value of a pointer alone tells whether it
 names host or device memory; this arrangement is called **unified virtual addressing** (UVA). The
-last 3 lines return in section 26.6, which explains how the PCIe-function GPU can use the CPU's
+last 3 lines return in section 26.6, where we explain how the PCIe-function GPU can use the CPU's
 page tables.
 
 The Rust program asks the driver directly. cuda-core wraps the common queries, such as
 `device_name` and `multiprocessor_count`. For an attribute it does not wrap, such as
 `INTEGRATED`, the program calls `cuDeviceGetAttribute` from `cuda_core::sys`, the raw bindings,
 inside 1 small `unsafe` function. The **raw bindings** are Rust declarations of the C functions of
-the CUDA driver, which Rust can call only inside `unsafe` code.
-
-<p class="listing"><b>Listing 26.2</b> Device queries, in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs:15:22}}
-
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs:144:151}}
-    // ...
-}
-```
+the CUDA driver, which Rust can call only inside `unsafe` code. The Rust program prints:
 
 ```console
 device      Orin, sm_87                      device      NVIDIA Thor, sm_110
@@ -286,12 +293,12 @@ Figure 26.3 decodes the fields that matter. PCIe stores numbers wider than 1 byt
 byte first, an order called **little-endian**, so the first 2 bytes, `de 10`, are the number
 0x10de. In the worked example below, a **bit** \\(k\\) of a number is the digit worth
 \\(2^k\\) in its binary form, counted from bit 0 at the right. A **prefetchable** window is one
-whose reads have no side effects, so the processor may read it ahead of need; section 26.3.1
-explains side effects. An **interrupt** is a signal from a device that makes the CPU stop its
-current work and run a routine of the driver; section 26.7 returns to them.
+whose reads have no side effects, so the processor may read it ahead of need; we explain side
+effects in section 26.3.1. An **interrupt** is a signal from a device that makes the CPU stop its
+current work and run a routine of the driver; we return to them in section 26.7.
 
 <figure>
-<img src="../../figures/ch26-config.svg" alt="A grid of 64 bytes in 4 rows of 16, read without root from the PCIe-function GPU's configuration space. Coloured fields: bytes 0 to 3, de 10 00 2b, vendor 0x10de and device 0x2b00; bytes 4 and 5, 06 04, command 0x0406 with memory space and bus master enabled; bytes 9 to 11, 00 02 03, class 3D controller; bytes 16 to 23, 0c 00 00 c0 d0 00 00 00, BAR0 = 0xd0c000000c, address 0xd0c0000000; byte 52, 40, the capability pointer; byte 61, 01, interrupt pin A.">
+<img src="../../figures/ch26-config.svg" alt="A grid of 64 bytes in 4 rows of 16, read without root from the PCIe-function GPU's configuration space. Colored fields: bytes 0 to 3, de 10 00 2b, vendor 0x10de and device 0x2b00; bytes 4 and 5, 06 04, command 0x0406 with memory space and bus master enabled; bytes 9 to 11, 00 02 03, class 3D controller; bytes 16 to 23, 0c 00 00 c0 d0 00 00 00, BAR0 = 0xd0c000000c, address 0xd0c0000000; byte 52, 40, the capability pointer; byte 61, 01, interrupt pin A.">
 <figcaption><b>Figure 26.3</b> The configuration header of the PCIe-function GPU, byte by byte.</figcaption>
 </figure>
 
@@ -321,7 +328,7 @@ Worked example: decoding the configuration header
 2. **Command**, bytes 4 and 5: 0x0406 = binary 0000 0100 0000 0110. Bit 1 lets the function
    answer memory transactions (its BARs are live). Bit 2 lets it start transactions of its own
    (it may read and write memory: DMA, section 26.5). Bit 10 switches off the old interrupt
-   wire in favour of messages (section 26.7).
+   wire in favor of messages (section 26.7).
 3. **Class**, bytes 9 to 11: programming interface 0x00, subclass 0x02, class 0x03. Class 3 is
    "display controller" and subclass 2 is "3D controller", a GPU with no display output.
 4. **BAR0**, bytes 16 to 23: the 8 bytes read low first are 0x0000_00d0_c000_000c. Its low 4
@@ -420,7 +427,7 @@ reaches the same registers at 0x24_2800_0000. The root port translates between t
 store to 0x24_2800_0000 + \\(r\\) leaves the root port as a PCIe write to bus address
 0x4000_0000 + \\(r\\). For the PCIe-function GPU the 2 numbers happen to be equal: its BAR
 holds 0xd0_c000_0000, and `lspci` reports the CPU address d0c0000000. A driver must never
-assume either case; Linux keeps the 2 kinds of address apart in its types for exactly this
+assume either case; Linux keeps the two kinds of address apart in its types for exactly this
 reason.
 
 ### 26.2.4 The BARs of a GPU
@@ -429,7 +436,7 @@ NVIDIA's open-source kernel driver describes the windows of its GPUs. **BAR0** h
 registers. **BAR1** is a window onto the GPU's own memory, through which the CPU can read
 and write device memory with loads and stores. On consumer cards BAR1 has traditionally been
 256 MiB, a small sliding view of the whole memory. With **Resizable BAR**, a PCIe feature that
-lets the system grow a BAR at boot, it can cover all of the memory. Data-centre GPUs such as
+lets the system grow a BAR at boot, it can cover all of the memory. Data-center GPUs such as
 the A100 and the H100 offer a BAR1 at least as large as their memory.
 
 The PCIe-function GPU has only BAR0, 16 MiB of registers. It has no memory of its own to
@@ -459,7 +466,7 @@ be cleared, and the driver would never see the event at all.
 
 A processor keeps copies of memory in its **caches**, small fast memories near the core, and it
 performs **speculative reads**: loads issued ahead of a program, on a guess that the program will
-need the data soon. Both behaviours are wrong for a device, as the example shows: a cached copy
+need the data soon. Both behaviors are wrong for a device, as the example shows: a cached copy
 of a status register goes stale, and a load that the processor issued early may trigger a side
 effect the program never asked for. Every page in a program's address space therefore carries a
 **memory type** in its **page-table entry**, the record of the page table that holds the page's
@@ -478,14 +485,14 @@ accesses, and that a write may be acknowledged early (E), before it reaches the 
 buffer** is the memory that holds the image shown on a display.
 
 **Write-combining** memory is not cached, but the processor may gather several stores to
-neighbouring addresses in a small buffer and send them as 1 larger transaction. For example, 16
-stores of 4 bytes to the addresses 0x1000, 0x1004, ..., 0x103C fill 64 neighbouring bytes. Without
+neighboring addresses in a small buffer and send them as 1 larger transaction. For example, 16
+stores of 4 bytes to the addresses 0x1000, 0x1004, ..., 0x103C fill 64 neighboring bytes. Without
 combining they leave the core as 16 transactions of 4 bytes; with combining they leave as 1
 transaction of 64 bytes. A program that fills a frame buffer or a command buffer with a stream of
-stores runs much faster that way. Device memory forbids even that: each store reaches the device
+stores runs much faster that way. Device memory forbids even that. Each store reaches the device
 as written, in program order.
 
-On PCIe the 2 directions differ in cost. A memory write is **posted**: the root complex sends
+On PCIe the two directions differ in cost. A memory write is **posted**: the root complex sends
 it and lets the CPU continue at once, without waiting for any reply. A memory read is
 **non-posted**: it must wait for the device's completion to travel back across the link,
 typically several hundred nanoseconds to more than a microsecond, a few thousand CPU cycles.
@@ -522,11 +529,28 @@ memory from `malloc`, which the operating system may move; pinned memory from `c
 pinned write-combined memory; and **managed memory** from `cudaMallocManaged`, which CPU and GPU
 reach through the same pointer (Chapter 4).
 
-<p class="listing"><b>Listing 26.3</b> The same CPU loops over 4 kinds of memory, in C++.</p>
+<p class="listing"><b>Listing 26.2</b> The same CPU loops over each kind of memory.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), DriverError> {
+    // ...
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:153:159}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu:108:134}}
 ```
+
+</div>
+</div>
 
 `timeCpu` writes the value 1 into every word, sums every word, keeps the best of 5 passes, and
 checks that the sum equals the number of words. The output on both machines:
@@ -589,7 +613,7 @@ a block wait for each other; a memory barrier orders the accesses of 1 thread. I
 and Rust, a store with **release ordering** is a store that becomes visible only after every
 access that precedes it in the program; it places the barrier before the store. Linux's `writel()`, the function a driver uses to
 write a 32-bit register, puts a write barrier before the store for exactly this case, so that a
-device started by the register sees every earlier write to memory. Section 26.4.6 shows what
+device started by the register sees every earlier write to memory. In Section 26.4.6, we show what
 happens when the order is wrong.
 
 <div class="rule-box">
@@ -696,7 +720,7 @@ puts the steps of 1 launch in order.
 <figcaption><b>Figure 26.7</b> 1 kernel launch, from the stores of libcuda to the SMs.</figcaption>
 </figure>
 
-Steps 1 to 5 are the launch call that Chapter 6 timed: a few ordinary stores into memory, 1
+Steps 1 to 5 are the launch call that we timed in Chapter 6: a few ordinary stores into memory, 1
 barrier and 1 store to a register, 3.77 µs with the rest of the runtime's work.
 Steps 6 to 9 happen later, on the GPU's own time. The part of the GPU that reads the ring, its
 **host interface**, fetches entries and methods from memory by DMA, so the CPU never waits for
@@ -755,15 +779,28 @@ is the same. A **cache line** is the unit of 64 bytes in which the CPU's caches 
 memory. Each counter sits on its own cache line, as each register of a device has its own
 address.
 
-<p class="listing"><b>Listing 26.4</b> The ring, the device and the doorbell, in C++.</p>
+<p class="listing"><b>Listing 26.3</b> The ring, the device and the doorbell.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:58:104}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu:136:188}}
 ```
 
+</div>
+</div>
+
 `submit` waits while the ring holds `depth` entries, writes the entry, then stores PUT + 1 with
 release ordering: the barrier of section 26.3.3, built into the store. The device loads PUT
-with **acquire ordering**, the counterpart of release: no access that follows the load in the
+with **acquire ordering**, the counterpart of release. No access that follows the load in the
 program may become visible before it. The 2 orderings pair: once the device sees PUT = \\(c\\) +
 1, it also sees entry \\(c\\). The `doorbellFirst` branch exists to break that order on purpose
 (section 26.4.6).
@@ -772,12 +809,6 @@ Rust's version stores each entry in an `AtomicU64`, with the opcode in the high 
 does not allow 2 threads to touch the same plain memory when one of them writes, so the slots are
 atomics too. A `Relaxed` store is an atomic store that promises no ordering with other accesses;
 it compiles to an ordinary store, and the `Release` store of the doorbell provides the order.
-
-<p class="listing"><b>Listing 26.5</b> The ring, the device and the doorbell, in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs:58:104}}
-```
 
 ### 26.4.5 Ring depth and run-ahead
 
@@ -843,7 +874,7 @@ Figure 26.8 draws 1 burst at depth 1 and at depth 32.
 
 <span class="box-label">Key observation</span> The host's own work overlaps the device's work only
 for the entries that the ring can hold. When the ring holds the whole burst, the host submits
-everything at once, and the 2 kinds of work run side by side.
+everything at once, and the two kinds of work run side by side.
 
 </div>
 
@@ -889,8 +920,8 @@ does not compile a program in which 2 threads touch the same plain memory in thi
 slots had to be atomics. The broken program is nevertheless free of data races in Rust's sense,
 and it still loses entries. The compiler can
 prove that every access is safe, but not that the protocol, entry first and doorbell second, is
-followed. The C++ version is worse off: there the swap also creates a data race, and its
-behaviour is **undefined**: the language does not specify what the program does. In a driver, the same mistake causes the GPU to execute stale
+followed. The C++ version is worse off. There the swap also creates a data race, and its
+behavior is **undefined**: the language does not specify what the program does. In a driver, the same mistake causes the GPU to execute stale
 commands, rarely and usually under load.
 
 <div class="bee bee-angry" markdown="1">
@@ -965,7 +996,7 @@ kernel.
 </div>
 
 <figure>
-<img src="../../figures/ch26-iommu.svg" alt="3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighbouring 4 KiB pages; the SMMU page table maps page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.">
+<img src="../../figures/ch26-iommu.svg" alt="3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighboring 4 KiB pages; the SMMU page table maps page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.">
 <figcaption><b>Figure 26.9</b> An IOMMU translates and checks each page a device touches (example addresses).</figcaption>
 </figure>
 
@@ -1056,7 +1087,7 @@ platform device `17000000.gpu` under the name `gk20a`. The PCIe-function GPU is 
 `nvidia`, the same open kernel module that drives discrete GPUs, with `nvidia_uvm` for unified
 memory, the managed memory of section 26.3.2.
 
-The split explains 3 facts that earlier chapters stated without a reason. A launch costs a few
+The split explains three facts that we stated in earlier chapters without a reason. A launch costs a few
 microseconds, not the tens that a system call and a return would add, because it does not enter
 the kernel. A CUDA context belongs to a process, because the mappings and the channels belong
 to a process. And a crashed kernel ends with an error in 1 process, not a crashed machine,
@@ -1067,7 +1098,7 @@ event, such as a finished copy or a fault, and the CPU stops what it is doing to
 **handler**, the routine of the driver that deals with the event. The **interrupt controller** is
 the unit that collects the interrupts of all devices and delivers them to the CPU cores. The
 platform-device GPU uses wires into the interrupt controller, named in its device tree; the
-PCIe-function GPU sends **MSI** (message-signalled interrupts), which are memory writes to a
+PCIe-function GPU sends **MSI** (message-signaled interrupts), which are memory writes to a
 special address, so they need no wire.
 
 The device tree of the platform-device GPU gives it 4 interrupts, numbered 0x44, 0x46, 0x47 and
@@ -1151,17 +1182,24 @@ pages, that is, to move them to the processor that touched them. **Peer access**
 
 ## 26.10 The complete programs
 
-<p class="listing"><b>Listing 26.6</b> The complete <code>systems.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch17_systems/systems.cu">code/ch17_systems/systems.cu</a></p>
+<p class="listing"><b>Listing 26.4</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch17_systems/src/main.rs">code/oxide/ch17_systems/src/main.rs</a> and <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch17_systems/systems.cu">code/ch17_systems/systems.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu}}
 ```
 
-<p class="listing"><b>Listing 26.7</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch17_systems/src/main.rs">code/oxide/ch17_systems/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 
@@ -1209,7 +1247,7 @@ pages, that is, to move them to the processor that touched them. **Peer access**
 
 </div>
 
-Chapter 27 extends the picture from 1 GPU to several, joined by NVLink: the same DMA, now from
+In Chapter 27, we extend the picture from 1 GPU to several, joined by NVLink: the same DMA, now from
 1 GPU's memory to another's.
 
 ## Exercises

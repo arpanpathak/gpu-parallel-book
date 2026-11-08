@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 370" width="680" height="370" role="img" aria-label="A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterwards. Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 370" width="680" height="370" role="img" aria-label="A timeline of threads 0 and 2 without the barrier at the end of a step. Thread 2 finishes step 1 with b[2] = 8 and starts step 2, where it reads b[0]. Thread 0 is late and writes b[0] = 3 only afterward. Thread 2 reads the 0 left in the slot, and y2 becomes 8 instead of 11.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

@@ -1,4 +1,5 @@
-//! Chapter 8 in Rust: a sum by warp shuffles, a scan, and a histogram of 4-byte words.
+//! Chapter 8 in Rust: a sum in 4 stages (tree, coarsened, shuffles, 16-byte loads), a scan,
+//! and histograms reading 4 and 16 bytes per load.
 //!
 //!     cargo oxide run
 
@@ -8,6 +9,7 @@ use std::time::Instant;
 use cuda_core::{CudaContext, CudaStream, DeviceBuffer, LaunchConfig1D};
 use cuda_device::atomic::{AtomicOrdering, BlockAtomicU32, DeviceAtomicU32};
 use cuda_device::{DisjointSlice, SharedArray, cuda_module, device, kernel, launch_contract};
+use cuda_device::vector::{self, F32x4, U32x4};
 use cuda_device::{thread, warp};
 
 const BLOCK: u32 = 256;
@@ -19,6 +21,73 @@ type Levels = Vec<(DeviceBuffer<u32>, DeviceBuffer<u32>)>;
 #[cuda_module]
 mod kernels {
     use super::*;
+
+    /// 1. A tree in shared memory, 1 element per thread.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn sum_tree(input: &[f32], mut partial: DisjointSlice<f32>) {
+        static mut S: SharedArray<f32, 256> = SharedArray::UNINIT;
+        let t = thread::threadIdx_x() as usize;
+        let i = thread::index_1d().get();
+
+        let value = if i < input.len() { input[i] } else { 0.0 };
+        // SAFETY: each thread writes only its own slot, before the first barrier.
+        unsafe { S[t] = value };
+
+        let mut step: usize = 0;
+        #[unroll]
+        while step < 8 {
+            let stride = (BLOCK as usize / 2) >> step; // 128, 64, ... 1
+            thread::sync_threads();
+            if t < stride {
+                // SAFETY: between 2 barriers thread t alone writes slot t, and it reads
+                // slot t + stride, which no thread writes at this stride.
+                unsafe { S[t] += S[t + stride] };
+            }
+            step += 1;
+        }
+
+        if t == 0 {
+            // SAFETY: only thread 0 of each block writes, at its own block number.
+            unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = S[0] };
+        }
+    }
+
+    /// 2. Each thread first sums many elements in a register, then 1 tree per block.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn sum_coarse(input: &[f32], mut partial: DisjointSlice<f32>) {
+        static mut S: SharedArray<f32, 256> = SharedArray::UNINIT;
+        let t = thread::threadIdx_x() as usize;
+        let grid = (thread::gridDim_x() * BLOCK) as usize;
+
+        let mut sum = 0.0;
+        let mut i = thread::index_1d().get();
+        while i < input.len() {
+            sum += input[i];
+            i += grid;
+        }
+        // SAFETY: each thread writes only its own slot, before the first barrier.
+        unsafe { S[t] = sum };
+
+        let mut step: usize = 0;
+        #[unroll]
+        while step < 8 {
+            let stride = (BLOCK as usize / 2) >> step; // 128, 64, ... 1
+            thread::sync_threads();
+            if t < stride {
+                // SAFETY: between 2 barriers thread t alone writes slot t, and it reads
+                // slot t + stride, which no thread writes at this stride.
+                unsafe { S[t] += S[t + stride] };
+            }
+            step += 1;
+        }
+
+        if t == 0 {
+            // SAFETY: only thread 0 of each block writes, at its own block number.
+            unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = S[0] };
+        }
+    }
 
     #[device]
     fn warp_sum(mut v: f32) -> f32 {
@@ -70,6 +139,47 @@ mod kernels {
                 // SAFETY: only thread 0 of each block writes, at its own block number.
                 unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = sum };
             }
+        }
+    }
+
+    /// The sum of `v` over the 256 threads of a block, returned to thread 0.
+    #[device]
+    fn block_sum(v: f32) -> f32 {
+        static mut WARPS: SharedArray<f32, 8> = SharedArray::UNINIT;
+        let lane = warp::lane_id() as usize;
+        let warp = thread::threadIdx_x() as usize / 32;
+
+        let v = warp_sum(v);
+        if lane == 0 {
+            // SAFETY: lane 0 of each warp writes its own slot, before the barrier.
+            unsafe { WARPS[warp] = v };
+        }
+        thread::sync_threads();
+
+        // SAFETY: after the barrier the slots are only read.
+        let w = if lane < 8 { unsafe { WARPS[lane] } } else { 0.0 };
+        if warp == 0 { warp_sum(w) } else { 0.0 }
+    }
+
+    /// 4. The shuffle sum, loading 4 floats per instruction.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn sum_shuffle4(input: &[f32], mut partial: DisjointSlice<f32>) {
+        let quads = vector::as_vectors::<F32x4>(input).unwrap_or(&[]);
+        let grid = (thread::gridDim_x() * BLOCK) as usize;
+
+        let mut sum = 0.0;
+        let mut i = thread::index_1d().get();
+        while i < quads.len() {
+            let [x, y, z, w] = quads[i].to_array();
+            sum += x + y + z + w;
+            i += grid;
+        }
+
+        let sum = block_sum(sum);
+        if thread::threadIdx_x() == 0 {
+            // SAFETY: only thread 0 of each block writes, at its own block number.
+            unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = sum };
         }
     }
 
@@ -174,6 +284,53 @@ mod kernels {
         let local = unsafe { LOCAL[tid] };
         bins[tid].fetch_add(local, AtomicOrdering::Relaxed);
     }
+
+    /// Adds the 4 bytes of the word `w` to the 256 shared bins that start at `local`.
+    #[device]
+    fn count_word(local: *mut u32, w: u32) {
+        let mut k = 0;
+        #[unroll]
+        while k < 4 {
+            let byte = (w >> (8 * k)) & 255;
+            // SAFETY: `local` points to 256 bins and byte < 256. Every access to the bins
+            // between the 2 barriers of the kernel is atomic.
+            let bin = unsafe { BlockAtomicU32::from_ptr(local.add(byte as usize)) };
+            bin.fetch_add(1, AtomicOrdering::Relaxed);
+            k += 1;
+        }
+    }
+
+    /// A histogram of bytes in shared bins, reading 16 bytes per load.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn hist_quads(words: &[u32], bins: &[DeviceAtomicU32]) {
+        static mut LOCAL: SharedArray<u32, 256> = SharedArray::UNINIT;
+        let tid = thread::threadIdx_x() as usize;
+        let quads = vector::as_vectors::<U32x4>(words).unwrap_or(&[]);
+
+        // SAFETY: each thread zeroes only its own bin, before the barrier.
+        unsafe { LOCAL[tid] = 0 };
+        thread::sync_threads();
+
+        // SAFETY: the pointer is only used through atomics, between the 2 barriers.
+        let local = unsafe { (*&raw mut LOCAL).as_mut_ptr() };
+
+        let grid = (thread::gridDim_x() * BLOCK) as usize;
+        let mut i = thread::index_1d().get();
+        while i < quads.len() {
+            let [x, y, z, w] = quads[i].to_array();
+            count_word(local, x);
+            count_word(local, y);
+            count_word(local, z);
+            count_word(local, w);
+            i += grid;
+        }
+        thread::sync_threads();
+
+        // SAFETY: after the barrier no thread writes LOCAL again.
+        let local = unsafe { LOCAL[tid] };
+        bins[tid].fetch_add(local, AtomicOrdering::Relaxed);
+    }
 }
 
 /// Average time of 20 runs of `launch`, in milliseconds, after 1 warm-up run.
@@ -191,6 +348,65 @@ fn time_ms(
     stream.synchronize()?;
 
     Ok(start.elapsed().as_secs_f64() * 1e3 / 20.0)
+}
+
+/// Prints a stage's time and bandwidth over `n` floats, and the sum it left in `total`.
+fn report(
+    stream: &Arc<CudaStream>,
+    name: &str,
+    ms: f64,
+    n: usize,
+    total: &DeviceBuffer<f32>,
+) -> Result<(), Error> {
+    let sum = total.to_host_vec(stream)?[0];
+    let gb = (n * 4) as f64 / 1e9 / (ms / 1e3);
+    println!("  {name:22} {ms:6.2} ms  {gb:6.1} GB/s  sum {sum:.1}");
+    Ok(())
+}
+
+/// Times the 4 stages of the sum. A run is the stage, then 1 block over its partial sums.
+fn sums(
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
+    input: &DeviceBuffer<f32>,
+) -> Result<(), Error> {
+    let n = input.len();
+    let mut leaves = DeviceBuffer::<f32>::zeroed(stream, n / BLOCK as usize)?;
+    let mut partial = DeviceBuffer::<f32>::zeroed(stream, GRID as usize)?;
+    let mut total = DeviceBuffer::<f32>::zeroed(stream, 1)?;
+
+    let full = LaunchConfig1D::new(GRID, BLOCK, 0);
+    let tree = module.prepare_sum_tree(LaunchConfig1D::new(n as u32 / BLOCK, BLOCK, 0))?;
+    let coarse = module.prepare_sum_coarse(full)?;
+    let shuffle = module.prepare_sum_shuffle(full)?;
+    let shuffle4 = module.prepare_sum_shuffle4(full)?;
+    let last = module.prepare_sum_shuffle(LaunchConfig1D::new(1, BLOCK, 0))?;
+
+    println!("sum of {n} floats, the 4 stages, average of 20 runs");
+
+    let ms = time_ms(stream, || {
+        module.sum_tree(stream, &tree, input, &mut leaves)?;
+        Ok(module.sum_shuffle(stream, &last, &leaves, &mut total)?)
+    })?;
+    report(stream, "tree, 1 per thread", ms, n, &total)?;
+
+    let ms = time_ms(stream, || {
+        module.sum_coarse(stream, &coarse, input, &mut partial)?;
+        Ok(module.sum_shuffle(stream, &last, &partial, &mut total)?)
+    })?;
+    report(stream, "coarsened", ms, n, &total)?;
+
+    let ms = time_ms(stream, || {
+        module.sum_shuffle(stream, &shuffle, input, &mut partial)?;
+        Ok(module.sum_shuffle(stream, &last, &partial, &mut total)?)
+    })?;
+    report(stream, "shuffles", ms, n, &total)?;
+
+    let ms = time_ms(stream, || {
+        module.sum_shuffle4(stream, &shuffle4, input, &mut partial)?;
+        Ok(module.sum_shuffle(stream, &last, &partial, &mut total)?)
+    })?;
+    report(stream, "shuffles, F32x4", ms, n, &total)
 }
 
 /// Numbers from a small linear congruential generator, so the run needs no extra crate.
@@ -249,14 +465,14 @@ fn main() -> Result<(), Error> {
         .iter()
         .map(|&r| (r >> 8) as f32 / 16_777_216.0)
         .collect();
-    let input = DeviceBuffer::from_host(&stream, &values)?;
+    let floats = DeviceBuffer::from_host(&stream, &values)?;
     let mut partial = DeviceBuffer::<f32>::zeroed(&stream, GRID as usize)?;
     let mut total = DeviceBuffer::<f32>::zeroed(&stream, 1)?;
     let blocks = module.prepare_sum_shuffle(LaunchConfig1D::new(GRID, BLOCK, 0))?;
     let last = module.prepare_sum_shuffle(LaunchConfig1D::new(1, BLOCK, 0))?;
 
     let mut sum = || -> Result<(), Error> {
-        module.sum_shuffle(&stream, &blocks, &input, &mut partial)?;
+        module.sum_shuffle(&stream, &blocks, &floats, &mut partial)?;
         Ok(module.sum_shuffle(&stream, &last, &partial, &mut total)?)
     };
     for _ in 0..10 {
@@ -304,6 +520,21 @@ fn main() -> Result<(), Error> {
     let gb = n as f64 / 1e9 / (ms / 1e3);
     println!("histogram of 64 MiB, 4 bytes per load");
     println!("  {ms:6.2} ms  {gb:6.1} GB/s  total {total}");
+
+    // 4. The histogram reading 16 bytes per load, and the 4 stages of the sum.
+    let wide = module.prepare_hist_quads(LaunchConfig1D::new(GRID, BLOCK, 0))?;
+    let ms = time_ms(&stream, || Ok(module.hist_quads(&stream, &wide, &words, &scratch)?))?;
+
+    let bins = DeviceBuffer::<u32>::zeroed(&stream, 256)?.cast_elem::<DeviceAtomicU32>();
+    module.hist_quads(&stream, &wide, &words, &bins)?;
+    let counts = bins.cast_elem::<u32>().to_host_vec(&stream)?;
+    let total: u64 = counts.iter().map(|&c| c as u64).sum();
+
+    let gb = n as f64 / 1e9 / (ms / 1e3);
+    println!("histogram of 64 MiB, 16 bytes per load");
+    println!("  {ms:6.2} ms  {gb:6.1} GB/s  total {total}");
+
+    sums(&module, &stream, &floats)?;
 
     Ok(())
 }

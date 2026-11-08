@@ -226,6 +226,6 @@
   <text x="340.0" y="392.0" class="note" text-anchor="start" xml:space="preserve">Only columns 0, 1, 6 and 7 can be</text>
   <text x="340.0" y="410.0" class="note" text-anchor="start" xml:space="preserve">wrong: their windows reach into a</text>
   <text x="340.0" y="428.0" class="note" text-anchor="start" xml:space="preserve">halo slot. Rows 6 and 7 are 0 in the</text>
-  <text x="340.0" y="446.0" class="note" text-anchor="start" xml:space="preserve">equalised image, so 0 in a halo slot</text>
+  <text x="340.0" y="446.0" class="note" text-anchor="start" xml:space="preserve">equalized image, so 0 in a halo slot</text>
   <text x="340.0" y="464.0" class="note" text-anchor="start" xml:space="preserve">does no harm there.</text>
 </svg>

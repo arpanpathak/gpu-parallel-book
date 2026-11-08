@@ -103,9 +103,10 @@ if command -v cargo-oxide >/dev/null 2>&1; then
     run "oxide/ch19_collectives" \
         bash -c 'cd oxide/ch19_collectives && cargo oxide run'
 
-    for crate in oxide/ch1[4-9]_* oxide/ch2[0-4]_*; do
+    # ch16_bugs holds deliberately wrong kernels; ch19_collectives ran above.
+    for crate in oxide/vector_add oxide/ch1[4-9]_* oxide/ch2[0-4]_*; do
         case "$crate" in
-            oxide/ch16_latency|oxide/ch17_systems|oxide/ch18_peer|oxide/ch19_collectives) continue ;;
+            oxide/ch16_bugs|oxide/ch19_collectives) continue ;;
         esac
 
         run "$crate" bash -c 'cd "$1" && cargo oxide run' _ "$crate"

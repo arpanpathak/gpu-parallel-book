@@ -169,11 +169,16 @@ img.cover {
     margin: 1.6em 0 0.2em 0;
     padding-bottom: 0.25em;
     border-bottom: 2px solid var(--book-navy);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 1em;
 }
-.listing a { float: right; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.86em; }
+.listing a { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.86em; }
+.listing a:first-of-type { margin-left: auto; }
 .listing b, figcaption b { color: var(--book-rust); margin-right: 0.4em; }
 
-.content pre > code { font-size: 0.83em; line-height: 1.5; }
+.content pre > code { font-size: 0.78em; line-height: 1.5; }
 
 /* Figures. The diagrams carry their own paper background and rounded corners. */
 figure { margin: 1.6em 0; text-align: center; }
@@ -289,7 +294,8 @@ figure.anim video.motion {
     .content h1 { font-size: 2em; }
     .content h2 { font-size: 1.45em; }
     .content pre > code { font-size: 0.74em; }
-    .listing a { float: none; display: block; margin-top: 0.2em; overflow-wrap: anywhere; }
+    .listing a { display: block; flex-basis: 100%; margin: 0.2em 0 0 0; overflow-wrap: anywhere; }
+    .listing a:first-of-type { margin-left: 0; }
     .lld, .covers, .callout { padding-inline: 0.9em; }
     .bee { gap: 0.7em; padding-inline: 0.7em; }
     .bee::before { flex-basis: 3.6em; height: 2.9em; }

@@ -29,7 +29,7 @@ void check(cudaError_t err)
     }
 }
 
-// 1 Jacobi step, 1 thread per cell, every neighbour read from global memory.
+// 1 Jacobi step, 1 thread per cell, every neighbor read from global memory.
 __global__ void jacobi(const float* __restrict__ old, float* __restrict__ next,
                        int width, int height)
 {

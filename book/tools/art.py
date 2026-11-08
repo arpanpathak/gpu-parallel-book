@@ -852,7 +852,7 @@ def crate(x, y, w, h, text, fill="#c9a46a"):
 COVER_W, COVER_H = 960, 1280
 
 
-@plate("cover", "", "", "The cover of GPU Architecture & Parallel Programming from First Principles. Inside a glowing hive, the queen bee, wearing a crown and holding a sceptre, "
+@plate("cover", "", "", "The cover of GPU Architecture & Parallel Programming from First Principles. Inside a glowing hive, the queen bee, wearing a crown and holding a scepter, "
        "gives one order to the whole colony: c[i] = a[i] + b[i]. Below her, 32 worker bees in hard hats stand in 4 rows of 8, one warp, "
        "each in front of its own honeycomb cell and each filling it with honey at the same moment. One worker in the third row has "
        "wandered off on a branch of its own, with a question mark over its head. A crab in a hard hat waves from the corner, because "
@@ -945,7 +945,7 @@ def ch01():
 
 
 @plate("ch02", "GPU Hardware from First Principles", "Comb the worker bee", "Comb, a worker bee in a hard hat, stands beside a "
-       "hive with its side cut away. Inside hang three wooden comb frames, labelled SM 0, SM 1 and SM 2. On each frame small worker "
+       "hive with its side cut away. Inside hang three wooden comb frames, labeled SM 0, SM 1 and SM 2. On each frame small worker "
        "bees stand in straight rows that move together, a formation called a warp. Comb points at the frames like a guide on a tour.")
 def ch02():
     parts = [backdrop(seed=2, **DUSK),
@@ -970,7 +970,7 @@ def ch02():
 
 
 @plate("ch03", "The CUDA Programming Model", "The Queen", "The Queen bee, in her crown and sash, holds up a scroll that "
-       "reads <<<4, 256>>>: a launch of 4 blocks of 256 threads. Beside her a wooden board holds 4 comb frames, labelled block 0 "
+       "reads <<<4, 256>>>: a launch of 4 blocks of 256 threads. Beside her a wooden board holds 4 comb frames, labeled block 0 "
        "to block 3, and on each frame rows of worker bees wait for the order. The Queen gives one order and every bee on every "
        "frame carries it out.")
 def ch03():
@@ -1011,7 +1011,7 @@ def ch04():
             tag(480, 70, "pinned: 1 trip", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch05", "Synchronisation, Atomics & Race Conditions", "Whistle the meerkat", "Whistle, a meerkat with a whistle, "
+@plate("ch05", "Synchronization, Atomics & Race Conditions", "Whistle the meerkat", "Whistle, a meerkat with a whistle, "
        "stands on watch beside a striped gate across a path. 3 worker bees have reached the gate and wait in a row; a 4th is "
        "still flying in from the left. The gate stays down until every bee has arrived. A sign on the gate reads "
        "__syncthreads(), and a tag says all arrive, then all go.")
@@ -1053,9 +1053,9 @@ def ch06():
             tag(620, 70, "2 streams, at the same time", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch07", "Memory Optimisation Deep Dive", "Inch the caterpillar", "Inch, a caterpillar, walks along a branch "
+@plate("ch07", "Memory Optimization Deep Dive", "Inch the caterpillar", "Inch, a caterpillar, walks along a branch "
        "laid with numbered cells, 0 to 9 in order. Each of its segments stands over the next cell, so all of them step "
-       "together and none reaches past its neighbour. A tag says neighbours read neighbours: the rule of coalesced "
+       "together and none reaches past its neighbor. A tag says neighbors read neighbors: the rule of coalesced "
        "memory access.")
 def ch07():
     r, x0 = 22, 318
@@ -1064,7 +1064,7 @@ def ch07():
             rect(250, GROUND - 6, 460, 22, WOOD, 10, "#5a3d28", 3),
             *cells,
             caterpillar(x0, GROUND - 42, segments=9, r=r),
-            tag(480, 80, "neighbours read neighbours", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+            tag(480, 80, "neighbors read neighbors", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch08", "Reduction, Scan & Histogram", "Stash the squirrel", "Stash, a red squirrel, sits on a tree stump "
@@ -1087,7 +1087,7 @@ def ch08():
             tag(480, 64, "pairs, then pairs of pairs", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch09", "Optimised Matrix Multiplication", "Shell the tortoise", "Shell, a tortoise, walks across a meadow. "
+@plate("ch09", "Optimized Matrix Multiplication", "Shell the tortoise", "Shell, a tortoise, walks across a meadow. "
        "Its domed shell is laid with square tiles in rows, like a matrix cut into blocks. Ahead of it lie 2 stacks of "
        "tiles, 1 marked A and 1 marked B, and behind it a finished row of tiles marked C. A tag says load a tile once, "
        "use it many times: the idea of a tiled matrix multiplication.")
@@ -1171,7 +1171,7 @@ def ch11():
 
 @plate("ch12", "NVRTC & the Driver API", "Hue the chameleon", "Hue, a chameleon, grips a branch at dusk. On the "
        "left hangs a sheet of source code that the program has just written: float p, then lines of p = p * v plus a "
-       "constant. Hue's body changes colour from tail to head, blue like the paper's ink at the tail, yellow at the head. "
+       "constant. Hue's body changes color from tail to head, blue like the paper's ink at the tail, yellow at the head. "
        "Its tongue reaches out to a chip marked sm_87, the GPU the code is compiled for. A tag says written, compiled "
        "and loaded while the program runs.")
 def ch12():
@@ -1252,9 +1252,9 @@ def stage_picture(x, y, mode, fid):
 
 
 @plate("ch14", "Map and SAXPY", "Shuttle the crab", "Shuttle, a crab, walks along a long table of "
-       "numbered cells, 0 to 15, coloured in a repeating pattern of 4. Dashed arcs mark its hops: from cell 1 to 5, to 9, "
+       "numbered cells, 0 to 15, colored in a repeating pattern of 4. Dashed arcs mark its hops: from cell 1 to 5, to 9, "
        "to 13, always 4 cells at a time, and it fills every cell it lands on. 3 more crabs further back would cover the "
-       "other colours. A tag reads i, i + stride, i + 2 stride: the grid-stride loop.")
+       "other colors. A tag reads i, i + stride, i + 2 stride: the grid-stride loop.")
 def ch14():
     tones = ["#bfe3f7", "#f7d9a0", "#c8f0d0", "#e4d2f7"]
     mine = [k for k in range(16) if k % 4 == 1]
@@ -1394,7 +1394,7 @@ def ch17():
 @plate("ch18", "Register Tiling, Several Entries per Thread", "Patch the crab", "Patch, a crab, stands on the "
        "sand beside a slate board. To the left of the board stand 2 cells of A, 1 and 5, and above it 2 cells of B, "
        "1 and 0. On the board are their 4 products, 1 0 / 5 0. Further right, a larger board holds the 4 by 4 matrix "
-       "C, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, split into 4 coloured patches of 2 by 2, 1 per "
+       "C, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, split into 4 colored patches of 2 by 2, 1 per "
        "thread. A tag says read 4 values, make 4 products.")
 def ch18():
     parts = [backdrop(seed=18, **SAND)]
@@ -1423,10 +1423,10 @@ def ch18():
 
 
 @plate("ch19", "Stencils and Jacobi Iteration", "Ripple the crab", "Ripple, a crab, stands on the sand "
-       "beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and coloured red; the other "
+       "beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and colored red; the other "
        "edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the "
-       "final temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says "
-       "each cell becomes the mean of its 4 neighbours.")
+       "final temperatures of a heated plate. 1 inner cell and its 4 neighbors are outlined in white. A tag says "
+       "each cell becomes the mean of its 4 neighbors.")
 def ch19():
     cols, rows, side = 6, 6, 44
     grid = [[100.0] * cols] + [[0.0] * cols for _ in range(rows - 1)]
@@ -1455,12 +1455,12 @@ def ch19():
                  'opacity="0.55"'),
             *cells, *marks, *ripples,
             crab(300, s=1.2, mood="happy", look=1),
-            tag(300, 92, "each cell: the mean of its 4 neighbours", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+            tag(300, 92, "each cell: the mean of its 4 neighbors", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch20", "Tiled Stencils with Halo Cells", "Rim the hermit crab", "Rim, a hermit crab, carries on its "
        "back a square frame of 4 by 4 cells: the 4 inner cells are blue and the ring of 12 cells around them is "
-       "amber, with the 4 corner cells grey. Behind it lies the sandy grid of a heated plate, with the same 4 by "
+       "amber, with the 4 corner cells gray. Behind it lies the sandy grid of a heated plate, with the same 4 by "
        "4 square marked out where Rim lifted it. A tag says load the tile and its halo once.")
 def ch20():
     cols, rows, side = 6, 6, 40
@@ -1539,7 +1539,7 @@ def ch21():
 
 
 @plate("ch22", "Radix Sort and Histograms", "Bins the crab", "Bins, a crab, stands on the sand beside 4 "
-       "crates labelled with the 2-bit digits 00, 01, 10 and 11. Chalked on each crate is the number of keys "
+       "crates labeled with the 2-bit digits 00, 01, 10 and 11. Chalked on each crate is the number of keys "
        "with that digit, 1, 2, 3 and 2, and above each crate the place where its first key goes, 0, 1, 3 "
        "and 6. Bins holds up a pebble marked 5, binary 101, on its way to crate 01. A tag reads count, scan, then "
        "place.")
@@ -1582,9 +1582,9 @@ def ch23():
 
 @plate("ch24", "Capstone: An Image Pipeline", "The whole crew", "The whole crew of crabs stands on a "
        "beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. "
-       "The first picture is in colour, the second in gray, the third blurred, and the last shows only white "
+       "The first picture is in color, the second in gray, the third blurred, and the last shows only white "
        "outlines on black. Arrows lead from each picture to the next, and a crab stands under each one, "
-       "labelled grayscale, equalise, blur and sobel. A tag reads 4 stages, many images in flight.")
+       "labeled grayscale, equalize, blur and sobel. A tag reads 4 stages, many images in flight.")
 def ch24():
     xs = [150, 340, 530, 720]
     modes = ["color", "gray", "blur", "edges"]
@@ -1608,7 +1608,7 @@ def ch24():
 
 
 @plate("ch25", "Profiling & Debugging", "Lens the hawk", "Lens, a hawk, perches on a fence post at dusk "
-       "with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of coloured bars, copies in, "
+       "with a stopwatch held up in one wing. Beside the post stands a board with 3 lanes of colored bars, copies in, "
        "kernels and copies out, overlapping like the timeline of a profiler. A tag says measure, then change 1 thing.")
 def ch25():
     lanes = [("in", "#7aa6ff", [(0, 34), (40, 74), (80, 114), (120, 154)]),
@@ -1666,7 +1666,7 @@ def ch26():
             tag(696, 64, "write the work, then knock", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
-@plate("ch27", "NVLink & NVSwitch", "Weave the spider", "Weave, a spider, hangs at the centre of a web "
+@plate("ch27", "NVLink & NVSwitch", "Weave the spider", "Weave, a spider, hangs at the center of a web "
        "strung across a night sky. 8 green GPU chips, GPU 0 to GPU 7, sit at the ends of the spokes, and "
        "every spoke runs from a chip to the hub where Weave hangs. 4 silver knots on the spokes near the "
        "hub stand for the switches. With 1 thread from each chip to the hub, every GPU reaches every "

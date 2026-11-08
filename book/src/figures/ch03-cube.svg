@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 420" width="660" height="420" role="img" aria-label="A block of 4 by 4 by 4 threads drawn as a cube of 64 small cubes, with x to the right, y downward and z going back. The front layer z = 0 is numbered 0 to 15. Layers z = 0 and 1 are coloured blue, warp 0, and layers z = 2 and 3 orange, warp 1. The thread at (2, 0, 3), on the top face at the back, is highlighted and numbered 50: 2 + 4 × 0 + 16 × 3 = 50, which is warp 1, lane 18.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 420" width="660" height="420" role="img" aria-label="A block of 4 by 4 by 4 threads drawn as a cube of 64 small cubes, with x to the right, y downward and z going back. The front layer z = 0 is numbered 0 to 15. Layers z = 0 and 1 are colored blue, warp 0, and layers z = 2 and 3 orange, warp 1. The thread at (2, 0, 3), on the top face at the back, is highlighted and numbered 50: 2 + 4 × 0 + 16 × 3 = 50, which is warp 1, lane 18.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

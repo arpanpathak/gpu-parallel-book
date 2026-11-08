@@ -24,7 +24,7 @@ void check(cudaError_t err)
     }
 }
 
-// 1 Jacobi step: each interior cell of `next` gets the mean of its 4 neighbours in `old`.
+// 1 Jacobi step: each interior cell of `next` gets the mean of its 4 neighbors in `old`.
 __global__ void jacobi(const float* __restrict__ old, float* __restrict__ next,
                        int width, int height)
 {

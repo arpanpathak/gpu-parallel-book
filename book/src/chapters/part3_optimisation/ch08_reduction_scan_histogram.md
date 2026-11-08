@@ -46,7 +46,7 @@ operator. A sum uses \\(+\\), a maximum uses \\(\max\\), and a count of the elem
 a condition uses \\(+\\) over values of 0 and 1. A sequential program computes a reduction by
 walking the array from one end to the other and combining each element with the result so far.
 
-A parallel program must combine the values in a different order: it adds them in pairs, then adds
+A parallel program must combine the values in a different order. It adds them in pairs, then adds
 the pairs, and so on. The result is unchanged only if the operator is **associative**, that is,
 if \\((a + b) + c = a + (b + c)\\) for any 3 values. Integer addition, maximum and minimum are
 associative. Floating-point addition is associative only approximately, because every addition
@@ -56,7 +56,7 @@ we will see in section 8.2, it is usually the more accurate of the 2.
 
 ### 8.1.2 Work and steps
 
-2 quantities describe the cost of a parallel computation. The **work** of a computation is the
+Two quantities describe the cost of a parallel computation. The **work** of a computation is the
 number of operations it performs. Its **steps**, also called its depth, is the length of the
 longest chain of operations in which each operation needs the result of the one before. Given
 enough threads, the work determines the energy that the computation consumes, and the number of
@@ -143,11 +143,28 @@ values of the upper half into its own slots. The halving requires a block size t
 2, so that every level splits evenly; 128, 256 and 512 are the usual choices. A barrier separates
 the levels, because each level reads values that other threads wrote in the level before.
 
-<p class="listing"><b>Listing 8.1</b> A tree sum per block, 1 element per thread, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch08_reduction/reduce.cu">code/ch08_reduction/reduce.cu</a></p>
+<p class="listing"><b>Listing 8.1</b> A tree sum per block, 1 element per thread. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch08_reduce/src/main.rs">code/oxide/ch08_reduce/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch08_reduction/reduce.cu">code/ch08_reduction/reduce.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:25:54}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:43:59}}
 ```
+
+</div>
+</div>
 
 Each block writes 1 **partial sum**, the total of its own values, to `partial[blockIdx.x]`.
 Because blocks cannot wait for each other inside a kernel (Chapter 5, section 5.4), the partial
@@ -160,7 +177,7 @@ sum of 67108864 floats (256 MiB), average of 20 runs   # on a Jetson Orin NX
 ```
 
 The kernel reached 25.9 GB/s, a quarter of the first GPU's 102 GB/s; on the second GPU it reached
-88.3 GB/s, a third of 273 GB/s. The cause is the ratio of loads to barriers. Each thread loads 1
+88.3 GB/s, a third of 273 GB/s. The cause is the ratio of loads to barriers. We let each thread load 1
 float and then takes part in 8 levels separated by 8 barriers. In the last levels, almost all of
 the threads of a block wait for a few others: at stride 1, 1 thread adds and 255 threads wait.
 While its threads are busy with the tree, a block issues no loads, so the memory is idle for much
@@ -183,13 +200,30 @@ launch adds only 1,024 partial sums.
 <figcaption><b>Figure 8.3</b> A grid-stride loop: 256 elements per thread, then 1 tree per block.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 8.2</b> The coarsened sum, in C++.</p>
+<p class="listing"><b>Listing 8.2</b> The coarsened sum.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:56:90}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:61:80}}
 ```
 
-In every pass of the loop, neighbouring threads read neighbouring floats, so the loads of each
+</div>
+</div>
+
+In every pass of the loop, neighboring threads read neighboring floats, so the loads of each
 warp are coalesced. The loads of different passes do not depend on each other, so a thread can
 have several of them in flight while the memory serves them.
 
@@ -236,11 +270,34 @@ tree of section 8.3 needed 8 barriers for the same 256 values; this version need
 <figcaption><b>Figure 8.5</b> Shuffles within each warp, 1 barrier, then shuffles within warp 0.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 8.3</b> Warp sum, block sum, and the shuffle kernel, in C++.</p>
+<p class="listing"><b>Listing 8.3</b> Warp sum, block sum, and the shuffle kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:92:98}}
+    // ...
+}
+
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:112:143}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:82:120}}
 ```
+
+</div>
+</div>
 
 In `blockSum`, lanes 8 to 31 of warp 0 contribute 0, the identity value of addition, so the second
 call of `warpSum` adds exactly the 8 warp totals. Only warp 0 makes this second call, and all 32 of
@@ -250,18 +307,6 @@ The Rust kernel has the same structure. The attribute `#[device]` marks `warp_su
 that runs on the GPU and is called from kernels. Thread 0 of each block writes the block's partial
 sum at an index that is not the thread's own. The write therefore uses `get_unchecked_mut`, with a
 `SAFETY` comment, as the transpose of Chapter 7 did.
-
-<p class="listing"><b>Listing 8.4</b> The shuffle sum in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch08_reduce/src/main.rs">code/oxide/ch08_reduce/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:23:29}}
-
-    // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:43:74}}
-}
-```
 
 ```console
   shuffles                 4.17 ms    64.4 GB/s  sum 33557632.0      # Orin NX
@@ -283,20 +328,58 @@ The last stage replaces each `float` load with a `float4` load, the 16-byte load
 section 7.6. Each thread now adds 4 floats per load instruction, and the loop runs a quarter as
 many iterations.
 
-<p class="listing"><b>Listing 8.5</b> The shuffle sum with <code>float4</code> loads, in C++.</p>
+<p class="listing"><b>Listing 8.4</b> The shuffle sum with 16-byte loads.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:145:162}}
+    // ...
+}
+
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:164:184}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:122:135}}
 ```
 
-Listing 8.6 times the 4 stages. Each run consists of 2 launches: the stage itself, and 1 block of
+</div>
+</div>
+
+Listing 8.5 times the 4 stages. Each run consists of 2 launches: the stage itself, and 1 block of
 `sumShuffle` over its partial sums.
 
-<p class="listing"><b>Listing 8.6</b> Timing the 4 stages, in C++.</p>
+<p class="listing"><b>Listing 8.5</b> Timing the 4 stages.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:353:365}}
+
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:367:410}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/ch08_reduction/reduce.cu:257:286}}
+{{#include ../../../../code/ch08_reduction/reduce.cu:271:300}}
 ```
+
+</div>
+</div>
 
 ```console
 $ ./reduce                                       # on a Jetson Orin NX
@@ -332,8 +415,8 @@ With `float4` loads, the sum read its 256 MiB at 89.7 GB/s on the first GPU, 88%
 102 GB/s, and at 264.2 GB/s on the second, 97% of its rated 273 GB/s (figure 8.6). Together, the 4
 stages made the sum 3.5 times as fast on the first GPU and 3.0 times as fast on the second.
 Section 8.1.3 predicted 2.63 ms and 0.98 ms at the full rated bandwidth, and the measured 2.99 ms
-and 1.02 ms are close to both predictions. The Rust kernel, which does not use `float4`, matched
-the C++ shuffle stage.
+and 1.02 ms are close to both predictions. The Rust shuffle kernel matched the C++ shuffle
+stage.
 
 <figure>
 <img src="../../figures/ch08-sum-times.svg" alt="Bars of sum bandwidth for 67,108,864 floats. Orin NX: tree 26 GB/s, coarsened 64, shuffles 64, shuffles with float4 90, against a rated 102. Thor: tree 88 GB/s, coarsened 203, shuffles 204, shuffles with float4 264, against a rated 273. Dashed lines mark the rated bandwidths.">
@@ -349,7 +432,7 @@ order. Thread \\(i\\) always adds the same elements in the same order, each warp
 the same pairs, and the second launch always adds the 1,024 partial sums in the same way. The same
 order of additions produces the same roundings and therefore the same bits.
 
-Note, however, that the order depends on the shape of the launch. The tree with 1 element per
+Note, however, that the order depends on the shape of the launch. The tree with one element per
 thread and the `float4` version group the values differently from the coarsened versions, and
 both printed 33,557,628.0, 1 float step lower. A program that must reproduce its results across
 machines must therefore fix its block size and grid size, not only its algorithm.
@@ -379,7 +462,7 @@ prefix sums, because \\(y_i\\) is the sum of the prefix of the array that ends a
 | exclusive | 0 | 3 | 4 | 8 | 9 | 14 | 23 | 25 |
 
 A scan gives each element the position at which it is stored when selected elements are packed
-together. For this reason it is the core of **stream compaction**, which keeps the elements that
+together. For this reason, it is the core of **stream compaction**, which keeps the elements that
 pass a test and stores them contiguously in a shorter array. For example, to keep the values above
 3 from 3, 1, 4, 1, 5, 9, 2, 6, we first set a flag of 1 for each value above 3, which gives
 0, 0, 1, 0, 1, 1, 0, 1. The exclusive scan of the flags is 0, 0, 0, 1, 1, 2, 3, 3. Each kept value
@@ -412,11 +495,28 @@ Animation 1 shows the values moving at each of the 3 offsets.
 <figcaption><b>Animation 1</b> A warp scan: each lane adds the value 1, 2, then 4 lanes to its left.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 8.7</b> A warp scan, in C++.</p>
+<p class="listing"><b>Listing 8.6</b> A warp scan.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:100:110}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:137:148}}
 ```
+
+</div>
+</div>
 
 This form of scan performs more work than a sequential scan. At offset \\(d\\), \\(32 - d\\) lanes
 perform an addition, so a warp performs 31 + 30 + 28 + 24 + 16 = 129 additions where a sequential
@@ -430,7 +530,7 @@ memory, the work-efficient algorithm due to Blelloch performs \\(2(n - 1)\\) add
 The kernel `scanBlocks` scans 1,024 values per block of 256 threads, 4 values per thread, in 4
 phases:
 
-1. Each thread loads its 4 consecutive values with a single 16-byte `uint4` load and scans them in
+1. We let each thread load its 4 consecutive values with a single 16-byte `uint4` load and scan them in
    its registers.
 2. The threads scan their 4-value totals with `warpScan`. Lane 31 of each warp then holds the
    total of its warp and writes it to shared memory.
@@ -438,11 +538,28 @@ phases:
 4. After a second barrier, each thread adds 2 offsets to its 4 values: the total of the warps
    before its own, and the total of the lanes before it in its own warp.
 
-<p class="listing"><b>Listing 8.8</b> A scan of 1,024 values per block, in C++.</p>
+<p class="listing"><b>Listing 8.7</b> A scan of 1,024 values per block.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:186:237}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:150:184}}
 ```
+
+</div>
+</div>
 
 The expression `v - a.w` computes the second offset. The variable `v` holds the inclusive warp
 scan at this lane, and subtracting the lane's own total `a.w` leaves the sum of the lanes before
@@ -472,11 +589,30 @@ steps on the 12 values of the figure.
 <figcaption><b>Animation 2</b> A scan of 3 blocks: block totals are scanned, and the offsets are added back.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 8.9</b> Adding the offsets, and the whole scan, in C++.</p>
+<p class="listing"><b>Listing 8.8</b> Adding the offsets, and the whole scan.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:239:254}}
+    // ...
+}
+
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:424:454}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:186:209}}
 ```
+
+</div>
+</div>
 
 The totals of each level are scanned in place, in `scratch`, which holds all levels one after
 another. The number of totals is rounded up to a multiple of 4, so that the next level can load
@@ -487,25 +623,6 @@ The Rust version loads its 4 values with 4 ordinary loads and writes them throug
 `get_unchecked_mut`, because thread \\(t\\) writes elements \\(4t\\) to \\(4t + 3\\) rather than
 element \\(t\\). A Rust function cannot borrow 1 buffer as both input and output, so each level
 has its own pair of buffers, `totals` and `scanned`, which are allocated before the timing starts.
-
-<p class="listing"><b>Listing 8.10</b> The scan kernels in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:31:41}}
-
-    // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:76:144}}
-    // ...
-}
-```
-
-<p class="listing"><b>Listing 8.11</b> The scan of many blocks, on the host in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:208:238}}
-```
 
 ### 8.7.5 Performance of the scan
 
@@ -540,13 +657,13 @@ between 96 and 128 GB/s.
 
 ## 8.8 Histogram with wide loads
 
-In Chapter 5, section 5.5.2, we privatised a histogram of bytes: each block counts into 256 bins
+In Chapter 5, section 5.5.2, we privatized a histogram of bytes. Each block counts into 256 bins
 in shared memory and adds them to the global bins once. This made the kernel 6 to 28 times as fast
 as the version with global atomics. Measured as a bandwidth, however, its speed was still low.
 Listing 5.7, run here as `histBytes`, read 64 MiB at 13.7 GB/s on the first GPU, 13% of the
 memory's rated bandwidth.
 
-An input in which every byte is 7 shows where the time goes. In that case every atomic operation
+An input in which every byte is 7 shows where the time goes. In that case, every atomic operation
 of a warp targets the same bin, which is the worst possible contention. Yet these bytes were
 counted no more slowly than random bytes: 16.8 GB/s against 13.7 GB/s. Contention was therefore
 not the limit. Each byte cost 1 load instruction, and the 1-byte loads of a warp fetch only 32
@@ -556,11 +673,33 @@ The kernel `histWords` reads 16 bytes per thread with a single `uint4` load, 512
 It extracts the 4 bytes of each 32-bit word by shifting and masking: `(w >> 8 * k) & 255` is byte
 \\(k\\) of the word `w`.
 
-<p class="listing"><b>Listing 8.12</b> A histogram reading 16 bytes per load, in C++.</p>
+<p class="listing"><b>Listing 8.9</b> A histogram reading 16 bytes per load.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:288:301}}
+    // ...
+}
+
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:303:333}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu:226:249}}
 ```
+
+</div>
+</div>
 
 ```console
 histogram of 64 MiB, average of 20 runs          # Orin NX
@@ -589,16 +728,30 @@ it out.
 <figcaption><b>Figure 8.9</b> The histogram with 1 and 16 bytes per load, on 2 GPUs.</figcaption>
 </figure>
 
-The Rust version reads 4-byte `u32` words, 4 bytes per load:
+Listing 8.10 reads 4-byte words, 4 bytes per load:
 
-<p class="listing"><b>Listing 8.13</b> A histogram reading 4 bytes per load, in Rust.</p>
+<p class="listing"><b>Listing 8.10</b> A histogram reading 4 bytes per load.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:146:176}}
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs:256:286}}
+    // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch08_reduction/reduce.cu:251:263}}
+```
+
+</div>
+</div>
 
 ```console
 $ cargo oxide run                                # Orin NX, then Thor
@@ -613,8 +766,8 @@ provided the rest of the gain.
 
 <div class="bee bee-angry" markdown="1">
 
-Measure before optimising. The histogram was limited by its loads, not by the contention that
-privatisation was designed to avoid.
+Measure before optimizing. The histogram was limited by its loads, not by the contention that
+privatization was designed to avoid.
 
 </div>
 
@@ -626,24 +779,31 @@ privatisation was designed to avoid.
 | Scan | \\(n\\) running sums | warp scan by shuffles, block scan, 3 steps across blocks | none | 80% and 67% of rated, counting the bytes moved |
 | Histogram | counts per bin | atomics on private bins in shared memory, 1 fold per block | 256 bins | 81% and 70% of rated |
 
-The 3 kernels follow the same method. Each does as much of the work as possible in registers,
+The three kernels follow the same method. Each does as much of the work as possible in registers,
 combines values within a warp by shuffles, and then combines the warps of a block through shared
 memory. It combines results across blocks only once, through global memory or a second launch.
-Each optimisation was kept only when a measurement showed that it removed a cost.
+Each optimization was kept only when a measurement showed that it removed a cost.
 
 ## 8.10 The complete programs
 
-<p class="listing"><b>Listing 8.14</b> The complete <code>reduce.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch08_reduction/reduce.cu">code/ch08_reduction/reduce.cu</a></p>
+<p class="listing"><b>Listing 8.11</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch08_reduce/src/main.rs">code/oxide/ch08_reduce/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch08_reduction/reduce.cu">code/ch08_reduction/reduce.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch08_reduce/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch08_reduction/reduce.cu}}
 ```
 
-<p class="listing"><b>Listing 8.15</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch08_reduce/src/main.rs">code/oxide/ch08_reduce/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch08_reduce/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 
@@ -653,8 +813,8 @@ Each optimisation was kept only when a measurement showed that it removed a cost
   `__shfl_down_sync`; calling it inside `if (lane < 8)` is undefined.
 - **Reading the partial result of a lane other than lane 0** after a shuffle sum. Only lane 0
   holds the total.
-- **A missing barrier between writing the warp totals and reading them.** Chapter 5 measured the
-  effect.
+- **A missing barrier between writing the warp totals and reading them.** We measured the
+  effect in Chapter 5.
 - **Summing many floats sequentially into a float.** Above 2<sup>24</sup>, small values are lost.
 - **Comparing results bit for bit across launch shapes.** A different grid groups the additions
   differently.
@@ -669,7 +829,7 @@ Each optimisation was kept only when a measurement showed that it removed a cost
   \\(n - 1\\) operations as a sequential chain, in \\(\log_2 n\\) steps.
 - A float sum of values below 1, computed sequentially, stopped at 2<sup>24</sup> = 16,777,216.
   The tree on the GPU produced the float nearest to the exact sum.
-- A tree with 1 element per thread reached a quarter to a third of rated bandwidth. Coarsening to
+- A tree with one element per thread reached a quarter to a third of rated bandwidth. Coarsening to
   256 elements per thread made it 2.3 to 2.5 times as fast.
 - Warp shuffles combine the registers of a warp without shared memory or barriers. After
   coarsening they changed little, because the tree had become a small cost.
@@ -677,7 +837,7 @@ Each optimisation was kept only when a measurement showed that it removed a cost
   bits on every run.
 - A scan within a warp takes 5 shuffle steps. A scan of many blocks scans the blocks, scans their
   totals, and adds the offsets, and it moves the output twice.
-- The privatised histogram of Chapter 5 was limited by its 1-byte loads; 16-byte loads made it
+- The privatized histogram of Chapter 5 was limited by its 1-byte loads; 16-byte loads made it
   3.8 to 6.1 times as fast.
 
 </div>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 386" width="660" height="386" role="img" aria-label="Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are coloured in 2 groups: columns 0 and 1 of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), and 1 + 10 = 11, the entry c00.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 386" width="660" height="386" role="img" aria-label="Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are colored in 2 groups: columns 0 and 1 of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), and 1 + 10 = 11, the entry c00.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

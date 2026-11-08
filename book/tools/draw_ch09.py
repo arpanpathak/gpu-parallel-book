@@ -137,7 +137,7 @@ for x0, by_row in ((40, False), (364, True)):
               mono(x0, 474, f"{total} × 32 bytes = {total * 32} bytes", "start", INK)]
 parts += [note(16, 534, "1 sector is 32 bytes, 8 floats. A warp is 16 values of x for 2 of y. Down a column,", room=628),
           note(16, 552, "x lands on 16 rows of A. Along a row, the 16 lanes of each y share 1 element of A", room=628),
-          note(16, 570, "and read 16 neighbouring elements of B: 64 bytes, 2 sectors.", room=628)]
+          note(16, 570, "and read 16 neighboring elements of B: 64 bytes, 2 sectors.", room=628)]
 save(OUT + "ch09-mapping.svg", 660, 592,
      "Two panels, each showing the 32-byte sectors 1 warp touches at 1 step of k. Left, with threadIdx.x down "
      "a column of C: 1 sector in each of 16 rows of A and 1 sector of B, 17 sectors, 544 bytes. Right, with "

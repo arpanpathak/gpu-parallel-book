@@ -232,6 +232,6 @@
   <text x="569.0" y="323.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">27</text>
   <rect x="590.0" y="302.0" width="34.0" height="34.0" rx="5" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
   <text x="607.0" y="323.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">29</text>
-  <text x="24.0" y="384.0" class="note" text-anchor="start" xml:space="preserve">Highlighted: values thread (0, 0) reads; grey: tile values that other threads read.</text>
+  <text x="24.0" y="384.0" class="note" text-anchor="start" xml:space="preserve">Highlighted: values thread (0, 0) reads; gray: tile values that other threads read.</text>
   <text x="24.0" y="404.0" class="note" text-anchor="start" xml:space="preserve">After phase 1 the 4 sums are c00 = 11, c01 = 13, c10 = 27 and c11 = 29.</text>
 </svg>

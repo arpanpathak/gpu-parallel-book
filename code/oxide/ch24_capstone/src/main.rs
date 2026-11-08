@@ -1,4 +1,4 @@
-//! Chapter 24: an image pipeline. Gray conversion, histogram equalisation, a separable
+//! Chapter 24: an image pipeline. Gray conversion, histogram equalization, a separable
 //! Gaussian blur and Sobel edges, checked pixel by pixel against the CPU, then a batch of
 //! images on 1, 2 and 3 streams.
 //!
@@ -220,8 +220,8 @@ mod kernels {
         }
     }
 
-    /// Sobel gradient magnitude divided by 4, rounded and clamped to 255. The 8 neighbours
-    /// come from global memory; neighbouring threads share them through the L1 cache.
+    /// Sobel gradient magnitude divided by 4, rounded and clamped to 255. The 8 neighbors
+    /// come from global memory; neighboring threads share them through the L1 cache.
     #[kernel]
     #[launch_contract(domain = 2, coordinates = u32, block = (32, 8, 1))]
     pub fn sobel(src: &[u8], mut out: DisjointSlice<u8, Index2D<W>>) {
@@ -386,7 +386,7 @@ fn batch(
     Ok(count as f64 / start.elapsed().as_secs_f64())
 }
 
-/// The 4 images of the pipeline that are kept: gray, equalised, blurred and edges.
+/// The 4 images of the pipeline that are kept: gray, equalized, blurred and edges.
 struct Images {
     gray: Vec<u8>,
     equal: Vec<u8>,

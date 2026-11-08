@@ -69,6 +69,6 @@
   <path d="M182,330.7 H176 V385.3 H182 A11.3,11.3 0 0 1 170.7,374 V342 A11.3,11.3 0 0 1 182,330.7 Z" fill="#1F8A70"/>
   <text x="190.0" y="354.0" class="name" text-anchor="start" xml:space="preserve">1 tree per block</text>
   <text x="190.0" y="372.0" class="sub" text-anchor="start" xml:space="preserve">over 256 register sums, at the end</text>
-  <text x="40.0" y="424.0" class="note" text-anchor="start" xml:space="preserve">Thread i reads element i of every pass, so neighbouring threads still read</text>
-  <text x="40.0" y="442.0" class="note" text-anchor="start" xml:space="preserve">neighbouring floats. Each thread adds 256 values before it touches shared memory.</text>
+  <text x="40.0" y="424.0" class="note" text-anchor="start" xml:space="preserve">Thread i reads element i of every pass, so neighboring threads still read</text>
+  <text x="40.0" y="442.0" class="note" text-anchor="start" xml:space="preserve">neighboring floats. Each thread adds 256 values before it touches shared memory.</text>
 </svg>

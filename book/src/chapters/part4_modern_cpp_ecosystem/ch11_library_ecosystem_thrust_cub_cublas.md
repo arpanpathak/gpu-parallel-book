@@ -2,7 +2,7 @@
 
 # Chapter 11: The Library Ecosystem - Thrust, CUB & cuBLAS
 
-In Chapters 8 and 9 we wrote a sum, a scan, a histogram and a matrix product as our own
+In Chapters 8 and 9, we wrote a sum, a scan, a histogram and a matrix product as our own
 kernels and measured each version. The CUDA toolkit already contains tuned implementations
 of all of these operations. A **library** is a collection of routines written, tested and
 tuned by other programmers, which a program calls instead of implementing the operation
@@ -48,14 +48,14 @@ for Rust.
 ### 11.1.1 The libraries and what they replace
 
 The 5 libraries of this chapter cover most of the algorithms of Part III, as well as a few
-that the book does not implement by hand. All of them are installed with the CUDA toolkit.
+that we do not implement by hand. All of them are installed with the CUDA toolkit.
 Before we look at the table below, we need 4 terms. A **reduction** combines all the elements
 of an array into 1 value with an operation such as addition; the sum of Chapter 8 is a
 reduction. **GEMM** (general matrix multiply) is the matrix product \\(C = AB\\) of Chapter 9,
 and **SGEMM** is its single-precision version, on floats. **Temporary storage**, also called
 scratch memory, is device memory that an algorithm needs only while it runs. For example, a
 sum of 1,024 blocks writes 1 partial sum per block, 1,024 floats or 4 KiB, which the final step
-adds and which are not needed afterwards. A **header** is a source file that a program includes
+adds and which are not needed afterward. A **header** is a source file that a program includes
 with `#include`, and a **link flag** such as `-lcublas` tells the linker to add a compiled
 library file to the executable.
 
@@ -93,13 +93,13 @@ memory they use.
 </figure>
 
 The 3 levels trade convenience for control. A Thrust call does everything for the
-programmer: it allocates its temporary storage, launches its kernels and, in the case of a
+programmer. It allocates its temporary storage, launches its kernels and, in the case of a
 reduction, returns the result to the host. A CUB device-wide call performs the same work but
 leaves 2 decisions to the caller: where the temporary storage comes from, and when the host
 waits for the result. A CUB block-level call performs only 1 step of an algorithm, inside a
 kernel that the programmer writes. Since Thrust is built on CUB, the kernels launched at the
-top 2 levels are the same. Sections 11.2 and 11.3 measure what the difference in convenience
-costs.
+top 2 levels are the same. In Sections 11.2 and 11.3, we measure what the difference in
+convenience costs.
 
 ### 11.1.2 Advantages and limits of a library
 
@@ -111,8 +111,8 @@ a single program could not justify. The scan of Section 11.2.3, for example, rel
 protocol between thread blocks that we did not attempt in Chapter 8. Third, it is tested on
 every release against reference results and on a wide range of input shapes.
 
-A library also has a limitation, which this chapter measures: it does not know the context
-in which it is called. It cannot know that the same temporary storage could serve 1,000
+A library also has a limitation, which we measure in this chapter. It does not know the
+context in which it is called. It cannot know that the same temporary storage could serve 1,000
 consecutive calls, or that the result will be used by another kernel on the GPU rather than by
 the host. The programmer knows these facts and can pass them to the library by calling it at
 one of the lower levels of Fig. 11.1.
@@ -122,10 +122,10 @@ one of the lower levels of Fig. 11.1.
 **NOTE:** cuda-oxide, the Rust compiler used in this book, has no bindings to Thrust, CUB,
 cuBLAS, cuFFT or cuRAND at revision `b7fe543`. A Rust program can call these C libraries
 through Rust's **foreign function interface** (FFI), the mechanism by which Rust code declares
-and calls functions written in C. Chapter 12 uses it for NVRTC; its use for these libraries is
-beyond the scope of this chapter.
+and calls functions written in C. We use it for NVRTC in Chapter 12; its use for these
+libraries is beyond the scope of this chapter.
 cuda-oxide does provide its own block-level primitives for use inside a kernel, the
-counterparts of CUB's lowest level, and Section 11.3.2 measures them.
+counterparts of CUB's lowest level, and we measure them in Section 11.3.2.
 
 </div>
 
@@ -150,7 +150,7 @@ thrust::reduce(policy, first, last, initial value)
 
 The phrase "in any order" matters, and a small example shows why. Take the 8 values 3, 1, 2, 0,
 1, 2, 0, 1. A sequential loop adds them from left to right: 3, 4, 6, 6, 7, 9, 9, 10. A **tree**
-reduction, as in the kernels of Chapter 8, adds neighbouring pairs in rounds. Round 1 gives 3 +
+reduction, as in the kernels of Chapter 8, adds neighboring pairs in rounds. Round 1 gives 3 +
 1 = 4, 2 + 0 = 2, 1 + 2 = 3 and 0 + 1 = 1; round 2 gives 4 + 2 = 6 and 3 + 1 = 4; round 3 gives
 6 + 4 = 10. Both orders reach 10, but the tree takes 3 rounds instead of 7 steps, and the 4
 additions of round 1 can run at the same time on 4 threads. With integers the order makes no
@@ -171,6 +171,20 @@ differently, though not less accurately. Listing 11.1 times `thrust::reduce` on 
 
 <p class="listing"><b>Listing 11.1</b> A sum with <code>thrust::reduce</code>, timed. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/reduce_scan.cu">code/ch11_libraries/reduce_scan.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:306:312}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool sums(const float* in, float* partial, float* total, int n, double exact)
 {
@@ -179,6 +193,12 @@ bool sums(const float* in, float* partial, float* total, int n, double exact)
     // ...
 }
 ```
+
+</div>
+</div>
+
+cuda-oxide has no call that sums a whole array, so the Rust tab times the 2 launches of
+`block_reduce` from Section 11.3.2.
 
 Note that `thrust::reduce` returns the sum to the host as a `float`. The call therefore also
 waits for the GPU to finish and copies 4 bytes back to the host. The program compares every
@@ -250,13 +270,32 @@ that can be called on both the host and the device.
 
 <p class="listing"><b>Listing 11.2</b> The sum of squares in 2 passes and in 1.</p>
 
-```cpp
-{{#include ../../../../code/ch11_libraries/reduce_scan.cu:117:119}}
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:101:142}}
+}
+
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:174:219}}
 ```
 
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
+{{#include ../../../../code/ch11_libraries/reduce_scan.cu:117:119}}
+
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu:175:196}}
 ```
+
+</div>
+</div>
+
+In the Rust tab, the generic kernels `map` and `map_sum` take the closure `square` in the role
+of the functor `Square`.
 
 ```console
 sum of squares, GB/s of input read
@@ -292,8 +331,8 @@ element. An **inclusive** scan includes the element itself in its total, whereas
 | exclusive scan | 0 | 3 | 4 | 6 |
 
 The exclusive scan is the inclusive scan shifted right by 1 position. Element \\(i\\) of the
-exclusive scan is the number of items that come before position \\(i\\), and Section 11.2.4
-uses exactly this property.
+exclusive scan is the number of items that come before position \\(i\\), and we use exactly
+this property in Section 11.2.4.
 
 <div class="definition">
 
@@ -346,6 +385,20 @@ of actual memory traffic, although its program reports 43.0 GB/s because it coun
 
 <p class="listing"><b>Listing 11.3</b> An inclusive scan with Thrust, an exclusive scan with CUB.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:315:321}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool scans(int n)
 {
@@ -354,6 +407,12 @@ bool scans(int n)
     // ...
 }
 ```
+
+</div>
+</div>
+
+cuda-oxide has no scan of a whole array; the Rust tab scans each block of 256 values with
+`block_scan`, the kernel of Listing 11.8.
 
 ```console
 scan of 67108864 values 0 to 3, average of 20 runs
@@ -387,7 +446,7 @@ comes before 28; a stable pass on the tens digit keeps 21 before 28.
 </div>
 
 Stability is what preserves the order established by the lower digits. Each pass is built from
-2 algorithms of Chapter 8. A **histogram** counts how many keys have each digit. An exclusive
+two algorithms of Chapter 8. A **histogram** counts how many keys have each digit. An exclusive
 scan of the counts then gives the first output position of each digit's group. Finally, every
 key is written to the next free position of its group. Writing each element to a position
 computed for it, rather than to the next position in order, is called a **scatter**:
@@ -423,7 +482,7 @@ Worked example: 53, 21, 37, 28, 15, 31
 </div>
 
 <figure>
-<img src="../../figures/ch11-radix.svg" alt="2 passes of a radix sort on the keys 53, 21, 37, 28, 15, 31. Each pass shows 3 rows. Pass 1, by the ones digit: the keys coloured by their digit; a histogram row of counts for digits 0 to 9, 0 2 0 1 0 1 0 1 1 0; the exclusive scan of the counts, 0 0 2 2 3 3 4 4 5 6; and the output 21 31 53 15 37 28 in groups of colour. Pass 2, by the tens digit: counts 0 1 2 2 0 1 and starts 0 0 1 3 5 5, and the sorted output 15 21 28 31 37 53.">
+<img src="../../figures/ch11-radix.svg" alt="2 passes of a radix sort on the keys 53, 21, 37, 28, 15, 31. Each pass shows 3 rows. Pass 1, by the ones digit: the keys colored by their digit; a histogram row of counts for digits 0 to 9, 0 2 0 1 0 1 0 1 1 0; the exclusive scan of the counts, 0 0 2 2 3 3 4 4 5 6; and the output 21 31 53 15 37 28 in groups of color. Pass 2, by the tens digit: counts 0 1 2 2 0 1 and starts 0 0 1 3 5 5, and the sorted output 15 21 28 31 37 53.">
 <figcaption><b>Figure 11.3</b> A radix sort. Each pass consists of a histogram, an exclusive scan and a stable scatter.</figcaption>
 </figure>
 
@@ -434,7 +493,7 @@ sort therefore grows with the number of keys times the number of passes, not wit
 2<sup>24</sup> keys, a comparison sort needs on the order of \\(n \log_2 n\\) = 24\\(n\\)
 comparisons, while a radix sort on 32-bit keys makes 4 passes over the \\(n\\) keys.
 
-Radix sort has 1 requirement: it must know what the bits of a key mean. Thrust uses it only
+Radix sort has 1 requirement. It must know what the bits of a key mean. Thrust uses it only
 when the keys are numbers and the order is a standard one, `less` or `greater`. If the
 program supplies any other comparison, such as the functor `Ascending` in Listing 11.4,
 Thrust cannot look inside it and falls back to a **merge sort**, a comparison sort that
@@ -448,7 +507,7 @@ with `cudaFree` at the end. An **allocator** is an object that provides memory o
 Thrust accepts an allocator as part of its execution policy, `thrust::cuda::par(allocator)`, and
 then takes its temporary storage from the allocator. The allocator `Arena` in Listing 11.4 keeps
 1 large buffer and hands out pieces of it. During 1 sort, Thrust asks for several pieces, and
-`Arena` hands them out 1 after another from the start of the buffer. Before the sort returns,
+`Arena` hands them out one after another from the start of the buffer. Before the sort returns,
 Thrust gives every piece back, and `Arena` then starts again from the beginning. The next sort
 therefore receives the same memory, with no call to `cudaMalloc` or `cudaFree` in between.
 
@@ -469,9 +528,12 @@ int main()
 }
 ```
 
+cuda-oxide provides no sort, so Listings 11.4 and 11.5 have no Rust form; in Chapter 22 we
+write a radix sort in Rust from its histogram, scan and scatter.
+
 The program sorts 16,777,216 random 32-bit keys (64 MiB) and checks each result against
 `std::sort` on the CPU. It also runs CUB's own radix sort, `cub::DeviceRadixSort`, with its
-temporary storage allocated once, as Section 11.3.3 describes.
+temporary storage allocated once, as described in Section 11.3.3.
 
 ```console
 $ ./sort
@@ -553,9 +615,26 @@ replaced by CUB.
 
 <p class="listing"><b>Listing 11.6</b> Chapter 8's sum with <code>cub::BlockReduce</code>.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:64:84}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu:99:115}}
 ```
+
+</div>
+</div>
 
 `cub::BlockReduce<float, BLOCK>` is a class template, a class written in terms of template
 parameters (Chapter 10), here the element type and the number of threads. Both are fixed when
@@ -581,7 +660,7 @@ The `cooperative_groups` module of cuda-oxide provides the Rust counterparts: `w
 operations `Sum`, `Min` and `Max`. They work in the same 3 steps as `cub::BlockReduce`. Each
 warp reduces its 32 values with shuffles, lane 0 of each warp writes the warp's total to a
 slot in shared memory, and warp 0 reduces the slots. The slots are a `SharedArray`,
-cuda-oxide's type for an array in shared memory, with 1 element per warp, which is 256 / 32 = 8
+cuda-oxide's type for an array in shared memory, with one element per warp, which is 256 / 32 = 8
 elements for a block of 256 threads. The kernel declares the array as a `static mut`, a variable
 that exists once for the whole block rather than once per thread, and that may be modified. A
 Rust **reference** is a pointer that the compiler checks: while a mutable reference exists, the
@@ -590,7 +669,10 @@ at the same time, so the compiler cannot guarantee that assumption, and Rust 202
 a reference to a `static mut`. The kernel therefore passes `&raw mut WARPS`, the Rust 2024
 way to obtain a raw pointer to a `static mut` without creating a reference.
 
-<p class="listing"><b>Listing 11.7</b> Chapter 8's Rust sum with <code>block_reduce</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch11_blocks/src/main.rs">code/oxide/ch11_blocks/src/main.rs</a></p>
+<p class="listing"><b>Listing 11.7</b> Chapter 8's sum with <code>block_reduce</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch11_blocks/src/main.rs">code/oxide/ch11_blocks/src/main.rs</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 mod kernels {
@@ -599,6 +681,16 @@ mod kernels {
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch11_libraries/reduce_scan.cu:99:115}}
+```
+
+</div>
+</div>
 
 The `8` in `block_reduce::<f32, Sum, 8>` is the number of warps, and the call checks it at
 compile time: a block of more than 32 warps fails to build. `block_scan` has the same form.
@@ -609,12 +701,26 @@ kernel writes its results without `unsafe`.
 
 <p class="listing"><b>Listing 11.8</b> A scan of each block with <code>block_scan</code>.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch11_blocks/src/main.rs:86:99}}
+    // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch11_libraries/reduce_scan.cu:274:286}}
+```
+
+</div>
+</div>
 
 ```console
 $ cargo oxide run
@@ -624,15 +730,25 @@ sum of 67108864 floats, average of 20 runs
   exact (f64)                               sum 33557630.3
 block_scan of 67108864 values, 256 per block
   first block: [0, 1, 1, 3, 5, 5, 5, 6] ... 403
+sum of squares, GB/s of input read
+  map, then map_sum     14.67 ms    18.3 GB/s  sum 22372548.0
+  map_sum, fused         4.17 ms    64.4 GB/s  sum 22372548.0
+  exact (f64)                               sum 22372547.9
+sum of 4096 floats, microseconds per sum
+  allocated each time, result copied    40.7 us
+  allocated once, result copied         24.1 us
+  allocated once, result kept            8.4 us
 PASSED
 ```
 
 The 2 Rust sums ran within 4% of each other and produced the same total. Both kernels read 1
 float per load, so they reach 68 GB/s rather than the 93 GB/s of the C++ kernels, which use
-`float4` loads, each of which reads 4 floats, 16 bytes, in 1 instruction; Chapter 8 measured
-the same difference. The first 8 scanned values increase by
+`float4` loads, each of which reads 4 floats, 16 bytes, in 1 instruction; we measured
+the same difference in Chapter 8. The first 8 scanned values increase by
 0 to 3 at each step, as the inputs 0, 1, 0, 2, 2, 0, 0, 1 require, and the program checked all
-67,108,864 results.
+67,108,864 results. The last 8 lines are the Rust counterparts of Listings 11.2 and
+11.10: the fused sum of squares ran 3.5 times as fast as the 2 passes, and the small sum took
+8.4 µs instead of 40.7 µs once the allocation and the copy were removed.
 
 ### 11.3.3 Device-wide calls and temporary storage
 
@@ -651,6 +767,24 @@ call. A CUB device-wide call is made twice:
 
 <p class="listing"><b>Listing 11.9</b> <code>cub::DeviceReduce::Sum</code>, called twice.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn small_sums(
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
+    values: &[f32],
+) -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:249:264}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool sums(const float* in, float* partial, float* total, int n, double exact)
 {
@@ -660,6 +794,12 @@ bool sums(const float* in, float* partial, float* total, int n, double exact)
 }
 ```
 
+</div>
+</div>
+
+The Rust kernels need no temporary storage beyond the partial sums, whose number the program
+knows, so the Rust tab allocates them once and reuses them.
+
 For the sum of 64 Mi floats, CUB asked for 1,279 bytes, enough for the partial sums of its
 blocks. The result `total` remains in device memory, and the call returns without waiting for
 the GPU. A call that returns before the GPU has finished the work it requested is called
@@ -668,7 +808,7 @@ data, where the work itself takes 2.9 ms, neither difference from `thrust::reduc
 small array, however, they determine the time.
 
 Consider a sum of 4,096 floats, 16 KiB. At 92 GB/s, reading 16 KiB takes 16,384 B / 92 GB/s
-= 0.18 µs. Listing 11.10 measures 3 ways of computing this sum. `thrust::reduce` took 68.1 µs
+= 0.18 µs. Listing 11.10 measures three ways of computing this sum. `thrust::reduce` took 68.1 µs
 per sum, CUB with the result copied to the host took 29.9 µs, and CUB with the result left on
 the GPU took 8.8 µs. The differences identify where the time goes. Allocating and freeing the
 temporary storage costs 68.1 − 29.9 = 38.2 µs, and copying 4 bytes back and waiting for the
@@ -677,9 +817,22 @@ kernel, which is still 49 times the time the memory needs.
 
 <p class="listing"><b>Listing 11.10</b> 3 ways to sum 4,096 floats.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:221:266}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu:198:224}}
 ```
+
+</div>
+</div>
 
 ```console
 sum of 4096 floats, microseconds per sum
@@ -758,8 +911,9 @@ A matrix is stored in memory as a 1-dimensional sequence of numbers, so a progra
 in which order the entries are laid out. We work with 1 small matrix throughout this section,
 \\(A = [1\ 2\ 3;\ 4\ 5\ 6]\\), which has 2 rows and 3 columns; the semicolon separates the
 rows. We number the entries by (row, column) from 0, so the entry 6 is
-at (1, 2). Every chapter of this book has stored a matrix row by row, as C and C++ arrays do:
-row 0 occupies locations 0 to 2 and row 1 locations 3 to 5, so memory holds 1, 2, 3, 4, 5, 6.
+at (1, 2). In every chapter of this book we have stored a matrix row by row, as C and C++
+arrays do: row 0 occupies locations 0 to 2 and row 1 locations 3 to 5, so memory holds
+1, 2, 3, 4, 5, 6.
 To find entry (r, c), we skip r complete rows of 3 entries and then c entries, which gives
 location \\(3r + c\\). The entry 6 at (1, 2) is at location 3 + 2 = 5.
 
@@ -772,9 +926,9 @@ then r entries, which gives location \\(2c + r\\). The entry 6 at (1, 2) is now 
 <div class="definition">
 
 <span class="box-label">Definition 11.5</span> **Row-major and column-major order.** In
-**row-major** order, the rows of a matrix are stored 1 after another; in a matrix with \\(n\\)
+**row-major** order, the rows of a matrix are stored one after another; in a matrix with \\(n\\)
 columns, entry (r, c) is at location \\(r n + c\\). In **column-major** order, the columns are
-stored 1 after another; in a matrix with \\(m\\) rows, entry (r, c) is at location
+stored one after another; in a matrix with \\(m\\) rows, entry (r, c) is at location
 \\(c m + r\\).
 
 *Example.* For the 2 × 3 matrix \\(A\\) above, entry (0, 1) = 2 is at location 1 in row-major
@@ -852,7 +1006,22 @@ Worked example: \\(A\\) is 2 × 3, \\(B = [7\ 8;\ 9\ 10;\ 11\ 12]\\) is 3 × 2
 
 <p class="listing"><b>Listing 11.11</b> The incorrect call and the correct one. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/gemm.cu">code/ch11_libraries/gemm.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:99:126}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
+// C = A B for a 2 x 3 matrix A and a 3 x 2 matrix B, all stored row by row.
 bool smallProduct(cublasHandle_t handle)
 {
     // ...
@@ -860,6 +1029,12 @@ bool smallProduct(cublasHandle_t handle)
     // ...
 }
 ```
+
+</div>
+</div>
+
+The Rust program declares `cublasSgemm_v2`, the C function behind `cublasSgemm`, with
+`#[link(name = "cublas")]`, and passes the same arguments.
 
 The 2 calls differ only in the order of their operands and leading dimensions. cuBLAS
 computes \\(C \leftarrow \alpha \cdot \mathrm{op}(A)\,\mathrm{op}(B) + \beta C\\), where
@@ -886,8 +1061,8 @@ C = A B with A 2 x 3 and B 3 x 2, stored row by row
   C, operands swapped    = [58 64; 139 154]
 ```
 
-Both lines agree with the values computed by hand. Chapter 9 called cuBLAS in the same way
-for its square matrices. There the 2 outer dimensions are equal, so only the order of the
+Both lines agree with the values computed by hand. In Chapter 9, we called cuBLAS in the same
+way for square matrices. There the 2 outer dimensions are equal, so only the order of the
 operands differs, and a test with square matrices alone would not have exposed a wrong
 leading dimension.
 
@@ -902,6 +1077,20 @@ instruction.
 
 <p class="listing"><b>Listing 11.12</b> SGEMM in FP32, then with TF32 tensor cores allowed.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:194:226}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
@@ -910,6 +1099,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 $ ./gemm
@@ -943,7 +1135,7 @@ value in FP32. A sum of 4,096 such products carries this error into each element
 result.
 
 <figure>
-<img src="../../figures/ch11-tf32.svg" alt="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
+<img src="../../figures/ch11-tf32.svg" alt="The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is 0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 grayed out; 1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.">
 <figcaption><b>Figure 11.7</b> TF32 keeps the range of FP32 and 10 of its 23 mantissa bits. The measured SGEMM ran 4.3 times as fast with 210 times the error.</figcaption>
 </figure>
 
@@ -981,7 +1173,23 @@ numbers that precede them.
 
 <p class="listing"><b>Listing 11.13</b> 16 Mi normal numbers with cuRAND. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/fft_rand.cu">code/ch11_libraries/fft_rand.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn normal_numbers(stream: &Arc<CudaStream>) -> Result<bool, Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:63:87}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
+// 16 Mi numbers from the normal distribution; their mean should be near 0 and their
+// standard deviation near 1.
 bool normalNumbers()
 {
     // ...
@@ -989,6 +1197,9 @@ bool normalNumbers()
     // ...
 }
 ```
+
+</div>
+</div>
 
 The program draws 16,777,216 numbers from the **normal distribution** with mean 0 and
 standard deviation 1, the bell-shaped distribution in which about 68% of the values lie between
@@ -1021,7 +1232,7 @@ operations: for \\(N\\) = 1,024, about 10,240 instead of 1,048,576.
 
 cuFFT works with a **plan**, which is created once for a given size and kind of transform and
 can then be executed on any number of arrays of that shape. A plan plays the role of the cuBLAS
-handle: it holds the choices that cuFFT makes once for a size, such as how to split 1,024 into
+handle. It holds the choices that cuFFT makes once for a size, such as how to split 1,024 into
 halves, so that later transforms of that size can skip them. The list of magnitudes, 1 per
 frequency, is called the **spectrum** of the signal. For real input, cuFFT returns
 \\(N/2 + 1\\) frequencies; the remaining half of the spectrum is a mirror image and carries no
@@ -1036,7 +1247,23 @@ frequency.
 
 <p class="listing"><b>Listing 11.14</b> A plan, then the transform.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn spectrum(stream: &Arc<CudaStream>) -> Result<bool, Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:127:138}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
+// 1,024 samples of sin(50 t) + 0.5 sin(120 t), with t running once around the circle.
+// The transform should show 2 peaks, at frequencies 50 and 120, and nothing else.
 bool spectrum()
 {
     // ...
@@ -1044,6 +1271,9 @@ bool spectrum()
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 cuFFT, 1024 samples of sin(50 t) + 0.5 sin(120 t)
@@ -1053,7 +1283,7 @@ PASSED
 ```
 
 <figure>
-<img src="../../figures/ch11-spectrum.svg" alt="Left: the first 128 samples of the signal sin(50 t) + 0.5 sin(120 t), a fast wobble on a slower wave. An arrow labelled cufftExecR2C leads right to the spectrum: 513 frequencies along the bottom, all 0 except a bar of height 512 at frequency 50 and a bar of height 256 at frequency 120.">
+<img src="../../figures/ch11-spectrum.svg" alt="Left: the first 128 samples of the signal sin(50 t) + 0.5 sin(120 t), a fast wobble on a slower wave. An arrow labeled cufftExecR2C leads right to the spectrum: 513 frequencies along the bottom, all 0 except a bar of height 512 at frequency 50 and a bar of height 256 at frequency 120.">
 <figcaption><b>Figure 11.8</b> 1,024 samples in, 513 frequencies out, with peaks at 50 and 120.</figcaption>
 </figure>
 
@@ -1062,7 +1292,7 @@ frequencies appear, with the expected magnitudes.
 
 ## 11.6 Choosing between a library and a custom kernel
 
-Fig. 11.9 collects the measurements of this chapter for the 3 algorithms that the book also
+Fig. 11.9 collects the measurements of this chapter for the three algorithms that we also
 implemented by hand.
 
 <figure>
@@ -1110,7 +1340,7 @@ avoid the second pass, because no element can be scaled before the largest value
 so it would save nothing.
 
 **A 7-point blur of each frame of a video** reads 3 neighbors on each side of every pixel. A
-computation in which each output is computed from a fixed pattern of neighbouring inputs is
+computation in which each output is computed from a fixed pattern of neighboring inputs is
 called a **stencil**, and the inputs that a tile of outputs needs from beyond its own edges are
 its **halo**. For a row of 256 pixels, the blur needs 3 more pixels on each side, 262 in all. No
 library call fits a stencil with a halo of neighbors, so the blur requires a custom kernel.
@@ -1120,11 +1350,24 @@ be the slowest stage of the pipeline.
 
 ## 11.7 The complete programs
 
-<p class="listing"><b>Listing 11.15</b> The complete <code>reduce_scan.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/reduce_scan.cu">code/ch11_libraries/reduce_scan.cu</a></p>
+<p class="listing"><b>Listing 11.15</b> The complete programs for the sums and scans.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu}}
 ```
+
+</div>
+</div>
 
 <p class="listing"><b>Listing 11.16</b> The complete <code>sort.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/sort.cu">code/ch11_libraries/sort.cu</a></p>
 
@@ -1132,23 +1375,48 @@ be the slowest stage of the pipeline.
 {{#include ../../../../code/ch11_libraries/sort.cu}}
 ```
 
-<p class="listing"><b>Listing 11.17</b> The complete <code>gemm.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/gemm.cu">code/ch11_libraries/gemm.cu</a></p>
+The sort has no Rust program, because cuda-oxide provides no sort (Section 11.2.4).
+
+<p class="listing"><b>Listing 11.17</b> The complete cuBLAS programs.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch11_libraries/gemm.cu}}
 ```
 
-<p class="listing"><b>Listing 11.18</b> The complete <code>fft_rand.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/fft_rand.cu">code/ch11_libraries/fft_rand.cu</a></p>
+</div>
+</div>
+
+<p class="listing"><b>Listing 11.18</b> The complete cuRAND and cuFFT programs.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch11_libraries/fft_rand.cu}}
 ```
 
-<p class="listing"><b>Listing 11.19</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch11_blocks/src/main.rs">code/oxide/ch11_blocks/src/main.rs</a></p>
+</div>
+</div>
 
-```rust,ignore
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs}}
-```
+The 3 Rust programs run with `cargo oxide run`, `cargo oxide run --bin gemm` and
+`cargo oxide run --bin fft_rand` in `code/oxide/ch11_blocks`.
 
 ## Common mistakes
 
@@ -1197,8 +1465,8 @@ be the slowest stage of the pipeline.
 
 </div>
 
-Chapter 12 goes below the libraries. It compiles CUDA source code while the program runs,
-with NVRTC, and loads and launches the result through the driver API.
+In Chapter 12, we go below the libraries. We compile CUDA source code while the program runs,
+with NVRTC, and load and launch the result through the driver API.
 
 ## Exercises
 

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480" role="img" aria-label="Left: cell (1, 2) in step 1 computed from the old grid, (100 + 0 + 0 + 0) / 4 = 25. Right: the same cell computed in place after cell (1, 1) was already overwritten with 25: (100 + 0 + 25 + 0) / 4 = 31.25. Below, a timeline of 2 threads: the thread of cell (1, 1) writes 25; the thread of cell (1, 2) then reads that 25 as its left neighbour.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480" role="img" aria-label="Left: cell (1, 2) in step 1 computed from the old grid, (100 + 0 + 0 + 0) / 4 = 25. Right: the same cell computed in place after cell (1, 1) was already overwritten with 25: (100 + 0 + 25 + 0) / 4 = 31.25. Below, a timeline of 2 threads: the thread of cell (1, 1) writes 25; the thread of cell (1, 2) then reads that 25 as its left neighbor.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -38,7 +38,7 @@
   </defs>
   <rect width="640" height="480" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Updating in place</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">In place, a thread can read a neighbour that the same step has already overwritten.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">In place, a thread can read a neighbor that the same step has already overwritten.</text>
   <rect x="32" y="96" width="280" height="190" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="50" y="85" width="169.6" height="22" rx="11" fill="#1B2430"/>
   <text x="134.8" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">JACOBI: OLD VALUES</text>

@@ -38,7 +38,7 @@
   </defs>
   <rect width="660" height="530" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Units in the last place</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The gap between neighbouring floats doubles at every power of 2.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The gap between neighboring floats doubles at every power of 2.</text>
   <rect x="16" y="104" width="628" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="34" y="93" width="366.2" height="22" rx="11" fill="#1B2430"/>
   <text x="217.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">A TOY FLOAT: 8 VALUES BETWEEN 2 POWERS OF 2</text>

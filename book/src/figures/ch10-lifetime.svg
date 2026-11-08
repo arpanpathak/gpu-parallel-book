@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 546" width="660" height="546" role="img" aria-label="A column of steps inside a zone labelled 1 scope. DeviceBuffer&lt;float&gt; in(host) calls the constructor, which allocates with cudaMallocAsync and copies; kernels then read in.view(). 3 ways out branch from there: return false, check() throws, and the closing brace. All 3 join into 1 box, the destructor, which calls cudaFreeAsync and gives the 8 MiB back to the pool.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 546" width="660" height="546" role="img" aria-label="A column of steps inside a zone labeled 1 scope. DeviceBuffer&lt;float&gt; in(host) calls the constructor, which allocates with cudaMallocAsync and copies; kernels then read in.view(). 3 ways out branch from there: return false, check() throws, and the closing brace. All 3 join into 1 box, the destructor, which calls cudaFreeAsync and gives the 8 MiB back to the pool.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

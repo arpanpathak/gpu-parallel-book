@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" width="640" height="440" role="img" aria-label="Left: a cross of 5 cells, the centre (r, c) and its neighbours (r-1, c) above, (r+1, c) below, (r, c-1) to the left and (r, c+1) to the right, with weight 1/4 on each neighbour and 0 on the centre. Right: cell (1, 1) of the final plate: up 100, down 22.35, left 0, right 59.47, sum 181.82, times 1/4 gives 45.45, the value of the cell.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" width="640" height="440" role="img" aria-label="Left: a cross of 5 cells, the center (r, c) and its neighbors (r-1, c) above, (r+1, c) below, (r, c-1) to the left and (r, c+1) to the right, with weight 1/4 on each neighbor and 0 on the center. Right: cell (1, 1) of the final plate: up 100, down 22.35, left 0, right 59.47, sum 181.82, times 1/4 gives 45.45, the value of the cell.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -38,7 +38,7 @@
   </defs>
   <rect width="640" height="440" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The 5-point stencil</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each interior value is the mean of its 4 neighbours: 4 reads and 4 operations.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each interior value is the mean of its 4 neighbors: 4 reads and 4 operations.</text>
   <rect x="32" y="96" width="250" height="320" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="50" y="85" width="146.0" height="22" rx="11" fill="#1B2430"/>
   <text x="123.0" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">5-POINT STENCIL</text>
@@ -56,8 +56,8 @@
   <rect x="196.0" y="202.0" width="68.0" height="68.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.6"/>
   <text x="230.0" y="240.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">r, c+1</text>
   <text x="230.0" y="258.0" class="note" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">× 1/4</text>
-  <text x="48.0" y="372.0" class="note" text-anchor="start" xml:space="preserve">weight 1/4 on each neighbour,</text>
-  <text x="48.0" y="390.0" class="note" text-anchor="start" xml:space="preserve">0 on the centre</text>
+  <text x="48.0" y="372.0" class="note" text-anchor="start" xml:space="preserve">weight 1/4 on each neighbor,</text>
+  <text x="48.0" y="390.0" class="note" text-anchor="start" xml:space="preserve">0 on the center</text>
   <rect x="302" y="96" width="306" height="320" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="320" y="85" width="216.8" height="22" rx="11" fill="#1B2430"/>
   <text x="428.4" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">CELL (1, 1), FINAL PLATE</text>
@@ -78,6 +78,6 @@
   <text x="586.0" y="296.0" class="mono" text-anchor="end" xml:space="preserve">181.82</text>
   <text x="322.0" y="324.0" class="mono" text-anchor="start" xml:space="preserve">× 1/4</text>
   <text x="586.0" y="324.0" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">45.45</text>
-  <text x="322.0" y="362.0" class="note" text-anchor="start" xml:space="preserve">The mean of the neighbours, 45.45,</text>
+  <text x="322.0" y="362.0" class="note" text-anchor="start" xml:space="preserve">The mean of the neighbors, 45.45,</text>
   <text x="322.0" y="380.0" class="note" text-anchor="start" xml:space="preserve">equals the value of the cell itself.</text>
 </svg>

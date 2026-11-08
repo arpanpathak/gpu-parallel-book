@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 476" width="640" height="476" role="img" aria-label="Three panels, each a grid of words 0 to 63 in rows of 8, with columns labelled banks b0 to b7. Left, lane k reads word k: words 0 to 7, one in each bank, 1 step. Middle, lane k reads word 8k: words 0, 8, 16 up to 56, all in column b0, 8 steps. Right, every lane reads word 5: one word, read once and given to every lane, 1 step.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 476" width="640" height="476" role="img" aria-label="Three panels, each a grid of words 0 to 63 in rows of 8, with columns labeled banks b0 to b7. Left, lane k reads word k: words 0 to 7, one in each bank, 1 step. Middle, lane k reads word 8k: words 0, 8, 16 up to 56, all in column b0, 8 steps. Right, every lane reads word 5: one word, read once and given to every lane, 1 step.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

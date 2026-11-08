@@ -146,16 +146,16 @@ for p, place in enumerate((1, 10)):
     for i, k in enumerate(out):
         parts += [box(150 + i * (cw + gap), y0 + 194, cw, 30, DIGIT_KIND[digit(k)], str(k)),
                   mono(150 + i * (cw + gap) + cw / 2, y0 + 244, str(i), "middle", MUTED)]
-    parts.append(text(470, y0 + 214, "keys of 1 colour stay", "sub"))
+    parts.append(text(470, y0 + 214, "keys of 1 color stay", "sub"))
     parts.append(text(470, y0 + 232, "in input order: stable", "sub"))
 parts += [note(40, 690, "Each key goes to start[digit], and start[digit] then grows by 1. After the tens pass the",
                room=600),
           note(40, 708, "keys are in order, because the ones order survives inside each tens group.", room=600)]
 save(OUT + "ch11-radix.svg", 660, 730,
      "2 passes of a radix sort on the keys 53, 21, 37, 28, 15, 31. Each pass shows 3 rows. Pass 1, by the "
-     "ones digit: the keys coloured by their digit; a histogram row of counts for digits 0 to 9, 0 2 0 1 0 1 "
+     "ones digit: the keys colored by their digit; a histogram row of counts for digits 0 to 9, 0 2 0 1 0 1 "
      "0 1 1 0; the exclusive scan of the counts, 0 0 2 2 3 3 4 4 5 6; and the output 21 31 53 15 37 28 in "
-     "groups of colour. Pass 2, by the tens digit: counts 0 1 2 2 0 1 and starts 0 0 1 3 5 5, and the "
+     "groups of color. Pass 2, by the tens digit: counts 0 1 2 2 0 1 and starts 0 0 1 3 5 5, and the "
      "sorted output 15 21 28 31 37 53.",
      "A radix sort by hand", "Each pass: count the digits, scan the counts, place the keys.", parts)
 
@@ -286,7 +286,7 @@ parts += [tag(40, 290, "FP32: 1/3 = 0.33333334", "client"),
                room=600)]
 save(OUT + "ch11-tf32.svg", 660, 488,
      "The bits of 2 formats as rows of boxes. FP32: 1 sign bit, 8 exponent bits, 23 mantissa bits; 1/3 is "
-     "0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 greyed out; "
+     "0.33333334. TF32: 1 sign bit, the same 8 exponent bits, 10 mantissa bits, with the other 13 grayed out; "
      "1/3 is 0.33325195. Below, 2 measured results for N = 4,096: FP32 1,504.6 GFLOP/s "
      "with max error 1.9e-5; TF32 on tensor cores 6,530.4 GFLOP/s with max error 4.0e-3.",
      "FP32 and TF32", "What tensor cores keep of each number, and what that buys.", parts)
@@ -318,7 +318,7 @@ parts += [mono(x0, base + 16, "0", "middle", MUTED), mono(x0 + span, base + 16, 
           note(40, 426, "1 × 1,024 / 2 = 512 at frequency 50, and 0.5 × 512 = 256 at 120.", room=600)]
 save(OUT + "ch11-spectrum.svg", 660, 448,
      "Left: the first 128 samples of the signal sin(50 t) + 0.5 sin(120 t), a fast wobble on a slower wave. "
-     "An arrow labelled FFT leads right to the spectrum: 513 frequencies along the bottom, all 0 except a bar "
+     "An arrow labeled FFT leads right to the spectrum: 513 frequencies along the bottom, all 0 except a bar "
      "of height 512 at frequency 50 and a bar of height 256 at frequency 120.",
      "A spectrum with cuFFT", "cufftExecR2C on 1,024 real samples.", parts)
 

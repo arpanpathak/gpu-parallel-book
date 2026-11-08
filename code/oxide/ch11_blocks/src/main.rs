@@ -1,4 +1,4 @@
-//! Chapter 11 in Rust: cuda-oxide's block_reduce and block_scan against Chapter 8's code.
+//! Chapter 11 in Rust: block_reduce and block_scan, and closures in place of Thrust calls.
 //!
 //!     cargo oxide run
 
@@ -97,6 +97,49 @@ mod kernels {
             *slot = scanned;
         }
     }
+
+    /// out[i] = f(input[i]), 1 element per thread: the work of thrust::transform.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn map<F>(f: F, input: &[f32], mut out: DisjointSlice<f32>)
+    where
+        F: Fn(f32) -> f32 + Copy,
+    {
+        let idx = thread::index_1d();
+        let i = idx.get();
+
+        if let Some(slot) = out.get_mut(idx) {
+            *slot = f(input[i]);
+        }
+    }
+
+    /// 1 partial sum of f(input[i]) per block, each f(x) kept in a register: the work
+    /// of thrust::transform_reduce.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn map_sum<F>(f: F, input: &[f32], mut partial: DisjointSlice<f32>)
+    where
+        F: Fn(f32) -> f32 + Copy,
+    {
+        static mut WARPS: SharedArray<f32, 8> = SharedArray::UNINIT;
+        let stride = (thread::gridDim_x() * BLOCK) as usize;
+        let block = this_thread_block();
+
+        let mut sum = 0.0;
+        let mut i = thread::index_1d().get();
+        while i < input.len() {
+            sum += f(input[i]);
+            i += stride;
+        }
+
+        sum = block_reduce::<f32, Sum, 8>(&block, sum, &raw mut WARPS);
+
+        if thread::threadIdx_x() == 0 {
+            let b = thread::blockIdx_x() as usize;
+            // SAFETY: only thread 0 of each block writes, at its own block number.
+            unsafe { *partial.get_unchecked_mut(b) = sum };
+        }
+    }
 }
 
 /// Average time of 20 runs of `launch`, in milliseconds, after 1 warm-up run.
@@ -126,6 +169,100 @@ fn random(n: usize, seed: u32) -> Vec<u32> {
             state
         })
         .collect()
+}
+
+/// The sum of squares of 64 Mi floats in 2 passes and in 1.
+fn sums_of_squares(
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
+    values: &[f32],
+) -> Result<bool, Error> {
+    let n = values.len();
+    let exact: f64 = values.iter().map(|&v| v as f64 * v as f64).sum();
+
+    let input = DeviceBuffer::from_host(stream, values)?;
+    let mut squares = DeviceBuffer::<f32>::zeroed(stream, n)?;
+    let mut partial = DeviceBuffer::<f32>::zeroed(stream, GRID as usize)?;
+    let mut total = DeviceBuffer::<f32>::zeroed(stream, 1)?;
+
+    let each = module.prepare_map(LaunchConfig1D::new(n as u32 / BLOCK, BLOCK, 0))?;
+    let grid = module.prepare_map_sum(LaunchConfig1D::new(GRID, BLOCK, 0))?;
+    let fused = module.prepare_map_sum(LaunchConfig1D::new(GRID, BLOCK, 0))?;
+    let one = module.prepare_map_sum(LaunchConfig1D::new(1, BLOCK, 0))?;
+
+    let square = |v: f32| v * v;
+    let same = |v: f32| v;
+
+    let gb = (n * 4) as f64 / 1e9;
+    println!("sum of squares, GB/s of input read");
+
+    let ms = time_ms(stream, || {
+        module.map(stream, &each, square, &input, &mut squares)?;
+        module.map_sum(stream, &grid, same, &squares, &mut partial)?;
+        Ok(module.map_sum(stream, &one, same, &partial, &mut total)?)
+    })?;
+    let two_passes = total.to_host_vec(stream)?[0];
+    let rate = gb / ms * 1e3;
+    println!("  map, then map_sum    {ms:6.2} ms  {rate:6.1} GB/s  sum {two_passes:.1}");
+
+    let ms = time_ms(stream, || {
+        module.map_sum(stream, &fused, square, &input, &mut partial)?;
+        Ok(module.map_sum(stream, &one, same, &partial, &mut total)?)
+    })?;
+    let one_pass = total.to_host_vec(stream)?[0];
+    let rate = gb / ms * 1e3;
+    println!("  map_sum, fused       {ms:6.2} ms  {rate:6.1} GB/s  sum {one_pass:.1}");
+    println!("  exact (f64)                               sum {exact:.1}");
+
+    let close = |s: f32| (s as f64 - exact).abs() < 1e-5 * exact;
+    Ok(close(two_passes) && close(one_pass))
+}
+
+/// A sum of 4,096 floats in 3 ways: storage allocated for each sum and the result
+/// copied to the host, as thrust::reduce does; storage allocated once and the result
+/// copied; storage allocated once and the result kept on the GPU.
+fn small_sums(
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
+    values: &[f32],
+) -> Result<(), Error> {
+    let n = 4096;
+    let blocks = 16;
+    let input = DeviceBuffer::from_host(stream, &values[..n])?;
+
+    let grid = module.prepare_map_sum(LaunchConfig1D::new(blocks, BLOCK, 0))?;
+    let one = module.prepare_map_sum(LaunchConfig1D::new(1, BLOCK, 0))?;
+    let same = |v: f32| v;
+
+    println!("sum of {n} floats, microseconds per sum");
+
+    let ms = time_ms(stream, || {
+        let mut partial = DeviceBuffer::<f32>::zeroed(stream, blocks as usize)?;
+        let mut total = DeviceBuffer::<f32>::zeroed(stream, 1)?;
+        module.map_sum(stream, &grid, same, &input, &mut partial)?;
+        module.map_sum(stream, &one, same, &partial, &mut total)?;
+        total.to_host_vec(stream)?;
+        Ok(())
+    })?;
+    println!("  allocated each time, result copied  {:6.1} us", ms * 1e3);
+
+    let mut partial = DeviceBuffer::<f32>::zeroed(stream, blocks as usize)?;
+    let mut total = DeviceBuffer::<f32>::zeroed(stream, 1)?;
+
+    let ms = time_ms(stream, || {
+        module.map_sum(stream, &grid, same, &input, &mut partial)?;
+        module.map_sum(stream, &one, same, &partial, &mut total)?;
+        total.to_host_vec(stream)?;
+        Ok(())
+    })?;
+    println!("  allocated once, result copied       {:6.1} us", ms * 1e3);
+
+    let ms = time_ms(stream, || {
+        module.map_sum(stream, &grid, same, &input, &mut partial)?;
+        Ok(module.map_sum(stream, &one, same, &partial, &mut total)?)
+    })?;
+    println!("  allocated once, result kept         {:6.1} us", ms * 1e3);
+    Ok(())
 }
 
 fn main() -> Result<(), Error> {
@@ -196,8 +333,12 @@ fn main() -> Result<(), Error> {
     println!("block_scan of {n} values, 256 per block");
     println!("  first block: {:?} ... {}", &result[..8], result[255]);
 
+    // 3. The sum of squares in 2 passes and in 1, and 3 ways to sum 4,096 floats.
+    let squares_ok = sums_of_squares(&module, &stream, &values)?;
+    small_sums(&module, &stream, &values)?;
+
     let close = |s: f32| (s as f64 - exact).abs() < 1e-5 * exact;
-    let ok = close(sum_hand) && close(sum_blocks) && scan_ok;
+    let ok = close(sum_hand) && close(sum_blocks) && scan_ok && squares_ok;
     println!("{}", if ok { "PASSED" } else { "FAILED" });
     Ok(())
 }

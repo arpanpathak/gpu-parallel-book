@@ -73,7 +73,7 @@
 <rect x="28.0" y="360.0" width="72.0" height="40.0" rx="6" fill="#d9622b" stroke="none" stroke-width="0" />
 <text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="15.4" lengthAdjust="spacingAndGlyphs">9</text>
 <rect x="100.0" y="360.0" width="495.7" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
-<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="455.7" lengthAdjust="spacingAndGlyphs">OPTIMISED MATRIX MULTIPLICATION</text>
+<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="455.7" lengthAdjust="spacingAndGlyphs">OPTIMIZED MATRIX MULTIPLICATION</text>
 <rect x="728.6" y="364.0" width="203.4" height="32.0" rx="16" fill="#ffffffdd" stroke="none" stroke-width="0" />
 <text x="830.3" y="386.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#27405a" text-anchor="middle"  textLength="171.4" lengthAdjust="spacingAndGlyphs">Shell the tortoise</text>
 </svg>

@@ -31,7 +31,7 @@ SECTORS = 32
 def sectors():
     tl = Timeline(caption="", kind="step", moved=0.0, stride=1.0)
 
-    for stride, needed, line in ((1, 4, "Stride 1: the warp's 32 floats are 128 neighbouring bytes, 4 sectors. "
+    for stride, needed, line in ((1, 4, "Stride 1: the warp's 32 floats are 128 neighboring bytes, 4 sectors. "
                                            "Every byte moved is used."),
                                  (2, 8, "Stride 2: the floats spread over 256 bytes, 8 sectors, and half of each "
                                         "sector is unused."),
@@ -87,7 +87,7 @@ def tile():
     tl = Timeline(caption="", kind="step", load=0.0, gate=0.0, store=0.0)
 
     tl.chapter("load rows")
-    tl.say("Each row of threads reads a row of the input tile, neighbouring floats, and writes it into "
+    tl.say("Each row of threads reads a row of the input tile, neighboring floats, and writes it into "
            "the same row of the shared tile.")
     tl.to(4.0, ease=linear, load=4.0)
     tl.say("A barrier: no thread reads the tile until every row is in.")

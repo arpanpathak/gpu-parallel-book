@@ -275,10 +275,10 @@ parts += [card(270, 324, 372, 76, "idle", "Chapter 17, T = 2",
                ["the 4 threads of block (0, 0)", "computed c00, c01, c10 and c11"]),
           label(270, 422, "Here thread (0, 0) alone computes those 4 entries.", room=372)]
 save(OUT + "ch18-ownership.svg", 660, 440,
-     "Left: C of the example, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, coloured in 4 blocks of 2 by "
-     "2, 1 colour per thread of the single block of 2 by 2 threads: thread (ty, tx) owns rows 2ty and 2ty + 1 "
+     "Left: C of the example, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, colored in 4 blocks of 2 by "
+     "2, 1 color per thread of the single block of 2 by 2 threads: thread (ty, tx) owns rows 2ty and 2ty + 1 "
      "and columns 2tx and 2tx + 1. Right: the tiles of phase 0, tileA of 4 by 2 = columns 0 and 1 of A, 1 2 / 5 "
-     "6 / 9 10 / 13 14, and tileB of 2 by 4 = rows 0 and 1 of B, 1 0 2 1 / 0 1 1 2, coloured by the thread "
+     "6 / 9 10 / 13 14, and tileB of 2 by 4 = rows 0 and 1 of B, 1 0 2 1 / 0 1 1 2, colored by the thread "
      "that copies each value: thread id = 2ty + tx copies elements id and id + 4 of each tile in row-major "
      "order. A card recalls that in Chapter 17 with T = 2 the 4 threads of block (0, 0) computed c00, c01, c10 "
      "and c11; here thread (0, 0) alone computes them.",
@@ -323,7 +323,7 @@ parts = [matrix_title(152, 108, "A"), matrix_title(270, 108, "B"),
          matrix_title(388, 108, "ACC BEFORE"), matrix_title(488, 108, "ADDED"), matrix_title(590, 108, "ACC AFTER"),
          phase_row(132, 0, [[0, 0], [0, 0]], p0, p0),
          phase_row(256, 1, p0, p1, done),
-         label(24, 384, "Highlighted: values thread (0, 0) reads; grey: tile values that other threads read.",
+         label(24, 384, "Highlighted: values thread (0, 0) reads; gray: tile values that other threads read.",
                room=620),
          label(24, 404, "After phase 1 the 4 sums are c00 = 11, c01 = 13, c10 = 27 and c11 = 29.", room=620)]
 save(OUT + "ch18-phases.svg", 660, 424,

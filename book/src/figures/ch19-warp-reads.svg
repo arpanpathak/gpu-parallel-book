@@ -38,7 +38,7 @@
   </defs>
   <rect width="640" height="436" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The rows read by a block</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Neighbouring warps read each other&#x27;s rows: 8 rows of results need 10 old rows.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Neighboring warps read each other&#x27;s rows: 8 rows of results need 10 old rows.</text>
   <rect x="140" y="112" width="9" height="18" rx="2" fill="#FBFAF6" stroke="#D5DBE3" stroke-width="0.8"/>
   <rect x="151" y="112" width="9" height="18" rx="2" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="0.8"/>
   <rect x="162" y="112" width="9" height="18" rx="2" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="0.8"/>

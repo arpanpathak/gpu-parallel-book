@@ -1,6 +1,6 @@
 <img class="plate" src="../../art/ch09.svg" alt="Shell, a tortoise, walks across a meadow. Its domed shell is laid with square tiles in rows, like a matrix cut into blocks. Ahead of it lie 2 stacks of tiles, 1 marked A and 1 marked B, and behind it a finished row of tiles marked C. A tag says load a tile once, use it many times: the idea of a tiled matrix multiplication.">
 
-# Chapter 9: Optimised Matrix Multiplication
+# Chapter 9: Optimized Matrix Multiplication
 
 Matrix multiplication is one of the most important computations in science, engineering and
 machine learning. The kernels of Chapters 7 and 8 read each input value once and performed 1 or
@@ -21,7 +21,7 @@ in CUDA C++ and in Rust.
 This chapter covers
 
 - the operations, memory traffic and data reuse of a matrix product
-- a kernel with 1 thread per output element, and the effect of the thread-to-element mapping
+- a kernel with one thread per output element, and the effect of the thread-to-element mapping
 - shared-memory tiling
 - register tiling with a 4 × 4 output patch per thread
 - register usage, occupancy and `__launch_bounds__`
@@ -117,7 +117,7 @@ operations per second. The ratio of the 2 is the number of operations that each 
 memory must supply if the arithmetic units are never to wait. We count reuse in this unit,
 **FLOP per float**, which is 4 times the FLOP per byte of Chapter 2 because a float occupies 4
 bytes. For the smaller GPU, 102 GB/s is 102 × 10<sup>9</sup> / 4 = 25.5 × 10<sup>9</sup> floats
-per second, and the FP32 units perform 2,400 × 10<sup>9</sup> FLOP per second. Therefore each
+per second, and the FP32 units perform 2,400 × 10<sup>9</sup> FLOP per second. Therefore, each
 float loaded from memory must supply 2,400 / 25.5 = 94 operations. The table gives the same ratio
 for other GPUs.
 
@@ -162,16 +162,34 @@ KERNEL byColumn, blocks of 16 × 16 threads:
     C[row][col] ← sum
 ```
 
-<p class="listing"><b>Listing 9.1</b> 1 thread per element, <code>threadIdx.x</code> along a column of C, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+<p class="listing"><b>Listing 9.1</b> 1 thread per element, <code>threadIdx.x</code> along a column of C. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:19:36}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:47:59}}
 ```
 
+</div>
+</div>
+
 Each thread first computes the row and column of its output element from its block and thread
 indices. The loop over `k` then reads 1 element of row `row` of \\(A\\) and 1 element of column
 `col` of \\(B\\) in each iteration and accumulates their product in the register `sum`. After the
-loop, the thread writes `sum` to its element of \\(C\\).
+loop, the thread writes `sum` to its element of \\(C\\). The Rust kernel writes through
+`get_unchecked_mut`, because the 2-D launch contract of section 7.4.3 places x along a row.
 
 ```console
 C = A B, 4096 x 4096 floats                       # on a Jetson Orin NX
@@ -209,11 +227,28 @@ counts the sectors for a whole warp: 17 in the first case and 4 in the second.
 <figcaption><b>Figure 9.3</b> The sectors that 1 warp touches at 1 step of k: 544 bytes or 128 bytes.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 9.2</b> 1 thread per element, <code>threadIdx.x</code> along a row of C, in C++.</p>
+<p class="listing"><b>Listing 9.2</b> 1 thread per element, <code>threadIdx.x</code> along a row of C.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:38:58}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:61:73}}
 ```
+
+</div>
+</div>
 
 The only change from listing 9.1 is in the first 2 lines of the kernel: the row now comes from
 `blockIdx.y` and `threadIdx.y`, and the column from `blockIdx.x` and `threadIdx.x`.
@@ -221,17 +256,7 @@ The only change from listing 9.1 is in the first 2 lines of the kernel: the row 
 The Rust kernel uses the 2-D launch contract of section 7.4.3. The functions
 `thread::index_2d_row()` and `index_2d_col()` return the row and the column with x along the row,
 and the output type `DisjointSlice<f32, Index2D<N>>` lets each thread write its own element of
-\\(C\\) without `unsafe`. Section 9.7 explains the `while` loop and the `#[unroll(4)]` attribute.
-
-<p class="listing"><b>Listing 9.3</b> 1 thread per element, x along a row of C, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:19:39}}
-    // ...
-}
-```
+\\(C\\) without `unsafe`. In Section 9.7, we explain the `while` loop and the `#[unroll(4)]` attribute.
 
 ```console
   1 per thread, by row         739.14 ms    185.9 GFLOP/s  max error 3.4e-05     # Orin NX
@@ -287,15 +312,32 @@ reads falls by a factor of 16.
 Animation 1 shows the same block through all 4 steps.
 
 <figure class="anim">
-<video class="motion" src="../../figures/ch09-tiles-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labelled shared memory, the used tiles turn grey, and the 4 sums of the C tile fill up from 0 to 8 products." data-chapters="[[0.0, &quot;the strips&quot;], [6.3, &quot;step 1&quot;], [22.98, &quot;steps 2 to 4&quot;]]"><img src="../../figures/ch09-tiles-anim.gif" alt="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labelled shared memory, the used tiles turn grey, and the 4 sums of the C tile fill up from 0 to 8 products."></video>
+<video class="motion" src="../../figures/ch09-tiles-anim.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labeled shared memory, the used tiles turn gray, and the 4 sums of the C tile fill up from 0 to 8 products." data-chapters="[[0.0, &quot;the strips&quot;], [6.3, &quot;step 1&quot;], [22.98, &quot;steps 2 to 4&quot;]]"><img src="../../figures/ch09-tiles-anim.gif" alt="Matrices A, B and C as 8 by 8 grids. A block's 2 by 2 tile of C needs rows 2 and 3 of A and columns 4 and 5 of B. In 4 steps, a 2 by 2 tile of each strip flies into a box labeled shared memory, the used tiles turn gray, and the 4 sums of the C tile fill up from 0 to 8 products."></video>
 <figcaption><b>Animation 1</b> 4 steps of 2 × 2 tiles: each sum gains 2 products per step.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 9.4</b> The tiled kernel, in C++.</p>
+<p class="listing"><b>Listing 9.3</b> The tiled kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:60:98}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:75:99}}
 ```
+
+</div>
+</div>
 
 The kernel declares the 2 tiles as `__shared__` arrays of \\(T \times T\\) floats. In each
 iteration of the outer loop over `k0`, every thread copies 1 element of \\(A\\) into `tileA` and
@@ -308,16 +350,6 @@ overwrites a tile in the next iteration while another thread is still reading it
 In Rust, the tiles are `SharedArray`s declared `static mut`, as in Chapter 8, and the barrier is
 `thread::sync_threads()`. A write to shared memory is `unsafe`, because the compiler cannot prove
 that 2 threads never write the same element. The `SAFETY` comment states why they do not.
-
-<p class="listing"><b>Listing 9.5</b> The tiled kernel, in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:41:79}}
-    // ...
-}
-```
 
 ### 9.4.2 Global and shared memory reads of the tiled kernel
 
@@ -348,7 +380,7 @@ kernel that performs fewer shared-memory reads per multiply-add can remove this 
 
 ### 9.5.1 Computing several outputs per thread
 
-In the tiled kernel each thread computes 1 sum, so each multiply-add needs 2 new operands. A
+In the tiled kernel, each thread computes 1 sum, so each multiply-add needs 2 new operands. A
 thread that computes a 4 × 4 **patch** of \\(C\\) keeps 16 sums in registers. For each \\(k\\), it
 reads 4 values of \\(A\\), 1 from each of its 4 rows, and 4 values of \\(B\\), 1 from each of its 4
 columns, and multiplies every pair. Figure 9.5 shows 1 value of \\(k\\): the values 1, 2, 0, 3 of
@@ -400,11 +432,27 @@ KERNEL patches, blocks of 256 threads; thread (tx, ty) owns a 4 × 4 patch:
 
 ### 9.5.3 The register-tiled kernel
 
-<p class="listing"><b>Listing 9.6</b> The 4 × 4 patch kernel, in C++.</p>
+<p class="listing"><b>Listing 9.4</b> The 4 × 4 patch kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:100:162}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:101:142}}
 ```
+
+</div>
+</div>
 
 The kernel begins by computing the thread's position `(tx, ty)` in the 16 × 16 arrangement and
 the first row and column, `row0` and `col0`, of the block's tile. The array `acc` holds the 16
@@ -425,15 +473,6 @@ The Rust kernel writes 16 elements per thread, which `thread::index_2d` cannot e
 therefore writes through `get_unchecked_mut`, with the argument that the patches of all threads
 cover \\(C\\) exactly once.
 
-<p class="listing"><b>Listing 9.7</b> The 4 × 4 patch kernel, in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:81:143}}
-}
-```
-
 We can now count the reads of 1 step of the 64 × 64 tile. The block reads 64 × 16 + 16 × 64 =
 2,048 floats from global memory and performs 64 × 64 elements × 16 values of \\(k\\) × 2 =
 131,072 FLOP. The reuse from global memory is therefore 131,072 / 2,048 = 64 FLOP per float, 4
@@ -449,7 +488,7 @@ Register tiling makes the product 3.3 times as fast on the smaller GPU and 3.4 t
 the larger one: 901.4 GFLOP/s, 38% of the smaller GPU's peak, and 3,222.0 GFLOP/s, 40% of the
 larger GPU's peak. At 64 FLOP per float, memory could now supply 1,632 GFLOP/s on the smaller GPU
 and 4,368 GFLOP/s on the larger one, so memory bandwidth is no longer the first limit. Figure 9.7
-compares the 3 kernels by the number of floats that 1 thread reads for 16 multiply-adds, and where
+compares the three kernels by the number of floats that 1 thread reads for 16 multiply-adds, and where
 it reads them from.
 
 <figure>
@@ -468,11 +507,27 @@ threads. The program asks the CUDA runtime how many registers the compiler assig
 kernel, with `cudaFuncGetAttributes`, and how many blocks of a kernel fit on an SM, with
 `cudaOccupancyMaxActiveBlocksPerMultiprocessor`.
 
-<p class="listing"><b>Listing 9.8</b> Querying registers and occupancy, in C++.</p>
+<p class="listing"><b>Listing 9.5</b> Querying registers and occupancy.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:182:197}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:144:157}}
 ```
+
+</div>
+</div>
+
+In Rust, `num_registers`, `local_size_bytes` and `max_active_blocks_per_multiprocessor` are
+methods of the `CudaFunction` that the loaded module returns for a kernel name.
 
 ```console
 resources                                         # Orin NX
@@ -533,7 +588,7 @@ can cause spills; measure each setting.
 
 ## 9.7 Loop unrolling in cuda-oxide
 
-The Rust kernels of listings 9.3, 9.5 and 9.7 write their loops as `while` loops marked with
+The Rust kernels of listings 9.1 to 9.4 write their loops as `while` loops marked with
 `#[unroll]`, a cuda-oxide attribute that asks the compiler to replicate the loop body once per
 iteration. After unrolling, a loop over `i` from 0 to 3 becomes 4 copies of its body, with `i` a
 constant in each copy. The expressions `av[i]` and `acc[i][j]` then refer to fixed registers, and
@@ -553,7 +608,7 @@ the `while` loops of the listings.
 | tiles of 16 × 16 | 201.8 GFLOP/s | 275.1 GFLOP/s | 274.7 GFLOP/s |
 | 4 × 4 per thread | 575.6 GFLOP/s | 595.4 GFLOP/s | 844.9 GFLOP/s |
 
-With `#[kernel(unchecked_indexing)]`, an index out of range is undefined behaviour, as in C++.
+With `#[kernel(unchecked_indexing)]`, an index out of range is undefined behavior, as in C++.
 Removing the checks helped the tiled kernel, whose cost was the checks, but not the patch kernel,
 whose cost was keeping its arrays in memory. The listings therefore keep the bounds checks and
 unroll the loops.
@@ -574,7 +629,7 @@ C = A B, 4096 x 4096 floats
   4 x 4 per thread        47.69 ms   2881.8 GFLOP/s  max error 3.4e-5
 ```
 
-The Rust kernels match the C++ kernels within 10% for 1 element per thread and for tiles, and
+The Rust kernels match the C++ kernels within 10% for one element per thread and for tiles, and
 reach 94% and 89% of the C++ patch kernel on the 2 GPUs.
 
 <details class="check">
@@ -636,7 +691,7 @@ The remaining gap comes from techniques beyond the scope of this chapter, which 
 and tunes for each GPU:
 
 - **Larger patches.** With 8 × 8 elements per thread, a kernel reads shared memory 8 times less
-  than with 1 element per thread, against 4 times less for 4 × 4, at the cost of more registers.
+  than with one element per thread, against 4 times less for 4 × 4, at the cost of more registers.
 - **Wide shared-memory loads.** 4 operands can be read with 1 `float4` load, as in Chapter 7.
 - **Double buffering.** The next pair of tiles is copied while the current pair is used, so that
   the barrier never waits for memory.
@@ -649,17 +704,24 @@ only when the program allows it. Chapter 11 returns to cuBLAS.
 
 ## 9.9 The complete programs
 
-<p class="listing"><b>Listing 9.9</b> The complete <code>sgemm.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+<p class="listing"><b>Listing 9.6</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu}}
 ```
 
-<p class="listing"><b>Listing 9.10</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 
@@ -682,7 +744,7 @@ only when the program allows it. Chapter 11 returns to cuBLAS.
 - A product of \\(N \times N\\) matrices performs \\(2N^3\\) operations on \\(3N^2\\) values. Each
   value has \\(N\\) uses, and a GPU needs about 100 uses per load from memory: 94 FLOP per float
   on the Orin NX and 119 on the Thor.
-- The kernel with 1 thread per element ran at 1.4% of peak. Mapping `threadIdx.x` along a row
+- The kernel with one thread per element ran at 1.4% of peak. Mapping `threadIdx.x` along a row
   reduced the sectors per warp from 17 to 4 and made the kernel 5 times as fast, with the caches
   serving most of the reuse.
 - Tiles of \\(T \times T\\) in shared memory give \\(T\\) FLOP per float from global memory, but
@@ -698,7 +760,7 @@ only when the program allows it. Chapter 11 returns to cuBLAS.
 
 </div>
 
-Part IV turns to the C++ code around such kernels. Chapter 10 develops resource-safe buffers and
+In Part IV, we turn to the C++ code around such kernels. In Chapter 10, we develop resource-safe buffers and
 error handling, and Chapter 11 the CUDA libraries, including cuBLAS.
 
 ## Exercises

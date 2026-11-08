@@ -310,7 +310,7 @@ save(OUT + "ch23-merge.svg", 660, 432,
      f"into m = 5 and s = {sa[1]:.4f} times exp(-1) plus {sb[1]:.4f} = {smerged[1]:.4f}. Right: the Welford "
      "states of 1, 2 (n = 2, mean 1.5, q = 0.5) and of 3, 4 (n = 2, mean 3.5, q = 0.5) merge into n = 4, "
      "mean 2.5 and q = 0.5 + 0.5 + 4 times 2 times 2 / 4 = 5.",
-     "Merging 2 partial states", "Each half is summarised by a few numbers, and 2 summaries combine.", parts)
+     "Merging 2 partial states", "Each half is summarized by a few numbers, and 2 summaries combine.", parts)
 
 
 # 23.10  Welford's update on row 0 (and on row 0 + 10,000 in float32: the same q).
@@ -515,11 +515,11 @@ for group, kernels in MEASURED:
     y += 6
 parts += [note(40, y + 8, "Dashed: bytes per element × 16,777,216 elements ÷ 102 GB/s, the time if every",
                room=590),
-          note(40, y + 26, "modelled byte went to memory at peak bandwidth.", room=590)]
+          note(40, y + 26, "modeled byte went to memory at peak bandwidth.", room=590)]
 save(OUT + "ch23-measured.svg", 660, y + 48,
      "Paired bars of Rust and C++ times per 4,096 by 4,096 matrix on a Jetson Orin NX. Softmax rows of 4,096: "
      "3 passes 2.025 and 1.434 ms, online 2.255 and 1.480 ms, fused 1.435 and 1.417 ms. Rows of 65,536: "
      "3 passes 3.985 and 3.129 ms, online 3.015 and 2.373 ms. Layer norm: sum of squares 1.808 and 1.464 ms, "
-     "Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modelled byte count at "
+     "Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modeled byte count at "
      "102 GB/s.",
      "Measured times", "1 matrix of 4,096 × 4,096 floats, 64 MiB, per kernel, Jetson Orin NX.", parts)

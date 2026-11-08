@@ -23,7 +23,7 @@ This chapter covers
 
 - asynchronous launches and copies, and the work the host can do while the GPU runs
 - streams: ordered queues of GPU work, and the overlap of work in different streams
-- the default stream and the synchronisation it adds between streams
+- the default stream and the synchronization it adds between streams
 - events, which time work on the GPU's own clock
 - a pipeline of chunks on 2 streams, 43% faster on a Jetson Orin NX
 - why overlap gains less when the kernel dominates or the memory is shared
@@ -45,20 +45,28 @@ the third copies the result back to the host. Listing 6.1 shows the kernel. Its 
 iterations has no purpose other than to make the kernel take about as long as its copies; with a
 much shorter kernel, overlapping the stages would make little difference.
 
-<p class="listing"><b>Listing 6.1</b> The kernel of the chapter, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+<p class="listing"><b>Listing 6.1</b> The kernel of the chapter. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:24:35}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:23:34}}
 ```
 
-<p class="listing"><b>Listing 6.2</b> The same kernel in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:21:32}}
-}
-```
+</div>
+</div>
 
 When the 3 stages are timed separately on a Jetson Orin NX, they take the following times:
 
@@ -129,22 +137,22 @@ stream as its first argument. Note that an asynchronous copy requires pinned hos
 Chapter 4 introduced. The copy engine reads the host memory after the call has returned, so the
 operating system must not move the pages of that memory while the copy is in progress.
 
-## 6.3 The default stream and implicit synchronisation
+## 6.3 The default stream and implicit synchronization
 
 A launch or a copy that does not name a stream is placed in the **default stream**. In its
-original form, which is still the default behaviour in C++, the default stream synchronises with
+original form, which is still the default behavior in C++, the default stream synchronizes with
 every other stream of the device. An operation in the default stream waits for all earlier work in
 all streams, and work queued later in other streams waits for it. Therefore, a single launch or
-`cudaMemcpy` without a stream can serialise a program that was designed to overlap its operations.
+`cudaMemcpy` without a stream can serialize a program that was designed to overlap its operations.
 
-There are 2 ways to avoid this behaviour:
+There are two ways to avoid this behavior:
 
 - **Name a stream in every launch and copy.** The dependencies between operations are then
   visible in the code, at the place where the work is queued.
 - **Compile with `--default-stream per-thread`.** Each host thread then has its own default
-  stream, which does not synchronise with the streams of other threads.
+  stream, which does not synchronize with the streams of other threads.
 
-Streams created with `cudaStreamCreateWithFlags(&s, cudaStreamNonBlocking)` do not synchronise
+Streams created with `cudaStreamCreateWithFlags(&s, cudaStreamNonBlocking)` do not synchronize
 with the default stream at all.
 
 ## 6.4 CUDA events
@@ -159,11 +167,28 @@ the kernel and the time it takes to notice that the kernel has finished (figure 
 <figcaption><b>Figure 6.3</b> 2 events around a kernel measure its time on the GPU's clock.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 6.3</b> An asynchronous launch, timed with events, in C++.</p>
+<p class="listing"><b>Listing 6.2</b> An asynchronous launch, timed with events.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:173:190}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:38:67}}
 ```
+
+</div>
+</div>
 
 The call `cudaEventRecord(e)` places the marker in the stream, `cudaEventSynchronize(e)` makes
 the host wait until the GPU has passed it, and `cudaEventElapsedTime(&ms, start, stop)` returns
@@ -171,16 +196,6 @@ the time between 2 markers in milliseconds. The Rust version follows the same st
 `stream.record_event(Some(TIMING))?` creates an event that can record time and places it in the
 stream, `stop.synchronize()?` waits for it, and `start.elapsed_ms(&stop)?` returns the time
 between the 2 events.
-
-<p class="listing"><b>Listing 6.4</b> The same measurement in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // ...
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:99:116}}
-    // ...
-}
-```
 
 ```console
 a launch of a kernel over 128 MiB
@@ -191,7 +206,7 @@ a launch of a kernel over 128 MiB
 
 The host observed the kernel finish after 12.45 ms, whereas the events measured 11.15 ms. The
 difference of about 1.3 ms is time spent outside the kernel: the GPU starting the kernel and
-signalling its completion, and the host thread noticing that signal. For timing work on the GPU,
+signaling its completion, and the host thread noticing that signal. For timing work on the GPU,
 events therefore give the more accurate measurement.
 
 ## 6.5 A double-buffered pipeline
@@ -209,11 +224,26 @@ Keeping 2 chunks in flight in this way is commonly called **double buffering**.
 <figcaption><b>Figure 6.4</b> With chunks on 2 streams, the copies overlap the kernels.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 6.5</b> The pipeline, in C++.</p>
+<p class="listing"><b>Listing 6.3</b> The pipeline.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:43:47}}
+
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:66:95}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:69:98}}
 ```
+
+</div>
+</div>
 
 The function `enqueue` only queues work. Each of the 3 calls in its loop returns immediately, so
 the host queues every chunk of every stream before the first copy has finished. The function
@@ -227,22 +257,14 @@ the chunks passing through the 3 units of the GPU.
 
 ### 6.5.2 The pipeline in Rust
 
-In the Rust version, each chunk owns its pinned host buffer and its device buffer. With this
-arrangement, the borrow checker can see which data each stream uses.
-
-<p class="listing"><b>Listing 6.6</b> The pipeline, in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:35:39}}
-
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:58:87}}
-```
+In the Rust version of Listing 6.3, each chunk owns its pinned host buffer and its device buffer.
+With this arrangement, the borrow checker can see which data each stream uses.
 
 The asynchronous copies are `unsafe` for a reason that the borrow checker cannot see. A copy
 continues after `copy_from_pinned_host_async` has returned, so the host buffer must remain alive
 and unchanged until the GPU has finished with it. The borrow of `part.host` ends when the call
 returns, but the GPU's use of the buffer ends only at `stream.synchronize()`. The `SAFETY` comment
-states why the program meets this requirement: no code touches the host buffers until every
+states why the program meets this requirement. No code touches the host buffers until every
 stream has been synchronized.
 
 ### 6.5.3 Measured pipeline times
@@ -291,10 +313,10 @@ kernel's time, and each additional chunk adds 3 more calls that the host must qu
 <figcaption><b>Figure 6.5</b> Pipeline times of the C++ runs above.</figcaption>
 </figure>
 
-On the Thor, the gain was 13%, for 2 reasons. First, its kernel dominates: the kernel takes
+On the Thor, the gain was 13%, for two reasons. First, its kernel dominates: the kernel takes
 3.05 ms, against 1.1 ms for each copy, so even perfect overlap could hide only the copies, about
 2.2 ms of the 5.2 ms. Second, on an integrated GPU the copies and the kernel use the same memory,
-so a copy that runs during a kernel slows the kernel down. Chapter 4 showed a larger saving that
+so a copy that runs during a kernel slows the kernel down. In Chapter 4, we saw a larger saving that
 is available on such a GPU: avoiding the copies altogether with zero-copy or unified memory.
 
 <div class="bee bee-happy" markdown="1">
@@ -324,6 +346,16 @@ alone until its last blocks finish.
 When operations compete for the SMs, stream **priorities** tell the scheduler which stream to
 serve first:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:97:105}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int least, greatest;
 cudaStream_t urgent, bulk;
@@ -331,6 +363,9 @@ cudaDeviceGetStreamPriorityRange(&least, &greatest);
 cudaStreamCreateWithPriority(&urgent, cudaStreamNonBlocking, greatest);
 cudaStreamCreateWithPriority(&bulk, cudaStreamNonBlocking, least);
 ```
+
+</div>
+</div>
 
 The scheduler starts blocks from a high-priority stream before waiting blocks from a low-priority
 stream. Latency-critical work, such as a small kernel whose result the host is waiting for, belongs
@@ -351,11 +386,24 @@ single call, so the launch work is performed once for all of its operations. The
 record a graph is **stream capture**: between the calls `cudaStreamBeginCapture` and
 `cudaStreamEndCapture`, operations queued in the stream are recorded instead of executed.
 
-<p class="listing"><b>Listing 6.7</b> 1,000 launches, one by one and as a graph, in C++.</p>
+<p class="listing"><b>Listing 6.4</b> 1,000 launches, one by one and as a graph.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:107:161}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:126:163}}
 ```
+
+</div>
+</div>
 
 ```console
 1,000 launches of an empty kernel, time per kernel
@@ -376,12 +424,13 @@ inference loop or each frame of a video pipeline.
 
 <div class="callout note" markdown="1">
 
-**NOTE:** The version of cuda-oxide used in this book has no API for CUDA graphs, so section 6.7
-shows only the C++ version.
+**NOTE:** The version of cuda-oxide used in this book has no safe API for CUDA graphs. The Rust
+version therefore calls the driver functions `cuStreamBeginCapture_v2`, `cuStreamEndCapture`,
+`cuGraphInstantiateWithFlags` and `cuGraphLaunch` through `cuda_core::sys`, in `unsafe` blocks.
 
 </div>
 
-## 6.8 Synchronisation calls
+## 6.8 Synchronization calls
 
 | C++ | Rust (cuda-oxide) | The host waits for |
 |---|---|---|
@@ -399,17 +448,24 @@ first stream and makes the second stream wait for that event.
 
 ## 6.9 The complete programs
 
-<p class="listing"><b>Listing 6.8</b> The complete <code>streams.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+<p class="listing"><b>Listing 6.5</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu}}
 ```
 
-<p class="listing"><b>Listing 6.9</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 
@@ -419,7 +475,7 @@ first stream and makes the second stream wait for that event.
   waits for every other stream. Name a stream in every call.
 - **Timing GPU work with the host clock alone.** The measurement includes launch time and the time
   the host takes to notice completion. Use events.
-- **Modifying a host buffer while an asynchronous copy still reads it.** Synchronise the stream, or
+- **Modifying a host buffer while an asynchronous copy still reads it.** Synchronize the stream, or
   wait for an event, first.
 - **Dividing the data into more and more chunks.** Once the longest stage dominates, additional
   chunks only add launch work.
@@ -433,7 +489,7 @@ first stream and makes the second stream wait for that event.
   12 ms.
 - A stream is an ordered queue. Work in 1 stream runs in order; work in different streams may run
   at the same time, on the copy engines and the SMs together.
-- The default stream synchronises with every other stream, so programs that overlap work name
+- The default stream synchronizes with every other stream, so programs that overlap work name
   their streams explicitly.
 - Events time work on the GPU's own clock.
 - A pipeline of chunks on 2 streams reduced 22.6 ms to 12.9 ms on an Orin NX, close to the bound
@@ -455,7 +511,7 @@ shared-memory tiling and bank conflicts, each measured.
 2. Copy in takes 8 ms, the kernel 3 ms and copy out 2 ms. What is the bound for 4 chunks on 2
    streams, and which stage sets it?
 3. Change `streams.cu` to use 1 stream with 8 chunks. Predict the time, then measure it.
-4. Why does the gain from overlap fall on an integrated GPU such as the Thor? Name 2 reasons.
+4. Why does the gain from overlap fall on an integrated GPU such as the Thor? Name two reasons.
 5. Record an event after the copy in stream 0 and make stream 1 wait for it with
    `cudaStreamWaitEvent`. What does stream 1 now wait for, and what does the host wait for?
 6. A loop launches 5 kernels of 20 µs each, 10,000 times. Estimate the launch overhead at 4 µs per

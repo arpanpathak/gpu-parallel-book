@@ -154,7 +154,7 @@ Worked example: one processor, 4 rows
 1. The processor requests `a[0]` and `b[0]`. The 2 reads travel together, so both values
    arrive 500 cycles later.
 2. It adds them: 4 cycles.
-3. It sends `c[0]` towards memory. A processor does not wait for a write to complete, so it
+3. It sends `c[0]` toward memory. A processor does not wait for a write to complete, so it
    moves straight on to the next row.
 4. Rows 1, 2 and 3 repeat the same steps.
 
@@ -164,7 +164,7 @@ Each row takes 504 cycles, the 4 rows take **2,016 cycles**, and the adder is bu
 </div>
 
 <figure>
-<img src="../../figures/ch01-one-processor.svg" alt="One processor adds 4 rows of the vector, one after another. Each row is a long grey bar, waiting 500 cycles for a[i] and b[i] from memory, and a thin red bar, the 4-cycle add. The 4 rows take 2,016 cycles, and the adder is busy for 16 of them, less than 1 percent of the time.">
+<img src="../../figures/ch01-one-processor.svg" alt="One processor adds 4 rows of the vector, one after another. Each row is a long gray bar, waiting 500 cycles for a[i] and b[i] from memory, and a thin red bar, the 4-cycle add. The 4 rows take 2,016 cycles, and the adder is busy for 16 of them, less than 1 percent of the time.">
 <figcaption><b>Figure 1.2</b> One processor computes 4 rows. Each row waits 500 cycles for its 2 reads, then adds for 4.</figcaption>
 </figure>
 
@@ -224,7 +224,7 @@ cycles.
 
 From cycle 10 onwards a read completes every 2 cycles, so the throughput is 0.5 reads per
 cycle. Each individual read still takes 10 cycles. Starting reads in quick succession did
-not make any of them faster; it made them overlap. Most optimisations in this book work the same way: they raise throughput by overlapping
+not make any of them faster; it made them overlap. Most optimizations in this book work the same way: they raise throughput by overlapping
 operations, and leave the latency of each operation as it was.
 
 ### 1.1.4 Concurrency and Little's law
@@ -433,7 +433,7 @@ worth using.
 
 ## 1.3 Amdahl's law
 
-The table of section 1.2 showed the speedup levelling off as processors were added. This
+The table of section 1.2 showed the speedup leveling off as processors were added. This
 section explains why, and gives the limit a formula. In 1967 Gene Amdahl, the chief architect
 of IBM's System/360, used a short argument to show that machines with many processors would
 gain less than their designers hoped. Part of every program, he observed, can only be
@@ -668,7 +668,7 @@ processor would need 1 + 8 × 9 = 73. The speedup is **7.3**.
 </figure>
 
 Let \\(s\\) be the serial fraction measured on the parallel run, here 1 second out of 10, so
-\\(s = 0.1\\). The worked example generalises to
+\\(s = 0.1\\). The worked example generalizes to
 
 \\[ S(p) = s + p \cdot (1 - s) \\]
 
@@ -955,8 +955,8 @@ An experiment confirms the bound: make one resource twice as fast and measure ag
 
 A video encoder that spends 98% of its time computing and 2% reading frames is CPU-bound:
 a faster disk changes nothing, and a processor twice as fast nearly halves its running
-time. The bound of a program is the first thing to establish before optimising it, because
-an optimisation aimed at a resource that is not the bound cannot help. Chapter 7 treats
+time. The bound of a program is the first thing to establish before optimizing it, because
+an optimization aimed at a resource that is not the bound cannot help. Chapter 7 treats
 memory-bound GPU programs, Chapter 9 compute-bound ones and Chapter 6 programs that wait for
 data transfers. Chapter 25 shows how a profiler measures the bound instead of guessing it.
 
@@ -1179,7 +1179,7 @@ processors beyond about 1,000 wait.
 
 </div>
 
-Chapter 2 opens up the GPU: how its processors are organised, how it keeps hundreds of
+Chapter 2 opens up the GPU: how its processors are organized, how it keeps hundreds of
 memory reads in flight, and where the ridge point of the Jetson board used in this book
 lies.
 

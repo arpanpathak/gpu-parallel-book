@@ -89,9 +89,10 @@ mod kernels {
             let b_row = t * T + ty;
             let a_value = if row < m && a_col < k { a[row * k + a_col] } else { 0.0 };
             let b_value = if b_row < k && col < n { b[b_row * n + col] } else { 0.0 };
-            // SAFETY: tiled_config::<T> launches T x T threads with 2 T^2 floats of
-            // shared memory, so slot ty * T + tx lies in each tile and is this thread's
-            // alone; the barrier below completes these writes before any thread reads.
+            // SAFETY: tiled_config::<T> launches T x T threads with 2 T^2 floats
+            // of shared memory, so slot ty * T + tx lies in each tile and belongs
+            // to this thread alone; the barrier below completes these writes
+            // before any thread reads them.
             unsafe {
                 *tile_a.add(ty * T + tx) = a_value;
                 *tile_b.add(ty * T + tx) = b_value;

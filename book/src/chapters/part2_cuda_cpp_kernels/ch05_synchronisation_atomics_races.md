@@ -1,20 +1,21 @@
 <img class="plate" src="../../art/ch05.svg" alt="Whistle, a meerkat with a whistle, stands on watch beside a striped gate across a path. 3 worker bees have reached the gate and wait in a row; a 4th is still flying in from the left. The gate stays down until every bee has arrived. A sign on the gate reads __syncthreads(), and a tag says all arrive, then all go.">
 
-# Chapter 5: Synchronisation, Atomics & Race Conditions
+# Chapter 5: Synchronization, Atomics & Race Conditions
 
-In every kernel so far, each thread wrote its own output element. Thread \\(i\\) of the vector
-addition kernel wrote `c[i]` and no other location, so the threads never needed to know about
-each other. Many useful computations do not have this property. A histogram of bytes has 256
-bins, and millions of threads add counts to them. A sum has a single result, and every thread
-contributes a part of it. Whenever 2 threads access the same memory location, and at least one of
-them writes it, the result can depend on the order of the accesses. The hardware does not choose
-that order in any predictable way, so the program must impose an order where one is needed.
+In every kernel so far, we used one thread to write one element of the result array. In the
+vector addition kernel, for example, thread \\(i\\) wrote `c[i]` and nothing else, so the threads
+never needed to know about each other. Many useful computations lack this property. To build a
+histogram of bytes, we let millions of threads add counts to only 256 bins. To compute a sum, we
+let every thread contribute a part of a single result. Whenever 2 threads access one memory
+location, and at least one of them writes to it, the result can depend on the order of those
+accesses. The hardware does not choose that order in any predictable way, so we must impose an
+order wherever our program needs one.
 
-In this chapter, we study the 2 mechanisms that CUDA provides for this purpose. Barriers make the
-threads of a block wait for each other at a point in the program, and atomic operations perform a
-read-modify-write on a memory location as 1 indivisible step. We also examine control divergence,
-the cost a warp pays when its threads take different paths through a branch. Each effect is
-measured with a C++ program and a Rust program.
+In this chapter, we'll examine the two mechanisms that CUDA provides for this purpose. With a
+barrier, we make the threads of a block wait for each other at a chosen point in the program. With
+an atomic operation, we perform a read-modify-write on a memory location as one indivisible step.
+We'll also examine control divergence, the slowdown that occurs when threads of one warp take
+different paths through a branch. We measure each effect with a C++ program and a Rust program.
 
 <div class="covers" markdown="1">
 
@@ -25,7 +26,7 @@ This chapter covers
 - `__syncthreads()`, the barrier for the threads of a block, and the errors caused by a missing barrier
 - the visibility of writes across blocks: caches, memory fences and memory orderings
 - atomic operations, and the atomic types that safe Rust requires for a shared counter
-- privatisation of a histogram in shared memory, 6 to 28 times as fast as the direct version
+- privatization of a histogram in shared memory, 6 to 28 times as fast as the direct version
 - why a floating-point sum computed with atomic operations varies from run to run
 
 </div>
@@ -51,7 +52,7 @@ can access `counter` between them. Figure 5.1 shows 2 threads that do so.
 </figure>
 
 The counter initially holds 5. Thread A reads 5 in step 1, and thread B reads 5 in step 2, before
-A has written its result. Both threads compute 6, and both write 6. 2 additions were performed,
+A has written its result. Both threads compute 6, and both write 6. Two additions were performed,
 but the counter increased by only 1. The addition performed by thread A has been overwritten; we
 call this a **lost update**. The situation that makes it possible is called a race condition. A
 **race condition**, or data race, occurs when 2 or more threads access the same memory location,
@@ -65,11 +66,35 @@ blocks of 256 threads, and every thread executes `*counter = *counter + 1` on th
 The second kernel, `countAtomic`, performs the same increment with `atomicAdd`, which we discuss
 in section 5.5.
 
-<p class="listing"><b>Listing 5.1</b> 2 ways to count, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+In Rust, the plain statement `counter[0] = counter[0] + 1` on a slice that all threads share
+does not compile. The kernel receives the slice as a shared reference, and the compiler rejects
+the write with error E0594. The Rust kernel `count_racy` therefore writes the same race
+explicitly. It reads the counter with an atomic load and writes the incremented value back with a
+separate atomic store, so another thread can store between the 2 operations, exactly as in the
+plain C++ addition.
+
+<p class="listing"><b>Listing 5.1</b> 2 ways to count. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:18:32}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:24:33}}
 ```
+
+</div>
+</div>
 
 The measurements in this chapter come from 2 integrated GPUs, a Jetson Orin NX and a Jetson AGX
 Thor. The output below is from the first.
@@ -86,7 +111,8 @@ second GPU. Nearly every update was lost, because thousands of threads read the 
 the same time and wrote back almost the same value. The count also changes from one run to the
 next. Note that the kernel completed without any error. The hardware does not detect races, so a
 racy kernel stores a wrong result in exactly the same way as a correct kernel stores a right one.
-The atomic version counted all 1,048,576 additions.
+The atomic version counted all 1,048,576 additions. The Rust program behaves in the same way. Its load-and-store kernel counted
+94 of the 1,048,576 additions, and its `fetch_add` kernel counted all of them.
 
 Animation 1 shows the race with 2 threads, followed by the same 2 additions performed with
 `atomicAdd`.
@@ -105,31 +131,57 @@ gives each thread access to its own element only. Neither type allows every thre
 `DeviceAtomicU32`, whose operations are all indivisible. Listing 5.2 shows the counting kernel
 written this way.
 
-<p class="listing"><b>Listing 5.2</b> The counter in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a></p>
+<p class="listing"><b>Listing 5.2</b> The counter. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:16:20}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:28:32}}
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch05_sync/sync.cu:30:33}}
+```
+
+</div>
+</div>
 
 The host allocates the counter as ordinary zeroed `u32` memory, as listing 5.3 shows. The
 function `atomic_u32` then calls `cast_elem` to change the element type that the kernel sees to
 `DeviceAtomicU32`. The bytes in device memory are not moved or changed.
 
-<p class="listing"><b>Listing 5.3</b> Allocating atomic counters and launching the count, in Rust.</p>
+<p class="listing"><b>Listing 5.3</b> Allocating atomic counters and launching the count.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:86:92}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:168:174}}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:100:107}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:182:197}}
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch05_sync/sync.cu:105:127}}
+```
+
+</div>
+</div>
 
 ```console
 $ cargo oxide run
@@ -138,15 +190,15 @@ $ cargo oxide run
 ```
 
 The call to `fetch_add` takes a memory ordering, here `Relaxed`, which we explain in section 5.4.
-The guarantee that Rust provides is a narrow one: a data race on ordinary device memory cannot be
-written without `unsafe`. As we will see in section 5.3, accesses to shared memory still require
+The guarantee that Rust provides is a narrow one. A data race on ordinary device memory cannot be
+written without `unsafe`. In section 5.3, we'll see that accesses to shared memory still require
 `unsafe` blocks, and in those blocks the programmer is again responsible for correctness.
 
 ## 5.2 Control divergence
 
 Recall from Chapter 2 that a warp issues 1 instruction at a time for all 32 of its threads. A
 branch therefore needs special handling when some threads of a warp take the `if` path and the
-others take the `else` path. In this case the warp executes both paths. It first executes the
+others take the `else` path. In this case, the warp executes both paths. It first executes the
 `if` path, with the threads that took it active and the other threads idle. It then executes the
 `else` path with the roles reversed. After the branch, the threads continue together. Executing
 more than one path within a warp is called **control divergence**. Its cost is proportional to the
@@ -161,11 +213,28 @@ illustrates.
 Listing 5.4 measures this cost. Every thread executes 1 of 2 loops of 64 iterations, and half the
 threads take each loop. The 2 runs of the kernel differ only in which threads take which loop.
 
-<p class="listing"><b>Listing 5.4</b> A branch on alternate lanes or alternate warps, in C++.</p>
+<p class="listing"><b>Listing 5.4</b> A branch on alternate lanes or alternate warps.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:107:143}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:78:94}}
 ```
+
+</div>
+</div>
 
 The variable `odd` decides the path. When `byWarp` is true, `odd` is computed from
 `threadIdx.x / 32`, the number of the warp within the block. All 32 threads of a warp then compute
@@ -179,7 +248,7 @@ branch on every other thread, 16777216 threads, average of 10 runs
   lanes alternate         54.78 ms
 ```
 
-The same work took 54.78 / 28.37 = 1.93 times as long when lanes alternated. On the second GPU the
+The same work took 54.78 / 28.37 = 1.93 times as long when lanes alternated. On the second GPU, the
 ratio was 12.24 / 6.22 = 1.97. Both are close to 2, the ratio we expect from counting the paths
 each warp executes.
 
@@ -187,7 +256,7 @@ Divergence is therefore a property of warps, not of individual threads. A branch
 or on `threadIdx.x / 32` adds no cost, because all threads of each warp agree. The guard
 `if (i < n)` of Chapter 3 diverges only in the warp that contains element \\(n\\), which is at most
 1 warp in the entire grid, so its cost is negligible. Branches that depend on the data are more
-likely to diverge. When the data can be arranged so that neighbouring threads tend to take the same
+likely to diverge. When the data can be arranged so that neighboring threads tend to take the same
 path, the warps diverge less.
 
 <div class="bee bee-happy" markdown="1">
@@ -200,9 +269,9 @@ A warp executes every path that any of its threads takes, so branch on whole war
 
 ### 5.3.1 Phases within a block
 
-The threads of a block often work in phases. In the first phase, each thread writes a value to
-shared memory. In the second phase, threads read values that other threads wrote. The second phase
-is correct only if every write of the first phase has completed. A **barrier** is a point in a
+We often organize the work of a block in phases. In the first phase, we let each thread write a
+value to shared memory. In the second phase, we let the threads read values that other threads
+wrote. The second phase is correct only if every write of the first phase has completed. A **barrier** is a point in a
 program that every thread of a group must reach before any thread of the group continues past it.
 `__syncthreads()` is the barrier for the threads of 1 block. A thread that calls it waits until all
 threads of its block have called it. In addition, the writes that each thread made to shared and
@@ -228,11 +297,28 @@ levels. Figure 5.4 shows the same tree for 8 values.
 <figcaption><b>Figure 5.4</b> A tree sum of 8 values, with a barrier between levels.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 5.5</b> A block sum with or without barriers, in C++.</p>
+<p class="listing"><b>Listing 5.5</b> A block sum with or without barriers.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:75:105}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:59:76}}
 ```
+
+</div>
+</div>
 
 Each level reads values that the previous level wrote, and these values were often written by
 threads in other warps. A barrier must therefore separate each level from the next. The parameter
@@ -246,7 +332,7 @@ block sums 256 ones, so the correct result for every block is 256.
 ```
 
 Without barriers, 2,450 of the 4,096 block sums were wrong on the first GPU, and 3,057 on the
-second. A thread that reached the next level early read a value that its neighbour had not yet
+second. A thread that reached the next level early read a value that its neighbor had not yet
 written. Some blocks still produced the correct sum, because whether a warp runs ahead of the
 others depends on the scheduling of the warps. Errors of this kind are difficult to find, because
 a test can pass on some runs and fail on others. Animation 2 shows the 8-value tree with and
@@ -265,11 +351,26 @@ reach it wait for threads that never arrive, and the block hangs. In listing 5.5
 `if (barrier) __syncthreads();` is allowed only because `barrier` has the same value in every
 thread. The following code is incorrect:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+if thread::threadIdx_x() % 2 == 0 {
+    thread::sync_threads(); // odd threads never arrive: the block hangs
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 if (threadIdx.x % 2 == 0) {
     __syncthreads();     // odd threads never arrive: the block hangs
 }
 ```
+
+</div>
+</div>
 
 Note also that a barrier applies to exactly 1 block. The blocks of a grid run on different SMs,
 and a GPU does not guarantee that all the blocks of a launch are running at the same time.
@@ -289,7 +390,7 @@ A **memory fence** orders the memory operations of 1 thread as other threads obs
 `__threadfence()` guarantees that every write the thread made before the fence becomes visible to
 the whole device before any write it makes after the fence. `__threadfence_block()` gives the
 same guarantee for the threads of the block, and `__threadfence_system()` extends it to the host.
-A fence does not make any thread wait. Its typical use is to publish data: a thread writes the
+A fence does not make any thread wait. Its typical use is to publish data. A thread writes the
 data, executes a fence, and then sets a flag, so that any thread that sees the flag also sees the
 data.
 
@@ -313,10 +414,10 @@ announces that data is ready needs `Release` on the write and `Acquire` on the r
 
 ### 5.5.1 Atomic read-modify-write
 
-An **atomic operation** is a read-modify-write that the hardware performs indivisibly: no other
+An **atomic operation** is a read-modify-write that the hardware performs indivisibly. No other
 thread can read or write the location between the read and the write of the operation. When 2
-threads call `atomicAdd` on the same location, the 2 operations are performed 1 after the other,
-in an order chosen by the hardware, and both take effect. Note that atomic operations do not
+threads call `atomicAdd` on the same location, the 2 operations are performed one after the other,
+in an order chosen by the hardware, and both take effect. Atomic operations do not
 impose a particular order between the threads; they only guarantee that the operations do not
 overlap. Atomic operations on global memory are performed in the L2 cache, which all SMs share
 (figure 5.5).
@@ -352,40 +453,74 @@ waiting time grows with the number of threads. The next section measures this co
 ### 5.5.2 A histogram
 
 A **histogram** counts how many times each value occurs in a data set. A byte has 256 possible
-values, so a histogram of bytes has 256 counters, called **bins**. The direct kernel, shown in
-listing 5.6, assigns a set of bytes to each thread, and the thread adds 1 to the bin of each byte
-with `atomicAdd`.
+values, so a histogram of bytes has 256 counters, called **bins**. In the direct kernel, shown in
+listing 5.6, we give each thread a set of bytes, and we let the thread add 1 to the bin of each
+byte with `atomicAdd`.
 
-<p class="listing"><b>Listing 5.6</b> A histogram with global bins, in C++.</p>
+<p class="listing"><b>Listing 5.6</b> A histogram with global bins.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:34:44}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:35:42}}
 ```
 
+</div>
+</div>
+
 The launch uses 1,024 blocks of 256 threads, 262,144 threads in total, for 67,108,864 bytes, so
 each thread processes 256 bytes. The loop advances by `stride`, the total number of threads in the
-grid. This pattern is called a **grid-stride loop**. In every iteration, neighbouring threads read
-neighbouring bytes.
+grid. This pattern is called a **grid-stride loop**. In every iteration, neighboring threads read
+neighboring bytes.
 
 Every one of the 67,108,864 additions targets 1 of only 256 addresses in global memory. We can
-reduce this contention with **privatisation**. Each block counts into its own 256 bins in shared
-memory, where atomic operations are fast and only the threads of the block compete for each bin.
-At the end, each block adds its totals to the global bins once (figure 5.6).
+reduce this contention with **privatization**. We give each block its own 256 bins in shared
+memory, where atomic operations are fast and only the threads of that block compete for each bin.
+At the end, we add each block's totals to the global bins once (figure 5.6).
 
 <figure>
 <img src="../../figures/ch05-privatise.svg" alt="Phase 1: blocks 0, 1 and so on to 1,023 each count their 65,536 bytes into 256 bins in shared memory. Phase 2: each block adds its 256 counts to the 256 global bins. The global atomics drop from 67,108,864 to 262,144.">
-<figcaption><b>Figure 5.6</b> A privatised histogram: count in shared memory, then add each bin to global memory once.</figcaption>
+<figcaption><b>Figure 5.6</b> A privatized histogram: count in shared memory, then add each bin to global memory once.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 5.7</b> A histogram with shared bins, in C++.</p>
+<p class="listing"><b>Listing 5.7</b> A histogram with shared bins.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:46:73}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:44:57}}
 ```
 
-The kernel has 3 phases, separated by 2 barriers. In the first phase, each thread sets 1 bin of
-`local` to 0. The first barrier ensures that every bin is 0 before any thread counts into it. In
-the second phase, the threads count their bytes into `local`. The second barrier ensures that all
+</div>
+</div>
+
+We split the kernel into 3 phases, separated by 2 barriers. In the first phase, we let each thread
+set one bin of `local` to 0. The first barrier ensures that every bin is 0 before any thread counts into it. In
+the second phase, we let the threads count their bytes into `local`. The second barrier ensures that all
 counting has finished before the third phase, in which thread \\(k\\) adds bin \\(k\\) to the
 global bins. Since the block has 256 threads and there are 256 bins, each thread handles exactly
 1 bin in the first and third phases.
@@ -393,16 +528,6 @@ global bins. Since the block has 256 threads and there are 256 bins, each thread
 The Rust versions have the same structure. In the shared version, the bins are held in a
 `SharedArray`, and every access to it is `unsafe`. The compiler cannot see the barriers that make
 these accesses correct, so each `unsafe` block carries a `SAFETY` comment that states the reason.
-
-<p class="listing"><b>Listing 5.8</b> Both histograms in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:22:61}}
-    // ...
-}
-```
 
 `BlockAtomicU32::from_ptr` treats 1 shared bin as an atomic with block scope, which is sufficient
 for a counter in shared memory. We ran each kernel on 2 inputs: random bytes, which are spread
@@ -450,12 +575,11 @@ shared memory, inside each block.
 ### 5.5.3 Compare-and-swap
 
 `atomicCAS(addr, cmp, v)` writes `v` only if the location still holds `cmp`, and it returns the
-value it found. With this operation, a thread can make any update atomic. The thread reads the old
-value, computes the new value, and attempts to swap it in. If another thread changed the location
-in the meantime, the swap fails, and the thread tries again with the value that `atomicCAS`
-returned. The same operation can be used to build a lock. However, a lock makes threads wait for
+value it found. With this operation, we can make any update atomic. We read the old value, compute the new
+value, and attempt to swap it in. If another thread changed the location
+in the meantime, the swap fails, and we try again with the value that `atomicCAS` returned. The same operation can be used to build a lock. However, a lock makes threads wait for
 each other on a machine designed to keep all of them busy, and a warp whose threads spin on 1 lock
-can stop making progress. Privatisation, partitioning the data, and plain atomic operations are
+can stop making progress. Privatization, partitioning the data, and plain atomic operations are
 almost always faster.
 
 ## 5.6 Floating-point non-determinism
@@ -467,21 +591,30 @@ a sum depends on the order of the additions. A `float` has 24 bits of precision,
 (10<sup>8</sup> − 10<sup>8</sup>) + 1 = 1.
 
 An `atomicAdd` on a `float` performs the additions in the order in which the threads arrive, and
-that order changes from run to run. Listing 5.9 sums 1,048,576 values with 1 atomic operation per
+that order changes from run to run. Listing 5.8 sums 1,048,576 values with 1 atomic operation per
 value.
 
-<p class="listing"><b>Listing 5.9</b> A float sum by atomics, in C++ and in Rust.</p>
+<p class="listing"><b>Listing 5.8</b> A float sum by atomics.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:145:153}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:96:103}}
 ```
 
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:63:71}}
-}
-```
+</div>
+</div>
 
 ```console
 sum of 1,048,576 floats by atomicAdd (exact: 7851.7077)
@@ -500,9 +633,9 @@ their values in a different order each time, and the rounding errors therefore d
 For most programs this variation is acceptable. Programs that need the same bits on every run, for
 example to compare results across software versions or to reproduce a training run, must add in a
 fixed order. The tree sum of section 5.3 always adds the same pairs, so it gives the same result on
-every run. Chapter 8 develops fast sums of this kind.
+every run. In Chapter 8, we develop fast sums of this kind.
 
-## 5.7 Choosing a synchronisation method
+## 5.7 Choosing a synchronization method
 
 When the threads of a kernel share memory, the answers to 4 questions determine what the kernel
 needs:
@@ -522,17 +655,24 @@ contains a race, even if every test so far has passed. The `racecheck` tool of C
 
 ## 5.8 The complete programs
 
-<p class="listing"><b>Listing 5.10</b> The complete <code>sync.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+<p class="listing"><b>Listing 5.9</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu}}
 ```
 
-<p class="listing"><b>Listing 5.11</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 
@@ -541,8 +681,8 @@ contains a race, even if every test so far has passed. The `racecheck` tool of C
   barrier, the same number of times, or the block hangs.
 - **Reading another thread's shared-memory value without a barrier.** The value may not have been
   written yet, and the result is correct on some runs and wrong on others.
-- **Expecting `__syncthreads()` to synchronise blocks.** It applies to 1 block. Use 2 launches.
-- **Many threads updating 1 global location.** The atomic operations are serialised. Privatise
+- **Expecting `__syncthreads()` to synchronize blocks.** It applies to 1 block. Use 2 launches.
+- **Many threads updating 1 global location.** The atomic operations are serialized. Privatize
   the counts in shared memory and add the totals once.
 - **Expecting a floating-point atomic sum to repeat exactly.** The order of the additions changes,
   so the last digits change.
@@ -561,8 +701,8 @@ contains a race, even if every test so far has passed. The `racecheck` tool of C
   of the same work.
 - `__syncthreads()` makes every thread of a block wait for the others and makes their writes
   visible to the block. Without it, 2,450 of 4,096 block sums were wrong.
-- Atomic operations make a read-modify-write indivisible, at the cost of serialising the
-  operations on a busy address. A privatised histogram was 6 to 28 times as fast as one with
+- Atomic operations make a read-modify-write indivisible, at the cost of serializing the
+  operations on a busy address. A privatized histogram was 6 to 28 times as fast as one with
   global atomic operations.
 - Floating-point atomic operations add in a different order on each run, so their sums differ in
   the last digits.

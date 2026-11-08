@@ -157,7 +157,7 @@
   <defs><marker id="m-outside" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7A4FD0"/></marker></defs>
   <defs><marker id="m-store" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#B7791F"/></marker></defs>
   <defs><marker id="m-service" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker></defs>
-  <text x="32.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">At offset d, element i adds element i - d of the previous row (grey cells, i &lt; d,</text>
+  <text x="32.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">At offset d, element i adds element i - d of the previous row (gray cells, i &lt; d,</text>
   <text x="32.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">are copied). The small labels give the range of x that each cell sums; the arrows</text>
   <text x="32.0" y="506.0" class="note" text-anchor="start" xml:space="preserve">show element 7: 9 = 6 + 3, then 14 = 9 + 5, then 25 = 14 + 11.</text>
 </svg>

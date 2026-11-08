@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 446" width="640" height="446" role="img" aria-label="Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbours of cell (2, 2) are outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer b on the right, where cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 446" width="640" height="446" role="img" aria-label="Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbors of cell (2, 2) are outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer b on the right, where cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

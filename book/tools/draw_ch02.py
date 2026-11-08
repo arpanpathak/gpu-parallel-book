@@ -210,7 +210,7 @@ for p_, (title, sub, hot, kind, result) in enumerate(cases):
     parts.append(tag(zx + 18, 376, result, kind))
 parts.append(note(16, 456, "Words are laid out in rows of 8, so each column is one bank: bank = word mod 8.", room=608))
 save(OUT + "ch02-banks.svg", 640, 476,
-     "Three panels, each a grid of words 0 to 63 in rows of 8, with columns labelled banks b0 to b7. Left, "
+     "Three panels, each a grid of words 0 to 63 in rows of 8, with columns labeled banks b0 to b7. Left, "
      "lane k reads word k: words 0 to 7, one in each bank, 1 step. Middle, lane k reads word 8k: words 0, 8, "
      "16 up to 56, all in column b0, 8 steps. Right, every lane reads word 5: one word, read once and given "
      "to every lane, 1 step.",

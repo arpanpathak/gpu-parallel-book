@@ -6,7 +6,7 @@ The host code of Chapters 3 to 9 was written in the style of the CUDA C API. Dev
 allocated with `cudaMalloc` and released with `cudaFree`, every API call returns an error code
 of type `cudaError_t`, and every size passed to a copy is a number of bytes. This style keeps
 each step of a program visible, which is why we used it for the first programs. It also leaves
-3 responsibilities to the programmer at every call site: every allocation must be freed on
+3 responsibilities to the programmer at every call site. Every allocation must be freed on
 every path out of a function, every error code must be examined, and every size must be given
 in the unit that the called function expects. The compiler checks none of them.
 
@@ -22,7 +22,7 @@ which we show alongside, since Rust makes most of these rules part of the langua
 
 This chapter covers
 
-- 3 errors that the CUDA C API does not detect, run and measured
+- Three errors that the CUDA C API does not detect, run and measured
 - RAII: allocation in a constructor and release in a destructor
 - ownership: why copying is forbidden and moving is allowed
 - error reporting with exceptions and `std::source_location`, without a macro
@@ -57,7 +57,7 @@ look reasonable.
 
 To detect a leak, we need an exact count of the device memory that a program holds. The programs
 of this chapter allocate with `cudaMallocAsync(&pointer, bytes, stream)`, the **stream-ordered
-allocator** introduced in CUDA 11.2. It behaves like `cudaMalloc`, with 2 differences. First,
+allocator** introduced in CUDA 11.2. It behaves like `cudaMalloc`, with two differences. First,
 the allocation and the matching `cudaFreeAsync` are ordered in a stream, the queue of GPU work
 introduced in Chapter 6, in the same way as kernel launches. Second, the memory comes from a
 **pool**, a reserve of device memory that the driver keeps for each GPU and reuses between
@@ -66,9 +66,22 @@ the attribute `cudaMemPoolAttrUsedMemCurrent`, which Listing 10.1 reads and conv
 
 <p class="listing"><b>Listing 10.1</b> The bytes in use from the pool, in MiB. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/raw.cu">code/ch10_modern/raw.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:115:129}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/raw.cu:19:28}}
 ```
+
+</div>
+</div>
 
 The older function `cudaMemGetInfo` is not suitable for this purpose. It reports the free memory
 of the whole device, which other programs also change. On an integrated GPU, which shares its
@@ -84,9 +97,22 @@ the GPU and contains such a leak.
 
 <p class="listing"><b>Listing 10.2</b> An early return before the frees.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:131:157}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/raw.cu:30:52}}
 ```
+
+</div>
+</div>
 
 The function allocates 2 device buffers, `in` and `out`, with the 2 calls to `cudaMallocAsync`.
 It then copies the input to the device, launches the kernel `scale`, copies the result back, and
@@ -116,6 +142,9 @@ such as a server or a training job that calls this function millions of times, w
 run out of device memory, long after the leak occurred and in code that has nothing to do with
 it.
 
+In Rust, frees are written by hand only after `ManuallyDrop` has turned the automatic ones off,
+and the Rust function of Listing 10.2 then loses the same 128.0 MiB.
+
 ### 10.1.3 Unchecked launch errors
 
 Recall from Chapter 3 that a GPU contains several **streaming multiprocessors** (SMs), the
@@ -128,6 +157,22 @@ threads. The second error in `raw.cu` launches blocks of 2,048 threads, twice th
 
 <p class="listing"><b>Listing 10.3</b> A launch that exceeds the block size limit.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:291:304}}
+
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:378:382}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
@@ -136,6 +181,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 2. 2048 threads per block: out[0] = 0.0, expected 2.0
@@ -154,6 +202,9 @@ data and reports nothing. On the second GPU, CUDA 13.2 describes the same failur
 argument`. The wording of the message differs between CUDA versions, but in both cases the error
 is visible only to a program that asks for it.
 
+The Rust launch of Listing 10.3 never reaches the driver: `prepare_scale` returns an `Err`, and
+the `?` passes it to the caller (section 10.2.6).
+
 ### 10.1.4 Size errors in copies
 
 The function `cudaMemcpy(dst, src, count, kind)` copies `count` **bytes**. Its pointer
@@ -164,6 +215,16 @@ was intended.
 
 <p class="listing"><b>Listing 10.4</b> A count of floats passed as a count of bytes.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:159:178}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
@@ -172,6 +233,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 Consider a small example with N = 16. The host array holds 16 floats of 4 bytes, or 64 bytes.
 The call `cudaMemcpy(in, host, 16, ...)` copies 16 bytes, which are the first 16 ÷ 4 = 4 floats.
@@ -192,6 +256,10 @@ With N = 2,097,152, the copy moved 2,097,152 bytes, which are 524,288 floats, so
 result in 4 is correct. Every call returned `cudaSuccess`, because the API did exactly what its
 arguments asked for.
 
+The Rust function calls the driver's copy inside `unsafe` and also finds 524,288 of 2,097,152
+correct: `unsafe` states that the copy stays inside both arrays, which it does, not that the count
+is the one intended.
+
 <div class="bee bee-shocked" markdown="1">
 
 In 3 short programs, the CUDA C API lost 128 MiB of memory, skipped a kernel and copied 1/4 of
@@ -201,7 +269,7 @@ an array, and none of these errors produced a message.
 
 ## 10.2 RAII: The Device Buffer
 
-The 3 errors of section 10.1 have a common cause. Each rule, such as "every allocation is
+The three errors of section 10.1 have a common cause. Each rule, such as "every allocation is
 freed", must be applied by hand at every place in the program where it is relevant, and a single
 omission is enough to break it. C++ allows us to state such a rule once, inside a type, and have
 the compiler apply it wherever the type is used. We begin with the rule that every allocation is
@@ -264,7 +332,7 @@ these calls.
 ```
 
 <figure>
-<img src="../../figures/ch10-lifetime.svg" alt="A column of steps inside a zone labelled 1 scope. DeviceBuffer<float> in(host) calls the constructor, which allocates with cudaMallocAsync and copies; kernels then read in.view(). 3 ways out branch from there: return false, check() throws, and the closing brace. All 3 join into 1 box, the destructor, which calls cudaFreeAsync and gives the 8 MiB back to the pool.">
+<img src="../../figures/ch10-lifetime.svg" alt="A column of steps inside a zone labeled 1 scope. DeviceBuffer<float> in(host) calls the constructor, which allocates with cudaMallocAsync and copies; kernels then read in.view(). 3 ways out branch from there: return false, check() throws, and the closing brace. All 3 join into 1 box, the destructor, which calls cudaFreeAsync and gives the 8 MiB back to the pool.">
 <figcaption><b>Figure 10.3</b> All 3 ways out of a scope lead to the destructor.</figcaption>
 </figure>
 
@@ -278,7 +346,19 @@ through CUDA calls.
 `DeviceBuffer<T>` holds `count` values of type `T` in device memory. Listing 10.5 shows its
 constructors and destructor.
 
-<p class="listing"><b>Listing 10.5</b> <code>DeviceBuffer</code>: construction and destruction. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a></p>
+<p class="listing"><b>Listing 10.5</b> <code>DeviceBuffer</code> and <code>PoolBuffer</code>: construction and destruction. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:190:218}}
+
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:237:243}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch10_modern/device_buffer.hpp:38:57}}
@@ -286,9 +366,15 @@ constructors and destructor.
 };
 ```
 
+</div>
+</div>
+
+The Rust type `PoolBuffer<T>` frees its memory in the method `drop` of the trait `Drop`, which
+section 10.2.6 describes.
+
 The first constructor allocates `count` elements. The second constructor allocates enough
 elements for a host vector and copies the vector into them. The destructor frees the
-allocation. 3 details of this code deserve attention.
+allocation. We explain three details of this code.
 
 First, the size in bytes is always computed from the type: `bytes()` returns
 `count_ * sizeof(T)`. Since no caller ever writes a byte count, the error of section 10.1.4
@@ -305,8 +391,8 @@ Third, the `static_assert` rejects types that cannot be stored in device memory.
 **trivially copyable** when copying its bytes produces a valid copy of the object. `float`,
 `int` and a struct of floats are trivially copyable. A `std::string` is not, because it holds a
 pointer to host memory, and a copy of its bytes on the device would contain an address that the
-GPU cannot use. `DeviceBuffer<std::string>` is therefore a compile error. Section 10.5 describes
-`static_assert` in more detail.
+GPU cannot use. `DeviceBuffer<std::string>` is therefore a compile error. We describe
+`static_assert` in more detail in Section 10.5.
 
 Note also that the first constructor is declared `explicit`. Without this keyword, the compiler
 would convert a number into a buffer implicitly, and a function that takes a
@@ -329,7 +415,7 @@ Freeing the same allocation twice is called a **double free**. It corrupts the r
 allocator, which may later hand out memory that another buffer is still using.
 
 The same allocation can instead pass from `a` to `b` in 2 steps: copy the 2 fields to `b`, then
-write `nullptr` and 0 into the fields of `a`. Afterwards `b` holds 0x7f00 and `a` holds
+write `nullptr` and 0 into the fields of `a`. Afterward `b` holds 0x7f00 and `a` holds
 `nullptr`. At the end of the scope, the destructor of `b` frees 0x7f00, and the destructor of
 `a` finds `nullptr` and frees nothing. The allocation is freed exactly once. In both cases, only
 the 16 bytes of the 2 fields are copied, never the 8 MiB of data they describe.
@@ -367,6 +453,16 @@ perform the transfer, instead of the copy operations. Figure 10.4 shows both cas
 
 <p class="listing"><b>Listing 10.6</b> Copies deleted, moves allowed.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:220:225}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 // `count` values of T in device memory, owned by exactly 1 object.
 template <typename T>
@@ -376,6 +472,9 @@ class DeviceBuffer {
     // ...
 };
 ```
+
+</div>
+</div>
 
 The move constructor uses `std::exchange(other.data_, nullptr)`, which returns the old value of
 `other.data_` and stores `nullptr` in its place in a single step. The move assignment operator
@@ -405,10 +504,35 @@ copy.cu(113): error: function "DeviceBuffer<T>::DeviceBuffer(const DeviceBuffer<
                                  ^
 ```
 
+In Rust, `let b = a;` moves the buffer, as `move_once` in Listing 10.6 does, and a later use of
+`a` is the compile error:
+
+```console
+error[E0382]: borrow of moved value: `a`
+   --> src/main.rs:224:17
+    |
+222 |     let a = PoolBuffer::from_host(stream, host)?;
+    |         - move occurs because `a` has type `PoolBuffer<f32>`, which does not implement the `Copy` trait
+223 |     let b = a;
+    |             - value moved here
+224 |     let first = a.len();
+    |                 ^ value borrowed here after move
+```
+
 Listing 10.7 shows the rest of the class: the functions that give access to the memory, and the
 single function that frees it.
 
 <p class="listing"><b>Listing 10.7</b> Access, and the 1 place that frees.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:227:243}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 // `count` values of T in device memory, owned by exactly 1 object.
@@ -419,16 +543,20 @@ class DeviceBuffer {
 };
 ```
 
-`view()` returns a read-only view of the buffer and `span()` a writable one; section 10.6.1
-introduces the type of these views. `release()` tests for `nullptr` because a buffer that has
-been moved from no longer owns any memory.
+</div>
+</div>
+
+`view()` returns a read-only view of the buffer and `span()` a writable one; we introduce
+the type of these views in section 10.6.1. `release()` tests for `nullptr` because a buffer that has
+been moved from no longer owns any memory. A Rust value that has been moved from is never
+dropped, so `drop` needs no such test.
 
 ### 10.2.4 Error reporting without a macro
 
-Chapters 3 to 9 checked each CUDA call with a small function that printed the error and ended
-the program. Many CUDA programs use a macro instead, `CHECK(call)`. A **macro** is a name that
+In Chapters 3 to 9, we checked each CUDA call with a small function that printed the error and
+ended the program. Many CUDA programs use a macro instead, `CHECK(call)`. A **macro** is a name that
 the **preprocessor**, a text-substitution step that runs before the compiler proper, replaces
-with other text wherever the name appears. Programs use a macro here for 1 reason: the
+with other text wherever the name appears. Programs use a macro here for one reason: the
 preprocessor replaces `__FILE__` and `__LINE__` with the file name and line number of the place
 where the macro is written, so the message names the call that failed. For example, `CHECK`
 written on line 40 of `app.cu` produces a message that contains `app.cu` and 40. Before C++20, a
@@ -442,21 +570,37 @@ site, so it records the file and line of the caller rather than a line inside `c
 
 <p class="listing"><b>Listing 10.8</b> <code>check</code>, with the caller's file and line.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:180:188}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/device_buffer.hpp:14:25}}
 ```
+
+</div>
+</div>
+
+In Rust, the attribute `#[track_caller]` makes `Location::caller()` return the file and line of
+the call, so the Rust `check` needs no macro either.
 
 `check` reports a failure by throwing an **exception**, an object that travels up the chain of
 function calls until a `catch` clause handles it. On its way, the exception leaves every scope
 it passes through, and every local object in those scopes is destroyed. The destruction of local
 objects while an exception travels up the chain of calls is called **stack unwinding**. It is
-the path labelled "check() throws" in Figure 10.3. For example, if `main` calls a function `f`
+the path labeled "check() throws" in Figure 10.3. For example, if `main` calls a function `f`
 that holds 2 buffers, and `check` throws inside `f`, the 2 destructors of `f` run first, and
 only then does the exception reach the `catch` in `main`. As a result, the buffers of a function
 that fails are freed before the error reaches the code that handles it.
 
 Note that the destructor itself does not call `check`. A destructor may run while an exception
-is already travelling, and if a second exception is thrown at that moment, the program ends with
+is already traveling, and if a second exception is thrown at that moment, the program ends with
 `std::terminate`, a standard function that stops the program immediately. The destructor
 therefore frees the memory and ignores the result. A program that needs to know whether a free
 succeeded can call `cudaDeviceSynchronize` through `check` before the buffer goes out of scope.
@@ -468,9 +612,22 @@ shows the function with the early return and the launch with 2,048 threads per b
 
 <p class="listing"><b>Listing 10.9</b> The early return and the launch over the limit, with <code>DeviceBuffer</code> and <code>check</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/modern.cu">code/ch10_modern/modern.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:271:304}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:112:135}}
 ```
+
+</div>
+</div>
 
 The function `main` in Listing 10.10 makes the same 8 calls as `raw.cu`, launches the 2,048
 threads inside a `try` block, and copies 2,097,152 floats through the constructor that takes a
@@ -478,14 +635,31 @@ host vector.
 
 <p class="listing"><b>Listing 10.10</b> The measurements of section 10.1, repeated.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:369:387}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
     // ...
-{{#include ../../../../code/ch10_modern/modern.cu:176:200}}
+{{#include ../../../../code/ch10_modern/modern.cu:182:206}}
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 $ nvcc -std=c++20 --extended-lambda -arch=native modern.cu -o modern && ./modern
@@ -497,9 +671,9 @@ ownership
   copies sized by the type: 2097152 of 2097152 correct
 ```
 
-All 3 errors are gone. The early returns leaked 0.0 MiB. The launch error became an exception
+All three errors are gone. The early returns leaked 0.0 MiB. The launch error became an exception
 that names line 134, the `check(cudaGetLastError())` after the launch, and the 2 buffers of
-`launchTooWide`, 16 MiB in total, were freed while the exception travelled to `main`. Every
+`launchTooWide`, 16 MiB in total, were freed while the exception traveled to `main`. Every
 element was copied correctly, because no caller states a byte count.
 
 ### 10.2.6 RAII in Rust
@@ -527,11 +701,32 @@ call inside an `unsafe` block, which states that the programmer has checked it.
 `uninitialized_async` is `unsafe` only because the contents of the buffer are undefined until
 they are written, and the copy on the next line writes every element.
 
-<p class="listing"><b>Listing 10.11</b> The early return in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a></p>
+<p class="listing"><b>Listing 10.11</b> The early return, with buffers that free themselves. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:95:124}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:260:289}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+// `count` values of T in device memory, owned by exactly 1 object.
+template <typename T>
+class DeviceBuffer {
+    // ...
+{{#include ../../../../code/ch10_modern/device_buffer.hpp:44:52}}
+    // ...
+};
+
+{{#include ../../../../code/ch10_modern/modern.cu:112:126}}
+```
+
+</div>
+</div>
 
 The Rust launch in Listing 10.12 carries a **launch contract** (Chapter 13): the kernel declares
 that it runs in blocks of 256 threads, and `prepare_scale` checks the requested configuration
@@ -542,9 +737,22 @@ wrong memory, but it must be written explicitly.
 
 <p class="listing"><b>Listing 10.12</b> The launch over the limit, and the only way to leak.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:126:146}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:291:311}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:128:141}}
+```
+
+</div>
+</div>
 
 ```console
 $ cargo oxide run
@@ -558,7 +766,8 @@ ownership
 
 Each of the 8 calls of `forget_on_gpu` forgot 1 buffer of 8 MiB, for the 64.0 MiB shown. The
 other results match those of the C++ program, with 1 difference: the wrong block size was
-rejected before it reached the driver.
+rejected before it reached the driver. In C++, the counterpart of `forget` is a buffer created
+with `new` and never deleted, and 8 calls of `leakOnGpu` lost the same 64.0 MiB.
 
 <details class="check">
 <summary>A function creates a DeviceBuffer, then calls a function that throws. Who frees the buffer, and when?</summary>
@@ -598,7 +807,7 @@ A template is not yet code. Only its instantiations are compiled into machine co
 as if it had been written by hand, so a program contains 1 kernel for each type with which it
 uses the template.
 
-Our kernel is generic in 2 ways: in the element type `T`, and in the operation `F` applied to
+Our kernel is generic in two ways: in the element type `T`, and in the operation `F` applied to
 each element. Its pseudocode is that of `scale`, with the multiplication replaced by a call to
 `f`.
 
@@ -611,13 +820,30 @@ KERNEL transform<T, F>(in, out, f):         # T: element type, F: operation from
 
 <p class="listing"><b>Listing 10.13</b> A template kernel and an operation to pass to it.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:66:80}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:34:49}}
 ```
 
+</div>
+</div>
+
 The line `template <Number T, UnaryOp<T> F>` states that `T` must be a numeric type and `F` an
-operation that maps a `T` to a `T`; section 10.7 defines both conditions. The arguments `in` and
-`out` are spans, which carry their length together with the pointer, so the bounds check
+operation that maps a `T` to a `T`; we define both conditions in section 10.7. The arguments `in`
+and `out` are spans, which carry their length together with the pointer, so the bounds check
 compares `i` with `in.size()` rather than with a separate `n` that might belong to another array
 (section 10.6.1). The index `i` is a `std::size_t` of 64 bits, so the kernel also works on
 arrays of more than 2<sup>31</sup> elements.
@@ -627,7 +853,8 @@ arrays of more than 2<sup>31</sup> elements.
 object `triple` of type `Scale<float>` with `factor` = 3 can be called as `triple(x)`, and
 `triple(2.0f)` returns 6.0. It stores its state, the factor, as a member, and it is passed to
 the GPU as a kernel argument of `sizeof(T)` bytes. Its `operator()` is marked `__host__
-__device__` so that the kernel can call it; section 10.4 explains these qualifiers.
+__device__` so that the kernel can call it; we explain these qualifiers in section 10.4. The Rust kernel `transform` takes a closure, the
+Rust form of a lambda, as its operation `f`.
 
 Let us run `transform<float, Scale<float>>` by hand on 4 values, `in` = 1, 2, 3, 4, with `f` =
 `triple`. With blocks of 256 threads, 1 block is launched, and threads 0 to 3 pass the test `i <
@@ -646,9 +873,22 @@ instantiates the whole chain from that 1 line.
 
 <p class="listing"><b>Listing 10.14</b> 1 timing function, instantiated for 3 types.</p>
 
-```cpp
-{{#include ../../../../code/ch10_modern/modern.cu:137:164}}
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:334:358}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:143:170}}
+```
+
+</div>
+</div>
 
 ### 10.3.2 Lambdas as operations
 
@@ -666,7 +906,7 @@ hostlambda.cu(227): error: The closure type for a lambda ("lambda [](float)->flo
 A lambda written in host code is a host function, and the GPU cannot execute host code. The
 error message names the solution. An **extended lambda** carries `__device__` or `__host__
 __device__` after its capture list, and the compiler then generates a device version of it. The
-program must be compiled with `--extended-lambda`. Section 10.4.2 uses 2 extended lambdas.
+program must be compiled with `--extended-lambda`. We use 2 extended lambdas in Section 10.4.2.
 
 A lambda can also **capture** variables, which copies them into the lambda object, as in
 `[factor](float v) {...}`. For example, if the host variable `factor` holds 3.0 when the lambda
@@ -678,7 +918,7 @@ the error `An extended __device__ lambda cannot capture variables by reference`.
 
 ### 10.3.3 The run-time cost of templates
 
-A template, a function object and a span are abstractions: they give names to things that the
+A template, a function object and a span are abstractions. They give names to things that the
 hand-written kernel did directly. To measure their cost, we compare `transform<float>` with
 `scaleRaw`, the C-style kernel of `raw.cu`, on the same 16,777,216 floats, and run the other 2
 instantiations alongside. Each measurement follows 500 ms of warm-up, because a GPU raises the
@@ -729,13 +969,26 @@ used with, a process that Rust calls **monomorphization**. cuda-oxide applies it
 
 <p class="listing"><b>Listing 10.15</b> A generic kernel.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:41:54}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:51:64}}
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:34:49}}
+```
+
+</div>
+</div>
 
 A **trait bound** is a condition, written after a type parameter, that the type must implement
 the named traits. The bound `T: Copy + Mul<Output = T>` lists the operations that the body
@@ -747,9 +1000,22 @@ can do so for its own `T`.
 
 <p class="listing"><b>Listing 10.16</b> 1 generic timing function for 3 types.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:169:193}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:334:358}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:143:170}}
+```
+
+</div>
+</div>
 
 ```console
 1 generic kernel, 3 types, 16777216 values
@@ -766,7 +1032,7 @@ runs, and in the same order: double reaches the highest rate in bytes per second
 ### 10.4.1 Compiling a function for both processors
 
 CUDA marks every function with the processor it is compiled for. A `__global__` function is a
-kernel: it is launched from the host and runs on the device. A `__device__` function runs on the
+kernel. It is launched from the host and runs on the device. A `__device__` function runs on the
 device and is called from device code. A function with no qualifier, or with `__host__`, runs on
 the host. A function marked `__host__ __device__` is compiled twice from 1 definition, once for
 each processor, and can be called from either side.
@@ -798,19 +1064,35 @@ __host__ __device__ float logOf(float x)
 }
 ```
 
+The Rust programs of this book have no counterpart of this guard: a Rust function called from a
+kernel is compiled for both processors from the same text (section 10.4.3).
+
 ### 10.4.2 Floating-point differences between host and device
 
 As an example, we use the polynomial 1 + x + x²/2 + x³/6, the first 4 terms of the series of
 e<sup>x</sup>. **Horner's rule** evaluates a polynomial from its highest coefficient down by
-nesting the multiplications: it writes the polynomial as 1 + x(1 + x(1/2 + x/6)), which takes 3
+nesting the multiplications. It writes the polynomial as 1 + x(1 + x(1/2 + x/6)), which takes 3
 multiplications, each followed by an addition. At x = 1, for example, the 3 steps give 1/2 + 1/6
-= 0.6667, then 1 + 0.6667 = 1.6667, then 1 + 1.6667 = 2.6667. Listing 10.17 writes it in 2 ways.
+= 0.6667, then 1 + 0.6667 = 1.6667, then 1 + 1.6667 = 2.6667. Listing 10.17 writes it in two ways.
 
 <p class="listing"><b>Listing 10.17</b> 1 polynomial, written 2 ways, for both processors.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:35:45}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:60:72}}
 ```
+
+</div>
+</div>
 
 The test in Listing 10.18 wraps each function in an extended `__host__ __device__` lambda, runs
 it in `transform` on 2,097,152 values from −1 to 1, calls the same lambda on the CPU, and
@@ -818,14 +1100,31 @@ compares the bits of the results with `memcmp`.
 
 <p class="listing"><b>Listing 10.18</b> The differential test.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:409:420}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
     // ...
-{{#include ../../../../code/ch10_modern/modern.cu:226:247}}
+{{#include ../../../../code/ch10_modern/modern.cu:238:259}}
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 1 function on both sides, 2097152 values in [-1, 1)
@@ -891,7 +1190,7 @@ applies.
 
 The same source code can produce different bits on the CPU and the GPU, because the GPU fuses a
 multiplication and an addition into an operation with 1 rounding. Use `fmaf` (or `mul_add` in
-Rust) where the 2 sides must agree bit for bit.
+Rust) where the two sides must agree bit for bit.
 
 </div>
 
@@ -900,11 +1199,24 @@ Rust) where the 2 sides must agree bit for bit.
 In cuda-oxide, an ordinary Rust function that is called from a kernel is compiled for the device
 as well as for the host, so it needs no qualifier.
 
-<p class="listing"><b>Listing 10.19</b> The polynomial in Rust, called by a kernel and by the CPU.</p>
+<p class="listing"><b>Listing 10.19</b> The polynomial, called by a kernel and by the CPU.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:25:35}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:35:45}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:60:72}}
+```
+
+</div>
+</div>
 
 `x.mul_add(a, b)` is Rust's FMA. The kernels `poly` and `poly_fma` call the 2 functions, and
 `main` compares their results with those of the same functions run on the CPU.
@@ -935,13 +1247,26 @@ compiling.
 
 <p class="listing"><b>Listing 10.20</b> The block size, checked while compiling.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:20:28}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:14:23}}
 ```
 
+</div>
+</div>
+
 The function `blocksFor` computes the number of blocks needed for a given number of elements,
 rounding up. For 1,000 elements and blocks of 256 threads, it computes
-(1,000 + 256 − 1) / 256 = 1,255 / 256 = 4 in integer division. 4 blocks hold 1,024 threads,
+(1,000 + 256 − 1) / 256 = 1,255 / 256 = 4 in integer division. Four blocks hold 1,024 threads,
 enough for 1,000 elements, whereas 3 blocks, with 768 threads, would not be. Because `blocksFor`
 is `constexpr`, the compiler performs this division itself, and the assertion
 `static_assert(blocksFor(1000) == 4)` holds.
@@ -966,10 +1291,39 @@ wherever its name appears.
 Rust writes the same checks as constant assertions. An `assert!` inside a `const` item is
 evaluated by the compiler, and a false condition is a compile error.
 
-<p class="listing"><b>Listing 10.21</b> The checks in Rust.</p>
+<p class="listing"><b>Listing 10.21</b> The checks of Listing 10.20.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:16:18}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:20:28}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:14:23}}
+```
+
+</div>
+</div>
+
+With `const BLOCK: u32 = 100;`, both Rust assertions fail while compiling:
+
+```console
+error[E0080]: evaluation panicked: a block is a whole number of warps
+  --> src/main.rs:21:15
+   |
+21 | const _: () = assert!(BLOCK % 32 == 0, "a block is a whole number of warps");
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
+
+error[E0080]: evaluation panicked: assertion failed: blocks_for(1000) == 4
+  --> src/main.rs:28:15
+   |
+28 | const _: () = assert!(blocks_for(1000) == 4);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
 ```
 
 ## 10.6 CUDA 12 and the `cuda::` Namespace
@@ -1006,9 +1360,31 @@ receives it tests `i < in.size()`, that is `i < 1000`.
 `cuda::std::span<const T>` allows reading, and `cuda::std::span<T>` allows writing as well.
 `DeviceBuffer::view()` and `span()` return one of each, and `transform` receives them:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn scale_on_gpu(
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
+    host: &[f32],
+    factor: f32,
+) -> Result<Option<Vec<f32>>, Error> {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:287:287}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 transform<<<blocksFor(in.size()), BLOCK>>>(in.view(), out.span(), Scale{factor});
 ```
+
+</div>
+</div>
 
 The length of a span comes from the buffer it views, so the bounds check `i < in.size()` always
 uses the correct length. A span occupies 16 bytes, a pointer
@@ -1053,9 +1429,25 @@ agreement. The table lists the 3 scopes.
 
 <p class="listing"><b>Listing 10.22</b> A count with <code>cuda::atomic_ref</code>.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:104:112}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:74:83}}
 ```
+
+</div>
+</div>
 
 The kernel in Listing 10.22 counts the results of `expPolyFma` that are greater than 1.5. Its
 2,097,152 threads, in 8,192 blocks of 256, all add to a single `int` in global memory, so the
@@ -1072,7 +1464,8 @@ inputs are evenly spaced from −1 to 1, so the fraction above 0.40629 is (1 −
 0.29686, and 0.29686 × 2,097,152 = 622,552 values, the number that both processors counted.
 
 The Rust programs of Chapter 5 use `DeviceAtomicU32` from cuda-device, which serves the same
-purpose.
+purpose. The Rust kernel `count_above` of Listing 10.22 uses it and counted the same 622,552
+values.
 
 ## 10.7 C++20 Concepts
 
@@ -1098,9 +1491,26 @@ Listing 10.23 defines the 2 concepts that `transform` requires.
 
 <p class="listing"><b>Listing 10.23</b> 2 concepts.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:66:72}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:28:32}}
 ```
+
+</div>
+</div>
 
 `Number<T>` holds when `T` is an integer or floating-point type. `UnaryOp<F, T>` holds when an
 `F` can be called with a `T` and returns exactly a `T`. Writing `UnaryOp<T> F` in the template's
@@ -1135,7 +1545,20 @@ parameters, here `T` and `F`, from the types of the arguments of a call. When a 
 fails a concept, the compiler discards the template, and the message reports that deduction
 failed. A Rust generic states its conditions in the same way, as **trait bounds**. Rust checks
 them when the function is used, and also when it is defined: the body of `scale<T>` may perform
-only the operations that `Copy + Mul<Output = T>` allows.
+only the operations that `Copy + Mul<Output = T>` allows. The closure `|v: f32| v > 0.0`, passed
+to the Rust kernel `transform`, fails its bound `F: Fn(T) -> T` at the call:
+
+```console
+error[E0271]: expected `{closure@main.rs:455:20}` to return `f32`, but it returns `bool`
+   --> src/main.rs:455:29
+    |
+455 |     let positive = |v: f32| v > 0.0;
+    |                    -------- ^^^^^^^ expected `f32`, found `bool`
+    |                    |
+    |                    this closure
+456 |     let prepared = module.prepare_transform_for(&0.0f32, &positive, config)?;
+    |                           ---------------------          --------- closure used here
+```
 
 ## 10.8 Style Summary
 
@@ -1173,35 +1596,44 @@ hand-written kernel at 74.5 GB/s.
 
 ## 10.9 The complete programs
 
-<p class="listing"><b>Listing 10.24</b> The complete <code>device_buffer.hpp</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a></p>
+<p class="listing"><b>Listing 10.24</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/raw.cu">code/ch10_modern/raw.cu</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/modern.cu">code/ch10_modern/modern.cu</a></p>
 
-```cpp
-{{#include ../../../../code/ch10_modern/device_buffer.hpp}}
-```
-
-<p class="listing"><b>Listing 10.25</b> The complete <code>raw.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/raw.cu">code/ch10_modern/raw.cu</a></p>
-
-```cpp
-{{#include ../../../../code/ch10_modern/raw.cu}}
-```
-
-<p class="listing"><b>Listing 10.26</b> The complete <code>modern.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/modern.cu">code/ch10_modern/modern.cu</a></p>
-
-```cpp
-{{#include ../../../../code/ch10_modern/modern.cu}}
-```
-
-<p class="listing"><b>Listing 10.27</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a></p>
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch10_modern/src/main.rs}}
 ```
 
+</div>
+<div class="code-tab" data-lang="C++">
+
+<p><code>device_buffer.hpp</code></p>
+
+```cpp
+{{#include ../../../../code/ch10_modern/device_buffer.hpp}}
+```
+
+<p><code>raw.cu</code></p>
+
+```cpp
+{{#include ../../../../code/ch10_modern/raw.cu}}
+```
+
+<p><code>modern.cu</code></p>
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu}}
+```
+
+</div>
+</div>
+
 ## Common mistakes
 
 - **Copying an owner.** A struct that holds a raw device pointer and is copied leads to 2 frees
   of the same memory. Delete the copy operations and move with `std::move`.
-- **Throwing from a destructor.** A destructor can run while an exception is travelling, and a
+- **Throwing from a destructor.** A destructor can run while an exception is traveling, and a
   second exception ends the program. Free the memory and ignore the result there.
 - **Passing a host lambda to a kernel.** Mark the lambda `__device__` or `__host__ __device__` and
   compile with `--extended-lambda`.
@@ -1240,7 +1672,7 @@ of its memory rise only under sustained load.
 
 </div>
 
-Chapter 11 applies these techniques in NVIDIA's libraries. Thrust's `device_vector` is a
+In Chapter 11, we find these techniques in NVIDIA's libraries. Thrust's `device_vector` is a
 `DeviceBuffer` with algorithms, CUB is a library of template building blocks, and cuBLAS
 provides the matrix product of Chapter 9.
 

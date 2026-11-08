@@ -172,13 +172,13 @@ def steps():
             y = ny
         else:
             y += ch
-    parts.append(T(x0, y + 26, "Grey cells are no longer read. After step s = 1, cell 0 holds 32.",
+    parts.append(T(x0, y + 26, "Gray cells are no longer read. After step s = 1, cell 0 holds 32.",
                    11.5, GREY, "start"))
     save("ch15-steps.svg", w, y + 40,
          "The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. "
          "With s = 4, threads 0 to 3 add cell t + 4 into cell t, giving 7, 7, 11, 7. With s = 2, "
          "threads 0 and 1 give 18 and 14. With s = 1, thread 0 gives 32. A barrier separates the "
-         "steps; cells no longer read are grey.", parts)
+         "steps; cells no longer read are gray.", parts)
 
 
 def broken():
@@ -269,7 +269,7 @@ def shuffle():
             y += ch
     parts.append(T(x0, y + 24, "Lane k adds the value of lane k + offset. A real warp has 32 lanes"
                    " and 5 steps:", 11.5, GREY, "start"))
-    parts.append(T(x0, y + 42, "offsets 16, 8, 4, 2, 1. Grey lanes compute values nobody uses.",
+    parts.append(T(x0, y + 42, "offsets 16, 8, 4, 2, 1. Gray lanes compute values nobody uses.",
                    11.5, GREY, "start"))
     save("ch15-shuffle.svg", w, y + 56,
          "A warp sum by shuffles, drawn on 8 lanes. The registers start as 2, 6, 3, 4, 5, 1, 8, 3. "

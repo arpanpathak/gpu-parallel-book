@@ -16,6 +16,25 @@ type Error = Box<dyn std::error::Error>;
 mod kernels {
     use super::*;
 
+    /// 1 thread per element of C, threadIdx.x along a column of C.
+    #[kernel]
+    #[launch_contract(domain = 2, coordinates = u32, block = (16, 16, 1))]
+    pub fn by_column(a: &[f32], b: &[f32], mut c: DisjointSlice<f32, Index2D<N>>) {
+        let row = thread::blockIdx_x() as usize * 16 + thread::threadIdx_x() as usize;
+        let col = thread::blockIdx_y() as usize * 16 + thread::threadIdx_y() as usize;
+
+        let mut sum = 0.0;
+        let mut k = 0;
+        #[unroll(4)]
+        while k < N {
+            sum += a[row * N + k] * b[k * N + col];
+            k += 1;
+        }
+
+        // SAFETY: each thread has its own (row, col), so no 2 threads write 1 element.
+        unsafe { *c.get_unchecked_mut(row * N + col) = sum };
+    }
+
     /// 1 thread per element of C, threadIdx.x along a row of C.
     #[kernel]
     #[launch_contract(domain = 2, coordinates = u32, block = (16, 16, 1))]
@@ -160,6 +179,23 @@ where
     Ok(start.elapsed().as_secs_f64() * 1e3 / runs as f64)
 }
 
+/// Registers per thread, blocks per SM and spilled bytes, as the GPU reports them.
+fn resources(
+    module: &kernels::LoadedModule,
+    name: &str,
+    kernel: &str,
+) -> Result<(), Error> {
+    let function = module.as_cuda_module().load_function(kernel)?;
+    let registers = function.num_registers()?;
+    let blocks = function.max_active_blocks_per_multiprocessor(256, 0)?;
+    let spilled = function.local_size_bytes()?;
+
+    print!("  {name:<26} {registers:3} registers");
+    print!("  {blocks} blocks per SM");
+    println!("  {spilled:2} bytes spilled");
+    Ok(())
+}
+
 /// Values in [-0.5, 0.5) from a small linear congruential generator.
 fn random(n: usize, state: &mut u32) -> Vec<f32> {
     let mut values = Vec::with_capacity(n);
@@ -201,6 +237,7 @@ fn main() -> Result<(), Error> {
 
     let g16 = (N / 16) as u32;
     let g64 = (N / 64) as u32;
+    let columns = module.prepare_by_column(LaunchConfig2D::new((g16, g16), (16, 16), 0))?;
     let rows = module.prepare_by_row(LaunchConfig2D::new((g16, g16), (16, 16), 0))?;
     let tiles = module.prepare_tiled(LaunchConfig2D::new((g16, g16), (16, 16), 0))?;
     let patch = module.prepare_patches(LaunchConfig2D::new((g64, g64), (16, 16), 0))?;
@@ -213,19 +250,27 @@ fn main() -> Result<(), Error> {
     let report = |name: &str, ms: f64, c: &DeviceBuffer<f32>| -> Result<(), Error> {
         let gflops = 2.0 * (N * N * N) as f64 / ms / 1e6;
         let error = max_error(&a_host, &b_host, &c.to_host_vec(&stream)?);
-        println!("  {name:<20} {ms:8.2} ms  {gflops:7.1} GFLOP/s  max error {error:.1e}");
+        println!("  {name:<26} {ms:8.2} ms  {gflops:7.1} GFLOP/s  max error {error:.1e}");
         Ok(())
     };
 
     println!("C = A B, {N} x {N} floats");
+    let launch = || Ok(module.by_column(&stream, &columns, &a, &b, &mut c)?);
+    let ms = time_ms(&stream, 2, launch)?;
+    report("1 per thread, by column", ms, &c)?;
+
     let ms = time_ms(&stream, 3, || Ok(module.by_row(&stream, &rows, &a, &b, &mut c)?))?;
-    report("1 per thread", ms, &c)?;
+    report("1 per thread, by row", ms, &c)?;
 
     let ms = time_ms(&stream, 5, || Ok(module.tiled(&stream, &tiles, &a, &b, &mut c)?))?;
     report("tiles of 16 x 16", ms, &c)?;
 
     let ms = time_ms(&stream, 10, || Ok(module.patches(&stream, &patch, &a, &b, &mut c)?))?;
     report("4 x 4 per thread", ms, &c)?;
+
+    println!("resources");
+    resources(&module, "tiles of 16 x 16", "tiled")?;
+    resources(&module, "4 x 4 per thread", "patches")?;
 
     Ok(())
 }

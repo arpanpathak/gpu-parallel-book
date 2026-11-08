@@ -2,7 +2,7 @@
 
 # Chapter 28: NCCL & Multi-GPU Collective Communication
 
-Chapter 27 described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
+In Chapter 27, we described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
 we turn to the data that programs send over those connections. When several GPUs work on 1
 problem, each GPU computes a partial result, and the partial results must be combined, usually
 in every iteration of the program. The time that this combination takes depends not only on the
@@ -11,11 +11,11 @@ combining 100 MB from each of 4 GPUs takes 24 ms with one simple scheme and 6 ms
 over the same links.
 
 We first define the collective operations that multi-GPU programs use, and a simple model of the
-time that a message takes. We then analyze 2 algorithms for the most important collective,
+time that a message takes. We then analyze two algorithms for the most important collective,
 all-reduce: the ring and the tree. We count the steps and the bytes of each by hand, and derive the
 message size at which one becomes faster than the other. We then implement both algorithms in CUDA
 C++ and in Rust, run them on 1 GPU that holds the data of all the participants in its memory, and
-compare the measured times with the model. The chapter ends with NCCL, NVIDIA's library of
+compare the measured times with the model. We end the chapter with NCCL, NVIDIA's library of
 collective operations, and with the way frameworks such as PyTorch use it.
 
 <div class="covers" markdown="1">
@@ -65,7 +65,7 @@ a program running on the host CPU, and in most systems each GPU has a program of
 
 <span class="box-label">Definition 28.1</span> **Process.** A **process** is a running instance of
 a program. It has its own memory on the host and its own threads, and it cannot read the variables
-of another process. 2 processes exchange data only through an explicit channel, such as a file, a
+of another process. Two processes exchange data only through an explicit channel, such as a file, a
 network connection or a library of collective operations.
 
 *Example.* On a server with 4 GPUs, the command `torchrun --nproc_per_node=4 train.py` starts 4
@@ -82,7 +82,7 @@ Each process therefore needs a number that tells it which member of the group it
 <span class="box-label">Definition 28.2</span> **Group and rank.** A **group** is a set of k
 processes that cooperate on 1 problem; k is the **size** of the group. The **rank** of a process is
 the number that identifies it within its group. The k members are numbered 0, 1, …, k − 1, and
-each number is given to exactly 1 member. We also call the member itself a rank, so "rank 2"
+each number is given to exactly one member. We also call the member itself a rank, so "rank 2"
 means the process whose number is 2.
 
 *Example.* 4 processes drive the 4 GPUs of a server, 1 GPU each, and form a group of size k = 4
@@ -150,7 +150,7 @@ therefore takes 24 ms. During those 24 ms, the links of ranks 1, 2 and 3 each ca
 in each direction, a third of what the link of rank 0 carries.
 
 In general, the link of the collector carries k − 1 times the message in each direction, so the
-time grows with the number of ranks while the other links are mostly idle. Section 28.4 presents
+time grows with the number of ranks while the other links are mostly idle. In Section 28.4, we present
 an algorithm in which every link carries the same share, 150 MB in this example, and the same
 exchange takes 6 ms.
 
@@ -165,7 +165,7 @@ bytes evenly over all the links.
 
 ### 28.2.1 Common collective operations
 
-The exchange of Section 28.1.2 differs from the copies of earlier chapters in 1 respect: no single
+The exchange of Section 28.1.2 differs from the copies of earlier chapters in 1 respect. No single
 transfer produces the result. Every rank must contribute, and the operation is complete only when
 all of them have taken part.
 
@@ -182,7 +182,7 @@ is the root.
 
 </div>
 
-5 collectives cover most programs. We work each of them by hand on the same 4 ranks, each of which
+Five collectives cover most programs. We work each of them by hand on the same 4 ranks, each of which
 holds 4 numbers:
 
 | Rank | Its data |
@@ -199,10 +199,10 @@ Each element of the sum adds 1 number from every rank. For example, element 1 of
 <div class="definition">
 
 <span class="box-label">Definition 28.5</span> **Broadcast.** In a **broadcast**, the root holds a
-buffer, and afterwards every rank holds a copy of it.
+buffer, and afterward every rank holds a copy of it.
 
 *Example.* With rank 0 as the root, the 4 numbers 1, 0, 2, 1 of rank 0 are copied to ranks 1, 2
-and 3. Afterwards all 4 ranks hold 1, 0, 2, 1, and the former data of ranks 1, 2 and 3 is
+and 3. Afterward all 4 ranks hold 1, 0, 2, 1, and the former data of ranks 1, 2 and 3 is
 overwritten.
 
 </div>
@@ -210,7 +210,7 @@ overwritten.
 <div class="definition">
 
 <span class="box-label">Definition 28.6</span> **Reduce.** In a **reduce**, every rank holds a
-buffer of the same length, and afterwards the root holds the element-by-element combination of all
+buffer of the same length, and afterward the root holds the element-by-element combination of all
 the buffers. The other ranks receive nothing.
 
 *Example.* With rank 0 as the root and the sum as the combination, rank 0 ends with 4, 6, 7, 5.
@@ -221,7 +221,7 @@ Ranks 1, 2 and 3 still hold their own data.
 <div class="definition">
 
 <span class="box-label">Definition 28.7</span> **All-reduce.** In an **all-reduce**, every rank
-holds a buffer of the same length, and afterwards every rank holds the element-by-element
+holds a buffer of the same length, and afterward every rank holds the element-by-element
 combination of all the buffers. An all-reduce has no root.
 
 *Example.* All 4 ranks end with 4, 6, 7, 5. The gradients of Section 28.1.1 are combined in the
@@ -232,7 +232,7 @@ same way, and there every rank ends with 6, 4, 4.
 <div class="definition">
 
 <span class="box-label">Definition 28.8</span> **Reduce-scatter.** In a **reduce-scatter**, every
-rank holds a buffer of the same length, which is divided into k pieces of equal length. Afterwards
+rank holds a buffer of the same length, which is divided into k pieces of equal length. Afterward
 rank r holds piece r of the combination, and only that piece.
 
 *Example.* With 4 ranks and 4 numbers, each piece is 1 number. Rank 0 ends with 4, rank 1 with 6,
@@ -244,9 +244,9 @@ rank 2 with 7 and rank 3 with 5. Rank 1, for instance, receives element 1 of the
 <div class="definition">
 
 <span class="box-label">Definition 28.9</span> **All-gather.** In an **all-gather**, rank r holds
-piece r of a buffer, and afterwards every rank holds all k pieces, in the order of the ranks.
+piece r of a buffer, and afterward every rank holds all k pieces, in the order of the ranks.
 
-*Example.* Rank 0 holds 4, rank 1 holds 6, rank 2 holds 7 and rank 3 holds 5. Afterwards every rank
+*Example.* Rank 0 holds 4, rank 1 holds 6, rank 2 holds 7 and rank 3 holds 5. Afterward every rank
 holds 4, 6, 7, 5.
 
 </div>
@@ -254,7 +254,7 @@ holds 4, 6, 7, 5.
 Figure 28.1 shows the 5 collectives on these 4 ranks.
 
 <figure>
-<img src="../../figures/ch28-collectives.svg" alt="Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds 1 0 2 1, and afterwards every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 1, and afterwards rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends with all 4, 4 6 7 5.">
+<img src="../../figures/ch28-collectives.svg" alt="Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds 1 0 2 1, and afterward every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 1, and afterward rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends with all 4, 4 6 7 5.">
 <figcaption><b>Figure 28.1</b> The 5 collectives on 4 ranks: the data on every rank before and after the operation.</figcaption>
 </figure>
 
@@ -305,7 +305,7 @@ all-gather. In Figure 28.1, the reduce-scatter leaves the sum 4, 6, 7, 5 spread 
 the all-reduce.
 
 The ring algorithm of Section 28.4 uses the second decomposition. Its first half makes each rank
-responsible for computing 1 piece of the sum, so the additions are divided evenly among the
+responsible for computing one piece of the sum, so the additions are divided evenly among the
 ranks. Its second half distributes the finished pieces to all ranks.
 
 <details class="check">
@@ -324,10 +324,10 @@ hand over a link of 25 GB/s. A message of 100 MB occupies the link for
 100 × 10<sup>6</sup> B ÷ (25 × 10<sup>9</sup> B/s) = 4 ms. By the same division, a message of
 4 KB would occupy it for 0.16 µs. However, a message of any size must be started by the sender,
 must cross the link, and must be detected by the receiver, and these actions take microseconds
-regardless of the number of bytes. The time of a message therefore has 2 parts: a fixed part that
+regardless of the number of bytes. The time of a message therefore has two parts: a fixed part that
 every message pays, and a part that grows with the number of bytes.
 
-In Section 4.3, we modelled a copy between the host and the device in exactly this way, as a fixed
+In Section 4.3, we modeled a copy between the host and the device in exactly this way, as a fixed
 start-up time plus the number of bytes divided by the bandwidth. The same model applies to a
 message between 2 ranks:
 
@@ -365,9 +365,9 @@ algorithm for small ones.
 ### 28.4.1 Chunks and steps of the ring
 
 Recall the problem of Section 28.1.2. With a single collector, the link of rank 0 carried every
-byte of the exchange, while the links of ranks 1, 2 and 3 were mostly idle. Section 28.2.3
-suggests a remedy. An all-reduce is a reduce-scatter followed by an all-gather, and in a
-reduce-scatter each rank computes only 1 piece of the sum. If each of 4 ranks is responsible for a
+byte of the exchange, while the links of ranks 1, 2 and 3 were mostly idle. A remedy follows
+from Section 28.2.3. An all-reduce is a reduce-scatter followed by an all-gather, and in a
+reduce-scatter each rank computes only one piece of the sum. If each of 4 ranks is responsible for a
 quarter of the sum, all 4 links can share the traffic. The ring all-reduce organizes the ranks and
 their data so that this happens. We first define its 2 ingredients and then follow the data by
 hand.
@@ -566,11 +566,11 @@ Now count the collector of Section 28.1.2 on the same data. Ranks 1, 2 and 3 eac
 floats to rank 0, so 24 floats enter the link of rank 0. Rank 0 then sends the sum of 8 floats to
 each of the 3 other ranks, so 24 floats leave through the same link. The link of rank 0 thus carries
 24 floats in each direction, twice the 12 floats of any link of the ring. Moreover, the collector
-cannot send the sum before it has received all 3 messages, so its 2 directions work one after the
+cannot send the sum before it has received all 3 messages, so its two directions work one after the
 other: the exchange lasts as long as 24 + 24 = 48 floats crossing 1 link. In the ring, every link
 sends and receives its 12 floats at the same time, so the exchange lasts as long as 12 floats
-crossing 1 link. The ring is 48 ÷ 12 = 4 times as fast, a factor of k, as Section 28.4.4 shows in
-general.
+crossing 1 link. The ring is 48 ÷ 12 = 4 times as fast, a factor of k, as we show in Section
+28.4.4 in general.
 
 For k ranks and a message of m bytes, each phase of the ring takes k − 1 steps, so the all-reduce
 takes 2 (k − 1) steps. In each step, a rank sends 1 chunk of m / k bytes. Over the whole
@@ -581,7 +581,7 @@ all-reduce, each rank therefore sends
 bytes, and it receives the same number of bytes. For k = 4, the factor is 2 × 3 / 4 = 1.5, as
 counted above.
 
-The factor 2 (k − 1) / k approaches 2 as the number of ranks grows: it is 1.5 for 4 ranks, 1.75
+The factor 2 (k − 1) / k approaches 2 as the number of ranks grows. It is 1.5 for 4 ranks, 1.75
 for 8 ranks and 1.97 for 64 ranks. The number of bytes on each link therefore barely grows with
 the number of ranks.
 
@@ -643,7 +643,7 @@ in Chapter 4.
 
 Note that NVIDIA quotes NVLink bandwidth as the total of both directions, 600, 900 and 1,800 GB/s
 for the 3 generations; the table gives half of each figure. SXM denotes the module form of a
-data-centre GPU, which is mounted on a server board, as opposed to a PCIe card, and NDR is the 400
+data-center GPU, which is mounted on a server board, as opposed to a PCIe card, and NDR is the 400
 Gb/s generation of **InfiniBand**, a network that connects servers. A machine with only 1 GPU, such
 as a single DGX Spark, has no link between GPUs.
 
@@ -664,8 +664,8 @@ hold a partial sum, instead of adding 1 contribution at a time.
 
 Let us first work a tree by hand on 4 ranks that hold 1, 2, 3 and 4, so that the sum is 10. In step
 1, rank 1 sends its 2 to rank 0, which now holds 1 + 2 = 3, and at the same time rank 3 sends its 4
-to rank 2, which now holds 3 + 4 = 7. 2 partial sums remain, on ranks 0 and 2. In step 2, rank 2
-sends its 7 to rank 0, which now holds 3 + 7 = 10, the complete sum. 2 steps have reduced 4
+to rank 2, which now holds 3 + 4 = 7. Two partial sums remain, on ranks 0 and 2. In step 2, rank 2
+sends its 7 to rank 0, which now holds 3 + 7 = 10, the complete sum. Two steps have reduced 4
 contributions to 1. The broadcast repeats the same pairs in the opposite order and direction. In
 step 3, rank 0 sends 10 to rank 2. In step 4, rank 0 sends 10 to rank 1 and, at the same time, rank
 2 sends 10 to rank 3. After 4 steps, every rank holds 10, whereas the ring of Section 28.4.2 needed
@@ -816,9 +816,9 @@ ranks in the memory of that GPU, as k slices of 1 buffer. Rank r owns the floats
 r n + n − 1, where n is the number of floats per rank. A send from rank r to rank r + 1 then
 becomes a read from 1 slice and a write into another.
 
-Note that the program measures the algorithms, not a network. All the simulated links share the
-memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. Section 28.6.4
-shows how this affects the measured times.
+The program measures the algorithms, not a network. All the simulated links share the
+memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. In Section 28.6.4,
+we show how this affects the measured times.
 
 The program first converts an algorithm into a **plan**: a list of steps, each of which is a list of
 **transfers** that run at the same time. A transfer specifies the offset that it reads from and the
@@ -827,11 +827,29 @@ overwrites it. Listing 28.1 shows the data structures. The function `addStep` ap
 transfers of 1 step to the plan and records where they start, how many there are, how many floats
 each one moves, and whether they add.
 
-<p class="listing"><b>Listing 28.1</b> A plan of steps and transfers, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+<p class="listing"><b>Listing 28.1</b> A plan of steps and transfers. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">Rust</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">C++</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:66:90}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:19:43}}
 ```
+
+</div>
+</div>
+
+The Rust version stores each transfer as 2 numbers in 1 flat `Vec<u32>`, so that the plan
+can be copied to the GPU with `DeviceBuffer::from_host` and read by the kernel as a `&[u32]`.
 
 The function `ring` in Listing 28.2 builds the plan of the procedure Ring-All-Reduce of Section
 28.4.2. The first loop creates the k − 1 reduce-scatter steps of lines 1 to 6. In step `s`, rank `r`
@@ -841,21 +859,24 @@ overwrites. The term `+ k` inside each `%` keeps the left operand positive, beca
 negative `int` is negative in C++. The function `tree` builds the 2 phases of Section 28.5.1 in the
 same way, with the distance `d` doubling in the reduce phase and halving in the broadcast phase.
 
-<p class="listing"><b>Listing 28.2</b> The ring and the tree as plans, in C++.</p>
+<p class="listing"><b>Listing 28.2</b> The ring and the tree as plans.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:106:144}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:45:97}}
 ```
 
-The Rust version builds the same plans. It stores each transfer as 2 numbers in 1 flat `Vec<u32>`,
-so that the plan can be copied to the GPU with `DeviceBuffer::from_host` and read by the kernel as
-a `&[u32]`.
-
-<p class="listing"><b>Listing 28.3</b> The ring and the tree as plans, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:106:144}}
-```
+</div>
+</div>
 
 ### 28.6.2 The step kernel
 
@@ -877,22 +898,43 @@ that receive are 2 separate sets. The order of the steps is maintained by the **
 queue of GPU work introduced in Chapter 6: a launch starts only after the previous launch on the
 same stream has finished.
 
-In the kernel `runStep` of Listing 28.4, each thread first reads the transfer of its block,
+In the kernel `runStep` of Listing 28.3, each thread first reads the transfer of its block,
 `sends[blockIdx.x / per]`. The loop then starts at the thread's position within the `per` blocks
 of the transfer and advances by `stride`, the total number of threads that work on the transfer.
 In each iteration, the thread reads 1 float from the source slice and either adds it to the
 destination or overwrites the destination, depending on `add`. The host function `run` computes
 `per` and launches the kernel on the stream.
 
-<p class="listing"><b>Listing 28.4</b> The step kernel and its launch, in C++.</p>
+<p class="listing"><b>Listing 28.3</b> The step kernel and its launch.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:21:50}}
+    // ...
+}
+
+impl Gpu<'_> {
+    // ...
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:161:173}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:113:124}}
-```
 
-```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:143:148}}
 ```
+
+</div>
+</div>
 
 The function `run` gives every step at most 1,024 blocks of 256 threads, divided among its
 transfers, and never gives a transfer more blocks than it has floats to cover. For example, a tree
@@ -903,25 +945,7 @@ In Rust, 2 threads may write to the same `DisjointSlice` only at indices that th
 prove to be different, which is the thread's own index. The step kernel writes at `to + i` and
 reads at `from + i`, where the offsets come from the plan, so it uses `get_unchecked_mut` inside an
 `unsafe` block, as the per-block writes of Chapter 8 did. The `SAFETY` comment states the argument
-of the previous paragraph: no element is both read and written within 1 step.
-
-<p class="listing"><b>Listing 28.5</b> The step kernel and its launch, in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:21:50}}
-    // ...
-}
-```
-
-```rust,ignore
-impl Gpu<'_> {
-    // ...
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:161:173}}
-    // ...
-}
-```
+of the previous paragraph. No element is both read and written within 1 step.
 
 ### 28.6.3 Running the 4-rank example
 
@@ -1021,7 +1045,7 @@ steps, 11.6 µs per step, and the tree took 0.070 ms for 6 steps, 11.7 µs per s
 GPU, the α of a step is therefore about 12 µs. A timeline from Nsight Systems (Chapter 25) divides
 it into about 9 µs inside the step kernel and 3.5 µs between 1 kernel and the next.
 
-For large messages, the time follows the memory traffic. At 16 MiB, the 2 algorithms took about
+For large messages, the time follows the memory traffic. At 16 MiB, the two algorithms took about
 the same time, 7.2 ms and 6.6 ms. The reason is that the simulated links share 1 memory. A float
 that is added costs 12 bytes of memory traffic, 2 reads and 1 write, and a float that is copied
 costs 8 bytes, 1 read and 1 write. Both algorithms add (k − 1) n floats and copy (k − 1) n floats.
@@ -1035,7 +1059,7 @@ The dashed lines of Figure 28.7 show the model T = steps × 11.6 µs + 35 m ÷ 8
 matches both ends of the measurements. At 1 MiB, where neither term dominates, the measured times
 lie about 0.3 ms above it.
 
-On a machine with separate links, the 2 algorithms would differ at large sizes. A link of the ring
+On a machine with separate links, the two algorithms would differ at large sizes. A link of the ring
 would carry 1.75 × 16 MiB, whereas the link of the root of the tree would carry 3 × 16 MiB, so the
 ring would take about 1.75 ÷ 3 = 58% of the time of the tree. The simulation cannot show this
 difference, because its 8 links are 1 memory and only the total traffic matters. A simulation on 1
@@ -1048,7 +1072,7 @@ requires 2 or more GPUs.
 
 **NCCL**, the NVIDIA Collective Communications Library (pronounced "nickel"), implements the
 collectives of Section 28.2, as well as point-to-point sends and receives, for NVIDIA GPUs. It is
-open source, under a BSD licence, and every major deep-learning framework uses it.
+open source, under a BSD license, and every major deep-learning framework uses it.
 
 When a group of ranks starts, NCCL discovers the **topology** of the system: which GPUs share
 NVLink or an NVSwitch, which GPUs are under the same PCIe switch, and which GPUs are in other
@@ -1079,10 +1103,10 @@ rank within it, and the rings and connections that NCCL built for the group. Eve
 a communicator as a parameter.
 
 Before ranks in different processes can communicate, they must agree that they belong to the same
-group. 1 rank calls `ncclGetUniqueId`, which returns a `ncclUniqueId`, 128 bytes that identify the
+group. One rank calls `ncclGetUniqueId`, which returns a `ncclUniqueId`, 128 bytes that identify the
 group. The program sends these 128 bytes to every other rank through a channel of its own choice,
 such as a file, a TCP connection, or a broadcast of MPI, the Message Passing Interface used in
-supercomputer programs. Then every rank calls `ncclCommInitRank` with the size of the group, the
+supercomputer programs. Then, every rank calls `ncclCommInitRank` with the size of the group, the
 ID and its own rank number. The following code shows these calls:
 
 ```cpp
@@ -1094,6 +1118,10 @@ ncclComm_t comm;
 check(cudaSetDevice(localGpu));
 check(ncclCommInitRank(&comm, nranks, id, rank));
 ```
+
+cuda-oxide does not wrap NCCL, so a Rust program makes these calls through other bindings to
+the library, such as the `nccl` module of the `cudarc` crate, where `Id::new` and
+`Comm::from_rank` correspond to the 2 calls above.
 
 Rank 0 creates the ID in the second line, and every rank creates its communicator in the last line,
 after selecting its GPU with `cudaSetDevice`. Note that `ncclCommInitRank` returns only when all
@@ -1112,6 +1140,8 @@ Once the communicator exists, an all-reduce is a single call:
 check(ncclAllReduce(send, recv, count, ncclFloat, ncclSum, comm, stream));
 check(cudaStreamSynchronize(stream));
 ```
+
+In `cudarc`, the same collective is the method `all_reduce` of a `Comm`.
 
 `ncclAllReduce` reads `count` floats at `send` on every rank and writes their sum into `recv` on
 every rank; `send` and `recv` may be the same buffer. Like a kernel launch, the call returns as
@@ -1139,9 +1169,11 @@ for (int r = 0; r < k; ++r) {
 check(ncclGroupEnd());
 ```
 
+`cudarc` provides the same pair as the functions `group_start` and `group_end`.
+
 Without the group, the first call could block while it waits for ranks whose calls the same thread
 has not yet made. Group calls also combine a `ncclSend` and a `ncclRecv` into 1 exchange, which is
-how a halo is exchanged between neighbouring GPUs.
+how a halo is exchanged between neighboring GPUs.
 
 ## 28.8 NCCL in frameworks and performance tuning
 
@@ -1211,17 +1243,24 @@ ring that must cross a `SYS` path, between processor sockets, runs at the speed 
 
 ## 28.9 The complete programs
 
-<p class="listing"><b>Listing 28.6</b> The complete <code>allreduce.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+<p class="listing"><b>Listing 28.4</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu}}
 ```
 
-<p class="listing"><b>Listing 28.7</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 
@@ -1244,7 +1283,7 @@ ring that must cross a `SYS` path, between processor sockets, runs at the speed 
 
 ## Summary
 
-- Data-parallel training needs an all-reduce of the gradients in every step: every rank
+- Data-parallel training needs an all-reduce of the gradients in every step. Every rank
   contributes, and every rank needs the sum.
 - The 5 common collectives are broadcast, reduce, all-reduce, reduce-scatter and all-gather. An
   all-reduce is equivalent to a reduce-scatter followed by an all-gather.
@@ -1264,8 +1303,8 @@ ring that must cross a `SYS` path, between processor sockets, runs at the speed 
 
 </div>
 
-This chapter concludes the part of the book on systems with more than one GPU. The Epilogue looks
-at the directions in which GPU hardware and its programming are developing.
+With this chapter we conclude the part of the book on systems with more than one GPU. In the
+Epilogue we look at the directions in which GPU hardware and its programming are developing.
 
 ## Exercises
 
@@ -1279,7 +1318,7 @@ at the directions in which GPU hardware and its programming are developing.
    change, and which count from Section 28.4.3 or 28.5.1 explains the change?
 5. The tree in Listing 28.2 assumes that k is a power of 2. Which ranks lose their partner when
    k = 6, and how would you change `tree` to handle them?
-6. Write a plan for an all-gather alone and add it to the program: each rank starts with 1 chunk.
+6. Write a plan for an all-gather alone and add it to the program. Each rank starts with 1 chunk.
    How many steps does it take, and how many bytes does each rank send?
 7. Prove that within 1 reduce-scatter step of the ring, no chunk is both read and written.
 8. The NCCL tests report an algorithm bandwidth of 160 GB/s for an all-reduce over 8 GPUs. Compute

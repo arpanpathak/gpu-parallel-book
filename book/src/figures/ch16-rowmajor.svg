@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 424" width="660" height="424" role="img" aria-label="Top: A as a 4 by 4 grid, 1 colour per row; the entry 10 in row 2, column 1 is outlined. A note reads: row 2, column 1 is stored at location 2 times 4 plus 1 = 9. Bottom: the same 16 values in memory, locations 0 to 15, row 0 at 0 to 3, row 1 at 4 to 7, row 2 at 8 to 11 and row 3 at 12 to 15. The value 10 is outlined at location 9.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 424" width="660" height="424" role="img" aria-label="Top: A as a 4 by 4 grid, 1 color per row; the entry 10 in row 2, column 1 is outlined. A note reads: row 2, column 1 is stored at location 2 times 4 plus 1 = 9. Bottom: the same 16 values in memory, locations 0 to 15, row 0 at 0 to 3, row 1 at 4 to 7, row 2 at 8 to 11 and row 3 at 12 to 15. The value 10 is outlined at location 9.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

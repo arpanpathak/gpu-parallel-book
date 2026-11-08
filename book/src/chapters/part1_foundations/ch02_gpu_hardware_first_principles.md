@@ -1,4 +1,4 @@
-<img class="plate" src="../../art/ch02.svg" alt="Comb, a worker bee in a hard hat, stands beside a hive with its side cut away. Inside hang 3 wooden comb frames, labelled SM 0, SM 1 and SM 2. On each frame small worker bees stand in straight rows that move together, a formation called a warp. Comb points at the frames like a guide on a tour.">
+<img class="plate" src="../../art/ch02.svg" alt="Comb, a worker bee in a hard hat, stands beside a hive with its side cut away. Inside hang 3 wooden comb frames, labeled SM 0, SM 1 and SM 2. On each frame small worker bees stand in straight rows that move together, a formation called a warp. Comb points at the frames like a guide on a tour.">
 
 # Chapter 2: GPU Hardware from First Principles
 
@@ -20,7 +20,7 @@ This chapter covers
   happens when its threads take different sides of a branch
 - how a block is divided into warps
 - the memory hierarchy, from registers to the CPU's memory
-- coalescing: why neighbouring threads should read neighbouring addresses
+- coalescing: why neighboring threads should read neighboring addresses
 - shared-memory banks and bank conflicts
 - occupancy, and how switching between warps hides memory latency
 
@@ -111,7 +111,7 @@ A GPU is built in levels, each made of copies of the next (figure 2.4).
 
 ### 2.1.4 GPUs in numbers
 
-GPUs are built in very different sizes, from boards for robots to cards for data centres,
+GPUs are built in very different sizes, from boards for robots to cards for data centers,
 and they share the design of this chapter. The table compares 7 of them. The **compute
 capability**, CC in the table, is NVIDIA's version number for each generation of the
 design (section 2.11).
@@ -123,8 +123,8 @@ design (section 2.11).
 | DGX Spark (GB10) | desktop AI | 12.1 | 48 | 128 GB, shared | 273 GB/s | ~31 TFLOP/s |
 | GeForce RTX 4090 | desktop card | 8.9 | 128 | 24 GB | 1,008 GB/s | 82.6 TFLOP/s |
 | GeForce RTX 5090 | desktop card | 12.0 | 170 | 32 GB | 1,792 GB/s | 104.8 TFLOP/s |
-| A100 SXM 80 GB | data centre | 8.0 | 108 | 80 GB | 2,039 GB/s | 19.5 TFLOP/s |
-| H100 SXM | data centre | 9.0 | 132 | 80 GB | 3,350 GB/s | 67 TFLOP/s |
+| A100 SXM 80 GB | data center | 8.0 | 108 | 80 GB | 2,039 GB/s | 19.5 TFLOP/s |
+| H100 SXM | data center | 9.0 | 132 | 80 GB | 3,350 GB/s | 67 TFLOP/s |
 
 CC is the compute capability, and "shared" marks memory that the GPU shares with the CPU.
 The figures are NVIDIA's published specifications, with peak arithmetic at the highest
@@ -135,7 +135,7 @@ introduces.
 
 The memory column shows 2 kinds of system. The Jetson modules and the DGX Spark are
 **integrated**: the CPU and the GPU share one set of memory chips. The graphics cards and
-data-centre GPUs are **discrete**: the GPU has memory chips of its own, beside it on the
+data-center GPUs are **discrete**: the GPU has memory chips of its own, beside it on the
 card, and data moves to it from the CPU's memory over a link (Chapter 4).
 
 ### 2.1.5 The ridge point of each GPU
@@ -162,7 +162,7 @@ different values.
 | GeForce RTX 4090 | 82.6 / 1.008 ≈ 82 |
 | DGX Spark (GB10) | 31 / 0.273 ≈ 114 |
 
-The data-centre GPUs have the lowest ridge points, because their memory, stacked beside the
+The data-center GPUs have the lowest ridge points, because their memory, stacked beside the
 GPU chip, delivers several terabytes per second. The graphics cards and the DGX Spark have
 far more arithmetic for each byte of bandwidth, so a kernel needs more reuse to reach their
 peak. A kernel that is compute-bound on an A100 can be memory-bound on an RTX 4090.
@@ -331,7 +331,7 @@ Every SM goes through it, so blocks on different SMs see each other's writes the
 
 **Global memory** is a GPU's main memory: 80 GB on an H100, in memory chips beside the GPU
 chip. Every array a program allocates for the GPU lives there (Chapter 4). Its bandwidth is
-very high, but a single read takes about 500 cycles, and most optimisation work aims to read
+very high, but a single read takes about 500 cycles, and most optimization work aims to read
 it less often.
 
 **Host memory** is the CPU's memory; CUDA calls the CPU the **host**. A request for host
@@ -425,7 +425,7 @@ fetches every sector any lane needs.
 
 <div class="bee bee-happy" markdown="1">
 
-Neighbouring threads should read neighbouring addresses.
+Neighboring threads should read neighboring addresses.
 
 </div>
 
@@ -454,7 +454,7 @@ Figure 2.11 uses 8 banks and 8 lanes, so a word's bank is its number modulo 8. W
 drawn in rows of 8, so each column is 1 bank.
 
 <figure>
-<img src="../../figures/ch02-banks.svg" alt="3 panels, each a grid of words 0 to 63 in rows of 8, with columns labelled banks b0 to b7. Left, lane k reads word k: words 0 to 7, one in each bank, 1 step. Middle, lane k reads word 8k: words 0, 8, 16 up to 56, all in column b0, 8 steps. Right, every lane reads word 5: one word, read once and given to every lane, 1 step.">
+<img src="../../figures/ch02-banks.svg" alt="3 panels, each a grid of words 0 to 63 in rows of 8, with columns labeled banks b0 to b7. Left, lane k reads word k: words 0 to 7, one in each bank, 1 step. Middle, lane k reads word 8k: words 0, 8, 16 up to 56, all in column b0, 8 steps. Right, every lane reads word 5: one word, read once and given to every lane, 1 step.">
 <figcaption><b>Figure 2.11</b> 3 ways for 8 lanes to read shared memory with 8 banks.</figcaption>
 </figure>
 
@@ -626,7 +626,7 @@ prints the limits of the GPU it runs on; Chapter 25 shows how to read its output
 ## Summary
 
 - A **kernel** is a function that runs on the GPU. A launch runs it as many **threads**,
-  organised in **blocks**; the blocks of a launch form the **grid**.
+  organized in **blocks**; the blocks of a launch form the **grid**.
 - A GPU is a set of **SMs**. Each block runs on one SM, and the SM runs its threads in
   **warps** of 32 that carry out each instruction together.
 - When the lanes of a warp disagree at a branch, the 2 sides run one after the other:
@@ -635,7 +635,7 @@ prints the limits of the GPU it runs on; Chapter 25 shows how to read its output
   multiples of 32.
 - The memory hierarchy runs from registers (about 1 cycle) through shared memory (about 30),
   the L2 cache (about 200) and global memory (about 500) to host memory.
-- Global memory delivers 32-byte sectors, so neighbouring threads should read neighbouring
+- Global memory delivers 32-byte sectors, so neighboring threads should read neighboring
   addresses: **coalescing**.
 - Shared memory has 32 **banks**; lanes that ask one bank for different words must wait for
   each other.
