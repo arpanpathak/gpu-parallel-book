@@ -708,6 +708,7 @@ kernel writes its results without `unsafe`.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch11_blocks/src/main.rs:86:99}}
+    // ...
 }
 ```
 
@@ -1020,6 +1021,7 @@ fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// C = A B for a 2 x 3 matrix A and a 3 x 2 matrix B, all stored row by row.
 bool smallProduct(cublasHandle_t handle)
 {
     // ...
@@ -1186,6 +1188,8 @@ fn normal_numbers(stream: &Arc<CudaStream>) -> Result<bool, Error> {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// 16 Mi numbers from the normal distribution; their mean should be near 0 and their
+// standard deviation near 1.
 bool normalNumbers()
 {
     // ...
@@ -1258,6 +1262,8 @@ fn spectrum(stream: &Arc<CudaStream>) -> Result<bool, Error> {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// 1,024 samples of sin(50 t) + 0.5 sin(120 t), with t running once around the circle.
+// The transform should show 2 peaks, at frequencies 50 and 120, and nothing else.
 bool spectrum()
 {
     // ...

@@ -613,6 +613,7 @@ Listing 25.3 leaves the guard out.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch16_bugs/src/main.rs:18:26}}
+    // ...
 }
 ```
 
@@ -718,6 +719,7 @@ Listing 25.4 leaves the barriers out of the sum of 256 values.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch16_bugs/src/main.rs:28:54}}
+    // ...
 }
 ```
 
@@ -783,6 +785,7 @@ the even and odd threads of every warp wait at 2 different instructions.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch16_bugs/src/main.rs:56:77}}
+    // ...
 }
 ```
 
@@ -1005,6 +1008,7 @@ Listing 25.7 implements the first measurement in 2 forms.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch16_latency/src/main.rs:17:72}}
+    // ...
 }
 ```
 

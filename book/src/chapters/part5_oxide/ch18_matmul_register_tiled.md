@@ -436,7 +436,11 @@ for each combination the program uses.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:83:119}}
+        // ...
+}
 ```
 
 </div>
@@ -444,6 +448,8 @@ for each combination the program uses.
 
 ```cpp
 {{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:20:39}}
+    // ...
+}
 ```
 
 </div>
@@ -467,14 +473,44 @@ The copy of lines 5 to 11:
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
+    pub fn matmul_register<
+        const BM: usize,
+        const BN: usize,
+        const BK: usize,
+        const TM: usize,
+        const TN: usize,
+    >(
+        m: u32,
+        n: u32,
+        k: u32,
+        a: &[f32],
+        b: &[f32],
+        mut c: DisjointSlice<f32, RuntimeRowMajorTiles<TM, TN>>,
+    ) {
+        // ...
 {{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:120:144}}
+            // ...
+    }
+}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// C (m x n) = A (m x k) B (k x n), all row-major. A block computes a BM x BN tile of C
+// in phases of BK; thread (ty, tx) computes the TM x TN block of that tile that starts
+// at row ty * TM and column tx * TN, and keeps its TM * TN sums in registers.
+template <int BM, int BN, int BK, int TM, int TN>
+__global__ void __launch_bounds__((BM / TM) * (BN / TN))
+matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
+{
+    // ...
 {{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:41:57}}
+        // ...
+}
 ```
 
 </div>
@@ -494,14 +530,51 @@ The steps of lines 12 to 16:
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
+    pub fn matmul_register<
+        const BM: usize,
+        const BN: usize,
+        const BK: usize,
+        const TM: usize,
+        const TN: usize,
+    >(
+        m: u32,
+        n: u32,
+        k: u32,
+        a: &[f32],
+        b: &[f32],
+        mut c: DisjointSlice<f32, RuntimeRowMajorTiles<TM, TN>>,
+    ) {
+        // ...
+        while t < k.div_ceil(BK) {
+            // ...
 {{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:146:182}}
+            // ...
+        }
+        // ...
+    }
+}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// C (m x n) = A (m x k) B (k x n), all row-major. A block computes a BM x BN tile of C
+// in phases of BK; thread (ty, tx) computes the TM x TN block of that tile that starts
+// at row ty * TM and column tx * TN, and keeps its TM * TN sums in registers.
+template <int BM, int BN, int BK, int TM, int TN>
+__global__ void __launch_bounds__((BM / TM) * (BN / TN))
+matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
+{
+    // ...
+    for (int t = 0; t < phases; ++t) {
+        // ...
 {{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:59:77}}
+    }
+    // ...
+}
 ```
 
 </div>
@@ -531,14 +604,42 @@ binds with `RowWidth`, exactly as in Chapter 16.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
+    pub fn matmul_register<
+        const BM: usize,
+        const BN: usize,
+        const BK: usize,
+        const TM: usize,
+        const TN: usize,
+    >(
+        m: u32,
+        n: u32,
+        k: u32,
+        a: &[f32],
+        b: &[f32],
+        mut c: DisjointSlice<f32, RuntimeRowMajorTiles<TM, TN>>,
+    ) {
+        // ...
 {{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:187:203}}
+    }
+}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// C (m x n) = A (m x k) B (k x n), all row-major. A block computes a BM x BN tile of C
+// in phases of BK; thread (ty, tx) computes the TM x TN block of that tile that starts
+// at row ty * TM and column tx * TN, and keeps its TM * TN sums in registers.
+template <int BM, int BN, int BK, int TM, int TN>
+__global__ void __launch_bounds__((BM / TM) * (BN / TN))
+matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
+{
+    // ...
 {{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:80:90}}
+}
 ```
 
 </div>

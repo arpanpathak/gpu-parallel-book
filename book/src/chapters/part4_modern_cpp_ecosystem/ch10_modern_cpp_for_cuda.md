@@ -1364,7 +1364,16 @@ receives it tests `i < in.size()`, that is `i < 1000`.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+fn scale_on_gpu(
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
+    host: &[f32],
+    factor: f32,
+) -> Result<Option<Vec<f32>>, Error> {
+    // ...
 {{#include ../../../../code/oxide/ch10_modern/src/main.rs:287:287}}
+    // ...
+}
 ```
 
 </div>
@@ -1427,7 +1436,6 @@ agreement. The table lists the 3 scopes.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch10_modern/src/main.rs:104:112}}
-    // ...
 }
 ```
 
@@ -1490,9 +1498,6 @@ Listing 10.23 defines the 2 concepts that `transform` requires.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch10_modern/src/main.rs:66:72}}
-    {
-        // ...
-    }
     // ...
 }
 ```

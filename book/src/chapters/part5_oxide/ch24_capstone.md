@@ -326,7 +326,11 @@ of Gray-Kernel.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch24_capstone/src/main.rs:57:68}}
+    // ...
+}
 ```
 
 </div>
@@ -484,7 +488,11 @@ the 8 × 8 example, 1 block would do: threads 0 to 63 each count 1 pixel, and th
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch24_capstone/src/main.rs:70:99}}
+    // ...
+}
 ```
 
 </div>
@@ -551,7 +559,11 @@ which case the programs keep every level unchanged.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch24_capstone/src/main.rs:101:149}}
+    // ...
+}
 ```
 
 </div>
@@ -579,7 +591,11 @@ The last step is a map. Each thread reads 1 gray level and writes the table's en
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch24_capstone/src/main.rs:151:161}}
+    // ...
+}
 ```
 
 </div>
@@ -798,7 +814,11 @@ bytes. It finishes with the rounding of line 23 of Image-Pipeline, \\((sum + 128
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch24_capstone/src/main.rs:163:221}}
+    // ...
+}
 ```
 
 </div>
@@ -979,7 +999,10 @@ served by the L1 cache of the SM; Exercise 24.18 asks whether a tile would help.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch24_capstone/src/main.rs:223:245}}
+}
 ```
 
 </div>

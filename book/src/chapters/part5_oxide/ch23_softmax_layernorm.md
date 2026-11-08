@@ -1080,7 +1080,11 @@ The warp maximum and the warp sum are lines 1 to 3 of <span class="sc">Block-Red
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:25:43}}
+    // ...
+}
 ```
 
 </div>
@@ -1104,7 +1108,11 @@ The block maximum adds lines 4 to 10:
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:45:65}}
+    // ...
+}
 ```
 
 </div>
@@ -1132,7 +1140,11 @@ threads touch the slots between which barriers. The C++ helper receives the same
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:137:170}}
+    // ...
+}
 ```
 
 </div>
@@ -1166,9 +1178,17 @@ such read is checked against the slice length; in Section 23.7.5 we measure what
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:89:97}}
+    // ...
+}
 
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:172:227}}
+    // ...
+}
 ```
 
 </div>
@@ -1198,9 +1218,17 @@ destructuring assignment, `(m, s) = merge_softmax(m, s, m2, s2)`; in C++ it is a
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:99:109}}
+    // ...
+}
 
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:308:372}}
+    // ...
+}
 ```
 
 </div>
@@ -1228,7 +1256,11 @@ merge, lane 0 writes 3 numbers, which in Rust occupy 3 consecutive slots of a
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:229:268}}
+    // ...
+}
 ```
 
 </div>

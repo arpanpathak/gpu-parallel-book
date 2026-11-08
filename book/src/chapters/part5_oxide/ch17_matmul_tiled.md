@@ -467,14 +467,34 @@ the region, and `DynamicSharedArray::<f32>::offset(bytes)` a pointer `bytes` byt
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
+    pub fn matmul_tiled<const T: usize>(
+        m: u32,
+        n: u32,
+        k: u32,
+        a: &[f32],
+        b: &[f32],
+        mut c: DisjointSlice<f32, Runtime2DIndex>,
+    ) {
 {{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:76:77}}
+        // ...
+    }
+}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// The same product with T x T tiles in shared memory. A block of T x T threads computes
+// a T x T square of C in ceil(k / T) phases.
+template <int T>
+__global__ void matmulTiled(int m, int n, int k, const float* a, const float* b, float* c)
+{
 {{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:42:43}}
+    // ...
+}
 ```
 
 </div>
@@ -507,14 +527,36 @@ The copy of lines 6 to 8:
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
+    pub fn matmul_tiled<const T: usize>(
+        m: u32,
+        n: u32,
+        k: u32,
+        a: &[f32],
+        b: &[f32],
+        mut c: DisjointSlice<f32, Runtime2DIndex>,
+    ) {
+        // ...
 {{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:85:99}}
+            // ...
+    }
+}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// The same product with T x T tiles in shared memory. A block of T x T threads computes
+// a T x T square of C in ceil(k / T) phases.
+template <int T>
+__global__ void matmulTiled(int m, int n, int k, const float* a, const float* b, float* c)
+{
+    // ...
 {{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:50:57}}
+        // ...
+}
 ```
 
 </div>
@@ -540,18 +582,67 @@ The phase sum of lines 9 to 12 and the store of lines 14 to 16:
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
+    pub fn matmul_tiled<const T: usize>(
+        m: u32,
+        n: u32,
+        k: u32,
+        a: &[f32],
+        b: &[f32],
+        mut c: DisjointSlice<f32, Runtime2DIndex>,
+    ) {
+        // ...
+        while t < k.div_ceil(T) {
+            // ...
 {{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:101:108}}
+            // ...
+        }
+        // ...
+    }
+}
 
+mod kernels {
+    // ...
+    pub fn matmul_tiled<const T: usize>(
+        m: u32,
+        n: u32,
+        k: u32,
+        a: &[f32],
+        b: &[f32],
+        mut c: DisjointSlice<f32, Runtime2DIndex>,
+    ) {
+        // ...
 {{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:113:119}}
+    }
+}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// The same product with T x T tiles in shared memory. A block of T x T threads computes
+// a T x T square of C in ceil(k / T) phases.
+template <int T>
+__global__ void matmulTiled(int m, int n, int k, const float* a, const float* b, float* c)
+{
+    // ...
+    for (int t = 0; t < phases; ++t) {
+        // ...
 {{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:59:62}}
+    }
+    // ...
+}
 
+// The same product with T x T tiles in shared memory. A block of T x T threads computes
+// a T x T square of C in ceil(k / T) phases.
+template <int T>
+__global__ void matmulTiled(int m, int n, int k, const float* a, const float* b, float* c)
+{
+    // ...
 {{#include ../../../../code/cuda/ch17_matmul_tiled/matmul_tiled.cu:65:67}}
+}
 ```
 
 </div>
@@ -576,7 +667,11 @@ the grid must cover \\(C\\), and in Rust the dynamic shared memory must hold 2 t
 ```rust,ignore
 {{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:123:130}}
 
+impl Problem {
+    // ...
 {{#include ../../../../code/oxide/ch17_matmul_tiled/src/main.rs:198:209}}
+    // ...
+}
 ```
 
 </div>

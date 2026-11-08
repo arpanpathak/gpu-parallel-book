@@ -387,6 +387,8 @@ SPECIALISED SOURCE(c[0..d]):
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch12_driver/src/main.rs:68:90}}
+    // ...
+}
 ```
 
 </div>
@@ -788,6 +790,11 @@ int main()
 {
     // ...
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu:195:202}}
+    // ...
+}
+
+int main()
+{
     // ...
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu:213:222}}
     // ...

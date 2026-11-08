@@ -1110,7 +1110,6 @@ scatter runs, which the single stream guarantees.
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch21_scan_compaction/src/main.rs:327:378}}
-    // ...
 }
 ```
 

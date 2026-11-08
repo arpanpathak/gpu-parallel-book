@@ -550,7 +550,11 @@ kernel, host-side methods that prepare and launch it. In CUDA C++, a kernel is a
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch16_matmul_naive/src/main.rs:24:61}}
+    // ...
+}
 ```
 
 </div>
@@ -612,7 +616,10 @@ multiplies matrices of `FIXED` × `FIXED` = 1,024 × 1,024 floats with it:
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
+mod kernels {
+    // ...
 {{#include ../../../../code/oxide/ch16_matmul_naive/src/main.rs:63:82}}
+}
 ```
 
 </div>
@@ -682,7 +689,20 @@ mistake, each thread would read row `row` of a matrix twice as wide as `a`, beyo
 ```rust,ignore
 {{#include ../../../../code/oxide/ch16_matmul_naive/src/main.rs:139:143}}
 
+fn run_generic<T>(
+    module: &Module,
+    stream: &Arc<CudaStream>,
+    name: &str,
+    n: usize,
+) -> Result<bool, Error>
+where
+    T: DeviceCopy + Copy + Default + Add<Output = T> + Mul<Output = T>,
+    T: From<f32> + Into<f64>,
+{
+    // ...
 {{#include ../../../../code/oxide/ch16_matmul_naive/src/main.rs:198:204}}
+    // ...
+}
 ```
 
 </div>

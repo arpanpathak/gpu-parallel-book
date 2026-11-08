@@ -816,7 +816,6 @@ mod kernels {
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch22_radix_sort_histogram/src/main.rs:291:365}}
-    // ...
 }
 ```
 

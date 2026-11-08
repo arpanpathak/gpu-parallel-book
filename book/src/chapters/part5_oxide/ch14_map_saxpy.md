@@ -707,7 +707,8 @@ grid of Figure 14.4.
 
 ```rust,ignore
 fn worked_example(
-    // ...
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
 ) -> Result<usize, Error> {
     // ...
 {{#include ../../../../code/oxide/ch14_map_saxpy/src/main.rs:147:148}}
@@ -719,6 +720,9 @@ fn worked_example(
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// Runs SAXPY with a = 2 on the 12 elements of the worked example, first with 2 blocks
+// of 8 threads, then with a grid-stride loop on 2 blocks of 2 threads. Returns the
+// number of wrong elements.
 int workedExample()
 {
     // ...
@@ -788,7 +792,8 @@ closure, prepares the launch for the example's 2 blocks of 2 threads and launche
 
 ```rust,ignore
 fn worked_example(
-    // ...
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
 ) -> Result<usize, Error> {
     // ...
 {{#include ../../../../code/oxide/ch14_map_saxpy/src/main.rs:152:156}}
@@ -800,6 +805,9 @@ fn worked_example(
 <div class="code-tab" data-lang="C++">
 
 ```cpp
+// Runs SAXPY with a = 2 on the 12 elements of the worked example, first with 2 blocks
+// of 8 threads, then with a grid-stride loop on 2 blocks of 2 threads. Returns the
+// number of wrong elements.
 int workedExample()
 {
     // ...
