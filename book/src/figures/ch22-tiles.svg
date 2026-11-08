@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 350" width="660" height="350" role="img" aria-label="The digit counts of 2 tiles stored digit by digit: 0, 1, 1, 1, 2, 1, 1, 1 for digit 0 of tiles 0 and 1, digit 1 of tiles 0 and 1, and so on. Their exclusive scan 0, 0, 1, 2, 3, 5, 6, 7 is the start of each digit in each tile.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="350" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Digit starts for many tiles</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1 scan of the count table, digit-major, places every tile.</text>
+  <text x="170.0" y="100.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">tile 0: keys 5, 2, 7, 2, digits 1, 2, 3, 2</text>
+  <text x="170.0" y="120.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">tile 1: keys 0, 6, 3, 5, digits 0, 2, 3, 1</text>
+  <text x="156.0" y="165.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">counts</text>
+  <rect x="170.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="194.0" y="165.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <text x="194.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d0 t0</text>
+  <rect x="228.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="252.0" y="165.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
+  <text x="252.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d0 t1</text>
+  <rect x="286.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="310.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">1</text>
+  <text x="310.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d1 t0</text>
+  <rect x="344.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="368.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">1</text>
+  <text x="368.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d1 t1</text>
+  <rect x="402.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="426.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2</text>
+  <text x="426.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d2 t0</text>
+  <rect x="460.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="484.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
+  <text x="484.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d2 t1</text>
+  <rect x="518.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="542.0" y="165.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1</text>
+  <text x="542.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d3 t0</text>
+  <rect x="576.0" y="146.0" width="48.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="600.0" y="165.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">1</text>
+  <text x="600.0" y="189.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">d3 t1</text>
+  <text x="156.0" y="241.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">exclusive</text>
+  <rect x="170.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="194.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">0</text>
+  <rect x="228.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="252.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">0</text>
+  <rect x="286.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#7A4FD0" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="310.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1</text>
+  <rect x="344.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#7A4FD0" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="368.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">2</text>
+  <rect x="402.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#B7791F" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="426.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">3</text>
+  <rect x="460.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#B7791F" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="484.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">5</text>
+  <rect x="518.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#1F8A70" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="542.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">6</text>
+  <rect x="576.0" y="222.0" width="48.0" height="30.0" rx="6" fill="#1F8A70" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="600.0" y="241.0" class="pill" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">7</text>
+  <path d="M194.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <path d="M252.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <path d="M310.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <path d="M368.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <path d="M426.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <path d="M484.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <path d="M542.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <path d="M600.0,190.0 V219.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
+  <text x="32.0" y="290.0" class="note" text-anchor="start" xml:space="preserve">The counts are stored digit by digit: digit 0 of tile 0, digit 0 of tile 1, digit 1 of</text>
+  <text x="32.0" y="308.0" class="note" text-anchor="start" xml:space="preserve">tile 0, and so on. 1 exclusive scan of this table gives the start of every digit in every</text>
+  <text x="32.0" y="326.0" class="note" text-anchor="start" xml:space="preserve">tile: in tile 1, digit 1 starts at 2, after the keys 0 (tile 1) and 5 (tile 0).</text>
+</svg>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 474" width="660" height="474" role="img" aria-label="2 panels of horizontal bars for the direct kernel on the Orin NX. Top, the rate in GFLOP/s at n = 4,096: C++ f32 185.0, Rust f32 137.8, Rust f32 with the width fixed at compile time 194.0 (n = 1,024), and f64 35.2 at n = 2,048, against a dashed line for the FP32 peak of 2,400 and a short mark for the FP64 peak of 75. Bottom, the requested fetch rate in GB/s: C++ 739.8 and Rust 551.3, against a dashed line at 102 GB/s, the bandwidth of global memory. A note: at least 1 minus 102 / 740 = 86% of the C++ kernel&#x27;s fetches were answered by the caches.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="474" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The direct kernel, measured</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Far below the arithmetic peak, far above the bandwidth of memory.</text>
+  <defs>
+    <marker id="tip-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
+      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/></marker>
+    <marker id="tip-deep" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
+      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3B47B0"/></marker>
+    <marker id="tip-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
+      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker>
+  </defs>
+  <text x="40.0" y="110.0" text-anchor="start" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">Rate, n = 4,096 (n = 1,024 for the fixed width), GFLOP/s</text>
+  <rect x="210.0" y="128.0" width="29.3" height="22.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.3"/>
+  <text x="200.0" y="143.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">C++, f32</text>
+  <text x="247.3" y="143.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#5B6BD6" xml:space="preserve">185.0</text>
+  <rect x="210.0" y="162.0" width="21.8" height="22.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="200.0" y="177.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">Rust, f32</text>
+  <text x="239.8" y="177.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#1F8A70" xml:space="preserve">137.8</text>
+  <rect x="210.0" y="196.0" width="30.7" height="22.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="200.0" y="211.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">Rust, f32, fixed width</text>
+  <text x="248.7" y="211.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#1F8A70" xml:space="preserve">194.0</text>
+  <rect x="210.0" y="230.0" width="5.6" height="22.0" rx="4" fill="#FBE3D2" stroke="#C8693A" stroke-width="1.3"/>
+  <text x="200.0" y="245.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">f64, n = 2,048</text>
+  <text x="229.9" y="245.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#C8693A" xml:space="preserve">35.2</text>
+  <path d="M590.0,122 V262" stroke="#CF4526" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="590.0" y="278.0" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#CF4526" xml:space="preserve">FP32 peak 2,400</text>
+  <path d="M221.9,224 V258" stroke="#C8693A" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="227.9" y="272.0" text-anchor="start" font-size="11.5" style="fill:#C8693A" xml:space="preserve">FP64 peak 75</text>
+  <text x="40.0" y="318.0" text-anchor="start" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">Requested fetch rate, n = 4,096, GB/s</text>
+  <rect x="210.0" y="336.0" width="351.4" height="22.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.3"/>
+  <text x="200.0" y="351.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">C++, f32</text>
+  <text x="569.4" y="351.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#5B6BD6" xml:space="preserve">739.8</text>
+  <rect x="210.0" y="370.0" width="261.9" height="22.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="200.0" y="385.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">Rust, f32</text>
+  <text x="479.9" y="385.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#1F8A70" xml:space="preserve">551.3</text>
+  <path d="M258.4,330 V404" stroke="#CF4526" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="258.4" y="420.0" text-anchor="middle" font-size="11.5" font-weight="650" style="fill:#CF4526" xml:space="preserve">global memory 102</text>
+  <text x="40.0" y="452.0" text-anchor="start" font-size="12" style="fill:#5D6B7A" xml:space="preserve">At least 1 − 102 / 740 = 86% of the C++ kernel's fetches were answered by the caches.</text>
+</svg>

@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="640" height="512" role="img" aria-label="The pipeline in 2 columns. Equalise: the RGB image of 3 bytes per pixel goes to grayscale, a map; histogram counts the gray levels into 256 bins; equalise table scans the 256 counts; apply table maps each pixel through the table. Blur and edges: blur rows and blur columns are stencils with a halo, sobel is a stencil, and the edge image has 1 byte per pixel, 2.1 MB.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="512" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The 7 kernels of the pipeline</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each arrow is a buffer in device memory; each kernel is a pattern of Part V.</text>
+  <rect x="18" y="92" width="302" height="400" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="36" y="81" width="90.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="81.5" y="96.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">EQUALISE</text>
+  <rect x="326" y="92" width="298" height="324" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="344" y="81" width="138.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="413.1" y="96.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">BLUR AND EDGES</text>
+  <rect x="34" y="104" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M46,104.7 H40 V155.3 H46 A11.3,11.3 0 0 1 34.7,144 V116 A11.3,11.3 0 0 1 46,104.7 Z" fill="#B7791F"/>
+  <text x="54.0" y="126.0" class="name" text-anchor="start" xml:space="preserve">RGB image</text>
+  <text x="54.0" y="144.0" class="sub" text-anchor="start" xml:space="preserve">3 bytes per pixel, 6.2 MB</text>
+  <path class="wire" d="M168.0,156 L168.0,177" marker-end="url(#head)"/>
+  <rect x="151.1" y="157.5" width="33.8" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="168.0" y="170.3" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">rgb</text>
+  <rect x="34" y="180" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M46,180.7 H40 V231.3 H46 A11.3,11.3 0 0 1 34.7,220 V192 A11.3,11.3 0 0 1 46,180.7 Z" fill="#2F6FDB"/>
+  <text x="54.0" y="202.0" class="name" text-anchor="start" xml:space="preserve">grayscale</text>
+  <text x="54.0" y="220.0" class="sub" text-anchor="start" xml:space="preserve">map (Chapter 14)</text>
+  <path class="wire" d="M168.0,232 L168.0,253" marker-end="url(#head)"/>
+  <rect x="147.8" y="233.5" width="40.4" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="168.0" y="246.3" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">gray</text>
+  <rect x="34" y="256" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M46,256.7 H40 V307.3 H46 A11.3,11.3 0 0 1 34.7,296 V268 A11.3,11.3 0 0 1 46,256.7 Z" fill="#1F8A70"/>
+  <text x="54.0" y="278.0" class="name" text-anchor="start" xml:space="preserve">histogram</text>
+  <text x="54.0" y="296.0" class="sub" text-anchor="start" xml:space="preserve">histogram (Chapter 22)</text>
+  <path class="wire" d="M168.0,308 L168.0,329" marker-end="url(#head)"/>
+  <rect x="147.8" y="309.5" width="40.4" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="168.0" y="322.3" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">bins</text>
+  <rect x="34" y="332" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M46,332.7 H40 V383.3 H46 A11.3,11.3 0 0 1 34.7,372 V344 A11.3,11.3 0 0 1 46,332.7 Z" fill="#1F8A70"/>
+  <text x="54.0" y="354.0" class="name" text-anchor="start" xml:space="preserve">equalise table</text>
+  <text x="54.0" y="372.0" class="sub" text-anchor="start" xml:space="preserve">scan of 256 counts (Chapter 21)</text>
+  <path class="wire" d="M168.0,384 L168.0,405" marker-end="url(#head)"/>
+  <rect x="144.5" y="385.5" width="47.0" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="168.0" y="398.3" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">table</text>
+  <rect x="34" y="408" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M46,408.7 H40 V459.3 H46 A11.3,11.3 0 0 1 34.7,448 V420 A11.3,11.3 0 0 1 46,408.7 Z" fill="#2F6FDB"/>
+  <text x="54.0" y="430.0" class="name" text-anchor="start" xml:space="preserve">apply table</text>
+  <text x="54.0" y="448.0" class="sub" text-anchor="start" xml:space="preserve">map with a lookup (Chapter 14)</text>
+  <rect x="342" y="104" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M354,104.7 H348 V155.3 H354 A11.3,11.3 0 0 1 342.7,144 V116 A11.3,11.3 0 0 1 354,104.7 Z" fill="#5E9400"/>
+  <text x="362.0" y="126.0" class="name" text-anchor="start" xml:space="preserve">blur rows</text>
+  <text x="362.0" y="144.0" class="sub" text-anchor="start" xml:space="preserve">stencil with a halo (Chapter 20)</text>
+  <path class="wire" d="M476.0,156 L476.0,177" marker-end="url(#head)"/>
+  <rect x="439.3" y="157.5" width="73.4" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="476.0" y="170.3" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">rows, 2 B</text>
+  <rect x="342" y="180" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M354,180.7 H348 V231.3 H354 A11.3,11.3 0 0 1 342.7,220 V192 A11.3,11.3 0 0 1 354,180.7 Z" fill="#5E9400"/>
+  <text x="362.0" y="202.0" class="name" text-anchor="start" xml:space="preserve">blur columns</text>
+  <text x="362.0" y="220.0" class="sub" text-anchor="start" xml:space="preserve">stencil with a halo (Chapter 20)</text>
+  <path class="wire" d="M476.0,232 L476.0,253" marker-end="url(#head)"/>
+  <rect x="445.9" y="233.5" width="60.2" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="476.0" y="246.3" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">blurred</text>
+  <rect x="342" y="256" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M354,256.7 H348 V307.3 H354 A11.3,11.3 0 0 1 342.7,296 V268 A11.3,11.3 0 0 1 354,256.7 Z" fill="#5E9400"/>
+  <text x="362.0" y="278.0" class="name" text-anchor="start" xml:space="preserve">sobel</text>
+  <text x="362.0" y="296.0" class="sub" text-anchor="start" xml:space="preserve">stencil (Chapter 19)</text>
+  <path class="wire" d="M476.0,308 L476.0,329" marker-end="url(#head)"/>
+  <rect x="452.5" y="309.5" width="47.0" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
+  <text x="476.0" y="322.3" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">edges</text>
+  <rect x="342" y="332" width="268" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M354,332.7 H348 V383.3 H354 A11.3,11.3 0 0 1 342.7,372 V344 A11.3,11.3 0 0 1 354,332.7 Z" fill="#B7791F"/>
+  <text x="362.0" y="354.0" class="name" text-anchor="start" xml:space="preserve">edge image</text>
+  <text x="362.0" y="372.0" class="sub" text-anchor="start" xml:space="preserve">1 byte per pixel, 2.1 MB</text>
+  <path class="wire" d="M302,434.0 L313,434.0 Q322,434.0 322,425.0 L322,139.0 Q322,130.0 330.5,130.0 L339,130.0" marker-end="url(#head)"/>
+  <text x="334.0" y="444.0" class="note" text-anchor="start" xml:space="preserve">the equalised image goes to blur rows</text>
+  <rect x="334" y="464" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="355.0" y="475.5" class="note" text-anchor="start" xml:space="preserve">map</text>
+  <rect x="396.8" y="464" width="14" height="14" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <text x="417.8" y="475.5" class="note" text-anchor="start" xml:space="preserve">global</text>
+  <rect x="479.4" y="464" width="14" height="14" rx="4" fill="#EEF6DC" stroke="#5E9400" stroke-width="1.3"/>
+  <text x="500.4" y="475.5" class="note" text-anchor="start" xml:space="preserve">neighbourhood</text>
+</svg>

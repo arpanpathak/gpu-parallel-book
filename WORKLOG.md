@@ -47,14 +47,14 @@ Every chapter: crate in `code/oxide/<name>/`, real output, ch13's shape. Referen
 Port the demo code to the safe `launch_contract` path.
 
 - [x] 13 Your first Rust kernel: vector add (`code/oxide/vector_add`)
-- [ ] 14 Map, SAXPY and closures: generic `map` kernel with a closure; grid-stride loop; why fewer threads than elements
-- [ ] 15 Reductions and the dot product: tree reduction by hand, shared memory, `sync_threads`, atomics for the final sum, warp shuffles
-- [ ] 16 Matrix multiplication I: 2-D indexing (`index_2d`, `LaunchConfig2D`), one thread per output, intensity by hand
-- [ ] 17 Matrix multiplication II: tiling in shared memory, the reuse arithmetic, measured speed-up over 16
-- [ ] 18 Stencils: Jacobi iteration for the Laplace equation, halo cells, ping-pong buffers
-- [ ] 19 Scan and histogram
-- [ ] 20 Softmax and layer norm: numerically stable softmax, two-pass vs fused
-- [ ] 21 Capstone: image pipeline in Rust, benchmarked against the CPU (fold in the old ch15/15b material)
+- [x] 14 Map, SAXPY and closures: generic `map` kernel with a closure; grid-stride loop; why fewer threads than elements
+- [x] 15 Reductions and the dot product: tree reduction by hand, shared memory, `sync_threads`, atomics for the final sum, warp shuffles
+- [x] 16 Matrix multiplication I: 2-D indexing (`index_2d`, `LaunchConfig2D`), one thread per output, intensity by hand
+- [x] 17 Matrix multiplication II: tiling in shared memory, the reuse arithmetic, measured speed-up over 16
+- [x] 18 Stencils: Jacobi iteration for the Laplace equation, halo cells, ping-pong buffers
+- [x] 19 Scan and histogram
+- [x] 20 Softmax and layer norm: numerically stable softmax, two-pass vs fused
+- [x] 21 Capstone: image pipeline in Rust, benchmarked against the CPU (fold in the old ch15/15b material)
 - [ ] Then delete the "Earlier drafts" section in SUMMARY.md and the old `chapters/part5_rust_cuda_oxide/` files, keeping anything still useful (cudarc host-side Rust could become an appendix).
 
 ## Rewriting the existing chapters (the user's top priority since 2026-10-18)
@@ -72,7 +72,7 @@ The user was angry that the old chapters still read as dense reference manuals. 
 ## Rest of the book (after Part V, one chapter at a time)
 
 - [ ] Re-render plates for chapters 2 to 12 and 16 to 19 from the cast plan, and give each the ch13 shape: covers box, hand-worked example first, pseudocode, figures, excerpts, complete program, summary, exercises.
-- [ ] Renumber chapters after Part V grows (Profiling and Part VII move to 22+). Update H1s, SUMMARY and cross-references together.
+- [x] Renumber chapters after Part V grows (2026-11-07: Parts VI and VII are Chapters 22 to 25; code dirs keep their old names) (Profiling and Part VII move to 22+). Update H1s, SUMMARY and cross-references together.
 - [ ] About this book: a short page on how to read it (the chapter shape, the cast, where the code lives).
 - [ ] Regenerate the PDF only when the user asks.
 
@@ -89,6 +89,7 @@ The user was angry that the old chapters still read as dense reference manuals. 
 - 2026-10-18 User: the meta paragraph about the chapter's structure was slop; cover must read "GPU Architecture & Parallel Programming from First Principles". Renamed the book (book.toml, READMEs, cover in `tools/art.py`, cover.md alt). Rewrote ch01 again: real opening puzzle (H100 67 TFLOP/s, 3.35 TB/s, vector add 0.28 TFLOP/s), reasons behind facts, Amdahl 1967 and Gustafson 1988 Sandia history (speedups 1,021/1,020/1,016; Amdahl predicts ~200), no meta sentences, map figure removed. ch02 still says H100 "about 60 TFLOP/s"; use 67 (FP32, SXM) when rewriting it.
 - 2026-10-18 Replaced the Foreword (an author does not write their own foreword; it also had false claims) with `book/src/about-this-book.md`, linked from SUMMARY after the cover. `foreword.md` deleted (unstaged). ch01: restored the opening that defines a parallel program (the user liked it); the H100 puzzle moved to the start of 1.8; throughput now defined generally as a rate over many operations, with bandwidth named, before the simplified memory example.
 - 2026-10-18 User: they only wanted the foreword turned into the book's own text, not rewritten. `about-this-book.md` is now the original foreword word for word, with only the heading changed. Do not cut or rewrite its sections without being asked.
+- 2026-11-07 User rejected the first Part V chapters as shallow "code commentary" not written like their paper (`~/Documents/Papers/tiled-parallel-programming-simplified.pdf`; also stayleNET.pdf). Rewrote Part V in the paper's style: 1 worked example carried through, intuition by hand, Key observation, numbered Definitions, CLRS pseudocode (`div.algo`), broken variants with exact wrong values, invariant proofs, code last, "why the speedup is X" measurements, exercises per section. Grouped by family (elementwise+reduction 14-15, matmul 16-18, stencils 19-20, scan 21-22, normalization 23, capstone 24), each family with a group page. Every algorithm in Rust AND CUDA C++ (`code/cuda/chNN_*`) in Rust/C++ tabs (`theme/tabs.js`). Parts VI/VII renumbered to 25-28. User also: every term must be defined before use ("rank" in ch28 was not); definition/intuition pass done on ch10-12 and ch25-28.
 
 ## Agent conduct log: where the agent overstepped (2026-10-18)
 
@@ -152,3 +153,5 @@ changing anything.
 - 2026-11-06 User feedback during this work: (1) no commentary about the test setup in chapters ("not run", "the Thor was busy so its timings are left out", "our boards have 1 GPU"); (2) the book is generic: name the measurement GPUs once per chapter, elsewhere say "the measured GPU" or name the kind of GPU; (3) never touch chapters already in main. All three applied to chapters 10 to 19.
 - 2026-11-06 Chapters 16 to 19 rewritten (branch book/parts-6-7-rewrite, stacked on book/part-4-rewrite). Ch16: `code/ch16_profiling` (bugs, measure, latency, verify) and `code/oxide/ch16_latency`; nsys timeline of ch06's pipeline accounted to the ms; speed-of-light worked by hand (counters need admin rights); compute-sanitizer finds 4 silent bugs; clock64 latencies 4.24 cycles per dependent FMA, 39 L1, 191 L2, 598 to 1,137 DRAM; warm-up 19.83 vs 8.35 ms. `bugs.cu` is left out of validate.sh: its divergent-barrier kernel hangs the Orin. Ch17: `code/ch17_systems` and `code/oxide/ch17_systems`; the 2 kinds of integrated GPU (platform device from the device tree vs PCIe function with BAR0), config space and BAR sizing worked by hand, write-combined reads 11x slower, a doorbell ring between 2 threads. Ch18: `code/ch18_peer` and `code/oxide/ch18_peer` (peer matrix, copy within 1 GPU 38.8 GB/s); full mesh needs N(N-1)/2 links in total, not per GPU (old text was wrong). Ch19: `code/ch19_collectives` and `code/oxide/ch19_collectives` (ring and tree all-reduce on slices of 1 buffer, checked against the exact sum); NCCL shown as API excerpts. Plates: Lens the hawk, Knock the woodpecker, Weave the spider, the ring of geese. `art.py` from parallel branches merged by whole top-level blocks.
 - Lesson: `tools/excerpts.py wrap` also rewrites ch08's multi-include fences; never run it while ch08 is settled, use `check` only.
+- 2026-11-07 Part V written (branch book/part-5-rust, stacked on book/parts-6-7-rewrite): Chapters 14 Map, SAXPY and closures (generic map with a closure 90.1 GB/s = SAXPY 90.7 GB/s; grid-stride sweep 32.5 to 93.4 GB/s by blocks per SM), 15 dot product (fused 94.0 GB/s; second-launch combine bit-identical over 100 runs, atomic combine 3 different results), 16 matmul one thread per output (Index2D vs Runtime2DIndex, requires contracts; board ran ~18% slow that evening, comparisons within 1 run), 17 tiled matmul in Rust (tiled16 274.0 GFLOP/s, `for` 26% slower, generic #[device] fn 38% slower because it is never inlined), 18 stencils and Laplace (convergence 0.288 per 1,000 steps predicted and measured), 19 compaction, radix sort, equalisation, 20 softmax and layer norm (fused softmax 92.8 GB/s; sum-of-squares variance error 2.97 vs Welford 1.88e-4), 21 image pipeline capstone (699.9 images/s vs 46.3 on 8 CPU threads, pixel-exact). Parts VI and VII renumbered to 22 to 25 (files, figures, plates, cross-references).
+- 2026-11-06/07 User feedback on voice: chapters read as "AI slop"; the model is PMPP (plain literal sentences, topic headings, code walked through in order, numerals for quantities, words for idioms). Chapters 4 to 13 and 22 to 25 revoiced; Chapter 3's revoice was rejected ("too much this/that, butchered depth") and Chapter 3 stays as on main.

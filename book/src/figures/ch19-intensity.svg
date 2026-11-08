@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 470" width="640" height="470" role="img" aria-label="A horizontal logarithmic axis of FLOP per byte from 0.1 to 200. A red mark at 0.5 FLOP per byte is the Jacobi step. Marks for the ridge points of 7 GPUs lie between 10 and 114: A100 10, H100 20, Orin NX 24, AGX Thor 30, RTX 5090 58, RTX 4090 82, DGX Spark 114. The region left of each ridge point is memory-bound.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="470" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Arithmetic intensity of a Jacobi step</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4 FLOP per 8 bytes: 20 to 230 times below the ridge points of current GPUs.</text>
+  <text x="140.0" y="102.0" class="note" text-anchor="start" xml:space="preserve">ridge point of each GPU, FLOP per byte</text>
+  <text x="138.0" y="129.0" class="note" text-anchor="end" xml:space="preserve">A100</text>
+  <rect x="150" y="112" width="248.4" height="24" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="404.4" y="128.0" class="mono" text-anchor="start" xml:space="preserve">10</text>
+  <text x="138.0" y="163.0" class="note" text-anchor="end" xml:space="preserve">H100</text>
+  <rect x="150" y="146" width="285.8" height="24" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="441.8" y="162.0" class="mono" text-anchor="start" xml:space="preserve">20</text>
+  <text x="138.0" y="197.0" class="note" text-anchor="end" xml:space="preserve">Orin NX</text>
+  <rect x="150" y="180" width="295.6" height="24" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="451.6" y="196.0" class="mono" text-anchor="start" xml:space="preserve">24</text>
+  <text x="138.0" y="231.0" class="note" text-anchor="end" xml:space="preserve">AGX Thor</text>
+  <rect x="150" y="214" width="307.7" height="24" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="463.7" y="230.0" class="mono" text-anchor="start" xml:space="preserve">30</text>
+  <text x="138.0" y="265.0" class="note" text-anchor="end" xml:space="preserve">RTX 5090</text>
+  <rect x="150" y="248" width="343.2" height="24" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="499.2" y="264.0" class="mono" text-anchor="start" xml:space="preserve">58</text>
+  <text x="138.0" y="299.0" class="note" text-anchor="end" xml:space="preserve">RTX 4090</text>
+  <rect x="150" y="282" width="361.9" height="24" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="517.9" y="298.0" class="mono" text-anchor="start" xml:space="preserve">82</text>
+  <text x="138.0" y="333.0" class="note" text-anchor="end" xml:space="preserve">DGX Spark</text>
+  <rect x="150" y="316" width="379.7" height="24" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="535.7" y="332.0" class="mono" text-anchor="start" xml:space="preserve">114</text>
+  <line x1="150.0" y1="354.0" x2="560.0" y2="354.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="150.0" y1="350.0" x2="150.0" y2="358.0" stroke="#1B2430" stroke-width="1.2"/>
+  <text x="150.0" y="374.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0.1</text>
+  <line x1="274.2" y1="350.0" x2="274.2" y2="358.0" stroke="#1B2430" stroke-width="1.2"/>
+  <text x="274.2" y="374.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <line x1="398.4" y1="350.0" x2="398.4" y2="358.0" stroke="#1B2430" stroke-width="1.2"/>
+  <text x="398.4" y="374.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <line x1="522.6" y1="350.0" x2="522.6" y2="358.0" stroke="#1B2430" stroke-width="1.2"/>
+  <text x="522.6" y="374.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">100</text>
+  <path d="M236.8,108 V354" stroke="#CF4526" stroke-width="2" stroke-dasharray="5 4"/>
+  <circle cx="236.8" cy="354" r="6" fill="#CF4526"/>
+  <text x="236.8" y="394.0" class="note" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">Jacobi step: 0.5 FLOP per byte</text>
+  <text x="150.0" y="426.0" class="note" text-anchor="start" xml:space="preserve">Ridge point = peak FLOP/s ÷ memory bandwidth (Chapter 2). Every bar reaches far</text>
+  <text x="150.0" y="444.0" class="note" text-anchor="start" xml:space="preserve">past 0.5: the step is memory-bound on each of these GPUs.</text>
+</svg>

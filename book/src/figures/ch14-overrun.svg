@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 254" width="640" height="254" role="img" aria-label="Device memory as 4-byte slots. The first 12 hold y[0] to y[11]. The next 4 belong to other data. Without the test i less than n, threads 4 to 7 of block 1, global indices 12 to 15, write into those 4 slots.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+  </defs>
+  <rect width="640" height="254" rx="12" fill="#FFFFFF"/>
+  <text x="60.0" y="24.0" font-size="11" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">device memory, 4-byte slots</text>
+  <rect x="60.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="75.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="93.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="108.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">15</text>
+  <rect x="126.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="141.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
+  <rect x="159.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="174.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">17</text>
+  <rect x="192.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="207.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">9</text>
+  <rect x="225.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="240.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">25</text>
+  <rect x="258.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="273.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
+  <rect x="291.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="306.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">22</text>
+  <rect x="324.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="339.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">9</text>
+  <rect x="357.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="372.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">19</text>
+  <rect x="390.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="405.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">13</text>
+  <rect x="423.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="438.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">18</text>
+  <rect x="470.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FBE4E0" stroke="#C2412D" stroke-width="1.1"/>
+  <text x="485.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">?</text>
+  <line x1="485.0" y1="106.0" x2="485.0" y2="62.0" stroke="#C2412D" stroke-width="1.3" marker-end="url(#m-red)"/>
+  <rect x="470.0" y="108.0" width="30.0" height="26.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="485.0" y="125.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">t4</text>
+  <rect x="503.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FBE4E0" stroke="#C2412D" stroke-width="1.1"/>
+  <text x="518.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">?</text>
+  <line x1="518.0" y1="106.0" x2="518.0" y2="62.0" stroke="#C2412D" stroke-width="1.3" marker-end="url(#m-red)"/>
+  <rect x="503.0" y="108.0" width="30.0" height="26.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="518.0" y="125.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">t5</text>
+  <rect x="536.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FBE4E0" stroke="#C2412D" stroke-width="1.1"/>
+  <text x="551.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">?</text>
+  <line x1="551.0" y1="106.0" x2="551.0" y2="62.0" stroke="#C2412D" stroke-width="1.3" marker-end="url(#m-red)"/>
+  <rect x="536.0" y="108.0" width="30.0" height="26.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="551.0" y="125.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">t6</text>
+  <rect x="569.0" y="34.0" width="30.0" height="26.0" rx="5" fill="#FBE4E0" stroke="#C2412D" stroke-width="1.1"/>
+  <text x="584.0" y="51.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">?</text>
+  <line x1="584.0" y1="106.0" x2="584.0" y2="62.0" stroke="#C2412D" stroke-width="1.3" marker-end="url(#m-red)"/>
+  <rect x="569.0" y="108.0" width="30.0" height="26.0" rx="5" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="584.0" y="125.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">t7</text>
+  <path d="M60,66 v5 H453 v-5 M256.5,71 v4" fill="none" stroke="#8A94A3" stroke-width="1"/>
+  <text x="256.5" y="88.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">y[0] to y[11]: the 48 bytes of y</text>
+  <path d="M470,140 v5 H599 v-5 M534.5,145 v4" fill="none" stroke="#8A94A3" stroke-width="1"/>
+  <text x="534.5" y="162.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">block 1, threads 4 to 7</text>
+  <text x="470.0" y="24.0" font-size="11" fill="#C2412D" text-anchor="start" font-weight="400" xml:space="preserve">after y: other data</text>
+  <text x="60.0" y="200.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">Without the test i &lt; n, threads 12 to 15 compute addresses 48 to 60</text>
+  <text x="60.0" y="218.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">bytes past the start of y and write 4 values into memory that does</text>
+  <text x="60.0" y="236.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">not belong to y.</text>
+</svg>

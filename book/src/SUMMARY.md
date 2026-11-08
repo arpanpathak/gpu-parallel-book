@@ -30,17 +30,25 @@
 - [Chapter 11: The Library Ecosystem  -  Thrust, CUB & cuBLAS](chapters/part4_modern_cpp_ecosystem/ch11_library_ecosystem_thrust_cub_cublas.md)
 - [Chapter 12: NVRTC, Runtime Compilation & the Driver API](chapters/part4_modern_cpp_ecosystem/ch12_nvrtc_runtime_compilation_driver_api.md)
 
-# Part V  -  GPU Kernels in Rust with cuda-oxide
+# Part V  -  Parallel Algorithms in Rust and CUDA C++
 
 - [Chapter 13: Your First Rust Kernel](chapters/part5_oxide/ch13_your_first_rust_kernel.md)
-- [Coming next: Map, SAXPY and Closures]()
-- [Coming next: Reductions and the Dot Product]()
-- [Coming next: Matrix Multiplication, One Thread per Output]()
-- [Coming next: Tiled Matrix Multiplication in Shared Memory]()
-- [Coming next: Stencils and the Laplace Solver]()
-- [Coming next: Scan and Histogram]()
-- [Coming next: Softmax and Layer Norm]()
-- [Coming next: Capstone, an Image Pipeline in Rust]()
+- [Elementwise Operations and Reductions](chapters/part5_oxide/elementwise_reductions.md)
+    - [Chapter 14: Map and SAXPY](chapters/part5_oxide/ch14_map_saxpy.md)
+    - [Chapter 15: Reduction and the Dot Product](chapters/part5_oxide/ch15_dot_product.md)
+- [Matrix Multiplication](chapters/part5_oxide/matrix_multiplication.md)
+    - [Chapter 16: Matrix Multiplication, One Thread per Entry](chapters/part5_oxide/ch16_matmul_naive.md)
+    - [Chapter 17: Tiled Matrix Multiplication](chapters/part5_oxide/ch17_matmul_tiled.md)
+    - [Chapter 18: Register Tiling, Several Entries per Thread](chapters/part5_oxide/ch18_matmul_register_tiled.md)
+- [Stencils](chapters/part5_oxide/stencils.md)
+    - [Chapter 19: Stencils and Jacobi Iteration](chapters/part5_oxide/ch19_stencil.md)
+    - [Chapter 20: Tiled Stencils with Halo Cells](chapters/part5_oxide/ch20_stencil_tiled.md)
+- [Scan-Based Algorithms](chapters/part5_oxide/scan_algorithms.md)
+    - [Chapter 21: Scan and Stream Compaction](chapters/part5_oxide/ch21_scan_compaction.md)
+    - [Chapter 22: Radix Sort and Histograms](chapters/part5_oxide/ch22_radix_sort_histogram.md)
+- [Normalization](chapters/part5_oxide/normalization.md)
+    - [Chapter 23: Softmax and Layer Normalization](chapters/part5_oxide/ch23_softmax_layernorm.md)
+- [Chapter 24: Capstone: An Image Pipeline](chapters/part5_oxide/ch24_capstone.md)
 
 # Part VI  -  The Engineering Mindset
 

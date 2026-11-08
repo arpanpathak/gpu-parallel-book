@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 456" width="640" height="456" role="img" aria-label="3 rows, one per pass. Before pass 0, buffer a holds u0 and buffer b holds u0. The kernel reads a and writes the interior of b, which then holds u1; the names are exchanged, so a holds u1 and b holds u0. Before pass 1, a holds u1; after the launch and the exchange, a holds u2 and b holds u1. A note states the invariant: at the start of pass k, a holds u(k) and b holds the boundary values.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="456" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Ping-pong buffers and their invariant</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each pass reads a, writes b and exchanges the names; a holds the newest grid.</text>
+  <text x="150.0" y="106.0" class="name" text-anchor="middle" xml:space="preserve">start of pass k</text>
+  <text x="500.0" y="106.0" class="name" text-anchor="middle" xml:space="preserve">after the launch, then exchange</text>
+  <text x="32.0" y="154.0" class="note" text-anchor="start" xml:space="preserve">pass 0</text>
+  <rect x="90.0" y="124.0" width="100.0" height="52.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.5"/>
+  <text x="140.0" y="154.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">a: u(0)</text>
+  <rect x="210.0" y="124.0" width="100.0" height="52.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.5"/>
+  <text x="260.0" y="154.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">b: u(0)</text>
+  <rect x="400.0" y="124.0" width="100.0" height="52.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.5"/>
+  <text x="450.0" y="154.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">a: u(1)</text>
+  <rect x="520.0" y="124.0" width="100.0" height="52.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.5"/>
+  <text x="570.0" y="154.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">b: u(0)</text>
+  <path d="M312,150 H396" stroke="#3F5873" stroke-width="1.8" fill="none" marker-end="url(#head)"/>
+  <rect x="318.0" y="128" width="53.6" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="344.8" y="140.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read a</text>
+  <rect x="318.0" y="156" width="60.2" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="348.1" y="168.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">write b</text>
+  <text x="32.0" y="246.0" class="note" text-anchor="start" xml:space="preserve">pass 1</text>
+  <rect x="90.0" y="216.0" width="100.0" height="52.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.5"/>
+  <text x="140.0" y="246.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">a: u(1)</text>
+  <rect x="210.0" y="216.0" width="100.0" height="52.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.5"/>
+  <text x="260.0" y="246.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">b: u(0)</text>
+  <rect x="400.0" y="216.0" width="100.0" height="52.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.5"/>
+  <text x="450.0" y="246.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">a: u(2)</text>
+  <rect x="520.0" y="216.0" width="100.0" height="52.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.5"/>
+  <text x="570.0" y="246.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">b: u(1)</text>
+  <path d="M312,242 H396" stroke="#3F5873" stroke-width="1.8" fill="none" marker-end="url(#head)"/>
+  <rect x="318.0" y="220" width="53.6" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="344.8" y="232.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read a</text>
+  <rect x="318.0" y="248" width="60.2" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="348.1" y="260.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">write b</text>
+  <text x="32.0" y="338.0" class="note" text-anchor="start" xml:space="preserve">pass 2</text>
+  <rect x="90.0" y="308.0" width="100.0" height="52.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.5"/>
+  <text x="140.0" y="338.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">a: u(2)</text>
+  <rect x="210.0" y="308.0" width="100.0" height="52.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.5"/>
+  <text x="260.0" y="338.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">b: u(1)</text>
+  <rect x="400.0" y="308.0" width="100.0" height="52.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.5"/>
+  <text x="450.0" y="338.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">a: u(3)</text>
+  <rect x="520.0" y="308.0" width="100.0" height="52.0" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.5"/>
+  <text x="570.0" y="338.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">b: u(2)</text>
+  <path d="M312,334 H396" stroke="#3F5873" stroke-width="1.8" fill="none" marker-end="url(#head)"/>
+  <rect x="318.0" y="312" width="53.6" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="344.8" y="324.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read a</text>
+  <rect x="318.0" y="340" width="60.2" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="348.1" y="352.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">write b</text>
+  <text x="32.0" y="418.0" class="note" text-anchor="start" xml:space="preserve">Invariant: at the start of pass k, buffer a holds the Jacobi grid u(k) in every cell,</text>
+  <text x="32.0" y="436.0" class="note" text-anchor="start" xml:space="preserve">and every boundary cell of buffer b holds its given value. Pass 0: both buffers hold u(0).</text>
+</svg>

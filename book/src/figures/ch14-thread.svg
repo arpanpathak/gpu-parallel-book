@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 266" width="640" height="266" role="img" aria-label="The work of thread 1 of block 1. It reads x[9] = 8 and y[9] = 3 from global memory, computes 2 times 8 plus 3 = 19 in registers with 2 floating-point operations, and writes 19 to y[9]: 12 bytes moved for 2 FLOP.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+  </defs>
+  <rect width="640" height="266" rx="12" fill="#FFFFFF"/>
+  <text x="82.0" y="36.0" font-size="13" fill="#1F2633" text-anchor="end" font-weight="600" font-style="italic" xml:space="preserve">x</text>
+  <text x="82.0" y="216.0" font-size="13" fill="#1F2633" text-anchor="end" font-weight="600" font-style="italic" xml:space="preserve">y</text>
+  <text x="20.0" y="128.0" font-size="11" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">global</text>
+  <text x="20.0" y="142.0" font-size="11" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">memory</text>
+  <rect x="96.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="111.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <rect x="96.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="111.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <rect x="130.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="145.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
+  <rect x="130.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="145.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="164.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="179.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="164.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="179.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
+  <rect x="198.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="213.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="198.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="213.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="232.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="247.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <rect x="232.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="247.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="266.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="281.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="266.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="281.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">9</text>
+  <rect x="300.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="315.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
+  <rect x="300.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="315.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <rect x="334.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="349.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="334.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="349.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
+  <rect x="368.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="383.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
+  <rect x="368.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="383.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="402.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#DEDFFA" stroke="#4F52C4" stroke-width="2.2"/>
+  <text x="417.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="402.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#DEDFFA" stroke="#4F52C4" stroke-width="2.2"/>
+  <text x="417.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
+  <rect x="436.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="451.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
+  <rect x="436.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="451.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="470.0" y="18.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="485.0" y="34.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
+  <rect x="470.0" y="198.0" width="30.0" height="24.0" rx="5" fill="#FFFFFF" stroke="#C5CBD3" stroke-width="1.1"/>
+  <text x="485.0" y="214.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
+  <rect x="322.0" y="84.0" width="190.0" height="72.0" rx="8" fill="#F7F7FE" stroke="#4F52C4" stroke-width="1.4"/>
+  <text x="417.0" y="104.0" font-size="11.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">block 1, thread 1, i = 9</text>
+  <text x="417.0" y="126.0" font-size="14" fill="#4F52C4" text-anchor="middle" font-weight="700" xml:space="preserve">2 · 8 + 3 = 19</text>
+  <text x="417.0" y="146.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">2 FLOP in registers</text>
+  <line x1="417.0" y1="43.0" x2="417.0" y2="83.0" stroke="#4F52C4" stroke-width="1.4" marker-end="url(#m-hi)"/>
+  <text x="409.0" y="68.0" font-size="11" fill="#4F52C4" text-anchor="end" font-weight="400" xml:space="preserve">read x[9] = 8</text>
+  <line x1="387.0" y1="197.0" x2="387.0" y2="157.0" stroke="#4F52C4" stroke-width="1.4" marker-end="url(#m-hi)"/>
+  <text x="379.0" y="184.0" font-size="11" fill="#4F52C4" text-anchor="end" font-weight="400" xml:space="preserve">read y[9] = 3</text>
+  <line x1="447.0" y1="157.0" x2="447.0" y2="196.0" stroke="#C2412D" stroke-width="1.4" marker-end="url(#m-red)"/>
+  <text x="455.0" y="184.0" font-size="11" fill="#C2412D" text-anchor="start" font-weight="400" xml:space="preserve">write y[9] = 19</text>
+  <text x="96.0" y="250.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">2 reads of 4 bytes, 1 write of 4 bytes: 12 bytes for 2 FLOP</text>
+</svg>

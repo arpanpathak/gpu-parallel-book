@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 456" width="640" height="456" role="img" aria-label="2 charts with a logarithmic vertical axis of RMS change per step. Left, the 6 by 6 plate, steps 1 to 40: the measured points fall on a straight line of slope 0.809 per step, cos(pi / 5). Right, the 64 by 64 plate, steps 1,000 to 9,000: 9 measured points from 7.49e-3 to 5.59e-7 follow a dashed line of 0.288 per 1,000 steps, cos(pi / 63) to the power 1,000.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="640" height="456" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Convergence of Jacobi iteration</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The RMS change shrinks by cos(π / n) per step: a straight line on a log scale.</text>
+  <line x1="78.0" y1="340.0" x2="300.0" y2="340.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="78.0" y1="120.0" x2="78.0" y2="340.0" stroke="#1B2430" stroke-width="1.2"/>
+  <text x="189.0" y="104.0" class="name" text-anchor="middle" xml:space="preserve">6 × 6 plate, n = 5</text>
+  <line x1="78.0" y1="340.0" x2="300.0" y2="340.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="72.0" y="344.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-4</text>
+  <line x1="78.0" y1="296.0" x2="300.0" y2="296.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="72.0" y="300.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-3</text>
+  <line x1="78.0" y1="252.0" x2="300.0" y2="252.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="72.0" y="256.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-2</text>
+  <line x1="78.0" y1="208.0" x2="300.0" y2="208.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="72.0" y="212.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-1</text>
+  <line x1="78.0" y1="164.0" x2="300.0" y2="164.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="72.0" y="168.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e0</text>
+  <line x1="78.0" y1="120.0" x2="300.0" y2="120.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="72.0" y="124.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e1</text>
+  <text x="78.0" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="133.5" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <text x="189.0" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <text x="244.5" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">30</text>
+  <text x="300.0" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">40</text>
+  <text x="189.0" y="374.0" class="note" text-anchor="middle" xml:space="preserve">steps</text>
+  <path d="M83.5,142.9 L89.1,146.9 L94.7,151.0 L100.2,155.0 L105.8,159.1 L111.3,163.1 L116.8,167.2 L122.4,171.2 L128.0,175.3 L133.5,179.3 L139.1,183.4 L144.6,187.4 L150.2,191.5 L155.7,195.5 L161.2,199.6 L166.8,203.6 L172.3,207.7 L177.9,211.7 L183.4,215.8 L189.0,219.8 L194.6,223.9 L200.1,227.9 L205.7,232.0 L211.2,236.0 L216.8,240.1 L222.3,244.1 L227.8,248.2 L233.4,252.2 L238.9,256.3 L244.5,260.3 L250.1,264.4 L255.6,268.4 L261.1,272.5 L266.7,276.5 L272.2,280.6 L277.8,284.6 L283.4,288.7 L288.9,292.7 L294.4,296.8 L300.0,300.8" fill="none" stroke="#B7791F" stroke-width="2" stroke-dasharray="5 4"/>
+  <circle cx="83.5" cy="123.5" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="89.1" cy="138.0" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="94.7" cy="146.3" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="100.2" cy="152.6" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="133.5" cy="179.3" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="189.0" cy="219.8" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="300.0" cy="300.9" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="388.0" y1="340.0" x2="610.0" y2="340.0" stroke="#1B2430" stroke-width="1.2"/>
+  <line x1="388.0" y1="120.0" x2="388.0" y2="340.0" stroke="#1B2430" stroke-width="1.2"/>
+  <text x="499.0" y="104.0" class="name" text-anchor="middle" xml:space="preserve">64 × 64 plate, n = 63</text>
+  <line x1="388.0" y1="340.0" x2="610.0" y2="340.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="382.0" y="344.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-7</text>
+  <line x1="388.0" y1="296.0" x2="610.0" y2="296.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="382.0" y="300.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-6</text>
+  <line x1="388.0" y1="252.0" x2="610.0" y2="252.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="382.0" y="256.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-5</text>
+  <line x1="388.0" y1="208.0" x2="610.0" y2="208.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="382.0" y="212.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-4</text>
+  <line x1="388.0" y1="164.0" x2="610.0" y2="164.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="382.0" y="168.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-3</text>
+  <line x1="388.0" y1="120.0" x2="610.0" y2="120.0" stroke="#D5DBE3" stroke-width="0.8"/>
+  <text x="382.0" y="124.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">1e-2</text>
+  <text x="388.0" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <text x="462.0" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">3,000</text>
+  <text x="536.0" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6,000</text>
+  <text x="610.0" y="356.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">9,000</text>
+  <text x="499.0" y="374.0" class="note" text-anchor="middle" xml:space="preserve">steps</text>
+  <path d="M412.7,124.4 L416.4,127.9 L420.1,131.5 L423.8,135.0 L427.5,138.6 L431.2,142.2 L434.9,145.7 L438.6,149.3 L442.3,152.9 L446.0,156.4 L449.7,160.0 L453.4,163.6 L457.1,167.1 L460.8,170.7 L464.5,174.3 L468.2,177.8 L471.9,181.4 L475.6,185.0 L479.3,188.5 L483.0,192.1 L486.7,195.7 L490.4,199.2 L494.1,202.8 L497.8,206.4 L501.5,209.9 L505.2,213.5 L508.9,217.0 L512.6,220.6 L516.3,224.2 L520.0,227.7 L523.7,231.3 L527.4,234.9 L531.1,238.4 L534.8,242.0 L538.5,245.6 L542.2,249.1 L545.9,252.7 L549.6,256.3 L553.3,259.8 L557.0,263.4 L560.7,267.0 L564.4,270.5 L568.1,274.1 L571.8,277.7 L575.5,281.2 L579.2,284.8 L582.9,288.4 L586.6,291.9 L590.3,295.5 L594.0,299.1 L597.7,302.6 L601.4,306.2 L605.1,309.7 L608.8,313.3" fill="none" stroke="#B7791F" stroke-width="2" stroke-dasharray="5 4"/>
+  <circle cx="412.7" cy="125.5" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="437.3" cy="150.2" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="462.0" cy="173.9" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="486.7" cy="197.7" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="511.3" cy="221.4" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="536.0" cy="245.0" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="560.7" cy="267.0" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="585.3" cy="284.9" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <circle cx="610.0" cy="307.1" r="4.5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <rect x="78.0" y="400" width="198.8" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="177.4" y="412.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">measured RMS change per step</text>
+  <rect x="300.0" y="400" width="225.2" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="412.6" y="412.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">predicted: × cos(π / n) per step</text>
+  <text x="78.0" y="436.0" class="note" text-anchor="start" xml:space="preserve">0.809 per step on the 6 × 6 plate; 0.998757 per step, or 0.288 per 1,000 steps, on the 64 × 64 plate.</text>
+</svg>

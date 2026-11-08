@@ -538,6 +538,26 @@ def tortoise(cx, base, s=1.0, look=1):
     ])
 
 
+def tile_shell(cx, base, s=1.0):
+    """A hermit crab's shell built of square tiles, as a dome whose floor is at `base`."""
+    w, h = 150 * s, 120 * s
+    clip = uid("shell")
+    dome = (f"M{cx - w / 2:.1f},{base:.1f} Q{cx - w / 2:.1f},{base - h:.1f} {cx:.1f},{base - h:.1f}"
+            f" Q{cx + w / 2:.1f},{base - h:.1f} {cx + w / 2:.1f},{base:.1f} Z")
+    tones = ("#e3c26a", "#d4ad52", "#f0d488", "#b98f3a")
+    size = 25 * s
+    tiles = []
+    for r in range(6):
+        for k in range(7):
+            x = cx - w / 2 + k * size
+            y = base - (r + 1) * size
+            tiles.append(rect(x + 1.5, y + 1.5, size - 3, size - 3, tones[(r + 2 * k) % 4], 3 * s,
+                              "#5a4210", 1.4 * s))
+    return "\n".join([f'<defs><clipPath id="{clip}"><path d="{dome}"/></clipPath></defs>',
+                      f'<g clip-path="url(#{clip})">', path(dome, "#c9a24e"), *tiles, "</g>",
+                      path(dome, stroke="#5a4210", sw=3 * s)])
+
+
 def goose(cx, base, s=1.0, look=1, parcel=None):
     """A standing goose facing `look`, its feet at `base`, holding a numbered parcel in its beak
     when `parcel` is given. 1.0 is 190 units tall."""
@@ -1205,6 +1225,386 @@ def ch13():
             crab(190, s=1.15, mood="happy", look=1, hat="hard"),
             crab(790, s=0.42, mood="sleepy", shade=True), crab(880, s=0.42, mood="sleepy", shade=True),
             rect(752, 222, 168, 30, "#ffffffcc", 15), label(836, 243, "i ≥ N: no work", 16, "#27405a", font=MONO, weight=600)]
+
+
+def stage_picture(x, y, mode, fid):
+    """A framed 150 x 100 picture of the capstone scene: "color", "gray", "blur" or "edges"."""
+    sky, hill, house, sun = {
+        "color": ("#8fb3d9", "#5f8f5a", "#c98f7a", "#f5d76e"),
+        "gray": ("#a9a9a9", "#7a7a7a", "#9c9c9c", "#d8d8d8"),
+        "blur": ("#a9a9a9", "#7a7a7a", "#9c9c9c", "#d8d8d8"),
+        "edges": ("#111111", "#111111", "#111111", "#111111"),
+    }[mode]
+    blur = f'filter="url(#{fid})"' if mode == "blur" else ""
+    line_ink = "#f4f4f4" if mode == "edges" else "none"
+    sw = 2.2 if mode == "edges" else 0
+    hill_d = f"M{x},{y + 64} Q{x + 40},{y + 46} {x + 80},{y + 62} T{x + 150},{y + 58} L{x + 150},{y + 100} L{x},{y + 100} Z"
+    roof_d = f"M{x + 22},{y + 50} L{x + 42},{y + 32} L{x + 62},{y + 50} Z"
+    scene = [rect(x, y, 150, 100, sky),
+             circle(x + 112, y + 28, 13, sun, f'stroke="{line_ink}" stroke-width="{sw}"'),
+             path(hill_d, hill, line_ink, sw),
+             rect(x + 26, y + 50, 32, 34, house, 0, line_ink, sw),
+             path(roof_d, house, line_ink, sw)]
+    defs = f'<defs><filter id="{fid}"><feGaussianBlur stdDeviation="2.4"/></filter></defs>'
+    clip = f'<clipPath id="{fid}c"><rect x="{x}" y="{y}" width="150" height="100" rx="6"/></clipPath>'
+    return "\n".join([defs, f"<defs>{clip}</defs>", rect(x - 7, y - 7, 164, 114, "#5a3d28", 10),
+                      f'<g clip-path="url(#{fid}c)" {blur}>', *scene, "</g>"])
+
+
+@plate("ch14", "Map and SAXPY", "Shuttle the crab", "Shuttle, a crab, walks along a long table of "
+       "numbered cells, 0 to 15, coloured in a repeating pattern of 4. Dashed arcs mark its hops: from cell 1 to 5, to 9, "
+       "to 13, always 4 cells at a time, and it fills every cell it lands on. 3 more crabs further back would cover the "
+       "other colours. A tag reads i, i + stride, i + 2 stride: the grid-stride loop.")
+def ch14():
+    tones = ["#bfe3f7", "#f7d9a0", "#c8f0d0", "#e4d2f7"]
+    mine = [k for k in range(16) if k % 4 == 1]
+    row = []
+
+    for k in range(16):
+        x = 108 + 50 * k
+        fill = tones[k % 4]
+        row.append(cell(x, 150, str(k), fill, size=40, font_size=16))
+        if k % 4 != 1:
+            row.append(rect(x - 20, 130, 40, 40, "#0f1c2b", 6, extra='opacity="0.28"'))
+
+    hops = []
+    for a, b in zip(mine, mine[1:]):
+        x1, x2 = 108 + 50 * a, 108 + 50 * b
+        hops.append(path(f"M{x1},{124} C{x1 + 30},{84} {x2 - 30},{84} {x2},{124}", stroke=SNOW, sw=3,
+                         extra='stroke-dasharray="6 6" opacity="0.9"'))
+
+    return [backdrop(seed=14, **SAND),
+            rect(76, 120, 808, 60, "#0f1c2b", 10, "#6f8196", 3, 'opacity="0.45"'),
+            *row,
+            *hops,
+            crab(758, s=0.95, mood="happy", look=-1),
+            crab(300, s=0.38, mood="cute", shade=True),
+            crab(380, s=0.38, mood="cute", shade=True),
+            crab(460, s=0.38, mood="cute", shade=True),
+            tag(480, 50, "i, i + stride, i + 2 × stride", 17, "#fff6e2", "#2a1a10", MONO, 700)]
+
+
+def paper_lantern(cx, top, glow, s=1.0):
+    """A paper lantern hanging from (cx, top); `glow` from 0 to 1 sets how brightly it shines."""
+    parts = [line(cx, top, cx, top + 14 * s, "#2a1d10", 2.5 * s)]
+    if glow > 0:
+        parts += [circle(cx, top + 48 * s, (24 + 70 * glow) * s, "#ffd96a", f'opacity="{0.10 + 0.25 * glow:.2f}"'),
+                  circle(cx, top + 48 * s, (16 + 34 * glow) * s, "#ffe9a8", f'opacity="{0.15 + 0.35 * glow:.2f}"')]
+    paper = "#f7c75a" if glow > 0.5 else "#e9b45a" if glow > 0.15 else "#b98a4a"
+    parts += [rect(cx - 12 * s, top + 14 * s, 24 * s, 6 * s, "#5b4a3a", 2 * s),
+              ellipse(cx, top + 48 * s, 22 * s, 28 * s, paper, f'stroke="#2a1d10" stroke-width="{2.2 * s}"'),
+              path(f"M{cx - 16 * s},{top + 34 * s} Q{cx},{top + 40 * s} {cx + 16 * s},{top + 34 * s}",
+                   stroke="#2a1d10", sw=1.4 * s, extra='opacity="0.45"'),
+              path(f"M{cx - 20 * s},{top + 52 * s} Q{cx},{top + 58 * s} {cx + 20 * s},{top + 52 * s}",
+                   stroke="#2a1d10", sw=1.4 * s, extra='opacity="0.45"'),
+              rect(cx - 12 * s, top + 74 * s, 24 * s, 6 * s, "#5b4a3a", 2 * s)]
+    return "\n".join(parts)
+
+
+@plate("ch15", "Reduction and the Dot Product", "The pyramid crabs", "A pyramid of crabs on a sandy "
+       "shore at dusk. 4 crabs on the sand hold up the products 2, 6, 3 and 4. On a rock above them, 2 crabs "
+       "hold the sums of pairs, 8 and 7. On the highest rock, 1 crab holds the total, 15. A tag reads: "
+       "pairs, then pairs of pairs.")
+def ch15():
+    bottom = [(430, "2"), (540, "6"), (690, "3"), (800, "4")]
+    middle = [(485, "8"), (745, "7")]
+    top = (615, "15")
+    ledge, peak = 232, 146
+    parts = [backdrop(seed=15, **SAND),
+             rect(420, ledge, 390, GROUND - ledge, "#8a6d4a", 14, "#6b5236", 3),
+             rect(545, peak, 140, ledge - peak, "#9c7c56", 12, "#6b5236", 3)]
+
+    for x, value in bottom:
+        parts += [crab(x, GROUND + 4, s=0.42, mood="happy", look=0.2), cell(x, GROUND - 74, value, "#ffe7a3")]
+    for x, value in middle:
+        parts += [crab(x, ledge, s=0.42, mood="happy", look=0.2), cell(x, ledge - 78, value, "#c8f0d0")]
+    parts += [crab(top[0], peak, s=0.42, mood="cute", look=0.0), cell(top[0], peak - 78, top[1], "#bfe3f7")]
+
+    for (x1, _), (x2, _) in zip(bottom[::2], middle):
+        parts.append(path(f"M{x1},{GROUND - 94} Q{x1},{ledge - 40} {x2 - 14},{ledge - 64}", stroke=SNOW, sw=2.5,
+                          extra='stroke-dasharray="5 6" opacity="0.85"'))
+    for (x1, _), (x2, _) in zip(bottom[1::2], middle):
+        parts.append(path(f"M{x1},{GROUND - 94} Q{x1},{ledge - 40} {x2 + 14},{ledge - 64}", stroke=SNOW, sw=2.5,
+                          extra='stroke-dasharray="5 6" opacity="0.85"'))
+    for x, _ in middle:
+        side = -14 if x < top[0] else 14
+        parts.append(path(f"M{x},{ledge - 98} Q{x},{peak - 40} {top[0] + side},{peak - 64}", stroke=SNOW, sw=2.5,
+                          extra='stroke-dasharray="5 6" opacity="0.85"'))
+
+    parts.append(tag(210, 92, "pairs, then pairs of pairs", 17, "#fff6e2", "#2a1a10", SANS, 700))
+    return parts
+
+@plate("ch16", "Matrix Multiplication, One Thread per Entry", "Abacus the crab", "Abacus, a crab, stands between "
+       "a row of 4 cells and a column of 4 cells. 1 claw points along the row, 1 2 3 4, the other down the column, "
+       "1 0 2 1. Beside it stands a wooden abacus with 4 rods, and the beads pushed to the left on each rod are the 4 "
+       "products, 1, 0, 6 and 4. A tag reads 1 + 0 + 6 + 4 = 11: 1 entry of C, computed by 1 thread.")
+def ch16():
+    row = ["1", "2", "3", "4"]
+    col = ["1", "0", "2", "1"]
+    cells = []
+
+    for k in range(4):
+        cells.append(cell(80 + 52 * k, 92, row[k], "#bfe3f7"))
+        cells.append(cell(370, 92 + 46 * k, col[k], "#f7d9a0"))
+
+    return [backdrop(seed=16, **SAND),
+            rect(46, 64, 226, 56, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'),
+            rect(342, 64, 56, 196, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'),
+            *cells,
+            label(160, 146, "row 0 of A", 16, SNOW, font=MONO, weight=600),
+            label(370, 286, "col 0 of B", 16, SNOW, font=MONO, weight=600),
+            crab(222, s=1.1, mood="happy", look=1),
+            abacus(560, 70, 330, [1, 0, 6, 4]),
+            tag(725, 262, "1 + 0 + 6 + 4 = 11", 18, "#fff6e2", "#2a1a10", MONO, 700)]
+
+
+def heat(t):
+    """A colour for a temperature t from 0 (cool blue) through yellow to 100 (hot red)."""
+    stops = [(0, (59, 111, 182)), (35, (120, 178, 196)), (60, (240, 206, 110)), (100, (226, 82, 43))]
+    for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
+        if t <= t1:
+            f = (t - t0) / (t1 - t0)
+            return "#" + "".join(f"{round(a + f * (b - a)):02x}" for a, b in zip(c0, c1))
+    return "#e2522b"
+
+
+@plate("ch17", "Tiled Matrix Multiplication", "Tiler the hermit crab", "Tiler, a hermit crab, walks "
+       "along a beach under a shell built of square tiles. Behind it on the sand lie 2 tall stacks of tiles, marked A "
+       "and B: the matrices in global memory. Ahead lies a small tide pool marked shared memory, where 2 tiles already "
+       "rest, 1 from each stack. A tag says copy a tile once, read it 16 times: the idea of a tiled matrix "
+       "multiplication.")
+def ch17():
+    stacks = []
+    for k, name in enumerate(("A", "B")):
+        x = 60 + k * 120
+        stacks += [rect(x, GROUND - 22 - 18 * j, 90, 16, ("#e3c26a", "#d4ad52", "#b98f3a")[j % 3], 4,
+                        "#2a2410", 2) for j in range(7)]
+        stacks.append(tag(x + 45, GROUND - 162, name, 18, "#fff6e2", "#2a1a10", MONO, 700))
+    pool = [ellipse(770, GROUND - 6, 150, 34, "#2f6f9a", 'stroke="#1d4a6a" stroke-width="3"'),
+            ellipse(770, GROUND - 10, 128, 22, "#4f93c0", 'opacity="0.7"'),
+            rect(712, GROUND - 26, 46, 30, "#e3c26a", 4, "#2a2410", 2),
+            rect(782, GROUND - 26, 46, 30, "#d4ad52", 4, "#2a2410", 2),
+            tag(770, GROUND - 70, "shared memory", 16, "#fff6e2", "#2a1a10", MONO, 700)]
+    return [backdrop(seed=17, **SHORE), *stacks, *pool,
+            tile_shell(445, GROUND - 52, 1.25),
+            crab(470, s=1.0, mood="happy", look=1),
+            tag(480, 60, "copy a tile once, read it 16 times", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch18", "Register Tiling, Several Entries per Thread", "Patch the crab", "Patch, a crab, stands on the "
+       "sand beside a slate board. To the left of the board stand 2 cells of A, 1 and 5, and above it 2 cells of B, "
+       "1 and 0. On the board are their 4 products, 1 0 / 5 0. Further right, a larger board holds the 4 by 4 matrix "
+       "C, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, split into 4 coloured patches of 2 by 2, 1 per "
+       "thread. A tag says read 4 values, make 4 products.")
+def ch18():
+    parts = [backdrop(seed=18, **SAND)]
+    # The 4 x 4 board of C behind, in 4 patches of 2 x 2.
+    tints = ["#c9d2fb", "#c8ecdc", "#f8d6c0", "#f5cbd9"]
+    big = [[11, 13, 8, 8], [27, 29, 24, 24], [43, 45, 40, 40], [59, 61, 56, 56]]
+    parts.append(rect(612, 52, 236, 236, "#0f1c2b", 14, "#6f8196", 3, 'opacity="0.5"'))
+    for r in range(4):
+        for c in range(4):
+            parts.append(cell(648 + c * 54, 88 + r * 54, str(big[r][c]), tints[(r // 2) * 2 + c // 2], size=46,
+                              font_size=17))
+    # The 2 operands and their outer product.
+    parts.append(rect(330, 78, 176, 150, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'))
+    for k, v in enumerate(["1", "5"]):
+        parts.append(cell(300, 124 + k * 52, v, "#bfe3f7"))
+    for k, v in enumerate(["1", "0"]):
+        parts.append(cell(390 + k * 60, 44, v, "#f7d9a0"))
+    for r, row in enumerate([["1", "0"], ["5", "0"]]):
+        for c, v in enumerate(row):
+            parts.append(cell(390 + c * 60, 124 + r * 52, v, "#c9d2fb", size=44))
+    parts += [label(300, 214, "A", 16, SNOW, font=MONO, weight=600),
+              label(540, 50, "B", 16, SNOW, font=MONO, weight=600),
+              crab(140, s=1.0, mood="happy", look=1),
+              tag(470, 268, "read 4 values, make 4 products", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+    return parts
+
+
+@plate("ch19", "Stencils and Jacobi Iteration", "Ripple the crab", "Ripple, a crab, stands on the sand "
+       "beside a grid of square cells, 6 across and 6 down. The top row is hot, 100, and coloured red; the other "
+       "edges are cold, 0, and blue. The inner cells shade from orange near the top to blue near the bottom, the "
+       "final temperatures of a heated plate. 1 inner cell and its 4 neighbours are outlined in white. A tag says "
+       "each cell becomes the mean of its 4 neighbours.")
+def ch19():
+    cols, rows, side = 6, 6, 44
+    grid = [[100.0] * cols] + [[0.0] * cols for _ in range(rows - 1)]
+    for _ in range(400):
+        grid = [grid[0]] + [[grid[r][c] if c in (0, cols - 1) or r == rows - 1 else
+                             0.25 * (grid[r - 1][c] + grid[r + 1][c] + grid[r][c - 1] + grid[r][c + 1])
+                             for c in range(cols)] for r in range(1, rows)]
+
+    x0, y0 = 560, 70
+    cells = []
+    for r in range(rows):
+        for c in range(cols):
+            t = grid[r][c]
+            ink = SNOW if t > 75 or t < 20 else NIGHT
+            cells.append(cell(x0 + c * side, y0 + r * side, f"{t:.0f}", heat(t), ink, 40, 14))
+
+    hx, hy = x0 + 2 * side, y0 + 2 * side
+    marks = [rect(hx + dx * side - 22, hy + dy * side - 22, 44, 44, "none", 7, SNOW, 3.5)
+             for dx, dy in ((0, 0), (-1, 0), (1, 0), (0, -1), (0, 1))]
+    ripples = [ellipse(300, GROUND + 22, 40 + 34 * k, 9 + 8 * k, "none",
+                       f'stroke="#ffffff" stroke-width="2.2" opacity="{0.55 - 0.15 * k:.2f}"')
+               for k in range(3)]
+
+    return [backdrop(seed=18, **SAND),
+            rect(x0 - 30, y0 - 30, cols * side + 16, rows * side + 16, "#0f1c2b", 12, "#6f8196", 3,
+                 'opacity="0.55"'),
+            *cells, *marks, *ripples,
+            crab(300, s=1.2, mood="happy", look=1),
+            tag(300, 92, "each cell: the mean of its 4 neighbours", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch20", "Tiled Stencils with Halo Cells", "Rim the hermit crab", "Rim, a hermit crab, carries on its "
+       "back a square frame of 4 by 4 cells: the 4 inner cells are blue and the ring of 12 cells around them is "
+       "amber, with the 4 corner cells grey. Behind it lies the sandy grid of a heated plate, with the same 4 by "
+       "4 square marked out where Rim lifted it. A tag says load the tile and its halo once.")
+def ch20():
+    cols, rows, side = 6, 6, 40
+    grid = [[100.0] * cols] + [[0.0] * cols for _ in range(rows - 1)]
+    grid = [grid[0]] + [[25.0 if r == 1 and 0 < c < cols - 1 else 0.0 for c in range(cols)]
+                        for r in range(1, rows)]
+
+    x0, y0 = 600, 84
+    cells = []
+    for r in range(rows):
+        for c in range(cols):
+            t = grid[r][c]
+            lifted = 1 <= r <= 4 and 1 <= c <= 4
+            fill = "#d9c08e" if lifted else heat(t)
+            ink = "#9c8558" if lifted else (SNOW if t > 75 or t < 20 else NIGHT)
+            cells.append(cell(x0 + c * side, y0 + r * side, "" if lifted else f"{t:.0f}", fill, ink,
+                              36, 13))
+    hole = rect(x0 + side - 20, y0 + side - 20, 4 * side, 4 * side, "none", 8, SNOW, 3,
+                'stroke-dasharray="8 6"')
+
+    cx, top, size = 300, 70, 32
+    tile = []
+    for r in range(4):
+        for c in range(4):
+            corner = r in (0, 3) and c in (0, 3)
+            inner = 1 <= r <= 2 and 1 <= c <= 2
+            fill = "#9fb3c8" if corner else ("#6fa8dc" if inner else "#f0b44c")
+            t = grid[r + 1][c + 1]
+            tile.append(cell(cx - 2 * size + c * size + size / 2, top + r * size + size / 2,
+                             f"{t:.0f}", fill, NIGHT, size - 4, 14))
+    frame = rect(cx - 2 * size - 6, top - 6, 4 * size + 12, 4 * size + 12, "#5a4210", 10, "#3a2a08", 3)
+
+    return [backdrop(seed=20, **SAND),
+            rect(x0 - 28, y0 - 28, cols * side + 16, rows * side + 16, "#0f1c2b", 12, "#6f8196", 3,
+                 'opacity="0.5"'),
+            *cells, hole,
+            frame, *tile,
+            crab(cx, s=1.15, mood="happy", look=1),
+            tag(720, 32, "load the tile and its halo once", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+def abacus(x, y, w, rows, frame="#8a5a32"):
+    """A wooden abacus: a frame, 1 rod per row, and on each rod `rows[k]` beads pushed left."""
+    rod_gap = 34
+    h = rod_gap * len(rows) + 22
+    parts = [rect(x, y, w, h, "none", 10, frame, 9)]
+    for k, count in enumerate(rows):
+        ry = y + 22 + k * rod_gap
+        parts.append(line(x + 8, ry, x + w - 8, ry, "#d9c08e", 3))
+        for b in range(6):
+            pushed = b < count
+            bx = x + 30 + b * 24 if pushed else x + w - 30 - (5 - b) * 24
+            fill = ("#f46a35", "#f5c542", "#4fb3d9", "#7cc77a")[k % 4] if pushed else "#cbb89a"
+            parts.append(ellipse(bx, ry, 11, 13, fill, f'stroke="#5a3d28" stroke-width="1.5"'))
+    return "\n".join(parts)
+
+
+@plate("ch21", "Scan and Stream Compaction", "Tally the crab", "Tally, a crab, stands on the sand in front "
+       "of a row of 8 numbered pebbles, 3, 1, 7, 0, 4, 1, 6, 3. Under each pebble a running total is chalked on "
+       "the sand: 3, 4, 11, 11, 15, 16, 22, 25. Tally holds a ninth pebble, the total 25, in one claw. A tag "
+       "reads each total adds the one before it: a scan.")
+def ch21():
+    values = [3, 1, 7, 0, 4, 1, 6, 3]
+    totals = [3, 4, 11, 11, 15, 16, 22, 25]
+    row = [cell(330 + 70 * k, 120, str(v), "#e6e0d2") for k, v in enumerate(values)]
+    chalk = [cell(330 + 70 * k, 222, str(t), "#c8f0d0", size=46, font_size=19) for k, t in enumerate(totals)]
+    arrows = [line(330 + 70 * k, 140, 330 + 70 * k, 194, "#fff6e2", 2.5, 'opacity="0.8"') for k in range(8)]
+    links = [line(330 + 70 * k + 25, 222, 330 + 70 * (k + 1) - 25, 222, "#fff6e2", 3, 'opacity="0.8"')
+             for k in range(7)]
+    return [backdrop(seed=19, **SAND),
+            rect(298, 92, 544, 56, "#0f1c2b", 12, "#6f8196", 3, 'opacity="0.45"'),
+            *row, *arrows, *links, *chalk,
+            crab(170, s=1.05, mood="happy", look=1),
+            cell(256, GROUND - 128, "25", "#c8f0d0", size=46, font_size=19),
+            tag(575, 52, "each total adds the one before it", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch22", "Radix Sort and Histograms", "Bins the crab", "Bins, a crab, stands on the sand beside 4 "
+       "crates labelled with the 2-bit digits 00, 01, 10 and 11. Chalked on each crate is the number of keys "
+       "with that digit, 1, 2, 3 and 2, and above each crate the place where its first key goes, 0, 1, 3 "
+       "and 6. Bins holds up a pebble marked 5, binary 101, on its way to crate 01. A tag reads count, scan, then "
+       "place.")
+def ch22():
+    parts = [backdrop(seed=22, **SAND)]
+    digits, counts, starts = ["00", "01", "10", "11"], [1, 2, 3, 2], [0, 1, 3, 6]
+    for k in range(4):
+        x = 330 + 150 * k
+        parts += [plain_crate(x, GROUND - 100, 120, 100, ("#c9a46a", "#b9c98a", "#a8c0d8", "#d8b0a0")[k]),
+                  tag(x + 60, GROUND - 120, digits[k], 17, "#fff6e2", "#2a1a10", MONO, 700),
+                  tag(x + 60, GROUND - 50, f"{counts[k]} key" + ("s" if counts[k] > 1 else ""), 15, "#ffffffdd", "#27405a", SANS, 700),
+                  tag(x + 60, 112, f"start {starts[k]}", 15, "#0f1c2bcc", "#fff6e2", MONO, 700)]
+    parts += [crab(175, s=1.05, mood="cute", look=1),
+              cell(276, GROUND - 150, "5", "#c8f0d0", size=40, font_size=19),
+              label(304, GROUND - 145, "101", 15, "#fff6e2", anchor="start", font=MONO),
+              tag(575, 52, "count, scan, then place", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+    return parts
+
+
+@plate("ch23", "Softmax and Layer Normalization", "Lumen the crab", "Lumen, a crab, stands on a beach at dusk "
+       "beside a rope of 4 paper lanterns marked 1, 2, 3 and 4. Each lantern shines in proportion to the exponential "
+       "of its number: the first glows faintly, and the last outshines the other 3 together. Tags under the "
+       "lanterns give their shares of the light, 3%, 9%, 24% and 64%, which add up to 100%: the softmax of 1, 2, "
+       "3 and 4.")
+def ch23():
+    logits = [1.0, 2.0, 3.0, 4.0]
+    exps = [math.exp(v) for v in logits]
+    shares = [v / sum(exps) for v in exps]
+    xs = [440, 560, 680, 800]
+    hang = lambda x: 72 + 128 * ((x - 360) / 520) * (1 - (x - 360) / 520)
+    lanterns = [paper_lantern(x, hang(x), share / max(shares)) for x, share in zip(xs, shares)]
+    tags = [tag(x, hang(x) + 128, f"{v:.0f}: {100 * share:.0f}%", 16, "#fff6e2", "#2a1a10", MONO, 700)
+            for x, v, share in zip(xs, logits, shares)]
+    return [backdrop(seed=20, **SHORE),
+            path("M360,72 Q620,136 880,72", stroke="#2a1d10", sw=3),
+            line(360, 72, 360, GROUND - 6, "#5a3d28", 6), line(880, 72, 880, GROUND - 6, "#5a3d28", 6),
+            *lanterns, *tags,
+            crab(190, s=1.1, mood="happy", look=1),
+            tag(620, 34, "each lantern's share: exp(x) / sum of exp", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+@plate("ch24", "Capstone: An Image Pipeline", "The whole crew", "The whole crew of crabs stands on a "
+       "beach at dusk in front of 4 framed pictures of the same scene, a house below a hill with the sun above. "
+       "The first picture is in colour, the second in gray, the third blurred, and the last shows only white "
+       "outlines on black. Arrows lead from each picture to the next, and a crab stands under each one, "
+       "labelled grayscale, equalise, blur and sobel. A tag reads 4 stages, many images in flight.")
+def ch24():
+    xs = [150, 340, 530, 720]
+    modes = ["color", "gray", "blur", "edges"]
+    names = ["grayscale", "equalise", "blur", "sobel"]
+    pictures, arrows, crabs = [], [], []
+
+    for k, (x, mode) in enumerate(zip(xs, modes)):
+        pictures.append(stage_picture(x, 92, mode, uid("stage")))
+        pictures.append(tag(x + 75, 220, names[k], 15, "#fff6e2", "#2a1a10", MONO, 700))
+        if k < 3:
+            arrows.append(path(f"M{x + 160},{142} L{x + 182},{142}", stroke=SNOW, sw=4))
+            arrows.append(path(f"M{x + 182},{134} L{x + 192},{142} L{x + 182},{150} Z", SNOW))
+
+    moods = [("happy", "hard"), ("cute", None), ("sleepy", None), ("happy", None)]
+    for k, (mood, hat) in enumerate(moods):
+        crabs.append(crab(xs[k] + 75, s=0.56, mood=mood, look=1, hat=hat))
+
+    return [backdrop(seed=21, **SHORE),
+            *pictures, *arrows, *crabs,
+            tag(480, 48, "4 stages, many images in flight", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch25", "Profiling & Debugging", "Lens the hawk", "Lens, a hawk, perches on a fence post at dusk "

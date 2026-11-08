@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 398" width="660" height="398" role="img" aria-label="8 warps each reduce their 32 values by shuffles, and lane 0 of each writes the result into its slot in shared memory. After barrier 1 every thread adds the 8 slots. Barrier 2 waits until every thread has read them, so that a later reduction may write the slots again.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="398" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The block reduction</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Shuffles within each warp, then 8 slots in shared memory.</text>
+  <rect x="16" y="96" width="628" height="286" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="85" width="208.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="138.5" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">BLOCK-WIDE SUM, 8 WARPS</text>
+  <rect x="36.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="69.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 0</text>
+  <path d="M69,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="36.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="69.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 0</text>
+  <rect x="110.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="143.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 1</text>
+  <path d="M143,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="110.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="143.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 1</text>
+  <rect x="184.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="217.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 2</text>
+  <path d="M217,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="184.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="217.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 2</text>
+  <rect x="258.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="291.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 3</text>
+  <path d="M291,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="258.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="291.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 3</text>
+  <rect x="332.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="365.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 4</text>
+  <path d="M365,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="332.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="365.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 4</text>
+  <rect x="406.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="439.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 5</text>
+  <path d="M439,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="406.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="439.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 5</text>
+  <rect x="480.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="513.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 6</text>
+  <path d="M513,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="480.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="513.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 6</text>
+  <rect x="554.0" y="128.0" width="66.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="587.0" y="146.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">warp 7</text>
+  <path d="M587,158 V183" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="554.0" y="186.0" width="66.0" height="28.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="587.0" y="204.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">slot 7</text>
+  <line x1="36.0" y1="232.0" x2="618.0" y2="232.0" stroke="#1B2430" stroke-width="2.4"/>
+  <text x="624.0" y="236.0" class="note" text-anchor="start" xml:space="preserve"></text>
+  <text x="36.0" y="252.0" class="note" text-anchor="start" xml:space="preserve">barrier 1: all 8 slots are written</text>
+  <rect x="36.0" y="268.0" width="582.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="327.0" y="286.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">every thread adds slot 0 + slot 1 + ... + slot 7</text>
+  <line x1="36.0" y1="316.0" x2="618.0" y2="316.0" stroke="#1B2430" stroke-width="2.4"/>
+  <text x="36.0" y="336.0" class="note" text-anchor="start" xml:space="preserve">barrier 2: all 8 slots are read; only now may the slots be reused</text>
+  <text x="36.0" y="362.0" class="note" text-anchor="start" xml:space="preserve">Inside a warp: 5 xor shuffles. Across warps: shared memory and 2 barriers.</text>
+</svg>

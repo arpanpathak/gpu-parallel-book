@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 294" width="640" height="294" role="img" aria-label="2 closures on the host: move |x, y| a * x + y, which captures a = 2 (4 bytes), and |x, y| x.max(y), which captures nothing (0 bytes). Each has its own type, and the compiler builds 1 kernel map for each type; the captured bytes travel as 1 kernel parameter. C++ lambdas and the template map&lt;F&gt; work the same way.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+  </defs>
+  <rect width="640" height="294" rx="12" fill="#FFFFFF"/>
+  <text x="20.0" y="26.0" font-size="12" fill="#8A94A3" text-anchor="start" font-weight="600" xml:space="preserve">host</text>
+  <text x="20.0" y="168.0" font-size="12" fill="#8A94A3" text-anchor="start" font-weight="600" xml:space="preserve">device code</text>
+  <rect x="60.0" y="40.0" width="250.0" height="70.0" rx="8" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.2"/>
+  <text x="185.0" y="64.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">move |x, y| a * x + y</text>
+  <text x="185.0" y="86.0" font-size="11.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">captures a = 2: 4 bytes</text>
+  <text x="185.0" y="102.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">1 closure type, no name</text>
+  <line x1="185.0" y1="111.0" x2="185.0" y2="178.0" stroke="#7275D6" stroke-width="1.4" marker-end="url(#m-blue)"/>
+  <text x="193.0" y="140.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">4 bytes as 1 kernel parameter</text>
+  <rect x="60.0" y="180.0" width="250.0" height="52.0" rx="8" fill="#FFFFFF" stroke="#7275D6" stroke-width="1.4"/>
+  <text x="185.0" y="202.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">map::&lt;type of the closure&gt;</text>
+  <text x="185.0" y="222.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">its own compiled kernel</text>
+  <rect x="340.0" y="40.0" width="250.0" height="70.0" rx="8" fill="#D5F0E6" stroke="#3F9F80" stroke-width="1.2"/>
+  <text x="465.0" y="64.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">|x, y| x.max(y)</text>
+  <text x="465.0" y="86.0" font-size="11.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">captures nothing: 0 bytes</text>
+  <text x="465.0" y="102.0" font-size="10.5" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">1 closure type, no name</text>
+  <line x1="465.0" y1="111.0" x2="465.0" y2="178.0" stroke="#3F9F80" stroke-width="1.4" marker-end="url(#m-mint)"/>
+  <text x="473.0" y="140.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">0 bytes as 1 kernel parameter</text>
+  <rect x="340.0" y="180.0" width="250.0" height="52.0" rx="8" fill="#FFFFFF" stroke="#3F9F80" stroke-width="1.4"/>
+  <text x="465.0" y="202.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">map::&lt;type of the closure&gt;</text>
+  <text x="465.0" y="222.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">its own compiled kernel</text>
+  <text x="20.0" y="260.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">C++ is the same: a lambda [a] __device__ (float x, float y) {...} has its own type,</text>
+  <text x="20.0" y="278.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">and the template map&lt;F&gt; is instantiated once per lambda type.</text>
+</svg>

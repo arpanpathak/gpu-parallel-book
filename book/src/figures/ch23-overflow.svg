@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 412" width="660" height="412" role="img" aria-label="Left: row 0 of X + 100 holds 101 to 104, whose exponentials 7.31e43 to 1.47e45 exceed the largest float32, 3.40e38, so each becomes infinity and every output is infinity divided by infinity, NaN. Right: after subtracting the maximum 104 the arguments are -3 to 0, the exponentials sum to 1.5530, and the outputs are 0.0321, 0.0871, 0.2369 and 0.6439, the same as for row 0 of X.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="412" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Overflow</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Subtracting the row maximum keeps every exponential between 0 and 1.</text>
+  <rect x="16" y="96" width="306" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="85" width="75.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="71.6" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">EXP(X)</text>
+  <rect x="338" y="96" width="306" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="356" y="85" width="122.4" height="22" rx="11" fill="#1B2430"/>
+  <text x="417.2" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">EXP(X − 104)</text>
+  <text x="66.0" y="130.0" class="mono" text-anchor="middle" xml:space="preserve">x</text>
+  <text x="158.0" y="130.0" class="mono" text-anchor="middle" xml:space="preserve">exact</text>
+  <text x="261.0" y="130.0" class="mono" text-anchor="middle" xml:space="preserve">float</text>
+  <text x="388.0" y="130.0" class="mono" text-anchor="middle" xml:space="preserve">x − m</text>
+  <text x="480.0" y="130.0" class="mono" text-anchor="middle" xml:space="preserve">exp</text>
+  <text x="583.0" y="130.0" class="mono" text-anchor="middle" xml:space="preserve">p</text>
+  <rect x="36.0" y="142.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="66.0" y="160.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">101</text>
+  <rect x="112.0" y="142.0" width="92.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="158.0" y="160.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">7.31e43</text>
+  <rect x="220.0" y="142.0" width="82.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="261.0" y="160.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">inf</text>
+  <rect x="358.0" y="142.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="388.0" y="160.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">-3</text>
+  <rect x="434.0" y="142.0" width="92.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="480.0" y="160.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0.0498</text>
+  <rect x="542.0" y="142.0" width="82.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="583.0" y="160.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0.0321</text>
+  <rect x="36.0" y="178.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="66.0" y="196.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">102</text>
+  <rect x="112.0" y="178.0" width="92.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="158.0" y="196.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1.99e44</text>
+  <rect x="220.0" y="178.0" width="82.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="261.0" y="196.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">inf</text>
+  <rect x="358.0" y="178.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="388.0" y="196.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">-2</text>
+  <rect x="434.0" y="178.0" width="92.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="480.0" y="196.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0.1353</text>
+  <rect x="542.0" y="178.0" width="82.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="583.0" y="196.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0.0871</text>
+  <rect x="36.0" y="214.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="66.0" y="232.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">103</text>
+  <rect x="112.0" y="214.0" width="92.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="158.0" y="232.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">5.40e44</text>
+  <rect x="220.0" y="214.0" width="82.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="261.0" y="232.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">inf</text>
+  <rect x="358.0" y="214.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="388.0" y="232.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">-1</text>
+  <rect x="434.0" y="214.0" width="92.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="480.0" y="232.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0.3679</text>
+  <rect x="542.0" y="214.0" width="82.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="583.0" y="232.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0.2369</text>
+  <rect x="36.0" y="250.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="66.0" y="268.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">104</text>
+  <rect x="112.0" y="250.0" width="92.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="158.0" y="268.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">1.47e45</text>
+  <rect x="220.0" y="250.0" width="82.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="261.0" y="268.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">inf</text>
+  <rect x="358.0" y="250.0" width="60.0" height="28.0" rx="5" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="388.0" y="268.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
+  <rect x="434.0" y="250.0" width="92.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="480.0" y="268.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">1.0000</text>
+  <rect x="542.0" y="250.0" width="82.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="583.0" y="268.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0.6439</text>
+  <rect x="112.0" y="290.0" width="190.0" height="28.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="207.0" y="308.0" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">inf ÷ inf = NaN</text>
+  <rect x="434.0" y="290.0" width="190.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="529.0" y="308.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">sum 1.5530</text>
+  <text x="36.0" y="346.0" class="note" text-anchor="start" xml:space="preserve">The largest float32 is 3.40e38, exp(88.72).</text>
+  <text x="36.0" y="364.0" class="note" text-anchor="start" xml:space="preserve">exp(101) = 7.31e43 rounds to infinity.</text>
+  <text x="358.0" y="346.0" class="note" text-anchor="start" xml:space="preserve">Every x − m is 0 or less, so every</text>
+  <text x="358.0" y="364.0" class="note" text-anchor="start" xml:space="preserve">exp lies in (0, 1] and cannot overflow.</text>
+</svg>
