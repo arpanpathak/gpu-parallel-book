@@ -152,19 +152,19 @@ along a column. The ring adds 1 cell on each of the two sides, which explains th
 \\(T_x + 2\\) and \\(T_y + 2\\). For the blocks of our programs, \\(T_x = 32\\) and \\(T_y = 8\\),
 so the tile is \\(34 \times 10\\), the size given in the example of Definition 20.1.
 
-Next, we need to know where each cell sits inside the tile. Let \\((top, left)\\) be the first cell
+Next, we need to know where each cell sits inside the tile. Let \\((\mathsf{top}, \mathsf{left})\\) be the first cell
 of the block, that is, its upper-left own cell. The tile starts 1 row above and 1 column to the left
-of this cell, at cell \\((top - 1, left - 1)\\). The block's cell \\((row, col)\\) therefore lies at
+of this cell, at cell \\((\mathsf{top} - 1, \mathsf{left} - 1)\\). The block's cell \\((\mathsf{row}, \mathsf{col})\\) therefore lies at
 tile position
 
 \\[ (row - top + 1,\\; col - left + 1). \\]
 
 | Symbol | Meaning | Block (1, 1), cell (2, 2) |
 |---|---|---|
-| \\(top, left\\) | row and column of the block's first own cell | 2, 2 |
-| \\(row, col\\) | row and column of a cell of the grid | 2, 2 |
-| \\(row - top + 1\\) | row of the cell inside the tile | \\(2 - 2 + 1 = 1\\) |
-| \\(col - left + 1\\) | column of the cell inside the tile | \\(2 - 2 + 1 = 1\\) |
+| \\(\mathsf{top}, \mathsf{left}\\) | row and column of the block's first own cell | 2, 2 |
+| \\(\mathsf{row}, \mathsf{col}\\) | row and column of a cell of the grid | 2, 2 |
+| \\(\mathsf{row} - \mathsf{top} + 1\\) | row of the cell inside the tile | \\(2 - 2 + 1 = 1\\) |
+| \\(\mathsf{col} - \mathsf{left} + 1\\) | column of the cell inside the tile | \\(2 - 2 + 1 = 1\\) |
 
 The 4 neighbors of the cell lie 1 position above, below, to the left and to the right of it in the
 tile. In block (1, 1), cell (2, 2) thus sits at tile position (1, 1), and its upper neighbor, cell
@@ -217,27 +217,27 @@ means 16 threads, of which 12 only load. In the programs, it means 34 × 10 = 34
 while the others compute.
 
 **A loading loop.** In the second way, the block keeps one thread per computed cell, and each thread
-loads several slots. We write \\((ty, tx)\\) for the row and column of a thread within its block.
-Thread \\((ty, tx)\\) starts at slot \\((ty, tx)\\) and moves down the tile in strides of \\(T_y\\)
+loads several slots. We write \\((\mathsf{ty}, \mathsf{tx})\\) for the row and column of a thread within its block.
+Thread \\((\mathsf{ty}, \mathsf{tx})\\) starts at slot \\((\mathsf{ty}, \mathsf{tx})\\) and moves down the tile in strides of \\(T_y\\)
 rows and across it in strides of \\(T_x\\) columns, loading every slot that it lands on, as long as
-the slot lies in the tile. Its rows are therefore \\(ty, ty + T_y, ty + 2T_y, \ldots\\), and its
-columns are \\(tx, tx + T_x, tx + 2T_x, \ldots\\). In the notation of modular arithmetic, these are
+the slot lies in the tile. Its rows are therefore \\(\mathsf{ty}, \mathsf{ty} + T_y, \mathsf{ty} + 2T_y, \ldots\\), and its
+columns are \\(\mathsf{tx}, \mathsf{tx} + T_x, \mathsf{tx} + 2T_x, \ldots\\). In the notation of modular arithmetic, these are
 the slots with
 
 \\[ i \equiv ty \pmod{T_y}, \qquad j \equiv tx \pmod{T_x}. \\]
 
 | Symbol | Meaning | Thread (0, 0) of block (1, 1) |
 |---|---|---|
-| \\(ty, tx\\) | row and column of the thread within its block | 0, 0 |
+| \\(\mathsf{ty}, \mathsf{tx}\\) | row and column of the thread within its block | 0, 0 |
 | \\((i, j)\\) | row and column of a slot of the tile | (0, 0), (0, 2), (2, 0), (2, 2) |
-| \\(i \equiv ty \pmod{T_y}\\) | \\(i\\) leaves the remainder \\(ty\\) when divided by \\(T_y\\) | \\(i = 0\\) or \\(2\\), with \\(T_y = 2\\) |
-| \\(j \equiv tx \pmod{T_x}\\) | \\(j\\) leaves the remainder \\(tx\\) when divided by \\(T_x\\) | \\(j = 0\\) or \\(2\\), with \\(T_x = 2\\) |
+| \\(i \equiv \mathsf{ty} \pmod{T_y}\\) | \\(i\\) leaves the remainder \\(\mathsf{ty}\\) when divided by \\(T_y\\) | \\(i = 0\\) or \\(2\\), with \\(T_y = 2\\) |
+| \\(j \equiv \mathsf{tx} \pmod{T_x}\\) | \\(j\\) leaves the remainder \\(\mathsf{tx}\\) when divided by \\(T_x\\) | \\(j = 0\\) or \\(2\\), with \\(T_x = 2\\) |
 
 In block (1, 1), thread (0, 0) therefore loads the slots (0, 0), (0, 2), (2, 0) and (2, 2), and
 in the same way each of the 4 threads loads 4 slots. With 32 × 8 threads and a tile of 34 × 10
-slots, the counts are less even. The row \\(i\\) takes the value \\(ty\\), and also \\(ty + 8\\)
-when \\(ty < 2\\), since the tile has only 10 rows. The column \\(j\\) takes the value \\(tx\\), and
-also \\(tx + 32\\) when \\(tx < 2\\), since the tile has only 34 columns. As a result, 180 threads
+slots, the counts are less even. The row \\(i\\) takes the value \\(\mathsf{ty}\\), and also \\(\mathsf{ty} + 8\\)
+when \\(\mathsf{ty} < 2\\), since the tile has only 10 rows. The column \\(j\\) takes the value \\(\mathsf{tx}\\), and
+also \\(\mathsf{tx} + 32\\) when \\(\mathsf{tx} < 2\\), since the tile has only 34 columns. As a result, 180 threads
 load 1 slot, 72 threads load 2 slots, and 4 threads load 4 slots, which accounts for all
 \\(180 + 144 + 16 = 340\\) slots. We let every thread compute a cell, but a few threads load more slots
 than the rest.
@@ -295,33 +295,33 @@ thread.
 <div class="algo">
 <p class="algo-name">Tiled-Jacobi-Kernel(\(u, v, W, H\))</p>
 <ol>
-<li>\(tx = \mathsf{threadIdx{.}x}\), \(ty = \mathsf{threadIdx{.}y}\)</li>
-<li>\(top = \mathsf{blockIdx{.}y} \cdot T_y\), \(left = \mathsf{blockIdx{.}x} \cdot T_x\)</li>
-<li><b class="kw">for</b> \(i = ty, ty + T_y, \ldots\) <b class="kw">while</b> \(i &lt; T_y + 2\) { <span class="c">// load the tile and its halo</span></li>
-<li style="--d:1"><b class="kw">for</b> \(j = tx, tx + T_x, \ldots\) <b class="kw">while</b> \(j &lt; T_x + 2\) {</li>
-<li style="--d:2">\(\mathsf{tile}[i][j] = u_{top+i-1,\, left+j-1}\) <b class="kw">if</b> that cell is in the grid, <b class="kw">else</b> 0</li>
+<li>\(\mathsf{tx} = \mathsf{threadIdx{.}x}\), \(\mathsf{ty} = \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{top} = \mathsf{blockIdx{.}y} \cdot T_y\), \(\mathsf{left} = \mathsf{blockIdx{.}x} \cdot T_x\)</li>
+<li><b class="kw">for</b> \(i = \mathsf{ty}, \mathsf{ty} + T_y, \ldots\) <b class="kw">while</b> \(i &lt; T_y + 2\) { <span class="c">// load the tile and its halo</span></li>
+<li style="--d:1"><b class="kw">for</b> \(j = \mathsf{tx}, \mathsf{tx} + T_x, \ldots\) <b class="kw">while</b> \(j &lt; T_x + 2\) {</li>
+<li style="--d:2">\(\mathsf{tile}[i][j] = u_{top+i-1,\, \mathsf{left}+j-1}\) <b class="kw">if</b> that cell is in the grid, <b class="kw">else</b> 0</li>
 <li style="--d:1">}</li>
 <li>}</li>
 <li><span class="sc">Barrier</span>() <span class="c">// wait until the whole tile is loaded</span></li>
-<li>\(row = top + ty\), \(col = left + tx\)</li>
-<li><b class="kw">if</b> \(row \in [1, H - 1)\) and \(col \in [1, W - 1)\) {</li>
-<li style="--d:1">\(v_{row,col} = (\mathsf{tile}[ty][tx{+}1] + \mathsf{tile}[ty{+}2][tx{+}1] + \mathsf{tile}[ty{+}1][tx] + \mathsf{tile}[ty{+}1][tx{+}2]) / 4\)</li>
+<li>\(\mathsf{row} = \mathsf{top} + \mathsf{ty}\), \(\mathsf{col} = \mathsf{left} + \mathsf{tx}\)</li>
+<li><b class="kw">if</b> \(\mathsf{row} \in [1, H - 1)\) and \(\mathsf{col} \in [1, W - 1)\) {</li>
+<li style="--d:1">\(v_{row,\mathsf{col}} = (\mathsf{tile}[\mathsf{ty}][\mathsf{tx}{+}1] + \mathsf{tile}[\mathsf{ty}{+}2][\mathsf{tx}{+}1] + \mathsf{tile}[\mathsf{ty}{+}1][\mathsf{tx}] + \mathsf{tile}[\mathsf{ty}{+}1][\mathsf{tx}{+}2]) / 4\)</li>
 <li>}</li>
 </ol>
 </div>
 
-Lines 1 and 2 compute the thread's position in the block and the first own cell \\((top, left)\\)
+Lines 1 and 2 compute the thread's position in the block and the first own cell \\((\mathsf{top}, \mathsf{left})\\)
 of the block. For block (1, 1) of the plate, with \\(T_x = T_y = 2\\), line 2 gives
-\\(top = 1 \cdot 2 = 2\\) and \\(left = 2\\). Lines 3 to 7 are the loading loop of Section 20.3.1.
-In line 5, slot \\((i, j)\\) receives the cell \\((top + i - 1, left + j - 1)\\), because the tile
+\\(\mathsf{top} = 1 \cdot 2 = 2\\) and \\(\mathsf{left} = 2\\). Lines 3 to 7 are the loading loop of Section 20.3.1.
+In line 5, slot \\((i, j)\\) receives the cell \\((\mathsf{top} + i - 1, \mathsf{left} + j - 1)\\), because the tile
 begins 1 row above and 1 column to the left of the first own cell. For example, thread (0, 1) of
 block (1, 1) loads slot (0, 1) with the cell \\((2 + 0 - 1, 2 + 1 - 1) = (1, 2)\\), whose value in
 step 2 is 25. Line 8 is the barrier.
 
 Lines 9 to 12 are Jacobi-Kernel of Chapter 19, with each read from \\(u\\) replaced by a read from
-the tile. The cell \\((row, col)\\) of the thread sits at tile position \\((ty + 1, tx + 1)\\), so
-its upper neighbor sits at \\((ty, tx + 1)\\), its lower neighbor at \\((ty + 2, tx + 1)\\), and
-its left and right neighbors at \\((ty + 1, tx)\\) and \\((ty + 1, tx + 2)\\). For thread (0, 0)
+the tile. The cell \\((\mathsf{row}, \mathsf{col})\\) of the thread sits at tile position \\((\mathsf{ty} + 1, \mathsf{tx} + 1)\\), so
+its upper neighbor sits at \\((\mathsf{ty}, \mathsf{tx} + 1)\\), its lower neighbor at \\((\mathsf{ty} + 2, \mathsf{tx} + 1)\\), and
+its left and right neighbors at \\((\mathsf{ty} + 1, \mathsf{tx})\\) and \\((\mathsf{ty} + 1, \mathsf{tx} + 2)\\). For thread (0, 0)
 of block (1, 1), these are the positions (0, 1), (2, 1), (1, 0) and (1, 2) of Figure 20.3. Note that
 the barrier in line 8 lies outside every condition, so every thread of the block reaches it,
 including the threads whose cell is on the boundary or outside the grid. The host loop is
@@ -484,25 +484,25 @@ Tiled-Jacobi-Kernel writes the same value into every cell of \\(v\\) as Jacobi-K
 
 <div class="proof">
 
-*Proof.* Fix a block with first cell \\((top, left)\\). We show three facts.
+*Proof.* Fix a block with first cell \\((\mathsf{top}, \mathsf{left})\\). We show three facts.
 
-*Every slot is loaded once, with the old value.* The loops of lines 3 to 7 let thread \\((ty, tx)\\)
-store slot \\((i, j)\\) exactly when \\(i \equiv ty \pmod{T_y}\\) and \\(j \equiv tx \pmod{T_x}\\).
+*Every slot is loaded once, with the old value.* The loops of lines 3 to 7 let thread \\((\mathsf{ty}, \mathsf{tx})\\)
+store slot \\((i, j)\\) exactly when \\(i \equiv \mathsf{ty} \pmod{T_y}\\) and \\(j \equiv \mathsf{tx} \pmod{T_x}\\).
 Each slot \\((i, j)\\) of the \\((T_y + 2) \times (T_x + 2)\\) tile has exactly 1 such thread,
 namely \\((i \bmod T_y, j \bmod T_x)\\). For example, with \\(T_x = T_y = 2\\), slot (2, 3) is
 stored by thread \\((2 \bmod 2, 3 \bmod 2) = (0, 1)\\). That thread stores
-\\(u_{top+i-1,\,left+j-1}\\) if the cell is in the grid. No thread of the launch writes \\(u\\),
+\\(u_{top+i-1,\,\mathsf{left}+j-1}\\) if the cell is in the grid. No thread of the launch writes \\(u\\),
 because \\(u\\) and \\(v\\) are different buffers, so the stored value is the old value.
 
 *Every load finishes before any read.* The barrier of line 8 lies outside every condition, so every
 thread of the block reaches it. No thread passes it before all threads have finished lines 3 to 7,
 and their stores are then visible to the whole block. The tile is not written after line 8.
 
-*The reads are the right ones.* Let \\((row, col) = (top + ty, left + tx)\\) be an interior cell.
-Tile position \\((ty, tx + 1)\\) holds the cell \\((top + ty - 1, left + tx) = (row - 1, col)\\),
-the upper neighbor; in the same way, \\((ty + 2, tx + 1)\\), \\((ty + 1, tx)\\) and
-\\((ty + 1, tx + 2)\\) hold the lower, left and right neighbors. All 4 lie in the grid, because
-\\((row, col)\\) is interior, so their slots hold old values and not the 0 of line 5. Line 11
+*The reads are the right ones.* Let \\((\mathsf{row}, \mathsf{col}) = (\mathsf{top} + \mathsf{ty}, \mathsf{left} + \mathsf{tx})\\) be an interior cell.
+Tile position \\((\mathsf{ty}, \mathsf{tx} + 1)\\) holds the cell \\((\mathsf{top} + \mathsf{ty} - 1, \mathsf{left} + \mathsf{tx}) = (\mathsf{row} - 1, \mathsf{col})\\),
+the upper neighbor; in the same way, \\((\mathsf{ty} + 2, \mathsf{tx} + 1)\\), \\((\mathsf{ty} + 1, \mathsf{tx})\\) and
+\\((\mathsf{ty} + 1, \mathsf{tx} + 2)\\) hold the lower, left and right neighbors. All 4 lie in the grid, because
+\\((\mathsf{row}, \mathsf{col})\\) is interior, so their slots hold old values and not the 0 of line 5. Line 11
 therefore adds the same 4 values, in the same order, as line 3 of Jacobi-Kernel and writes the same
 result. Cells that are not interior are written by neither kernel.
 
@@ -607,10 +607,10 @@ mod kernels {
 </div>
 </div>
 
-In this kernel, the thread at position \\((ty, tx)\\) of the block no longer owns cell
-\\((top + ty, left + tx)\\). Instead, it owns slot \\((ty, tx)\\), which holds cell
-\\((top + ty - 1, left + tx - 1)\\). Thread (0, 0), for example, owns the corner slot of the halo,
-and thread (1, 1) owns the block's first own cell \\((top, left)\\). The launch contract of the
+In this kernel, the thread at position \\((\mathsf{ty}, \mathsf{tx})\\) of the block no longer owns cell
+\\((\mathsf{top} + \mathsf{ty}, \mathsf{left} + \mathsf{tx})\\). Instead, it owns slot \\((\mathsf{ty}, \mathsf{tx})\\), which holds cell
+\\((\mathsf{top} + \mathsf{ty} - 1, \mathsf{left} + \mathsf{tx} - 1)\\). Thread (0, 0), for example, owns the corner slot of the halo,
+and thread (1, 1) owns the block's first own cell \\((\mathsf{top}, \mathsf{left})\\). The launch contract of the
 Rust kernel states the new block shape, `block = (34, 10, 1)`. Because the thread's position is no
 longer its cell, `index_2d_runtime` and `get_mut` no longer apply, and the Rust kernel writes with
 `get_unchecked_mut(r * width + c)`. Its `// SAFETY:` comment gives the argument that the type
@@ -647,7 +647,7 @@ direct kernel in every bit. The third kernel, `4 steps per load`, is the subject
 Exercises
 
 20.12 Rewrite the loading loop of Listing 20.1 as a single loop over the slot number
-\\(k = ty \cdot 32 + tx, k + 256, \ldots\\), with \\(i = k / 34\\) and \\(j = k \bmod 34\\). Which
+\\(k = \mathsf{ty} \cdot 32 + \mathsf{tx}, k + 256, \ldots\\), with \\(i = k / 34\\) and \\(j = k \bmod 34\\). Which
 threads now load 2 slots? Measure the two versions.<br>
 20.13 In the Rust extra-threads kernel, which fact of the proof of Theorem 20.1 does the
 `// SAFETY:` comment of the final write rely on?
@@ -790,15 +790,15 @@ tile, and \\(A\\) and \\(B\\) are the 2 tiles in shared memory.
 <p class="algo-name">Temporal-Jacobi-Kernel(\(u, v, W, H\))</p>
 <ol>
 <li>\((r, c)\) = cell of this thread, \(K\) cells before the block's first own cell</li>
-<li>\(A[ty][tx] = u_{r,c}\) <b class="kw">if</b> \((r, c)\) is in the grid, <b class="kw">else</b> 0</li>
+<li>\(A[\mathsf{ty}][\mathsf{tx}] = u_{r,c}\) <b class="kw">if</b> \((r, c)\) is in the grid, <b class="kw">else</b> 0</li>
 <li><span class="sc">Barrier</span>()</li>
 <li><b class="kw">for</b> \(s \in [1, K]\) { <span class="c">// src = A, dst = B for odd s, the reverse for even s</span></li>
-<li style="--d:1"><b class="kw">if</b> \(tx, ty \in [s, 32 - s)\) {</li>
-<li style="--d:2">\(\mathsf{dst}[ty][tx]\) = mean of the 4 neighbors in \(\mathsf{src}\) <b class="kw">if</b> \((r, c)\) is interior, <b class="kw">else</b> \(\mathsf{src}[ty][tx]\)</li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{tx}, \mathsf{ty} \in [s, 32 - s)\) {</li>
+<li style="--d:2">\(\mathsf{dst}[\mathsf{ty}][\mathsf{tx}]\) = mean of the 4 neighbors in \(\mathsf{src}\) <b class="kw">if</b> \((r, c)\) is interior, <b class="kw">else</b> \(\mathsf{src}[\mathsf{ty}][\mathsf{tx}]\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
-<li><b class="kw">if</b> \(tx, ty \in [K, 32 - K)\) and \((r, c)\) is interior { \(v_{r,c}\) = the tile written in step \(K\) at \([ty][tx]\) }</li>
+<li><b class="kw">if</b> \(\mathsf{tx}, \mathsf{ty} \in [K, 32 - K)\) and \((r, c)\) is interior { \(v_{r,c}\) = the tile written in step \(K\) at \([\mathsf{ty}][\mathsf{tx}]\) }</li>
 </ol>
 </div>
 
@@ -822,13 +822,13 @@ cell of \\(v\\).
 <div class="proof">
 
 *Proof.* We show that the loop of lines 4 to 9 maintains the invariant: at the start of pass \\(s\\),
-for every position \\((ty, tx)\\) with \\(tx, ty \in [s - 1, 33 - s)\\) whose cell lies in the
+for every position \\((\mathsf{ty}, \mathsf{tx})\\) with \\(\mathsf{tx}, \mathsf{ty} \in [s - 1, 33 - s)\\) whose cell lies in the
 grid, the tile \\(\mathsf{src}\\) holds \\(u^{(k+s-1)}\\) of that cell.
 
 *Initialization.* At \\(s = 1\\) the region is the whole tile, and line 2 stored \\(u^{(k)}\\) in
 every position whose cell is in the grid; the barrier of line 3 makes the stores visible.
 
-*Maintenance.* Let \\((ty, tx)\\) lie in \\([s, 32 - s)\\) with its cell in the grid. If the cell is
+*Maintenance.* Let \\((\mathsf{ty}, \mathsf{tx})\\) lie in \\([s, 32 - s)\\) with its cell in the grid. If the cell is
 interior, its 4 neighbors lie at positions in \\([s - 1, 33 - s)\\) and in the grid, so by the
 invariant line 6 reads 4 values of \\(u^{(k+s-1)}\\) and stores \\(u^{(k+s)}\\). If the cell is a
 boundary cell, line 6 copies its value, which is the same in every step. The 2 tiles are different

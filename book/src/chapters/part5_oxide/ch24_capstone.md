@@ -161,35 +161,35 @@ the width or the height. For example, with \\(n = 8\\), \\(\mathrm{clamp}(-2, 8)
 \\(w = (1, 4, 6, 4, 1)\\), and we explain them in Section 24.5.
 
 <div class="algo">
-<p class="algo-name">Image-Pipeline(\(rgb, W, H\))</p>
+<p class="algo-name">Image-Pipeline(\(\mathsf{rgb}, W, H\))</p>
 <ol>
 <li><b class="kw">for</b> \(p \in [0, WH)\) {</li>
-<li style="--d:1">\(gray[p] = (77\, rgb[3p] + 150\, rgb[3p+1] + 29\, rgb[3p+2] + 128) \gg 8\)</li>
+<li style="--d:1">\(\mathsf{gray}[p] = (77\, \mathsf{rgb}[3p] + 150\, \mathsf{rgb}[3p+1] + 29\, \mathsf{rgb}[3p+2] + 128) \gg 8\)</li>
 <li>}</li>
-<li>\(bins[v] = 0\) <b class="kw">for</b> every \(v \in [0, 256)\)</li>
+<li>\(\mathsf{bins}[v] = 0\) <b class="kw">for</b> every \(v \in [0, 256)\)</li>
 <li><b class="kw">for</b> \(p \in [0, WH)\) {</li>
-<li style="--d:1">\(bins[gray[p]] = bins[gray[p]] + 1\) <span class="c">// histogram</span></li>
+<li style="--d:1">\(\mathsf{bins}[\mathsf{gray}[p]] = \mathsf{bins}[\mathsf{gray}[p]] + 1\) <span class="c">// histogram</span></li>
 <li>}</li>
 <li>\(c = 0\)</li>
 <li><b class="kw">for</b> \(v \in [0, 256)\) {</li>
-<li style="--d:1">\(c = c + bins[v]\), \(\;cdf[v] = c\) <span class="c">// scan</span></li>
+<li style="--d:1">\(c = c + \mathsf{bins}[v]\), \(\;\mathsf{cdf}[v] = c\) <span class="c">// scan</span></li>
 <li>}</li>
-<li>\(c_{\min} = cdf[v]\) <b class="kw">for</b> the lowest \(v\) with \(bins[v] > 0\), \(\;s = WH - c_{\min}\)</li>
+<li>\(c_{\min} = \mathsf{cdf}[v]\) <b class="kw">for</b> the lowest \(v\) with \(\mathsf{bins}[v] > 0\), \(\;s = WH - c_{\min}\)</li>
 <li><b class="kw">for</b> \(v \in [0, 256)\) {</li>
-<li style="--d:1">\(table[v] = \lfloor (\max(cdf[v] - c_{\min}, 0) \cdot 255 + \lfloor s/2 \rfloor) / s \rfloor\)</li>
+<li style="--d:1">\(\mathsf{table}[v] = \lfloor (\max(\mathsf{cdf}[v] - c_{\min}, 0) \cdot 255 + \lfloor s/2 \rfloor) / s \rfloor\)</li>
 <li>}</li>
 <li><b class="kw">for</b> \(p \in [0, WH)\) {</li>
-<li style="--d:1">\(equal[p] = table[gray[p]]\)</li>
+<li style="--d:1">\(\mathsf{equal}[p] = \mathsf{table}[\mathsf{gray}[p]]\)</li>
 <li>}</li>
 <li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
-<li style="--d:1">\(rows[y][x] = \sum_{j \in [0,5)} w_j \cdot equal[y][\mathrm{clamp}(x + j - 2, W)]\)</li>
+<li style="--d:1">\(\mathsf{rows}[y][x] = \sum_{j \in [0,5)} w_j \cdot \mathsf{equal}[y][\mathrm{clamp}(x + j - 2, W)]\)</li>
 <li>}</li>
 <li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
-<li style="--d:1">\(blurred[y][x] = (\sum_{i \in [0,5)} w_i \cdot rows[\mathrm{clamp}(y + i - 2, H)][x] + 128) \gg 8\)</li>
+<li style="--d:1">\(\mathsf{blurred}[y][x] = (\sum_{i \in [0,5)} w_i \cdot \mathsf{rows}[\mathrm{clamp}(y + i - 2, H)][x] + 128) \gg 8\)</li>
 <li>}</li>
 <li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
-<li style="--d:1">\((g_x, g_y) = \) <span class="sc">Sobel</span>\((blurred, x, y)\)</li>
-<li style="--d:1">\(edges[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
+<li style="--d:1">\((g_x, g_y) = \) <span class="sc">Sobel</span>\((\mathsf{blurred}, x, y)\)</li>
+<li style="--d:1">\(\mathsf{edges}[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -219,14 +219,14 @@ CPU cores at 38 to 51 images per second.
 
 ### 24.2.3 What each line depends on
 
-The sequential order of the loops hides how little most lines need. Line 2 computes \\(gray[p]\\)
-from the 3 bytes of pixel \\(p\\) and from nothing else. Line 17 reads \\(gray[p]\\) and 1 entry of a
+The sequential order of the loops hides how little most lines need. Line 2 computes \\(\mathsf{gray}[p]\\)
+from the 3 bytes of pixel \\(p\\) and from nothing else. Line 17 reads \\(\mathsf{gray}[p]\\) and 1 entry of a
 table of 256 bytes. Line 20 reads 5 pixels of 1 row, line 23 reads 5 row sums of 1 column, and line
 26 reads the 3 × 3 pixels around \\((x, y)\\). For each of these lines, every output could be computed
 at the same time as every other output, as soon as its few inputs exist.
 
-Lines 4 to 14 are different. The table entry of line 14 needs \\(cdf[v]\\), which counts every pixel
-of the image with a level of at most \\(v\\). For example, \\(cdf[112] = 32\\) counts the 16 pixels of
+Lines 4 to 14 are different. The table entry of line 14 needs \\(\mathsf{cdf}[v]\\), which counts every pixel
+of the image with a level of at most \\(v\\). For example, \\(\mathsf{cdf}[112] = 32\\) counts the 16 pixels of
 level 96 and the 16 pixels of level 112, wherever they lie in the image. No entry of the table, and
 therefore no pixel of the equalized image, can be computed until the histogram of the whole image is
 complete.
@@ -311,12 +311,12 @@ converts pixel \\((3, 0)\\).
 </div>
 
 <div class="algo">
-<p class="algo-name">Gray-Kernel(\(rgb, gray, W, H\))</p>
+<p class="algo-name">Gray-Kernel(\(\mathsf{rgb}, \mathsf{gray}, W, H\))</p>
 <ol>
 <li>\(i = blockIdx.x \cdot blockDim.x + threadIdx.x\)</li>
 <li><b class="kw">if</b> \(i \in [0, WH)\) {</li>
-<li style="--d:1">\(r = rgb[3i]\), \(\;g = rgb[3i + 1]\), \(\;b = rgb[3i + 2]\) <span class="c">// 3 reads</span></li>
-<li style="--d:1">\(gray[i] = (77r + 150g + 29b + 128) \gg 8\) <span class="c">// 1 write</span></li>
+<li style="--d:1">\(r = \mathsf{rgb}[3i]\), \(\;g = \mathsf{rgb}[3i + 1]\), \(\;b = \mathsf{rgb}[3i + 2]\) <span class="c">// 3 reads</span></li>
+<li style="--d:1">\(\mathsf{gray}[i] = (77r + 150g + 29b + 128) \gg 8\) <span class="c">// 1 write</span></li>
 <li>}</li>
 </ol>
 </div>
@@ -419,11 +419,11 @@ quantities, which we now define.
 
 <span class="box-label">Definition 24.5</span> **Histogram and cumulative count.** The **histogram**
 of a gray image counts, for each level \\(v \in [0, 256)\\), the pixels whose level is \\(v\\); we
-call the counts \\(bins[v]\\). The **cumulative count** \\(c(v)\\) is the number of pixels whose
-level is at most \\(v\\), \\(c(v) = \sum_{u \le v} bins[u]\\). The sequence \\(c\\) is the
+call the counts \\(\mathsf{bins}[v]\\). The **cumulative count** \\(c(v)\\) is the number of pixels whose
+level is at most \\(v\\), \\(c(v) = \sum_{u \le v} \mathsf{bins}[u]\\). The sequence \\(c\\) is the
 **inclusive scan** of the histogram (Chapter 21).
 
-*Example.* The gray image of Figure 24.1 has \\(bins[96] = bins[112] = bins[120] = bins[144] = 16\\)
+*Example.* The gray image of Figure 24.1 has \\(\mathsf{bins}[96] = \mathsf{bins}[112] = \mathsf{bins}[120] = \mathsf{bins}[144] = 16\\)
 and every other count 0. Its cumulative counts are \\(c(96) = 16\\), \\(c(112) = 32\\), \\(c(120) =
 48\\) and \\(c(144) = 64\\).
 
@@ -505,17 +505,17 @@ Each block of the histogram kernel counts into its own 256 counters in shared me
 them to the global counters only once, at the end. The following procedure gives the details.
 
 <div class="algo">
-<p class="algo-name">Histogram-Kernel(\(gray, bins, N\))</p>
+<p class="algo-name">Histogram-Kernel(\(\mathsf{gray}, \mathsf{bins}, N\))</p>
 <ol>
 <li>\(t = threadIdx.x\)</li>
-<li>\(local[t] = 0\) <span class="c">// 256 threads clear 256 counters</span></li>
+<li>\(\mathsf{local}[t] = 0\) <span class="c">// 256 threads clear 256 counters</span></li>
 <li><span class="sc">Barrier</span>()</li>
 <li><b class="kw">for</b> \(i = blockIdx.x \cdot 256 + t\); \(i &lt; N\); \(i = i + gridDim.x \cdot 256\) {</li>
-<li style="--d:1"><span class="sc">Atomic-Add</span>\((local[gray[i]], 1)\) <span class="c">// shared memory</span></li>
+<li style="--d:1"><span class="sc">Atomic-Add</span>\((\mathsf{local}[\mathsf{gray}[i]], 1)\) <span class="c">// shared memory</span></li>
 <li>}</li>
 <li><span class="sc">Barrier</span>()</li>
-<li><b class="kw">if</b> \(local[t] > 0\) {</li>
-<li style="--d:1"><span class="sc">Atomic-Add</span>\((bins[t], local[t])\) <span class="c">// global memory</span></li>
+<li><b class="kw">if</b> \(\mathsf{local}[t] > 0\) {</li>
+<li style="--d:1"><span class="sc">Atomic-Add</span>\((\mathsf{bins}[t], \mathsf{local}[t])\) <span class="c">// global memory</span></li>
 <li>}</li>
 </ol>
 </div>
@@ -572,41 +572,41 @@ small, so a single block of 256 threads computes it, with thread \\(v\\) respons
 and then scans the 8 warp totals.
 
 <div class="algo">
-<p class="algo-name">Table-Kernel(\(bins, table\))</p>
+<p class="algo-name">Table-Kernel(\(\mathsf{bins}, \mathsf{table}\))</p>
 <ol>
-<li>\(v = threadIdx.x\), \(\;lane = v \bmod 32\), \(\;w = \lfloor v / 32 \rfloor\)</li>
-<li>\(count = \) <span class="sc">Atomic-Exchange</span>\((bins[v], 0)\) <span class="c">// read and clear</span></li>
-<li>\(s = \) <span class="sc">Warp-Scan</span>\((count)\) <span class="c">// inclusive, within the warp</span></li>
-<li><b class="kw">if</b> \(lane = 31\) { \(warps[w] = s\) }</li>
-<li><b class="kw">if</b> \(v = 0\) { \(first = \infty\) }</li>
+<li>\(v = threadIdx.x\), \(\;\mathsf{lane} = v \bmod 32\), \(\;w = \lfloor v / 32 \rfloor\)</li>
+<li>\(\mathsf{count} = \) <span class="sc">Atomic-Exchange</span>\((\mathsf{bins}[v], 0)\) <span class="c">// read and clear</span></li>
+<li>\(s = \) <span class="sc">Warp-Scan</span>\((\mathsf{count})\) <span class="c">// inclusive, within the warp</span></li>
+<li><b class="kw">if</b> \(\mathsf{lane} = 31\) { \(\mathsf{warps}[w] = s\) }</li>
+<li><b class="kw">if</b> \(v = 0\) { \(\mathsf{first} = \infty\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li><b class="kw">if</b> \(w = 0\) and \(lane &lt; 8\) { \(warps[lane] = \) <span class="sc">Warp-Scan</span>\((warps[lane])\) }</li>
+<li><b class="kw">if</b> \(w = 0\) and \(\mathsf{lane} &lt; 8\) { \(\mathsf{warps}[\mathsf{lane}] = \) <span class="sc">Warp-Scan</span>\((\mathsf{warps}[\mathsf{lane}])\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(c = s + warps[w - 1]\) <b class="kw">if</b> \(w > 0\), <b class="kw">else</b> \(c = s\) <span class="c">// c = c(v)</span></li>
-<li><b class="kw">if</b> \(count > 0\) { <span class="sc">Atomic-Min</span>\((first, c)\) }</li>
+<li>\(c = s + \mathsf{warps}[w - 1]\) <b class="kw">if</b> \(w > 0\), <b class="kw">else</b> \(c = s\) <span class="c">// c = c(v)</span></li>
+<li><b class="kw">if</b> \(\mathsf{count} > 0\) { <span class="sc">Atomic-Min</span>\((\mathsf{first}, c)\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(span = warps[7] - first\)</li>
-<li>\(table[v] = \lfloor (\max(c - first, 0) \cdot 255 + \lfloor span/2 \rfloor) / span \rfloor\)</li>
+<li>\(\mathsf{span} = \mathsf{warps}[7] - \mathsf{first}\)</li>
+<li>\(\mathsf{table}[v] = \lfloor (\max(c - \mathsf{first}, 0) \cdot 255 + \lfloor \mathsf{span}/2 \rfloor) / \mathsf{span} \rfloor\)</li>
 </ol>
 </div>
 
-In the procedure, \\(lane\\) is the position of thread \\(v\\) in its warp and \\(w\\) the number of
-its warp; for thread 112, for example, \\(lane = 16\\) and \\(w = 3\\). The array \\(warps\\) in
-shared memory holds the 8 warp totals, and \\(first\\) receives the smallest cumulative count of a
+In the procedure, \\(\mathsf{lane}\\) is the position of thread \\(v\\) in its warp and \\(w\\) the number of
+its warp; for thread 112, for example, \\(\mathsf{lane} = 16\\) and \\(w = 3\\). The array \\(\mathsf{warps}\\) in
+shared memory holds the 8 warp totals, and \\(\mathsf{first}\\) receives the smallest cumulative count of a
 level in use, which is \\(c_{\min}\\).
 
 Let us follow the example. The 4 levels in use belong to 2 warps. Warp 3 holds threads 96 to 127,
 and its scan gives 16 at lane 0 (level 96), 32 at lane 16 (level 112), and 48 from lane 24 (level
-120) to lane 31, so \\(warps[3] = 48\\). Warp 4 holds level 144 at lane 16, so \\(warps[4] = 16\\).
+120) to lane 31, so \\(\mathsf{warps}[3] = 48\\). Warp 4 holds level 144 at lane 16, so \\(\mathsf{warps}[4] = 16\\).
 After line 7, the scanned warp totals are 0, 0, 0, 48, 64, 64, 64 and 64, and line 9 gives thread
-144 the count \\(c = 16 + 48 = 64\\). Line 10 leaves \\(first = 16\\), the smallest cumulative count
+144 the count \\(c = 16 + 48 = 64\\). Line 10 leaves \\(\mathsf{first} = 16\\), the smallest cumulative count
 among the 4 levels in use, which is \\(c_{\min}\\). The total number of pixels is the last warp
-total, \\(warps[7] = 64\\), so the kernel needs no parameter for \\(N\\).
+total, \\(\mathsf{warps}[7] = 64\\), so the kernel needs no parameter for \\(N\\).
 
 Line 2 reads each count with an atomic exchange, which returns the old value and stores 0. The kernel
 therefore leaves the global histogram cleared for the next image, and the pipeline needs no separate
 launch to clear it. In the programs, line 13 works in 64-bit integers, because
-\\(\max(c - first, 0) \cdot 255\\) reaches \\(2{,}073{,}600 \cdot 255 = 528{,}768{,}000\\) for the
+\\(\max(c - \mathsf{first}, 0) \cdot 255\\) reaches \\(2{,}073{,}600 \cdot 255 = 528{,}768{,}000\\) for the
 large image, which is close to the limit of a 32-bit integer. Line 12 gives a span of 0 for an image
 of a single level, and in that case, the programs keep every level unchanged.
 
@@ -682,7 +682,7 @@ and 1 of the 2 pixels is lost.
 </figure>
 
 On the example, 16 threads of 1 block count the 16 sky pixels, all of them of level 144. If they
-lose any of their additions, \\(bins[144]\\) ends below 16, the total \\(warps[7]\\) ends below 64,
+lose any of their additions, \\(\mathsf{bins}[144]\\) ends below 16, the total \\(\mathsf{warps}[7]\\) ends below 64,
 and the table changes. We ran the C++ program with this 1 change, and it printed the following
 report.
 
@@ -865,16 +865,16 @@ slots 3 to 7, which hold pixels 1 to 5.
 </figure>
 
 <div class="algo">
-<p class="algo-name">Blur-Rows(\(src, rows, W\))</p>
+<p class="algo-name">Blur-Rows(\(\mathsf{src}, \mathsf{rows}, W\))</p>
 <ol>
 <li>\(t = threadIdx.x\), \(\;x_0 = blockIdx.x \cdot T\), \(\;y = blockIdx.y\)</li>
-<li>\(tile[t + 2] = src[y][\mathrm{clamp}(x_0 + t, W)]\) <span class="c">// own pixel</span></li>
+<li>\(\mathsf{tile}[t + 2] = \mathsf{src}[y][\mathrm{clamp}(x_0 + t, W)]\) <span class="c">// own pixel</span></li>
 <li><b class="kw">if</b> \(t &lt; 2\) {</li>
-<li style="--d:1">\(tile[t] = src[y][\mathrm{clamp}(x_0 + t - 2, W)]\) <span class="c">// left halo</span></li>
-<li style="--d:1">\(tile[T + 2 + t] = src[y][\mathrm{clamp}(x_0 + T + t, W)]\) <span class="c">// right halo</span></li>
+<li style="--d:1">\(\mathsf{tile}[t] = \mathsf{src}[y][\mathrm{clamp}(x_0 + t - 2, W)]\) <span class="c">// left halo</span></li>
+<li style="--d:1">\(\mathsf{tile}[T + 2 + t] = \mathsf{src}[y][\mathrm{clamp}(x_0 + T + t, W)]\) <span class="c">// right halo</span></li>
 <li>}</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(rows[y][x_0 + t] = \sum_{k \in [0,5)} w_k \cdot tile[t + k]\)</li>
+<li>\(\mathsf{rows}[y][x_0 + t] = \sum_{k \in [0,5)} w_k \cdot \mathsf{tile}[t + k]\)</li>
 </ol>
 </div>
 
@@ -929,7 +929,7 @@ now prove that this is the case.
 <div class="theorem">
 
 <span class="box-label">Theorem 24.2</span> After the barrier of line 7 of Blur-Rows, slot \\(s\\)
-of the tile holds \\(src[y][\mathrm{clamp}(x_0 + s - 2, W)]\\) for every \\(s \in [0, T + 4)\\), and
+of the tile holds \\(\mathsf{src}[y][\mathrm{clamp}(x_0 + s - 2, W)]\\) for every \\(s \in [0, T + 4)\\), and
 line 8 computes the row sum \\(R(x_0 + t, y)\\) of Theorem 24.1.
 
 </div>
@@ -943,7 +943,7 @@ so every slot is written exactly once, and each write stores the pixel \\(x_0 + 
 for its slot \\(s\\). No thread passes the barrier of line 7 before every thread has finished lines
 2 to 6, so every slot holds its value before any thread reads. After the barrier, the tile is only
 read. Thread \\(t\\) reads slots \\(t + k\\) for \\(k \in [0, 5)\\), which hold
-\\(src[y][\mathrm{clamp}(x_0 + t + k - 2, W)]\\), and line 8 adds them with the weights \\(w_k\\),
+\\(\mathsf{src}[y][\mathrm{clamp}(x_0 + t + k - 2, W)]\\), and line 8 adds them with the weights \\(w_k\\),
 which is \\(R(x_0 + t, y)\\).
 
 </div>
@@ -1079,13 +1079,13 @@ gives each output pixel a thread. In the following procedure, \\(p(r, c)\\) is t
 blurred image in row \\(r\\) and column \\(c\\), with both coordinates clamped to the image.
 
 <div class="algo">
-<p class="algo-name">Sobel-Kernel(\(src, edges, W, H\))</p>
+<p class="algo-name">Sobel-Kernel(\(\mathsf{src}, \mathsf{edges}, W, H\))</p>
 <ol>
 <li>\(x = blockIdx.x \cdot blockDim.x + threadIdx.x\), \(\;y = blockIdx.y \cdot blockDim.y + threadIdx.y\)</li>
-<li>\(p(r, c) = src[\mathrm{clamp}(r, H)][\mathrm{clamp}(c, W)]\)</li>
+<li>\(p(r, c) = \mathsf{src}[\mathrm{clamp}(r, H)][\mathrm{clamp}(c, W)]\)</li>
 <li>\(g_x = (p(y{-}1, x{+}1) + 2p(y, x{+}1) + p(y{+}1, x{+}1)) - (p(y{-}1, x{-}1) + 2p(y, x{-}1) + p(y{+}1, x{-}1))\)</li>
 <li>\(g_y = (p(y{+}1, x{-}1) + 2p(y{+}1, x) + p(y{+}1, x{+}1)) - (p(y{-}1, x{-}1) + 2p(y{-}1, x) + p(y{-}1, x{+}1))\)</li>
-<li>\(edges[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
+<li>\(\mathsf{edges}[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
 </ol>
 </div>
 
@@ -1409,13 +1409,13 @@ stream 0, and image 4 goes to stream 1. The programs call such a set of buffers 
 has nothing to do with the lanes of a warp.
 
 <div class="algo">
-<p class="algo-name">Batch(\(images, n, S\))</p>
+<p class="algo-name">Batch(\(\mathsf{images}, n, S\))</p>
 <ol>
 <li><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1">\(k = i \bmod S\)</li>
-<li style="--d:1">on stream \(k\): copy \(images[i]\) into \(lanes[k].rgb\) <span class="c">// host to device</span></li>
-<li style="--d:1">on stream \(k\): the 7 kernels on \(lanes[k]\)</li>
-<li style="--d:1">on stream \(k\): copy \(lanes[k].edges\) into \(out[k]\) <span class="c">// device to host</span></li>
+<li style="--d:1">on stream \(k\): copy \(\mathsf{images}[i]\) into \(\mathsf{lanes}[k].\mathsf{rgb}\) <span class="c">// host to device</span></li>
+<li style="--d:1">on stream \(k\): the 7 kernels on \(\mathsf{lanes}[k]\)</li>
+<li style="--d:1">on stream \(k\): copy \(\mathsf{lanes}[k].\mathsf{edges}\) into \(\mathsf{out}[k]\) <span class="c">// device to host</span></li>
 <li>}</li>
 <li>wait <b class="kw">for</b> every stream</li>
 </ol>

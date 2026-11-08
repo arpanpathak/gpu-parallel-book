@@ -407,8 +407,8 @@ B_x + \text{threadIdx.x}. \\]
 | \\(B_x, B_y\\) | width and height of a block in threads | 32, 8 |
 | blockIdx.x, blockIdx.y | column and row of the block among the blocks | 1, 0 |
 | threadIdx.x, threadIdx.y | column and row of the thread inside its block | 4, 2 |
-| \\(row\\) | row of the cell the thread owns | \\(0 \cdot 8 + 2 = 2\\) |
-| \\(col\\) | column of the cell the thread owns | \\(1 \cdot 32 + 4 = 36\\) |
+| \\(\mathsf{row}\\) | row of the cell the thread owns | \\(0 \cdot 8 + 2 = 2\\) |
+| \\(\mathsf{col}\\) | column of the cell the thread owns | \\(1 \cdot 32 + 4 = 36\\) |
 
 The formula has a simple reading. Along a row, the blocks to the left of block blockIdx.x cover
 \\(\text{blockIdx.x} \cdot B_x\\) columns, and the thread lies threadIdx.x columns further on. In
@@ -420,7 +420,7 @@ blocks, where \\(\lceil x \rceil\\) denotes \\(x\\) rounded up to the next integ
 partly filled block at the edge is still counted. A grid of 4096 × 4096 cells needs
 \\(4096 / 32 = 128\\) blocks along a row and \\(4096 / 8 = 512\\) along a column. For the plate,
 \\(\lceil 6 / 32 \rceil = \lceil 6 / 8 \rceil = 1\\), so 1 block suffices. The threads of that
-block with \\(col \ge 6\\) or \\(row \ge 6\\) have no cell, and of the 36 threads that do have a
+block with \\(\mathsf{col} \ge 6\\) or \\(\mathsf{row} \ge 6\\) have no cell, and of the 36 threads that do have a
 cell, the 20 on the boundary have nothing to compute.
 
 We choose blocks that are 32 threads wide because the 32 threads of a warp then lie along 1 row of
@@ -446,9 +446,9 @@ buffers in global memory, the large memory of the GPU that every thread can read
 <div class="algo">
 <p class="algo-name">Jacobi-Kernel(\(u, v, W, H\))</p>
 <ol>
-<li>\(row = \mathsf{blockIdx{.}y} \cdot B_y + \mathsf{threadIdx{.}y}\), \(col = \mathsf{blockIdx{.}x} \cdot B_x + \mathsf{threadIdx{.}x}\)</li>
-<li><b class="kw">if</b> \(row \in [1, H - 1)\) and \(col \in [1, W - 1)\) { <span class="c">// interior cells only</span></li>
-<li style="--d:1">\(v_{row,col} = (u_{row-1,col} + u_{row+1,col} + u_{row,col-1} + u_{row,col+1}) / 4\)</li>
+<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot B_y + \mathsf{threadIdx{.}y}\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot B_x + \mathsf{threadIdx{.}x}\)</li>
+<li><b class="kw">if</b> \(\mathsf{row} \in [1, H - 1)\) and \(\mathsf{col} \in [1, W - 1)\) { <span class="c">// interior cells only</span></li>
+<li style="--d:1">\(v_{row,\mathsf{col}} = (u_{row-1,\mathsf{col}} + u_{row+1,\mathsf{col}} + u_{row,\mathsf{col}-1} + u_{row,\mathsf{col}+1}) / 4\)</li>
 <li>}</li>
 </ol>
 </div>

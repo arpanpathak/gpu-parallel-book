@@ -275,15 +275,15 @@ In the following procedure, \\(s\\) is the inclusive scan of the flags, from whi
 the exclusive scan \\(e_i\\), and line 3 reads \\(Z\\) as the last inclusive value.
 
 <div class="algo">
-<p class="algo-name">Parallel-Split(\(K, out, n, b\))</p>
+<p class="algo-name">Parallel-Split(\(K, \mathsf{out}, n, b\))</p>
 <ol>
 <li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: \(z_i = 1\) <b class="kw">if</b> bit \(b\) of \(K_i\) is 0, <b class="kw">else</b> 0</li>
 <li>\(s\) = the inclusive scan of \(z\) <span class="c">// Scan of Section 21.7</span></li>
 <li>\(Z = s_{n-1}\) <span class="c">// the keys with bit 0</span></li>
 <li><b class="kw">for</b> every \(i \in [0, n)\) in parallel {</li>
 <li style="--d:1">\(e_i = s_i - z_i\) <span class="c">// the exclusive scan</span></li>
-<li style="--d:1"><b class="kw">if</b> \(z_i = 1\): \(out_{e_i} = K_i\)</li>
-<li style="--d:1"><b class="kw">else</b>: \(out_{Z + i - e_i} = K_i\)</li>
+<li style="--d:1"><b class="kw">if</b> \(z_i = 1\): \(\mathsf{out}_{e_i} = K_i\)</li>
+<li style="--d:1"><b class="kw">else</b>: \(\mathsf{out}_{Z + i - e_i} = K_i\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -610,23 +610,23 @@ is the output of the 2 splits on bits 0 and 1 in Figure 22.2, as it must be, sin
 
 On a CPU, this pass is the counting sort, which consists of 3 loops over the keys and the bins. In
 the following procedure, \\(s\\) is the shift and \\(r\\) the number of bits of the digit, as in
-Definition 22.1, and \\(start[d]\\) is the next free output position for a key with digit \\(d\\).
+Definition 22.1, and \\(\mathsf{start}[d]\\) is the next free output position for a key with digit \\(d\\).
 
 <div class="algo">
-<p class="algo-name">Counting-Pass(\(K, out, n, s, r\))</p>
+<p class="algo-name">Counting-Pass(\(K, \mathsf{out}, n, s, r\))</p>
 <ol>
 <li>\(h\) = the histogram of the digits \(\lfloor K_i / 2^s \rfloor \bmod 2^r\) over \(2^r\) bins</li>
-<li>\(start\) = the exclusive scan of \(h\)</li>
+<li>\(\mathsf{start}\) = the exclusive scan of \(h\)</li>
 <li><b class="kw">for</b> \(i \in [0, n)\) { <span class="c">// in input order</span></li>
 <li style="--d:1">\(d\) = the digit of \(K_i\)</li>
-<li style="--d:1">\(out_{start[d]} = K_i\)</li>
-<li style="--d:1">\(start[d] = start[d] + 1\) <span class="c">// the next key with digit \(d\)</span></li>
+<li style="--d:1">\(\mathsf{out}_{start[d]} = K_i\)</li>
+<li style="--d:1">\(\mathsf{start}[d] = \mathsf{start}[d] + 1\) <span class="c">// the next key with digit \(d\)</span></li>
 <li>}</li>
 </ol>
 </div>
 
-In line 5, \\(start[d]\\) has grown by 1 for every earlier key with digit \\(d\\), so it equals the
-start of \\(d\\) plus the rank of the key. For the 6 at position 5, \\(start[2]\\) began at 3 and
+In line 5, \\(\mathsf{start}[d]\\) has grown by 1 for every earlier key with digit \\(d\\), so it equals the
+start of \\(d\\) plus the rank of the key. For the 6 at position 5, \\(\mathsf{start}[2]\\) began at 3 and
 grew by 1 for each of the 2 keys at positions 1 and 3, so it equals 5. Line 6 forms a chain like
 the counter of Sequential-Compact, because the rank of each key depends on all the keys before it.
 
@@ -677,23 +677,23 @@ kernel moves the keys.
 In the following procedure, \\(c\\) is the table of counts and \\(s\\) its inclusive scan, so that
 \\(s_j - c_j\\) is the exclusive scan at entry \\(j\\). In line 1, thread \\(t < 16\\) stands for
 digit \\(t\\), and entry \\(tm + b\\) is the count of digit \\(t\\) in tile \\(b\\). The shared
-array \\(start\\) holds, for each digit, the output position of the next key with that digit, and
+array \\(\mathsf{start}\\) holds, for each digit, the output position of the next key with that digit, and
 the shared array \\(wc\\) holds, for each warp \\(w\\) and digit \\(d\\), the number of keys with
 digit \\(d\\) in warp \\(w\\) in the current step.
 
 <div class="algo">
-<p class="algo-name">Scatter-Digits(\(K, out, c, s\)) <span class="c">// tile \(b\) of \(m\), thread \(t\), lane \(\ell\) of warp \(w\)</span></p>
+<p class="algo-name">Scatter-Digits(\(K, \mathsf{out}, c, s\)) <span class="c">// tile \(b\) of \(m\), thread \(t\), lane \(\ell\) of warp \(w\)</span></p>
 <ol>
-<li><b class="kw">if</b> \(t &lt; 16\): \(start[t] = s_{tm + b} - c_{tm + b}\) <span class="c">// the exclusive scan of the table</span></li>
+<li><b class="kw">if</b> \(t &lt; 16\): \(\mathsf{start}[t] = s_{tm + b} - c_{tm + b}\) <span class="c">// the exclusive scan of the table</span></li>
 <li><b class="kw">for</b> \(k \in [0, 4)\) { <span class="c">// 4 steps of 256 keys, in order</span></li>
 <li style="--d:1">set \(wc[\cdot][\cdot]\) to 0; <span class="sc">Barrier</span>() <span class="c">// \(wc[w][d]\): keys of digit \(d\) in warp \(w\)</span></li>
 <li style="--d:1">\(i = 1024b + 256k + t\), \(d\) = the digit of \(K_i\)</li>
-<li style="--d:1">\(peers\) = <span class="sc">Match</span>(\(d\)), \(rank\) = <span class="sc">Popc</span>(\(peers \wedge (2^{\ell} - 1)\))</li>
-<li style="--d:1"><b class="kw">if</b> \(rank = 0\): \(wc[w][d]\) = <span class="sc">Popc</span>(\(peers\)) <span class="c">// 1 lane per digit and warp</span></li>
+<li style="--d:1">\(\mathsf{peers}\) = <span class="sc">Match</span>(\(d\)), \(\mathsf{rank}\) = <span class="sc">Popc</span>(\(\mathsf{peers} \wedge (2^{\ell} - 1)\))</li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{rank} = 0\): \(wc[w][d]\) = <span class="sc">Popc</span>(\(\mathsf{peers}\)) <span class="c">// 1 lane per digit and warp</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1">\(out[start[d] + wc[0][d] + \cdots + wc[w-1][d] + rank] = K_i\)</li>
+<li style="--d:1">\(\mathsf{out}[\mathsf{start}[d] + wc[0][d] + \cdots + wc[w-1][d] + \mathsf{rank}] = K_i\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1"><b class="kw">if</b> \(t &lt; 16\): \(start[t] = start[t] + wc[0][t] + \cdots + wc[7][t]\)</li>
+<li style="--d:1"><b class="kw">if</b> \(t &lt; 16\): \(\mathsf{start}[t] = \mathsf{start}[t] + wc[0][t] + \cdots + wc[7][t]\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
 </ol>
@@ -702,24 +702,24 @@ digit \\(d\\) in warp \\(w\\) in the current step.
 | Symbol | Meaning | Lane 5 in the 8-lane example |
 |---|---|---|
 | \\(d\\) | digit of the key of this thread | 2 |
-| \\(peers\\) | lanes of the warp with the same digit, from the match | lanes 1, 3 and 5 |
+| \\(\mathsf{peers}\\) | lanes of the warp with the same digit, from the match | lanes 1, 3 and 5 |
 | \\(2^{\ell} - 1\\) | mask of the lanes below lane \\(\ell\\) | lanes 0 to 4 |
-| \\(rank\\) | lanes below this one with the same digit | 2 (lanes 1 and 3) |
+| \\(\mathsf{rank}\\) | lanes below this one with the same digit | 2 (lanes 1 and 3) |
 | \\(wc[w][d]\\) | keys with digit \\(d\\) in warp \\(w\\), written by the lane with rank 0 | 3, written by lane 1 |
-| \\(start[d]\\) | output position of the next key with digit \\(d\\) in this tile | 3 in the 1-tile example |
+| \\(\mathsf{start}[d]\\) | output position of the next key with digit \\(d\\) in this tile | 3 in the 1-tile example |
 
 Line 8 corresponds to line 5 of Counting-Pass, with the rank assembled from three parts. The first
 part is the number of keys with the same digit in the earlier steps of the tile, which line 10 has
-added to \\(start[d]\\). The second part is the number of such keys in the earlier warps of the
+added to \\(\mathsf{start}[d]\\). The second part is the number of such keys in the earlier warps of the
 step, and the third part is the number in the earlier lanes of the warp. In the 8-lane example,
 taken as a single tile and a single warp, lane 5 writes its key 6 to position
-\\(start[2] + rank = 3 + 2 = 5\\).
+\\(\mathsf{start}[2] + \mathsf{rank} = 3 + 2 = 5\\).
 
 Each of the 4 barriers separates a write to the shared arrays from the reads that need it. The
 barrier of line 3 completes the clearing of \\(wc\\) before any lane writes a count, and line 7
-completes the counts before any thread sums them. Line 9 completes every read of \\(start\\)
+completes the counts before any thread sums them. Line 9 completes every read of \\(\mathsf{start}\\)
 before line 10 changes it, and line 11 completes the change before the next step reads
-\\(start\\).
+\\(\mathsf{start}\\).
 
 ### 22.7.4 Counting the bytes
 
@@ -760,7 +760,7 @@ keys with digit \\(d\\) of tile \\(b\\) receive the positions \\(S(d, b)\\) to
 \\(S(d, b) + c(d, b) - 1\\), in input order. The step \\(k\\), the warp \\(w\\) and the lane
 \\(\ell\\) of a key order the keys of a tile as their indices do, since the index is
 \\(1024b + 256k + 32w + \ell\\). In line 8, the position of a key is \\(S(d, b)\\) plus 3 counts of
-keys with digit \\(d\\): those in the earlier steps (added to \\(start[d]\\) by line 10 of each
+keys with digit \\(d\\): those in the earlier steps (added to \\(\mathsf{start}[d]\\) by line 10 of each
 earlier step), those in the earlier warps of the step, and those in the earlier lanes of the warp.
 Together they are exactly the keys with digit \\(d\\) before it in the tile. These numbers are
 \\(0, 1, \ldots, c(d, b) - 1\\) in input order. The ranges for different \\((d, b)\\) follow each
@@ -777,7 +777,7 @@ other in the order of the table, without gap or overlap, and the last ends at \\
 Rank and stability are the same thing here. The rank counts the keys that come before a key in
 input order, so a pass that places keys by rank is stable by construction, and a pass that places
 them by any other count is not. To see the difference on the GPU, we replaced the position of
-line 8 by an atomic increment of \\(start[d]\\), and removed line 10. The increment hands every key
+line 8 by an atomic increment of \\(\mathsf{start}[d]\\), and removed line 10. The increment hands every key
 the next free position of its digit, in the order in which the threads arrive. We ran the C++
 program with this change, and it printed the following lines.
 
@@ -975,7 +975,7 @@ mod kernels {
 </div>
 
 The shared arrays `start` and `warpCounts` (`START` and `WARP_COUNTS` in Rust) are the arrays
-\\(start\\) and \\(wc\\) of the pseudocode, and the 4 calls to the barrier are lines 3, 7, 9 and
+\\(\mathsf{start}\\) and \\(wc\\) of the pseudocode, and the 4 calls to the barrier are lines 3, 7, 9 and
 11. The rank is `popc(peers & below)`, where `below` has 1 bits for the lanes below this one. A
 lane past the end of the array gets the digit 16, matches only with other such lanes, and writes
 nothing, but it still reaches every barrier. The Rust write uses `get_unchecked_mut`, and its

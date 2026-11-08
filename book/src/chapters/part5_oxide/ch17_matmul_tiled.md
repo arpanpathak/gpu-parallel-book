@@ -151,32 +151,32 @@ Next, we decide which thread copies which value of a tile. A tile holds \\(T \ti
 values, and a block of the tiled kernel has \\(T \times T = T^2\\) threads, so the work divides
 evenly. We let each thread copy exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
 \\(B\\). The natural choice is to let every thread copy the value that belongs at its own position
-in the tile. Recall from Chapter 16 that thread \\((ty, tx)\\) is the thread in row \\(ty\\) and
-column \\(tx\\) of its block, and that it computes the entry of \\(C\\) in row \\(\mathsf{row}\\)
+in the tile. Recall from Chapter 16 that thread \\((\mathsf{ty}, \mathsf{tx})\\) is the thread in row \\(\mathsf{ty}\\) and
+column \\(\mathsf{tx}\\) of its block, and that it computes the entry of \\(C\\) in row \\(\mathsf{row}\\)
 and column \\(\mathsf{col}\\). We call the 2 tiles in shared memory *tileA* and *tileB*. In phase
-\\(t\\), thread \\((ty, tx)\\) performs the 2 copies
+\\(t\\), thread \\((\mathsf{ty}, \mathsf{tx})\\) performs the 2 copies
 
 \\[ \mathsf{tileA}[ty][tx] = a_{\mathsf{row},\\; tT + tx}, \qquad
 \mathsf{tileB}[ty][tx] = b_{tT + ty,\\; \mathsf{col}}. \\]
 
-The first copy reads from the thread's own row of \\(A\\), at column \\(tT + tx\\): the tile of
-phase \\(t\\) begins at column \\(tT\\), and the thread takes the value \\(tx\\) places further
-along. The second copy reads from the thread's own column of \\(B\\), at row \\(tT + ty\\), that is,
-\\(ty\\) places below the first row of the tile. For example, in phase 1, thread \\((0, 1)\\) of
+The first copy reads from the thread's own row of \\(A\\), at column \\(tT + \mathsf{tx}\\): the tile of
+phase \\(t\\) begins at column \\(tT\\), and the thread takes the value \\(\mathsf{tx}\\) places further
+along. The second copy reads from the thread's own column of \\(B\\), at row \\(tT + \mathsf{ty}\\), that is,
+\\(\mathsf{ty}\\) places below the first row of the tile. For example, in phase 1, thread \\((0, 1)\\) of
 block \\((0, 0)\\) has \\(\mathsf{row} = 0\\) and \\(\mathsf{col} = 1\\), and copies
 \\(a_{0,\\, 2 + 1} = a_{03} = 4\\) into *tileA*[0][1] and \\(b_{2 + 0,\\, 1} = b_{21} = 1\\) into
 *tileB*[0][1].
 
 | Symbol | Meaning | Thread \\((0, 1)\\), phase 1 |
 |---|---|---|
-| \\(ty, tx\\) | row and column of the thread within its block | 0, 1 |
+| \\(\mathsf{ty}, \mathsf{tx}\\) | row and column of the thread within its block | 0, 1 |
 | \\(\mathsf{row}, \mathsf{col}\\) | row and column of the entry of \\(C\\) the thread computes | 0, 1 |
-| \\(tT + tx\\) | column of \\(A\\) the thread copies | \\(1 \cdot 2 + 1 = 3\\) |
-| \\(tT + ty\\) | row of \\(B\\) the thread copies | \\(1 \cdot 2 + 0 = 2\\) |
+| \\(tT + \mathsf{tx}\\) | column of \\(A\\) the thread copies | \\(1 \cdot 2 + 1 = 3\\) |
+| \\(tT + \mathsf{ty}\\) | row of \\(B\\) the thread copies | \\(1 \cdot 2 + 0 = 2\\) |
 
-As \\((ty, tx)\\) runs over all threads of the block, these copies fill every position of both
+As \\((\mathsf{ty}, \mathsf{tx})\\) runs over all threads of the block, these copies fill every position of both
 tiles exactly once, so no value is copied twice and none is missed. Note also that the threads
-with the same \\(ty\\) copy \\(T\\) neighboring values of the same row of \\(A\\), which lie next
+with the same \\(\mathsf{ty}\\) copy \\(T\\) neighboring values of the same row of \\(A\\), which lie next
 to each other in memory, so their reads can be combined into few memory transactions. In
 Figure 17.3, we follow block \\((0, 0)\\) through both phases. Each color belongs to 1 thread and
 marks the values that the thread copies as well as the sum that it accumulates.
@@ -214,8 +214,8 @@ Exercises
 \\(c_{12}\\) and \\(c_{13}\\). Which values does thread \\((1, 0)\\) copy in each phase?<br>
 17.2 With \\(T = 4\\), the whole example is a single block. How many phases does it run, and which
 values does thread \\((2, 3)\\) copy?<br>
-17.3 In phase \\(t\\), which thread of block \\((by, bx)\\) copies \\(a_{i, s}\\)? Express \\(ty\\)
-and \\(tx\\) in terms of \\(i\\), \\(s\\), \\(by\\), \\(t\\) and \\(T\\).
+17.3 In phase \\(t\\), which thread of block \\((by, bx)\\) copies \\(a_{i, s}\\)? Express \\(\mathsf{ty}\\)
+and \\(\mathsf{tx}\\) in terms of \\(i\\), \\(s\\), \\(by\\), \\(t\\) and \\(T\\).
 
 </div>
 
@@ -277,16 +277,16 @@ memory, and each block has its own pair of them.
 <div class="algo">
 <p class="algo-name">Tiled-Kernel(\(A, B, C, M, K, N\))</p>
 <ol>
-<li>\(tx = \mathsf{threadIdx{.}x}\), \(ty = \mathsf{threadIdx{.}y}\)</li>
-<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + ty\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + tx\)</li>
+<li>\(\mathsf{tx} = \mathsf{threadIdx{.}x}\), \(\mathsf{ty} = \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + \mathsf{ty}\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + \mathsf{tx}\)</li>
 <li>\(\mathsf{sum} = 0\)</li>
 <li><b class="kw">for</b> \(t \in [0, \lceil K/T \rceil)\) {</li>
 <li style="--d:1"><span class="c" style="float:none;margin-left:0">// copy 1 value of each tile; 0 outside the matrix</span></li>
-<li style="--d:1">\(\mathsf{tileA}[ty][tx] = a_{\mathsf{row},\, tT + tx}\) <b class="kw">if</b> \(\mathsf{row} \in [0, M)\) and \(tT + tx \in [0, K)\), <b class="kw">else</b> 0</li>
-<li style="--d:1">\(\mathsf{tileB}[ty][tx] = b_{tT + ty,\, \mathsf{col}}\) <b class="kw">if</b> \(tT + ty \in [0, K)\) and \(\mathsf{col} \in [0, N)\), <b class="kw">else</b> 0</li>
+<li style="--d:1">\(\mathsf{tileA}[\mathsf{ty}][\mathsf{tx}] = a_{\mathsf{row},\, tT + \mathsf{tx}}\) <b class="kw">if</b> \(\mathsf{row} \in [0, M)\) and \(tT + \mathsf{tx} \in [0, K)\), <b class="kw">else</b> 0</li>
+<li style="--d:1">\(\mathsf{tileB}[\mathsf{ty}][\mathsf{tx}] = b_{tT + \mathsf{ty},\, \mathsf{col}}\) <b class="kw">if</b> \(tT + \mathsf{ty} \in [0, K)\) and \(\mathsf{col} \in [0, N)\), <b class="kw">else</b> 0</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until both tiles are full</span></li>
 <li style="--d:1"><b class="kw">for</b> \(u \in [0, T)\) {</li>
-<li style="--d:2">\(\mathsf{sum} = \mathsf{sum} + \mathsf{tileA}[ty][u] \cdot \mathsf{tileB}[u][tx]\)</li>
+<li style="--d:2">\(\mathsf{sum} = \mathsf{sum} + \mathsf{tileA}[\mathsf{ty}][u] \cdot \mathsf{tileB}[u][\mathsf{tx}]\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until every thread has read the tiles</span></li>
 <li>}</li>
@@ -298,9 +298,9 @@ memory, and each block has its own pair of them.
 
 Lines 1 and 2 are the same as in
 <span style="font-variant: small-caps">Direct-Kernel</span>. They compute the position
-\\((ty, tx)\\) of the thread within its block, and the row and column of the entry of \\(C\\) that
+\\((\mathsf{ty}, \mathsf{tx})\\) of the thread within its block, and the row and column of the entry of \\(C\\) that
 the thread computes. For thread \\((0, 1)\\) of block \\((0, 0)\\) with \\(T = 2\\), they give
-\\(ty = 0\\), \\(tx = 1\\), \\(\mathsf{row} = 0 \cdot 2 + 0 = 0\\) and
+\\(\mathsf{ty} = 0\\), \\(\mathsf{tx} = 1\\), \\(\mathsf{row} = 0 \cdot 2 + 0 = 0\\) and
 \\(\mathsf{col} = 0 \cdot 2 + 1 = 1\\). Line 3 sets the sum to 0, and line 4 starts the loop over
 the \\(\lceil K/T \rceil\\) phases, of which there are 2 in our example. Lines 6 and 7 are the joint
 copy of Section 17.3. Lines 9 to 11 add 1 phase of the sum, that is, the inner sum over \\(u\\) of
@@ -532,8 +532,8 @@ a_{\mathsf{row}, s}\\; b_{s, \mathsf{col}}. \\]
 *Maintenance.* Assume that the invariant holds at the start of phase \\(t\\). In lines 6 and 7,
 the threads of the block fill both tiles completely (Section 17.3). Because of the barrier in
 line 8, every one of these stores is complete and visible before any thread reaches line 10; this
-excludes the error of Section 17.6.1. Hence \\(\mathsf{tileA}[ty][u] = a_{\mathsf{row}, tT + u}\\)
-and \\(\mathsf{tileB}[u][tx] = b_{tT + u, \mathsf{col}}\\) for every \\(u \in [0, T)\\), and lines 9
+excludes the error of Section 17.6.1. Hence \\(\mathsf{tileA}[\mathsf{ty}][u] = a_{\mathsf{row}, tT + u}\\)
+and \\(\mathsf{tileB}[u][\mathsf{tx}] = b_{tT + u, \mathsf{col}}\\) for every \\(u \in [0, T)\\), and lines 9
 to 11 add exactly the terms with \\(s \in [tT, tT + T)\\). For thread \\((0, 0)\\) in phase 1, these
 are the terms with \\(s = 2\\) and \\(s = 3\\), which add \\(3 \cdot 2 + 4 \cdot 1 = 10\\). Because
 of the barrier in line 12, no thread overwrites a tile for phase \\(t + 1\\) while another thread is
@@ -673,7 +673,7 @@ the \\(T^2\\) floats of *tileA*, each of which takes 4 bytes. With \\(T = 2\\), 
 *tileA* occupies bytes 0 to 15 and *tileB* bytes 16 to 31, so the region must hold 32 bytes. Both
 programs store a tile as a flat array of \\(T^2\\) values in row-major order (Figure 17.13). In
 C++, the compiler lays out the 2-dimensional array `tile_a[ty][tx]` in this way, while the Rust
-kernel computes the index \\(ty \cdot T + tx\\) of Definition 16.2 itself. In our example, slot
+kernel computes the index \\(\mathsf{ty} \cdot T + \mathsf{tx}\\) of Definition 16.2 itself. In our example, slot
 \\((1, 0)\\) of a 2 × 2 tile is at index \\(1 \cdot 2 + 0 = 2\\).
 
 <figure>
@@ -740,7 +740,7 @@ __global__ void matmulTiled(int m, int n, int k, const float* a, const float* b,
 The variable `t` counts the phases of line 4. In Rust, the bound of the loop, `k.div_ceil(T)`, is
 \\(\lceil K/T \rceil\\), the quotient \\(K/T\\) rounded up; in C++, the same bound is computed as
 `(k + T - 1) / T` and stored in `phases`. The variables `a_col` and `b_row` are the indices
-\\(tT + tx\\) and \\(tT + ty\\) of lines 6 and 7, that is, the column of \\(A\\) and the row of
+\\(tT + \mathsf{tx}\\) and \\(tT + \mathsf{ty}\\) of lines 6 and 7, that is, the column of \\(A\\) and the row of
 \\(B\\) that the thread copies. For thread \\((0, 1)\\) in phase 1 with \\(T = 2\\), they are
 \\(1 \cdot 2 + 1 = 3\\) and \\(1 \cdot 2 + 0 = 2\\), as in Section 17.3. When an index lies past
 the edge of a matrix, the conditional expression yields 0 instead of reading memory. The first
@@ -760,9 +760,9 @@ stores need no marking. The argument for their correctness is the same, but the 
 ask for it.
 
 The inner loop is lines 9 to 11 of the pseudocode. In Rust, `tile_a.add(ty * T + u)` is the
-address of \\(\mathsf{tileA}[ty][u]\\), so as `u` runs from 0 to \\(T - 1\\), the thread walks along
+address of \\(\mathsf{tileA}[\mathsf{ty}][u]\\), so as `u` runs from 0 to \\(T - 1\\), the thread walks along
 row `ty` of *tileA*. Likewise, `tile_b.add(u * T + tx)` is the address of
-\\(\mathsf{tileB}[u][tx]\\), and the thread walks down column `tx` of *tileB*. For thread
+\\(\mathsf{tileB}[u][\mathsf{tx}]\\), and the thread walks down column `tx` of *tileB*. For thread
 \\((0, 1)\\) with \\(T = 2\\), the flat indices are 0 and 1 in *tileA* and 1 and 3 in *tileB*. The
 Rust loop is a `while` loop marked `#[unroll]`. Inside each specialization of the generic kernel,
 `T` is a constant, so the loop has a fixed count, and the compiler replaces it by \\(T\\) copies of
@@ -967,8 +967,8 @@ stays there for exactly 1 phase, by construction, at every matrix size. The tile
 memory is no longer what limits it.
 
 What limits the tiled kernel now is shared memory. Each execution of line 10 performs 1
-multiply-add and reads 2 values from shared memory, \\(\mathsf{tileA}[ty][u]\\) and
-\\(\mathsf{tileB}[u][tx]\\). The shared memory of an SM serves 1 read instruction of a warp per
+multiply-add and reads 2 values from shared memory, \\(\mathsf{tileA}[\mathsf{ty}][u]\\) and
+\\(\mathsf{tileB}[u][\mathsf{tx}]\\). The shared memory of an SM serves 1 read instruction of a warp per
 cycle, that is, 32 values of 4 bytes, or 128 bytes per cycle, provided that the 32 addresses fall
 in different banks or coincide. The 128 FP32 units of the SM, on the other hand, can perform 128
 multiply-adds per cycle. Let us count for 1 warp. Its 32 multiply-adds need 2 read instructions, 1

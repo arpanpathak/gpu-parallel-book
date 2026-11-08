@@ -344,12 +344,12 @@ threads, which compute a 2 × 2 square of \\(C\\), and 2 × 2 blocks cover the 4
 Figure 16.5.
 
 We write all positions as (row, column), that is, as \\((y, x)\\). We write the position of a
-thread within its block as \\((ty, tx)\\), where \\(ty\\) is *threadIdx.y*, the row of the thread
-within its block, and \\(tx\\) is *threadIdx.x*, the column of the thread within its block. In
+thread within its block as \\((\mathsf{ty}, \mathsf{tx})\\), where \\(\mathsf{ty}\\) is *threadIdx.y*, the row of the thread
+within its block, and \\(\mathsf{tx}\\) is *threadIdx.x*, the column of the thread within its block. In
 the same way, we write the position of a block within the grid as \\((by, bx)\\), where \\(by\\)
 is *blockIdx.y* and \\(bx\\) is *blockIdx.x*. Thus, thread \\((1, 0)\\) of block \\((0, 1)\\),
 which is outlined in Figure 16.5, is the thread in row 1 and column 0 of the block that lies in
-row 0 and column 1 of the grid. For this thread, \\(ty = 1\\), \\(tx = 0\\), \\(by = 0\\) and
+row 0 and column 1 of the grid. For this thread, \\(\mathsf{ty} = 1\\), \\(\mathsf{tx} = 0\\), \\(by = 0\\) and
 \\(bx = 1\\).
 
 Let us find the entry of \\(C\\) that this thread computes. Its block covers rows 0 and 1 and
@@ -368,13 +368,13 @@ the row and the column of the entry that a thread computes \\(\mathsf{row}\\) an
 |---|---|---|
 | \\(\mathsf{blockIdx{.}y}\\), or \\(by\\) | row of the block within the grid | 0 |
 | \\(\mathsf{blockIdx{.}x}\\), or \\(bx\\) | column of the block within the grid | 1 |
-| \\(\mathsf{threadIdx{.}y}\\), or \\(ty\\) | row of the thread within its block | 1 |
-| \\(\mathsf{threadIdx{.}x}\\), or \\(tx\\) | column of the thread within its block | 0 |
+| \\(\mathsf{threadIdx{.}y}\\), or \\(\mathsf{ty}\\) | row of the thread within its block | 1 |
+| \\(\mathsf{threadIdx{.}x}\\), or \\(\mathsf{tx}\\) | column of the thread within its block | 0 |
 | \\(T\\) | number of threads along each side of a block | 2 |
 | \\(\mathsf{row}\\) | row of the entry of \\(C\\) that the thread computes | \\(0 \cdot 2 + 1 = 1\\) |
 | \\(\mathsf{col}\\) | column of the entry of \\(C\\) that the thread computes | \\(1 \cdot 2 + 0 = 2\\) |
 
-As a second example, thread \\((0, 1)\\) of block \\((0, 0)\\) has \\(ty = 0\\) and \\(tx = 1\\),
+As a second example, thread \\((0, 1)\\) of block \\((0, 0)\\) has \\(\mathsf{ty} = 0\\) and \\(\mathsf{tx} = 1\\),
 and it computes the entry with \\(\mathsf{row} = 0 \cdot 2 + 0 = 0\\) and
 \\(\mathsf{col} = 0 \cdot 2 + 1 = 1\\), that is, \\(c_{01} = 13\\). Within block \\((0, 0)\\),
 the 4 threads \\((0, 0)\\), \\((0, 1)\\), \\((1, 0)\\) and \\((1, 1)\\) compute \\(c_{00}\\),
@@ -544,8 +544,8 @@ Section 16.3.2. Every thread executes the following procedure.
 <div class="algo">
 <p class="algo-name">Direct-Kernel(\(A, B, C, M, K, N\))</p>
 <ol>
-<li>\(tx = \mathsf{threadIdx{.}x}\), \(ty = \mathsf{threadIdx{.}y}\)</li>
-<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + ty\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + tx\)</li>
+<li>\(\mathsf{tx} = \mathsf{threadIdx{.}x}\), \(\mathsf{ty} = \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + \mathsf{ty}\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + \mathsf{tx}\)</li>
 <li><b class="kw">if</b> \(\mathsf{row} \notin [0, M)\) or \(\mathsf{col} \notin [0, N)\) { <span class="c">// thread lies outside C</span></li>
 <li style="--d:1"><b class="kw">return</b></li>
 <li>}</li>
@@ -572,7 +572,7 @@ Figure 16.11, we follow a single thread through its work.
 </figure>
 
 The thread is thread \\((1, 0)\\) of block \\((0, 1)\\), with \\(T = 2\\). Line 1 gives
-\\(tx = 0\\) and \\(ty = 1\\), and line 2 gives \\(\mathsf{row} = 0 \cdot 2 + 1 = 1\\) and
+\\(\mathsf{tx} = 0\\) and \\(\mathsf{ty} = 1\\), and line 2 gives \\(\mathsf{row} = 0 \cdot 2 + 1 = 1\\) and
 \\(\mathsf{col} = 1 \cdot 2 + 0 = 2\\). Both values lie inside \\(C\\), so the test of line 3
 fails and the thread continues. The loop runs for \\(s = 0, 1, 2, 3\\). In the pass with
 \\(s = 0\\), line 8 reads \\(a_{10} = 5\\) and \\(b_{02} = 2\\) and adds their product, 10, to

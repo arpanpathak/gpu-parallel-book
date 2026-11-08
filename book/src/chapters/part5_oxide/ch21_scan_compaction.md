@@ -884,12 +884,12 @@ output is \\((3, 7, 4, 6, 3)\\).
 On a CPU, compaction is a single loop with a counter \\(j\\) of the values written so far.
 
 <div class="algo">
-<p class="algo-name">Sequential-Compact(\(x, out, n\))</p>
+<p class="algo-name">Sequential-Compact(\(x, \mathsf{out}, n\))</p>
 <ol>
 <li>\(j = 0\) <span class="c">// values written so far</span></li>
 <li><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1"><b class="kw">if</b> \(x_i \ge 3\) {</li>
-<li style="--d:2">\(out_j = x_i\)</li>
+<li style="--d:2">\(\mathsf{out}_j = x_i\)</li>
 <li style="--d:2">\(j = j + 1\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
@@ -928,11 +928,11 @@ position. In the following procedure, \\(f_i\\) is the flag of value \\(i\\) and
 inclusive scan of the flags, the number of kept values at positions 0 to \\(i\\).
 
 <div class="algo">
-<p class="algo-name">Parallel-Compact(\(x, out, n\))</p>
+<p class="algo-name">Parallel-Compact(\(x, \mathsf{out}, n\))</p>
 <ol>
 <li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: \(f_i = 1\) <b class="kw">if</b> \(x_i \ge 3\), <b class="kw">else</b> 0 <span class="c">// kernel 1</span></li>
 <li>\(s\) = the inclusive scan of \(f\) <span class="c">// Scan of Section 21.7</span></li>
-<li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: <b class="kw">if</b> \(f_i = 1\): \(out_{s_i - 1} = x_i\) <span class="c">// kernel 2, a scatter</span></li>
+<li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: <b class="kw">if</b> \(f_i = 1\): \(\mathsf{out}_{s_i - 1} = x_i\) <span class="c">// kernel 2, a scatter</span></li>
 <li><b class="kw">return</b> \(s_{n-1}\)</li>
 </ol>
 </div>
@@ -1076,23 +1076,23 @@ values again and places every kept value after the kept values of the earlier ti
 steps of its own tile, of the earlier warps of the step, and of the earlier lanes of its warp.
 
 In the following procedure, \\(b\\) is the number of the block, which is also the number of its
-tile, \\(t\\) is the index of the thread in the block, \\(w\\) is its warp, and \\(lane\\) is its
+tile, \\(t\\) is the index of the thread in the block, \\(w\\) is its warp, and \\(\mathsf{lane}\\) is its
 lane. The block processes its tile in 4 steps \\(k = 0, 1, 2, 3\\) of 256 values each. The shared
 array \\(c\\) holds the count of kept values of each of the 8 warps in the current step, and
-\\(next\\) is the output position at which the kept values of the current step begin.
+\\(\mathsf{next}\\) is the output position at which the kept values of the current step begin.
 
 <div class="algo">
-<p class="algo-name">Compact-Votes(\(x, out, n\)) <span class="c">// block \(b\), thread \(t\) in warp \(w\)</span></p>
+<p class="algo-name">Compact-Votes(\(x, \mathsf{out}, n\)) <span class="c">// block \(b\), thread \(t\) in warp \(w\)</span></p>
 <ol>
-<li>\(next\) = the scanned count of tiles \(0\) to \(b - 1\) <span class="c">// 0 for \(b = 0\)</span></li>
+<li>\(\mathsf{next}\) = the scanned count of tiles \(0\) to \(b - 1\) <span class="c">// 0 for \(b = 0\)</span></li>
 <li><b class="kw">for</b> \(k \in [0, 4)\) {</li>
-<li style="--d:1">\(i = 1024b + 256k + t\), \(keep = (i &lt; n\) and \(x_i \ge 3)\)</li>
-<li style="--d:1">\(v\) = <span class="sc">Ballot</span>(\(keep\))</li>
+<li style="--d:1">\(i = 1024b + 256k + t\), \(\mathsf{keep} = (i &lt; n\) and \(x_i \ge 3)\)</li>
+<li style="--d:1">\(v\) = <span class="sc">Ballot</span>(\(\mathsf{keep}\))</li>
 <li style="--d:1">lane 0 of warp \(w\): \(c[w]\) = <span class="sc">Popc</span>(\(v\)) <span class="c">// \(c\) in shared memory</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1">\(before = c[0] + \cdots + c[w - 1]\), \(total = c[0] + \cdots + c[7]\)</li>
-<li style="--d:1"><b class="kw">if</b> \(keep\): \(out[next + before + \)<span class="sc">Popc</span>\((v \wedge (2^{lane} - 1))] = x_i\)</li>
-<li style="--d:1">\(next = next + total\)</li>
+<li style="--d:1">\(\mathsf{before} = c[0] + \cdots + c[w - 1]\), \(\mathsf{total} = c[0] + \cdots + c[7]\)</li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{keep}\): \(\mathsf{out}[\mathsf{next} + \mathsf{before} + \)<span class="sc">Popc</span>\((v \wedge (2^{lane} - 1))] = x_i\)</li>
+<li style="--d:1">\(\mathsf{next} = \mathsf{next} + \mathsf{total}\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// \(c\) is read before the next step writes it</span></li>
 <li>}</li>
 </ol>
@@ -1104,22 +1104,22 @@ array \\(c\\) holds the count of kept values of each of the 8 warps in the curre
 | \\(k\\) | step within the tile, 256 values per step | 2 |
 | \\(t\\) | index of the thread in the block | 70 |
 | \\(i = 1024b + 256k + t\\) | index of the value the thread handles | \\(1{,}024 + 512 + 70 = 1{,}606\\) |
-| \\(w\\), \\(lane\\) | warp of the thread and its lane in the warp | 2 and 6 |
-| \\(before\\) | kept values in warps 0 to \\(w - 1\\) of this step | \\(c[0] + c[1]\\) |
-| \\(total\\) | kept values in all 8 warps of this step | \\(c[0] + \cdots + c[7]\\) |
+| \\(w\\), \\(\mathsf{lane}\\) | warp of the thread and its lane in the warp | 2 and 6 |
+| \\(\mathsf{before}\\) | kept values in warps 0 to \\(w - 1\\) of this step | \\(c[0] + c[1]\\) |
+| \\(\mathsf{total}\\) | kept values in all 8 warps of this step | \\(c[0] + \cdots + c[7]\\) |
 
 The index \\(i\\) in line 3 is built from three parts. The tile of block \\(b\\) begins at value
 \\(1024b\\), step \\(k\\) begins \\(256k\\) values later, and thread \\(t\\) takes the value \\(t\\)
 places after that. Line 8 then adds 4 counts to find the output position of a kept value: the kept
-values of the earlier tiles and earlier steps, which are in \\(next\\), those of the earlier warps
-of the step, which are in \\(before\\), and those of the earlier lanes of the warp, which are the
+values of the earlier tiles and earlier steps, which are in \\(\mathsf{next}\\), those of the earlier warps
+of the step, which are in \\(\mathsf{before}\\), and those of the earlier lanes of the warp, which are the
 popcount of the ballot under the mask \\(2^{lane} - 1\\).
 
 The order of the positions is therefore the order of the input. Value \\(1024b + 256k + t\\) is
 processed in step \\(k\\), by warp \\(\lfloor t / 32 \rfloor\\), in lane \\(t \bmod 32\\). Line 8
 orders the kept values first by tile, then by step, then by warp, and then by lane, which is the
 order of their indices. The argument of Theorem 21.2 then applies unchanged. The first kernel,
-Count-Kept, consists of lines 2 to 6, with \\(next\\) replaced by a running count, followed by the
+Count-Kept, consists of lines 2 to 6, with \\(\mathsf{next}\\) replaced by a running count, followed by the
 sum of the 8 warp counts.
 
 With half of the values kept, this method reads the values twice and writes the kept values once,
