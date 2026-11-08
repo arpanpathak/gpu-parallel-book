@@ -192,25 +192,25 @@ where is entry \\((2, 0)\\)?
 ## 16.2 The sequential algorithm
 
 On a CPU, Definition 16.1 becomes 3 nested loops. The outer 2 loops choose an entry of \\(C\\),
-one row \\(i\\) and one column \\(j\\) at a time, and the inner loop adds up the \\(K\\) products
+one row \\(\mathsf{row}\\) and one column \\(\mathsf{col}\\) at a time, and the inner loop adds up the \\(K\\) products
 for that entry.
 
 <div class="algo">
 <p class="algo-name">Matrix-Multiply(\(A, B, C, M, K, N\))</p>
 <ol>
-<li><b class="kw">for</b> \(i \in [0, M)\) {</li>
-<li style="--d:1"><b class="kw">for</b> \(j \in [0, N)\) {</li>
-<li style="--d:2">\(c_{ij} = 0\)</li>
-<li style="--d:2"><b class="kw">for</b> \(s \in [0, K)\) {</li>
-<li style="--d:3">\(c_{ij} = c_{ij} + a_{is} \cdot b_{sj}\)</li>
+<li><b class="kw">for</b> \(\mathsf{row} \in [0, M)\) {</li>
+<li style="--d:1"><b class="kw">for</b> \(\mathsf{col} \in [0, N)\) {</li>
+<li style="--d:2">\(c_{\mathsf{row}, \mathsf{col}} = 0\)</li>
+<li style="--d:2"><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
+<li style="--d:3">\(c_{\mathsf{row}, \mathsf{col}} = c_{\mathsf{row}, \mathsf{col}} + a_{\mathsf{row}, \mathsf{inner}} \cdot b_{\mathsf{inner}, \mathsf{col}}\)</li>
 <li style="--d:2">}</li>
 <li style="--d:1">}</li>
 <li>}</li>
 </ol>
 </div>
 
-Let us count the work. Line 5 executes once for every choice of \\(i\\), \\(j\\) and \\(s\\).
-There are \\(M\\) choices of \\(i\\), \\(N\\) choices of \\(j\\) and \\(K\\) choices of \\(s\\), so
+Let us count the work. Line 5 executes once for every choice of \\(\mathsf{row}\\), \\(\mathsf{col}\\) and \\(\mathsf{inner}\\).
+There are \\(M\\) choices of \\(\mathsf{row}\\), \\(N\\) choices of \\(\mathsf{col}\\) and \\(K\\) choices of \\(\mathsf{inner}\\), so
 line 5 executes \\(MNK\\) times. Each execution is 1 **multiply-add**, that is, 1 multiplication
 followed by 1 addition. We count work in **floating-point operations** (FLOP), so 1 multiply-add
 is 2 FLOP, and the whole product is \\(2MNK\\) FLOP. Our example needs
@@ -221,12 +221,12 @@ multiply-adds, which is \\(1.37 \times 10^{11}\\) FLOP.
 
 The CPU performs these multiply-adds one after another, and it visits the entries of \\(C\\) in
 order, row by row, as shown in Figure 16.3. At visit 7, it computes \\(c_{12}\\), the entry in row
-1 and column 2. Line 5 runs 4 times, for \\(s = 0, 1, 2, 3\\), and pairs row 1 of \\(A\\), which
+1 and column 2. Line 5 runs 4 times, for \\(\mathsf{inner} = 0, 1, 2, 3\\), and pairs row 1 of \\(A\\), which
 holds 5, 6, 7 and 8, with column 2 of \\(B\\), which holds 2, 1, 0 and 1. The result is
 \\(c_{12} = 5 \cdot 2 + 6 \cdot 1 + 7 \cdot 0 + 8 \cdot 1 = 24\\).
 
 <figure>
-<img src="../../figures/ch16-sequential.svg" alt="C as a 4 by 4 grid whose cells hold the order in which the sequential algorithm visits them, 1 to 16 row by row. Visit 7, entry c12, is highlighted. The text says that at visit 7 line 5 runs for s = 0 to 3 and computes c12 = 5 times 2 + 6 times 1 + 7 times 0 + 8 times 1 = 24, and that 16 visits of 4 steps make 64 multiply-adds, performed one after another.">
+<img src="../../figures/ch16-sequential.svg" alt="C as a 4 by 4 grid whose cells hold the order in which the sequential algorithm visits them, 1 to 16 row by row. Visit 7, entry c12, is highlighted. The text says that at visit 7 line 5 runs for inner = 0 to 3 and computes c12 = 5 times 2 + 6 times 1 + 7 times 0 + 8 times 1 = 24, and that 16 visits of 4 steps make 64 multiply-adds, performed one after another.">
 <figcaption><b>Figure 16.3</b> The order in which <span style="font-variant: small-caps">Matrix-Multiply</span> fills C. Visit 7 computes c<sub>12</sub> = 24 with 4 multiply-adds.</figcaption>
 </figure>
 
@@ -243,7 +243,7 @@ Exercises
 16.4 Show that <span style="font-variant: small-caps">Matrix-Multiply</span> reads each entry of
 \\(A\\) exactly \\(N\\) times. How many times does it read each entry of \\(B\\)?<br>
 16.5 How many FLOP does the product of a 300 × 500 matrix and a 500 × 700 matrix take?<br>
-16.6 Exchange the loops over \\(j\\) and \\(s\\) in the algorithm. Is the result still correct?
+16.6 Exchange the loops over \\(\mathsf{col}\\) and \\(\mathsf{inner}\\) in the algorithm. Is the result still correct?
 Which line must move?
 
 </div>
@@ -299,7 +299,7 @@ wait for one another. The **grid** is the set of all blocks of 1 launch.
 </div>
 
 <figure>
-<img src="../../figures/ch16-grid.svg" alt="A grid of 2 by 2 blocks over the 4 by 4 matrix C, 1 color per block: block (0, 0) lavender, (0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labeled (ty, tx) from (0, 0) to (1, 1). Thread (1, 0) of block (0, 1) is outlined. The panel on the right: the block covers rows 0 to 1 and columns 2 to 3; row = 0 times 2 + 1 = 1, col = 1 times 2 + 0 = 2, so the thread computes c12 = 24.">
+<img src="../../figures/ch16-grid.svg" alt="A grid of 2 by 2 blocks over the 4 by 4 matrix C, 1 color per block: block (0, 0) lavender, (0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labeled (threadIdx.y, threadIdx.x) from (0, 0) to (1, 1). Thread (1, 0) of block (0, 1) is outlined. The panel on the right: the block covers rows 0 to 1 and columns 2 to 3; row = 0 times 2 + 1 = 1, col = 1 times 2 + 0 = 2, so the thread computes c12 = 24.">
 <figcaption><b>Figure 16.5</b> A grid of 2 × 2 blocks of 2 × 2 threads over C, 1 color per block. Thread (1, 0) of block (0, 1) computes c<sub>12</sub>.</figcaption>
 </figure>
 
@@ -315,66 +315,65 @@ the position of the thread along the axis \\(x\\). We first see how a thread use
 **1 dimension.** Suppose that a vector of 12 elements is handled by blocks of 4 threads, so that
 3 blocks lie side by side, as in Figure 16.6. Consider thread 1 of block 2. Blocks 0 and 1 come
 before block 2, and together they cover elements 0 to 7. Block 2 therefore starts at element 8,
-and its thread 1 handles element \\(8 + 1 = 9\\). In general, block \\(b\\) starts at element
-\\(b \cdot \mathsf{blockDim{.}x}\\), because each of the \\(b\\) blocks before it covers
+and its thread 1 handles element \\(8 + 1 = 9\\). In general, a block starts at element
+\\(\mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\\), because each of the \\(\mathsf{blockIdx{.}x}\\) blocks before it covers
 \\(\mathsf{blockDim{.}x}\\) elements. A thread then adds its own position within the block, so it
 handles element
 
-\\[ i = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
+\\[ \mathsf{index} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
 
 | Symbol | Meaning | Thread 1 of block 2 |
 |---|---|---|
 | \\(\mathsf{blockIdx{.}x}\\) | position of the block in the grid | 2 |
 | \\(\mathsf{blockDim{.}x}\\) | number of threads in a block | 4 |
 | \\(\mathsf{threadIdx{.}x}\\) | position of the thread within its block | 1 |
-| \\(i\\) | element that the thread handles | \\(2 \cdot 4 + 1 = 9\\) |
+| \\(\mathsf{index}\\) | element that the thread handles | \\(2 \cdot 4 + 1 = 9\\) |
 
 <figure>
-<img src="../../figures/ch16-1d.svg" alt="12 elements in 3 blocks of 4 threads, 1 color per block. Each block's threads are labeled t0 to t3, and below them the element index i runs from 0 to 11. Thread 1 of block 2 is outlined, above i = 9, and a line reads: block 2, thread 1: i = 2 times 4 plus 1 = 9.">
+<img src="../../figures/ch16-1d.svg" alt="12 elements in 3 blocks of 4 threads, 1 color per block. Each block's threads are labeled threadIdx.x = 0 to 3, and below them the element index runs from 0 to 11. Thread 1 of block 2 is outlined, above index 9, and a line reads: block 2, thread 1: index = 2 times 4 plus 1 = 9.">
 <figcaption><b>Figure 16.6</b> 1 dimension: 12 elements in 3 blocks of 4 threads. Thread 1 of block 2 handles element 2 · 4 + 1 = 9.</figcaption>
 </figure>
 
 **2 dimensions.** A matrix has rows and columns, so we arrange the threads of a block, and the
 blocks of the grid, in rows and columns as well. The axis \\(x\\) counts columns, and the axis
-\\(y\\) counts rows. For the matrix product, we cut \\(C\\) into squares of \\(T \times T\\)
-entries and give each square to 1 block of \\(T \times T\\) threads. The number \\(T\\) is the
-number of threads along each side of a block, so a block holds \\(T^2\\) threads, and each
-thread computes 1 entry of its block's square. In our example, \\(T = 2\\), so each block holds 4
+\\(y\\) counts rows. For the matrix product, we cut \\(C\\) into squares and give each square to one block. Each
+thread computes one entry of its block's square. The number of threads along a row of the block
+is \\(\mathsf{blockDim{.}x}\\), and the number along a column is \\(\mathsf{blockDim{.}y}\\). We use
+square blocks, so the 2 numbers are equal. In our example, \\(\mathsf{blockDim{.}x} = \mathsf{blockDim{.}y} = 2\\), so each block holds 4
 threads, which compute a 2 × 2 square of \\(C\\), and 2 × 2 blocks cover the 4 × 4 matrix, as in
 Figure 16.5.
 
-We write all positions as (row, column), that is, as \\((y, x)\\). We write the position of a
-thread within its block as \\((\mathsf{ty}, \mathsf{tx})\\), where \\(\mathsf{ty}\\) is *threadIdx.y*, the row of the thread
-within its block, and \\(\mathsf{tx}\\) is *threadIdx.x*, the column of the thread within its block. In
-the same way, we write the position of a block within the grid as \\((by, bx)\\), where \\(by\\)
-is *blockIdx.y* and \\(bx\\) is *blockIdx.x*. Thus, thread \\((1, 0)\\) of block \\((0, 1)\\),
+We write all positions as (row, column). The position of a thread within its block is
+(\\(\mathsf{threadIdx{.}y}\\), \\(\mathsf{threadIdx{.}x}\\)): \\(\mathsf{threadIdx{.}y}\\) is the row of the thread within its block,
+and \\(\mathsf{threadIdx{.}x}\\) is its column. In the same way, the position of a block within the grid
+is (\\(\mathsf{blockIdx{.}y}\\), \\(\mathsf{blockIdx{.}x}\\)). Thus, thread \\((1, 0)\\) of block \\((0, 1)\\),
 which is outlined in Figure 16.5, is the thread in row 1 and column 0 of the block that lies in
-row 0 and column 1 of the grid. For this thread, \\(\mathsf{ty} = 1\\), \\(\mathsf{tx} = 0\\), \\(by = 0\\) and
-\\(bx = 1\\).
+row 0 and column 1 of the grid. For this thread, \\(\mathsf{threadIdx{.}y} = 1\\), \\(\mathsf{threadIdx{.}x} = 0\\),
+\\(\mathsf{blockIdx{.}y} = 0\\) and \\(\mathsf{blockIdx{.}x} = 1\\).
 
 Let us find the entry of \\(C\\) that this thread computes. Its block covers rows 0 and 1 and
-columns 2 and 3 of \\(C\\). Each block row of the grid covers \\(T\\) rows of \\(C\\), and each
-block column covers \\(T\\) columns, so the top-left corner of block \\((0, 1)\\) is at row
-\\(0 \cdot T = 0\\) and column \\(1 \cdot T = 2\\). Within the block, the thread lies 1 row down
+columns 2 and 3 of \\(C\\). Each block row of the grid covers \\(\mathsf{blockDim{.}y}\\) rows of \\(C\\), and each
+block column covers \\(\mathsf{blockDim{.}x}\\) columns, so the top-left corner of block \\((0, 1)\\) is at row
+\\(0 \cdot 2 = 0\\) and column \\(1 \cdot 2 = 2\\). Within the block, the thread lies 1 row down
 and 0 columns across from that corner. It therefore computes the entry in row \\(0 + 1 = 1\\) and
 column \\(2 + 0 = 2\\), which is \\(c_{12}\\). The same reasoning applies to every thread. We call
 the row and the column of the entry that a thread computes \\(\mathsf{row}\\) and
 \\(\mathsf{col}\\), and they are
 
-\\[ \mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + \mathsf{threadIdx{.}y}, \qquad
-\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + \mathsf{threadIdx{.}x}. \\]
+\\[ \mathsf{row} = \mathsf{blockIdx{.}y} \cdot \mathsf{blockDim{.}y} + \mathsf{threadIdx{.}y}, \qquad
+\mathsf{col} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
 
 | Symbol | Meaning | Thread \\((1, 0)\\) of block \\((0, 1)\\) |
 |---|---|---|
-| \\(\mathsf{blockIdx{.}y}\\), or \\(by\\) | row of the block within the grid | 0 |
-| \\(\mathsf{blockIdx{.}x}\\), or \\(bx\\) | column of the block within the grid | 1 |
-| \\(\mathsf{threadIdx{.}y}\\), or \\(\mathsf{ty}\\) | row of the thread within its block | 1 |
-| \\(\mathsf{threadIdx{.}x}\\), or \\(\mathsf{tx}\\) | column of the thread within its block | 0 |
-| \\(T\\) | number of threads along each side of a block | 2 |
+| \\(\mathsf{blockIdx{.}y}\\) | row of the block within the grid | 0 |
+| \\(\mathsf{blockIdx{.}x}\\) | column of the block within the grid | 1 |
+| \\(\mathsf{threadIdx{.}y}\\) | row of the thread within its block | 1 |
+| \\(\mathsf{threadIdx{.}x}\\) | column of the thread within its block | 0 |
+| \\(\mathsf{blockDim{.}y}\\), \\(\mathsf{blockDim{.}x}\\) | number of threads along each side of a block | 2 |
 | \\(\mathsf{row}\\) | row of the entry of \\(C\\) that the thread computes | \\(0 \cdot 2 + 1 = 1\\) |
 | \\(\mathsf{col}\\) | column of the entry of \\(C\\) that the thread computes | \\(1 \cdot 2 + 0 = 2\\) |
 
-As a second example, thread \\((0, 1)\\) of block \\((0, 0)\\) has \\(\mathsf{ty} = 0\\) and \\(\mathsf{tx} = 1\\),
+As a second example, thread \\((0, 1)\\) of block \\((0, 0)\\) has \\(\mathsf{threadIdx{.}y} = 0\\) and \\(\mathsf{threadIdx{.}x} = 1\\),
 and it computes the entry with \\(\mathsf{row} = 0 \cdot 2 + 0 = 0\\) and
 \\(\mathsf{col} = 0 \cdot 2 + 1 = 1\\), that is, \\(c_{01} = 13\\). Within block \\((0, 0)\\),
 the 4 threads \\((0, 0)\\), \\((0, 1)\\), \\((1, 0)\\) and \\((1, 1)\\) compute \\(c_{00}\\),
@@ -430,13 +429,13 @@ threads. Here, we write positions in the order \\((x, y, z)\\). Thread \\((1, 0,
 
 When we launch a kernel, we give the size of the grid and the size of a block, each as a triple
 \\((x, y, z)\\). For the matrix product, we use a grid of
-\\((\lceil N/T \rceil, \lceil M/T \rceil, 1)\\) blocks, each of \\((T, T, 1)\\) threads. The
-notation \\(\lceil N/T \rceil\\) denotes the quotient \\(N/T\\) rounded up to the next integer.
-The grid needs \\(\lceil N/T \rceil\\) blocks along \\(x\\) to cover the \\(N\\) columns of \\(C\\),
-and \\(\lceil M/T \rceil\\) blocks along \\(y\\) to cover its \\(M\\) rows. In our example,
-\\(N = M = 4\\) and \\(T = 2\\), so the grid has \\(\lceil 4/2 \rceil = 2\\) blocks along each axis,
-as in Figure 16.5. The rounding up matters when \\(T\\) does not divide the size of the matrix.
-For example, with \\(N = 1{,}000\\) and \\(T = 16\\), the quotient is \\(1{,}000 / 16 = 62.5\\), so
+\\((\lceil N/\mathsf{blockDim{.}x} \rceil, \lceil M/\mathsf{blockDim{.}y} \rceil, 1)\\) blocks. The
+notation \\(\lceil N/\mathsf{blockDim{.}x} \rceil\\) denotes the quotient rounded up to the next integer.
+The grid needs \\(\lceil N/\mathsf{blockDim{.}x} \rceil\\) blocks along \\(x\\) to cover the \\(N\\) columns of \\(C\\),
+and \\(\lceil M/\mathsf{blockDim{.}y} \rceil\\) blocks along \\(y\\) to cover its \\(M\\) rows. In our example,
+\\(N = M = 4\\) and the blocks are 2 × 2, so the grid has \\(\lceil 4/2 \rceil = 2\\) blocks along each axis,
+as in Figure 16.5. The rounding up matters when the block width does not divide the size of the matrix.
+For example, with \\(N = 1{,}000\\) and blocks of 16 × 16 threads, the quotient is \\(1{,}000 / 16 = 62.5\\), so
 the grid needs 63 blocks along \\(x\\). These 63 blocks cover \\(63 \cdot 16 = 1{,}008\\) columns,
 and the last block therefore has 8 threads in each of its rows that lie past the last column of
 \\(C\\).
@@ -523,7 +522,7 @@ this, and we will count what that costs.
 Exercises
 
 16.7 Which entry of \\(C\\) does thread \\((0, 1)\\) of block \\((1, 1)\\) compute in Figure 16.5?<br>
-16.8 With \\(T = 16\\), how many blocks cover a 1,000 × 1,000 matrix \\(C\\)? How many threads
+16.8 With blocks of 16 × 16 threads, how many blocks cover a 1,000 × 1,000 matrix \\(C\\)? How many threads
 in the edge blocks have no entry to compute?<br>
 16.9 A grid has 132 blocks, and the device has 66 SMs that each hold 1 block at a time. How many
 waves are needed?
@@ -537,29 +536,29 @@ waves are needed?
 We obtain the simplest GPU kernel from <span style="font-variant: small-caps">Matrix-Multiply</span>
 by removing its 2 outer loops. In the sequential algorithm, these loops chose the entry
 \\(c_{ij}\\) to compute. In the kernel, there is one thread for every entry of \\(C\\), and the
-position of a thread in the grid takes the place of \\(i\\) and \\(j\\): the thread computes the
-entry in row \\(\mathsf{row}\\) and column \\(\mathsf{col}\\), given by the formulas of
+position of a thread in the grid takes the place of the 2 outer loops. The thread computes the
+entry \\(c_{\mathsf{row}, \mathsf{col}}\\), whose row and column come from the formulas of
 Section 16.3.2. Every thread executes the following procedure.
 
 <div class="algo">
 <p class="algo-name">Direct-Kernel(\(A, B, C, M, K, N\))</p>
 <ol>
-<li>\(\mathsf{tx} = \mathsf{threadIdx{.}x}\), \(\mathsf{ty} = \mathsf{threadIdx{.}y}\)</li>
-<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + \mathsf{ty}\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + \mathsf{tx}\)</li>
-<li><b class="kw">if</b> \(\mathsf{row} \notin [0, M)\) or \(\mathsf{col} \notin [0, N)\) { <span class="c">// thread lies outside C</span></li>
+<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot \mathsf{blockDim{.}y} + \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\)</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{row} \notin [0, M)\) <b class="kw">or</b> \(\mathsf{col} \notin [0, N)\) { <span class="c">// thread lies outside C</span></li>
 <li style="--d:1"><b class="kw">return</b></li>
 <li>}</li>
-<li>\(\mathsf{sum} = 0\)</li>
-<li><b class="kw">for</b> \(s \in [0, K)\) {</li>
-<li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + a_{\mathsf{row}, s} \cdot b_{s, \mathsf{col}}\) <span class="c">// 2 fetches from global memory</span></li>
+<li class="gap">\(\mathsf{sum} = 0\)</li>
+<li><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
+<li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + a_{\mathsf{row}, \mathsf{inner}} \cdot b_{\mathsf{inner}, \mathsf{col}}\) <span class="c">// 2 reads from global memory</span></li>
 <li>}</li>
-<li>\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{sum}\)</li>
+<li class="gap">\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{sum}\)</li>
 </ol>
 </div>
 
 Lines 1 and 2 compute the position of the thread's entry with the formulas of Section 16.3.2.
 Lines 3 to 5 end the thread at once if its entry lies outside \\(C\\), which happens when the
-size of the matrix is not a multiple of \\(T\\). Lines 6 to 9 are the inner loop of
+size of the matrix is not a multiple of the block width. Lines 6 to 9 are the inner loop of
 <span style="font-variant: small-caps">Matrix-Multiply</span>, with the partial sum kept in the
 variable \\(\mathsf{sum}\\), which lives in a register. Line 10 stores the result in global
 memory. We let every thread write a different entry of \\(C\\), and every thread reads only \\(A\\) and
@@ -571,11 +570,11 @@ Figure 16.11, we follow a single thread through its work.
 <figcaption><b>Figure 16.11</b> The work of 1 thread of the direct kernel: row 1 of A times column 2 of B gives c<sub>12</sub> = 24, with 8 fetches from global memory.</figcaption>
 </figure>
 
-The thread is thread \\((1, 0)\\) of block \\((0, 1)\\), with \\(T = 2\\). Line 1 gives
-\\(\mathsf{tx} = 0\\) and \\(\mathsf{ty} = 1\\), and line 2 gives \\(\mathsf{row} = 0 \cdot 2 + 1 = 1\\) and
+The thread is thread \\((1, 0)\\) of block \\((0, 1)\\), in blocks of 2 × 2 threads. Lines 1 and 2 give
+\\(\mathsf{row} = 0 \cdot 2 + 1 = 1\\) and
 \\(\mathsf{col} = 1 \cdot 2 + 0 = 2\\). Both values lie inside \\(C\\), so the test of line 3
-fails and the thread continues. The loop runs for \\(s = 0, 1, 2, 3\\). In the pass with
-\\(s = 0\\), line 8 reads \\(a_{10} = 5\\) and \\(b_{02} = 2\\) and adds their product, 10, to
+fails and the thread continues. The loop runs for \\(\mathsf{inner} = 0, 1, 2, 3\\). In the pass with
+\\(\mathsf{inner} = 0\\), line 8 reads \\(a_{10} = 5\\) and \\(b_{02} = 2\\) and adds their product, 10, to
 \\(\mathsf{sum}\\). The remaining 3 passes add \\(6 \cdot 1\\), \\(7 \cdot 0\\) and
 \\(8 \cdot 1\\), so that \\(\mathsf{sum}\\) ends at
 \\(5 \cdot 2 + 6 \cdot 1 + 7 \cdot 0 + 8 \cdot 1 = 24\\), and line 10 stores 24 in \\(c_{12}\\).
@@ -585,16 +584,16 @@ thread makes \\(4 \cdot 2 = 8\\) fetches and 1 write.
 ### 16.4.2 Correctness
 
 The direct kernel needs only a short argument. Fix a thread with \\(\mathsf{row} \in [0, M)\\) and
-\\(\mathsf{col} \in [0, N)\\). We claim that before the pass of line 8 with index \\(s\\), the
-variable `sum` holds the first \\(s\\) terms of the dot product, that is,
+\\(\mathsf{col} \in [0, N)\\). We claim that before the pass of line 8 with index \\(\mathsf{inner}\\), the
+variable `sum` holds the first \\(\mathsf{inner}\\) terms of the dot product, that is,
 
-\\[ \mathsf{sum} = \sum_{s' \in [0, s)} a_{\mathsf{row}, s'}\\, b_{s', \mathsf{col}}. \\]
+\\[ \mathsf{sum} = \sum_{j \in [0, \mathsf{inner})} a_{\mathsf{row}, j}\\, b_{j, \mathsf{col}}. \\]
 
-Here \\(s'\\) runs over the terms that have already been added, from 0 to \\(s - 1\\). For
-example, for thread \\((1, 0)\\) of block \\((0, 1)\\), before the pass with \\(s = 2\\), `sum`
+Here \\(j\\) runs over the terms that have already been added, from 0 to \\(\mathsf{inner} - 1\\). For
+example, for thread \\((1, 0)\\) of block \\((0, 1)\\), before the pass with \\(\mathsf{inner} = 2\\), `sum`
 holds \\(a_{10}\\, b_{02} + a_{11}\\, b_{12} = 5 \cdot 2 + 6 \cdot 1 = 16\\). The claim holds for
-\\(s = 0\\), where the sum is empty and `sum` is 0 by line 6, and each pass of line 8 adds the
-next term, so the claim holds before every pass. When the loop ends, \\(s = K\\), and `sum` holds
+\\(\mathsf{inner} = 0\\), where the sum is empty and `sum` is 0 by line 6, and each pass of line 8 adds the
+next term, so the claim holds before every pass. When the loop ends, \\(\mathsf{inner} = K\\), and `sum` holds
 all \\(K\\) terms, which is \\(c_{\mathsf{row}, \mathsf{col}}\\) by Definition 16.1. Finally, no
 other thread has the same \\((\mathsf{row}, \mathsf{col})\\), because any 2 threads differ either
 in their block or in their position within it. Therefore, no other thread writes that entry.
@@ -710,13 +709,13 @@ mod kernels {
 </div>
 
 Both kernels follow <span style="font-variant: small-caps">Direct-Kernel</span> almost line for
-line. In Rust, `index_2d_row()` and `index_2d_col()` compute line 2 of the pseudocode, and in C++,
-the 2 expressions with `blockIdx` compute the same line, with `blockDim` in place of \\(T\\). The
-test of `row` and `col` corresponds to lines 3 to 5, and the loop over `s` corresponds to lines 7
-to 9. Every index follows Definition 16.2. The expression `a[row * k + s]` is
-\\(a_{\mathsf{row}, s}\\) in a matrix of row width \\(k\\), and `b[s * n + col]` is
-\\(b_{s, \mathsf{col}}\\) in a matrix of row width \\(n\\). For example, for thread \\((1, 0)\\) of
-block \\((0, 1)\\) with \\(s = 0\\), these are `a[1 * 4 + 0]`, which is `a[4]` and holds 5, and
+line. In Rust, `index_2d_row()` and `index_2d_col()` compute lines 1 and 2 of the pseudocode, and in C++,
+the 2 expressions with `blockIdx` compute the same lines. The
+test of `row` and `col` corresponds to lines 3 to 5, and the loop over `inner` corresponds to lines 7
+to 9. Every index follows Definition 16.2. The expression `a[row * k + inner]` is
+\\(a_{\mathsf{row}, \mathsf{inner}}\\) in a matrix of row width \\(k\\), and `b[inner * n + col]` is
+\\(b_{\mathsf{inner}, \mathsf{col}}\\) in a matrix of row width \\(n\\). For example, for thread \\((1, 0)\\) of
+block \\((0, 1)\\) with \\(\mathsf{inner} = 0\\), these are `a[1 * 4 + 0]`, which is `a[4]` and holds 5, and
 `b[0 * 4 + 2]`, which is `b[2]` and holds 2.
 
 The Rust kernel receives the sizes as `u32`, which is the type of a launch argument, and converts
@@ -904,10 +903,10 @@ where
 </div>
 </div>
 
-The function `config` computes the grid of Section 16.3.2, with \\(\lceil n / T \rceil\\) blocks
-along \\(x\\) and \\(\lceil m / T \rceil\\) blocks along \\(y\\); the method `div_ceil` performs
+The function `config` computes the grid of Section 16.3.2, with \\(\lceil n / \mathsf{side} \rceil\\) blocks
+along \\(x\\) and \\(\lceil m / \mathsf{side} \rceil\\) blocks along \\(y\\), where \\(\mathsf{side}\\) is the number of threads along each side of a block. The method `div_ceil` performs
 the division rounded up. For example, `config(1000, 1000, 16)` gives a grid of 63 × 63 blocks. The
-C++ function `gridFor` computes the same grid with the expression \\((n + T - 1) / T\\). The Rust
+C++ function `gridFor` computes the same grid with the expression \\((n + \mathsf{side} - 1) / \mathsf{side}\\). The Rust
 closure creates a new `RowWidth` for every launch, because a `RowWidth` holds the mutable borrow
 of `c` for the duration of 1 launch. The function `time_ms` launches the kernel once without
 timing it, and then it averages `runs` launches between 2 synchronizations of the stream.
@@ -1168,7 +1167,7 @@ the C++ program, we run
   \\(rW + c\\).
 - A kernel runs as many threads. The threads are grouped in blocks of up to 1,024 threads, each of
   which runs on 1 SM and shares shared memory, and the blocks form a grid. Along each axis, a
-  thread finds its entry from \\(\mathsf{blockIdx} \cdot T + \mathsf{threadIdx}\\).
+  thread finds its entry from \\(\mathsf{blockIdx} \cdot \mathsf{blockDim} + \mathsf{threadIdx}\\).
 - Registers are fast and private to a thread, shared memory is fast and belongs to a block, and
   global memory is large and shared by all threads, but slow.
 - The direct kernel gives each thread 1 entry of \\(C\\). It is correct, but it fetches every value

@@ -26,8 +26,8 @@ __global__ void matmul(int m, int n, int k, const T* a, const T* b, T* c)
     }
 
     T sum = 0;
-    for (int s = 0; s < k; ++s) {
-        sum += a[row * k + s] * b[s * n + col];
+    for (int inner = 0; inner < k; ++inner) {
+        sum += a[row * k + inner] * b[inner * n + col];
     }
     c[row * n + col] = sum;
 }
@@ -43,8 +43,8 @@ __global__ void matmulFixed(const float* a, const float* b, float* c)
     }
 
     float sum = 0.0f;
-    for (int s = 0; s < W; ++s) {
-        sum += a[row * W + s] * b[s * W + col];
+    for (int inner = 0; inner < W; ++inner) {
+        sum += a[row * W + inner] * b[inner * W + col];
     }
     c[row * W + col] = sum;
 }

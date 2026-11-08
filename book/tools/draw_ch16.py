@@ -173,7 +173,7 @@ tx = 280
 parts += [label(tx, 130, "Lines 1 and 2 visit the 16 entries of C row by row:", "start", INK, 12.5,
                 room=360),
           label(tx, 149, "visit 1 is c00, visit 16 is c33.", "start", INK, 12.5),
-          label(tx, 186, "At visit 7, entry c12, line 5 runs s = 0, 1, 2, 3:", "start", INK, 12.5,
+          label(tx, 186, "At visit 7 (c12), line 5 runs inner = 0, 1, 2, 3:", "start", INK, 12.5,
                 room=360),
           label(tx, 208, "c12 = 5·2 + 6·1 + 7·0 + 8·1 = 24", "start", DEEP, 13, True, room=360),
           label(tx, 248, "In all: 16 visits × 4 steps = 64 multiply-adds,", "start", MUTED, 12.5,
@@ -182,7 +182,7 @@ parts += [label(tx, 130, "Lines 1 and 2 visit the 16 entries of C row by row:", 
 figure("ch16-sequential.svg", 660, 316,
        "C as a 4 by 4 grid whose cells hold the order in which the sequential algorithm visits them, 1 "
        "to 16 row by row. Visit 7, entry c12, is highlighted. The text says that at visit 7 line 5 runs "
-       "for s = 0 to 3 and computes c12 = 5 times 2 + 6 times 1 + 7 times 0 + 8 times 1 = 24, and that "
+       "for inner = 0 to 3 and computes c12 = 5 times 2 + 6 times 1 + 7 times 0 + 8 times 1 = 24, and that "
        "16 visits of 4 steps make 64 multiply-adds, performed one after another.",
        "The sequential algorithm", "Matrix-Multiply fills C 1 entry at a time.", parts)
 
@@ -251,20 +251,20 @@ for by in range(2):
                 hit = (by, bx, ty, tx) == (0, 1, 1, 0)
                 parts.append(box(x + 12 + tx * 48, y + 28 + ty * 42, cell, 38, f"({ty}, {tx})",
                                  (tint, accent), hit, 11.5))
-parts.append(label(170, 384, "positions (ty, tx) repeat in every block", "middle", MUTED, 11.5))
+parts.append(label(170, 384, "(threadIdx.y, threadIdx.x) repeats in every block", "middle", MUTED, 11.5))
 tx0 = 340
 parts += [rounded(tx0, 128, 296, 222, "#FFFFFF", EDGE, 12),
           label(tx0 + 20, 158, "block (0, 1), thread (1, 0)", "start", DEEP, 13, True, room=260),
           label(tx0 + 20, 186, "The block covers rows 0–1 and", "start", INK, 12.5, room=260),
           label(tx0 + 20, 204, "columns 2–3 of C.", "start", INK, 12.5),
-          label(tx0 + 20, 232, "row = blockIdx.y · 2 + ty", "start", INK, 12, mono=True, room=262),
-          label(tx0 + 20, 250, "    = 0 · 2 + 1 = 1", "start", INK, 12, mono=True, room=262),
-          label(tx0 + 20, 272, "col = blockIdx.x · 2 + tx", "start", INK, 12, mono=True, room=262),
-          label(tx0 + 20, 290, "    = 1 · 2 + 0 = 2", "start", INK, 12, mono=True, room=262),
+          label(tx0 + 20, 232, "row = blockIdx.y · blockDim.y", "start", INK, 12, mono=True, room=262),
+          label(tx0 + 20, 250, "      + threadIdx.y = 0 · 2 + 1 = 1", "start", INK, 12, mono=True, room=262),
+          label(tx0 + 20, 272, "col = blockIdx.x · blockDim.x", "start", INK, 12, mono=True, room=262),
+          label(tx0 + 20, 290, "      + threadIdx.x = 1 · 2 + 0 = 2", "start", INK, 12, mono=True, room=262),
           label(tx0 + 20, 322, "so this thread computes c12 = 24", "start", DEEP, 12.5, True, room=260)]
 figure("ch16-grid.svg", 660, 404,
        "A grid of 2 by 2 blocks over the 4 by 4 matrix C, 1 color per block: block (0, 0) lavender, "
-       "(0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labeled (ty, tx) from "
+       "(0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labeled (threadIdx.y, threadIdx.x) from "
        "(0, 0) to (1, 1). Thread (1, 0) of block (0, 1) is outlined. The panel on the right: the block "
        "covers rows 0 to 1 and columns 2 to 3; row = 0 times 2 + 1 = 1, col = 1 times 2 + 0 = 2, so the "
        "thread computes c12 = 24.",
@@ -281,16 +281,16 @@ for b in range(3):
     parts.append(label(xb + 2 * step - 2, y0 - 16, f"block {b}", "middle", accent, 12, True))
     for t in range(4):
         x = xb + t * step
-        parts += [box(x, y0, step - 6, 34, f"t{t}", (tint, accent), (b, t) == (2, 1), 12),
+        parts += [box(x, y0, step - 6, 34, str(t), (tint, accent), (b, t) == (2, 1), 12),
                   label(x + (step - 6) / 2, y0 + 54, str(4 * b + t), "middle",
                         DEEP if (b, t) == (2, 1) else MUTED, 12, (b, t) == (2, 1))]
-parts += [label(x0 - 14, y0 + 54, "i =", "end", MUTED, 12),
-          label(330, y0 + 92, "block 2, thread 1:  i = 2 · 4 + 1 = 9", "middle", DEEP, 13, True)]
+parts += [label(x0 - 14, y0 + 54, "index", "end", MUTED, 12),
+          label(330, y0 + 92, "block 2, thread 1:  index = 2 · 4 + 1 = 9", "middle", DEEP, 13, True)]
 figure("ch16-1d.svg", 660, 260,
-       "12 elements in 3 blocks of 4 threads, 1 color per block. Each block's threads are labeled t0 to "
-       "t3, and below them the element index i runs from 0 to 11. Thread 1 of block 2 is outlined, above "
-       "i = 9, and a line reads: block 2, thread 1: i = 2 times 4 plus 1 = 9.",
-       "Threads and blocks in 1 dimension", "Thread t of block b handles element b · blockDim.x + t.", parts)
+       "12 elements in 3 blocks of 4 threads, 1 color per block. Each block's threads are labeled "
+       "threadIdx.x = 0 to 3, and below them the element index runs from 0 to 11. Thread 1 of block 2 "
+       "is outlined, above index 9, and a line reads: block 2, thread 1: index = 2 times 4 plus 1 = 9.",
+       "Threads and blocks in 1 dimension", "A thread handles element blockIdx.x · blockDim.x + threadIdx.x.", parts)
 
 
 # 16.7  3 dimensions: a 4 x 2 x 4 volume in blocks of 2 x 2 x 2.
