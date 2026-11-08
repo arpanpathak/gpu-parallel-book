@@ -615,8 +615,8 @@ array. The wrong values would then appear later, in a computation that has nothi
 SAXPY, and the cause would be hard to find.
 
 In Rust, we cannot make this mistake in the same kernel. Its output is a `DisjointSlice<f32>`. The
-only way to obtain a writable element of it is `y.get_mut(idx)`, and that method returns `None`
-when `idx` lies at or beyond the end of the slice. The guard is therefore part of the type of the
+only way to obtain a writable element of it is `y.get_mut(thread_id)`, and that method returns `None`
+when `thread_id` lies at or beyond the end of the slice. The guard is therefore part of the type of the
 output, and a kernel without it does not compile.
 
 ### 14.5.2 A proof that the grid-stride loop is correct
@@ -732,7 +732,7 @@ starting index from the global index.
 
 Rust does not catch this mistake. In the grid-stride kernel, we cannot use `get_mut`, because
 `get_mut` accepts only the index of the calling thread, while the loop writes at the computed
-indices \\(\mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\). We therefore call `get_unchecked_mut(i)` inside an `unsafe` block. Above the
+indices \\(\mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\). We therefore call `get_unchecked_mut(index)` inside an `unsafe` block. Above the
 block, we write a comment that begins with `// SAFETY:` and states the argument of Theorem 14.1 in
 2 lines. The compiler does not check this argument. A wrong stride therefore compiles in Rust as
 well, and the comment then states something false.
@@ -877,9 +877,9 @@ mod kernels {
 
 In C++, we write line 1 of the pseudocode out with `blockIdx.x`, `blockDim.x` and `threadIdx.x`,
 and the guard of line 2 is the `if (i < n)`. In Rust, `thread::index_1d()` computes the same global
-index, and `y.get_mut(idx)` performs the guard. It returns `Some` with a mutable reference to
-element `idx` when the index is in range, and `None` otherwise. Recall from Chapter 13 that the
-type of `idx` is `ThreadIndex`, and that only `thread::index_1d()` can create one. A thread can
+index, and `y.get_mut(thread_id)` performs the guard. It returns `Some` with a mutable reference to
+element `thread_id` when the index is in range, and `None` otherwise. Recall from Chapter 13 that the
+type of `thread_id` is `ThreadIndex`, and that only `thread::index_1d()` can create one. A thread can
 therefore obtain a writable reference only to its own element. In both languages, we pass the
 scalar `a` by value. The host copies its 4 bytes into the launch, and every thread reads the same
 value.
@@ -966,15 +966,15 @@ mod kernels {
 </div>
 </div>
 
-The code follows the pseudocode line by line. The variable `threads` is the stride \\(P\\) of line
-1. The first value of `i` is line 2, and the loop condition is line 3. Line 4 has become the call
-`f(x[i], y[i])`, and line 5 is the step `i += threads`. In C++, we write the loop as a `for`
+The code follows the pseudocode line by line. The variable `grid_size` (`gridSize` in C++) is \\(\mathsf{gridSize}\\) of line
+1. The first value of `index` is line 2, and the loop condition is line 3. Line 4 has become the call
+`f(x[index], y[index])`, and line 5 is the step `index += grid_size`. In C++, we write the loop as a `for`
 statement. In Rust, we write it as a `while` loop over a plain `usize`.
 
-The Rust loop writes at the computed index `i`, which is not the thread's own `ThreadIndex`. We
-therefore call `get_unchecked_mut(i)` in an `unsafe` block, and its `SAFETY` comment repeats the
+The Rust loop writes at the computed index `index`, which is not the thread's own `ThreadIndex`. We
+therefore call `get_unchecked_mut(index)` in an `unsafe` block, and its `SAFETY` comment repeats the
 argument of Theorem 14.1. The method also skips the bounds check, which the loop condition
-`i < y.len()` already makes unnecessary.
+`index < y.len()` already makes unnecessary.
 
 We pass the function as the first argument of the launch. Listing 14.3 builds the SAXPY closure,
 prepares the launch for the example's 2 blocks of 2 threads, and launches the kernel.
@@ -1057,7 +1057,7 @@ Exercises
 \\(y_i \leftarrow x_i - y_i\\). How many bytes does its kernel parameter hold?<br>
 14.18 Why must the Rust bound include `Copy`? What would a closure that captured a `Vec<f32>` mean
 on the GPU?<br>
-14.19 Listing 14.2 computes `threads` from `blockDim_x()` in Rust and `blockDim.x` in C++. Why is
+14.19 Listing 14.2 computes `grid_size` from `blockDim_x()` in Rust and `blockDim.x` in C++. Why is
 this safer than a constant 256?
 
 </div>
@@ -1299,19 +1299,19 @@ A stride computed from the block instead of the grid makes several blocks update
 elements. With `blockDim.x` in place of `gridDim.x * blockDim.x`, the result of an in-place map is
 wrong, by a different amount on each run (Section 14.5.3).
 
-Calling `get_mut` with a computed index does not compile. In a grid-stride loop, the index `i` is a
+Calling `get_mut` with a computed index does not compile. In a grid-stride loop, the index `index` is a
 `usize`, and `get_mut` accepts only the `ThreadIndex` of the calling thread. If we replace
-`get_unchecked_mut(i)` in Listing 14.2 by `y.get_mut(i)`, the build stops with the following error.
+`get_unchecked_mut(index)` in Listing 14.2 by `y.get_mut(index)`, the build stops with the following error.
 
 ```console
 $ cargo oxide build
 error[E0308]: mismatched types
-   --> src/main.rs:73:41
+   --> src/main.rs:73:48
     |
- 73 |             if let Some(yi) = y.get_mut(i) {
-    |                                 ------- ^ expected `ThreadIndex<'_>`, found `usize`
-    |                                 |
-    |                                 arguments to this method are incorrect
+ 73 |             if let Some(y_element) = y.get_mut(index) {
+    |                                        ------- ^^^^^ expected `ThreadIndex<'_>`, found `usize`
+    |                                        |
+    |                                        arguments to this method are incorrect
 ```
 
 A closure that refers to a host variable makes the GPU read a host address. The Rust closure
