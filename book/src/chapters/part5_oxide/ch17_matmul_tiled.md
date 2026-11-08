@@ -2,20 +2,22 @@
 
 # Chapter 17: Tiled Matrix Multiplication
 
-A GPU computes quickly but fetches data from its global memory slowly. Tiling is the standard
-remedy: a group of threads copies a small block of data into fast on-chip memory once, and then
-every thread of the group works from the copy. The direct kernel of Chapter 16 fetched every
-input value once for every thread that used it, 1 fetch for every floating-point operation. The
-tiled kernel removes most of these fetches, and the matrix product is the classic first example,
-because every input value is needed by many threads and the saving is easy to count.
+A GPU can perform arithmetic far faster than it can read operands from its global memory. In the
+direct kernel of Chapter 16, every thread read both of its operands from global memory for every
+multiply-add it performed, so the kernel spent most of its time waiting for memory rather than
+computing. Tiling is the standard technique for reducing this traffic. The threads of a block
+first copy a small piece of each input matrix into the fast on-chip shared memory, and then every
+thread of the block takes its operands from that copy. A value that would otherwise be read from
+global memory by many threads is then read from global memory only once per block.
 
-In this chapter we derive the tiled kernel step by step on the 4 × 4 matrices of Chapter 16. We
-start from the values that 1 block needs, split each dot product into phases, let the threads of
-a block copy the pieces they need into shared memory together, and count the fetches again. We
-then remove each of the kernel's 2 barriers in turn, follow the wrong values that appear on the
-example, and prove the kernel correct with a loop invariant. Finally we implement the kernel in
-Rust and in CUDA C++, measure it, and explain why the measured speedup is much smaller than the
-reduction in fetches.
+In this chapter we develop the tiled kernel step by step, using the same pair of 4 × 4 matrices
+as in Chapter 16, so that every number can be checked by hand. We first determine which values
+one block needs and how often the direct kernel reads them. We then split each dot product into
+phases, let the threads of a block load the pieces they need into shared memory together, and
+count the reads from global memory again. After that we remove each of the kernel's 2 barriers
+in turn and follow the wrong values that appear, and we prove that the complete kernel is correct.
+Finally, we implement the kernel in Rust and in CUDA C++, measure it, and explain why the measured
+speedup is much smaller than the reduction in reads.
 
 <div class="covers">
 
@@ -43,102 +45,161 @@ integers from \\(a\\) to \\(b - 1\\).
 
 ## 17.1 Values needed by 1 block
 
-We turn the key observation of Section 16.4.3 into an algorithm, starting with block \\((0, 0)\\)
-of the grid of Figure 16.5. Its 4 threads compute the top-left 2 × 2 square of \\(C\\):
-\\(c_{00} = 11\\), \\(c_{01} = 13\\), \\(c_{10} = 27\\) and \\(c_{11} = 29\\). Together they need
-rows 0 and 1 of \\(A\\) and columns 0 and 1 of \\(B\\): 8 values from each matrix, 16 in all
-(Figure 17.1).
+Recall from Section 16.4.3 that the 4 threads computing row 0 of \\(C\\) all read the same value
+\\(a_{01}\\) from global memory, each on its own. Our goal is to let such threads share a single
+copy of the value. Since only threads of the same block can share data, we start by asking which
+values one block needs. We take block \\((0, 0)\\) of the grid in Figure 16.5. Its 4 threads
+compute the top-left 2 × 2 square of \\(C\\), that is, \\(c_{00} = 11\\), \\(c_{01} = 13\\),
+\\(c_{10} = 27\\) and \\(c_{11} = 29\\). An entry \\(c_{ij}\\) needs row \\(i\\) of \\(A\\) and
+column \\(j\\) of \\(B\\), so together the 4 threads need rows 0 and 1 of \\(A\\) and columns 0 and
+1 of \\(B\\). These are 8 values from each matrix, 16 values in all, as shown in Figure 17.1.
 
 <figure>
 <img src="../../figures/ch17-block-needs.svg" alt="Matrices A, B and C of the 4 by 4 example. Rows 0 and 1 of A (1 2 3 4 and 5 6 7 8) are outlined in blue, columns 0 and 1 of B (1 0 2 1 and 0 1 1 2) in amber, and the other cells are faded. In C, the top-left 2 by 2 square is block (0, 0), its 4 cells coloured for threads (0,0), (0,1), (1,0) and (1,1). The note: block (0, 0) needs 16 values, and the direct kernel fetches them 32 times.">
 <figcaption><b>Figure 17.1</b> The values needed by block (0, 0): 2 rows of A and 2 columns of B.</figcaption>
 </figure>
 
-The direct kernel fetches these 16 values 32 times. Thread \\((0, 0)\\) fetches row 0 of \\(A\\)
-and column 0 of \\(B\\), thread \\((0, 1)\\) fetches row 0 of \\(A\\) again with column 1 of
-\\(B\\), and so on: each of the 4 threads makes 8 fetches, and each value is fetched by 2 threads
-of the block. The plan follows: the block should copy each of the 16 values into shared memory
-once, and its threads should then work from the copy.
+Let us count how often the direct kernel reads these 16 values. Thread \\((0, 0)\\) reads the 4
+values of row 0 of \\(A\\) and the 4 values of column 0 of \\(B\\). Thread \\((0, 1)\\) reads the
+same row 0 of \\(A\\) again, together with column 1 of \\(B\\). In the same way, each of the 4
+threads makes 8 reads, so the block makes 32 reads in total, and every one of the 16 values is
+read twice. If the block instead copied each of the 16 values into shared memory once, and its
+threads then took their operands from that copy, the block would read global memory only 16
+times, half as often.
 
-There is 1 obstacle. Shared memory is small. A block can use at most 48 KB of it by default, and
-an SM has between 48 and 228 KB in total, shared by all the blocks it runs. In a real problem a
-row of \\(A\\) may hold thousands of values; for \\(K = 4{,}096\\), the 16 rows of \\(A\\) and the 16
-columns of \\(B\\) that a block of 16 × 16 threads needs hold \\(2 \cdot 16 \cdot 4{,}096 =
-131{,}072\\) floats, 512 KB. A whole strip of rows does not fit.
+This plan has one difficulty. Shared memory is small: a block can use at most 48 KB of it by
+default, and a streaming multiprocessor (SM) has between 48 KB and 228 KB in total, shared by all
+the blocks that it runs. In our example the rows are only 4 values long, but in a real problem a
+row of \\(A\\) holds thousands of values. For example, with \\(K = 4{,}096\\), a block of 16 × 16
+threads needs 16 rows of \\(A\\) and 16 columns of \\(B\\), which hold
+\\(2 \cdot 16 \cdot 4{,}096 = 131{,}072\\) floats, or 512 KB. Such a strip of rows and columns
+does not fit into shared memory, so the block cannot copy everything it needs at once. In the next
+section we see that it does not have to.
 
 ## 17.2 Splitting the sum
 
-A thread does not need its whole row and column at once. The entry \\(c_{00}\\) is a sum, and we
-may add up a sum in any grouping we like. Grouping the 4 terms of \\(c_{00}\\) in pairs gives
-Figure 17.2: the first pair, \\(1 \cdot 1 + 2 \cdot 0 = 1\\), and the second,
-\\(3 \cdot 2 + 4 \cdot 1 = 10\\), add up to 11.
+The key to the solution is that a thread does not need its whole row and column at the same time.
+The entry \\(c_{00}\\) is a sum of 4 products, and the terms of a sum may be added in any grouping.
+Figure 17.2 groups the 4 terms of \\(c_{00}\\) in 2 pairs. The first pair uses the first 2 values
+of row 0 of \\(A\\) and the first 2 values of column 0 of \\(B\\), and adds up to
+\\(1 \cdot 1 + 2 \cdot 0 = 1\\). The second pair uses the last 2 values of each, and adds up to
+\\(3 \cdot 2 + 4 \cdot 1 = 10\\). Together the 2 pairs give \\(1 + 10 = 11\\), which is
+\\(c_{00}\\).
 
 <figure>
 <img src="../../figures/ch17-split.svg" alt="Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are coloured in 2 groups: columns 0 and 1 of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), and 1 + 10 = 11, the entry c00.">
 <figcaption><b>Figure 17.2</b> c<sub>00</sub> in 2 groups: phase 0 (blue) uses columns 0 and 1 of A and rows 0 and 1 of B, phase 1 (amber) the rest.</figcaption>
 </figure>
 
-The first group touches only a 2 × 2 piece of \\(A\\) (rows 0 and 1, columns 0 and 1, if we include
-the needs of the other 3 threads) and a 2 × 2 piece of \\(B\\), and so does the second. The block
-can therefore work in 2 rounds: in each round it copies 1 small piece of \\(A\\) and 1 small piece
-of \\(B\\) into shared memory, and every thread adds the matching group of terms to its sum.
+Now consider all 4 threads of the block. For its first pair of terms, every thread needs only
+columns 0 and 1 of rows 0 and 1 of \\(A\\), which form a 2 × 2 piece of \\(A\\), and rows 0 and 1
+of columns 0 and 1 of \\(B\\), which form a 2 × 2 piece of \\(B\\). For its second pair, every
+thread needs the 2 × 2 pieces next to these: columns 2 and 3 of \\(A\\), and rows 2 and 3 of
+\\(B\\). The block can therefore work in 2 rounds. In each round it copies 1 small piece of
+\\(A\\) and 1 small piece of \\(B\\) into shared memory, and every thread adds the matching pair of
+terms to its sum. At any moment the block holds only 2 pieces of 4 values each in shared memory,
+however long the rows are.
 
 <div class="definition">
 
-<span class="box-label">Definition 17.1</span> **Tile and phase.** A **tile** is a \\(T \times T\\)
-piece of \\(A\\) or \\(B\\) that a block holds in shared memory. A **phase** is 1 round of the
-tiled kernel: the block copies 1 tile of \\(A\\) and 1 tile of \\(B\\), and every thread adds \\(T\\)
-terms to its sum.
+<span class="box-label">Definition 17.1</span> **Tile and phase.** A **tile** is a square piece of
+\\(A\\) or \\(B\\), of \\(T\\) rows and \\(T\\) columns, that a block holds in shared memory. The
+number \\(T\\) is called the **tile width**. A **phase** is 1 round of the tiled kernel: the block
+copies 1 tile of \\(A\\) and 1 tile of \\(B\\) into shared memory, and every thread adds \\(T\\)
+products to its sum.
 
 *Example.* With \\(T = 2\\), block \\((0, 0)\\) runs 2 phases. In phase 0 it uses the tile of
-\\(A\\) in rows 0 to 1 and columns 0 to 1; in phase 1, the tile in rows 0 to 1 and columns 2 to 3.
+\\(A\\) in rows 0 and 1 and columns 0 and 1; in phase 1, the tile of \\(A\\) in rows 0 and 1 and
+columns 2 and 3.
 
 </div>
 
-In general we cut the range \\([0, K)\\) into segments of length \\(T\\) and write each index as
-\\(s = tT + u\\), where \\(t\\) numbers the segment and \\(u\\) is the position inside it.
-Definition 16.1 then becomes
+We can now state the grouping in general. We number the phases \\(t = 0, 1, 2, \ldots\\). Phase
+\\(t\\) handles \\(T\\) consecutive terms of each sum, so phase 0 handles the terms with
+\\(s = 0, \ldots, T - 1\\), phase 1 the terms with \\(s = T, \ldots, 2T - 1\\), and phase \\(t\\)
+the \\(T\\) terms that begin at \\(s = tT\\). The product \\(tT\\) is therefore the position at
+which phase \\(t\\) begins. In our example, with \\(T = 2\\), phase 0 begins at \\(s = 0\\) and
+phase 1 at \\(s = 1 \cdot 2 = 2\\). We write the position of a term within its phase as \\(u\\),
+which runs from 0 to \\(T - 1\\), so that every index \\(s\\) can be written as \\(s = tT + u\\).
+For example, the term with \\(s = 3\\) is the term with \\(u = 1\\) in phase \\(t = 1\\), since
+\\(3 = 1 \cdot 2 + 1\\). With this notation, the definition of the matrix product in
+Definition 16.1 becomes a sum over the phases of a sum within each phase:
 
 \\[ c_{ij} = \sum_{t \in [0, \lceil K/T \rceil)} \\;
-\underbrace{\sum_{u \in [0, T)} a_{i,\\, tT + u}\\; b_{tT + u,\\, j}}_{\text{phase } t}, \\]
+\underbrace{\sum_{u \in [0, T)} a_{i,\\, tT + u}\\; b_{tT + u,\\, j}}_{\text{phase } t}. \\]
 
-where we treat entries beyond the edge of a matrix as 0, so that a short final segment still adds
-up correctly. From 1 phase to the next, the tile of \\(A\\) moves 1 step to the right and the tile
-of \\(B\\) 1 step down. Each thread still uses its entire row of \\(A\\) and column of \\(B\\); it
-receives them 1 tile at a time.
+| Symbol | Meaning | In the example |
+|---|---|---|
+| \\(T\\) | tile width: rows and columns of a tile, terms added per phase | 2 |
+| \\(t\\) | number of the phase | 0 or 1 |
+| \\(tT\\) | index \\(s\\) at which phase \\(t\\) begins | 0 in phase 0, 2 in phase 1 |
+| \\(u\\) | position of a term inside its phase | 0 or 1 |
+| \\(\lceil K/T \rceil\\) | number of phases, \\(K/T\\) rounded up | \\(4/2 = 2\\) |
+| \\(a_{i,\\, tT+u}\\) | value of \\(A\\) in row \\(i\\), column \\(tT + u\\) | \\(a_{0,3} = 4\\) for \\(i = 0\\), \\(t = 1\\), \\(u = 1\\) |
+
+The number of phases is \\(\lceil K/T \rceil\\), the quotient \\(K/T\\) rounded up, because when
+\\(K\\) is not a multiple of \\(T\\) the last phase is only partly filled. In that case we treat the
+entries beyond the edge of a matrix as 0, so that the missing terms add nothing to the sum. Note
+also how the tiles move. From 1 phase to the next, the tile of \\(A\\) moves \\(T\\) columns to the
+right along the rows of the block, and the tile of \\(B\\) moves \\(T\\) rows down along its
+columns. Each thread still uses its entire row of \\(A\\) and column of \\(B\\); it simply receives
+them 1 tile at a time.
 
 ## 17.3 Loading a tile together
 
-A tile holds \\(T^2\\) values and a block holds \\(T^2\\) threads, so the copying divides evenly:
-each thread copies exactly 1 value of each tile. In phase \\(t\\), thread \\((ty, tx)\\) copies the
-value that belongs at its own position:
+Next we decide which thread copies which value of a tile. A tile holds \\(T \times T = T^2\\)
+values, and a block of the tiled kernel has \\(T \times T = T^2\\) threads, so the work divides
+evenly: each thread copies exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
+\\(B\\). The natural choice is to let every thread copy the value that belongs at its own position
+in the tile. Recall from Chapter 16 that thread \\((ty, tx)\\) is the thread in row \\(ty\\) and
+column \\(tx\\) of its block, and that it computes the entry of \\(C\\) in row \\(\textit{row}\\)
+and column \\(\textit{col}\\). We call the 2 tiles in shared memory *tileA* and *tileB*. In phase
+\\(t\\), thread \\((ty, tx)\\) performs the 2 copies
 
 \\[ \textit{tileA}[ty][tx] = a_{\textit{row},\\; tT + tx}, \qquad
 \textit{tileB}[ty][tx] = b_{tT + ty,\\; \textit{col}}. \\]
 
-As \\((ty, tx)\\) runs over the block, these assignments fill every position of both tiles exactly
-once, so no value is copied twice. The threads with the same \\(ty\\) share 1 row and copy
-\\(T\\) neighbouring values of it, which lie next to each other in memory. In Figure 17.3 we watch
-block \\((0, 0)\\) at work; each colour belongs to 1 thread, and marks both the values that the
-thread copies and the sum that it accumulates.
+The first copy reads from the thread's own row of \\(A\\), at column \\(tT + tx\\): the tile of
+phase \\(t\\) begins at column \\(tT\\), and the thread takes the value \\(tx\\) places further
+along. The second copy reads from the thread's own column of \\(B\\), at row \\(tT + ty\\), that is,
+\\(ty\\) places below the first row of the tile. For example, in phase 1 thread \\((0, 1)\\) of
+block \\((0, 0)\\) has \\(\textit{row} = 0\\) and \\(\textit{col} = 1\\), and copies
+\\(a_{0,\\, 2 + 1} = a_{03} = 4\\) into *tileA*[0][1] and \\(b_{2 + 0,\\, 1} = b_{21} = 1\\) into
+*tileB*[0][1].
+
+| Symbol | Meaning | Thread \\((0, 1)\\), phase 1 |
+|---|---|---|
+| \\(ty, tx\\) | row and column of the thread within its block | 0, 1 |
+| \\(\textit{row}, \textit{col}\\) | row and column of the entry of \\(C\\) the thread computes | 0, 1 |
+| \\(tT + tx\\) | column of \\(A\\) the thread copies | \\(1 \cdot 2 + 1 = 3\\) |
+| \\(tT + ty\\) | row of \\(B\\) the thread copies | \\(1 \cdot 2 + 0 = 2\\) |
+
+As \\((ty, tx)\\) runs over all threads of the block, these copies fill every position of both
+tiles exactly once, so no value is copied twice and none is missed. Note also that the threads
+with the same \\(ty\\) copy \\(T\\) neighbouring values of the same row of \\(A\\), which lie next
+to each other in memory, so their reads can be combined into few memory transactions. In
+Figure 17.3 we follow block \\((0, 0)\\) through both phases. Each colour belongs to 1 thread and
+marks the values that the thread copies as well as the sum that it accumulates.
 
 <figure>
 <img src="../../figures/ch17-phases.svg" alt="Block (0, 0) in 2 phases, 1 colour per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is coloured by the thread that copies it into the same slot of tileA or tileB in shared memory; the 4 sums are then 1, 2, 5 and 6. Phase 1: the tile of A moves to columns 2 and 3 (3 4, 7 8) and the tile of B to rows 2 and 3 (2 1, 1 2); the sums become 11, 13, 27 and 29, the top-left square of C.">
 <figcaption><b>Figure 17.3</b> Block (0, 0) in 2 phases. Each colour marks 1 thread: the values it copies, the shared-memory slots it fills, and the sum it accumulates.</figcaption>
 </figure>
 
-Let us follow thread \\((0, 0)\\). In phase 0 it copies \\(a_{00} = 1\\) and \\(b_{00} = 1\\), while
-its 3 neighbours copy the other 6 values. It then multiplies row 0 of *tileA* by column 0 of
-*tileB*: \\(1 \cdot 1 + 2 \cdot 0 = 1\\). In phase 1 the tiles hold the next pieces, and it adds
-\\(3 \cdot 2 + 4 \cdot 1 = 10\\), arriving at \\(c_{00} = 11\\). Thread \\((0, 1)\\) follows the
-same steps with column 1 of each tile of \\(B\\): \\(1 \cdot 0 + 2 \cdot 1 = 2\\) in phase 0, and
-\\(2 + 3 \cdot 1 + 4 \cdot 2 = 13\\) after phase 1.
+Let us follow thread \\((0, 0)\\). In phase 0 it copies \\(a_{00} = 1\\) and \\(b_{00} = 1\\),
+while the other 3 threads of the block copy the remaining 6 values of the 2 tiles. Once both tiles
+are complete, the thread multiplies row 0 of *tileA* by column 0 of *tileB* and obtains
+\\(1 \cdot 1 + 2 \cdot 0 = 1\\). In phase 1 the tiles hold the next 2 pieces of \\(A\\) and
+\\(B\\), and the thread adds \\(3 \cdot 2 + 4 \cdot 1 = 10\\), which brings its sum to
+\\(c_{00} = 11\\). Thread \\((0, 1)\\) performs the same steps with column 1 of each tile of
+\\(B\\). It obtains \\(1 \cdot 0 + 2 \cdot 1 = 2\\) in phase 0, and \\(2 + 3 \cdot 1 + 4 \cdot 2 =
+13\\) after phase 1, which is \\(c_{01}\\).
 
-Where does the saving come from? Look at thread \\((0, 1)\\) in phase 0 (Figure 17.4). It uses 4
-values but copied only 2 of them, \\(a_{01}\\) and \\(b_{01}\\); its neighbours copied the other 2.
-Each value that the block copies is used by 2 threads, \\(T\\) threads in general: a value of
-*tileA* by the \\(T\\) threads of its row of the block, and a value of *tileB* by the \\(T\\)
-threads of its column.
+We can now see where the saving comes from. Consider thread \\((0, 1)\\) in phase 0, shown in
+Figure 17.4. It uses 4 values from shared memory, but it copied only 2 of them, \\(a_{01}\\) and
+\\(b_{01}\\); the other 2 were copied by its neighbours. In general, each value of *tileA* is used
+by the \\(T\\) threads in its row of the block, and each value of *tileB* by the \\(T\\) threads
+in its column. Every value that the block reads from global memory is therefore used \\(T\\) times.
 
 <figure>
 <img src="../../figures/ch17-operands.svg" alt="The shared tiles of block (0, 0) in phase 0: tileA holds 1 2 and 5 6, tileB holds 1 0 and 0 1. Row 0 of tileA and column 1 of tileB are coloured by the threads that wrote them: 1 by thread (0,0), 2 by thread (0,1), 0 by thread (0,1) and 1 by thread (1,1). Thread (0, 1) computes 1 times 0 plus 2 times 1 = 2. It copied 2 of its 4 operands; its neighbours copied the other 2.">
