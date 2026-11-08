@@ -38,7 +38,7 @@
   </defs>
   <rect width="660" height="412" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 block per row</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Thread t of block b reads columns t, t + 256, t + 512, ... of row b.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each thread reads every 256th column of its block&#x27;s row, from threadIdx.x on.</text>
   <rect x="16" y="96" width="628" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="34" y="85" width="334.8" height="22" rx="11" fill="#1B2430"/>
   <text x="201.4" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1 BLOCK OF 256 THREADS PER ROW OF 4,096</text>

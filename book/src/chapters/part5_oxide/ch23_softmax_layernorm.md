@@ -375,19 +375,19 @@ pass instead of 2, as the following procedure shows.
 <div class="algo">
 <p class="algo-name">LayerNorm-Sum-Of-Squares(\(x, y, n, \gamma, \beta\))</p>
 <ol>
-<li>\(a = 0\), \(b = 0\)</li>
+<li>\(\mathsf{sum} = 0\), \(\mathsf{squares} = 0\)</li>
 <li><b class="kw">for</b> \(j \in [0, n)\) {</li>
-<li style="--d:1">\(a = a + x_j\), \(b = b + x_j^2\) <span class="c">// pass 1: 2 sums</span></li>
+<li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + x_j\), \(\mathsf{squares} = \mathsf{squares} + x_j^2\) <span class="c">// pass 1: 2 sums</span></li>
 <li>}</li>
-<li>\(\mu = a / n\), \(\sigma^2 = b / n - \mu^2\)</li>
+<li>\(\mu = \mathsf{sum} / n\), \(\sigma^2 = \mathsf{squares} / n - \mu^2\)</li>
 <li><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(y_j = (x_j - \mu) / \sqrt{\sigma^2 + \varepsilon} \cdot \gamma_j + \beta_j\) <span class="c">// pass 2: the outputs</span></li>
 <li>}</li>
 </ol>
 </div>
 
-Here \\(a\\) is the running sum of the values and \\(b\\) the running sum of their squares. On
-row 0, line 3 accumulates \\(a = 10\\) and \\(b = 1 + 4 + 9 + 16 = 30\\), and line 5 gives
+Here \\(\mathsf{sum}\\) is the running sum of the values and \\(\mathsf{squares}\\) the running sum of their squares. On
+row 0, line 3 accumulates \\(\mathsf{sum} = 10\\) and \\(\mathsf{squares} = 1 + 4 + 9 + 16 = 30\\), and line 5 gives
 \\(\mu = 10 / 4 = 2.5\\) and \\(\sigma^2 = 30 / 4 - 2.5^2 = 7.5 - 6.25 = 1.25\\), the variance of
 Figure 23.3. The algorithm reads each value twice and writes each output once, which makes 12
 bytes per element. In exact arithmetic, it is correct. In `f32`, however, it can fail completely,
@@ -892,7 +892,8 @@ need.
 function that the GPU runs many times at once; each run is a **thread** with its own variables. A
 **block** is a group of threads that run on the same streaming multiprocessor (SM), share a region
 of fast memory, and can wait for one another. The **grid** is the set of all blocks of 1 launch.
-Inside a block, a thread knows its number \\(t\\), and its block's number \\(b\\).
+Inside a block, a thread knows its index \\(\mathsf{threadIdx{.}x}\\), and the index of its block,
+\\(\mathsf{blockIdx{.}x}\\).
 
 *Example.* For the 4,096 rows of Section 23.7, the grid has 4,096 blocks of 256 threads; for
 \\(X\\), it has 2 blocks of 256 threads.
@@ -901,11 +902,11 @@ Inside a block, a thread knows its number \\(t\\), and its block's number \\(b\\
 
 The rows are independent of each other, and every row needs a reduction whose result all its
 outputs share. Since the threads of a block can share data and wait for one another, while
-different blocks cannot, we give each row to 1 block: block \\(b\\) computes row \\(b\\). The
-threads of the block then divide the row between them in a fixed pattern. We write \\(B\\) for the
-number of threads in a block, which is 256 in all our kernels. Thread \\(t\\) takes the columns
-\\(t, t + B, t + 2B, \dots\\) of its row, that is, every column whose remainder on division by
-\\(B\\) is \\(t\\). A row of 4,096 values therefore gives each thread \\(4{,}096 / 256 = 16\\)
+different blocks cannot, we give each row to 1 block: block \\(\mathsf{blockIdx{.}x}\\) computes row \\(\mathsf{blockIdx{.}x}\\). The
+threads of the block then divide the row between them in a fixed pattern. The number of threads in a block,
+\\(\mathsf{blockDim{.}x}\\), is 256 in all our kernels. Thread \\(\mathsf{threadIdx{.}x}\\) takes the columns
+\\(\mathsf{threadIdx{.}x}, \mathsf{threadIdx{.}x} + \mathsf{blockDim{.}x}, \mathsf{threadIdx{.}x} + 2 \cdot \mathsf{blockDim{.}x}, \dots\\) of its row, that is, every column whose remainder on division by
+\\(\mathsf{blockDim{.}x}\\) is \\(\mathsf{threadIdx{.}x}\\). A row of 4,096 values therefore gives each thread \\(4{,}096 / 256 = 16\\)
 values. For example, thread 5 takes the columns 5, 261, 517, and so on up to 3,845, as shown in
 Figure 23.11.
 
@@ -922,8 +923,8 @@ neighboring addresses.
 <div class="definition">
 
 <span class="box-label">Definition 23.8</span> **Warp, lane, coalesced access.** A **warp** is a
-group of 32 consecutive threads of a block, threads \\(32w\\) to \\(32w + 31\\) for warp \\(w\\),
-that execute each instruction together. The position \\(t \bmod 32\\) of a thread in its warp is
+group of 32 consecutive threads of a block, threads \\(32 \cdot \mathsf{warp}\\) to \\(32 \cdot \mathsf{warp} + 31\\) for warp \\(\mathsf{warp}\\),
+that execute each instruction together. The position \\(\mathsf{threadIdx{.}x} \bmod 32\\) of a thread in its warp is
 its **lane**. A memory access of a warp is **coalesced** when its 32 threads read 32 consecutive
 4-byte values, 128 contiguous bytes, which the memory system serves together.
 
@@ -934,7 +935,7 @@ its **lane**. A memory access of a warp is **coalesced** when its 32 threads rea
 
 In every step of the interleaved pattern, the 32 threads of a warp read 32 consecutive columns, so
 every access is coalesced. For example, in the second step, warp 0 reads columns 256 to 287. The
-contiguous alternative, which gives thread \\(t\\) the 16 columns \\(16t\\) to \\(16t + 15\\), would
+contiguous alternative, which gives thread \\(\mathsf{threadIdx{.}x}\\) the 16 columns \\(16 \cdot \mathsf{threadIdx{.}x}\\) to \\(16 \cdot \mathsf{threadIdx{.}x} + 15\\), would
 make the 32 threads of a warp read addresses that lie \\(16 \cdot 4 = 64\\) bytes apart, and the
 memory system could not serve them together.
 
@@ -1015,25 +1016,25 @@ broadcast of the result afterward. The following procedure, shown in Figure 23.1
 butterfly with these 3 steps.
 
 <div class="algo">
-<p class="algo-name">Block-Reduce(\(v, \otimes, \mathsf{slots}\))</p>
+<p class="algo-name">Block-Reduce(\(\mathsf{value}, \otimes, \mathsf{slots}\))</p>
 <ol>
-<li><b class="kw">for</b> \(k \in (16, 8, 4, 2, 1)\) {</li>
-<li style="--d:1">\(v = v \otimes \mathsf{Shuffle-Xor}(v, k)\) <span class="c">// the butterfly of Section 23.4.2</span></li>
+<li><b class="kw">for</b> \(\mathsf{mask} \in (16, 8, 4, 2, 1)\) {</li>
+<li style="--d:1">\(\mathsf{value} = \mathsf{value} \otimes \mathsf{Shuffle-Xor}(\mathsf{value}, \mathsf{mask})\) <span class="c">// the butterfly of Section 23.4.2</span></li>
 <li>}</li>
-<li><b class="kw">if</b> \(t \bmod 32 = 0\) {</li>
-<li style="--d:1">\(\mathsf{slots}[\lfloor t / 32 \rfloor] = v\) <span class="c">// lane 0 writes its warp's slot</span></li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} \bmod 32 = 0\) {</li>
+<li style="--d:1">\(\mathsf{slots}[\lfloor \mathsf{threadIdx{.}x} / 32 \rfloor] = \mathsf{value}\) <span class="c">// lane 0 writes its warp's slot</span></li>
 <li>}</li>
 <li><span class="sc">Barrier</span>() <span class="c">// barrier 1: all slots written</span></li>
-<li>\(r = \mathsf{slots}[0] \otimes \mathsf{slots}[1] \otimes \dots \otimes \mathsf{slots}[7]\)</li>
+<li class="gap">\(\mathsf{result} = \mathsf{slots}[0] \otimes \mathsf{slots}[1] \otimes \dots \otimes \mathsf{slots}[7]\)</li>
 <li><span class="sc">Barrier</span>() <span class="c">// barrier 2: all slots read</span></li>
-<li><b class="kw">return</b> \(r\)</li>
+<li><b class="kw">return</b> \(\mathsf{result}\)</li>
 </ol>
 </div>
 
-Here \\(v\\) is the value or state that the calling thread contributes, and \\(\otimes\\) is the
+Here \\(\mathsf{value}\\) is the value or state that the calling thread contributes, and \\(\otimes\\) is the
 merge: \\(\max\\) for the maximum, \\(+\\) for a sum, and <span class="sc">Merge-Softmax</span> or
-<span class="sc">Merge-Welford</span> for a state. The expression \\(\lfloor t / 32 \rfloor\\) is
-the number of the warp of thread \\(t\\); for example, thread 70 belongs to warp 2. Line 7 is
+<span class="sc">Merge-Welford</span> for a state. The expression \\(\lfloor \mathsf{threadIdx{.}x} / 32 \rfloor\\) is
+the number of the warp of the thread; for example, thread 70 belongs to warp 2. Line 7 is
 needed because line 8 reads slots that other warps write on line 5. Line 9 is needed when the same
 slots are used again by a second reduction, since no warp may write a slot for the second
 reduction while another warp is still reading the slots of the first. In Section 23.5, we remove
@@ -1046,20 +1047,21 @@ line 9 and show what goes wrong.
 
 ### 23.4.4 The kernels
 
-We now have all the pieces of the kernels. For the online softmax, every thread \\(t\\) of block
-\\(b\\) executes the following procedure. As before, \\(B = 256\\) is the number of threads in a
-block, and \\(C\\) is the length of a row, 4 for \\(X\\) and 4,096 in the measurements.
+We now have all the pieces of the kernels. For the online softmax, every thread of block
+\\(\mathsf{blockIdx{.}x}\\) works on row \\(\mathsf{row} = \mathsf{blockIdx{.}x}\\) and executes the
+following procedure. A block has \\(\mathsf{blockDim{.}x} = 256\\) threads, and \\(C\\) is the length
+of a row, 4 for \\(X\\) and 4,096 in the measurements.
 
 <div class="algo">
 <p class="algo-name">Softmax-Online-Kernel(\(X, P, C\))</p>
 <ol>
 <li>\((m, s) = (-\infty, 0)\)</li>
-<li><b class="kw">for</b> \(j = t, t + B, t + 2B, \dots\) <b class="kw">while</b> \(j \lt C\) {</li>
-<li style="--d:1">update \((m, s)\) with \(x_{bj}\) <span class="c">// lines 3 to 8 of Online-Softmax</span></li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{column} \in [\mathsf{threadIdx{.}x}, C)\) <b class="kw">stride</b> \(\mathsf{blockDim{.}x}\) {</li>
+<li style="--d:1">update \((m, s)\) with \(x_{\mathsf{row},\mathsf{column}}\) <span class="c">// lines 3 to 8 of Online-Softmax</span></li>
 <li>}</li>
-<li>\((m, s) = \) <span class="sc">Block-Reduce</span>\(((m, s),\) <span class="sc">Merge-Softmax</span>\()\)</li>
-<li><b class="kw">for</b> \(j = t, t + B, t + 2B, \dots\) <b class="kw">while</b> \(j \lt C\) {</li>
-<li style="--d:1">\(p_{bj} = e^{x_{bj} - m} / s\)</li>
+<li class="gap">\((m, s) = \) <span class="sc">Block-Reduce</span>\(((m, s),\) <span class="sc">Merge-Softmax</span>\()\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{column} \in [\mathsf{threadIdx{.}x}, C)\) <b class="kw">stride</b> \(\mathsf{blockDim{.}x}\) {</li>
+<li style="--d:1">\(p_{\mathsf{row},\mathsf{column}} = e^{x_{\mathsf{row},\mathsf{column}} - m} / s\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -1067,15 +1069,15 @@ block, and \\(C\\) is the length of a row, 4 for \\(X\\) and 4,096 in the measur
 Lines 1 to 4 run the first pass of <span class="sc">Online-Softmax</span> on the thread's own
 columns. Line 5 merges the 256 states into the state of the row and gives it to every thread.
 Lines 6 to 8 then write the thread's outputs. In block 1 of \\(X\\), for example, thread 2 reads
-\\(x_{12} = 4\\) on line 3, receives \\((m, s) = (5, 1.7855)\\) on line 5, and writes
-\\(p_{12} = e^{4-5} / 1.7855 = 0.2060\\) on line 7. Because the kernel calls
+\\(x_{1,2} = 4\\) on line 3, receives \\((m, s) = (5, 1.7855)\\) on line 5, and writes
+\\(p_{1,2} = e^{4-5} / 1.7855 = 0.2060\\) on line 7. Because the kernel calls
 <span class="sc">Block-Reduce</span> only once, barrier 2 is not needed, and the code leaves it
 out.
 
 The layer-normalization kernel has the same shape, with <span class="sc">Welford-Update</span> on
 line 3, <span class="sc">Merge-Welford</span> on line 5, and the output
-\\(y_{bj} = (x_{bj} - \mu)\\, \gamma_j / \sqrt{q / C + \varepsilon} + \beta_j\\) on line 7, where
-\\(q / C\\) is the variance of row \\(b\\). The 3-pass softmax calls
+\\(y_{\mathsf{row},\mathsf{column}} = (x_{\mathsf{row},\mathsf{column}} - \mu)\\, \gamma_{\mathsf{column}} / \sqrt{q / C + \varepsilon} + \beta_{\mathsf{column}}\\)
+on line 7, where \\(q / C\\) is the variance of the row. The 3-pass softmax calls
 <span class="sc">Block-Reduce</span> twice, with \\(\max\\) after pass 1 and with \\(+\\) after
 pass 2.
 
@@ -1098,29 +1100,30 @@ and the output, so it reads each value from memory once.
 <div class="algo">
 <p class="algo-name">Softmax-Fused-Kernel(\(X, P\))</p>
 <ol>
-<li><b class="kw">for</b> \(k \in [0, 16)\) {</li>
-<li style="--d:1">\(r_k = x_{b,\, kB + t}\) <span class="c">// the only read of the row</span></li>
+<li><b class="kw">for</b> \(\mathsf{index} \in [0, 16)\) {</li>
+<li style="--d:1">\(\mathsf{kept}[\mathsf{index}] = x_{\mathsf{row},\, \mathsf{index} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}}\) <span class="c">// the only read of the row</span></li>
 <li>}</li>
-<li>\(m = \) <span class="sc">Block-Reduce</span>\((\max_k r_k, \max)\)</li>
-<li><b class="kw">for</b> \(k \in [0, 16)\) {</li>
-<li style="--d:1">\(r_k = e^{r_k - m}\)</li>
+<li class="gap">\(m = \) <span class="sc">Block-Reduce</span>\((\max_{\mathsf{index}} \mathsf{kept}[\mathsf{index}], \max)\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{index} \in [0, 16)\) {</li>
+<li style="--d:1">\(\mathsf{kept}[\mathsf{index}] = e^{\mathsf{kept}[\mathsf{index}] - m}\)</li>
 <li>}</li>
-<li>\(s = \) <span class="sc">Block-Reduce</span>\((\sum_k r_k, +)\)</li>
-<li><b class="kw">for</b> \(k \in [0, 16)\) {</li>
-<li style="--d:1">\(p_{b,\, kB + t} = r_k / s\)</li>
+<li class="gap">\(s = \) <span class="sc">Block-Reduce</span>\((\sum_{\mathsf{index}} \mathsf{kept}[\mathsf{index}], +)\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{index} \in [0, 16)\) {</li>
+<li style="--d:1">\(p_{\mathsf{row},\, \mathsf{index} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}} = \mathsf{kept}[\mathsf{index}] / s\)</li>
 <li>}</li>
 </ol>
 </div>
 
-Here \\(r_k\\) is the \\(k\\)-th value that the thread keeps in a register, and it holds column
-\\(kB + t\\) of the row. For example, thread 5 keeps column \\(0 \cdot 256 + 5 = 5\\) in \\(r_0\\)
-and column \\(15 \cdot 256 + 5 = 3{,}845\\) in \\(r_{15}\\), the same 16 columns as in Figure 23.11.
+Here \\(\mathsf{kept}[\mathsf{index}]\\) is a value that the thread keeps in a register, and it
+holds column \\(\mathsf{index} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\\) of the row.
+For example, thread 5 keeps column \\(0 \cdot 256 + 5 = 5\\) in \\(\mathsf{kept}[0]\\) and column
+\\(15 \cdot 256 + 5 = 3{,}845\\) in \\(\mathsf{kept}[15]\\), the same 16 columns as in Figure 23.11.
 
 The fused kernel needs no online softmax. Once the values are in registers, a second and
 a third pass over them cost no memory traffic, and the plain 3-pass order is the simplest. Line 6
 overwrites each value with its exponential, so that line 10 only divides. Likewise, the fused layer
 normalization uses the definition directly, with 1 reduction for the mean and then 1 over the
-squared deviations \\((r_k - \mu)^2\\), both from registers. It thereby avoids the cancellation
+squared deviations \\((\mathsf{kept}[\mathsf{index}] - \mu)^2\\), both from registers. It thereby avoids the cancellation
 without paying for Welford's division. The price of fusion is generality. The number of values per
 thread must be a constant when the kernel is compiled, because registers cannot be indexed by a
 value known only at run time. Moreover, a row of 65,536 values would need 256 registers per thread
@@ -1248,25 +1251,25 @@ the warps.
 <div class="theorem">
 
 <span class="box-label">Theorem 23.7</span> When <span class="sc">Softmax-Online-Kernel</span>
-finishes, \\(p_{bj}\\) is the softmax of row \\(b\\) of \\(X\\) for every \\(b\\) and every
+finishes, \\(p_{\mathsf{row},j}\\) is the softmax of row \\(\mathsf{row}\\) of \\(X\\) for every row and every
 \\(j \in [0, C)\\).
 
 </div>
 
 <div class="proof">
 
-*Proof.* Fix a block \\(b\\). By Theorem 23.3 applied to the columns of thread \\(t\\), after line 4
-the state of thread \\(t\\) describes the set \\(S_t = \\{x_{bj} : j \equiv t \pmod{B}\\}\\) of the
-values in the columns whose remainder on division by \\(B\\) is \\(t\\). This set is empty when
-\\(t \ge C\\). For example, in block 1 of \\(X\\), \\(S_2 = \\{x_{12}\\} = \\{4\\}\\), and \\(S_7\\) is
-empty. The sets \\(S_0, \dots, S_{255}\\) are disjoint, and their union is row
-\\(b\\). In the butterfly of line 5, each step merges 2 disjoint groups of lanes (Section 23.4.2),
-so by Theorem 23.4, lane 0 of warp \\(w\\) holds the state of \\(\bigcup_{t \in \text{warp } w}
-S_t\\), the values of all 32 threads of the warp, after the 5 steps. The merge is defined even for 2 empty states, because of line 2 of
-<span class="sc">Merge-Softmax</span>. Lane 0 writes it to slot \\(w\\). Because of barrier 1,
+*Proof.* Fix a block, and let \\(\mathsf{row} = \mathsf{blockIdx{.}x}\\). By Theorem 23.3 applied to the columns of thread \\(\mathsf{threadIdx{.}x}\\), after line 4
+the state of thread \\(\mathsf{threadIdx{.}x}\\) describes the set \\(S_{\mathsf{threadIdx{.}x}} = \\{x_{\mathsf{row},j} : j \equiv \mathsf{threadIdx{.}x} \pmod{\mathsf{blockDim{.}x}}\\}\\) of the
+values in the columns whose remainder on division by \\(\mathsf{blockDim{.}x}\\) is \\(\mathsf{threadIdx{.}x}\\). This set is empty when
+\\(\mathsf{threadIdx{.}x} \ge C\\). For example, in block 1 of \\(X\\), \\(S_2 = \\{x_{1,2}\\} = \\{4\\}\\), and \\(S_7\\) is
+empty. The sets \\(S_0, \dots, S_{255}\\) are disjoint, and their union is the
+row. In the butterfly of line 5, each step merges 2 disjoint groups of lanes (Section 23.4.2),
+so by Theorem 23.4, lane 0 of warp \\(\mathsf{warp}\\) holds the state of the union of the sets of its 32
+threads, after the 5 steps. The merge is defined even for 2 empty states, because of line 2 of
+<span class="sc">Merge-Softmax</span>. Lane 0 writes it to slot \\(\mathsf{warp}\\). Because of barrier 1,
 every slot is written before any thread reads it, so every thread merges the 8 states of the 8
 warps, which by Theorem 23.4 is the state \\((m, s)\\) of the whole row. The slots are not written
-again in this kernel, so no barrier 2 is needed. Lines 6 to 8 then compute \\(e^{x_{bj} - m} / s\\)
+again in this kernel, so no barrier 2 is needed. Lines 6 to 8 then compute \\(e^{x_{\mathsf{row},j} - m} / s\\)
 for the thread's columns, which is the softmax by Theorem 23.1, and the columns of the 256 threads
 cover the row. Different blocks touch different rows, so they do not interfere.
 
@@ -1360,7 +1363,7 @@ mod kernels {
 </div>
 
 The correspondence with the procedure is direct. Lane 0 writes the slot of its warp, the first
-call to `sync_threads` is barrier 1, the loop over `w` is line 8, and the second call to
+call to `sync_threads` is barrier 1, the loop over `other` is line 8, and the second call to
 `sync_threads` is barrier 2. Both barriers sit outside every `if`, so every thread of the block
 reaches them. The function `block_sum` differs only in the merge. The two languages differ, however,
 in where the slots live. A cuda-oxide `#[device]` function cannot declare shared memory of its
@@ -1379,7 +1382,7 @@ The following kernel implements <span class="sc">Softmax-3-Pass</span> with one 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:137:170}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:147:181}}
     // ...
 }
 ```
@@ -1388,21 +1391,23 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:130:152}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:133:155}}
 ```
 
 </div>
 </div>
 
-Block \\(b\\) starts at element `base = b × cols` of the matrix, which is the row-major position of
-row \\(b\\); for row 1 of \\(X\\), `base` is \\(1 \cdot 4 = 4\\). Each of the 3 loops starts at
+Block \\(\mathsf{blockIdx{.}x}\\) starts at element `base = blockIdx.x × cols` of the matrix, which is
+the row-major position of its row; for row 1 of \\(X\\), `base` is \\(1 \cdot 4 = 4\\). Each of the 3 loops starts at
 column `tid` and advances by `BLOCK`, the pattern of Figure 23.11. The 3 loops are the 3 passes of
 <span class="sc">Softmax-3-Pass</span>, with `block_max` and `block_sum` between them. The kernel
 works for any row length, including the 4 of \\(X\\).
 
 The Rust kernel writes through a `DisjointSlice<f32>`, the output type of Chapter 13, whose safe
 method lets each thread write only the element at its own global index. Here, however, thread
-\\(t\\) of block \\(b\\) writes the elements \\(b \cdot C + t + 256k\\) for \\(k = 0, 1, \dots\\).
+\\(\mathsf{threadIdx{.}x}\\) of block \\(\mathsf{blockIdx{.}x}\\) writes the elements
+\\(\mathsf{blockIdx{.}x} \cdot C + \mathsf{threadIdx{.}x} + 256 \cdot \mathsf{step}\\) for
+\\(\mathsf{step} = 0, 1, \dots\\).
 No other thread writes these elements, but they are not the thread's global index, so the kernel
 calls `get_unchecked_mut` and states this argument in the `SAFETY` comment. The C++ kernel writes
 through a plain pointer. The attribute `#[launch_contract(domain = 1, block = (256, 1, 1))]` records
@@ -1422,13 +1427,13 @@ The following code shows the merge of 2 softmax states and the kernel
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:89:97}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:89:104}}
     // ...
 }
 
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:172:227}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:183:239}}
     // ...
 }
 ```
@@ -1437,9 +1442,9 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:79:92}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:79:94}}
 
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:154:191}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:157:194}}
 ```
 
 </div>
@@ -1465,13 +1470,13 @@ The following code shows the merge of 2 Welford states and the layer-normalizati
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:99:109}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:106:117}}
     // ...
 }
 
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:308:372}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:323:390}}
     // ...
 }
 ```
@@ -1480,9 +1485,9 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:94:110}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:96:113}}
 
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:247:285}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:250:289}}
 ```
 
 </div>
@@ -1493,8 +1498,9 @@ lines are the 4 lines of the procedure. The state holds the count as a float, so
 all 3 numbers can be shuffled with the same instruction. This is safe, because counts up to
 \\(2^{24}\\) are exact in `f32`. After the warp merge, lane 0 writes 3 numbers. In Rust, they
 occupy 3 consecutive slots of a `SharedArray<f32, 24>`, and in C++, 1 slot of an array of
-`WelfordState`. The variance of the row is \\(q / C\\), and `rstd`, the reciprocal of the standard
-deviation, is \\(1 / \sqrt{q / C + \varepsilon}\\). For row 0 of \\(X\\), `rstd` is
+`WelfordState`. The variance of the row is \\(q / C\\), and `inverseStd` (`inverse_std` in Rust),
+the reciprocal of the standard
+deviation, is \\(1 / \sqrt{q / C + \varepsilon}\\). For row 0 of \\(X\\), `inverseStd` is
 \\(1 / \sqrt{5 / 4 + 10^{-5}} = 0.8944\\), the factor of Figure 23.3.
 
 ### 23.6.5 The fused kernels
@@ -1508,7 +1514,7 @@ values of each thread in registers.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:229:268}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:241:281}}
     // ...
 }
 ```
@@ -1517,16 +1523,16 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:193:221}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:196:224}}
 ```
 
 </div>
 </div>
 
 The 3 loops are lines 1 to 3, 5 to 7 and 9 to 11 of <span class="sc">Softmax-Fused-Kernel</span>.
-The array `x` of `PER_THREAD = COLS / 256 = 16` values has a size fixed at compile time, and this
+The array `kept` of `PER_THREAD = COLS / 256 = 16` values has a size fixed at compile time, and this
 is why the row length is the constant `COLS = 4096` and not an argument. Each loop has a constant
-trip count and is fully unrolled, so that every `x[k]` names a fixed register. In Rust, the loop is
+trip count and is fully unrolled, so that every `kept[index]` names a fixed register. In Rust, the loop is
 a `while` loop marked `#[unroll]`; in Section 9.7, we found this form necessary for cuda-oxide to
 keep a small array in registers. In C++, it is a `for` loop under `#pragma unroll`. The fused layer
 normalization in the complete programs has the same 3 loops, which compute the mean, the squared
@@ -1543,7 +1549,7 @@ following code prepares the launches and runs them on the 2 rows of the example.
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:535:557}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:555:577}}
     // ...
 }
 ```
@@ -1555,7 +1561,7 @@ fn main() -> Result<(), Error> {
 int main()
 {
     // ...
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:489:504}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:494:509}}
     // ...
 }
 ```
@@ -1613,14 +1619,14 @@ time divided by 20.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:421:444}}
+{{#include ../../../../code/oxide/ch23_softmax_layernorm/src/main.rs:441:464}}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:325:348}}
+{{#include ../../../../code/cuda/ch23_softmax_layernorm/softmax_layernorm.cu:329:352}}
 ```
 
 </div>
