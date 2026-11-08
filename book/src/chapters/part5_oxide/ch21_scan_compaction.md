@@ -150,7 +150,7 @@ iteration of the loop adds the next input to the previous total.
 <p class="algo-name">Sequential-Scan(\(x, y, n\))</p>
 <ol>
 <li>\(y_0 = x_0\)</li>
-<li><b class="kw">for</b> \(i \in [1, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(i \in [1, n)\) {</li>
 <li style="--d:1">\(y_i = y_{i-1} + x_i\) <span class="c">// 1 addition, needs line 3 of the previous iteration</span></li>
 <li>}</li>
 </ol>
@@ -218,10 +218,10 @@ own.
 <ol>
 <li>\(i\) = the index of this thread <span class="c">// 1 thread per output</span></li>
 <li>\(sum = 0\)</li>
-<li><b class="kw">for</b> \(j \in [0, i]\) {</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, i]\) {</li>
 <li style="--d:1">\(sum = sum + x_j\) <span class="c">// \(i + 1\) reads of \(x\)</span></li>
 <li>}</li>
-<li>\(y_i = sum\)</li>
+<li class="gap">\(y_i = sum\)</li>
 </ol>
 </div>
 
@@ -416,13 +416,13 @@ stored in shared memory, and \\(\mathsf{distance}\\) is the offset of the curren
 <li>\(i\) = the index of this thread in the block <span class="c">// 1 thread per value, \(n\) threads</span></li>
 <li>\(\mathsf{current}[i] = x_i\)</li>
 <li><span class="sc">Barrier</span>() <span class="c">// every value is in \(\mathsf{current}\)</span></li>
-<li><b class="kw">for</b> \(\mathsf{distance} = 1, 2, 4, \ldots\) <b class="kw">while</b> \(\mathsf{distance} &lt; n\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{distance} = 1, 2, 4, \ldots\) <b class="kw">while</b> \(\mathsf{distance} &lt; n\) {</li>
 <li style="--d:1"><b class="kw">if</b> \(i \ge \mathsf{distance}\): \(\mathsf{next}[i] = \mathsf{current}[i] + \mathsf{current}[i - \mathsf{distance}]\) <span class="c">// reads only \(\mathsf{current}\), writes only \(\mathsf{next}\)</span></li>
 <li style="--d:1"><b class="kw">else</b>: \(\mathsf{next}[i] = \mathsf{current}[i]\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// the step is complete</span></li>
 <li style="--d:1">exchange the names \(\mathsf{current}\) and \(\mathsf{next}\)</li>
 <li>}</li>
-<li>\(y_i = \mathsf{current}[i]\)</li>
+<li class="gap">\(y_i = \mathsf{current}[i]\)</li>
 </ol>
 </div>
 
@@ -569,24 +569,24 @@ handles the pair (1, 3) and thread 1 the pair (5, 7), while threads 2 and 3 have
 <ol>
 <li>\(\mathsf{first} = 2 \cdot \mathsf{threadIdx{.}x}\) <span class="c">// this thread owns positions first and first + 1; \(n/2\) threads</span></li>
 <li>\(\mathsf{cells}[\mathsf{first}] = x_{\mathsf{first}}\), \(\mathsf{cells}[\mathsf{first} + 1] = x_{\mathsf{first}+1}\)</li>
-<li><b class="kw">for</b> \(\mathsf{distance} = 1, 2, 4, \ldots\) <b class="kw">while</b> \(\mathsf{distance} &lt; n\) { <span class="c">// up-sweep</span></li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{distance} = 1, 2, 4, \ldots\) <b class="kw">while</b> \(\mathsf{distance} &lt; n\) { <span class="c">// up-sweep</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; n/(2 \cdot \mathsf{distance})\) {</li>
+<li class="gap" style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; n/(2 \cdot \mathsf{distance})\) {</li>
 <li style="--d:2">\(\mathsf{right} = (2 \cdot \mathsf{threadIdx{.}x} + 2) \cdot \mathsf{distance} - 1\)</li>
 <li style="--d:2">\(\mathsf{cells}[\mathsf{right}] = \mathsf{cells}[\mathsf{right}] + \mathsf{cells}[\mathsf{right} - \mathsf{distance}]\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
-<li><span class="sc">Barrier</span>()</li>
-<li><b class="kw">if</b> \(\mathsf{threadIdx{.}x} = 0\): \(\mathsf{cells}[n - 1] = 0\) <span class="c">// the root: nothing to its left</span></li>
-<li><b class="kw">for</b> \(\mathsf{distance} = n/2, n/4, \ldots, 1\) { <span class="c">// down-sweep</span></li>
+<li class="gap"><span class="sc">Barrier</span>()</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} = 0\): \(\mathsf{cells}[n - 1] = 0\) <span class="c">// the root: nothing to its left</span></li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{distance} = n/2, n/4, \ldots, 1\) { <span class="c">// down-sweep</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; n/(2 \cdot \mathsf{distance})\) {</li>
+<li class="gap" style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; n/(2 \cdot \mathsf{distance})\) {</li>
 <li style="--d:2">\(\mathsf{right} = (2 \cdot \mathsf{threadIdx{.}x} + 2) \cdot \mathsf{distance} - 1\)</li>
 <li style="--d:2">\(\mathsf{left} = \mathsf{right} - \mathsf{distance}\)</li>
 <li style="--d:2">\((\mathsf{cells}[\mathsf{left}],\ \mathsf{cells}[\mathsf{right}]) = (\mathsf{cells}[\mathsf{right}],\ \mathsf{cells}[\mathsf{right}] + \mathsf{cells}[\mathsf{left}])\) <span class="c">// swap and add</span></li>
 <li style="--d:1">}</li>
 <li>}</li>
-<li><span class="sc">Barrier</span>()</li>
+<li class="gap"><span class="sc">Barrier</span>()</li>
 <li>\(y_{\mathsf{first}} = \mathsf{cells}[\mathsf{first}]\), \(y_{\mathsf{first}+1} = \mathsf{cells}[\mathsf{first}+1]\) <span class="c">// the exclusive scan</span></li>
 </ol>
 </div>
@@ -888,13 +888,13 @@ On a CPU, compaction is a single loop with a counter \\(\mathsf{count}\\) of the
 <p class="algo-name">Sequential-Compact(\(x, \mathsf{out}, n\))</p>
 <ol>
 <li>\(\mathsf{count} = 0\) <span class="c">// values written so far</span></li>
-<li><b class="kw">for</b> \(i \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1"><b class="kw">if</b> \(x_i \ge 3\) {</li>
 <li style="--d:2">\(\mathsf{out}_{\mathsf{count}} = x_i\)</li>
 <li style="--d:2">\(\mathsf{count} = \mathsf{count} + 1\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
-<li><b class="kw">return</b> \(\mathsf{count}\) <span class="c">// the number of kept values</span></li>
+<li class="gap"><b class="kw">return</b> \(\mathsf{count}\) <span class="c">// the number of kept values</span></li>
 </ol>
 </div>
 
@@ -933,8 +933,8 @@ inclusive scan of the flags, the number of kept values at positions 0 to \\(i\\)
 <ol>
 <li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: \(f_i = 1\) <b class="kw">if</b> \(x_i \ge 3\), <b class="kw">else</b> 0 <span class="c">// kernel 1</span></li>
 <li>\(s\) = the inclusive scan of \(f\) <span class="c">// Scan of Section 21.7</span></li>
-<li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: <b class="kw">if</b> \(f_i = 1\): \(\mathsf{out}_{s_i - 1} = x_i\) <span class="c">// kernel 2, a scatter</span></li>
-<li><b class="kw">return</b> \(s_{n-1}\)</li>
+<li class="gap"><b class="kw">for</b> every \(i \in [0, n)\) in parallel: <b class="kw">if</b> \(f_i = 1\): \(\mathsf{out}_{s_i - 1} = x_i\) <span class="c">// kernel 2, a scatter</span></li>
+<li class="gap"><b class="kw">return</b> \(s_{n-1}\)</li>
 </ol>
 </div>
 
@@ -1086,13 +1086,13 @@ array \\(\mathsf{counts}\\) holds the count of kept values of each of the 8 warp
 <p class="algo-name">Compact-Votes(\(x, \mathsf{out}, n\))</p>
 <ol>
 <li>\(\mathsf{next}\) = the scanned count of tiles \(0\) to \(\mathsf{blockIdx{.}x} - 1\) <span class="c">// 0 for \(\mathsf{blockIdx{.}x} = 0\)</span></li>
-<li><b class="kw">for</b> \(\mathsf{step} \in [0, 4)\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{step} \in [0, 4)\) {</li>
 <li style="--d:1">\(i = 1024 \cdot \mathsf{blockIdx{.}x} + 256 \cdot \mathsf{step} + \mathsf{threadIdx{.}x}\), \(\mathsf{keep} = (i &lt; n\) and \(x_i \ge 3)\)</li>
 <li style="--d:1">\(\mathsf{votes}\) = <span class="sc">Ballot</span>(\(\mathsf{keep}\))</li>
 <li style="--d:1">lane 0 of warp \(\mathsf{warp}\): \(\mathsf{counts}[\mathsf{warp}]\) = <span class="sc">Popc</span>(\(\mathsf{votes}\)) <span class="c">// \(\mathsf{counts}\) in shared memory</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li style="--d:1">\(\mathsf{before} = \mathsf{counts}[0] + \cdots + \mathsf{counts}[\mathsf{warp} - 1]\), \(\mathsf{total} = \mathsf{counts}[0] + \cdots + \mathsf{counts}[7]\)</li>
-<li style="--d:1"><b class="kw">if</b> \(\mathsf{keep}\): \(\mathsf{out}[\mathsf{next} + \mathsf{before} + \)<span class="sc">Popc</span>\((\mathsf{votes} \wedge (2^{lane} - 1))] = x_i\)</li>
+<li class="gap" style="--d:1"><b class="kw">if</b> \(\mathsf{keep}\): \(\mathsf{out}[\mathsf{next} + \mathsf{before} + \)<span class="sc">Popc</span>\((\mathsf{votes} \wedge (2^{lane} - 1))] = x_i\)</li>
 <li style="--d:1">\(\mathsf{next} = \mathsf{next} + \mathsf{total}\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// \(\mathsf{counts}\) is read before the next step writes it</span></li>
 <li>}</li>

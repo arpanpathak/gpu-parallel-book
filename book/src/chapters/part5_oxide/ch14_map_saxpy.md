@@ -325,7 +325,7 @@ the following procedure.
 <p class="algo-name">Saxpy-Kernel<span style="font-variant: normal">(\(a, x, y, n\))</span></p>
 <ol>
 <li>\(\mathsf{index} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\) <span class="c">// the global index</span></li>
-<li><b class="kw">if</b> \(\mathsf{index} \lt n\) { <span class="c">// the guard</span></li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{index} \lt n\) { <span class="c">// the guard</span></li>
 <li style="--d:1">\(y_{\mathsf{index}} = a \cdot x_{\mathsf{index}} + y_{\mathsf{index}}\) <span class="c">// 2 reads, 1 write in global memory</span></li>
 <li>}</li>
 </ol>
@@ -535,7 +535,7 @@ visits elements 1, 5 and 9.
 <ol>
 <li>\(\mathsf{gridSize} = \mathsf{gridDim{.}x} \cdot \mathsf{blockDim{.}x}\) <span class="c">// threads in the grid</span></li>
 <li>\(\mathsf{index} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\) <span class="c">// the global index</span></li>
-<li><b class="kw">while</b> \(\mathsf{index} \lt n\) {</li>
+<li class="gap"><b class="kw">while</b> \(\mathsf{index} \lt n\) {</li>
 <li style="--d:1">\(y_{\mathsf{index}} = a \cdot x_{\mathsf{index}} + y_{\mathsf{index}}\)</li>
 <li style="--d:1">\(\mathsf{index} = \mathsf{index} + \mathsf{gridSize}\)</li>
 <li>}</li>

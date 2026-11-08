@@ -283,7 +283,7 @@ memory, and each block has its own pair of them.
 <li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot T + \mathsf{threadIdx{.}y}\)</li>
 <li>\(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot T + \mathsf{threadIdx{.}x}\)</li>
 <li class="gap">\(\mathsf{sum} = 0\)</li>
-<li><b class="kw">for</b> \(\mathsf{phase} \in [0, \lceil K/T \rceil)\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{phase} \in [0, \lceil K/T \rceil)\) {</li>
 <li style="--d:1">\(\mathsf{aCol} = \mathsf{phase} \cdot T + \mathsf{threadIdx{.}x}\)</li>
 <li style="--d:1">\(\mathsf{bRow} = \mathsf{phase} \cdot T + \mathsf{threadIdx{.}y}\)</li>
 <li style="--d:1">\(\mathsf{tileA}[\mathsf{threadIdx{.}y}][\mathsf{threadIdx{.}x}] = a_{\mathsf{row},\, \mathsf{aCol}}\) <b class="kw">if</b> \(\mathsf{row} \in [0, M)\) <b class="kw">and</b> \(\mathsf{aCol} \in [0, K)\), <b class="kw">else</b> 0</li>
@@ -292,7 +292,7 @@ memory, and each block has its own pair of them.
 <li class="gap" style="--d:1"><b class="kw">for</b> \(\mathsf{offset} \in [0, T)\) {</li>
 <li style="--d:2">\(\mathsf{sum} = \mathsf{sum} + \mathsf{tileA}[\mathsf{threadIdx{.}y}][\mathsf{offset}] \cdot \mathsf{tileB}[\mathsf{offset}][\mathsf{threadIdx{.}x}]\)</li>
 <li style="--d:1">}</li>
-<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until every thread has read the tiles</span></li>
+<li class="gap" style="--d:1"><span class="sc">Barrier</span>() <span class="c">// wait until every thread has read the tiles</span></li>
 <li>}</li>
 <li class="gap"><b class="kw">if</b> \(\mathsf{row} \in [0, M)\) <b class="kw">and</b> \(\mathsf{col} \in [0, N)\) {</li>
 <li style="--d:1">\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{sum}\)</li>

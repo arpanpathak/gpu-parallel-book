@@ -146,7 +146,7 @@ to it in each iteration.
 <p class="algo-name">Dot<span style="font-variant: normal">(\(a, b, n\))</span></p>
 <ol>
 <li>\(\mathsf{sum} = 0\)</li>
-<li><b class="kw">for</b> \(i \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + a_i \cdot b_i\) <span class="c">// 2 reads, 2 FLOP</span></li>
 <li>}</li>
 <li class="gap"><b class="kw">return</b> \(\mathsf{sum}\)</li>
@@ -329,7 +329,7 @@ floats and \\(\mathsf{mySum}\\) is the thread's register sum.
 <li>\(\mathsf{index} = \mathsf{blockIdx{.}x} \times \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\) <span class="c">// first element</span></li>
 <li>\(\mathsf{gridSize} = \mathsf{gridDim{.}x} \times \mathsf{blockDim{.}x}\) <span class="c">// threads in the grid</span></li>
 <li class="gap">\(\mathsf{mySum} = 0\)</li>
-<li><b class="kw">while</b> \(\mathsf{index} \lt n\) { <span class="c">// the grid-stride loop of Chapter 14</span></li>
+<li class="gap"><b class="kw">while</b> \(\mathsf{index} \lt n\) { <span class="c">// the grid-stride loop of Chapter 14</span></li>
 <li style="--d:1">\(\mathsf{mySum} = \mathsf{mySum} + a_{\mathsf{index}} \times b_{\mathsf{index}}\)</li>
 <li style="--d:1">\(\mathsf{index} = \mathsf{index} + \mathsf{gridSize}\)</li>
 <li>}</li>
@@ -339,7 +339,7 @@ floats and \\(\mathsf{mySum}\\) is the thread's register sum.
 <li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} \lt \mathsf{stride}\) {</li>
 <li style="--d:2">\(\mathsf{cells}[\mathsf{threadIdx{.}x}] = \mathsf{cells}[\mathsf{threadIdx{.}x}] + \mathsf{cells}[\mathsf{threadIdx{.}x} + \mathsf{stride}]\)</li>
 <li style="--d:1">}</li>
-<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// this step is complete</span></li>
+<li class="gap" style="--d:1"><span class="sc">Barrier</span>() <span class="c">// this step is complete</span></li>
 <li>}</li>
 <li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} = 0\) {</li>
 <li style="--d:1">\(\mathsf{partial}[\mathsf{blockIdx{.}x}] = \mathsf{cells}[0]\)</li>
@@ -611,7 +611,7 @@ Figure 15.4: 7, 7, 11 and 7 after offset 4, then 18 and 14, and finally 32.
 <li><b class="kw">for</b> \(\mathsf{distance} = 16, 8, 4, 2, 1\) {</li>
 <li style="--d:1">\(\mathsf{value} = \mathsf{value} + \) <span class="sc">Shuffle-Down</span>\((\mathsf{value}, \mathsf{distance})\) <span class="c">// lane k adds lane k + distance</span></li>
 <li>}</li>
-<li><b class="kw">return</b> \(\mathsf{value}\) <span class="c">// the sum of the warp, in lane 0</span></li>
+<li class="gap"><b class="kw">return</b> \(\mathsf{value}\) <span class="c">// the sum of the warp, in lane 0</span></li>
 </ol>
 </div>
 
@@ -633,15 +633,15 @@ thread 70 of the block has \\(\mathsf{lane} = 70 \bmod 32 = 6\\) and \\(w = \lfl
 <li>\(\mathsf{lane} = \mathsf{threadIdx{.}x} \bmod 32\) <span class="c">// position in the warp</span></li>
 <li>\(\mathsf{warpIndex} = \lfloor \mathsf{threadIdx{.}x} / 32 \rfloor\) <span class="c">// warp number in the block</span></li>
 <li class="gap">\(\mathsf{warpTotal} = \) <span class="sc">Warp-Sum</span>\((\mathsf{mySum})\)</li>
-<li><b class="kw">if</b> \(\mathsf{lane} = 0\) {</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{lane} = 0\) {</li>
 <li style="--d:1">\(\mathsf{warpSums}[\mathsf{warpIndex}] = \mathsf{warpTotal}\)</li>
 <li>}</li>
 <li class="gap"><span class="sc">Barrier</span>()</li>
-<li><b class="kw">if</b> \(\mathsf{warpIndex} \ne 0\) {</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{warpIndex} \ne 0\) {</li>
 <li style="--d:1"><b class="kw">return</b> 0 <span class="c">// only warp 0 finishes the sum</span></li>
 <li>}</li>
 <li class="gap">\(\mathsf{value} = \mathsf{warpSums}[\mathsf{lane}]\) <b class="kw">if</b> \(\mathsf{lane} \lt 8\), <b class="kw">else</b> 0</li>
-<li><b class="kw">return</b> <span class="sc">Warp-Sum</span>\((\mathsf{value})\) <span class="c">// the block sum, in thread 0</span></li>
+<li class="gap"><b class="kw">return</b> <span class="sc">Warp-Sum</span>\((\mathsf{value})\) <span class="c">// the block sum, in thread 0</span></li>
 </ol>
 </div>
 

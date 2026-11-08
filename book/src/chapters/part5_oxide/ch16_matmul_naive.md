@@ -201,7 +201,7 @@ for that entry.
 <li><b class="kw">for</b> \(\mathsf{row} \in [0, M)\) {</li>
 <li style="--d:1"><b class="kw">for</b> \(\mathsf{col} \in [0, N)\) {</li>
 <li style="--d:2">\(c_{\mathsf{row}, \mathsf{col}} = 0\)</li>
-<li style="--d:2"><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
+<li class="gap" style="--d:2"><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
 <li style="--d:3">\(c_{\mathsf{row}, \mathsf{col}} = c_{\mathsf{row}, \mathsf{col}} + a_{\mathsf{row}, \mathsf{inner}} \cdot b_{\mathsf{inner}, \mathsf{col}}\)</li>
 <li style="--d:2">}</li>
 <li style="--d:1">}</li>
@@ -549,7 +549,7 @@ Section 16.3.2. Every thread executes the following procedure.
 <li style="--d:1"><b class="kw">return</b></li>
 <li>}</li>
 <li class="gap">\(\mathsf{sum} = 0\)</li>
-<li><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
 <li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + a_{\mathsf{row}, \mathsf{inner}} \cdot b_{\mathsf{inner}, \mathsf{col}}\) <span class="c">// 2 reads from global memory</span></li>
 <li>}</li>
 <li class="gap">\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{sum}\)</li>
