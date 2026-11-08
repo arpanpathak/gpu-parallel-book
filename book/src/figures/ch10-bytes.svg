@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 490" width="660" height="490" role="img" aria-label="A row of 16 host floats, all 1.0. A bracket over the first 4 marks 16 bytes: cudaMemcpy with a count of 16 copies only those. On the device, the first 4 floats of in are 1.0 and the other 12 are 0.0; after the kernel doubles them, out holds 4 values of 2.0 and 12 of 0.0. 4 of 16 are correct, because 16 bytes are 4 floats. In the program, 524,288 of 2,097,152.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="490" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Bytes, not elements</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">cudaMemcpy counts bytes. Given a count of floats, it copies 1/4 of them.</text>
+  <rect x="16" y="104" width="628" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="311.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="189.6" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">16 FLOATS, COPIED WITH A COUNT OF 16</text>
+  <text x="42.0" y="140.0" class="note" text-anchor="start" xml:space="preserve">host: 16 floats of 4 bytes, 64 bytes</text>
+  <rect x="42.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="58.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="78.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="94.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="114.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="130.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="150.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="166.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="186.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="202.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="222.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="238.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="258.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="274.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="294.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="310.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="330.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="346.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="366.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="382.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="402.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="418.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="438.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="454.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="474.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="490.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="510.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="526.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="546.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="562.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <rect x="582.0" y="150.0" width="32.0" height="28.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="598.0" y="168.2" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1.0</text>
+  <path d="M42,196 V204 H182 V196" fill="none" stroke="#2E8B3D" stroke-width="1.6"/>
+  <text x="112.0" y="222.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">16 bytes</text>
+  <text x="198.0" y="222.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">cudaMemcpy(in, host, 16, ...) copies these, and stops</text>
+  <text x="42.0" y="256.0" class="note" text-anchor="start" xml:space="preserve">device, in: 4 floats arrive; 12 keep the 0.0 of the memset</text>
+  <rect x="42.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="58.0" y="284.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1.0</text>
+  <rect x="78.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="94.0" y="284.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1.0</text>
+  <rect x="114.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="130.0" y="284.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1.0</text>
+  <rect x="150.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="166.0" y="284.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1.0</text>
+  <rect x="186.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="202.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="222.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="238.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="258.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="274.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="294.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="310.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="330.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="346.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="366.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="382.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="402.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="418.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="438.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="454.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="474.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="490.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="510.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="526.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="546.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="562.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="582.0" y="266.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="598.0" y="284.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <text x="42.0" y="322.0" class="note" text-anchor="start" xml:space="preserve">device, out = 2 × in</text>
+  <rect x="42.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="58.0" y="350.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2.0</text>
+  <rect x="78.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="94.0" y="350.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2.0</text>
+  <rect x="114.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="130.0" y="350.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2.0</text>
+  <rect x="150.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="166.0" y="350.2" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2.0</text>
+  <rect x="186.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="202.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="222.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="238.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="258.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="274.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="294.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="310.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="330.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="346.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="366.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="382.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="402.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="418.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="438.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="454.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="474.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="490.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="510.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="526.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="546.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="562.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="582.0" y="332.0" width="32.0" height="28.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="598.0" y="350.2" class="mono" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0.0</text>
+  <rect x="42.0" y="372" width="383.6" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="233.8" y="384.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">4 of 16 correct: 16 bytes ÷ 4 bytes per float = 4 floats</text>
+  <text x="16.0" y="432.0" class="note" text-anchor="start" xml:space="preserve">In raw.cu, N = 2,097,152: 2,097,152 bytes are 524,288 floats, so 524,288 of</text>
+  <text x="16.0" y="450.0" class="note" text-anchor="start" xml:space="preserve">2,097,152 results are right, 1 in 4. No call returns an error: the copy did what</text>
+  <text x="16.0" y="468.0" class="note" text-anchor="start" xml:space="preserve">its arguments asked for.</text>
+</svg>

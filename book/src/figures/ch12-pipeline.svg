@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 508" width="660" height="508" role="img" aria-label="Two zones. At build time, nvcc turns a .cu source file into PTX for a virtual GPU, compute_87, then into a cubin of machine code for sm_87 only, and bundles cubins and PTX into a fatbin inside the executable. While the program runs, NVRTC turns a source string of 1,315 bytes into PTX of 2,237 bytes in 44 to 88 ms or a cubin of 3,624 bytes in 49 to 74 ms. Loading the PTX makes the driver compile it, 0.7 to 45 ms; loading the cubin takes 0.05 ms.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="508" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Source, PTX, cubin</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The same 3 forms, made before the program starts or while it runs.</text>
+  <rect x="16" y="100" width="628" height="140" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="89" width="177.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="122.7" y="104.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">AT BUILD TIME: NVCC</text>
+  <rect x="16" y="272" width="628" height="216" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="261" width="256.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="162.1" y="276.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">WHILE THE PROGRAM RUNS: NVRTC</text>
+  <rect x="32" y="132" width="132" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,132.7 H38 V215.3 H44 A11.3,11.3 0 0 1 32.7,204 V144 A11.3,11.3 0 0 1 44,132.7 Z" fill="#2F6FDB"/>
+  <text x="52.0" y="161.0" class="name" text-anchor="start" xml:space="preserve">source</text>
+  <text x="52.0" y="179.0" class="sub" text-anchor="start" xml:space="preserve">CUDA C++</text>
+  <text x="52.0" y="197.0" class="sub" text-anchor="start" xml:space="preserve">.cu file</text>
+  <rect x="188" y="132" width="132" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M200,132.7 H194 V215.3 H200 A11.3,11.3 0 0 1 188.7,204 V144 A11.3,11.3 0 0 1 200,132.7 Z" fill="#7A4FD0"/>
+  <text x="208.0" y="161.0" class="name" text-anchor="start" xml:space="preserve">PTX</text>
+  <text x="208.0" y="179.0" class="sub" text-anchor="start" xml:space="preserve">virtual GPU</text>
+  <text x="208.0" y="197.0" class="sub" text-anchor="start" xml:space="preserve">compute_87</text>
+  <rect x="344" y="132" width="132" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M356,132.7 H350 V215.3 H356 A11.3,11.3 0 0 1 344.7,204 V144 A11.3,11.3 0 0 1 356,132.7 Z" fill="#2E8B3D"/>
+  <text x="364.0" y="161.0" class="name" text-anchor="start" xml:space="preserve">cubin</text>
+  <text x="364.0" y="179.0" class="sub" text-anchor="start" xml:space="preserve">machine code</text>
+  <text x="364.0" y="197.0" class="sub" text-anchor="start" xml:space="preserve">sm_87 only</text>
+  <rect x="500" y="132" width="128" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M512,132.7 H506 V215.3 H512 A11.3,11.3 0 0 1 500.7,204 V144 A11.3,11.3 0 0 1 512,132.7 Z" fill="#B7791F"/>
+  <text x="520.0" y="161.0" class="name" text-anchor="start" xml:space="preserve">fatbin</text>
+  <text x="520.0" y="179.0" class="sub" text-anchor="start" xml:space="preserve">cubins + PTX</text>
+  <text x="520.0" y="197.0" class="sub" text-anchor="start" xml:space="preserve">in the binary</text>
+  <path d="M164,174 H185" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M320,174 H341" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M476,174 H497" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="32" y="304" width="160" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,304.7 H38 V387.3 H44 A11.3,11.3 0 0 1 32.7,376 V316 A11.3,11.3 0 0 1 44,304.7 Z" fill="#2F6FDB"/>
+  <text x="52.0" y="333.0" class="name" text-anchor="start" xml:space="preserve">source string</text>
+  <text x="52.0" y="351.0" class="sub" text-anchor="start" xml:space="preserve">made by the program</text>
+  <text x="52.0" y="369.0" class="sub" text-anchor="start" xml:space="preserve">1,315 bytes</text>
+  <rect x="250" y="304" width="170" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M262,304.7 H256 V387.3 H262 A11.3,11.3 0 0 1 250.7,376 V316 A11.3,11.3 0 0 1 262,304.7 Z" fill="#7A4FD0"/>
+  <text x="270.0" y="333.0" class="name" text-anchor="start" xml:space="preserve">PTX</text>
+  <text x="270.0" y="351.0" class="sub" text-anchor="start" xml:space="preserve">2,237 bytes</text>
+  <text x="270.0" y="369.0" class="sub" text-anchor="start" xml:space="preserve">compile 44 to 88 ms</text>
+  <rect x="250" y="400" width="170" height="72" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M262,400.7 H256 V471.3 H262 A11.3,11.3 0 0 1 250.7,460 V412 A11.3,11.3 0 0 1 262,400.7 Z" fill="#2E8B3D"/>
+  <text x="270.0" y="423.0" class="name" text-anchor="start" xml:space="preserve">cubin, sm_87</text>
+  <text x="270.0" y="441.0" class="sub" text-anchor="start" xml:space="preserve">3,624 bytes</text>
+  <text x="270.0" y="459.0" class="sub" text-anchor="start" xml:space="preserve">compile 49 to 74 ms</text>
+  <rect x="478" y="304" width="150" height="84" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M490,304.7 H484 V387.3 H490 A11.3,11.3 0 0 1 478.7,376 V316 A11.3,11.3 0 0 1 490,304.7 Z" fill="#7A4FD0"/>
+  <text x="498.0" y="333.0" class="name" text-anchor="start" xml:space="preserve">load PTX</text>
+  <text x="498.0" y="351.0" class="sub" text-anchor="start" xml:space="preserve">driver compiles</text>
+  <text x="498.0" y="369.0" class="sub" text-anchor="start" xml:space="preserve">0.7 to 45 ms</text>
+  <rect x="478" y="400" width="150" height="72" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M490,400.7 H484 V471.3 H490 A11.3,11.3 0 0 1 478.7,460 V412 A11.3,11.3 0 0 1 490,400.7 Z" fill="#2E8B3D"/>
+  <text x="498.0" y="423.0" class="name" text-anchor="start" xml:space="preserve">load cubin</text>
+  <text x="498.0" y="441.0" class="sub" text-anchor="start" xml:space="preserve">ready to run</text>
+  <text x="498.0" y="459.0" class="sub" text-anchor="start" xml:space="preserve">0.05 ms</text>
+  <path d="M192,346 H247" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path class="wire" d="M112,388 L112,427 Q112,436 121,436 L250,436" marker-end="url(#head)"/>
+  <path d="M420,346 H475" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M420,436 H475" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+</svg>

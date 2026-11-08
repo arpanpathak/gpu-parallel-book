@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 484" width="660" height="484" role="img" aria-label="A template, transform with type T and operation F, fans out into 3 kernels the compiler writes: transform&lt;float&gt;, 4 bytes in and 4 out, 74.6 GB/s; transform&lt;double&gt;, 8 bytes in and 8 out, 90.2 GB/s; transform&lt;int&gt;, 4 bytes in and 4 out, 77.0 GB/s. Below, the hand-written float kernel scaleRaw ran at 74.5 GB/s.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="484" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 template, 3 kernels</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The compiler writes 1 kernel per set of types; each runs at hand-written speed.</text>
+  <rect x="150.0" y="104.0" width="360.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="330.0" y="123.2" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">template &lt;Number T, UnaryOp&lt;T&gt; F&gt;</text>
+  <rect x="150.0" y="138.0" width="360.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <text x="330.0" y="157.2" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">__global__ void transform(in, out, f)</text>
+  <path d="M330,168 V196 M120,196 H540" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="330" cy="196" r="3" fill="#3F5873"/>
+  <path d="M120,196 V217" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M330,196 V217" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M540,196 V217" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="24.0" y="220.0" width="192.0" height="94.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="120.0" y="246.0" class="mono strong" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">transform&lt;float&gt;</text>
+  <text x="120.0" y="268.0" class="sub" text-anchor="middle" xml:space="preserve">4 bytes in, 4 bytes out</text>
+  <rect x="83.3" y="284" width="73.4" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="120.0" y="296.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">74.6 GB/s</text>
+  <rect x="234.0" y="220.0" width="192.0" height="94.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="330.0" y="246.0" class="mono strong" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">transform&lt;double&gt;</text>
+  <text x="330.0" y="268.0" class="sub" text-anchor="middle" xml:space="preserve">8 bytes in, 8 bytes out</text>
+  <rect x="293.3" y="284" width="73.4" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="330.0" y="296.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">90.2 GB/s</text>
+  <rect x="444.0" y="220.0" width="192.0" height="94.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="540.0" y="246.0" class="mono strong" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">transform&lt;int&gt;</text>
+  <text x="540.0" y="268.0" class="sub" text-anchor="middle" xml:space="preserve">4 bytes in, 4 bytes out</text>
+  <rect x="503.3" y="284" width="73.4" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="540.0" y="296.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">77.0 GB/s</text>
+  <rect x="126.0" y="344.0" width="408.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <text x="330.0" y="363.2" class="mono" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">scaleRaw, written by hand for float: 74.5 GB/s</text>
+  <text x="16.0" y="408.0" class="note" text-anchor="start" xml:space="preserve">The template is not a kernel. At each launch with new types, the compiler writes</text>
+  <text x="16.0" y="426.0" class="note" text-anchor="start" xml:space="preserve">a kernel for those types, as if typed by hand: 3 types, 3 kernels in the binary.</text>
+  <text x="16.0" y="444.0" class="note" text-anchor="start" xml:space="preserve">transform&lt;float&gt; ran at the speed of the hand-written kernel (16,777,216 values).</text>
+  <text x="16.0" y="462.0" class="note" text-anchor="start" xml:space="preserve">double moves twice the bytes per thread and reached 90.2 GB/s of 102 GB/s.</text>
+</svg>

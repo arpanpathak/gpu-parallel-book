@@ -337,3 +337,169 @@ details.check > summary::before {
     color: var(--book-teal);
 }
 details.check[open] > summary { margin-bottom: 0.4em; }
+
+/* Code tabs (theme/tabs.js): 1 panel per language, buttons above the panels. */
+.code-tabs {
+    margin: 1em 0;
+}
+
+.code-tab-bar {
+    display: flex;
+    gap: 2px;
+    border-bottom: 2px solid var(--book-rule);
+}
+
+.code-tab-bar button {
+    font: inherit;
+    font-size: 0.9em;
+    padding: 0.35em 1em;
+    color: var(--book-steel);
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    margin-bottom: -2px;
+}
+
+.code-tab-bar button.active {
+    color: var(--book-ink);
+    background: var(--book-pale);
+    border-color: var(--book-rule);
+    border-bottom: 2px solid var(--book-rust);
+    font-weight: 600;
+}
+
+.code-tab-bar button:focus-visible {
+    outline: 2px solid var(--book-teal);
+    outline-offset: 1px;
+}
+
+.code-tabs > .code-tab > pre:first-child {
+    margin-top: 0.5em;
+}
+
+/* Without the script, and in print, every panel is shown with its language as a label. */
+.code-tabs:not(.ready) > .code-tab::before {
+    content: attr(data-lang);
+    display: block;
+    font-weight: 600;
+    color: var(--book-steel);
+    margin-top: 0.75em;
+}
+
+@media print {
+    .code-tab-bar {
+        display: none;
+    }
+
+    .code-tabs > .code-tab[hidden] {
+        display: block !important;
+    }
+
+    .code-tabs > .code-tab::before {
+        content: attr(data-lang);
+        display: block;
+        font-weight: 600;
+    }
+}
+
+/* Paper-style algorithm elements. */
+.algo {
+    margin: 1.2em 0;
+    padding: 0.6em 1em 0.7em;
+    border-top: 2px solid var(--book-ink);
+    border-bottom: 1px solid var(--book-rule);
+    overflow-x: auto;
+}
+
+.algo > .algo-name {
+    margin: 0 0 0.3em;
+    font-variant: small-caps;
+    letter-spacing: 0.03em;
+}
+
+.algo > ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: algo-line;
+}
+
+.algo > ol > li {
+    counter-increment: algo-line;
+    position: relative;
+    padding-left: calc(2.4em + var(--d, 0) * 1.6em);
+    line-height: 1.6;
+    white-space: nowrap;
+}
+
+.algo > ol > li::before {
+    content: counter(algo-line);
+    position: absolute;
+    left: 0;
+    width: 1.6em;
+    text-align: right;
+    color: var(--book-steel);
+    font-size: 0.85em;
+}
+
+.algo .sc {
+    font-variant: small-caps;
+}
+
+.algo .c {
+    float: right;
+    margin-left: 2em;
+    color: var(--book-steel);
+    font-style: italic;
+}
+
+.definition,
+.theorem,
+.key-observation,
+.rule-box {
+    margin: 1.2em 0;
+    padding: 0.7em 1em;
+    border-left: 4px solid var(--book-navy);
+    background: var(--book-pale);
+}
+
+.key-observation {
+    border-left-color: var(--book-brass);
+}
+
+.rule-box {
+    border-left-color: var(--book-rust);
+}
+
+.definition > p:first-child::first-line,
+.theorem > p:first-child::first-line {
+    font-weight: normal;
+}
+
+.box-label {
+    font-weight: 700;
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+    margin-right: 0.5em;
+}
+
+.proof > p:last-child::after {
+    content: " \220E";
+}
+
+.exercises {
+    margin: 1.4em 0;
+    padding: 0.5em 1em;
+    border-top: 1px solid var(--book-rule);
+    border-bottom: 1px solid var(--book-rule);
+    font-size: 0.95em;
+}
+
+.exercises > p:first-child {
+    font-variant: small-caps;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3em;
+}

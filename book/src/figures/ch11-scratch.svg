@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 554" width="660" height="554" role="img" aria-label="Left: CUB&#x27;s 2 calls. Call 1 with nullptr returns 1,279 bytes; the program allocates them once; call 2 with the memory runs the sum and can be repeated. Right: 3 bars for a sum of 4,096 floats, drawn to scale. thrust::reduce, 68.1 microseconds: 38.2 allocating and freeing, 21.1 copying the result back and waiting, 8.8 launching and summing. CUB with the result copied, 29.9 microseconds: 21.1 copy and wait, 8.8 sum. CUB with the result kept, 8.8 microseconds. The data itself needs 0.18 microseconds.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="554" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Scratch memory and waiting</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Measured per call, 4,096 floats.</text>
+  <rect x="16" y="104" width="252" height="380" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="130.3" height="22" rx="11" fill="#1B2430"/>
+  <text x="99.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">CUB&#x27;S 2 CALLS</text>
+  <rect x="284" y="104" width="360" height="380" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="302" y="93" width="193.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="398.6" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">A SUM OF 4,096 FLOATS</text>
+  <rect x="32" y="136" width="220" height="72" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,136.7 H38 V207.3 H44 A11.3,11.3 0 0 1 32.7,196 V148 A11.3,11.3 0 0 1 44,136.7 Z" fill="#2F6FDB"/>
+  <text x="52.0" y="168.0" class="name" text-anchor="start" xml:space="preserve">1. Sum(nullptr, ...)</text>
+  <text x="52.0" y="186.0" class="sub" text-anchor="start" xml:space="preserve">writes bytes = 1,279</text>
+  <path d="M142,208 V245" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="32" y="248" width="220" height="72" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,248.7 H38 V319.3 H44 A11.3,11.3 0 0 1 32.7,308 V260 A11.3,11.3 0 0 1 44,248.7 Z" fill="#B7791F"/>
+  <text x="52.0" y="280.0" class="name" text-anchor="start" xml:space="preserve">2. cudaMalloc(bytes)</text>
+  <text x="52.0" y="298.0" class="sub" text-anchor="start" xml:space="preserve">once, before the loop</text>
+  <path d="M142,320 V357" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="32" y="360" width="220" height="72" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,360.7 H38 V431.3 H44 A11.3,11.3 0 0 1 32.7,420 V372 A11.3,11.3 0 0 1 44,360.7 Z" fill="#2E8B3D"/>
+  <text x="52.0" y="392.0" class="name" text-anchor="start" xml:space="preserve">3. Sum(temp, ...)</text>
+  <text x="52.0" y="410.0" class="sub" text-anchor="start" xml:space="preserve">runs; repeat at will</text>
+  <text x="304.0" y="150.0" class="name" text-anchor="start" xml:space="preserve">thrust::reduce</text>
+  <rect x="304.0" y="162.0" width="133.4" height="30.0" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="370.7" y="181.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">allocate, free</text>
+  <rect x="440.4" y="162.0" width="72.4" height="30.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="476.6" y="181.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">copy, wait</text>
+  <rect x="515.8" y="162.0" width="28.4" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="553.2" y="182.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">68.1 µs</text>
+  <text x="304.0" y="246.0" class="name" text-anchor="start" xml:space="preserve">CUB, result copied</text>
+  <rect x="304.0" y="258.0" width="72.4" height="30.0" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="340.2" y="277.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">copy, wait</text>
+  <rect x="379.4" y="258.0" width="28.4" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="416.8" y="278.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">29.9 µs</text>
+  <text x="304.0" y="342.0" class="name" text-anchor="start" xml:space="preserve">CUB, result kept</text>
+  <rect x="304.0" y="354.0" width="28.4" height="30.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="341.4" y="374.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">8.8 µs</text>
+  <rect x="304" y="406" width="14" height="14" rx="4" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="325.0" y="417.5" class="note" text-anchor="start" xml:space="preserve">allocate</text>
+  <rect x="399.8" y="406" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="420.8" y="417.5" class="note" text-anchor="start" xml:space="preserve">copy, wait</text>
+  <rect x="508.8" y="406" width="14" height="14" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="529.8" y="417.5" class="note" text-anchor="start" xml:space="preserve">sum</text>
+  <text x="304.0" y="450.0" class="note" text-anchor="start" xml:space="preserve">Reading the 16 KiB itself takes 0.18 µs.</text>
+  <text x="40.0" y="514.0" class="note" text-anchor="start" xml:space="preserve">thrust::reduce allocates its scratch memory, copies the answer to the host and waits</text>
+  <text x="40.0" y="532.0" class="note" text-anchor="start" xml:space="preserve">for the GPU, on every call. CUB leaves all 3 to the caller.</text>
+</svg>

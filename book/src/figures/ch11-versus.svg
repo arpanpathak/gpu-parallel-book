@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 634" width="660" height="634" role="img" aria-label="3 panels of horizontal bars, Sum of 256 MiB, in GB/s: Chapter 8 kernel 93.4, cub::BlockReduce 92.5, cub::DeviceReduce 91.8, thrust::reduce 93.0. Scan of 64 Mi values, in GB/s: Chapter 8 43.0, thrust::inclusive_scan 68.2, cub::DeviceScan 74.3. SGEMM with N = 4,096, in GFLOP/s: Chapter 9 best 931.9, cuBLAS FP32 1,504.6, cuBLAS TF32 6,530.4.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="634" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Hand-written against library</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Measured on 1 GPU, the same day.</text>
+  <rect x="16" y="104" width="628" height="164" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="138.1" height="22" rx="11" fill="#1B2430"/>
+  <text x="103.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SUM OF 256 MIB</text>
+  <text x="206.0" y="149.0" class="sub" text-anchor="end" xml:space="preserve">Chapter 8 kernel</text>
+  <rect x="220.0" y="137.0" width="280.2" height="18" rx="4" fill="#7F8EA0" stroke="#7F8EA0" stroke-width="1.1"/>
+  <text x="508.2" y="150.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">93.4 GB/s</text>
+  <text x="206.0" y="179.0" class="sub" text-anchor="end" xml:space="preserve">cub::BlockReduce</text>
+  <rect x="220.0" y="167.0" width="277.5" height="18" rx="4" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="505.5" y="180.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">92.5 GB/s</text>
+  <text x="206.0" y="209.0" class="sub" text-anchor="end" xml:space="preserve">cub::DeviceReduce</text>
+  <rect x="220.0" y="197.0" width="275.4" height="18" rx="4" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="503.4" y="210.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">91.8 GB/s</text>
+  <text x="206.0" y="239.0" class="sub" text-anchor="end" xml:space="preserve">thrust::reduce</text>
+  <rect x="220.0" y="227.0" width="279.0" height="18" rx="4" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="507.0" y="240.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">93.0 GB/s</text>
+  <rect x="16" y="292" width="628" height="134" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="281" width="185.3" height="22" rx="11" fill="#1B2430"/>
+  <text x="126.7" y="296.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SCAN OF 64 MI VALUES</text>
+  <text x="206.0" y="337.0" class="sub" text-anchor="end" xml:space="preserve">Chapter 8 scan</text>
+  <rect x="220.0" y="325.0" width="129.0" height="18" rx="4" fill="#7F8EA0" stroke="#7F8EA0" stroke-width="1.1"/>
+  <text x="357.0" y="338.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">43.0 GB/s</text>
+  <text x="206.0" y="367.0" class="sub" text-anchor="end" xml:space="preserve">thrust::inclusive_scan</text>
+  <rect x="220.0" y="355.0" width="204.6" height="18" rx="4" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="432.6" y="368.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">68.2 GB/s</text>
+  <text x="206.0" y="397.0" class="sub" text-anchor="end" xml:space="preserve">cub::DeviceScan</text>
+  <rect x="220.0" y="385.0" width="222.9" height="18" rx="4" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="450.9" y="398.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">74.3 GB/s</text>
+  <rect x="16" y="450" width="628" height="134" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="439" width="153.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="110.9" y="454.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SGEMM, N = 4,096</text>
+  <text x="206.0" y="495.0" class="sub" text-anchor="end" xml:space="preserve">Chapter 9 best</text>
+  <rect x="220.0" y="483.0" width="39.9" height="18" rx="4" fill="#7F8EA0" stroke="#7F8EA0" stroke-width="1.1"/>
+  <text x="267.9" y="496.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">931.9 GFLOP/s</text>
+  <text x="206.0" y="525.0" class="sub" text-anchor="end" xml:space="preserve">cuBLAS, FP32</text>
+  <rect x="220.0" y="513.0" width="64.5" height="18" rx="4" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="292.5" y="526.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">1,504.6 GFLOP/s</text>
+  <text x="206.0" y="555.0" class="sub" text-anchor="end" xml:space="preserve">cuBLAS, TF32</text>
+  <rect x="220.0" y="543.0" width="279.9" height="18" rx="4" fill="#2F6FDB" stroke="#2F6FDB" stroke-width="1.1"/>
+  <text x="507.9" y="556.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">6,530.4 GFLOP/s</text>
+  <rect x="40.0" y="602" width="14" height="14" rx="4" fill="#7F8EA0"/>
+  <text x="61.0" y="613.5" class="note" text-anchor="start" xml:space="preserve">the book&#x27;s kernel</text>
+  <rect x="197.2" y="602" width="14" height="14" rx="4" fill="#2F6FDB"/>
+  <text x="218.2" y="613.5" class="note" text-anchor="start" xml:space="preserve">library</text>
+</svg>

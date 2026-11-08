@@ -538,6 +538,133 @@ def tortoise(cx, base, s=1.0, look=1):
     ])
 
 
+def owl(cx, base, s=1.0, look=1, hat=None):
+    """A barn-brown owl seen from the front, its claws at `base`. `look` turns the pupils
+    (1 right, -1 left, 0 ahead); `hat` is None or "mortarboard". 1.0 is 200 units tall."""
+    X = lambda dx: cx + dx * s
+    Y = lambda dy: base - dy * s
+    feather, wing, belly, disc, ink = "#9a7550", "#7a5838", "#ecdcb6", "#f6ead0", "#2a1d10"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    chevrons = [path(f"M{X(dx - 6)},{Y(dy)} L{X(dx)},{Y(dy - 5)} L{X(dx + 6)},{Y(dy)}", "none", "#b08a5a", 2 * s)
+                for dy in (100, 78, 56) for dx in (-16, 0, 16)]
+    parts = [
+        shadow(cx, base, 56 * s),
+        *[path(f"M{X(dx - 9)},{Y(0)} l{4 * s},{-12 * s} l{4 * s},{12 * s} l{4 * s},{-12 * s} l{4 * s},{12 * s}",
+               "none", "#f2a03d", 3.2 * s) for dx in (-14, 14)],
+        ellipse(cx, Y(78), 58 * s, 78 * s, feather, stroke),
+        ellipse(X(-50), Y(82), 20 * s, 56 * s, wing, stroke + f' {rot(12, X(-50), Y(82))}'),
+        ellipse(X(50), Y(82), 20 * s, 56 * s, wing, stroke + f' {rot(-12, X(50), Y(82))}'),
+        ellipse(cx, Y(70), 38 * s, 56 * s, belly),
+        *chevrons,
+        path(f"M{X(-50)},{Y(176)} L{X(-46)},{Y(214)} L{X(-20)},{Y(190)} Z", feather, ink, 2.2 * s),
+        path(f"M{X(50)},{Y(176)} L{X(46)},{Y(214)} L{X(20)},{Y(190)} Z", feather, ink, 2.2 * s),
+        ellipse(cx, Y(160), 56 * s, 46 * s, feather, stroke),
+    ]
+    for side in (-1, 1):
+        ex, ey = X(side * 23), Y(162)
+        parts += [circle(ex, ey, 22 * s, disc), circle(ex, ey, 14 * s, "#f5c542", f'stroke="{ink}" stroke-width="{1.6 * s}"'),
+                  circle(ex + look * 3.5 * s, ey + 0.5 * s, 7.5 * s, INK),
+                  circle(ex + look * 3.5 * s + 2.5 * s, ey - 2.5 * s, 2.4 * s, SNOW)]
+    parts.append(path(f"M{X(-7)},{Y(150)} L{X(7)},{Y(150)} L{cx},{Y(134)} Z", "#f2a03d", ink, 1.8 * s))
+    if hat == "mortarboard":
+        parts += [path(f"M{X(-30)},{Y(196)} L{X(30)},{Y(196)} L{X(30)},{Y(212)} L{X(-30)},{Y(212)} Z", INK),
+                  path(f"M{X(-62)},{Y(214)} L{cx},{Y(234)} L{X(62)},{Y(214)} L{cx},{Y(196)} Z", INK),
+                  line(X(40), Y(215), X(48), Y(178), HONEY, 2.5 * s), circle(X(48), Y(176), 4 * s, HONEY)]
+    return "\n".join(parts)
+
+
+def lantern(cx, top, lit, s=1.0):
+    """A hanging lantern whose top hook is at (cx, top): glowing when `lit`, dark when not."""
+    glass = "#ffd96a" if lit else "#3a4656"
+    parts = [line(cx, top, cx, top + 12 * s, "#2a1d10", 2.5 * s),
+             circle(cx, top + 10 * s, 5 * s, "none", f'stroke="#2a1d10" stroke-width="{2 * s}"')]
+    if lit:
+        parts += [circle(cx, top + 44 * s, 46 * s, "#ffd96a", 'opacity="0.18"'),
+                  circle(cx, top + 44 * s, 30 * s, "#ffd96a", 'opacity="0.25"')]
+    parts += [path(f"M{cx - 16 * s},{top + 24 * s} L{cx + 16 * s},{top + 24 * s} L{cx + 10 * s},{top + 15 * s}"
+                   f" L{cx - 10 * s},{top + 15 * s} Z", "#5b4a3a", "#2a1d10", 2 * s),
+              rect(cx - 13 * s, top + 24 * s, 26 * s, 38 * s, glass, 4 * s, "#2a1d10", 2.2 * s),
+              line(cx, top + 24 * s, cx, top + 62 * s, "#2a1d10", 1.6 * s, 'opacity="0.5"'),
+              rect(cx - 16 * s, top + 62 * s, 32 * s, 7 * s, "#5b4a3a", 3 * s, "#2a1d10", 2 * s)]
+    if lit:
+        parts.append(ellipse(cx, top + 46 * s, 5 * s, 9 * s, "#f28c28"))
+    return "\n".join(parts)
+
+
+def reading_owl(cx, base, s=1.0, look=1, hat=None):
+    """An owl standing with its wings folded; `hat` is None, "glasses" or "mortarboard".
+    1.0 is 175 units tall."""
+    h, coat, wing, face = 175 * s, "#8a5a3a", "#6d452b", "#e2c59c"
+    y = lambda f: base - f * h
+    belly = [path(f"M{cx + dx * h:.1f},{y(fy):.1f} l{0.03 * h:.1f},{0.03 * h:.1f} l{0.03 * h:.1f},{-0.03 * h:.1f}",
+                  stroke="#a9825c", sw=2.5 * s)
+             for dx, fy in ((-0.10, 0.36), (0.04, 0.36), (-0.03, 0.26), (-0.10, 0.16), (0.04, 0.16))]
+    parts = [
+        shadow(cx, base, 0.34 * h),
+        ellipse(cx - 0.10 * h, y(0.01), 0.07 * h, 0.03 * h, BRASS),
+        ellipse(cx + 0.10 * h, y(0.01), 0.07 * h, 0.03 * h, BRASS),
+        path(f"M{cx - 0.24 * h:.1f},{y(0.86):.1f} L{cx - 0.30 * h:.1f},{y(1.06):.1f} L{cx - 0.10 * h:.1f},{y(0.94):.1f} Z", coat),
+        path(f"M{cx + 0.24 * h:.1f},{y(0.86):.1f} L{cx + 0.30 * h:.1f},{y(1.06):.1f} L{cx + 0.10 * h:.1f},{y(0.94):.1f} Z", coat),
+        ellipse(cx, y(0.47), 0.30 * h, 0.47 * h, coat), ellipse(cx, y(0.28), 0.19 * h, 0.25 * h, face), *belly,
+        ellipse(cx - 0.30 * h, y(0.42), 0.07 * h, 0.22 * h, wing, rot(12, cx - 0.28 * h, y(0.6))),
+        ellipse(cx + 0.30 * h, y(0.42), 0.07 * h, 0.22 * h, wing, rot(-12, cx + 0.28 * h, y(0.6))),
+        circle(cx - 0.125 * h, y(0.72), 0.135 * h, CREAM), circle(cx + 0.125 * h, y(0.72), 0.135 * h, CREAM),
+        eye(cx - 0.125 * h, y(0.72), 0.085 * h, look * 0.6, 0.6),
+        eye(cx + 0.125 * h, y(0.72), 0.085 * h, look * 0.6, 0.6),
+        path(f"M{cx - 0.04 * h:.1f},{y(0.66):.1f} h{0.08 * h:.1f} l{-0.04 * h:.1f},{0.08 * h:.1f} Z", BRASS),
+    ]
+    if hat == "glasses":
+        rim = f'stroke="{INK}" stroke-width="{2.6 * s:.1f}"'
+        parts += [circle(cx - 0.125 * h, y(0.72), 0.105 * h, "none", rim),
+                  circle(cx + 0.125 * h, y(0.72), 0.105 * h, "none", rim),
+                  line(cx - 0.02 * h, y(0.73), cx + 0.02 * h, y(0.73), INK, 2.6 * s)]
+    if hat == "mortarboard":
+        parts += [rect(cx - 0.16 * h, y(1.0), 0.32 * h, 0.08 * h, INK, 3),
+                  path(f"M{cx - 0.30 * h:.1f},{y(1.02):.1f} L{cx:.1f},{y(1.12):.1f} L{cx + 0.30 * h:.1f},{y(1.02):.1f}"
+                       f" L{cx:.1f},{y(0.92):.1f} Z", INK),
+                  line(cx + 0.22 * h, y(1.02), cx + 0.24 * h, y(0.86), HONEY, 2.4 * s)]
+    return "\n".join(parts)
+
+
+def chameleon(cx, base, s=1.0, look=1, hues=("#4f8fd6", "#3fa3a0", "#5fb85a", "#a8c94a", "#e8b73c")):
+    """A chameleon gripping a branch at `base`, facing `look`, its body banded from tail to head
+    in `hues`: it changes colour as it goes. 1.0 is about 330 units from tail curl to snout."""
+    f = look
+    X = lambda dx: cx + f * dx * s
+    Y = lambda dy: base - dy * s
+    ink = "#1f2a1a"
+    stroke = f'stroke="{ink}" stroke-width="{2.4 * s}"'
+    bid = uid("hue")
+    body = (f"M{X(-92)},{Y(46)} Q{X(-80)},{Y(104)} {X(0)},{Y(106)} Q{X(70)},{Y(104)} {X(92)},{Y(70)}"
+            f" Q{X(80)},{Y(18)} {X(0)},{Y(16)} Q{X(-80)},{Y(16)} {X(-92)},{Y(46)} Z")
+    bands = [rect(min(X(-100 + 40 * k), X(-60 + 40 * k)), Y(120), 40 * s + 1, 120 * s, hue, 0, extra=f'clip-path="url(#{bid})"')
+             for k, hue in enumerate(hues)]
+    crest = " ".join(f"L{X(-70 + 14 * k)},{Y(106 + (8 if k % 2 else 0) - abs(k - 5) * 1.6)}" for k in range(11))
+    tail = (f"M{X(-86)},{Y(40)} Q{X(-150)},{Y(30)} {X(-150)},{Y(-10)} A{26 * s},{26 * s} 0 1 {1 if f > 0 else 0}"
+            f" {X(-112)},{Y(-14)} A{14 * s},{14 * s} 0 1 {1 if f > 0 else 0} {X(-128)},{Y(-4)}")
+    legs = []
+    for dx, lean in ((-56, -1), (-26, 1), (34, -1), (62, 1)):
+        knee = (X(dx + 10 * lean), Y(30))
+        legs += [path(f"M{X(dx)},{Y(34)} L{knee[0]},{knee[1]} L{X(dx + 4 * lean)},{Y(2)}", "none", ink, 10 * s),
+                 path(f"M{X(dx)},{Y(34)} L{knee[0]},{knee[1]} L{X(dx + 4 * lean)},{Y(2)}", "none", hues[(dx + 100) * 5 // 200], 6 * s),
+                 ellipse(X(dx + 4 * lean), Y(0), 9 * s, 5 * s, hues[(dx + 100) * 5 // 200], stroke)]
+    head = (f"M{X(80)},{Y(98)} Q{X(100)},{Y(130)} {X(122)},{Y(112)} L{X(160)},{Y(76)}"
+            f" Q{X(150)},{Y(56)} {X(120)},{Y(54)} Q{X(92)},{Y(56)} {X(82)},{Y(66)} Z")
+    return "".join([
+        shadow(cx, base, 120 * s),
+        path(tail, "none", ink, 18 * s), path(tail, "none", hues[0], 13 * s),
+        *legs,
+        f'<defs><clipPath id="{bid}"><path d="{body}"/></clipPath></defs>',
+        path(body, hues[2], ink, 2.6 * s), *bands, path(body, "none", ink, 2.6 * s),
+        path(f"M{X(-72)},{Y(100)} {crest}", "none", ink, 2.2 * s),
+        path(f"M{X(-60)},{Y(40)} Q{X(0)},{Y(28)} {X(70)},{Y(44)}", "none", "#ffffff", 3 * s, 'opacity="0.45"'),
+        path(head, hues[-1], ink, 2.6 * s),
+        circle(X(112), Y(84), 17 * s, hues[-2], stroke),
+        eye(X(114), Y(84), 9 * s, look * 0.7),
+        path(f"M{X(124)},{Y(64)} L{X(158)},{Y(74)}", "none", ink, 2.2 * s),
+    ])
+
+
 def plain_crate(x, y, w, h, fill="#c9a46a"):
     """A small crate with no label: a box and its 2 diagonal straps."""
     return "\n".join([rect(x, y, w, h, fill, 4, "#7a5a32", 2.5),
@@ -809,6 +936,103 @@ def ch09():
             tag(120, GROUND - 60, "C", 18, "#fff6e2", "#2a1a10", MONO, 700),
             tortoise(380, GROUND - 2, 0.95, look=1),
             tag(480, 64, "load a tile once, use it many times", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch10", "Modern C++ for CUDA", "Hoot the owl", "Hoot, an owl, sits on a tree stump at dusk and "
+       "watches a rope of lanterns. The first 4 lanterns glow; a brace beneath them reads in scope. The last 2 "
+       "hang dark; a brace beneath them reads scope ended. Nobody walked along the rope to put them out: each "
+       "lantern switched itself off when its scope ended, as a C++ destructor releases what a constructor took.")
+def ch10():
+    rope = "M300,96 Q610,150 930,96"
+    xs = [372, 462, 552, 642, 768, 858]
+    hang = lambda x: 96 + 108 * ((x - 300) / 630) * (1 - (x - 300) / 630) - 4
+    lanterns = [lantern(x, hang(x), k < 4, 1.05) for k, x in enumerate(xs)]
+
+    def brace(x0, x1, y, text, ink):
+        mid = (x0 + x1) / 2
+        return "\n".join([path(f"M{x0},{y} q0,12 12,12 H{mid - 12} q12,0 12,12 q0,-12 12,-12 H{x1 - 12} q12,0 12,-12",
+                               "none", ink, 3),
+                          tag(mid, y + 46, text, 16, "#fff6e2", "#2a1a10", MONO, 700)])
+
+    return [backdrop(seed=10, **DUSK),
+            path(rope, "none", "#2a1d10", 3),
+            *lanterns,
+            brace(340, 674, 236, "in scope: lit", HONEY),
+            brace(736, 890, 236, "scope ended", "#cfe1f0"),
+            rect(96, GROUND - 58, 150, 62, WOOD, 10, "#5a3d28", 3),
+            ellipse(171, GROUND - 58, 75, 13, "#c9a46a", 'stroke="#5a3d28" stroke-width="3"'),
+            owl(171, GROUND - 60, 0.92, look=1),
+            tag(615, 48, "acquired when made, released when its scope ends", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch11", "The Library Ecosystem: Thrust, CUB & cuBLAS", "Folio the librarian owl", "Folio, an owl in "
+       "reading glasses, stands in front of a tall bookcase. The shelves hold rows of books, and 6 of them face "
+       "outwards with their titles: reduce, scan, sort, gemm, fft and rand, the ready-made kernels of the libraries. "
+       "Folio holds 1 more book, marked BlockReduce, to lend to a kernel. A tag says tuned once, borrowed by every "
+       "program.")
+def ch11():
+    shelves, books = [], []
+    left, right, top = 420, 900, 64
+    tones = ("#2f7f86", "#d9622b", "#c89b3c", "#5b6b7c", "#7a4f9a", "#3f7a4a", "#b5532a")
+    titles = (("reduce", "scan", "sort"), ("gemm", "fft", "rand"))
+    for row in range(3):
+        floor = top + 80 * (row + 1)
+        shelves.append(rect(left, floor, right - left, 12, WOOD, 3, "#5a3d28", 2.5))
+        x, k = left + 14, row * 5
+        while x < right - 30:
+            wide = 18 + (k * 7) % 12
+            tall = 52 + (k * 11) % 18
+            books.append(rect(x, floor - tall, wide, tall, tones[k % len(tones)], 3, "#2a1a10", 2))
+            x += wide + 3
+            k += 1
+        if row < 2:
+            for j, title in enumerate(titles[row]):
+                bx = left + 40 + 150 * j
+                books += [rect(bx, floor - 66, 116, 64, "#fff6e2", 6, "#2a1a10", 2.5),
+                          rect(bx + 6, floor - 60, 6, 52, tones[(j + 3 * row) % len(tones)], 2),
+                          label(bx + 64, floor - 27, title, 20, "#2a1a10", font=MONO, weight=700,
+                                fit=textw(title, 20, MONO))]
+    case = [rect(left - 18, top - 10, right - left + 36, GROUND - top + 10, "#5a3d28", 10, "#2a1a10", 3),
+            rect(left, top + 4, right - left, GROUND - top - 4, "#3a2a1c", 4)]
+    held = [rect(278, GROUND - 120, 132, 40, "#fff6e2", 6, "#2a1a10", 2.5),
+            label(344, GROUND - 93, "BlockReduce", 16, "#2a1a10", font=MONO, weight=700,
+                  fit=textw("BlockReduce", 16, MONO))]
+    return [backdrop(seed=11, **DUSK), *case, *shelves, *books,
+            reading_owl(250, GROUND - 2, 1.15, look=1, hat="glasses"), *held,
+            tag(210, 70, "tuned once, borrowed by every program", 17, "#fff6e2", "#2a1a10", SANS, 700)]
+
+
+@plate("ch12", "NVRTC & the Driver API", "Hue the chameleon", "Hue, a chameleon, grips a branch at dusk. On the "
+       "left hangs a sheet of source code that the program has just written: float p, then lines of p = p * v plus a "
+       "constant. Hue's body changes colour from tail to head, blue like the paper's ink at the tail, yellow at the head. "
+       "Its tongue reaches out to a chip marked sm_87, the GPU the code is compiled for. A tag says written, compiled "
+       "and loaded while the program runs.")
+def ch12():
+    lines = ["float p = 3.03e-2f;", "p = p * v + 3.13e-2f;", "p = p * v + 3.23e-2f;", "...",
+             "p = p * v + 1.00e+0f;", "y[i] = p;"]
+    sheet = [rect(40, 92, 236, 184, "#fbf6ea", 8, "#7a5a32", 2.5),
+             rect(40, 92, 236, 30, "#e9dcc0", 8, "#7a5a32", 2.5),
+             label(158, 113, "poly.cu", 15, NIGHT, font=MONO, fit=textw("poly.cu", 15, MONO))]
+    sheet += [label(56, 146 + 22 * k, body, 14, "#27405a", anchor="start", font=MONO, fit=textw(body, 14, MONO))
+              for k, body in enumerate(lines)]
+    pins = []
+    for k in range(4):
+        pins += [rect(782 + 16 * k, 136, 6, 14, "#c9ccd3", 2), rect(782 + 16 * k, 226, 6, 14, "#c9ccd3", 2),
+                 rect(752, 166 + 16 * k - 6, 14, 6, "#c9ccd3", 2), rect(856, 166 + 16 * k - 6, 14, 6, "#c9ccd3", 2)]
+    chip = [*pins, rect(766, 150, 90, 76, "#2b3a4a", 10, "#9fb0c2", 2.5),
+            rect(780, 164, 62, 48, "#76b900", 6),
+            label(811, 194, "sm_87", 17, NIGHT, font=MONO, fit=textw("sm_87", 17, MONO))]
+    branch = [path("M150,272 C320,258 560,276 940,256", "none", "#5a3d28", 18),
+              path("M150,272 C320,258 560,276 940,256", "none", WOOD, 12),
+              path("M300,266 q-20,30 -50,36", "none", "#5a3d28", 7),
+              ellipse(245, 302, 18, 9, "#5f9a62", 'stroke="#2f5a32" stroke-width="2"'),
+              ellipse(905, 236, 20, 9, "#5f9a62", 'stroke="#2f5a32" stroke-width="2"')]
+    return [backdrop(seed=12, **DUSK), *branch, *sheet,
+            path("M276,184 C320,184 340,226 372,244", "none", "#fbf6ea", 3, 'stroke-dasharray="6 7" opacity="0.8"'),
+            chameleon(520, 262, 1.0, look=1),
+            path("M676,190 L758,190", "none", "#e36f8e", 7), circle(758, 190, 8, "#e36f8e"),
+            *chip,
+            tag(480, 52, "written, compiled and loaded while the program runs", 17, "#fff6e2", "#2a1a10", SANS, 700)]
 
 
 @plate("ch13", "Your First Rust Kernel", "Pinch the crab", "Pinch, a crab in a hard hat, stands at a long table of numbered "

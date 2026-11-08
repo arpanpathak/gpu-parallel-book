@@ -114,7 +114,18 @@ def wrapped(src: list[str], a: int, b: int, include_line: str) -> list[str]:
         open_braces = sum(depth_change(line) for line in src[a - 1:b])
         if open_braces > 0:
             after = [" " * 4 * open_braces + ELIDE]
-            after += [" " * 4 * depth + "}" for depth in reversed(range(open_braces))]
+            # copy the source's own closers, so a C++ class ends with "};"
+            closers = []
+            depth, level = open_braces, open_braces
+            for line in src[b:]:
+                depth += depth_change(line)
+                if depth < level:
+                    closers.append(line)
+                    level = depth
+                if depth <= 0:
+                    break
+            fallback = [" " * 4 * depth + "}" for depth in reversed(range(open_braces))]
+            after += closers if len(closers) == open_braces else fallback
     return before + [include_line] + after
 
 

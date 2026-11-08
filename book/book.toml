@@ -13,7 +13,7 @@ edit-url-template = "https://github.com/arpanpathak/gpu-parallel-book/edit/main/
 default-theme = "navy"
 preferred-dark-theme = "navy"
 additional-css = ["custom.css", "theme/custom.css"]
-additional-js = ["theme/anim.js", "theme/figures.js"]
+additional-js = ["theme/anim.js", "theme/figures.js", "theme/tabs.js"]
 
 [output.html.print]
 enable = true
