@@ -34,24 +34,24 @@ mod kernels {
 
     /// Position `i - 2` clamped to [0, n): slot `i` of a window that starts 2 before.
     #[device]
-    fn tap(i: usize, n: usize) -> usize {
-        if i < 2 { 0 } else { (i - 2).min(n - 1) }
+    fn tap(slot: usize, size: usize) -> usize {
+        if slot < 2 { 0 } else { (slot - 2).min(size - 1) }
     }
 
     #[device]
-    fn warp_scan(mut v: u32) -> u32 {
+    fn warp_scan(mut value: u32) -> u32 {
         let lane = warp::lane_id();
         let mut step = 0;
         #[unroll]
         while step < 5 {
             let offset = 1 << step;
-            let left = warp::shuffle_up_sync(u32::MAX, v, offset);
+            let left = warp::shuffle_up_sync(u32::MAX, value, offset);
             if lane >= offset {
-                v += left;
+                value += left;
             }
             step += 1;
         }
-        v
+        value
     }
 
     /// 1 thread per pixel. BT.601 weights in 8-bit fixed point: 77 + 150 + 29 = 256.
@@ -59,11 +59,12 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn grayscale(rgb: &[u8], mut gray: DisjointSlice<u8>) {
         let idx = thread::index_1d();
-        let p = 3 * idx.get();
+        let byte = 3 * idx.get();
 
-        if let Some(g) = gray.get_mut(idx) {
-            let (r, gr, b) = (rgb[p] as u32, rgb[p + 1] as u32, rgb[p + 2] as u32);
-            *g = ((77 * r + 150 * gr + 29 * b + 128) >> 8) as u8;
+        if let Some(gray_pixel) = gray.get_mut(idx) {
+            let (red, green) = (rgb[byte] as u32, rgb[byte + 1] as u32);
+            let blue = rgb[byte + 2] as u32;
+            *gray_pixel = ((77 * red + 150 * green + 29 * blue + 128) >> 8) as u8;
         }
     }
 
@@ -79,15 +80,15 @@ mod kernels {
         thread::sync_threads();
 
         let stride = (thread::gridDim_x() * 256) as usize;
-        let mut i = thread::index_1d().get();
-        while i < gray.len() {
+        let mut pixel = thread::index_1d().get();
+        while pixel < gray.len() {
             // SAFETY: between the 2 barriers every access to LOCAL is atomic.
             let bin = unsafe {
                 let base = (*&raw mut LOCAL).as_mut_ptr();
-                BlockAtomicU32::from_ptr(base.add(gray[i] as usize))
+                BlockAtomicU32::from_ptr(base.add(gray[pixel] as usize))
             };
             bin.fetch_add(1, AtomicOrdering::Relaxed);
-            i += stride;
+            pixel += stride;
         }
         thread::sync_threads();
 
@@ -98,24 +99,24 @@ mod kernels {
         }
     }
 
-    /// 1 block of 256 threads, thread v for gray level v: the cumulative count of level v,
+    /// 1 block of 256 threads, 1 thread per gray level: the cumulative count of the level,
     /// then its new level. Each bin is read and reset to 0 for the next image.
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn equalise_table(bins: &[DeviceAtomicU32], mut table: DisjointSlice<u8>) {
         static mut WARPS: SharedArray<u32, 8> = SharedArray::UNINIT;
         static mut FIRST: SharedArray<u32, 1> = SharedArray::UNINIT;
-        let v = thread::threadIdx_x() as usize;
+        let level = thread::threadIdx_x() as usize;
         let lane = warp::lane_id() as usize;
-        let warp = v / 32;
+        let warp = level / 32;
 
-        let count = bins[v].swap(0, AtomicOrdering::Relaxed);
+        let count = bins[level].swap(0, AtomicOrdering::Relaxed);
         let inclusive = warp_scan(count);
         if lane == 31 {
             // SAFETY: lane 31 of each warp writes its own slot, before the barrier.
             unsafe { WARPS[warp] = inclusive };
         }
-        if v == 0 {
+        if level == 0 {
             // SAFETY: only thread 0 writes FIRST before the barrier.
             unsafe { FIRST[0] = u32::MAX };
         }
@@ -123,9 +124,10 @@ mod kernels {
 
         if warp == 0 {
             // SAFETY: only warp 0 touches WARPS between the 2 barriers.
-            let w = warp_scan(if lane < 8 { unsafe { WARPS[lane] } } else { 0 });
+            let warp_total = if lane < 8 { unsafe { WARPS[lane] } } else { 0 };
+            let scanned_total = warp_scan(warp_total);
             if lane < 8 {
-                unsafe { WARPS[lane] = w };
+                unsafe { WARPS[lane] = scanned_total };
             }
         }
         thread::sync_threads();
@@ -141,10 +143,14 @@ mod kernels {
         let min = first.load(AtomicOrdering::Relaxed);
         let span = (unsafe { WARPS[7] } - min) as u64;
         let above = cdf.saturating_sub(min) as u64;
-        let level = if span == 0 { v as u64 } else { (above * 255 + span / 2) / span };
+        let new_level = if span == 0 {
+            level as u64
+        } else {
+            (above * 255 + span / 2) / span
+        };
 
-        if let Some(t) = table.get_mut(thread::index_1d()) {
-            *t = level as u8;
+        if let Some(entry) = table.get_mut(thread::index_1d()) {
+            *entry = new_level as u8;
         }
     }
 
@@ -153,40 +159,40 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn apply_table(gray: &[u8], table: &[u8], mut out: DisjointSlice<u8>) {
         let idx = thread::index_1d();
-        let i = idx.get();
+        let pixel = idx.get();
 
-        if let Some(o) = out.get_mut(idx) {
-            *o = table[gray[i] as usize];
+        if let Some(cell) = out.get_mut(idx) {
+            *cell = table[gray[pixel] as usize];
         }
     }
 
-    /// Row pass, weights 1 4 6 4 1. Slot s of the tile holds pixel x0 + s - 2 of the row,
+    /// Row pass, weights 1 4 6 4 1. Slot `slot` of the tile holds pixel left + slot - 2,
     /// clamped: 2 halo slots on the left, 128 own pixels, 2 halo slots on the right.
     #[kernel]
     #[launch_contract(domain = 2, coordinates = u32, block = (128, 1, 1))]
     pub fn blur_rows(src: &[u8], mut out: DisjointSlice<u16, Index2D<W>>) {
         static mut TILE: SharedArray<u32, { ROW_T + 4 }> = SharedArray::UNINIT;
-        let tx = thread::threadIdx_x() as usize;
-        let x0 = thread::blockIdx_x() as usize * ROW_T;
+        let thread_idx = thread::threadIdx_x() as usize;
+        let left = thread::blockIdx_x() as usize * ROW_T;
         let row = thread::blockIdx_y() as usize * W;
-        let pixel = |s: usize| src[row + tap(x0 + s, W)] as u32;
+        let pixel = |slot: usize| src[row + tap(left + slot, W)] as u32;
 
         // SAFETY: each slot is written by exactly 1 thread, before the barrier.
-        unsafe { TILE[tx + 2] = pixel(tx + 2) };
-        if tx < 2 {
-            unsafe { TILE[tx] = pixel(tx) };
-            unsafe { TILE[ROW_T + 2 + tx] = pixel(ROW_T + 2 + tx) };
+        unsafe { TILE[thread_idx + 2] = pixel(thread_idx + 2) };
+        if thread_idx < 2 {
+            unsafe { TILE[thread_idx] = pixel(thread_idx) };
+            unsafe { TILE[ROW_T + 2 + thread_idx] = pixel(ROW_T + 2 + thread_idx) };
         }
         thread::sync_threads();
 
         // SAFETY: after the barrier the tile is only read.
-        let t = |k: usize| unsafe { TILE[tx + k] };
-        let sum = t(0) + 4 * t(1) + 6 * t(2) + 4 * t(3) + t(4);
+        let window = |offset: usize| unsafe { TILE[thread_idx + offset] };
+        let sum = window(0) + 4 * window(1) + 6 * window(2) + 4 * window(3) + window(4);
 
         if let Some(idx) = thread::index_2d::<W>()
-            && let Some(o) = out.get_mut(idx)
+            && let Some(cell) = out.get_mut(idx)
         {
-            *o = sum as u16;
+            *cell = sum as u16;
         }
     }
 
@@ -196,27 +202,32 @@ mod kernels {
     #[launch_contract(domain = 2, coordinates = u32, block = (32, 8, 1))]
     pub fn blur_cols(src: &[u16], mut out: DisjointSlice<u8, Index2D<W>>) {
         static mut TILE: SharedArray<u32, { (COL_H + 4) * COL_W }> = SharedArray::UNINIT;
-        let (tx, ty) = (thread::threadIdx_x() as usize, thread::threadIdx_y() as usize);
-        let x = thread::blockIdx_x() as usize * COL_W + tx;
-        let y0 = thread::blockIdx_y() as usize * COL_H;
-        let value = |s: usize| src[tap(y0 + s, H) * W + x] as u32;
+        let tile_col = thread::threadIdx_x() as usize;
+        let tile_row = thread::threadIdx_y() as usize;
+        let x = thread::blockIdx_x() as usize * COL_W + tile_col;
+        let top = thread::blockIdx_y() as usize * COL_H;
+        let value = |slot: usize| src[tap(top + slot, H) * W + x] as u32;
 
         // SAFETY: each slot is written by exactly 1 thread, before the barrier.
-        unsafe { TILE[(ty + 2) * COL_W + tx] = value(ty + 2) };
-        if ty < 2 {
-            unsafe { TILE[ty * COL_W + tx] = value(ty) };
-            unsafe { TILE[(COL_H + 2 + ty) * COL_W + tx] = value(COL_H + 2 + ty) };
+        unsafe { TILE[(tile_row + 2) * COL_W + tile_col] = value(tile_row + 2) };
+        if tile_row < 2 {
+            unsafe { TILE[tile_row * COL_W + tile_col] = value(tile_row) };
+            let below = COL_H + 2 + tile_row;
+            unsafe { TILE[below * COL_W + tile_col] = value(below) };
         }
         thread::sync_threads();
 
         // SAFETY: after the barrier the tile is only read.
-        let t = |k: usize| unsafe { TILE[(ty + k) * COL_W + tx] };
-        let sum = t(0) + 4 * t(1) + 6 * t(2) + 4 * t(3) + t(4);
+        let window = |offset: usize| {
+            let slot = (tile_row + offset) * COL_W + tile_col;
+            unsafe { TILE[slot] }
+        };
+        let sum = window(0) + 4 * window(1) + 6 * window(2) + 4 * window(3) + window(4);
 
         if let Some(idx) = thread::index_2d::<W>()
-            && let Some(o) = out.get_mut(idx)
+            && let Some(cell) = out.get_mut(idx)
         {
-            *o = ((sum + 128) >> 8) as u8;
+            *cell = ((sum + 128) >> 8) as u8;
         }
     }
 
@@ -226,21 +237,21 @@ mod kernels {
     #[launch_contract(domain = 2, coordinates = u32, block = (32, 8, 1))]
     pub fn sobel(src: &[u8], mut out: DisjointSlice<u8, Index2D<W>>) {
         let (x, y) = (thread::index_2d_col(), thread::index_2d_row());
-        let (xl, xr) = (x.saturating_sub(1), (x + 1).min(W - 1));
-        let (yu, yd) = (y.saturating_sub(1), (y + 1).min(H - 1));
-        let p = |r: usize, c: usize| src[r * W + c] as i32;
+        let (x_left, x_right) = (x.saturating_sub(1), (x + 1).min(W - 1));
+        let (y_above, y_below) = (y.saturating_sub(1), (y + 1).min(H - 1));
+        let at = |row: usize, col: usize| src[row * W + col] as i32;
 
         if let Some(idx) = thread::index_2d::<W>()
-            && let Some(o) = out.get_mut(idx)
+            && let Some(cell) = out.get_mut(idx)
         {
-            let right = p(yu, xr) + 2 * p(y, xr) + p(yd, xr);
-            let left = p(yu, xl) + 2 * p(y, xl) + p(yd, xl);
-            let below = p(yd, xl) + 2 * p(yd, x) + p(yd, xr);
-            let above = p(yu, xl) + 2 * p(yu, x) + p(yu, xr);
+            let right = at(y_above, x_right) + 2 * at(y, x_right) + at(y_below, x_right);
+            let left = at(y_above, x_left) + 2 * at(y, x_left) + at(y_below, x_left);
+            let below = at(y_below, x_left) + 2 * at(y_below, x) + at(y_below, x_right);
+            let above = at(y_above, x_left) + 2 * at(y_above, x) + at(y_above, x_right);
             let (gx, gy) = (right - left, below - above);
 
             let magnitude = sqrt_rn_f32((gx * gx + gy * gy) as f32);
-            *o = (magnitude * 0.25 + 0.5).min(255.0) as u8;
+            *cell = (magnitude * 0.25 + 0.5).min(255.0) as u8;
         }
     }
 }
@@ -283,46 +294,47 @@ const STAGES: [(&str, usize); 7] = [
     ("sobel", 2),
 ];
 
-/// Launches stage `k` of the pipeline on `stream`.
+/// Launches stage `index` of the pipeline on `stream`.
 fn stage(
     module: &kernels::LoadedModule,
     stream: &Arc<CudaStream>,
-    b: &mut Buffers,
-    k: usize,
+    buffers: &mut Buffers,
+    index: usize,
 ) -> Result<(), Error> {
     let line = LaunchConfig1D::new((PIXELS / 256) as u32, 256, 0);
     let rows = LaunchConfig2D::new(((W / ROW_T) as u32, H as u32), (ROW_T as u32, 1), 0);
     let grid = ((W / COL_W) as u32, (H / COL_H) as u32);
     let tiles = LaunchConfig2D::new(grid, (COL_W as u32, COL_H as u32), 0);
 
-    match k {
+    match index {
         0 => {
             let launch = module.prepare_grayscale(line)?;
-            module.grayscale(stream, &launch, &b.rgb, &mut b.gray)?;
+            module.grayscale(stream, &launch, &buffers.rgb, &mut buffers.gray)?;
         }
         1 => {
             let launch = module.prepare_histogram(LaunchConfig1D::new(64, 256, 0))?;
-            module.histogram(stream, &launch, &b.gray, &b.bins)?;
+            module.histogram(stream, &launch, &buffers.gray, &buffers.bins)?;
         }
         2 => {
             let launch = module.prepare_equalise_table(LaunchConfig1D::new(1, 256, 0))?;
-            module.equalise_table(stream, &launch, &b.bins, &mut b.table)?;
+            module.equalise_table(stream, &launch, &buffers.bins, &mut buffers.table)?;
         }
         3 => {
             let launch = module.prepare_apply_table(line)?;
-            module.apply_table(stream, &launch, &b.gray, &b.table, &mut b.equal)?;
+            let (gray, table) = (&buffers.gray, &buffers.table);
+            module.apply_table(stream, &launch, gray, table, &mut buffers.equal)?;
         }
         4 => {
             let launch = module.prepare_blur_rows(rows)?;
-            module.blur_rows(stream, &launch, &b.equal, &mut b.rows)?;
+            module.blur_rows(stream, &launch, &buffers.equal, &mut buffers.rows)?;
         }
         5 => {
             let launch = module.prepare_blur_cols(tiles)?;
-            module.blur_cols(stream, &launch, &b.rows, &mut b.blurred)?;
+            module.blur_cols(stream, &launch, &buffers.rows, &mut buffers.blurred)?;
         }
         _ => {
             let launch = module.prepare_sobel(tiles)?;
-            module.sobel(stream, &launch, &b.blurred, &mut b.edges)?;
+            module.sobel(stream, &launch, &buffers.blurred, &mut buffers.edges)?;
         }
     }
     Ok(())
@@ -332,10 +344,10 @@ fn stage(
 fn process(
     module: &kernels::LoadedModule,
     stream: &Arc<CudaStream>,
-    b: &mut Buffers,
+    buffers: &mut Buffers,
 ) -> Result<(), Error> {
-    for k in 0..STAGES.len() {
-        stage(module, stream, b, k)?;
+    for index in 0..STAGES.len() {
+        stage(module, stream, buffers, index)?;
     }
     Ok(())
 }
@@ -357,7 +369,8 @@ fn time_ms(
     Ok(start.elapsed().as_secs_f64() * 1e3 / 100.0)
 }
 
-/// Uploads, processes and downloads `count` images, image i on stream i % streams.len().
+/// Uploads, processes and downloads `count` images, image `image` on stream
+/// image % streams.len().
 /// Returns images per second.
 fn batch(
     module: &kernels::LoadedModule,
@@ -369,15 +382,16 @@ fn batch(
 ) -> Result<f64, Error> {
     let start = Instant::now();
 
-    for i in 0..count {
-        let k = i % streams.len();
-        let (stream, b) = (&streams[k], &mut lanes[k]);
+    for image in 0..count {
+        let slot = image % streams.len();
+        let (stream, buffers) = (&streams[slot], &mut lanes[slot]);
 
+        let input = &inputs[image % inputs.len()];
         // SAFETY: no host buffer is read, written or dropped until every stream is
         // synchronized below, after all copies have completed.
-        unsafe { b.rgb.copy_from_pinned_host_async(stream, &inputs[i % inputs.len()])? };
-        process(module, stream, b)?;
-        unsafe { b.edges.copy_to_pinned_host_async(stream, &mut outputs[k])? };
+        unsafe { buffers.rgb.copy_from_pinned_host_async(stream, input)? };
+        process(module, stream, buffers)?;
+        unsafe { buffers.edges.copy_to_pinned_host_async(stream, &mut outputs[slot])? };
     }
 
     for stream in streams {
@@ -412,80 +426,87 @@ fn par_rows<T: Send>(out: &mut [T], f: impl Fn(usize, &mut [T]) + Sync) {
 }
 
 /// The CPU version of `tap`.
-fn tap(i: usize, n: usize) -> usize {
-    if i < 2 { 0 } else { (i - 2).min(n - 1) }
+fn tap(slot: usize, size: usize) -> usize {
+    if slot < 2 { 0 } else { (slot - 2).min(size - 1) }
 }
 
 /// The same 7 stages on the CPU, with the same integer arithmetic, rows on every core.
 fn cpu_pipeline(rgb: &[u8]) -> Images {
     let mut gray = vec![0u8; PIXELS];
     par_rows(&mut gray, |y, row| {
-        for (x, g) in row.iter_mut().enumerate() {
-            let p = 3 * (y * W + x);
-            let (r, gr, b) = (rgb[p] as u32, rgb[p + 1] as u32, rgb[p + 2] as u32);
-            *g = ((77 * r + 150 * gr + 29 * b + 128) >> 8) as u8;
+        for (x, gray_pixel) in row.iter_mut().enumerate() {
+            let byte = 3 * (y * W + x);
+            let (red, green) = (rgb[byte] as u32, rgb[byte + 1] as u32);
+            let blue = rgb[byte + 2] as u32;
+            *gray_pixel = ((77 * red + 150 * green + 29 * blue + 128) >> 8) as u8;
         }
     });
 
     let mut bins = [0u32; 256];
-    for &g in &gray {
-        bins[g as usize] += 1;
+    for &level in &gray {
+        bins[level as usize] += 1;
     }
 
-    let min = bins.iter().copied().find(|&c| c > 0).unwrap_or(0);
+    let min = bins.iter().copied().find(|&count| count > 0).unwrap_or(0);
     let span = (PIXELS as u32 - min) as u64;
     let mut table = [0u8; 256];
     let mut cdf = 0u32;
-    for v in 0..256 {
-        cdf += bins[v];
+    for level in 0..256 {
+        cdf += bins[level];
         let above = cdf.saturating_sub(min) as u64;
-        let level = if span == 0 { v as u64 } else { (above * 255 + span / 2) / span };
-        table[v] = level as u8;
+        let new_level = if span == 0 {
+            level as u64
+        } else {
+            (above * 255 + span / 2) / span
+        };
+        table[level] = new_level as u8;
     }
 
     let mut equal = vec![0u8; PIXELS];
     par_rows(&mut equal, |y, row| {
-        for (x, e) in row.iter_mut().enumerate() {
-            *e = table[gray[y * W + x] as usize];
+        for (x, equal_pixel) in row.iter_mut().enumerate() {
+            *equal_pixel = table[gray[y * W + x] as usize];
         }
     });
 
     let mut rows = vec![0u32; PIXELS];
     par_rows(&mut rows, |y, row| {
-        let t = |x: usize| equal[y * W + tap(x, W)] as u32;
-        for (x, r) in row.iter_mut().enumerate() {
-            *r = t(x) + 4 * t(x + 1) + 6 * t(x + 2) + 4 * t(x + 3) + t(x + 4);
+        let window = |slot: usize| equal[y * W + tap(slot, W)] as u32;
+        for (x, row_sum) in row.iter_mut().enumerate() {
+            let near = window(x) + 4 * window(x + 1) + 6 * window(x + 2);
+            *row_sum = near + 4 * window(x + 3) + window(x + 4);
         }
     });
 
     let mut blurred = vec![0u8; PIXELS];
     par_rows(&mut blurred, |y, row| {
-        for (x, b) in row.iter_mut().enumerate() {
-            let t = |k: usize| rows[tap(y + k, H) * W + x];
-            let sum = t(0) + 4 * t(1) + 6 * t(2) + 4 * t(3) + t(4);
-            *b = ((sum + 128) >> 8) as u8;
+        for (x, blurred_pixel) in row.iter_mut().enumerate() {
+            let window = |offset: usize| rows[tap(y + offset, H) * W + x];
+            let sum = window(0) + 4 * window(1) + 6 * window(2) + 4 * window(3) + window(4);
+            *blurred_pixel = ((sum + 128) >> 8) as u8;
         }
     });
 
     let mut edges = vec![0u8; PIXELS];
     par_rows(&mut edges, |y, row| {
-        let p = |r: usize, c: usize| blurred[r * W + c] as i32;
-        let (yu, yd) = (y.saturating_sub(1), (y + 1).min(H - 1));
-        for (x, e) in row.iter_mut().enumerate() {
-            let (xl, xr) = (x.saturating_sub(1), (x + 1).min(W - 1));
-            let right = p(yu, xr) + 2 * p(y, xr) + p(yd, xr);
-            let left = p(yu, xl) + 2 * p(y, xl) + p(yd, xl);
-            let below = p(yd, xl) + 2 * p(yd, x) + p(yd, xr);
-            let above = p(yu, xl) + 2 * p(yu, x) + p(yu, xr);
+        let at = |row: usize, col: usize| blurred[row * W + col] as i32;
+        let (y_above, y_below) = (y.saturating_sub(1), (y + 1).min(H - 1));
+        for (x, edge) in row.iter_mut().enumerate() {
+            let (x_left, x_right) = (x.saturating_sub(1), (x + 1).min(W - 1));
+            let right = at(y_above, x_right) + 2 * at(y, x_right) + at(y_below, x_right);
+            let left = at(y_above, x_left) + 2 * at(y, x_left) + at(y_below, x_left);
+            let below = at(y_below, x_left) + 2 * at(y_below, x) + at(y_below, x_right);
+            let above = at(y_above, x_left) + 2 * at(y_above, x) + at(y_above, x_right);
             let (gx, gy) = (right - left, below - above);
 
             let magnitude = ((gx * gx + gy * gy) as f32).sqrt();
-            *e = (magnitude * 0.25 + 0.5).min(255.0) as u8;
+            *edge = (magnitude * 0.25 + 0.5).min(255.0) as u8;
         }
     });
 
     Images { gray, equal, blurred, edges }
 }
+
 
 /// A synthetic 1920 x 1080 scene with low contrast: sky, sun, hills, a house, grain.
 fn scene(seed: u32) -> Vec<u8> {

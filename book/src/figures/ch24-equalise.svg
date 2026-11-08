@@ -54,7 +54,7 @@
   <text x="278.0" y="254.0" class="mono" text-anchor="middle" xml:space="preserve">144</text>
   <line x1="56.0" y1="238.0" x2="316.0" y2="238.0" stroke="#D5DBE3" stroke-width="1.2"/>
   <text x="56.0" y="274.0" class="note" text-anchor="start" xml:space="preserve">every other level of 0 to 255 has count 0</text>
-  <text x="132.0" y="319.0" class="name" text-anchor="end" xml:space="preserve">level v</text>
+  <text x="132.0" y="319.0" class="name" text-anchor="end" xml:space="preserve">level</text>
   <rect x="142.0" y="300.0" width="42.0" height="28.0" rx="3" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
   <text x="163.0" y="318.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">96</text>
   <rect x="188.0" y="300.0" width="42.0" height="28.0" rx="3" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
