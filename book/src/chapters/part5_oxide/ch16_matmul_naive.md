@@ -305,10 +305,10 @@ wait for one another. The **grid** is the set of all blocks of 1 launch.
 
 Blocks and grids can extend along 1, 2 or 3 axes, named \\(x\\), \\(y\\) and \\(z\\), and we choose
 the shape to match the data. For each thread, the GPU provides 3 values from which the thread can
-work out which piece of the data belongs to it. The value *blockIdx* is the position of the
-thread's block within the grid, *threadIdx* is the position of the thread within its block, and
-*blockDim* is the size of a block, that is, the number of threads it holds along each axis. Each
-of the 3 values has 1 component per axis, written with a suffix; for example, *threadIdx.x* is
+work out which piece of the data belongs to it. The value \\(\mathsf{blockIdx}\\) is the position of the
+thread's block within the grid, \\(\mathsf{threadIdx}\\) is the position of the thread within its block, and
+\\(\mathsf{blockDim}\\) is the size of a block, that is, the number of threads it holds along each axis. Each
+of the 3 values has 1 component per axis, written with a suffix; for example, \\(\mathsf{threadIdx{.}x}\\) is
 the position of the thread along the axis \\(x\\). We first see how a thread uses these values in
 1 dimension, where the computation is easiest to follow.
 

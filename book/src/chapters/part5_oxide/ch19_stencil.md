@@ -394,10 +394,10 @@ The word "grid" now has 2 meanings, the grid of cells and the grid of blocks. In
 chapter, we say "grid" for the cells and "the blocks of a launch" for the other meaning.
 
 We give each cell its own thread. A thread finds its cell from 3 values that the GPU supplies:
-the position of its block among the blocks of the launch (blockIdx), its position inside the block
-(threadIdx), and the size of a block (blockDim). We use blocks of 32 × 8 threads, so \\(\mathsf{blockDim{.}x} = 32\\) and \\(\mathsf{blockDim{.}y} = 8\\)
+the position of its block among the blocks of the launch (\\(\mathsf{blockIdx}\\)), its position inside the block
+(\\(\mathsf{threadIdx}\\)), and the size of a block (\\(\mathsf{blockDim}\\)). We use blocks of 32 × 8 threads, so \\(\mathsf{blockDim{.}x} = 32\\) and \\(\mathsf{blockDim{.}y} = 8\\)
 that is, 32 threads along a row and 8 rows of threads. The thread at position
-(threadIdx.x, threadIdx.y) of block (blockIdx.x, blockIdx.y) then owns the cell
+(\\(\mathsf{threadIdx{.}x}\\), \\(\mathsf{threadIdx{.}y}\\)) of block (\\(\mathsf{blockIdx{.}x}\\), \\(\mathsf{blockIdx{.}y}\\)) then owns the cell
 
 \\[ \mathsf{row} = \mathsf{blockIdx{.}y} \cdot \mathsf{blockDim{.}y} + \mathsf{threadIdx{.}y}, \qquad \mathsf{col} = \mathsf{blockIdx{.}x} \cdot
 \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
@@ -405,13 +405,13 @@ that is, 32 threads along a row and 8 rows of threads. The thread at position
 | Symbol | Meaning | Example: thread (4, 2) of block (1, 0) |
 |---|---|---|
 | \\(\mathsf{blockDim{.}x}, \mathsf{blockDim{.}y}\\) | width and height of a block in threads | 32, 8 |
-| blockIdx.x, blockIdx.y | column and row of the block among the blocks | 1, 0 |
-| threadIdx.x, threadIdx.y | column and row of the thread inside its block | 4, 2 |
+| \\(\mathsf{blockIdx{.}x}\\), \\(\mathsf{blockIdx{.}y}\\) | column and row of the block among the blocks | 1, 0 |
+| \\(\mathsf{threadIdx{.}x}\\), \\(\mathsf{threadIdx{.}y}\\) | column and row of the thread inside its block | 4, 2 |
 | \\(\mathsf{row}\\) | row of the cell the thread owns | \\(0 \cdot 8 + 2 = 2\\) |
 | \\(\mathsf{col}\\) | column of the cell the thread owns | \\(1 \cdot 32 + 4 = 36\\) |
 
-The formula has a simple reading. Along a row, the blocks to the left of block blockIdx.x cover
-\\(\mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\\) columns, and the thread lies threadIdx.x columns further on. In
+The formula has a simple reading. Along a row, the blocks to the left of block \\(\mathsf{blockIdx{.}x}\\) cover
+\\(\mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\\) columns, and the thread lies \\(\mathsf{threadIdx{.}x}\\) columns further on. In
 the example of the table, block 1 has 1 block of 32 columns to its left, so its thread 4 owns
 column 36. The rows are counted in the same way.
 
@@ -626,7 +626,7 @@ copies it to the host.
 </div>
 
 Each broken variant of this section violates 1 step of the proof. The launch with 1 buffer violates
-the condition "\\(\mathsf{current}\\) and \\(\mathsf{next}\\) are different buffers" in the maintenance step. The zeroed buffer
+the condition that \\(\mathsf{current}\\) and \\(\mathsf{next}\\) are different buffers in the maintenance step. The zeroed buffer
 violates part (ii) of the invariant at initialization, and the proof then fails at the first
 exchange, when \\(\mathsf{next}\\) becomes the buffer that the next step reads.
 
@@ -741,7 +741,7 @@ int main()
 
 Both buffers are filled from the same host grid `start`, which is line 1 of Jacobi-GPU and
 establishes part (ii) of the invariant. The exchange of line 4 moves no grid data. In C++,
-`std::swap(a, b)` exchanges 2 pointers of 8 bytes each. In Rust, `std::mem::swap(&mut a, &mut b)`
+`std::swap(current, next)` exchanges 2 pointers of 8 bytes each. In Rust, `std::mem::swap(&mut current, &mut next)`
 exchanges 2 `DeviceBuffer` values, which are small handles of 40 bytes that hold the device address,
 the length and a reference to the context, while the grids themselves stay where they are in
 device memory. For comparison, a step on a 4096 × 4096 grid moves at least 134 MB, whereas the
@@ -791,7 +791,7 @@ Exercises
 
 19.15 Change the programs to print the grid after step 3 and compare it with your answer to
 Exercise 19.4.<br>
-19.16 The Rust launch passes `&a` and `RowWidth::new(&mut b, ...)`. Explain why the borrow checker
+19.16 The Rust launch passes `&current` and `RowWidth::new(&mut next, ...)`. Explain why the borrow checker
 accepts this call but rejects the one of Section 19.5.1.
 
 </div>

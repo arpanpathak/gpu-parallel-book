@@ -304,7 +304,7 @@ function that the GPU runs many times at once, and each run is a **thread**. Thr
 into **blocks** of up to 1,024 threads; the threads of a block run on the same processor of the GPU,
 a **streaming multiprocessor** (SM), and can share a small fast memory and wait for one another. The
 **grid** is the set of all blocks of 1 launch. Each thread reads its position from the built-in
-values *blockIdx*, *blockDim* and *threadIdx*.
+values \\(\mathsf{blockIdx}\\), \\(\mathsf{blockDim}\\) and \\(\mathsf{threadIdx}\\).
 
 *Example.* The gray kernel for the 8 × 8 example could run as 1 block of 64 threads; thread 3
 converts pixel \\((3, 0)\\).
