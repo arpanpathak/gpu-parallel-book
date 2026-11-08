@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 346" width="660" height="346" role="img" aria-label="8 blocks wait on the left. 2 SMs each hold 2 blocks at a time. In the first wave SM 0 runs blocks 0 and 2 and SM 1 runs blocks 1 and 3; in the second wave SM 0 runs blocks 4 and 6 and SM 1 runs blocks 5 and 7. A time axis runs underneath.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,58 +27,49 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="346" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Scheduling blocks</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">8 blocks on 2 SMs that hold 2 blocks each: 2 waves.</text>
   <defs>
-    <marker id="tip-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/></marker>
-    <marker id="tip-deep" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3B47B0"/></marker>
-    <marker id="tip-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker>
+    <marker id="tip-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="tip-deep" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3B47B0"/></marker>
+    <marker id="tip-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F8A70"/></marker>
   </defs>
   <text x="92.0" y="118.0" text-anchor="middle" font-size="11.5" style="fill:#5D6B7A" xml:space="preserve">blocks waiting</text>
-  <rect x="26.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
-  <rect x="43.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
-  <rect x="60.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#FBE3D2" stroke="#C8693A" stroke-width="1.2"/>
-  <rect x="77.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#F9DCE6" stroke="#C2457A" stroke-width="1.2"/>
-  <rect x="94.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
-  <rect x="111.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
-  <rect x="128.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#FBE3D2" stroke="#C8693A" stroke-width="1.2"/>
-  <rect x="145.0" y="130.0" width="13.0" height="26.0" rx="3" fill="#F9DCE6" stroke="#C2457A" stroke-width="1.2"/>
-  <path d="M172.0,143.0 L214.0,143.0" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#tip-ink)"/>
-  <rect x="220.0" y="104.0" width="414.0" height="78.0" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect x="26.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="43.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="60.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#F2CDB7" stroke="none" stroke-width="1.2"/>
+  <rect x="77.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#EFC1D3" stroke="none" stroke-width="1.2"/>
+  <rect x="94.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="111.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="128.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#F2CDB7" stroke="none" stroke-width="1.2"/>
+  <rect x="145.0" y="130.0" width="13.0" height="26.0" rx="8" fill="#EFC1D3" stroke="none" stroke-width="1.2"/>
+  <path d="M172.0,143.0 L208.0,143.0" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#tip-ink)"/>
+  <rect filter="url(#m3-shadow)" x="220.0" y="104.0" width="414.0" height="78.0" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="250.0" y="148.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">SM 0</text>
-  <rect x="290.0" y="114.0" width="156.0" height="26.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="290.0" y="114.0" width="156.0" height="26.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="368.0" y="131.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 0</text>
-  <rect x="290.0" y="144.0" width="156.0" height="26.0" rx="5" fill="#FBE3D2" stroke="#C8693A" stroke-width="1.2"/>
+  <rect x="290.0" y="144.0" width="156.0" height="26.0" rx="8" fill="#F2CDB7" stroke="none" stroke-width="1.2"/>
   <text x="368.0" y="161.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 2</text>
-  <rect x="462.0" y="114.0" width="156.0" height="26.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="462.0" y="114.0" width="156.0" height="26.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="540.0" y="131.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 4</text>
-  <rect x="462.0" y="144.0" width="156.0" height="26.0" rx="5" fill="#FBE3D2" stroke="#C8693A" stroke-width="1.2"/>
+  <rect x="462.0" y="144.0" width="156.0" height="26.0" rx="8" fill="#F2CDB7" stroke="none" stroke-width="1.2"/>
   <text x="540.0" y="161.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 6</text>
-  <rect x="220.0" y="198.0" width="414.0" height="78.0" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="220.0" y="198.0" width="414.0" height="78.0" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="250.0" y="242.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">SM 1</text>
-  <rect x="290.0" y="208.0" width="156.0" height="26.0" rx="5" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
+  <rect x="290.0" y="208.0" width="156.0" height="26.0" rx="8" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
   <text x="368.0" y="225.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 1</text>
-  <rect x="290.0" y="238.0" width="156.0" height="26.0" rx="5" fill="#F9DCE6" stroke="#C2457A" stroke-width="1.2"/>
+  <rect x="290.0" y="238.0" width="156.0" height="26.0" rx="8" fill="#EFC1D3" stroke="none" stroke-width="1.2"/>
   <text x="368.0" y="255.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 3</text>
-  <rect x="462.0" y="208.0" width="156.0" height="26.0" rx="5" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
+  <rect x="462.0" y="208.0" width="156.0" height="26.0" rx="8" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
   <text x="540.0" y="225.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 5</text>
-  <rect x="462.0" y="238.0" width="156.0" height="26.0" rx="5" fill="#F9DCE6" stroke="#C2457A" stroke-width="1.2"/>
+  <rect x="462.0" y="238.0" width="156.0" height="26.0" rx="8" fill="#EFC1D3" stroke="none" stroke-width="1.2"/>
   <text x="540.0" y="255.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">block 7</text>
-  <path d="M290.0,302.0 L628.0,302.0" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#tip-ink)"/>
+  <path d="M290.0,302.0 L622.0,302.0" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#tip-ink)"/>
   <text x="632.0" y="316.0" text-anchor="end" font-size="11" style="fill:#5D6B7A" xml:space="preserve">time</text>
   <text x="368.0" y="322.0" text-anchor="middle" font-size="11.5" style="fill:#5D6B7A" xml:space="preserve">first wave</text>
   <text x="540.0" y="322.0" text-anchor="middle" font-size="11.5" style="fill:#5D6B7A" xml:space="preserve">second wave</text>

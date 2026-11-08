@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 496" width="640" height="496" role="img" aria-label="Left top: the histogram of the gray image has 4 bars of 16 pixels at levels 96, 112, 120 and 144. Left bottom: a table with level, count, cumulative count c(v) and new level: 96, 16, 16, 0; 112, 16, 32, 85; 120, 16, 48, 170; 144, 16, 64, 255. new(112) = round((32 - 16) times 255 / (64 - 16)) = 85. Right: the equalized image: rows 0 and 1 are 255, rows 2 to 5 are 85 85 170 170 170 170 85 85, rows 6 and 7 are 0.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,69 +27,63 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="496" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Histogram equalization of the example</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4 levels, 16 pixels each, move to 0, 85, 170 and 255.</text>
   <text x="40.0" y="96.0" class="name" text-anchor="start" xml:space="preserve">histogram of the gray image</text>
-  <rect x="70.0" y="126.0" width="44.0" height="112.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="70.0" y="126.0" width="44.0" height="112.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="92.0" y="186.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
   <text x="92.0" y="254.0" class="mono" text-anchor="middle" xml:space="preserve">96</text>
-  <rect x="132.0" y="126.0" width="44.0" height="112.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="132.0" y="126.0" width="44.0" height="112.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="154.0" y="186.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
   <text x="154.0" y="254.0" class="mono" text-anchor="middle" xml:space="preserve">112</text>
-  <rect x="194.0" y="126.0" width="44.0" height="112.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="194.0" y="126.0" width="44.0" height="112.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="216.0" y="186.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
   <text x="216.0" y="254.0" class="mono" text-anchor="middle" xml:space="preserve">120</text>
-  <rect x="256.0" y="126.0" width="44.0" height="112.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="256.0" y="126.0" width="44.0" height="112.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="278.0" y="186.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
   <text x="278.0" y="254.0" class="mono" text-anchor="middle" xml:space="preserve">144</text>
   <line x1="56.0" y1="238.0" x2="316.0" y2="238.0" stroke="#D5DBE3" stroke-width="1.2"/>
   <text x="56.0" y="274.0" class="note" text-anchor="start" xml:space="preserve">every other level of 0 to 255 has count 0</text>
   <text x="132.0" y="319.0" class="name" text-anchor="end" xml:space="preserve">level</text>
-  <rect x="142.0" y="300.0" width="42.0" height="28.0" rx="3" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="142.0" y="300.0" width="42.0" height="28.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.2"/>
   <text x="163.0" y="318.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">96</text>
-  <rect x="188.0" y="300.0" width="42.0" height="28.0" rx="3" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="188.0" y="300.0" width="42.0" height="28.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.2"/>
   <text x="209.0" y="318.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">112</text>
-  <rect x="234.0" y="300.0" width="42.0" height="28.0" rx="3" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="234.0" y="300.0" width="42.0" height="28.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.2"/>
   <text x="255.0" y="318.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">120</text>
-  <rect x="280.0" y="300.0" width="42.0" height="28.0" rx="3" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="280.0" y="300.0" width="42.0" height="28.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.2"/>
   <text x="301.0" y="318.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">144</text>
   <text x="132.0" y="353.0" class="name" text-anchor="end" xml:space="preserve">count</text>
-  <rect x="142.0" y="334.0" width="42.0" height="28.0" rx="3" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <rect x="142.0" y="334.0" width="42.0" height="28.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.2"/>
   <text x="163.0" y="352.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
-  <rect x="188.0" y="334.0" width="42.0" height="28.0" rx="3" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <rect x="188.0" y="334.0" width="42.0" height="28.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.2"/>
   <text x="209.0" y="352.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
-  <rect x="234.0" y="334.0" width="42.0" height="28.0" rx="3" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <rect x="234.0" y="334.0" width="42.0" height="28.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.2"/>
   <text x="255.0" y="352.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
-  <rect x="280.0" y="334.0" width="42.0" height="28.0" rx="3" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <rect x="280.0" y="334.0" width="42.0" height="28.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.2"/>
   <text x="301.0" y="352.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
   <text x="132.0" y="387.0" class="name" text-anchor="end" xml:space="preserve">c(v), scan</text>
-  <rect x="142.0" y="368.0" width="42.0" height="28.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="142.0" y="368.0" width="42.0" height="28.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="163.0" y="386.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">16</text>
-  <rect x="188.0" y="368.0" width="42.0" height="28.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="188.0" y="368.0" width="42.0" height="28.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="209.0" y="386.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">32</text>
-  <rect x="234.0" y="368.0" width="42.0" height="28.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="234.0" y="368.0" width="42.0" height="28.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="255.0" y="386.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">48</text>
-  <rect x="280.0" y="368.0" width="42.0" height="28.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="280.0" y="368.0" width="42.0" height="28.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="301.0" y="386.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">64</text>
   <text x="132.0" y="421.0" class="name" text-anchor="end" xml:space="preserve">new level</text>
-  <rect x="142.0" y="402.0" width="42.0" height="28.0" rx="3" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <rect x="142.0" y="402.0" width="42.0" height="28.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.2"/>
   <text x="163.0" y="420.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">0</text>
-  <rect x="188.0" y="402.0" width="42.0" height="28.0" rx="3" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <rect x="188.0" y="402.0" width="42.0" height="28.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.2"/>
   <text x="209.0" y="420.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
-  <rect x="234.0" y="402.0" width="42.0" height="28.0" rx="3" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <rect x="234.0" y="402.0" width="42.0" height="28.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.2"/>
   <text x="255.0" y="420.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">170</text>
-  <rect x="280.0" y="402.0" width="42.0" height="28.0" rx="3" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <rect x="280.0" y="402.0" width="42.0" height="28.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.2"/>
   <text x="301.0" y="420.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">255</text>
   <text x="40.0" y="454.0" class="mono" text-anchor="start" xml:space="preserve">new(112) = round((32 - 16) x 255 / (64 - 16))</text>
   <text x="40.0" y="474.0" class="mono" text-anchor="start" xml:space="preserve">         = (16 x 255 + 24) / 48 = 85</text>

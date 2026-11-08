@@ -15,6 +15,8 @@ import re
 from html import escape
 from pathlib import Path
 
+from fig_arrows import materialize, sharpen
+
 ICONS = Path(__file__).resolve().parent / "icons"
 
 PAPER = "#FBFAF6"
@@ -594,11 +596,11 @@ def save(path, width, height, label, title, lede, parts):
     must_fit(title, width - 64, 18, bold=True)
     must_fit(lede, width - 64, 12.5)
     body = "\n".join(parts)
-    Path(path).write_text(
+    Path(path).write_text(materialize(sharpen(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}"'
         f' role="img" aria-label="{escape(label)}">\n{STYLE}\n'
         f'  <rect width="{width}" height="{height}" rx="14" fill="{PAPER}"/>\n'
-        f'{text(32, 42, title, "title")}\n{text(32, 63, lede, "lede")}\n{body}\n</svg>\n')
+        f'{text(32, 42, title, "title")}\n{text(32, 63, lede, "lede")}\n{body}\n</svg>\n')))
 
 
 def stacked(x, y, w, h, segments, total=None):

@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460" width="640" height="460" role="img" aria-label="A 6 by 6 grid of cells. The 6 cells of row 0 hold 100 and are colored red. The other edge cells, in column 0, column 5 and row 5, hold 0 and are colored blue. The 16 cells of rows 1 to 4 and columns 1 to 4 hold question marks. A legend explains that the 20 edge cells are boundary cells with fixed values and the 16 inner cells are interior cells, the unknowns.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,20 +27,14 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="460" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The plate as a grid of cells</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">20 boundary cells hold fixed temperatures; the 16 interior cells are the unknowns.</text>
-  <rect x="32" y="96" width="340" height="340" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="32" y="96" width="340" height="340" rx="16" fill="#F0EEE6" stroke="none" stroke-width="1.2"/>
   <rect x="50" y="85" width="114.5" height="22" rx="11" fill="#1B2430"/>
   <text x="107.3" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">6 × 6 PLATE</text>
   <rect x="64.0" y="128.0" width="43.0" height="43.0" rx="4" fill="#ec8c6c" stroke="#1B2430" stroke-width="1.6"/>
@@ -56,49 +51,49 @@
   <text x="315.5" y="153.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">100</text>
   <rect x="64.0" y="174.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="85.5" y="199.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
-  <rect x="110.0" y="174.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="110.0" y="174.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="131.5" y="199.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="156.0" y="174.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="156.0" y="174.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="177.5" y="199.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="202.0" y="174.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="202.0" y="174.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="223.5" y="199.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="248.0" y="174.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="248.0" y="174.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="269.5" y="199.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
   <rect x="294.0" y="174.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="315.5" y="199.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
   <rect x="64.0" y="220.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="85.5" y="245.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
-  <rect x="110.0" y="220.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="110.0" y="220.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="131.5" y="245.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="156.0" y="220.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="156.0" y="220.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="177.5" y="245.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="202.0" y="220.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="202.0" y="220.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="223.5" y="245.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="248.0" y="220.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="248.0" y="220.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="269.5" y="245.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
   <rect x="294.0" y="220.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="315.5" y="245.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
   <rect x="64.0" y="266.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="85.5" y="291.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
-  <rect x="110.0" y="266.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="110.0" y="266.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="131.5" y="291.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="156.0" y="266.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="156.0" y="266.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="177.5" y="291.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="202.0" y="266.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="202.0" y="266.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="223.5" y="291.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="248.0" y="266.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="248.0" y="266.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="269.5" y="291.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
   <rect x="294.0" y="266.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="315.5" y="291.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
   <rect x="64.0" y="312.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="85.5" y="337.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
-  <rect x="110.0" y="312.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="110.0" y="312.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="131.5" y="337.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="156.0" y="312.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="156.0" y="312.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="177.5" y="337.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="202.0" y="312.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="202.0" y="312.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="223.5" y="337.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
-  <rect x="248.0" y="312.0" width="43.0" height="43.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.1"/>
+  <rect filter="url(#m3-shadow)" x="248.0" y="312.0" width="43.0" height="43.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.1"/>
   <text x="269.5" y="337.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">?</text>
   <rect x="294.0" y="312.0" width="43.0" height="43.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="315.5" y="337.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
@@ -132,7 +127,7 @@
   <rect x="398.0" y="196.0" width="30.0" height="30.0" rx="4" fill="#d6e4f7" stroke="#1B2430" stroke-width="1.6"/>
   <text x="440.0" y="208.0" class="note" text-anchor="start" xml:space="preserve">boundary cell, other edges:</text>
   <text x="440.0" y="224.0" class="note" text-anchor="start" xml:space="preserve">held at 0 degrees</text>
-  <rect x="398.0" y="252.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="398.0" y="252.0" width="30.0" height="30.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="440.0" y="264.0" class="note" text-anchor="start" xml:space="preserve">interior cell: unknown,</text>
   <text x="440.0" y="280.0" class="note" text-anchor="start" xml:space="preserve">rows 1 to 4, columns 1 to 4</text>
   <text x="398.0" y="330.0" class="note" text-anchor="start" xml:space="preserve">36 cells: 20 boundary, 16 interior.</text>

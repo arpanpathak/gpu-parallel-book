@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 342" width="640" height="342" role="img" aria-label="12 slots of a shared tile for row 2 of the equalized image, block of 8 threads. Slots 0 and 1 hold pixel 0, value 85, the clamped left halo; slots 2 to 9 hold pixels 0 to 7: 85, 85, 170, 170, 170, 170, 85, 85; slots 10 and 11 hold pixel 7, 85, the clamped right halo. Thread 0 reads slots 0 to 4 and sums 1,445; thread 3 reads slots 3 to 7 and sums 2,635; thread 7 reads slots 7 to 11 and sums 1,445.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,80 +27,74 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="342" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The tile of the row pass, with its halo</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">A block of 8 outputs needs 8 + 4 = 12 inputs.</text>
   <text x="40.0" y="92.0" class="name" text-anchor="start" xml:space="preserve">each slot of the tile of row 2 holds pixel x = slot - 2, clamped</text>
-  <rect x="40.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="40.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="61.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="61.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">0</text>
   <text x="61.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=0</text>
-  <rect x="86.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="86.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="107.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="107.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">1</text>
   <text x="107.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=0</text>
-  <rect x="132.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="132.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="153.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="153.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">2</text>
   <text x="153.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=0</text>
-  <rect x="178.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="178.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="199.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="199.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">3</text>
   <text x="199.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=1</text>
-  <rect x="224.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="224.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="245.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">170</text>
   <text x="245.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">4</text>
   <text x="245.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=2</text>
-  <rect x="270.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="270.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="291.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">170</text>
   <text x="291.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">5</text>
   <text x="291.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=3</text>
-  <rect x="316.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="316.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="337.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">170</text>
   <text x="337.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">6</text>
   <text x="337.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=4</text>
-  <rect x="362.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="362.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="383.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">170</text>
   <text x="383.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">7</text>
   <text x="383.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=5</text>
-  <rect x="408.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="408.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="429.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="429.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">8</text>
   <text x="429.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=6</text>
-  <rect x="454.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="454.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.2"/>
   <text x="475.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="475.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">9</text>
   <text x="475.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=7</text>
-  <rect x="500.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="500.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="521.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="521.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">10</text>
   <text x="521.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=7</text>
-  <rect x="546.0" y="122.0" width="42.0" height="30.0" rx="3" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="546.0" y="122.0" width="42.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="567.0" y="141.3" text-anchor="middle" class="mono" font-size="12" style="fill:#1B2430">85</text>
   <text x="567.0" y="114.0" class="note" text-anchor="middle" xml:space="preserve">11</text>
   <text x="567.0" y="168.0" class="note" text-anchor="middle" xml:space="preserve">x=7</text>
-  <rect x="40.0" y="192" width="226" height="20" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.5"/>
+  <rect x="40.0" y="192" width="226" height="20" rx="6" fill="#DBCEF3" stroke="none" stroke-width="1.5"/>
   <text x="48.0" y="206.0" class="pill" text-anchor="start" style="fill:#7A4FD0" xml:space="preserve">thread 0: slots 0 to 4</text>
   <text x="274.0" y="206.0" class="mono" text-anchor="start" xml:space="preserve">sum 1,445</text>
-  <rect x="178.0" y="222" width="226" height="20" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.5"/>
+  <rect x="178.0" y="222" width="226" height="20" rx="6" fill="#C6E2CA" stroke="none" stroke-width="1.5"/>
   <text x="186.0" y="236.0" class="pill" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">thread 3: slots 3 to 7</text>
   <text x="412.0" y="236.0" class="mono" text-anchor="start" xml:space="preserve">sum 2,635</text>
-  <rect x="362.0" y="252" width="226" height="20" rx="6" fill="#EEF6DC" stroke="#5E9400" stroke-width="1.5"/>
+  <rect x="362.0" y="252" width="226" height="20" rx="6" fill="#D4E4B4" stroke="none" stroke-width="1.5"/>
   <text x="370.0" y="266.0" class="pill" text-anchor="start" style="fill:#5E9400" xml:space="preserve">thread 7: slots 7 to 11</text>
   <text x="354.0" y="266.0" class="mono" text-anchor="end" xml:space="preserve">1,445</text>
-  <rect x="40" y="290" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="40" y="290" width="14" height="14" rx="4" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="61.0" y="301.5" class="note" text-anchor="start" xml:space="preserve">halo: loaded by threads 0 and 1</text>
-  <rect x="287.6" y="290" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="287.6" y="290" width="14" height="14" rx="4" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="308.6" y="301.5" class="note" text-anchor="start" xml:space="preserve">own pixels: each thread loads slot threadIdx.x + 2</text>
   <text x="40.0" y="326.0" class="note" text-anchor="start" xml:space="preserve">8 threads load 12 values once; the 8 sums read 40 values, all from shared memory.</text>
 </svg>

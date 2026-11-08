@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 420" width="660" height="420" role="img" aria-label="2 blocks of 4 keys. Block 0, keys 5, 2, 7, 2, counts into private bins 0, 0, 2, 0, 0, 1, 0, 1; block 1, keys 0, 6, 3, 5, into 1, 0, 0, 1, 0, 1, 1, 0. Both add their bins to the global bins, which end at 1, 0, 2, 1, 0, 2, 1, 1.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,35 +27,29 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="420" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Privatized bins</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Count in shared memory, merge once per block.</text>
   <text x="176.0" y="100.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">block 0: keys 5, 2, 7, 2</text>
-  <rect x="60.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="60.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="73.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="90.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="90.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="103.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="120.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="120.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="133.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">2</text>
-  <rect x="150.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="150.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="163.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="180.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="180.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="193.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="210.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="210.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="223.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="240.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="240.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="253.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="270.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="270.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="283.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
   <text x="176.0" y="134.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">private bins in shared memory</text>
   <text x="73.0" y="190.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0</text>
@@ -66,21 +61,21 @@
   <text x="253.0" y="190.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">6</text>
   <text x="283.0" y="190.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">7</text>
   <text x="476.0" y="100.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">block 1: keys 0, 6, 3, 5</text>
-  <rect x="360.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="360.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="373.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="390.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="390.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="403.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="420.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="420.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="433.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="450.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="450.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="463.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="480.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="480.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="493.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="510.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="510.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="523.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="540.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="540.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="553.0" y="165.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="570.0" y="146.0" width="26.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="570.0" y="146.0" width="26.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="583.0" y="165.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
   <text x="476.0" y="134.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">private bins in shared memory</text>
   <text x="373.0" y="190.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0</text>
@@ -91,21 +86,21 @@
   <text x="523.0" y="190.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">5</text>
   <text x="553.0" y="190.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">6</text>
   <text x="583.0" y="190.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">7</text>
-  <rect x="210.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="210.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="223.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="240.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="240.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="253.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
-  <rect x="270.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="270.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="283.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
-  <rect x="300.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="300.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="313.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="330.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="330.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="343.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
-  <rect x="360.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="360.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="373.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
-  <rect x="390.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="390.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="403.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="420.0" y="276.0" width="26.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="420.0" y="276.0" width="26.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="433.0" y="295.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
   <text x="326.0" y="320.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">global bins 0 to 7</text>
   <line x1="73.0" y1="206.0" x2="283.0" y2="206.0" stroke="#B7791F" stroke-width="1.4"/>
@@ -117,7 +112,7 @@
   <line x1="223.0" y1="196.0" x2="223.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
   <line x1="253.0" y1="196.0" x2="253.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
   <line x1="283.0" y1="196.0" x2="283.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
-  <path d="M178.0,206.0 V238.0 H286.0 V273.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
+  <path d="M178.0,206.0 V238.0 H280.5 V270.6" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
   <line x1="373.0" y1="206.0" x2="583.0" y2="206.0" stroke="#B7791F" stroke-width="1.4"/>
   <line x1="373.0" y1="196.0" x2="373.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
   <line x1="403.0" y1="196.0" x2="403.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
@@ -127,8 +122,8 @@
   <line x1="523.0" y1="196.0" x2="523.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
   <line x1="553.0" y1="196.0" x2="553.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
   <line x1="583.0" y1="196.0" x2="583.0" y2="206.0" stroke="#B7791F" stroke-width="1.0"/>
-  <path d="M478.0,206.0 V246.0 H366.0 V273.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
-  <defs><marker id="m-store" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#B7791F"/></marker></defs>
+  <path d="M478.0,206.0 V246.0 H360.1 V272.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
+  <defs><marker id="m-store" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#B7791F"/></marker></defs>
   <text x="32.0" y="360.0" class="note" text-anchor="start" xml:space="preserve">Each block counts its keys into its own 8 bins in shared memory, where only its own</text>
   <text x="32.0" y="378.0" class="note" text-anchor="start" xml:space="preserve">threads contend, and then adds each bin to the global bins once. For 16,777,216 keys in</text>
   <text x="32.0" y="396.0" class="note" text-anchor="start" xml:space="preserve">1,024 blocks with 16 bins: 16,384 atomic additions on global memory, not 16,777,216.</text>

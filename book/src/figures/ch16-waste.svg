@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 460" width="660" height="460" role="img" aria-label="Matrix A on the left with the value a01 = 2 highlighted, and C on the right with the 4 entries c00, c01, c02 and c03 of row 0 shaded. 4 separate curved arrows run from a01 to the 4 entries: each of the 4 threads that compute row 0 of C fetches a01 from global memory on its own. A note below: in all, 16 threads times 8 fetches = 128 fetches from global memory, although A and B hold only 32 distinct values.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,89 +27,80 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="460" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The same value, fetched 4 times</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">In the direct kernel every thread fetches its operands itself.</text>
   <defs>
-    <marker id="tip-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/></marker>
-    <marker id="tip-deep" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3B47B0"/></marker>
-    <marker id="tip-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker>
+    <marker id="tip-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="tip-deep" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3B47B0"/></marker>
+    <marker id="tip-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F8A70"/></marker>
   </defs>
   <text x="126.0" y="354.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#5D6B7A" xml:space="preserve">A</text>
   <text x="474.0" y="354.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#5D6B7A" xml:space="preserve">C</text>
-  <rect x="52.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="52.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="69.0" y="207.7" text-anchor="middle" font-size="13" style="fill:#1B2430" xml:space="preserve">1</text>
-  <rect x="90.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#B9C3F5" stroke="#3B47B0" stroke-width="1.2"/>
+  <rect x="90.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#A2ADE9" stroke="none" stroke-width="1.2"/>
   <text x="107.0" y="207.7" text-anchor="middle" font-size="13" style="fill:#1B2430" xml:space="preserve">2</text>
-  <rect x="128.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="128.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="145.0" y="207.7" text-anchor="middle" font-size="13" style="fill:#1B2430" xml:space="preserve">3</text>
-  <rect x="166.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="166.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="183.0" y="207.7" text-anchor="middle" font-size="13" style="fill:#1B2430" xml:space="preserve">4</text>
-  <rect x="52.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="52.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="69.0" y="245.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">5</text>
-  <rect x="90.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="90.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="107.0" y="245.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">6</text>
-  <rect x="128.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="128.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="145.0" y="245.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">7</text>
-  <rect x="166.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="166.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="183.0" y="245.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">8</text>
-  <rect x="52.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="52.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="69.0" y="283.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">9</text>
-  <rect x="90.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="90.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="107.0" y="283.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">10</text>
-  <rect x="128.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="128.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="145.0" y="283.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">11</text>
-  <rect x="166.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="166.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="183.0" y="283.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">12</text>
-  <rect x="52.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="52.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="69.0" y="321.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">13</text>
-  <rect x="90.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="90.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="107.0" y="321.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">14</text>
-  <rect x="128.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="128.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="145.0" y="321.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">15</text>
-  <rect x="166.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="166.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="183.0" y="321.7" text-anchor="middle" font-size="13" style="fill:#8794A3" xml:space="preserve">16</text>
-  <rect x="400.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="400.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="417.0" y="207.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">c00</text>
-  <rect x="438.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="438.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="455.0" y="207.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">c01</text>
-  <rect x="476.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="476.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="493.0" y="207.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">c02</text>
-  <rect x="514.0" y="186.0" width="34.0" height="34.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="514.0" y="186.0" width="34.0" height="34.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="531.0" y="207.1" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">c03</text>
-  <rect x="400.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="438.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="476.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="514.0" y="224.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="400.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="438.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="476.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="514.0" y="262.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="400.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="438.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="476.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <rect x="514.0" y="300.0" width="34.0" height="34.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
-  <path d="M101,184 C101,126 417,126 417,180" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
-  <path d="M105,184 C105,110 455,110 455,180" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
-  <path d="M109,184 C109,94 493,94 493,180" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
-  <path d="M113,184 C113,78 531,78 531,180" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
+  <rect filter="url(#m3-shadow)" x="400.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="438.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="476.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="514.0" y="224.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="400.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="438.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="476.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="514.0" y="262.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="400.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="438.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="476.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="514.0" y="300.0" width="34.0" height="34.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
+  <path d="M101,184 C101,126 417,126 417.0,174.0" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
+  <path d="M105,184 C105,110 455,110 455.0,174.0" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
+  <path d="M109,184 C109,94 493,94 493.0,174.0" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
+  <path d="M113,184 C113,78 531,78 531.0,174.0" fill="none" stroke="#3B47B0" stroke-width="1.6" marker-end="url(#tip-deep)"/>
   <text x="300.0" y="252.0" text-anchor="middle" font-size="12.5" font-weight="650" style="fill:#3B47B0" xml:space="preserve">4 separate fetches</text>
   <text x="300.0" y="270.0" text-anchor="middle" font-size="11.5" style="fill:#5D6B7A" xml:space="preserve">of a01 = 2, 1 by each</text>
   <text x="300.0" y="287.0" text-anchor="middle" font-size="11.5" style="fill:#5D6B7A" xml:space="preserve">thread of row 0 of C</text>
-  <rect x="40.0" y="382.0" width="580.0" height="56.0" rx="10" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="40.0" y="382.0" width="580.0" height="56.0" rx="10" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="330.0" y="404.0" text-anchor="middle" font-size="12.5" style="fill:#1B2430" xml:space="preserve">In all: 16 threads × 8 fetches = 128 fetches from global memory,</text>
   <text x="330.0" y="424.0" text-anchor="middle" font-size="12.5" style="fill:#1B2430" xml:space="preserve">although A and B hold only 32 distinct values.</text>
 </svg>

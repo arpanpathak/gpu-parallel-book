@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 372" width="640" height="372" role="img" aria-label="2 closures on the host: move |x, y| a * x + y, which captures a = 2 (4 bytes), and |x, y| x.max(y), which captures nothing (0 bytes). Each has its own type, and the compiler builds 1 kernel map for each type; the captured bytes travel as 1 kernel parameter. C++ lambdas and the template map&lt;F&gt; work the same way.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#8E99A8"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#00897B"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#E65100"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2185B"/></marker>
+    <marker id="m-hi" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2185B"/></marker>
     <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="372" rx="14" fill="#FBFAF6"/>
@@ -21,22 +22,22 @@
   <g transform="translate(0,78)">
   <text x="20.0" y="26.0" font-size="12" fill="#8E99A8" text-anchor="start" font-weight="600" xml:space="preserve">host</text>
   <text x="20.0" y="168.0" font-size="12" fill="#8E99A8" text-anchor="start" font-weight="600" xml:space="preserve">device code</text>
-  <rect x="60.0" y="40.0" width="250.0" height="70.0" rx="8" fill="#E3E8FD" stroke="#3F51B5" stroke-width="1.2"/>
+  <rect x="60.0" y="40.0" width="250.0" height="70.0" rx="8" fill="#C5CDF0" stroke="none" stroke-width="1.2"/>
   <text x="185.0" y="64.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">move |x, y| a * x + y</text>
   <text x="185.0" y="86.0" font-size="11.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">captures a = 2: 4 bytes</text>
   <text x="185.0" y="102.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">1 closure type, no name</text>
-  <line x1="185.0" y1="111.0" x2="185.0" y2="178.0" stroke="#3F51B5" stroke-width="1.4" marker-end="url(#m-blue)"/>
+  <line x1="185.0" y1="111.0" x2="185.0" y2="172.0" stroke="#3F51B5" stroke-width="1.4" marker-end="url(#m-blue)"/>
   <text x="193.0" y="140.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">4 bytes as 1 kernel parameter</text>
-  <rect x="60.0" y="180.0" width="250.0" height="52.0" rx="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.4"/>
+  <rect filter="url(#m3-shadow)" x="60.0" y="180.0" width="250.0" height="52.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.4"/>
   <text x="185.0" y="202.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">map::&lt;type of the closure&gt;</text>
   <text x="185.0" y="222.0" font-size="11" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">its own compiled kernel</text>
-  <rect x="340.0" y="40.0" width="250.0" height="70.0" rx="8" fill="#DDF3EC" stroke="#00897B" stroke-width="1.2"/>
+  <rect x="340.0" y="40.0" width="250.0" height="70.0" rx="8" fill="#B5E0D8" stroke="none" stroke-width="1.2"/>
   <text x="465.0" y="64.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">|x, y| x.max(y)</text>
   <text x="465.0" y="86.0" font-size="11.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">captures nothing: 0 bytes</text>
   <text x="465.0" y="102.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">1 closure type, no name</text>
-  <line x1="465.0" y1="111.0" x2="465.0" y2="178.0" stroke="#00897B" stroke-width="1.4" marker-end="url(#m-mint)"/>
+  <line x1="465.0" y1="111.0" x2="465.0" y2="172.0" stroke="#00897B" stroke-width="1.4" marker-end="url(#m-mint)"/>
   <text x="473.0" y="140.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">0 bytes as 1 kernel parameter</text>
-  <rect x="340.0" y="180.0" width="250.0" height="52.0" rx="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.4"/>
+  <rect filter="url(#m3-shadow)" x="340.0" y="180.0" width="250.0" height="52.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.4"/>
   <text x="465.0" y="202.0" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" class="mono" xml:space="preserve">map::&lt;type of the closure&gt;</text>
   <text x="465.0" y="222.0" font-size="11" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">its own compiled kernel</text>
   <text x="20.0" y="260.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">C++ is the same: a lambda [a] __device__ (float x, float y) {...} has its own type,</text>

@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 412" width="660" height="412" role="img" aria-label="A timeline for row 94 without the second barrier. Warp 5 finishes reading the 8 sums early, shuffles its sum of squares and writes its sum of squares, 511,965,734, into slot 5. Warp 0 is still reading the slots, reads the new value and computes the mean 125,866.6 instead of 999.99, a negative variance, and NaN outputs.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,39 +27,33 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="412" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A race on the slots</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Without barrier 2, the next reduction can overwrite a slot still being read.</text>
-  <rect x="16" y="96" width="628" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="16" y="96" width="628" height="300" rx="16" fill="#F0EEE6" stroke="none" stroke-width="1.2"/>
   <rect x="34" y="85" width="224.6" height="22" rx="11" fill="#1B2430"/>
   <text x="146.3" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">ROW 94, WITHOUT BARRIER 2</text>
   <text x="36.0" y="140.0" class="name" text-anchor="start" xml:space="preserve">warp 5</text>
   <text x="36.0" y="214.0" class="name" text-anchor="start" xml:space="preserve">warp 0</text>
-  <rect x="110.0" y="124.0" width="90.0" height="26.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="110.0" y="124.0" width="90.0" height="26.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="155.0" y="141.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">write slot 5</text>
-  <rect x="206.0" y="124.0" width="70.0" height="26.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="206.0" y="124.0" width="70.0" height="26.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="241.0" y="141.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">barrier 1</text>
-  <rect x="282.0" y="124.0" width="110.0" height="26.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="282.0" y="124.0" width="110.0" height="26.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="337.0" y="141.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">read 8 sums</text>
-  <rect x="398.0" y="124.0" width="100.0" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="398.0" y="124.0" width="100.0" height="26.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="448.0" y="141.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5 shuffles</text>
-  <rect x="504.0" y="124.0" width="120.0" height="26.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="504.0" y="124.0" width="120.0" height="26.0" rx="8" fill="#F4CDC3" stroke="none" stroke-width="1.3"/>
   <text x="564.0" y="141.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">slot 5 = 5.1e8</text>
-  <rect x="110.0" y="198.0" width="90.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="110.0" y="198.0" width="90.0" height="26.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="155.0" y="215.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">write slot 0</text>
-  <rect x="206.0" y="198.0" width="70.0" height="26.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="206.0" y="198.0" width="70.0" height="26.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="241.0" y="215.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">barrier 1</text>
-  <rect x="282.0" y="198.0" width="330.0" height="26.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="282.0" y="198.0" width="330.0" height="26.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="447.0" y="215.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">read slots 0 to 7 (late)</text>
   <line x1="580.0" y1="152.0" x2="580.0" y2="196.0" stroke="#CF4526" stroke-width="2"/>
   <circle cx="580" cy="198" r="4" fill="#CF4526"/>

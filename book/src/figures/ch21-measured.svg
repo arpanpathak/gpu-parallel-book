@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460" width="700" height="460" role="img" aria-label="Measured times. Scans of 16,777,216 values, tiles only and whole: Hillis-Steele 5.54 ms and 7.12 ms; Blelloch 4.72 ms and 6.33 ms; warp shuffles 1.75 ms and 3.40 ms. Compaction with 50 % kept: 3 passes 8.05 ms, warp votes 2.41 ms.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,44 +27,38 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="700" height="460" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Measured scans and compaction</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Jetson Orin NX, C++ program, average of 20 runs.</text>
   <text x="32.0" y="100.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">scan of 16,777,216 values: 1 level (tiles) and whole</text>
   <text x="170.0" y="132.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">Hillis-Steele</text>
-  <rect x="180.0" y="114.0" width="288.1" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="180.0" y="114.0" width="288.1" height="24.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="474.1" y="131.0" class="mono" text-anchor="start" xml:space="preserve">5.54 ms</text>
-  <rect x="180.0" y="142.0" width="370.1" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="180.0" y="142.0" width="370.1" height="24.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="556.1" y="159.0" class="mono" text-anchor="start" xml:space="preserve">7.12 ms</text>
   <text x="170.0" y="194.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">Blelloch</text>
-  <rect x="180.0" y="176.0" width="245.5" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="180.0" y="176.0" width="245.5" height="24.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="431.5" y="193.0" class="mono" text-anchor="start" xml:space="preserve">4.72 ms</text>
-  <rect x="180.0" y="204.0" width="329.1" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="180.0" y="204.0" width="329.1" height="24.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="515.1" y="221.0" class="mono" text-anchor="start" xml:space="preserve">6.33 ms</text>
   <text x="170.0" y="256.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">warp shuffles</text>
-  <rect x="180.0" y="238.0" width="91.0" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="180.0" y="238.0" width="91.0" height="24.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="277.0" y="255.0" class="mono" text-anchor="start" xml:space="preserve">1.75 ms</text>
-  <rect x="180.0" y="266.0" width="177.0" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="180.0" y="266.0" width="177.0" height="24.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="363.0" y="283.0" class="mono" text-anchor="start" xml:space="preserve">3.40 ms</text>
   <text x="32.0" y="330.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">compaction of 16,777,216 values, 50 % kept</text>
   <text x="170.0" y="360.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">3 passes</text>
-  <rect x="180.0" y="342.0" width="418.6" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="180.0" y="342.0" width="418.6" height="26.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="604.6" y="360.0" class="mono" text-anchor="start" xml:space="preserve">8.05 ms</text>
   <text x="170.0" y="394.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">warp votes</text>
-  <rect x="180.0" y="376.0" width="125.3" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="180.0" y="376.0" width="125.3" height="26.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="311.3" y="394.0" class="mono" text-anchor="start" xml:space="preserve">2.41 ms</text>
-  <rect x="180" y="422" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB"/>
+  <rect x="180" y="422" width="14" height="14" rx="4" fill="#C8DAF7" stroke="none"/>
   <text x="200.0" y="434.0" class="note" text-anchor="start" xml:space="preserve">tiles only</text>
-  <rect x="290" y="422" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F"/>
+  <rect x="290" y="422" width="14" height="14" rx="4" fill="#EFDBBA" stroke="none"/>
   <text x="310.0" y="434.0" class="note" text-anchor="start" xml:space="preserve">whole scan, or 3 passes</text>
 </svg>
