@@ -2,19 +2,20 @@
 
 # Chapter 5: Synchronization, Atomics & Race Conditions
 
-In every kernel so far, each thread wrote its own output element. Thread \\(i\\) of the vector
-addition kernel wrote `c[i]` and no other location, so the threads never needed to know about
-each other. Many useful computations do not have this property. A histogram of bytes has 256
-bins, and millions of threads add counts to them. A sum has a single result, and every thread
-contributes a part of it. Whenever 2 threads access the same memory location, and at least one of
-them writes it, the result can depend on the order of the accesses. The hardware does not choose
-that order in any predictable way, so the program must impose an order where one is needed.
+In every kernel so far, we used one thread to write one element of the result array. In the
+vector addition kernel, for example, thread \\(i\\) wrote `c[i]` and nothing else, so the threads
+never needed to know about each other. Many useful computations lack this property. To build a
+histogram of bytes, we let millions of threads add counts to only 256 bins. To compute a sum, we
+let every thread contribute a part of a single result. Whenever 2 threads access one memory
+location, and at least one of them writes to it, the result can depend on the order of those
+accesses. The hardware does not choose that order in any predictable way, so we must impose an
+order wherever our program needs one.
 
-In this chapter, we study the two mechanisms that CUDA provides for this purpose. Barriers make the
-threads of a block wait for each other at a point in the program, and atomic operations perform a
-read-modify-write on a memory location as 1 indivisible step. We also examine control divergence,
-the cost a warp pays when its threads take different paths through a branch. Each effect is
-measured with a C++ program and a Rust program.
+In this chapter, we'll examine the two mechanisms that CUDA provides for this purpose. With a
+barrier, we make the threads of a block wait for each other at a chosen point in the program. With
+an atomic operation, we perform a read-modify-write on a memory location as one indivisible step.
+We'll also examine control divergence, the slowdown that occurs when threads of one warp take
+different paths through a branch. We measure each effect with a C++ program and a Rust program.
 
 <div class="covers" markdown="1">
 
@@ -268,9 +269,9 @@ A warp executes every path that any of its threads takes, so branch on whole war
 
 ### 5.3.1 Phases within a block
 
-The threads of a block often work in phases. In the first phase, each thread writes a value to
-shared memory. In the second phase, threads read values that other threads wrote. The second phase
-is correct only if every write of the first phase has completed. A **barrier** is a point in a
+We often organize the work of a block in phases. In the first phase, we let each thread write a
+value to shared memory. In the second phase, we let the threads read values that other threads
+wrote. The second phase is correct only if every write of the first phase has completed. A **barrier** is a point in a
 program that every thread of a group must reach before any thread of the group continues past it.
 `__syncthreads()` is the barrier for the threads of 1 block. A thread that calls it waits until all
 threads of its block have called it. In addition, the writes that each thread made to shared and
@@ -452,9 +453,9 @@ waiting time grows with the number of threads. The next section measures this co
 ### 5.5.2 A histogram
 
 A **histogram** counts how many times each value occurs in a data set. A byte has 256 possible
-values, so a histogram of bytes has 256 counters, called **bins**. The direct kernel, shown in
-listing 5.6, assigns a set of bytes to each thread, and the thread adds 1 to the bin of each byte
-with `atomicAdd`.
+values, so a histogram of bytes has 256 counters, called **bins**. In the direct kernel, shown in
+listing 5.6, we give each thread a set of bytes, and we let the thread add 1 to the bin of each
+byte with `atomicAdd`.
 
 <p class="listing"><b>Listing 5.6</b> A histogram with global bins.</p>
 
@@ -485,9 +486,9 @@ grid. This pattern is called a **grid-stride loop**. In every iteration, neighbo
 neighboring bytes.
 
 Every one of the 67,108,864 additions targets 1 of only 256 addresses in global memory. We can
-reduce this contention with **privatization**. Each block counts into its own 256 bins in shared
-memory, where atomic operations are fast and only the threads of the block compete for each bin.
-At the end, each block adds its totals to the global bins once (figure 5.6).
+reduce this contention with **privatization**. We give each block its own 256 bins in shared
+memory, where atomic operations are fast and only the threads of that block compete for each bin.
+At the end, we add each block's totals to the global bins once (figure 5.6).
 
 <figure>
 <img src="../../figures/ch05-privatise.svg" alt="Phase 1: blocks 0, 1 and so on to 1,023 each count their 65,536 bytes into 256 bins in shared memory. Phase 2: each block adds its 256 counts to the 256 global bins. The global atomics drop from 67,108,864 to 262,144.">
@@ -517,9 +518,9 @@ mod kernels {
 </div>
 </div>
 
-The kernel has 3 phases, separated by 2 barriers. In the first phase, each thread sets 1 bin of
-`local` to 0. The first barrier ensures that every bin is 0 before any thread counts into it. In
-the second phase, the threads count their bytes into `local`. The second barrier ensures that all
+We split the kernel into 3 phases, separated by 2 barriers. In the first phase, we let each thread
+set one bin of `local` to 0. The first barrier ensures that every bin is 0 before any thread counts into it. In
+the second phase, we let the threads count their bytes into `local`. The second barrier ensures that all
 counting has finished before the third phase, in which thread \\(k\\) adds bin \\(k\\) to the
 global bins. Since the block has 256 threads and there are 256 bins, each thread handles exactly
 1 bin in the first and third phases.
@@ -574,10 +575,9 @@ shared memory, inside each block.
 ### 5.5.3 Compare-and-swap
 
 `atomicCAS(addr, cmp, v)` writes `v` only if the location still holds `cmp`, and it returns the
-value it found. With this operation, a thread can make any update atomic. The thread reads the old
-value, computes the new value, and attempts to swap it in. If another thread changed the location
-in the meantime, the swap fails, and the thread tries again with the value that `atomicCAS`
-returned. The same operation can be used to build a lock. However, a lock makes threads wait for
+value it found. With this operation, we can make any update atomic. We read the old value, compute the new
+value, and attempt to swap it in. If another thread changed the location
+in the meantime, the swap fails, and we try again with the value that `atomicCAS` returned. The same operation can be used to build a lock. However, a lock makes threads wait for
 each other on a machine designed to keep all of them busy, and a warp whose threads spin on 1 lock
 can stop making progress. Privatization, partitioning the data, and plain atomic operations are
 almost always faster.
