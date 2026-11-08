@@ -490,18 +490,18 @@ belong to the thread and are kept in its registers.
 <li style="--d:2">\(\mathsf{tileCol} = \mathsf{element} \bmod B_N\)</li>
 <li style="--d:2">\(\mathsf{tileB}[\mathsf{tileRow}][\mathsf{tileCol}] = b_{\mathsf{phase} \cdot B_K + \mathsf{tileRow},\, \mathsf{blockCol} + \mathsf{tileCol}}\), or 0 outside \(B\)</li>
 <li style="--d:1">}</li>
-<li style="--d:1"><span class="sc">Barrier</span>()</li>
+<li class="gap" style="--d:1"><span class="sc">Barrier</span>()</li>
 <li class="gap" style="--d:1"><b class="kw">for</b> \(\mathsf{offset} \in [0, B_K)\) {</li>
 <li style="--d:2">\(\mathsf{aReg}[\mathsf{localRow}] = \mathsf{tileA}[\mathsf{threadIdx{.}y} \cdot T_M + \mathsf{localRow}][\mathsf{offset}]\) <b class="kw">for all</b> \(\mathsf{localRow}\)</li>
 <li style="--d:2">\(\mathsf{bReg}[\mathsf{localCol}] = \mathsf{tileB}[\mathsf{offset}][\mathsf{threadIdx{.}x} \cdot T_N + \mathsf{localCol}]\) <b class="kw">for all</b> \(\mathsf{localCol}\)</li>
 <li style="--d:2">\(\mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}] \mathrel{+}= \mathsf{aReg}[\mathsf{localRow}] \cdot \mathsf{bReg}[\mathsf{localCol}]\) <b class="kw">for all</b> pairs</li>
 <li style="--d:1">}</li>
-<li style="--d:1"><span class="sc">Barrier</span>()</li>
+<li class="gap" style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
 <li class="gap"><b class="kw">for</b> \(\mathsf{localRow} \in [0, T_M)\), \(\mathsf{localCol} \in [0, T_N)\) {</li>
 <li style="--d:1">\(\mathsf{row} = \mathsf{blockRow} + \mathsf{threadIdx{.}y} \cdot T_M + \mathsf{localRow}\)</li>
 <li style="--d:1">\(\mathsf{col} = \mathsf{blockCol} + \mathsf{threadIdx{.}x} \cdot T_N + \mathsf{localCol}\)</li>
-<li style="--d:1"><b class="kw">if</b> \(\mathsf{row} \in [0, M)\) <b class="kw">and</b> \(\mathsf{col} \in [0, N)\) {</li>
+<li class="gap" style="--d:1"><b class="kw">if</b> \(\mathsf{row} \in [0, M)\) <b class="kw">and</b> \(\mathsf{col} \in [0, N)\) {</li>
 <li style="--d:2">\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}]\)</li>
 <li style="--d:1">}</li>
 <li>}</li>

@@ -164,39 +164,40 @@ the width or the height. For example, with \\(n = 8\\), \\(\mathrm{clamp}(-2, 8)
 <p class="algo-name">Image-Pipeline(\(\mathsf{rgb}, W, H\))</p>
 <ol>
 <li><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
-<li style="--d:1">\(\mathsf{gray}[\mathsf{pixel}] = (77\, \mathsf{rgb}[3 \cdot \mathsf{pixel}] + 150\, \mathsf{rgb}[3 \cdot \mathsf{pixel}+1] + 29\, \mathsf{rgb}[3 \cdot \mathsf{pixel}+2] + 128) \gg 8\)</li>
+<li style="--d:1">\(\mathsf{byte} = 3 \cdot \mathsf{pixel}\) <span class="c">// the first of its 3 bytes</span></li>
+<li style="--d:1">\(\mathsf{gray}[\mathsf{pixel}] = (77\, \mathsf{rgb}[\mathsf{byte}] + 150\, \mathsf{rgb}[\mathsf{byte}+1] + 29\, \mathsf{rgb}[\mathsf{byte}+2] + 128) \gg 8\)</li>
 <li>}</li>
-<li>\(\mathsf{bins}[\mathsf{level}] = 0\) <b class="kw">for</b> every \(\mathsf{level} \in [0, 256)\)</li>
-<li><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
+<li class="gap">\(\mathsf{bins}[\mathsf{level}] = 0\) <b class="kw">for</b> every \(\mathsf{level} \in [0, 256)\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
 <li style="--d:1">\(\mathsf{bins}[\mathsf{gray}[\mathsf{pixel}]] = \mathsf{bins}[\mathsf{gray}[\mathsf{pixel}]] + 1\) <span class="c">// histogram</span></li>
 <li>}</li>
-<li>\(\mathsf{total} = 0\)</li>
-<li><b class="kw">for</b> \(\mathsf{level} \in [0, 256)\) {</li>
+<li class="gap">\(\mathsf{total} = 0\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{level} \in [0, 256)\) {</li>
 <li style="--d:1">\(\mathsf{total} = \mathsf{total} + \mathsf{bins}[\mathsf{level}]\), \(\;\mathsf{cdf}[\mathsf{level}] = \mathsf{total}\) <span class="c">// scan</span></li>
 <li>}</li>
-<li>\(\mathsf{first} = \mathsf{cdf}[\mathsf{level}]\) <b class="kw">for</b> the lowest \(\mathsf{level}\) with \(\mathsf{bins}[\mathsf{level}] > 0\), \(\;\mathsf{span} = W \cdot H - \mathsf{first}\)</li>
-<li><b class="kw">for</b> \(\mathsf{level} \in [0, 256)\) {</li>
+<li class="gap">\(\mathsf{first} = \mathsf{cdf}[\mathsf{level}]\) <b class="kw">for</b> the lowest \(\mathsf{level}\) with \(\mathsf{bins}[\mathsf{level}] > 0\), \(\;\mathsf{span} = W \cdot H - \mathsf{first}\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{level} \in [0, 256)\) {</li>
 <li style="--d:1">\(\mathsf{table}[\mathsf{level}] = \lfloor (\max(\mathsf{cdf}[\mathsf{level}] - \mathsf{first}, 0) \cdot 255 + \lfloor \mathsf{span}/2 \rfloor) / \mathsf{span} \rfloor\)</li>
 <li>}</li>
-<li><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
 <li style="--d:1">\(\mathsf{equal}[\mathsf{pixel}] = \mathsf{table}[\mathsf{gray}[\mathsf{pixel}]]\)</li>
 <li>}</li>
-<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li class="gap"><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
 <li style="--d:1">\(\mathsf{rows}[y][x] = \sum_{j \in [0,5)} w_j \cdot \mathsf{equal}[y][\mathrm{clamp}(x + j - 2, W)]\)</li>
 <li>}</li>
-<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li class="gap"><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
 <li style="--d:1">\(\mathsf{blurred}[y][x] = (\sum_{i \in [0,5)} w_i \cdot \mathsf{rows}[\mathrm{clamp}(y + i - 2, H)][x] + 128) \gg 8\)</li>
 <li>}</li>
-<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li class="gap"><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
 <li style="--d:1">\((g_x, g_y) = \) <span class="sc">Sobel</span>\((\mathsf{blurred}, x, y)\)</li>
 <li style="--d:1">\(\mathsf{edges}[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
 <li>}</li>
 </ol>
 </div>
 
-Lines 1 to 3 convert to gray, lines 4 to 18 equalize, lines 19 to 24 blur in 2 passes, and lines 25
-to 28 compute the edges. The symbol \\(\gg 8\\) is a shift right by 8 bits, which is a division by
-256 that discards the remainder; for example, \\(37{,}088 \gg 8 = 144\\). In lines 12 and 14,
+Lines 1 to 4 convert to gray, lines 5 to 19 equalize, lines 20 to 25 blur in 2 passes, and lines 26
+to 29 compute the edges. The symbol \\(\gg 8\\) is a shift right by 8 bits, which is a division by
+256 that discards the remainder; for example, \\(37{,}088 \gg 8 = 144\\). In lines 13 and 15,
 \\(\mathsf{first}\\) is the cumulative count of the darkest level in use, and \\(\mathsf{span}\\) is the number of
 pixels above that level. In the example, \\(\mathsf{first} = 16\\) and \\(\mathsf{span} = 64 - 16 = 48\\). In
 Sections 24.3 to 24.6, we explain each group of lines on the example. In this section, we count the
@@ -204,28 +205,28 @@ work and examine what each line depends on.
 
 ### 24.2.2 Counting the work
 
-Line 2 runs once for each pixel, 64 times in our example, with 3 multiplications each time. Lines 6
-and 17 also run 64 times. Lines 10 and 14 run 256 times, once for each possible level, whatever the
-size of the image. Lines 20 and 23 each run 64 times with 5 multiply-adds, which makes 320
-multiply-adds per pass. Line 26 reads the 8 neighbors of each of the 64 outputs and adds 12
+Lines 2 and 3 run once for each pixel, 64 times in our example, with 3 multiplications each time. Lines 7
+and 18 also run 64 times. Lines 11 and 15 run 256 times, once for each possible level, whatever the
+size of the image. Lines 21 and 24 each run 64 times with 5 multiply-adds, which makes 320
+multiply-adds per pass. Line 27 reads the 8 neighbors of each of the 64 outputs and adds 12
 weighted terms. The example therefore needs 192 multiplications for the gray levels, 640
 multiply-adds for the blur and 768 weighted terms for the edges, and the CPU performs them one after
 another.
 
-In general, with \\(N = W \cdot H\\) pixels, every line except lines 10 and 14 runs \\(N\\) times. For an
+In general, with \\(N = W \cdot H\\) pixels, every line except lines 11 and 15 runs \\(N\\) times. For an
 image of 1,920 × 1,080 pixels, \\(N = 2{,}073{,}600\\), and the 2 blur passes alone perform
 \\(2 \cdot 5N = 20{,}736{,}000\\) multiply-adds. In Section 24.10, we measure the whole sequence on 8
 CPU cores at 38 to 51 images per second.
 
 ### 24.2.3 What each line depends on
 
-The sequential order of the loops hides how little most lines need. Line 2 computes \\(\mathsf{gray}[\mathsf{pixel}]\\)
-from the 3 bytes of pixel \\(\mathsf{pixel}\\) and from nothing else. Line 17 reads \\(\mathsf{gray}[\mathsf{pixel}]\\) and 1 entry of a
-table of 256 bytes. Line 20 reads 5 pixels of 1 row, line 23 reads 5 row sums of 1 column, and line
-26 reads the 3 × 3 pixels around \\((x, y)\\). For each of these lines, every output could be computed
+The sequential order of the loops hides how little most lines need. Lines 2 and 3 compute \\(\mathsf{gray}[\mathsf{pixel}]\\)
+from the 3 bytes of pixel \\(\mathsf{pixel}\\) and from nothing else. Line 18 reads \\(\mathsf{gray}[\mathsf{pixel}]\\) and 1 entry of a
+table of 256 bytes. Line 21 reads 5 pixels of 1 row, line 24 reads 5 row sums of 1 column, and line
+27 reads the 3 × 3 pixels around \\((x, y)\\). For each of these lines, every output could be computed
 at the same time as every other output, as soon as its few inputs exist.
 
-Lines 4 to 14 are different. The table entry of line 14 needs \\(\mathsf{cdf}[\mathsf{level}]\\), which counts every pixel
+Lines 5 to 15 are different. The table entry of line 15 needs \\(\mathsf{cdf}[\mathsf{level}]\\), which counts every pixel
 of the image with a level of at most \\(\mathsf{level}\\). For example, \\(\mathsf{cdf}[112] = 32\\) counts the 16 pixels of
 level 96 and the 16 pixels of level 112, wherever they lie in the image. No entry of the table, and
 therefore no pixel of the equalized image, can be computed until the histogram of the whole image is
@@ -244,11 +245,11 @@ pipeline connects them, in an order that only the histogram constrains.
 
 Exercises
 
-24.4 How many times does line 20 read each pixel of the equalized image, away from the border? How
-many times does line 26 read each pixel of the blurred image?<br>
-24.5 Lines 10 and 14 run 256 times for an image of any size. What fraction of the work of
+24.4 How many times does line 21 read each pixel of the equalized image, away from the border? How
+many times does line 27 read each pixel of the blurred image?<br>
+24.5 Lines 11 and 15 run 256 times for an image of any size. What fraction of the work of
 Image-Pipeline do they represent for the image of 1,920 × 1,080 pixels?<br>
-24.6 Which lines of Image-Pipeline could start on pixel \\(\mathsf{pixel}\\) before line 2 has finished every
+24.6 Which lines of Image-Pipeline could start on pixel \\(\mathsf{pixel}\\) before lines 2 and 3 have finished every
 pixel? Which could not, and why?
 
 </div>
@@ -314,7 +315,7 @@ converts pixel \\((3, 0)\\).
 <p class="algo-name">Gray-Kernel(\(\mathsf{rgb}, \mathsf{gray}, W, H\))</p>
 <ol>
 <li>\(\mathsf{pixel} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\)</li>
-<li><b class="kw">if</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
 <li style="--d:1">\(\mathsf{red} = \mathsf{rgb}[3 \cdot \mathsf{pixel}]\), \(\;\mathsf{green} = \mathsf{rgb}[3 \cdot \mathsf{pixel} + 1]\), \(\;\mathsf{blue} = \mathsf{rgb}[3 \cdot \mathsf{pixel} + 2]\) <span class="c">// 3 reads</span></li>
 <li style="--d:1">\(\mathsf{gray}[\mathsf{pixel}] = (77 \cdot \mathsf{red} + 150 \cdot \mathsf{green} + 29 \cdot \mathsf{blue} + 128) \gg 8\) <span class="c">// 1 write</span></li>
 <li>}</li>
@@ -463,7 +464,7 @@ use, and the factor 255 stretches it over the whole scale. Figure 24.5 works the
 \\(\mathrm{round}(32 \cdot 255 / 48) = 170\\), and level 144 to
 \\(\mathrm{round}(48 \cdot 255 / 48) = 255\\). The 4 levels, which were within 48 of each other, now
 cover the whole scale in equal steps of 85, because each of them holds a quarter of the pixels. In
-the programs, line 14 of Image-Pipeline performs the rounding in integers. For a numerator \\(a\\)
+the programs, line 15 of Image-Pipeline performs the rounding in integers. For a numerator \\(a\\)
 and a denominator \\(s\\), the expression \\(\lfloor (a + \lfloor s/2 \rfloor) / s \rfloor\\) is
 \\(a / s\\) rounded to the nearest integer, and for level 112, it gives
 \\(\lfloor (4{,}080 + 24) / 48 \rfloor = 85\\).
@@ -510,11 +511,11 @@ them to the global counters only once, at the end. The following procedure gives
 <li>\(\mathsf{stride} = \mathsf{gridDim{.}x} \cdot 256\) <span class="c">// threads in the grid</span></li>
 <li>\(\mathsf{local}[\mathsf{threadIdx{.}x}] = 0\) <span class="c">// 256 threads clear 256 counters</span></li>
 <li><span class="sc">Barrier</span>()</li>
-<li><b class="kw">for</b> \(\mathsf{pixel} = \mathsf{blockIdx{.}x} \cdot 256 + \mathsf{threadIdx{.}x}\); \(\mathsf{pixel} &lt; N\); \(\mathsf{pixel} = \mathsf{pixel} + \mathsf{stride}\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{pixel} = \mathsf{blockIdx{.}x} \cdot 256 + \mathsf{threadIdx{.}x}\); \(\mathsf{pixel} &lt; N\); \(\mathsf{pixel} = \mathsf{pixel} + \mathsf{stride}\) {</li>
 <li style="--d:1"><span class="sc">Atomic-Add</span>\((\mathsf{local}[\mathsf{gray}[\mathsf{pixel}]], 1)\) <span class="c">// shared memory</span></li>
 <li>}</li>
-<li><span class="sc">Barrier</span>()</li>
-<li><b class="kw">if</b> \(\mathsf{local}[\mathsf{threadIdx{.}x}] > 0\) {</li>
+<li class="gap"><span class="sc">Barrier</span>()</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{local}[\mathsf{threadIdx{.}x}] > 0\) {</li>
 <li style="--d:1"><span class="sc">Atomic-Add</span>\((\mathsf{bins}[\mathsf{threadIdx{.}x}], \mathsf{local}[\mathsf{threadIdx{.}x}])\) <span class="c">// global memory</span></li>
 <li>}</li>
 </ol>
@@ -577,13 +578,13 @@ and then scans the 8 warp totals.
 <li>\(\mathsf{level} = \mathsf{threadIdx{.}x}\), \(\;\mathsf{lane} = \mathsf{level} \bmod 32\), \(\;\mathsf{warp} = \lfloor \mathsf{level} / 32 \rfloor\)</li>
 <li>\(\mathsf{count} = \) <span class="sc">Atomic-Exchange</span>\((\mathsf{bins}[\mathsf{level}], 0)\) <span class="c">// read and clear</span></li>
 <li>\(\mathsf{partial} = \) <span class="sc">Warp-Scan</span>\((\mathsf{count})\) <span class="c">// inclusive, within the warp</span></li>
-<li><b class="kw">if</b> \(\mathsf{lane} = 31\) { \(\mathsf{warps}[\mathsf{warp}] = \mathsf{partial}\) }</li>
-<li><b class="kw">if</b> \(\mathsf{level} = 0\) { \(\mathsf{first} = \infty\) }</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{lane} = 31\) { \(\mathsf{warps}[\mathsf{warp}] = \mathsf{partial}\) }</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{level} = 0\) { \(\mathsf{first} = \infty\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li><b class="kw">if</b> \(\mathsf{warp} = 0\) and \(\mathsf{lane} &lt; 8\) { \(\mathsf{warps}[\mathsf{lane}] = \) <span class="sc">Warp-Scan</span>\((\mathsf{warps}[\mathsf{lane}])\) }</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{warp} = 0\) and \(\mathsf{lane} &lt; 8\) { \(\mathsf{warps}[\mathsf{lane}] = \) <span class="sc">Warp-Scan</span>\((\mathsf{warps}[\mathsf{lane}])\) }</li>
 <li><span class="sc">Barrier</span>()</li>
 <li>\(\mathsf{cumulative} = \mathsf{partial} + \mathsf{warps}[\mathsf{warp} - 1]\) <b class="kw">if</b> \(\mathsf{warp} > 0\), <b class="kw">else</b> \(\mathsf{cumulative} = \mathsf{partial}\) <span class="c">// cumulative = c(level)</span></li>
-<li><b class="kw">if</b> \(\mathsf{count} > 0\) { <span class="sc">Atomic-Min</span>\((\mathsf{first}, \mathsf{cumulative})\) }</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{count} > 0\) { <span class="sc">Atomic-Min</span>\((\mathsf{first}, \mathsf{cumulative})\) }</li>
 <li><span class="sc">Barrier</span>()</li>
 <li>\(\mathsf{span} = \mathsf{warps}[7] - \mathsf{first}\)</li>
 <li>\(\mathsf{table}[\mathsf{level}] = \lfloor (\max(\mathsf{cumulative} - \mathsf{first}, 0) \cdot 255 + \lfloor \mathsf{span}/2 \rfloor) / \mathsf{span} \rfloor\)</li>
@@ -869,16 +870,16 @@ slots 3 to 7, which hold pixels 1 to 5.
 <ol>
 <li>\(\mathsf{left} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\), \(\;y = \mathsf{blockIdx{.}y}\)</li>
 <li>\(\mathsf{tile}[\mathsf{threadIdx{.}x} + 2] = \mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{threadIdx{.}x}, W)]\) <span class="c">// own pixel</span></li>
-<li><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; 2\) {</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; 2\) {</li>
 <li style="--d:1">\(\mathsf{tile}[\mathsf{threadIdx{.}x}] = \mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{threadIdx{.}x} - 2, W)]\) <span class="c">// left halo</span></li>
 <li style="--d:1">\(\mathsf{tile}[\mathsf{blockDim{.}x} + 2 + \mathsf{threadIdx{.}x}] = \mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}, W)]\) <span class="c">// right halo</span></li>
 <li>}</li>
-<li><span class="sc">Barrier</span>()</li>
+<li class="gap"><span class="sc">Barrier</span>()</li>
 <li>\(\mathsf{rows}[y][\mathsf{left} + \mathsf{threadIdx{.}x}] = \sum_{\mathsf{tap} \in [0,5)} w_{\mathsf{tap}} \cdot \mathsf{tile}[\mathsf{threadIdx{.}x} + \mathsf{tap}]\)</li>
 </ol>
 </div>
 
-Lines 2 to 6 are the joint copy, line 7 separates the copy from the reads, and line 8 is line 20 of
+Lines 2 to 6 are the joint copy, line 7 separates the copy from the reads, and line 8 is line 21 of
 Image-Pipeline with every read taken from the tile. A block now fetches \\(\mathsf{blockDim{.}x} + 4\\) pixels from
 global memory for \\(\mathsf{blockDim{.}x}\\) outputs, instead of \\(5 \cdot \mathsf{blockDim{.}x}\\). The programs use \\(\mathsf{blockDim{.}x} = 128\\), which gives 132
 fetches instead of 640 per block, and 15 blocks cover a row of 1,920 pixels exactly.
@@ -886,7 +887,7 @@ fetches instead of 640 per block, and 15 blocks cover a row of 1,920 pixels exac
 The column pass works in the same way along the columns. A block of 32 × 8 threads computes 8 rows
 of 32 columns, and its tile holds the 8 + 4 = 12 rows of 32 row sums that these outputs read. The
 block is 32 threads wide, so that a warp reads 32 consecutive row sums of 1 row, which are 64
-consecutive bytes. The column pass finishes with the rounding of line 23 of Image-Pipeline,
+consecutive bytes. The column pass finishes with the rounding of line 24 of Image-Pipeline,
 \\((sum + 128) \gg 8\\). The following code shows both passes.
 
 <div class="code-tabs">
@@ -1419,7 +1420,7 @@ has nothing to do with the lanes of a warp.
 <li style="--d:1">on stream \(\mathsf{slot}\): the 7 kernels on \(\mathsf{lanes}[\mathsf{slot}]\)</li>
 <li style="--d:1">on stream \(\mathsf{slot}\): copy \(\mathsf{lanes}[\mathsf{slot}].\mathsf{edges}\) into \(\mathsf{out}[\mathsf{slot}]\) <span class="c">// device to host</span></li>
 <li>}</li>
-<li>wait for every stream</li>
+<li class="gap">wait for every stream</li>
 </ol>
 </div>
 

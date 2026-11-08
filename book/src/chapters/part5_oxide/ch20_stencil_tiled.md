@@ -302,7 +302,7 @@ thread.
 <li style="--d:2">\(\mathsf{tile}[\mathsf{slotRow}][\mathsf{slotCol}] = u_{\mathsf{top}+\mathsf{slotRow}-1,\, \mathsf{left}+\mathsf{slotCol}-1}\) <b class="kw">if</b> that cell is in the grid, <b class="kw">else</b> 0</li>
 <li style="--d:1">}</li>
 <li>}</li>
-<li><span class="sc">Barrier</span>() <span class="c">// wait until the whole tile is loaded</span></li>
+<li class="gap"><span class="sc">Barrier</span>() <span class="c">// wait until the whole tile is loaded</span></li>
 <li class="gap">\(\mathsf{row} = \mathsf{top} + \mathsf{threadIdx{.}y}\)</li>
 <li>\(\mathsf{col} = \mathsf{left} + \mathsf{threadIdx{.}x}\)</li>
 <li>\(\mathsf{centerRow} = \mathsf{threadIdx{.}y} + 1\) <span class="c">// the slot of the cell itself</span></li>
@@ -806,7 +806,7 @@ tile, and \\(A\\) and \\(B\\) are the 2 tiles in shared memory.
 <li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x}, \mathsf{threadIdx{.}y} \in [\mathsf{step}, 32 - \mathsf{step})\) {</li>
 <li style="--d:2">\(\mathsf{dst}[\mathsf{threadIdx{.}y}][\mathsf{threadIdx{.}x}]\) = mean of the 4 neighbors in \(\mathsf{src}\) <b class="kw">if</b> \((\mathsf{row}, \mathsf{col})\) is interior, <b class="kw">else</b> \(\mathsf{src}[\mathsf{threadIdx{.}y}][\mathsf{threadIdx{.}x}]\)</li>
 <li style="--d:1">}</li>
-<li style="--d:1"><span class="sc">Barrier</span>()</li>
+<li class="gap" style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
 <li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x}, \mathsf{threadIdx{.}y} \in [K, 32 - K)\) <b class="kw">and</b> \((\mathsf{row}, \mathsf{col})\) is interior {</li>
 <li style="--d:1">\(v_{\mathsf{row},\mathsf{col}}\) = the tile written in step \(K\), at \([\mathsf{threadIdx{.}y}][\mathsf{threadIdx{.}x}]\)</li>

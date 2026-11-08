@@ -133,11 +133,11 @@ is the list of keys whose bit is 1.
 <ol>
 <li><b class="kw">for</b> \(\mathsf{bitIndex} \in [0, B)\) { <span class="c">// 1 pass per bit, bit 0 first</span></li>
 <li style="--d:1">\(\mathsf{zeros}\) = empty list, \(\mathsf{ones}\) = empty list</li>
-<li style="--d:1"><b class="kw">for</b> \(i \in [0, n)\) {</li>
+<li class="gap" style="--d:1"><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:2"><b class="kw">if</b> bit \(\mathsf{bitIndex}\) of \(K_i\) is 0: append \(K_i\) to \(\mathsf{zeros}\)</li>
 <li style="--d:2"><b class="kw">else</b>: append \(K_i\) to \(\mathsf{ones}\)</li>
 <li style="--d:1">}</li>
-<li style="--d:1">\(K\) = \(\mathsf{zeros}\) followed by \(\mathsf{ones}\) <span class="c">// the split on bit \(\mathsf{bitIndex}\)</span></li>
+<li class="gap" style="--d:1">\(K\) = \(\mathsf{zeros}\) followed by \(\mathsf{ones}\) <span class="c">// the split on bit \(\mathsf{bitIndex}\)</span></li>
 <li>}</li>
 </ol>
 </div>
@@ -280,9 +280,9 @@ the exclusive scan \\(e_i\\), and line 3 reads \\(\mathsf{zeros}\\) as the last 
 <li><b class="kw">for</b> every \(i \in [0, n)\) in parallel: \(z_i = 1\) <b class="kw">if</b> bit \(\mathsf{bitIndex}\) of \(K_i\) is 0, <b class="kw">else</b> 0</li>
 <li>\(s\) = the inclusive scan of \(z\) <span class="c">// Scan of Section 21.7</span></li>
 <li>\(\mathsf{zeros} = s_{n-1}\) <span class="c">// the keys with bit 0</span></li>
-<li><b class="kw">for</b> every \(i \in [0, n)\) in parallel {</li>
+<li class="gap"><b class="kw">for</b> every \(i \in [0, n)\) in parallel {</li>
 <li style="--d:1">\(e_i = s_i - z_i\) <span class="c">// the exclusive scan</span></li>
-<li style="--d:1"><b class="kw">if</b> \(z_i = 1\): \(\mathsf{out}_{e_i} = K_i\)</li>
+<li class="gap" style="--d:1"><b class="kw">if</b> \(z_i = 1\): \(\mathsf{out}_{e_i} = K_i\)</li>
 <li style="--d:1"><b class="kw">else</b>: \(\mathsf{out}_{\mathsf{zeros} + i - e_i} = K_i\)</li>
 <li>}</li>
 </ol>
@@ -406,7 +406,7 @@ adds 1 to its bin.
 <p class="algo-name">Histogram(\(K, h, n, R\))</p>
 <ol>
 <li><b class="kw">for</b> \(\mathsf{bin} \in [0, R)\): \(h_{\mathsf{bin}} = 0\)</li>
-<li><b class="kw">for</b> \(i \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(i \in [0, n)\) {</li>
 <li style="--d:1">\(h_{K_i} = h_{K_i} + 1\) <span class="c">// a read, an addition and a write</span></li>
 <li>}</li>
 </ol>
@@ -494,11 +494,11 @@ shared memory.
 <ol>
 <li><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; R\): \(\mathsf{privateBins}[\mathsf{threadIdx{.}x}] = 0\) <span class="c">// \(\mathsf{privateBins}\) in shared memory</span></li>
 <li><span class="sc">Barrier</span>() <span class="c">// every private bin is 0</span></li>
-<li><b class="kw">for</b> \(i = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\); \(i &lt; n\); \(i = i + \mathsf{gridDim{.}x} \cdot \mathsf{blockDim{.}x}\) {</li>
+<li class="gap"><b class="kw">for</b> \(i = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\); \(i &lt; n\); \(i = i + \mathsf{gridDim{.}x} \cdot \mathsf{blockDim{.}x}\) {</li>
 <li style="--d:1"><span class="sc">Atomic-Add</span>(\(\mathsf{privateBins}[\mathsf{digit}(K_i)]\), 1)</li>
 <li>}</li>
-<li><span class="sc">Barrier</span>() <span class="c">// every key of the block is counted</span></li>
-<li><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; R\): <span class="sc">Atomic-Add</span>(\(h_{\mathsf{threadIdx{.}x}}\), \(\mathsf{privateBins}[\mathsf{threadIdx{.}x}]\)) <span class="c">// the merge</span></li>
+<li class="gap"><span class="sc">Barrier</span>() <span class="c">// every key of the block is counted</span></li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; R\): <span class="sc">Atomic-Add</span>(\(h_{\mathsf{threadIdx{.}x}}\), \(\mathsf{privateBins}[\mathsf{threadIdx{.}x}]\)) <span class="c">// the merge</span></li>
 </ol>
 </div>
 
@@ -616,7 +616,7 @@ Definition 22.1, and \\(\mathsf{start}[\mathsf{digit}]\\) is the next free outpu
 <ol>
 <li>\(h\) = the histogram of the digits \(\lfloor K_i / 2^s \rfloor \bmod 2^r\) over \(2^r\) bins</li>
 <li>\(\mathsf{start}\) = the exclusive scan of \(h\)</li>
-<li><b class="kw">for</b> \(i \in [0, n)\) { <span class="c">// in input order</span></li>
+<li class="gap"><b class="kw">for</b> \(i \in [0, n)\) { <span class="c">// in input order</span></li>
 <li style="--d:1">\(\mathsf{digit}\) = the digit of \(K_i\)</li>
 <li style="--d:1">\(\mathsf{out}_{start[\mathsf{digit}]} = K_i\)</li>
 <li style="--d:1">\(\mathsf{start}[\mathsf{digit}] = \mathsf{start}[\mathsf{digit}] + 1\) <span class="c">// the next key with digit \(\mathsf{digit}\)</span></li>
@@ -686,15 +686,15 @@ digit \\(\mathsf{digit}\\) in warp \\(\mathsf{warp}\\) in the current step.
 <p class="algo-name">Scatter-Digits(\(K, \mathsf{out}, c, s\))</p>
 <ol>
 <li><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; 16\): \(\mathsf{start}[\mathsf{threadIdx{.}x}] = s_{\mathsf{entry}} - c_{\mathsf{entry}}\) <span class="c">// the exclusive scan of the table</span></li>
-<li><b class="kw">for</b> \(\mathsf{step} \in [0, 4)\) { <span class="c">// 4 steps of 256 keys, in order</span></li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{step} \in [0, 4)\) { <span class="c">// 4 steps of 256 keys, in order</span></li>
 <li style="--d:1">set \(\mathsf{warpCounts}[\cdot][\cdot]\) to 0; <span class="sc">Barrier</span>()</li>
 <li style="--d:1">\(i = 1024 \cdot \mathsf{blockIdx{.}x} + 256 \cdot \mathsf{step} + \mathsf{threadIdx{.}x}\), \(\mathsf{digit}\) = the digit of \(K_i\)</li>
 <li style="--d:1">\(\mathsf{peers}\) = <span class="sc">Match</span>(\(\mathsf{digit}\)), \(\mathsf{rank}\) = <span class="sc">Popc</span>(\(\mathsf{peers} \wedge (2^{\mathsf{lane}} - 1)\))</li>
-<li style="--d:1"><b class="kw">if</b> \(\mathsf{rank} = 0\): \(\mathsf{warpCounts}[\mathsf{warp}][\mathsf{digit}]\) = <span class="sc">Popc</span>(\(\mathsf{peers}\)) <span class="c">// 1 lane per digit and warp</span></li>
+<li class="gap" style="--d:1"><b class="kw">if</b> \(\mathsf{rank} = 0\): \(\mathsf{warpCounts}[\mathsf{warp}][\mathsf{digit}]\) = <span class="sc">Popc</span>(\(\mathsf{peers}\)) <span class="c">// 1 lane per digit and warp</span></li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li style="--d:1">\(\mathsf{out}[\mathsf{start}[\mathsf{digit}] + \sum_{\mathsf{other} &lt; \mathsf{warp}} \mathsf{warpCounts}[\mathsf{other}][\mathsf{digit}] + \mathsf{rank}] = K_i\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; 16\): \(\mathsf{start}[\mathsf{threadIdx{.}x}] \mathrel{+}= \sum_{\mathsf{warp}=0}^{7} \mathsf{warpCounts}[\mathsf{warp}][\mathsf{threadIdx{.}x}]\)</li>
+<li class="gap" style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; 16\): \(\mathsf{start}[\mathsf{threadIdx{.}x}] \mathrel{+}= \sum_{\mathsf{warp}=0}^{7} \mathsf{warpCounts}[\mathsf{warp}][\mathsf{threadIdx{.}x}]\)</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
 </ol>
