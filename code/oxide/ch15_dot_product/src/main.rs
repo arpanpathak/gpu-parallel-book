@@ -111,26 +111,26 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn dot_tree(a: &[f32], b: &[f32], mut partial: DisjointSlice<f32>) {
         static mut CELLS: SharedArray<f32, 256> = SharedArray::UNINIT;
-        let thread_index = thread::threadIdx_x() as usize;
+        let thread_idx = thread::threadIdx_x() as usize;
 
         // SAFETY: each thread writes only its own cell, before the barrier.
-        unsafe { CELLS[thread_index] = products(a, b) };
+        unsafe { CELLS[thread_idx] = products(a, b) };
         thread::sync_threads();
 
         let mut step: usize = 0;
         #[unroll]
         while step < 8 {
             let stride: usize = 128 >> step;
-            if thread_index < stride {
+            if thread_idx < stride {
                 // SAFETY: in this step, this thread alone writes its cell and reads cell
-                // thread_index + stride, which no thread writes in this step.
-                unsafe { CELLS[thread_index] += CELLS[thread_index + stride] };
+                // thread_idx + stride, which no thread writes in this step.
+                unsafe { CELLS[thread_idx] += CELLS[thread_idx + stride] };
             }
             thread::sync_threads();
             step += 1;
         }
 
-        if thread_index == 0 {
+        if thread_idx == 0 {
             // SAFETY: only thread 0 of each block writes, at its own block number.
             unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = CELLS[0] };
         }

@@ -6,8 +6,8 @@ paper, with the drawing helpers of draw_ch14.py.
 The measured rates in the last figure are those quoted in the chapter (Jetson Orin NX,
 code/oxide/ch15_dot_product and code/cuda/ch15_dot_product).
 """
-from draw_ch14 import (EDGE, GREEN, GREY, HI, INK, PAL, RED, THREADS, T, arrow, bars, brace,
-                       cell, curve, line, rect, save)
+from draw_ch14 import (EDGE, GREEN, GREY, HI, INK, PAL, RED, THREADS, T, arrow, bars, barrier, brace,
+                       cell, curve, icon_tile, line, rect, save)
 
 A = [1, 2, 3, 1, 5, 1, 2, 3, 3, 1, 2, 3, 1, 3, 2, 1]
 B = [2, 3, 1, 4, 1, 1, 4, 1, 1, 2, 2, 2, 1, 3, 1, 4]
@@ -112,20 +112,21 @@ def regroup():
                 width = 16 // n
                 left = (xs[k * width] + xs[k * width + width // 2 - 1]) / 2
                 right = (xs[k * width + width // 2] + xs[k * width + width - 1]) / 2
-                d = f"M{left:.1f},{y - 30 + ch} V{y - 9} H{right:.1f} V{y - 30 + ch}"
-                parts.append(f'  <path d="{d}" fill="none" stroke="{GREY}" stroke-width="1.1"/>')
-                parts.append(line(cx, y - 9, cx, y, GREY, 1.1))
+                d = f"M{left:.1f},{y - 38 + ch} V{y - 18} H{right:.1f} V{y - 38 + ch}"
+                pair_col = BLOCK_COL[0] if (k * (16 // n)) < 8 else BLOCK_COL[1]
+                accent = PAL["hi" if depth == 4 else pair_col][1]
+                parts.append(f'  <path d="{d}" fill="none" stroke="{accent}" stroke-width="1.8"/>')
+                parts.append(arrow(cx, y - 10, cx, y - 1, "hi" if depth == 4 else pair_col, 1.8))
+                parts.append(plus_badge(cx, y - 18, "hi" if depth == 4 else pair_col))
         ys.append(y)
         if depth < 4:
             level = [level[2 * k] + level[2 * k + 1] for k in range(n // 2)]
-        y += 54
+        y += 62
     labels = ["16 products", "step 1: 8 additions", "step 2: 4 additions",
               "step 3: 2 additions", "step 4: 1 addition"]
     for yy, lab in zip(ys[1:], labels[1:]):
         parts.append(T(506, yy + 16, lab, 10.5, GREY, "start"))
-    parts.append(T(x0, ys[-1] + ch + 30, "The same 15 additions as the chain, regrouped: 4 steps "
-                   "instead of 16.", 12, INK, "start"))
-    save("ch15-regroup.svg", w, ys[-1] + ch + 44,
+    save("ch15-regroup.svg", w, ys[-1] + ch + 18,
          "The 16 products regrouped in pairs. Step 1 makes 8, 7, 6, 11, 5, 10, 10, 6; step 2 "
          "makes 15, 17, 15, 16; step 3 makes 32 and 31; step 4 makes 63. 15 additions in 4 "
          "steps.", parts)
@@ -141,12 +142,12 @@ def plus_badge(x, y, col):
 
 
 def steps():
-    w = 660
+    w = 700
     cw, ch, pitch = 44, 32, 54
-    x0 = 170
+    x0 = 186
     gap = 104
     levels = tree_levels(P[:8])
-    parts = [T(20, 24, "Shared memory of block 0, cells 0 to 7", 13, INK, "start", 700)]
+    parts = [T(20, 24, "cells 0 to 7 in the shared memory of block 0", 11, GREY, "start")]
     for k in range(8):
         parts.append(T(x0 + k * pitch + cw / 2, 44, f"cell {k}", 10, GREY))
     labels = ["after line 9", "step with stride = 4", "step with stride = 2", "step with stride = 1"]
@@ -163,6 +164,7 @@ def steps():
                 col, faded = "grey", True
             parts.append(cell(x0 + k * pitch, y, cw, ch, v, col, 14, faded=faded,
                               outline=(depth == 3 and k == 0), weight=600))
+        parts.append(icon_tile(14, y + 3, "stack", THREADS[0] if depth else "grey"))
         parts.append(T(x0 - 18, y + 15, labels[depth], 12, INK, "end", 700))
         if actives[depth]:
             parts.append(T(x0 - 18, y + 30, actives[depth], 10.5, GREY, "end"))
@@ -172,8 +174,7 @@ def steps():
         ny = y + gap
         s = 4 >> depth
         bar_y = y + ch + 16
-        parts.append(line(x0 - 8, bar_y, x0 + 7 * pitch + cw + 8, bar_y, "#5C6B7E", 1.6, "6 4"))
-        parts.append(T(x0 + 7 * pitch + cw + 14, bar_y + 4, "barrier", 11, "#5C6B7E", "start", 600))
+        parts.append(barrier(x0 - 8, x0 + 7 * pitch + cw + 2, bar_y))
         for t in range(s):
             col = THREADS[t % 4]
             xt = x0 + t * pitch + cw / 2
@@ -191,7 +192,7 @@ def steps():
                    "32.", 11.5, GREY, "start"))
     save("ch15-steps.svg", w, y + 62,
          "The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. "
-         "In step with stride = 4, threads 0 to 3 each add 2 cells, its own cell and cell threadIndex + 4, into its own cell, "
+         "In step with stride = 4, threads 0 to 3 each add 2 cells, its own cell and cell threadIdx.x + 4, into its own cell, "
          "giving 2 + 5 = 7, 6 + 1 = 7, 3 + 8 = 11 and 4 + 3 = 7. In step with stride = 2, threads 0 and 1 "
          "give 7 + 11 = 18 and 7 + 7 = 14. In step with stride = 1, thread 0 gives 18 + 14 = 32. Two arrows "
          "lead into every new value, and a barrier separates the steps.", parts)
@@ -258,8 +259,8 @@ def shuffle():
     for off in (4, 2, 1):
         v = [v[k] + (v[k + off] if k + off < 8 else 0) for k in range(8)]
         levels.append(list(v))
-    parts = [T(20, 22, "The register value of lanes 0 to 7 (no shared memory, no barrier)", 12, INK,
-               "start", 700)]
+    parts = [T(20, 22, "the register value of lanes 0 to 7 (no shared memory, no barrier)", 11, GREY,
+               "start")]
     for k in range(8):
         parts.append(T(x0 + k * pitch + cw / 2, 40, f"lane {k}", 10.5, GREY))
     labels = ["start", "distance 4", "distance 2", "distance 1"]

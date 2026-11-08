@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 330" width="640" height="330" role="img" aria-label="Top: 1 element of SAXPY reads x[i] and y[i] and writes y[i], 4 bytes each, for 2 floating-point operations: 0.17 FLOP per byte. Middle: the ridge points, 23.5 FLOP per byte for the Jetson Orin NX and 29.7 for the Jetson AGX Thor, dwarf SAXPY&#x27;s 0.17. Bottom: for 16,777,216 elements on the Orin NX the memory traffic takes 1.97 ms and the arithmetic 0.014 ms.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 408" width="640" height="408" role="img" aria-label="Top: 1 element of SAXPY reads x[i] and y[i] and writes y[i], 4 bytes each, for 2 floating-point operations: 0.17 FLOP per byte. Middle: the ridge points, 23.5 FLOP per byte for the Jetson Orin NX and 29.7 for the Jetson AGX Thor, dwarf SAXPY&#x27;s 0.17. Bottom: for 16,777,216 elements on the Orin NX the memory traffic takes 1.97 ms and the arithmetic 0.014 ms.">
   <style>
     text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
@@ -15,7 +15,10 @@
     <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#C2185B"/></marker>
     <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
-  <rect width="640" height="330" rx="12" fill="#FFFFFF"/>
+  <rect width="640" height="408" rx="14" fill="#FBFAF6"/>
+  <text x="28.0" y="38.0" font-size="18" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">Why SAXPY waits for memory</text>
+  <text x="28.0" y="60.0" font-size="12.5" fill="#5D6B7A" text-anchor="start" font-weight="400" xml:space="preserve">0.17 FLOP per byte, far below the ridge point of any GPU.</text>
+  <g transform="translate(0,78)">
   <text x="20.0" y="26.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">1 element of SAXPY</text>
   <rect x="20.0" y="38.0" width="84.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="20.0" y="61.0" width="84.0" height="3" rx="1.5" fill="#3F51B5"/>
@@ -48,4 +51,5 @@
   <text x="140.0" y="308.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">33.6 MFLOP</text>
   <rect x="150.0" y="294.0" width="2.8" height="20.0" rx="4" fill="#E3E8FD" stroke="#3F51B5" stroke-width="1.1"/>
   <text x="158.8" y="308.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">0.014 ms</text>
+  </g>
 </svg>

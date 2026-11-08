@@ -125,12 +125,95 @@ def brace(x1, x2, y, label, size=11):
                       T(mid, y + 22, label, size, GREY)])
 
 
+# The title and one-line explanation printed inside each figure, as in the rest of the book.
+HEADS = {
+    "ch14-example.svg": ("SAXPY on 12 elements", "Each result is 2 times x plus y at the same position."),
+    "ch14-sequential.svg": ("The sequential loop", "One pass per element, one after another."),
+    "ch14-independence.svg": ("Which results depend on others",
+                              "SAXPY uses only its own column; a running sum needs the result before it."),
+    "ch14-grid.svg": ("A grid that covers 12 elements",
+                      "2 blocks of 8 threads; the last 4 threads have no element."),
+    "ch14-thread.svg": ("What one thread reads and writes", "2 reads, 1 write and 2 FLOP for element 9."),
+    "ch14-assign.svg": ("Two ways to give 12 elements to 4 threads",
+                        "Chunks spread each step over 40 bytes; a stride keeps it in 16."),
+    "ch14-twice.svg": ("A stride that is too small", "Two threads update element 2, and it ends at 8, not 6."),
+    "ch14-overrun.svg": ("Threads past the end of the array",
+                         "Without the guard, threads 12 to 15 write into other data."),
+    "ch14-intensity.svg": ("Why SAXPY waits for memory",
+                           "0.17 FLOP per byte, far below the ridge point of any GPU."),
+    "ch14-closure.svg": ("A closure passed to a kernel",
+                         "Each closure type gets its own kernel; its captured values ride along."),
+    "ch14-measured.svg": ("Measured SAXPY rates", "Every version reaches about 90% of the memory bandwidth."),
+    "ch14-blocks.svg": ("Blocks per SM in a grid-stride loop",
+                        "The rate follows the bytes in flight until the bandwidth caps it."),
+    "ch15-example.svg": ("The dot product on 16 pairs", "The 16 products add up to 63."),
+    "ch15-chain.svg": ("A running sum is a chain", "Each addition waits for the one before it: 16 steps."),
+    "ch15-regroup.svg": ("The same additions in pairs", "15 additions in 4 steps instead of 16."),
+    "ch15-steps.svg": ("A tree sum in shared memory",
+                       "Each step adds 2 cells into 1; a barrier separates the steps."),
+    "ch15-broken.svg": ("A tree sum without its barrier", "Thread 0 reads cell 2 too early: 24, not 32."),
+    "ch15-invariant.svg": ("What cell 0 holds before each step",
+                           "The products whose index leaves remainder 0 when divided by 2 × stride."),
+    "ch15-shuffle.svg": ("A warp sum with shuffles", "The same additions as the tree, in registers."),
+    "ch15-blocksum.svg": ("A block sum with shuffles", "5 shuffles per warp, 1 barrier, 5 shuffles in warp 0."),
+    "ch15-combine.svg": ("Two ways to combine block sums",
+                         "A second launch has a fixed order; atomic additions do not."),
+    "ch15-race.svg": ("A plain addition loses an update", "Both blocks read 0, and the later write wins."),
+    "ch15-order.svg": ("Float sums depend on the order", "The same 3 floats in 2 orders give 2 sums."),
+    "ch15-traffic.svg": ("Bytes moved per pair", "16 when the products are stored, 8 when they stay in registers."),
+    "ch15-measured.svg": ("Measured dot-product rates", "The fused kernels reach about 95% of the bandwidth."),
+}
+PAPER = "#FBFAF6"
+DANGER = "#CF4526"
+HEAD_ROOM = 78
+
+
 def save(name, w, h, alt, parts):
+    """Writes a figure in the book's house style: a paper card with a title and a one-line
+    explanation inside the figure, then the drawing."""
+    title, lede = HEADS[name]
     body = "\n".join(parts)
-    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" '
-           f'height="{h}" role="img" aria-label="{escape(alt)}">\n{STYLE}\n{defs()}\n'
-           f'  <rect width="{w}" height="{h}" rx="12" fill="#FFFFFF"/>\n{body}\n</svg>\n')
+    total = h + HEAD_ROOM
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {total}" width="{w}" '
+           f'height="{total}" role="img" aria-label="{escape(alt)}">\n{STYLE}\n{defs()}\n'
+           f'  <rect width="{w}" height="{total}" rx="14" fill="{PAPER}"/>\n'
+           f'{T(28, 38, title, 18, INK, "start", 700)}\n'
+           f'{T(28, 60, lede, 12.5, "#5D6B7A", "start")}\n'
+           f'  <g transform="translate(0,{HEAD_ROOM})">\n{body}\n  </g>\n</svg>\n')
     (OUT / name).write_text(svg)
+
+
+def barrier(x1, x2, y):
+    """A barrier across the threads of a block: a red dashed line with a label."""
+    return "\n".join([
+        line(x1, y, x2, y, DANGER, 1.6, "6 4"),
+        f'  <rect x="{x2 + 6:.1f}" y="{y - 10:.1f}" width="62" height="20" rx="10" '
+        f'fill="#FCEBE6"/>',
+        T(x2 + 37, y + 4, "barrier", 11, DANGER, weight=700)])
+
+
+def pill(x, y, label, size=11):
+    """A dark capsule label with white capital letters, as in the rest of the book."""
+    body = str(label).upper()
+    width = 8.2 * len(body) * size / 11 + 24
+    return "\n".join([
+        f'  <rect x="{x:.1f}" y="{y:.1f}" width="{width:.1f}" height="22" rx="11" fill="#1B2430"/>',
+        T(x + width / 2, y + 15, body, size, "#FFFFFF", weight=700)])
+
+
+GLYPH = {
+    "stack": "M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z",
+    "chip": "M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zm-1 5v10h10V7z",
+}
+
+
+def icon_tile(x, y, glyph, col="blue"):
+    """A rounded tile with an icon, like the cards of the rest of the book."""
+    fill, accent = PAL[col]
+    return "\n".join([
+        f'  <rect x="{x:.1f}" y="{y:.1f}" width="26" height="26" rx="7" fill="{fill}"/>',
+        f'  <path transform="translate({x + 4:.1f},{y + 4:.1f}) scale(0.75)" d="{GLYPH[glyph]}" '
+        f'fill="{accent}"/>'])
 
 
 def bars(x0, y0, rows, scale, unit, label_w=170, h=20, gap=10, peak=None, peak_label="",

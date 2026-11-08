@@ -232,8 +232,8 @@ A and chunk 1 to stream B, and operations of different streams may overlap:
 | 5 to 6 | idle | idle | chunk 1 |
 
 The run takes 6 ms. The kernel lane is busy for 4 of the 6 ms, and the two kernels run back to back,
-from 1 ms to 5 ms. The run is therefore made of three parts: the first copy in, 1 ms; the kernels, 2
-+ 2 = 4 ms; and the last copy out, 1 ms. The copies of the other chunk are hidden behind the
+from 1 ms to 5 ms. The run is therefore made of three parts: the first copy in, 1 ms; the kernels, 2 +
+2 = 4 ms; and the last copy out, 1 ms. The copies of the other chunk are hidden behind the
 kernels.
 
 <div class="key-observation">

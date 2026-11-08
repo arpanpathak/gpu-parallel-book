@@ -96,19 +96,18 @@ __global__ void sum(const float* input, float* partial, int n)
 __global__ void dotTree(const float* a, const float* b, float* partial, int n)
 {
     __shared__ float cells[BLOCK];
-    int threadIndex = threadIdx.x;
 
-    cells[threadIndex] = products(a, b, n);
+    cells[threadIdx.x] = products(a, b, n);
     __syncthreads();
 
     for (int stride = BLOCK / 2; stride > 0; stride /= 2) {
-        if (threadIndex < stride) {
-            cells[threadIndex] += cells[threadIndex + stride];
+        if (threadIdx.x < stride) {
+            cells[threadIdx.x] += cells[threadIdx.x + stride];
         }
         __syncthreads();
     }
 
-    if (threadIndex == 0) {
+    if (threadIdx.x == 0) {
         partial[blockIdx.x] = cells[0];
     }
 }
