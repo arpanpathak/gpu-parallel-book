@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 424" width="640" height="424" role="img" aria-label="Paired horizontal bars of the measured time of each stage for 1 image, Rust then C++: grayscale 0.200 ms and 0.183 ms; histogram 0.056 ms and 0.055 ms; table 0.007 ms and 0.007 ms; apply table 0.185 ms and 0.192 ms; blur rows 0.301 ms and 0.208 ms; blur columns 0.280 ms and 0.210 ms; sobel 0.350 ms and 0.225 ms.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,22 +27,16 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="424" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Time per stage</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1 image of 1,920 x 1,080 pixels on the Jetson Orin NX.</text>
-  <rect x="170" y="82" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="170" y="82" width="14" height="14" rx="4" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="191.0" y="93.5" class="note" text-anchor="start" xml:space="preserve">Rust</text>
-  <rect x="239.4" y="82" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="239.4" y="82" width="14" height="14" rx="4" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="260.4" y="93.5" class="note" text-anchor="start" xml:space="preserve">C++</text>
   <text x="150.0" y="132.0" class="name" text-anchor="end" xml:space="preserve">grayscale</text>
   <rect x="162.0" y="114.0" width="171.4" height="14.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>

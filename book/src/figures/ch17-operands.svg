@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 272" width="660" height="272" role="img" aria-label="The shared tiles of block (0, 0) in phase 0: tileA holds 1 2 and 5 6, tileB holds 1 0 and 0 1. Row 0 of tileA and column 1 of tileB are colored by the threads that wrote them: 1 by thread (0,0), 2 by thread (0,1), 0 by thread (0,1) and 1 by thread (1,1). Thread (0, 1) computes 1 times 0 plus 2 times 1 = 2. It copied 2 of its 4 operands; its neighbors copied the other 2.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,38 +27,32 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="272" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The operands of 1 thread</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Thread (0, 1) in phase 0 uses 4 values and copied only 2 of them.</text>
-  <rect x="40" y="96" width="260" height="150" rx="12" fill="#D9F1E7" stroke="#A9DCC6" stroke-width="1.2"/>
+  <rect x="40" y="96" width="260" height="150" rx="12" fill="#D0EDE1" stroke="none" stroke-width="1.2"/>
   <text x="170.0" y="236.0" text-anchor="middle" xml:space="preserve" style="font-size:11.5px;font-weight:700;fill:#1F7A5C">shared memory, phase 0</text>
   <text x="106.0" y="116.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;font-weight:700;fill:#1F7A5C">tileA</text>
   <text x="228.0" y="116.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;font-weight:700;fill:#1F7A5C">tileB</text>
-  <rect x="64.0" y="128.0" width="40.0" height="40.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.3"/>
+  <rect x="64.0" y="128.0" width="40.0" height="40.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.3"/>
   <text x="84.0" y="152.7" text-anchor="middle" style="font-size:13px;fill:#5B6BD6">1</text>
-  <rect x="186.0" y="128.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="186.0" y="128.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="206.0" y="152.7" text-anchor="middle" style="font-size:13px;fill:#1B2430">1</text>
-  <rect x="109.0" y="128.0" width="40.0" height="40.0" rx="5" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="109.0" y="128.0" width="40.0" height="40.0" rx="8" fill="#B6DED1" stroke="none" stroke-width="1.3"/>
   <text x="129.0" y="152.7" text-anchor="middle" style="font-size:13px;fill:#1F8A70">2</text>
-  <rect x="231.0" y="128.0" width="40.0" height="40.0" rx="5" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="231.0" y="128.0" width="40.0" height="40.0" rx="8" fill="#B6DED1" stroke="none" stroke-width="1.3"/>
   <text x="251.0" y="152.7" text-anchor="middle" style="font-size:13px;fill:#1F8A70">0</text>
-  <rect x="64.0" y="173.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="64.0" y="173.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="84.0" y="197.7" text-anchor="middle" style="font-size:13px;fill:#1B2430">5</text>
-  <rect x="186.0" y="173.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="186.0" y="173.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="206.0" y="197.7" text-anchor="middle" style="font-size:13px;fill:#1B2430">0</text>
-  <rect x="109.0" y="173.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="109.0" y="173.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="129.0" y="197.7" text-anchor="middle" style="font-size:13px;fill:#1B2430">6</text>
-  <rect x="231.0" y="173.0" width="40.0" height="40.0" rx="5" fill="#F9DCE6" stroke="#C2457A" stroke-width="1.3"/>
+  <rect x="231.0" y="173.0" width="40.0" height="40.0" rx="8" fill="#EFC1D3" stroke="none" stroke-width="1.3"/>
   <text x="251.0" y="197.7" text-anchor="middle" style="font-size:13px;fill:#C2457A">1</text>
   <text x="322.0" y="140.0" text-anchor="start" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread (0, 1): row 0 of tileA · column 1 of tileB</text>
   <text x="322.0" y="172.0" text-anchor="start" xml:space="preserve" style="font-size:17px;font-weight:700;fill:#2F6FDB">1·0 + 2·1 = 2</text>

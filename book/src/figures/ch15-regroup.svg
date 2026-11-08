@@ -1,174 +1,175 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 388" width="640" height="388" role="img" aria-label="The 16 products regrouped in pairs. Step 1 makes 8, 7, 6, 11, 5, 10, 10, 6; step 2 makes 15, 17, 15, 16; step 3 makes 32 and 31; step 4 makes 63. 15 additions in 4 steps.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#8E99A8"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#00897B"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#E65100"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2185B"/></marker>
+    <marker id="m-hi" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2185B"/></marker>
     <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="388" rx="14" fill="#FBFAF6"/>
   <text x="28.0" y="38.0" font-size="18" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">The same additions in pairs</text>
   <text x="28.0" y="60.0" font-size="12.5" fill="#5D6B7A" text-anchor="start" font-weight="400" xml:space="preserve">15 additions in 4 steps instead of 16.</text>
   <g transform="translate(0,78)">
-  <rect x="21.7" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="21.7" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="21.7" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="34.7" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
-  <rect x="51.1" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="51.1" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="51.1" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="64.1" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
-  <rect x="80.4" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="80.4" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="80.4" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="93.4" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
-  <rect x="109.8" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="109.8" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="109.8" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="122.8" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
-  <rect x="139.2" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="139.2" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="139.2" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="152.2" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
-  <rect x="168.6" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="168.6" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="168.6" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="181.6" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
-  <rect x="197.9" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="197.9" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="197.9" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="210.9" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
-  <rect x="227.3" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="227.3" y="20.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="227.3" y="41.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="240.3" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
-  <rect x="256.7" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="256.7" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="256.7" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="269.7" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
-  <rect x="286.1" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="286.1" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="286.1" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="299.1" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
-  <rect x="315.4" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="315.4" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="315.4" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="328.4" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
-  <rect x="344.8" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="344.8" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="344.8" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="357.8" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
-  <rect x="374.2" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="374.2" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="374.2" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="387.2" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
-  <rect x="403.6" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="403.6" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="403.6" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="416.6" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">9</text>
-  <rect x="432.9" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="432.9" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="432.9" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="445.9" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
-  <rect x="462.3" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="462.3" y="20.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="462.3" y="41.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="475.3" y="36.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
-  <rect x="36.4" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="36.4" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="36.4" y="103.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="49.4" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
   <path d="M34.7,68 V64 H64.1 V68" fill="none" stroke="#3F51B5" stroke-width="1.8"/>
-  <line x1="49.4" y1="72.0" x2="49.4" y2="81.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <line x1="49.4" y1="72.0" x2="49.4" y2="75.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
   <circle cx="49.4" cy="64.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="49.4" y="68.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="95.1" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="95.1" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="95.1" y="103.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="108.1" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
   <path d="M93.4,68 V64 H122.8 V68" fill="none" stroke="#3F51B5" stroke-width="1.8"/>
-  <line x1="108.1" y1="72.0" x2="108.1" y2="81.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <line x1="108.1" y1="72.0" x2="108.1" y2="75.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
   <circle cx="108.1" cy="64.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="108.1" y="68.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="153.9" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="153.9" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="153.9" y="103.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="166.9" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
   <path d="M152.2,68 V64 H181.6 V68" fill="none" stroke="#3F51B5" stroke-width="1.8"/>
-  <line x1="166.9" y1="72.0" x2="166.9" y2="81.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <line x1="166.9" y1="72.0" x2="166.9" y2="75.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
   <circle cx="166.9" cy="64.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="166.9" y="68.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="212.6" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="212.6" y="82.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="212.6" y="103.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="225.6" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
   <path d="M210.9,68 V64 H240.3 V68" fill="none" stroke="#3F51B5" stroke-width="1.8"/>
-  <line x1="225.6" y1="72.0" x2="225.6" y2="81.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <line x1="225.6" y1="72.0" x2="225.6" y2="75.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
   <circle cx="225.6" cy="64.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="225.6" y="68.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="271.4" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="271.4" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="271.4" y="103.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="284.4" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
   <path d="M269.7,68 V64 H299.1 V68" fill="none" stroke="#00897B" stroke-width="1.8"/>
-  <line x1="284.4" y1="72.0" x2="284.4" y2="81.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
+  <line x1="284.4" y1="72.0" x2="284.4" y2="75.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
   <circle cx="284.4" cy="64.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="284.4" y="68.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="330.1" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="330.1" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="330.1" y="103.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="343.1" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">10</text>
   <path d="M328.4,68 V64 H357.8 V68" fill="none" stroke="#00897B" stroke-width="1.8"/>
-  <line x1="343.1" y1="72.0" x2="343.1" y2="81.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
+  <line x1="343.1" y1="72.0" x2="343.1" y2="75.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
   <circle cx="343.1" cy="64.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="343.1" y="68.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="388.9" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="388.9" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="388.9" y="103.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="401.9" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">10</text>
   <path d="M387.2,68 V64 H416.6 V68" fill="none" stroke="#00897B" stroke-width="1.8"/>
-  <line x1="401.9" y1="72.0" x2="401.9" y2="81.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
+  <line x1="401.9" y1="72.0" x2="401.9" y2="75.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
   <circle cx="401.9" cy="64.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="401.9" y="68.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="447.6" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="447.6" y="82.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="447.6" y="103.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="460.6" y="98.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
   <path d="M445.9,68 V64 H475.3 V68" fill="none" stroke="#00897B" stroke-width="1.8"/>
-  <line x1="460.6" y1="72.0" x2="460.6" y2="81.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
+  <line x1="460.6" y1="72.0" x2="460.6" y2="75.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
   <circle cx="460.6" cy="64.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="460.6" y="68.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="65.8" y="144.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="65.8" y="144.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="65.8" y="165.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="78.8" y="160.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">15</text>
   <path d="M49.4,130 V126 H108.1 V130" fill="none" stroke="#3F51B5" stroke-width="1.8"/>
-  <line x1="78.8" y1="134.0" x2="78.8" y2="143.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <line x1="78.8" y1="134.0" x2="78.8" y2="137.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
   <circle cx="78.8" cy="126.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="78.8" y="130.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="183.2" y="144.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="183.2" y="144.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="183.2" y="165.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="196.2" y="160.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">17</text>
   <path d="M166.9,130 V126 H225.6 V130" fill="none" stroke="#3F51B5" stroke-width="1.8"/>
-  <line x1="196.2" y1="134.0" x2="196.2" y2="143.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <line x1="196.2" y1="134.0" x2="196.2" y2="137.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
   <circle cx="196.2" cy="126.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="196.2" y="130.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="300.8" y="144.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="300.8" y="144.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="300.8" y="165.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="313.8" y="160.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">15</text>
   <path d="M284.4,130 V126 H343.1 V130" fill="none" stroke="#00897B" stroke-width="1.8"/>
-  <line x1="313.8" y1="134.0" x2="313.8" y2="143.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
+  <line x1="313.8" y1="134.0" x2="313.8" y2="137.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
   <circle cx="313.8" cy="126.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="313.8" y="130.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="418.2" y="144.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="418.2" y="144.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="418.2" y="165.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="431.2" y="160.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">16</text>
   <path d="M401.9,130 V126 H460.6 V130" fill="none" stroke="#00897B" stroke-width="1.8"/>
-  <line x1="431.2" y1="134.0" x2="431.2" y2="143.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
+  <line x1="431.2" y1="134.0" x2="431.2" y2="137.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
   <circle cx="431.2" cy="126.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="431.2" y="130.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="124.5" y="206.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="124.5" y="206.0" width="26.0" height="24.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="124.5" y="227.0" width="26.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="137.5" y="222.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">32</text>
   <path d="M78.8,192 V188 H196.2 V192" fill="none" stroke="#3F51B5" stroke-width="1.8"/>
-  <line x1="137.5" y1="196.0" x2="137.5" y2="205.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <line x1="137.5" y1="196.0" x2="137.5" y2="199.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-blue)"/>
   <circle cx="137.5" cy="188.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="137.5" y="192.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="359.5" y="206.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="359.5" y="206.0" width="26.0" height="24.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="359.5" y="227.0" width="26.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="372.5" y="222.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">31</text>
   <path d="M313.8,192 V188 H431.2 V192" fill="none" stroke="#00897B" stroke-width="1.8"/>
-  <line x1="372.5" y1="196.0" x2="372.5" y2="205.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
+  <line x1="372.5" y1="196.0" x2="372.5" y2="199.0" stroke="#00897B" stroke-width="1.8" marker-end="url(#m-mint)"/>
   <circle cx="372.5" cy="188.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="372.5" y="192.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="242.0" y="268.0" width="26.0" height="24.0" rx="8" fill="#3F51B5" stroke="#3F51B5" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="242.0" y="268.0" width="26.0" height="24.0" rx="8" fill="#3F51B5" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <text x="255.0" y="284.1" font-size="11.5" fill="#FFFFFF" text-anchor="middle" font-weight="700" xml:space="preserve">63</text>
   <path d="M137.5,254 V250 H372.5 V254" fill="none" stroke="#283593" stroke-width="1.8"/>
-  <line x1="255.0" y1="258.0" x2="255.0" y2="267.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-hi)"/>
+  <line x1="255.0" y1="258.0" x2="255.0" y2="261.0" stroke="#3F51B5" stroke-width="1.8" marker-end="url(#m-hi)"/>
   <circle cx="255.0" cy="250.0" r="8" fill="#FFFFFF" stroke="#283593" stroke-width="1.6" filter="url(#elev)"/>
   <text x="255.0" y="254.2" font-size="12" fill="#283593" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
   <text x="506.0" y="98.0" font-size="10.5" fill="#8E99A8" text-anchor="start" font-weight="400" xml:space="preserve">step 1: 8 additions</text>

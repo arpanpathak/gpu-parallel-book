@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 670 356" width="670" height="356" role="img" aria-label="The sequential scan of the 8 values. Each x[i] flows down into y[i], and a red arrow carries y[i - 1] into y[i]. The outputs 3, 4, 11, 11, 15, 16, 22, 25 are produced 1 after the other in 7 steps.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="670" height="356" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The dependence chain of the sequential scan</text>
@@ -49,38 +44,38 @@
   <text x="540.0" y="100.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
   <text x="608.0" y="100.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
   <text x="96.0" y="131.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">x</text>
-  <rect x="110.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="110.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="132.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
-  <rect x="178.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="178.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
-  <rect x="246.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="246.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="268.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">7</text>
-  <rect x="314.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="314.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="336.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
-  <rect x="382.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="382.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="404.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
-  <rect x="450.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="450.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="472.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
-  <rect x="518.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="518.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="540.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">6</text>
-  <rect x="586.0" y="112.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="586.0" y="112.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="608.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
   <text x="96.0" y="225.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">y</text>
-  <rect x="110.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="110.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="132.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">3</text>
-  <rect x="178.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="178.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">4</text>
-  <rect x="246.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="246.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="268.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">11</text>
-  <rect x="314.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="314.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="336.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">11</text>
-  <rect x="382.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="382.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="404.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">15</text>
-  <rect x="450.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="450.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="472.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16</text>
-  <rect x="518.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="518.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="540.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">22</text>
-  <rect x="586.0" y="206.0" width="44.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="586.0" y="206.0" width="44.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="608.0" y="225.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">25</text>
   <path d="M132.0,142.0 V203.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
   <path d="M200.0,142.0 V203.0" fill="none" stroke="#3F5873" stroke-width="1.4" marker-end="url(#head)"/>
@@ -104,7 +99,7 @@
   <text x="540.0" y="268.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">step 6</text>
   <path d="M565.0,221.0 H583.0" fill="none" stroke="#CF4526" stroke-width="1.4" marker-end="url(#m-danger)"/>
   <text x="608.0" y="268.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">step 7</text>
-  <defs><marker id="m-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/></marker></defs>
+  <defs><marker id="m-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker></defs>
   <text x="32.0" y="310.0" class="note" text-anchor="start" xml:space="preserve">y[i] = y[i - 1] + x[i]: every addition (red) needs the result of the one before,</text>
   <text x="32.0" y="328.0" class="note" text-anchor="start" xml:space="preserve">so the 7 additions form a chain of 7 steps, whatever the number of processors.</text>
 </svg>

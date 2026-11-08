@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 414" width="660" height="414" role="img" aria-label="Bars of bytes moved per input value when half the values are kept. 3 passes: flags 8 bytes, scan 16 bytes, scatter 14 bytes, total 38 bytes. Warp votes: count 4 bytes, write 6 bytes, total 10 bytes. The minimum, reading the input and writing the kept half, is 6 bytes.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,37 +27,31 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="414" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Bytes moved per value</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">3 passes move 38 bytes per value, warp votes 10, the minimum is 6.</text>
   <text x="116.0" y="132.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">3 passes</text>
-  <rect x="130.0" y="112.0" width="88.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="130.0" y="112.0" width="88.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="174.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">8 B</text>
-  <rect x="218.0" y="112.0" width="176.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="218.0" y="112.0" width="176.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="306.0" y="131.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16 B</text>
-  <rect x="394.0" y="112.0" width="154.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="394.0" y="112.0" width="154.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="471.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">14 B</text>
   <text x="558.0" y="132.0" class="mono" text-anchor="start" xml:space="preserve">= 38 B</text>
   <text x="130.0" y="160.0" text-anchor="start" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">flags 8 B + scan 16 B + scatter 14 B</text>
   <text x="116.0" y="212.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">warp votes</text>
-  <rect x="130.0" y="192.0" width="44.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="130.0" y="192.0" width="44.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="152.0" y="211.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4 B</text>
-  <rect x="174.0" y="192.0" width="66.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="174.0" y="192.0" width="66.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="207.0" y="211.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">6 B</text>
   <text x="250.0" y="212.0" class="mono" text-anchor="start" xml:space="preserve">= 10 B</text>
   <text x="130.0" y="240.0" text-anchor="start" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">count 4 B + write 6 B</text>
   <text x="116.0" y="292.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">minimum</text>
-  <rect x="130.0" y="272.0" width="66.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="130.0" y="272.0" width="66.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="163.0" y="291.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6 B</text>
   <text x="206.0" y="292.0" class="mono" text-anchor="start" xml:space="preserve">= 6 B</text>
   <text x="130.0" y="320.0" text-anchor="start" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">read + write kept 6 B</text>

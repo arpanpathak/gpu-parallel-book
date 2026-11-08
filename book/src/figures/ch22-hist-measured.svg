@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 446" width="700" height="446" role="img" aria-label="Measured histogram times. random keys: global 3.23 ms, shared 1.02 ms, aggregated 1.91 ms; all 7 keys: global 15.15 ms, shared 1.01 ms, aggregated 1.31 ms.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,38 +27,32 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="700" height="446" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Measured histograms</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Jetson Orin NX, C++ program.</text>
   <text x="32.0" y="100.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">keys: random</text>
   <text x="196.0" y="132.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">global bins</text>
-  <rect x="206.0" y="114.0" width="77.5" height="26.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="206.0" y="114.0" width="77.5" height="26.0" rx="8" fill="#F4CDC3" stroke="none" stroke-width="1.3"/>
   <text x="289.5" y="132.0" class="mono" text-anchor="start" xml:space="preserve">3.23 ms</text>
   <text x="196.0" y="170.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">shared bins</text>
-  <rect x="206.0" y="152.0" width="24.5" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="206.0" y="152.0" width="24.5" height="26.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="236.5" y="170.0" class="mono" text-anchor="start" xml:space="preserve">1.02 ms</text>
   <text x="196.0" y="208.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">shared, aggregated</text>
-  <rect x="206.0" y="190.0" width="45.8" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="206.0" y="190.0" width="45.8" height="26.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="257.8" y="208.0" class="mono" text-anchor="start" xml:space="preserve">1.91 ms</text>
   <text x="32.0" y="250.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">keys: all 7</text>
   <text x="196.0" y="282.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">global bins</text>
-  <rect x="206.0" y="264.0" width="363.6" height="26.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="206.0" y="264.0" width="363.6" height="26.0" rx="8" fill="#F4CDC3" stroke="none" stroke-width="1.3"/>
   <text x="575.6" y="282.0" class="mono" text-anchor="start" xml:space="preserve">15.15 ms</text>
   <text x="196.0" y="320.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">shared bins</text>
-  <rect x="206.0" y="302.0" width="24.2" height="26.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="206.0" y="302.0" width="24.2" height="26.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="236.2" y="320.0" class="mono" text-anchor="start" xml:space="preserve">1.01 ms</text>
   <text x="196.0" y="358.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">shared, aggregated</text>
-  <rect x="206.0" y="340.0" width="31.4" height="26.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="206.0" y="340.0" width="31.4" height="26.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="243.4" y="358.0" class="mono" text-anchor="start" xml:space="preserve">1.31 ms</text>
   <text x="32.0" y="404.0" class="note" text-anchor="start" xml:space="preserve">Histogram of the low 4 bits of 16,777,216 keys, 16 bins, average of 20 runs. With all</text>
   <text x="32.0" y="422.0" class="note" text-anchor="start" xml:space="preserve">keys equal, every global atomic targets 1 address.</text>

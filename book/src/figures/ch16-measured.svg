@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 474" width="660" height="474" role="img" aria-label="2 panels of horizontal bars for the direct kernel on the Orin NX. Top, the rate in GFLOP/s at n = 4,096: C++ f32 185.0, Rust f32 137.8, Rust f32 with the width fixed at compile time 194.0 (n = 1,024), and f64 35.2 at n = 2,048, against a dashed line for the FP32 peak of 2,400 and a short mark for the FP64 peak of 75. Bottom, the requested fetch rate in GB/s: C++ 739.8 and Rust 551.3, against a dashed line at 102 GB/s, the bandwidth of global memory. A note: at least 1 minus 102 / 740 = 86% of the C++ kernel&#x27;s fetches were answered by the caches.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,38 +27,29 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="474" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The direct kernel, measured</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Far below the arithmetic peak, far above the bandwidth of memory.</text>
   <defs>
-    <marker id="tip-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/></marker>
-    <marker id="tip-deep" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3B47B0"/></marker>
-    <marker id="tip-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker>
+    <marker id="tip-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="tip-deep" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3B47B0"/></marker>
+    <marker id="tip-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F8A70"/></marker>
   </defs>
   <text x="40.0" y="110.0" text-anchor="start" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">Rate, n = 4,096 (n = 1,024 for the fixed width), GFLOP/s</text>
-  <rect x="210.0" y="128.0" width="29.3" height="22.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.3"/>
+  <rect x="210.0" y="128.0" width="29.3" height="22.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="143.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">C++, f32</text>
   <text x="247.3" y="143.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#5B6BD6" xml:space="preserve">185.0</text>
-  <rect x="210.0" y="162.0" width="21.8" height="22.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="210.0" y="162.0" width="21.8" height="22.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="177.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">Rust, f32</text>
   <text x="239.8" y="177.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#1F8A70" xml:space="preserve">137.8</text>
-  <rect x="210.0" y="196.0" width="30.7" height="22.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="210.0" y="196.0" width="30.7" height="22.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="211.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">Rust, f32, fixed width</text>
   <text x="248.7" y="211.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#1F8A70" xml:space="preserve">194.0</text>
-  <rect x="210.0" y="230.0" width="5.6" height="22.0" rx="4" fill="#FBE3D2" stroke="#C8693A" stroke-width="1.3"/>
+  <rect x="210.0" y="230.0" width="5.6" height="22.0" rx="4" fill="#F2CDB7" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="245.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">f64, n = 2,048</text>
   <text x="229.9" y="245.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#C8693A" xml:space="preserve">35.2</text>
   <path d="M590.0,122 V262" stroke="#CF4526" stroke-width="1.5" stroke-dasharray="5 4"/>
@@ -65,10 +57,10 @@
   <path d="M221.9,224 V258" stroke="#C8693A" stroke-width="1.5" stroke-dasharray="3 3"/>
   <text x="227.9" y="272.0" text-anchor="start" font-size="11.5" style="fill:#C8693A" xml:space="preserve">FP64 peak 75</text>
   <text x="40.0" y="318.0" text-anchor="start" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">Requested fetch rate, n = 4,096, GB/s</text>
-  <rect x="210.0" y="336.0" width="351.4" height="22.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.3"/>
+  <rect x="210.0" y="336.0" width="351.4" height="22.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="351.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">C++, f32</text>
   <text x="569.4" y="351.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#5B6BD6" xml:space="preserve">739.8</text>
-  <rect x="210.0" y="370.0" width="261.9" height="22.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="210.0" y="370.0" width="261.9" height="22.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.3"/>
   <text x="200.0" y="385.0" text-anchor="end" font-size="12" style="fill:#1B2430" xml:space="preserve">Rust, f32</text>
   <text x="479.9" y="385.0" text-anchor="start" font-size="12" font-weight="650" style="fill:#1F8A70" xml:space="preserve">551.3</text>
   <path d="M258.4,330 V404" stroke="#CF4526" stroke-width="1.5" stroke-dasharray="5 4"/>

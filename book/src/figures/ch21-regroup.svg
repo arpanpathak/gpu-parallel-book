@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 470" width="660" height="470" role="img" aria-label="The sum y7 = 25 of the 8 values computed as a tree. Pairs give 4, 7, 5, 9 for the ranges 0..1, 2..3, 4..5, 6..7; halves give 11 for 0..3 and 14 for 4..7; the root gives 25 for 0..7. 3 levels of additions replace the chain of 7.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,54 +27,48 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="470" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Regrouping the sum</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Addition is associative, so the sums of 2 ranges combine into 1.</text>
-  <rect x="170.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="170.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
   <text x="194.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0</text>
-  <rect x="228.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="228.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
   <text x="252.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">1</text>
-  <rect x="286.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="286.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">7</text>
   <text x="310.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">2</text>
-  <rect x="344.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="344.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">0</text>
   <text x="368.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">3</text>
-  <rect x="402.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="402.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">4</text>
   <text x="426.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">4</text>
-  <rect x="460.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="460.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">1</text>
   <text x="484.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">5</text>
-  <rect x="518.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="518.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">6</text>
   <text x="542.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">6</text>
-  <rect x="576.0" y="100.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="576.0" y="100.0" width="48.0" height="30.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="119.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
   <text x="600.0" y="143.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">7</text>
   <text x="156.0" y="119.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">x</text>
-  <rect x="199.0" y="176.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="199.0" y="176.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="223.0" y="195.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">4</text>
   <text x="223.0" y="219.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0..1</text>
-  <rect x="315.0" y="176.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="315.0" y="176.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="339.0" y="195.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">7</text>
   <text x="339.0" y="219.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">2..3</text>
-  <rect x="431.0" y="176.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="431.0" y="176.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="455.0" y="195.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">5</text>
   <text x="455.0" y="219.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">4..5</text>
-  <rect x="547.0" y="176.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="547.0" y="176.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="571.0" y="195.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">9</text>
   <text x="571.0" y="219.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">6..7</text>
   <text x="156.0" y="195.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">pairs</text>
@@ -93,10 +88,10 @@
   <line x1="600.0" y1="148.0" x2="600.0" y2="162.0" stroke="#7A4FD0" stroke-width="1.4"/>
   <line x1="542.0" y1="162.0" x2="600.0" y2="162.0" stroke="#7A4FD0" stroke-width="1.4"/>
   <path d="M571.0,162.0 V173.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" marker-end="url(#m-outside)"/>
-  <rect x="257.0" y="252.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="257.0" y="252.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="281.0" y="271.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">11</text>
   <text x="281.0" y="295.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0..3</text>
-  <rect x="489.0" y="252.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="489.0" y="252.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="513.0" y="271.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">14</text>
   <text x="513.0" y="295.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">4..7</text>
   <text x="156.0" y="271.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">halves</text>
@@ -108,7 +103,7 @@
   <line x1="571.0" y1="224.0" x2="571.0" y2="238.0" stroke="#B7791F" stroke-width="1.4"/>
   <line x1="455.0" y1="238.0" x2="571.0" y2="238.0" stroke="#B7791F" stroke-width="1.4"/>
   <path d="M513.0,238.0 V249.0" fill="none" stroke="#B7791F" stroke-width="1.4" marker-end="url(#m-store)"/>
-  <rect x="373.0" y="328.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="373.0" y="328.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="397.0" y="347.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">25</text>
   <text x="397.0" y="371.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0..7</text>
   <text x="156.0" y="347.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">y7</text>

@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 466" width="640" height="466" role="img" aria-label="Horizontal bars of effective bandwidth on a 4096 by 4096 grid on the Orin NX, for C++ and Rust: copy, direct kernel, tiled with a loading loop, tiled with extra threads, and 4 steps per load. In C++: 76.6, 68.3, 43.4, 45.8 and 63.5 GB/s. In Rust: 75.0, 58.0, 34.6, 39.2 and 54.3 GB/s. The direct kernel is the fastest stencil kernel in both languages.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="466" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Effective bandwidth of the tiled kernels</text>
@@ -44,27 +39,27 @@
   <rect x="226.0" y="92" width="40.4" height="18" rx="9" fill="#F1F4F7"/>
   <text x="246.2" y="104.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">Rust</text>
   <text x="40.0" y="143.0" class="note" text-anchor="start" xml:space="preserve">copy kernel</text>
-  <rect x="180" y="122" width="291.1" height="20" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.4"/>
+  <rect filter="url(#m3-shadow)" x="180" y="122" width="291.1" height="20" rx="4" fill="#F1F4F7" stroke="none" stroke-width="1.4"/>
   <text x="186.0" y="136.0" class="mono" text-anchor="start" style="fill:#7F8EA0" xml:space="preserve">76.6 GB/s</text>
   <rect x="180" y="144" width="285.0" height="14" rx="4" fill="#FFFFFF" stroke="#7F8EA0" stroke-width="1.0" stroke-dasharray="4 3"/>
   <text x="186.0" y="155.0" class="note" text-anchor="start" style="fill:#7F8EA0" xml:space="preserve">75.0 GB/s</text>
   <text x="40.0" y="199.0" class="note" text-anchor="start" xml:space="preserve">direct</text>
-  <rect x="180" y="178" width="259.5" height="20" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.4"/>
+  <rect x="180" y="178" width="259.5" height="20" rx="4" fill="#C8DAF7" stroke="none" stroke-width="1.4"/>
   <text x="186.0" y="192.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">68.3 GB/s</text>
   <rect x="180" y="200" width="220.4" height="14" rx="4" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="1.0" stroke-dasharray="4 3"/>
   <text x="186.0" y="211.0" class="note" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">58.0 GB/s</text>
   <text x="40.0" y="255.0" class="note" text-anchor="start" xml:space="preserve">tiled, loading loop</text>
-  <rect x="180" y="234" width="164.9" height="20" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.4"/>
+  <rect x="180" y="234" width="164.9" height="20" rx="4" fill="#EFDBBA" stroke="none" stroke-width="1.4"/>
   <text x="186.0" y="248.0" class="mono" text-anchor="start" style="fill:#B7791F" xml:space="preserve">43.4 GB/s</text>
   <rect x="180" y="256" width="131.5" height="14" rx="4" fill="#FFFFFF" stroke="#B7791F" stroke-width="1.0" stroke-dasharray="4 3"/>
   <text x="186.0" y="267.0" class="note" text-anchor="start" style="fill:#B7791F" xml:space="preserve">34.6 GB/s</text>
   <text x="40.0" y="311.0" class="note" text-anchor="start" xml:space="preserve">tiled, extra threads</text>
-  <rect x="180" y="290" width="174.0" height="20" rx="4" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.4"/>
+  <rect x="180" y="290" width="174.0" height="20" rx="4" fill="#DBCEF3" stroke="none" stroke-width="1.4"/>
   <text x="186.0" y="304.0" class="mono" text-anchor="start" style="fill:#7A4FD0" xml:space="preserve">45.8 GB/s</text>
   <rect x="180" y="312" width="149.0" height="14" rx="4" fill="#FFFFFF" stroke="#7A4FD0" stroke-width="1.0" stroke-dasharray="4 3"/>
   <text x="186.0" y="323.0" class="note" text-anchor="start" style="fill:#7A4FD0" xml:space="preserve">39.2 GB/s</text>
   <text x="40.0" y="367.0" class="note" text-anchor="start" xml:space="preserve">4 steps per load</text>
-  <rect x="180" y="346" width="241.3" height="20" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.4"/>
+  <rect x="180" y="346" width="241.3" height="20" rx="4" fill="#C6E2CA" stroke="none" stroke-width="1.4"/>
   <text x="186.0" y="360.0" class="mono" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">63.5 GB/s</text>
   <rect x="180" y="368" width="206.3" height="14" rx="4" fill="#FFFFFF" stroke="#2E8B3D" stroke-width="1.0" stroke-dasharray="4 3"/>
   <text x="186.0" y="379.0" class="note" text-anchor="start" style="fill:#2E8B3D" xml:space="preserve">54.3 GB/s</text>
