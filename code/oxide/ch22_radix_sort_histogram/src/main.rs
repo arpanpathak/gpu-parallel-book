@@ -44,10 +44,10 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn hist_global(keys: &[u32], shift: u32, bins: &[DeviceAtomicU32]) {
         let stride = (thread::gridDim_x() * 256) as usize;
-        let mut i = thread::index_1d().get();
-        while i < keys.len() {
-            bins[digit_of(keys[i], shift)].fetch_add(1, AtomicOrdering::Relaxed);
-            i += stride;
+        let mut index = thread::index_1d().get();
+        while index < keys.len() {
+            bins[digit_of(keys[index], shift)].fetch_add(1, AtomicOrdering::Relaxed);
+            index += stride;
         }
     }
 
@@ -66,12 +66,12 @@ mod kernels {
         // SAFETY: between the 2 barriers every access to LOCAL is atomic.
         let local = unsafe { (*&raw mut LOCAL).as_mut_ptr() };
         let stride = (thread::gridDim_x() * 256) as usize;
-        let mut i = thread::index_1d().get();
-        while i < keys.len() {
-            let d = digit_of(keys[i], shift);
+        let mut index = thread::index_1d().get();
+        while index < keys.len() {
+            let digit = digit_of(keys[index], shift);
             // SAFETY: d < RADIX, and LOCAL holds RADIX bins.
-            unsafe { shared_bin(local, d) }.fetch_add(1, AtomicOrdering::Relaxed);
-            i += stride;
+            unsafe { shared_bin(local, digit) }.fetch_add(1, AtomicOrdering::Relaxed);
+            index += stride;
         }
         thread::sync_threads();
 
@@ -100,13 +100,14 @@ mod kernels {
         let stride = (thread::gridDim_x() * 256) as usize;
         let mut base = thread::blockIdx_x() as usize * 256;
         while base < keys.len() {
-            let i = base + tid;
-            let d = if i < keys.len() { digit_of(keys[i], shift) } else { RADIX };
-            let peers = warp::match_any_sync(u32::MAX, d as u32);
+            let index = base + tid;
+            let inside = index < keys.len();
+            let digit = if inside { digit_of(keys[index], shift) } else { RADIX };
+            let peers = warp::match_any_sync(u32::MAX, digit as u32);
             let leader = peers.trailing_zeros();
-            if lane == leader && d < RADIX {
+            if lane == leader && digit < RADIX {
                 // SAFETY: d < RADIX, and LOCAL holds RADIX bins.
-                let bin = unsafe { shared_bin(local, d) };
+                let bin = unsafe { shared_bin(local, digit) };
                 bin.fetch_add(peers.count_ones(), AtomicOrdering::Relaxed);
             }
             base += stride;
@@ -122,19 +123,19 @@ mod kernels {
 
     /// The inclusive scan of 1 value per lane across a warp.
     #[device]
-    fn warp_scan(mut v: u32) -> u32 {
+    fn warp_scan(mut value: u32) -> u32 {
         let lane = warp::lane_id();
         let mut step = 0u32;
         #[unroll]
         while step < 5 {
             let offset = 1 << step; // 1, 2, 4, 8, 16
-            let left = warp::shuffle_up_sync(u32::MAX, v, offset);
+            let left = warp::shuffle_up_sync(u32::MAX, value, offset);
             if lane >= offset {
-                v += left;
+                value += left;
             }
             step += 1;
         }
-        v
+        value
     }
 
     /// The scan of Chapter 21: 256 threads, 4 elements each, warp shuffles and 2 barriers.
@@ -150,49 +151,51 @@ mod kernels {
         let lane = warp::lane_id() as usize;
         let warp = thread::threadIdx_x() as usize / 32;
 
-        let mut a = [0u32; 4];
+        let mut prefix = [0u32; 4];
         let mut own = 0;
-        let mut k = 0;
+        let mut element = 0;
         #[unroll]
-        while k < 4 {
-            if first + k < x.len() {
-                own += x[first + k];
+        while element < 4 {
+            if first + element < x.len() {
+                own += x[first + element];
             }
-            a[k] = own;
-            k += 1;
+            prefix[element] = own;
+            element += 1;
         }
 
-        let v = warp_scan(own);
+        let warp_prefix = warp_scan(own);
         if lane == 31 {
             // SAFETY: lane 31 of each warp writes its own slot, before the barrier.
-            unsafe { WARPS[warp] = v };
+            unsafe { WARPS[warp] = warp_prefix };
         }
         thread::sync_threads();
 
         if warp == 0 {
             // SAFETY: only warp 0 touches the slots between the 2 barriers.
-            let w = warp_scan(if lane < 8 { unsafe { WARPS[lane] } } else { 0 });
+            let warp_total = if lane < 8 { unsafe { WARPS[lane] } } else { 0 };
+            let scanned_total = warp_scan(warp_total);
             if lane < 8 {
-                unsafe { WARPS[lane] = w };
+                unsafe { WARPS[lane] = scanned_total };
             }
         }
         thread::sync_threads();
 
         // SAFETY: after the second barrier the slots are only read.
-        let before = v - own + if warp > 0 { unsafe { WARPS[warp - 1] } } else { 0 };
-        let mut k = 0;
+        let earlier_warps = if warp > 0 { unsafe { WARPS[warp - 1] } } else { 0 };
+        let before = warp_prefix - own + earlier_warps;
+        let mut element = 0;
         #[unroll]
-        while k < 4 {
-            if first + k < y.len() {
+        while element < 4 {
+            if first + element < y.len() {
                 // SAFETY: thread t alone writes elements 4t to 4t + 3.
-                unsafe { *y.get_unchecked_mut(first + k) = before + a[k] };
+                unsafe { *y.get_unchecked_mut(first + element) = before + prefix[element] };
             }
-            k += 1;
+            element += 1;
         }
         if thread::threadIdx_x() == 255 {
             let block = thread::blockIdx_x() as usize;
             // SAFETY: only the last thread of each block writes, at its own block number.
-            unsafe { *sums.get_unchecked_mut(block) = before + a[3] };
+            unsafe { *sums.get_unchecked_mut(block) = before + prefix[3] };
         }
     }
 
@@ -205,15 +208,15 @@ mod kernels {
 
         if block > 0 {
             let offset = scanned[block - 1];
-            let mut k = 0;
+            let mut step = 0;
             #[unroll]
-            while k < 4 {
-                let g = block * TILE + k * 256 + tid;
-                if g < y.len() {
+            while step < 4 {
+                let index = block * TILE + step * 256 + tid;
+                if index < y.len() {
                     // SAFETY: element g is this thread's alone and lies below y.len().
-                    unsafe { *y.get_unchecked_mut(g) += offset };
+                    unsafe { *y.get_unchecked_mut(index) += offset };
                 }
-                k += 1;
+                step += 1;
             }
         }
     }
@@ -223,10 +226,10 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn zero_flags(keys: &[u32], bit: u32, mut flags: DisjointSlice<u32>) {
         let idx = thread::index_1d();
-        let i = idx.get();
+        let index = idx.get();
 
         if let Some(flag) = flags.get_mut(idx) {
-            *flag = 1 - ((keys[i] >> bit) & 1);
+            *flag = 1 - ((keys[index] >> bit) & 1);
         }
     }
 
@@ -239,20 +242,20 @@ mod kernels {
         scanned: &[u32],
         mut out: DisjointSlice<u32>,
     ) {
-        let i = thread::index_1d().get();
+        let index = thread::index_1d().get();
 
-        if i < keys.len() {
+        if index < keys.len() {
             let zeros = scanned[keys.len() - 1] as usize;
-            let upto = scanned[i] as usize; // zero-bit keys among 0 to i
-            let at = if flags[i] == 1 { upto - 1 } else { zeros + i - upto };
+            let upto = scanned[index] as usize; // zero-bit keys among 0 to i
+            let at = if flags[index] == 1 { upto - 1 } else { zeros + index - upto };
             // SAFETY: zero-bit keys receive 0 to zeros - 1 and one-bit keys zeros to
             // n - 1, each position once: a permutation of 0 to n - 1.
-            unsafe { *out.get_unchecked_mut(at) = keys[i] };
+            unsafe { *out.get_unchecked_mut(at) = keys[index] };
         }
     }
 
     /// The 4-bit pass, step 1: the digit histogram of every tile, stored digit by digit:
-    /// counts[d * tiles + b] is the number of keys with digit d in tile b.
+    /// counts[digit * tiles + tile] is the number of keys with that digit in that tile.
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn digit_counts(keys: &[u32], shift: u32, mut counts: DisjointSlice<u32>) {
@@ -267,16 +270,16 @@ mod kernels {
 
         // SAFETY: between the 2 barriers every access to LOCAL is atomic.
         let local = unsafe { (*&raw mut LOCAL).as_mut_ptr() };
-        let mut k = 0;
+        let mut step = 0;
         #[unroll]
-        while k < 4 {
-            let i = block * TILE + k * 256 + tid;
-            if i < keys.len() {
-                let d = digit_of(keys[i], shift);
+        while step < 4 {
+            let index = block * TILE + step * 256 + tid;
+            if index < keys.len() {
+                let digit = digit_of(keys[index], shift);
                 // SAFETY: d < RADIX, and LOCAL holds RADIX bins.
-                unsafe { shared_bin(local, d) }.fetch_add(1, AtomicOrdering::Relaxed);
+                unsafe { shared_bin(local, digit) }.fetch_add(1, AtomicOrdering::Relaxed);
             }
-            k += 1;
+            step += 1;
         }
         thread::sync_threads();
 
@@ -302,47 +305,47 @@ mod kernels {
         static mut START: SharedArray<u32, RADIX> = SharedArray::UNINIT;
         // The count of digit d in warp w, at slot w * RADIX + d.
         static mut WARP_COUNTS: SharedArray<u32, 128> = SharedArray::UNINIT;
-        let t = thread::threadIdx_x() as usize;
+        let thread_idx = thread::threadIdx_x() as usize;
         let block = thread::blockIdx_x() as usize;
         let lane = warp::lane_id();
-        let warp = t / 32;
+        let warp = thread_idx / 32;
         let below = (1u32 << lane) - 1;
 
-        if t < RADIX {
-            let j = t * thread::gridDim_x() as usize + block;
+        if thread_idx < RADIX {
+            let entry = thread_idx * thread::gridDim_x() as usize + block;
             // SAFETY: thread t alone writes START[t], before the first barrier.
-            unsafe { START[t] = scanned[j] - counts[j] };
+            unsafe { START[thread_idx] = scanned[entry] - counts[entry] };
         }
-        let mut k = 0;
+        let mut step = 0;
         #[unroll]
-        while k < 4 {
-            if t < 8 * RADIX {
+        while step < 4 {
+            if thread_idx < 8 * RADIX {
                 // SAFETY: thread t alone writes slot t, between 2 barriers.
-                unsafe { WARP_COUNTS[t] = 0 };
+                unsafe { WARP_COUNTS[thread_idx] = 0 };
             }
             thread::sync_threads();
 
-            let i = block * TILE + k * 256 + t;
-            let key = if i < keys.len() { keys[i] } else { 0 };
-            let d = if i < keys.len() { digit_of(key, shift) } else { RADIX };
-            let peers = warp::match_any_sync(u32::MAX, d as u32);
+            let index = block * TILE + step * 256 + thread_idx;
+            let key = if index < keys.len() { keys[index] } else { 0 };
+            let digit = if index < keys.len() { digit_of(key, shift) } else { RADIX };
+            let peers = warp::match_any_sync(u32::MAX, digit as u32);
             let rank = (peers & below).count_ones();
-            if rank == 0 && d < RADIX {
+            if rank == 0 && digit < RADIX {
                 // SAFETY: 1 lane per digit and warp writes slot warp * 16 + d.
-                unsafe { WARP_COUNTS[warp * RADIX + d] = peers.count_ones() };
+                unsafe { WARP_COUNTS[warp * RADIX + digit] = peers.count_ones() };
             }
             thread::sync_threads();
 
-            if d < RADIX {
+            if digit < RADIX {
                 let mut before = 0;
-                let mut w = 0;
-                while w < warp {
+                let mut other = 0;
+                while other < warp {
                     // SAFETY: between the 2 barriers the slots are only read.
-                    before += unsafe { WARP_COUNTS[w * RADIX + d] };
-                    w += 1;
+                    before += unsafe { WARP_COUNTS[other * RADIX + digit] };
+                    other += 1;
                 }
                 // SAFETY: START is only read between these barriers.
-                let at = (unsafe { START[d] } + before + rank) as usize;
+                let at = (unsafe { START[digit] } + before + rank) as usize;
                 // SAFETY: the keys of each digit receive distinct consecutive positions
                 // after the keys of the smaller digits and of the earlier tiles: the
                 // positions of all keys form a permutation of 0 to n - 1.
@@ -350,17 +353,17 @@ mod kernels {
             }
             thread::sync_threads();
 
-            if t < RADIX {
-                let mut w = 0;
+            if thread_idx < RADIX {
+                let mut other = 0;
                 #[unroll]
-                while w < 8 {
+                while other < 8 {
                     // SAFETY: thread t alone updates START[t]; the slots are only read.
-                    unsafe { START[t] += WARP_COUNTS[w * RADIX + t] };
-                    w += 1;
+                    unsafe { START[thread_idx] += WARP_COUNTS[other * RADIX + thread_idx] };
+                    other += 1;
                 }
             }
             thread::sync_threads();
-            k += 1;
+            step += 1;
         }
     }
 }
@@ -455,37 +458,42 @@ impl SortBuffers {
     }
 }
 
-/// 1 stable split on `bit`, from `keys` into `b.spare`.
+/// 1 stable split on `bit`, from `keys` into `buffers.spare`.
 fn split(
     module: &Module,
     stream: &Arc<CudaStream>,
     keys: &DeviceBuffer<u32>,
     bit: u32,
-    b: &mut SortBuffers,
+    buffers: &mut SortBuffers,
 ) -> Result<(), Error> {
     let every = LaunchConfig1D::new(keys.len().div_ceil(256) as u32, 256, 0);
-    module.zero_flags(stream, &module.prepare_zero_flags(every)?, keys, bit, &mut b.flags)?;
-    scan(module, stream, &b.flags, &mut b.scanned, &mut b.levels)?;
+    let flag = module.prepare_zero_flags(every)?;
+    module.zero_flags(stream, &flag, keys, bit, &mut buffers.flags)?;
+    scan(module, stream, &buffers.flags, &mut buffers.scanned, &mut buffers.levels)?;
+
     let scatter = module.prepare_split_scatter(every)?;
-    module.split_scatter(stream, &scatter, keys, &b.flags, &b.scanned, &mut b.spare)?;
+    let (flags, scanned, out) = (&buffers.flags, &buffers.scanned, &mut buffers.spare);
+    module.split_scatter(stream, &scatter, keys, flags, scanned, out)?;
     Ok(())
 }
 
-/// 1 pass on the 4-bit digit at `shift`, from `keys` into `b.spare`.
+/// 1 pass on the 4-bit digit at `shift`, from `keys` into `buffers.spare`.
 fn digit_pass(
     module: &Module,
     stream: &Arc<CudaStream>,
     keys: &DeviceBuffer<u32>,
     shift: u32,
-    b: &mut SortBuffers,
+    buffers: &mut SortBuffers,
 ) -> Result<(), Error> {
     let tiles = LaunchConfig1D::new(keys.len().div_ceil(TILE) as u32, 256, 0);
     let count = module.prepare_digit_counts(tiles)?;
-    module.digit_counts(stream, &count, keys, shift, &mut b.counts)?;
-    scan(module, stream, &b.counts, &mut b.positions, &mut b.count_levels)?;
+    module.digit_counts(stream, &count, keys, shift, &mut buffers.counts)?;
+    let levels = &mut buffers.count_levels;
+    scan(module, stream, &buffers.counts, &mut buffers.positions, levels)?;
     let scatter = module.prepare_scatter_digits(tiles)?;
-    let (counts, positions) = (&b.counts, &b.positions);
-    module.scatter_digits(stream, &scatter, keys, shift, counts, positions, &mut b.spare)?;
+    let (counts, positions) = (&buffers.counts, &buffers.positions);
+    let out = &mut buffers.spare;
+    module.scatter_digits(stream, &scatter, keys, shift, counts, positions, out)?;
     Ok(())
 }
 
@@ -494,11 +502,11 @@ fn sort_bits(
     module: &Module,
     stream: &Arc<CudaStream>,
     keys: &mut DeviceBuffer<u32>,
-    b: &mut SortBuffers,
+    buffers: &mut SortBuffers,
 ) -> Result<(), Error> {
     for bit in 0..32 {
-        split(module, stream, keys, bit, b)?;
-        std::mem::swap(keys, &mut b.spare);
+        split(module, stream, keys, bit, buffers)?;
+        std::mem::swap(keys, &mut buffers.spare);
     }
     Ok(())
 }
@@ -508,11 +516,11 @@ fn sort_digits(
     module: &Module,
     stream: &Arc<CudaStream>,
     keys: &mut DeviceBuffer<u32>,
-    b: &mut SortBuffers,
+    buffers: &mut SortBuffers,
 ) -> Result<(), Error> {
     for shift in (0..32).step_by(4) {
-        digit_pass(module, stream, keys, shift, b)?;
-        std::mem::swap(keys, &mut b.spare);
+        digit_pass(module, stream, keys, shift, buffers)?;
+        std::mem::swap(keys, &mut buffers.spare);
     }
     Ok(())
 }
@@ -526,13 +534,13 @@ fn print(name: &str, values: &[u32]) {
 fn small_example(module: &Module, stream: &Arc<CudaStream>) -> Result<bool, Error> {
     let host = [5u32, 2, 7, 2, 0, 6, 3, 5];
     let sorted = [0u32, 2, 2, 3, 5, 5, 6, 7];
-    let mut b = SortBuffers::new(stream, 8)?;
+    let mut buffers = SortBuffers::new(stream, 8)?;
     let mut keys = DeviceBuffer::from_host(stream, &host)?;
     println!("radix sort of 5 2 7 2 0 6 3 5");
 
     for bit in 0..3 {
-        split(module, stream, &keys, bit, &mut b)?;
-        std::mem::swap(&mut keys, &mut b.spare);
+        split(module, stream, &keys, bit, &mut buffers)?;
+        std::mem::swap(&mut keys, &mut buffers.spare);
         print(&format!("split bit {bit}"), &keys.to_host_vec(stream)?);
     }
     let by_splits = keys.to_host_vec(stream)?;
@@ -544,11 +552,11 @@ fn small_example(module: &Module, stream: &Arc<CudaStream>) -> Result<bool, Erro
     let hist = bins.cast_elem::<u32>().to_host_vec(stream)?[..8].to_vec();
     print("histogram", &hist);
 
-    digit_pass(module, stream, &keys, 0, &mut b)?;
-    let inclusive = b.positions.to_host_vec(stream)?;
+    digit_pass(module, stream, &keys, 0, &mut buffers)?;
+    let inclusive = buffers.positions.to_host_vec(stream)?;
     let starts: Vec<u32> = (0..8).map(|d| inclusive[d] - hist[d]).collect();
     print("digit starts", &starts);
-    let by_digits = b.spare.to_host_vec(stream)?;
+    let by_digits = buffers.spare.to_host_vec(stream)?;
     print("4-bit pass", &by_digits);
 
     Ok(by_splits == sorted && by_digits == sorted)
@@ -606,7 +614,7 @@ fn sorts(module: &Module, stream: &Arc<CudaStream>) -> Result<bool, Error> {
     let mut expected = host.clone();
     expected.sort_unstable();
 
-    let mut b = SortBuffers::new(stream, N)?;
+    let mut buffers = SortBuffers::new(stream, N)?;
     let mut ok = true;
     let mut best = [f64::MAX; 2];
     for (method, fastest) in best.iter_mut().enumerate() {
@@ -615,9 +623,9 @@ fn sorts(module: &Module, stream: &Arc<CudaStream>) -> Result<bool, Error> {
             stream.synchronize()?;
             let start = Instant::now();
             if method == 0 {
-                sort_bits(module, stream, &mut keys, &mut b)?;
+                sort_bits(module, stream, &mut keys, &mut buffers)?;
             } else {
-                sort_digits(module, stream, &mut keys, &mut b)?;
+                sort_digits(module, stream, &mut keys, &mut buffers)?;
             }
             stream.synchronize()?;
             let ms = start.elapsed().as_secs_f64() * 1e3;
@@ -639,12 +647,14 @@ fn sorts(module: &Module, stream: &Arc<CudaStream>) -> Result<bool, Error> {
     let count = module.prepare_digit_counts(tiles)?;
     let scatter = module.prepare_scatter_digits(tiles)?;
     let count_ms = time_ms(stream, || {
-        Ok(module.digit_counts(stream, &count, &keys, 0, &mut b.counts)?)
+        Ok(module.digit_counts(stream, &count, &keys, 0, &mut buffers.counts)?)
     })?;
     let scan_ms = time_ms(stream, || {
-        scan(module, stream, &b.counts, &mut b.positions, &mut b.count_levels)
+        let levels = &mut buffers.count_levels;
+        scan(module, stream, &buffers.counts, &mut buffers.positions, levels)
     })?;
-    let (counts, positions, out) = (&b.counts, &b.positions, &mut b.spare);
+    let (counts, positions) = (&buffers.counts, &buffers.positions);
+    let out = &mut buffers.spare;
     let scatter_ms = time_ms(stream, || {
         Ok(module.scatter_digits(stream, &scatter, &keys, 0, counts, positions, out)?)
     })?;

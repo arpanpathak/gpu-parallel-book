@@ -84,8 +84,8 @@ def ex_passes():
             kinds = ["client"] * 8
         parts += row(y, name, values, kinds, subs=bits(values))
     parts += [bar(X0, 418, 160, 24, "good", "next bit is 0"), bar(X0 + 176, 418, 160, 24, "store", "next bit is 1")]
-    parts += notes(470, ["Each pass is a stable split on the next bit. After the pass on bit b, the keys are in",
-                         "order of their bits 0 to b; after bit 2 they are sorted: 0, 2, 2, 3, 5, 5, 6, 7."])
+    parts += notes(470, ["Each pass is a stable split on the next bit. After the pass on a bit, the keys are in",
+                         "order of their bits up to that one; after bit 2 they are sorted: 0, 2, 2, 3, 5, 5, 6, 7."])
     save(OUT + "ch22-passes.svg", 660, 514,
          "Keys 5, 2, 7, 2, 0, 6, 3, 5. After a split on bit 0: 2, 2, 0, 6, 5, 7, 3, 5. After bit 1: 0, 5, 5, 2, 2, "
          "6, 7, 3. After bit 2: 0, 2, 2, 3, 5, 5, 6, 7, sorted. Binary digits are written under every key.",
