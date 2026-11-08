@@ -664,7 +664,7 @@ Orin NX.
 
 Listing 14.1 shows <span class="sc">Saxpy-Kernel</span> in both languages.
 
-<p class="listing"><b>Listing 14.1</b> SAXPY, 1 thread per element. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch14_map_saxpy/src/main.rs">Rust</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch14_map_saxpy/saxpy.cu">C++</a></p>
+<p class="listing"><b>Listing 14.1</b> SAXPY, 1 thread per element. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch14_map_saxpy/src/main.rs">Rust</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch14_map_saxpy/saxpy.cu">C++</a></p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -1004,7 +1004,7 @@ provide them at 8 bytes per thread?
 
 ## 14.9 The complete programs
 
-<p class="listing"><b>Listing 14.4</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch14_map_saxpy/src/main.rs">code/oxide/ch14_map_saxpy/src/main.rs</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch14_map_saxpy/saxpy.cu">code/cuda/ch14_map_saxpy/saxpy.cu</a></p>
+<p class="listing"><b>Listing 14.4</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch14_map_saxpy/src/main.rs">code/oxide/ch14_map_saxpy/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch14_map_saxpy/saxpy.cu">code/cuda/ch14_map_saxpy/saxpy.cu</a></p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">

@@ -756,7 +756,7 @@ fewer threads idle in the outer rings. Predict its thread-steps per cell for \\(
 
 ## 20.9 The complete programs
 
-<p class="listing"><b>Listing 20.3</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch20_stencil_tiled/src/main.rs">code/oxide/ch20_stencil_tiled/src/main.rs</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch20_stencil_tiled/stencil_tiled.cu">code/cuda/ch20_stencil_tiled/stencil_tiled.cu</a></p>
+<p class="listing"><b>Listing 20.3</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch20_stencil_tiled/src/main.rs">code/oxide/ch20_stencil_tiled/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch20_stencil_tiled/stencil_tiled.cu">code/cuda/ch20_stencil_tiled/stencil_tiled.cu</a></p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">

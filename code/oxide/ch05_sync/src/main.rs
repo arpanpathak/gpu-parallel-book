@@ -1,4 +1,5 @@
-//! Chapter 5 in Rust: an atomic counter, 2 histograms, and a float sum by atomics.
+//! Chapter 5 in Rust: an atomic counter, 2 histograms, a block sum with and without
+//! barriers, a branch on alternate lanes or warps, and a float sum by atomics.
 //!
 //!     cargo oxide run
 
@@ -7,7 +8,7 @@ use std::time::Instant;
 
 use cuda_core::{CudaContext, CudaStream, DeviceBuffer, DriverError, LaunchConfig1D};
 use cuda_device::atomic::{AtomicOrdering, BlockAtomicU32, DeviceAtomicF32, DeviceAtomicU32};
-use cuda_device::{SharedArray, cuda_module, kernel, launch_contract, thread};
+use cuda_device::{DisjointSlice, SharedArray, cuda_module, kernel, launch_contract, thread};
 
 #[cuda_module]
 mod kernels {
@@ -58,6 +59,67 @@ mod kernels {
         // SAFETY: after the barrier no thread writes LOCAL again.
         let local = unsafe { LOCAL[tid] };
         bins[tid].fetch_add(local, AtomicOrdering::Relaxed);
+    }
+
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn block_sum(input: &[f32], mut out: DisjointSlice<f32>, barrier: bool) {
+        static mut S: SharedArray<f32, 256> = SharedArray::UNINIT;
+        let tid = thread::threadIdx_x() as usize;
+        let block = thread::blockIdx_x() as usize;
+
+        // SAFETY: each thread writes only its own element.
+        unsafe { S[tid] = input[block * 256 + tid] };
+        if barrier {
+            thread::sync_threads();
+        }
+
+        let mut stride = 128;
+        while stride > 0 {
+            if tid < stride {
+                // SAFETY: true only with the barriers. Thread tid alone writes S[tid] here,
+                // and S[tid + stride] was written before the last barrier.
+                unsafe { S[tid] += S[tid + stride] };
+            }
+            if barrier {
+                thread::sync_threads();
+            }
+            stride /= 2;
+        }
+
+        if tid == 0 {
+            // SAFETY: only thread 0 of each block writes, at its own block number.
+            unsafe { *out.get_unchecked_mut(block) = S[0] };
+        }
+    }
+
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn branches(mut x: DisjointSlice<f32>, by_warp: bool) {
+        let tid = thread::threadIdx_x();
+        let odd = if by_warp { (tid / 32) % 2 == 1 } else { tid % 2 == 1 };
+
+        if let Some(x_i) = x.get_mut(thread::index_1d()) {
+            let mut v = *x_i;
+
+            if odd {
+                let mut k = 0;
+                #[unroll]
+                while k < 64 {
+                    v = v.sin() + 1.0;
+                    k += 1;
+                }
+            } else {
+                let mut k = 0;
+                #[unroll]
+                while k < 64 {
+                    v = v.sqrt() * 0.5 + 0.25;
+                    k += 1;
+                }
+            }
+
+            *x_i = v;
+        }
     }
 
     #[kernel]
@@ -144,7 +206,44 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    // 3. A float sum by fetch_add, in whatever order the threads arrive.
+    // 3. 4,096 blocks each sum 256 ones in shared memory, with and without barriers.
+    let blocks = 4096;
+    let ones = DeviceBuffer::from_host(&stream, &vec![1.0f32; blocks * 256])?;
+    let mut sums = DeviceBuffer::<f32>::zeroed(&stream, blocks)?;
+    let block_sum = module.prepare_block_sum(LaunchConfig1D::new(blocks as u32, 256, 0))?;
+
+    println!("4,096 blocks each sum 256 ones; the right answer is 256");
+    for barrier in [true, false] {
+        module.block_sum(&stream, &block_sum, &ones, &mut sums, barrier)?;
+
+        let s = sums.to_host_vec(&stream)?;
+        let wrong = s.iter().filter(|&&sum| sum != 256.0).count();
+        let name = if barrier { "with barriers" } else { "without barriers" };
+        println!("  {name:<18} wrong sums: {wrong:4} of {blocks}   (block 0: {})", s[0]);
+    }
+
+    // 4. Half the threads take each branch: alternate lanes, or alternate warps.
+    let n = 16 << 20;
+    let mut x = DeviceBuffer::<f32>::zeroed(&stream, n)?;
+    let branch = module.prepare_branches(LaunchConfig1D::new((n / 256) as u32, 256, 0))?;
+
+    println!("branch on every other thread, {n} threads, average of 10 runs");
+    for by_warp in [true, false] {
+        module.branches(&stream, &branch, &mut x, by_warp)?; // warm up
+        stream.synchronize()?;
+
+        let start = Instant::now();
+        for _ in 0..10 {
+            module.branches(&stream, &branch, &mut x, by_warp)?;
+        }
+        stream.synchronize()?;
+
+        let ms = start.elapsed().as_secs_f64() * 1e3 / 10.0;
+        let name = if by_warp { "whole warps agree" } else { "lanes alternate" };
+        println!("  {name:<22} {ms:6.2} ms");
+    }
+
+    // 5. A float sum by fetch_add, in whatever order the threads arrive.
     let values: Vec<f32> = (0..1 << 20).map(|i| 1.0 / (1 + i % 1000) as f32).collect();
     let exact: f64 = values.iter().map(|&v| v as f64).sum();
     let values_dev = DeviceBuffer::from_host(&stream, &values)?;

@@ -2,6 +2,7 @@
 name = "ch11_blocks"
 version = "0.1.0"
 edition = "2024"
+default-run = "ch11_blocks"
 
 # A standalone crate: not part of any parent workspace.
 [workspace]

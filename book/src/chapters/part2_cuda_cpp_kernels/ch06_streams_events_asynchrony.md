@@ -45,20 +45,28 @@ the third copies the result back to the host. Listing 6.1 shows the kernel. Its 
 iterations has no purpose other than to make the kernel take about as long as its copies; with a
 much shorter kernel, overlapping the stages would make little difference.
 
-<p class="listing"><b>Listing 6.1</b> The kernel of the chapter, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+<p class="listing"><b>Listing 6.1</b> The kernel of the chapter. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:24:35}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:23:34}}
 ```
 
-<p class="listing"><b>Listing 6.2</b> The same kernel in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:21:32}}
-}
-```
+</div>
+</div>
 
 When the 3 stages are timed separately on a Jetson Orin NX, they take the following times:
 
@@ -159,11 +167,28 @@ the kernel and the time it takes to notice that the kernel has finished (figure 
 <figcaption><b>Figure 6.3</b> 2 events around a kernel measure its time on the GPU's clock.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 6.3</b> An asynchronous launch, timed with events, in C++.</p>
+<p class="listing"><b>Listing 6.2</b> An asynchronous launch, timed with events.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:168:185}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:38:67}}
 ```
+
+</div>
+</div>
 
 The call `cudaEventRecord(e)` places the marker in the stream, `cudaEventSynchronize(e)` makes
 the host wait until the GPU has passed it, and `cudaEventElapsedTime(&ms, start, stop)` returns
@@ -171,16 +196,6 @@ the time between 2 markers in milliseconds. The Rust version follows the same st
 `stream.record_event(Some(TIMING))?` creates an event that can record time and places it in the
 stream, `stop.synchronize()?` waits for it, and `start.elapsed_ms(&stop)?` returns the time
 between the 2 events.
-
-<p class="listing"><b>Listing 6.4</b> The same measurement in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // ...
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:99:116}}
-    // ...
-}
-```
 
 ```console
 a launch of a kernel over 128 MiB
@@ -209,11 +224,26 @@ Keeping 2 chunks in flight in this way is commonly called **double buffering**.
 <figcaption><b>Figure 6.4</b> With chunks on 2 streams, the copies overlap the kernels.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 6.5</b> The pipeline, in C++.</p>
+<p class="listing"><b>Listing 6.3</b> The pipeline.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:43:47}}
+
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:66:95}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:69:98}}
 ```
+
+</div>
+</div>
 
 The function `enqueue` only queues work. Each of the 3 calls in its loop returns immediately, so
 the host queues every chunk of every stream before the first copy has finished. The function
@@ -227,16 +257,8 @@ the chunks passing through the 3 units of the GPU.
 
 ### 6.5.2 The pipeline in Rust
 
-In the Rust version, each chunk owns its pinned host buffer and its device buffer. With this
-arrangement, the borrow checker can see which data each stream uses.
-
-<p class="listing"><b>Listing 6.6</b> The pipeline, in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:35:39}}
-
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs:58:87}}
-```
+In the Rust version of Listing 6.3, each chunk owns its pinned host buffer and its device buffer.
+With this arrangement, the borrow checker can see which data each stream uses.
 
 The asynchronous copies are `unsafe` for a reason that the borrow checker cannot see. A copy
 continues after `copy_from_pinned_host_async` has returned, so the host buffer must remain alive
@@ -324,6 +346,16 @@ alone until its last blocks finish.
 When operations compete for the SMs, stream **priorities** tell the scheduler which stream to
 serve first:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:97:105}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int least, greatest;
 cudaStream_t urgent, bulk;
@@ -331,6 +363,9 @@ cudaDeviceGetStreamPriorityRange(&least, &greatest);
 cudaStreamCreateWithPriority(&urgent, cudaStreamNonBlocking, greatest);
 cudaStreamCreateWithPriority(&bulk, cudaStreamNonBlocking, least);
 ```
+
+</div>
+</div>
 
 The scheduler starts blocks from a high-priority stream before waiting blocks from a low-priority
 stream. Latency-critical work, such as a small kernel whose result the host is waiting for, belongs
@@ -351,11 +386,24 @@ single call, so the launch work is performed once for all of its operations. The
 record a graph is **stream capture**: between the calls `cudaStreamBeginCapture` and
 `cudaStreamEndCapture`, operations queued in the stream are recorded instead of executed.
 
-<p class="listing"><b>Listing 6.7</b> 1,000 launches, one by one and as a graph, in C++.</p>
+<p class="listing"><b>Listing 6.4</b> 1,000 launches, one by one and as a graph.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs:107:156}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu:126:163}}
 ```
+
+</div>
+</div>
 
 ```console
 1,000 launches of an empty kernel, time per kernel
@@ -376,8 +424,9 @@ inference loop or each frame of a video pipeline.
 
 <div class="callout note" markdown="1">
 
-**NOTE:** The version of cuda-oxide used in this book has no API for CUDA graphs, so section 6.7
-shows only the C++ version.
+**NOTE:** The version of cuda-oxide used in this book has no safe API for CUDA graphs. The Rust
+version therefore calls the driver functions `cuStreamBeginCapture_v2`, `cuStreamEndCapture`,
+`cuGraphInstantiateWithFlags` and `cuGraphLaunch` through `cuda_core::sys`, in `unsafe` blocks.
 
 </div>
 
@@ -399,17 +448,24 @@ first stream and makes the second stream wait for that event.
 
 ## 6.9 The complete programs
 
-<p class="listing"><b>Listing 6.8</b> The complete <code>streams.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+<p class="listing"><b>Listing 6.5</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch06_streams/streams.cu">code/ch06_streams/streams.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch06_streams/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch06_streams/streams.cu}}
 ```
 
-<p class="listing"><b>Listing 6.9</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch06_streams/src/main.rs">code/oxide/ch06_streams/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch06_streams/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

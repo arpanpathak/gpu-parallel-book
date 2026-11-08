@@ -271,6 +271,53 @@ bool scans(int n)
     return ok && okEx;
 }
 
+// An inclusive scan of each block of 256 values, 1 value per thread, with CUB.
+__global__ void scanBlocks(const unsigned* in, unsigned* out, int n)
+{
+    using BlockScan = cub::BlockScan<unsigned, BLOCK>;
+    __shared__ BlockScan::TempStorage temp;
+    int i = blockIdx.x * BLOCK + threadIdx.x;
+
+    unsigned v = i < n ? in[i] : 0;
+    BlockScan(temp).InclusiveSum(v, v);
+    if (i < n) {
+        out[i] = v;
+    }
+}
+
+bool blockScans(int n)
+{
+    std::vector<unsigned> values(n), result(n);
+    unsigned state = 2;
+    for (int i = 0; i < n; ++i) {
+        values[i] = nextRandom(state) >> 30;  // 0, 1, 2 or 3, as in scans()
+    }
+
+    unsigned *in, *out;
+    check(cudaMalloc(&in, n * sizeof(unsigned)));
+    check(cudaMalloc(&out, n * sizeof(unsigned)));
+    check(cudaMemcpy(in, values.data(), n * sizeof(unsigned), cudaMemcpyHostToDevice));
+    scanBlocks<<<(n + BLOCK - 1) / BLOCK, BLOCK>>>(in, out, n);
+    check(cudaMemcpy(result.data(), out, n * sizeof(unsigned), cudaMemcpyDeviceToHost));
+
+    bool ok = true;
+    unsigned running = 0;
+    for (int i = 0; i < n; ++i) {
+        running = (i % BLOCK == 0 ? 0 : running) + values[i];
+        ok = ok && result[i] == running;
+    }
+    std::printf("cub::BlockScan of %d values, 256 per block\n", n);
+    std::printf("  first block:");
+    for (int i = 0; i < 8; ++i) {
+        std::printf(" %u", result[i]);
+    }
+    std::printf(" ... %u  correct: %s\n", result[BLOCK - 1], ok ? "yes" : "no");
+
+    check(cudaFree(in));
+    check(cudaFree(out));
+    return ok;
+}
+
 int main()
 {
     cudaDeviceProp prop;
@@ -311,5 +358,6 @@ int main()
     check(cudaFree(squares));
 
     ok &= scans(n);
+    ok &= blockScans(n);
     std::printf("%s\n", ok ? "PASSED" : "FAILED");
 }

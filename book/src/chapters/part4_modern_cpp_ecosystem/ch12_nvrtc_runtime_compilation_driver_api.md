@@ -306,11 +306,24 @@ evaluates the polynomial at 1 point. Since `nvcc` compiles this kernel together 
 the program, before the coefficients are known, the kernel must work for any degree and any
 coefficients.
 
-<p class="listing"><b>Listing 12.1</b> The generic kernel, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch12_nvrtc/nvrtc.cu">code/ch12_nvrtc/nvrtc.cu</a></p>
+<p class="listing"><b>Listing 12.1</b> The generic kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch12_driver/src/main.rs:19:41}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu:66:80}}
 ```
+
+</div>
+</div>
 
 In each of the 32 iterations of the loop, the thread reads `c[k]` from memory, because the
 compiler does not know its value. It then decrements and tests `k`, and finally performs 1 FMA.
@@ -323,12 +336,6 @@ The Rust kernel contains the same loop. It obtains the degree from the length of
 so it also works for any degree. Note the call to `mul_add`, which requests the fused
 multiply-add explicitly. Unlike a C++ compiler, the Rust compiler does not fuse `p * v + c[k]`
 on its own, because fusing changes the rounding of the result.
-
-<p class="listing"><b>Listing 12.2</b> The generic kernel, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch12_driver/src/main.rs">code/oxide/ch12_driver/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch12_driver/src/main.rs:19:41}}
-```
 
 ### 12.3.3 Generating the specialised kernel source
 
@@ -373,11 +380,24 @@ SPECIALISED SOURCE(c[0..d]):
     return text
 ```
 
-<p class="listing"><b>Listing 12.3</b> The program generates the source of the specialised kernel.</p>
+<p class="listing"><b>Listing 12.2</b> The program generates the source of the specialised kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch12_driver/src/main.rs:68:90}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu:82:104}}
 ```
+
+</div>
+</div>
 
 3 details of the generated text deserve attention. First, the kernel is declared **`extern
 "C"`**, which keeps its name exactly `poly`. C++ allows **overloaded functions**, several
@@ -436,11 +456,24 @@ COMPILE(source, target):
     return image
 ```
 
-<p class="listing"><b>Listing 12.4</b> Compiling a string with NVRTC, in C++.</p>
+<p class="listing"><b>Listing 12.3</b> Compiling a string with NVRTC.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch12_driver/src/main.rs:92:133}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu:106:142}}
 ```
+
+</div>
+</div>
 
 The option `--gpu-architecture` determines what NVRTC produces. If the target is a real
 architecture, such as `sm_87`, NVRTC produces a cubin, which the program retrieves with
@@ -454,13 +487,28 @@ The program asks the driver for the compute capability of the GPU and builds the
 name from it. For example, a major version of 8 and a minor version of 7 give `sm_87`. The same
 lines of code also create the context described in section 12.5.1.
 
-<p class="listing"><b>Listing 12.5</b> Creating a context and selecting the target for the GPU the program runs on.</p>
+<p class="listing"><b>Listing 12.4</b> Creating a context and selecting the target for the GPU the program runs on.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch12_driver/src/main.rs:152:159}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu:154:173}}
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 GPU: Orin, compute capability 8.7, target sm_87
@@ -507,11 +555,24 @@ same as in Chapter 13 and needs no new dependency. In Rust 2024, the block must 
 `unsafe extern "C"`, because the compiler cannot verify that the declarations match the library;
 the programmer is responsible for that.
 
-<p class="listing"><b>Listing 12.6</b> The 7 NVRTC functions, declared in Rust.</p>
+<p class="listing"><b>Listing 12.5</b> The 7 NVRTC functions, declared in Rust and taken from the header in C++.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch12_driver/src/main.rs:43:66}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch12_nvrtc/nvrtc.cu:12:12}}
+```
+
+</div>
+</div>
 
 The type `Program` represents NVRTC's `nvrtcProgram`, a pointer to an object whose layout only
 NVRTC knows. Each function returns an `nvrtcResult`, in which 0 indicates success, so `c_int` is
@@ -521,11 +582,24 @@ byte**, so the 4 characters `poly` occupy 5 bytes. `CString` appends this byte, 
 helper function `ok` converts a nonzero result into a Rust error so that the `?` operator can
 propagate it.
 
-<p class="listing"><b>Listing 12.7</b> Compiling a string with NVRTC, in Rust.</p>
+<p class="listing"><b>Listing 12.6</b> The <code>compile</code> function, which calls the functions of Listing 12.5.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch12_driver/src/main.rs:92:133}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch12_nvrtc/nvrtc.cu:106:142}}
+```
+
+</div>
+</div>
 
 The source text generated by the Rust program describes the same kernel. Rust prints the
 exponent of a floating-point number without a leading zero, as in `3.125000000e-2`, so its
@@ -536,7 +610,7 @@ same number.
 
 ### 12.5.1 Contexts
 
-Listing 12.5 began with 4 driver API calls. `cuInit(0)` initialises the driver API. It must be
+Listing 12.4 began with 4 driver API calls. `cuInit(0)` initialises the driver API. It must be
 called before any other `cu` function, and its argument must be 0. `cuDeviceGet` converts the
 device number 0 into a `CUdevice`. `cuDevicePrimaryCtxRetain` returns the **primary context** of
 the device, which is the single context per GPU that the runtime API uses, and increments the
@@ -559,11 +633,28 @@ decrements the count of users.
 context and returns a module. `cuModuleGetFunction` then looks up a kernel in the module by its
 name.
 
-<p class="listing"><b>Listing 12.8</b> Loading an image and looking up the kernel in it.</p>
+<p class="listing"><b>Listing 12.7</b> Loading an image and looking up the kernel in it.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch12_driver/src/main.rs:171:175}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu:144:152}}
 ```
+
+</div>
+</div>
 
 The name passed to `cuModuleGetFunction` must be the symbol name in the machine code. In section
 12.3.3, we used `extern "C"` to keep that name as `poly`. A copy of the program whose generated
@@ -600,7 +691,21 @@ launch, the driver reads 8 bytes at `args[0]`, 8 bytes at `args[1]` and 4 bytes 
 total of 8 + 8 + 4 = 20 bytes, and copies them into the parameters `x`, `y` and `n` of the
 kernel.
 
-<p class="listing"><b>Listing 12.9</b> The argument array and the 2 launches.</p>
+<p class="listing"><b>Listing 12.8</b> The argument array and the 2 launches.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch12_driver/src/main.rs:184:206}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 int main()
@@ -610,6 +715,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 The lambda `special` launches 65,536 blocks of 256 threads, 1 thread per point, on the
 **default stream**, the stream used when the program names none (`nullptr`), and with no dynamic
@@ -659,7 +767,10 @@ it is dropped. `load_function` calls `cuModuleGetFunction`. `launch_kernel_on_st
 `cuLaunchKernel` with a slice of argument addresses. This function is marked `unsafe` because,
 like the C++ driver API, it cannot check that the addresses match the parameters of the kernel.
 
-<p class="listing"><b>Listing 12.10</b> Loading the NVRTC cubin, with the raw launch beside the typed launch, in Rust.</p>
+<p class="listing"><b>Listing 12.9</b> Loading the NVRTC cubin, with the raw launch beside the typed launch.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 fn main() -> Result<(), Error> {
@@ -668,6 +779,23 @@ fn main() -> Result<(), Error> {
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+int main()
+{
+    // ...
+{{#include ../../../../code/ch12_nvrtc/nvrtc.cu:195:202}}
+    // ...
+{{#include ../../../../code/ch12_nvrtc/nvrtc.cu:213:222}}
+    // ...
+}
+```
+
+</div>
+</div>
 
 `x.cu_deviceptr()` returns the device address held by a `DeviceBuffer` as a `u64`, so `x_ptr`
 plays the role of `X` in the C++ program. The expression `&raw mut x_ptr` takes the address of
@@ -932,17 +1060,24 @@ the choices.
 
 ## 12.10 The complete programs
 
-<p class="listing"><b>Listing 12.11</b> The complete <code>nvrtc.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch12_nvrtc/nvrtc.cu">code/ch12_nvrtc/nvrtc.cu</a></p>
+<p class="listing"><b>Listing 12.10</b> The complete programs.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch12_driver/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch12_nvrtc/nvrtc.cu}}
 ```
 
-<p class="listing"><b>Listing 12.12</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch12_driver/src/main.rs">code/oxide/ch12_driver/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch12_driver/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

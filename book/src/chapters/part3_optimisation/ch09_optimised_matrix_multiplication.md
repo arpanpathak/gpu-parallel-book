@@ -162,16 +162,34 @@ KERNEL byColumn, blocks of 16 × 16 threads:
     C[row][col] ← sum
 ```
 
-<p class="listing"><b>Listing 9.1</b> 1 thread per element, <code>threadIdx.x</code> along a column of C, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+<p class="listing"><b>Listing 9.1</b> 1 thread per element, <code>threadIdx.x</code> along a column of C. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:19:36}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:47:59}}
 ```
 
+</div>
+</div>
+
 Each thread first computes the row and column of its output element from its block and thread
 indices. The loop over `k` then reads 1 element of row `row` of \\(A\\) and 1 element of column
 `col` of \\(B\\) in each iteration and accumulates their product in the register `sum`. After the
-loop, the thread writes `sum` to its element of \\(C\\).
+loop, the thread writes `sum` to its element of \\(C\\). The Rust kernel writes through
+`get_unchecked_mut`, because the 2-D launch contract of section 7.4.3 places x along a row.
 
 ```console
 C = A B, 4096 x 4096 floats                       # on a Jetson Orin NX
@@ -209,11 +227,28 @@ counts the sectors for a whole warp: 17 in the first case and 4 in the second.
 <figcaption><b>Figure 9.3</b> The sectors that 1 warp touches at 1 step of k: 544 bytes or 128 bytes.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 9.2</b> 1 thread per element, <code>threadIdx.x</code> along a row of C, in C++.</p>
+<p class="listing"><b>Listing 9.2</b> 1 thread per element, <code>threadIdx.x</code> along a row of C.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:38:58}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:61:73}}
 ```
+
+</div>
+</div>
 
 The only change from listing 9.1 is in the first 2 lines of the kernel: the row now comes from
 `blockIdx.y` and `threadIdx.y`, and the column from `blockIdx.x` and `threadIdx.x`.
@@ -222,16 +257,6 @@ The Rust kernel uses the 2-D launch contract of section 7.4.3. The functions
 `thread::index_2d_row()` and `index_2d_col()` return the row and the column with x along the row,
 and the output type `DisjointSlice<f32, Index2D<N>>` lets each thread write its own element of
 \\(C\\) without `unsafe`. Section 9.7 explains the `while` loop and the `#[unroll(4)]` attribute.
-
-<p class="listing"><b>Listing 9.3</b> 1 thread per element, x along a row of C, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:19:39}}
-    // ...
-}
-```
 
 ```console
   1 per thread, by row         739.14 ms    185.9 GFLOP/s  max error 3.4e-05     # Orin NX
@@ -291,11 +316,28 @@ Animation 1 shows the same block through all 4 steps.
 <figcaption><b>Animation 1</b> 4 steps of 2 × 2 tiles: each sum gains 2 products per step.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 9.4</b> The tiled kernel, in C++.</p>
+<p class="listing"><b>Listing 9.3</b> The tiled kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:60:98}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:75:99}}
 ```
+
+</div>
+</div>
 
 The kernel declares the 2 tiles as `__shared__` arrays of \\(T \times T\\) floats. In each
 iteration of the outer loop over `k0`, every thread copies 1 element of \\(A\\) into `tileA` and
@@ -308,16 +350,6 @@ overwrites a tile in the next iteration while another thread is still reading it
 In Rust, the tiles are `SharedArray`s declared `static mut`, as in Chapter 8, and the barrier is
 `thread::sync_threads()`. A write to shared memory is `unsafe`, because the compiler cannot prove
 that 2 threads never write the same element. The `SAFETY` comment states why they do not.
-
-<p class="listing"><b>Listing 9.5</b> The tiled kernel, in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:41:79}}
-    // ...
-}
-```
 
 ### 9.4.2 Global and shared memory reads of the tiled kernel
 
@@ -400,11 +432,27 @@ KERNEL patches, blocks of 256 threads; thread (tx, ty) owns a 4 × 4 patch:
 
 ### 9.5.3 The register-tiled kernel
 
-<p class="listing"><b>Listing 9.6</b> The 4 × 4 patch kernel, in C++.</p>
+<p class="listing"><b>Listing 9.4</b> The 4 × 4 patch kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:100:162}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:101:142}}
 ```
+
+</div>
+</div>
 
 The kernel begins by computing the thread's position `(tx, ty)` in the 16 × 16 arrangement and
 the first row and column, `row0` and `col0`, of the block's tile. The array `acc` holds the 16
@@ -424,15 +472,6 @@ parameter `MIN_BLOCKS` and `__launch_bounds__` are discussed in section 9.6; wit
 The Rust kernel writes 16 elements per thread, which `thread::index_2d` cannot express. It
 therefore writes through `get_unchecked_mut`, with the argument that the patches of all threads
 cover \\(C\\) exactly once.
-
-<p class="listing"><b>Listing 9.7</b> The 4 × 4 patch kernel, in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:81:143}}
-}
-```
 
 We can now count the reads of 1 step of the 64 × 64 tile. The block reads 64 × 16 + 16 × 64 =
 2,048 floats from global memory and performs 64 × 64 elements × 16 values of \\(k\\) × 2 =
@@ -468,11 +507,27 @@ threads. The program asks the CUDA runtime how many registers the compiler assig
 kernel, with `cudaFuncGetAttributes`, and how many blocks of a kernel fit on an SM, with
 `cudaOccupancyMaxActiveBlocksPerMultiprocessor`.
 
-<p class="listing"><b>Listing 9.8</b> Querying registers and occupancy, in C++.</p>
+<p class="listing"><b>Listing 9.5</b> Querying registers and occupancy.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs:182:197}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu:144:157}}
 ```
+
+</div>
+</div>
+
+In Rust, `num_registers`, `local_size_bytes` and `max_active_blocks_per_multiprocessor` are
+methods of the `CudaFunction` that the loaded module returns for a kernel name.
 
 ```console
 resources                                         # Orin NX
@@ -533,7 +588,7 @@ can cause spills; measure each setting.
 
 ## 9.7 Loop unrolling in cuda-oxide
 
-The Rust kernels of listings 9.3, 9.5 and 9.7 write their loops as `while` loops marked with
+The Rust kernels of listings 9.1 to 9.4 write their loops as `while` loops marked with
 `#[unroll]`, a cuda-oxide attribute that asks the compiler to replicate the loop body once per
 iteration. After unrolling, a loop over `i` from 0 to 3 becomes 4 copies of its body, with `i` a
 constant in each copy. The expressions `av[i]` and `acc[i][j]` then refer to fixed registers, and
@@ -649,17 +704,24 @@ only when the program allows it. Chapter 11 returns to cuBLAS.
 
 ## 9.9 The complete programs
 
-<p class="listing"><b>Listing 9.9</b> The complete <code>sgemm.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+<p class="listing"><b>Listing 9.6</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch09_sgemm/sgemm.cu">code/ch09_sgemm/sgemm.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch09_sgemm/sgemm.cu}}
 ```
 
-<p class="listing"><b>Listing 9.10</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch09_sgemm/src/main.rs">code/oxide/ch09_sgemm/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch09_sgemm/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

@@ -587,11 +587,24 @@ can access the memory of the GPU given by its third argument. Note that the quer
 direction: whether GPU 0 can access GPU 1 and whether GPU 1 can access GPU 0 are queried, and
 enabled, separately. Listing 27.1 prints the resulting matrix.
 
-<p class="listing"><b>Listing 27.1</b> The peer matrix, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">code/ch18_peer/peer.cu</a></p>
+<p class="listing"><b>Listing 27.1</b> The number of GPUs and the peer matrix. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">Rust</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">C++</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch18_peer/src/main.rs:37:69}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch18_peer/peer.cu:31:52}}
 ```
+
+</div>
+</div>
 
 cuda-core, the host library of cuda-oxide, provides the same query as
 `peer::can_access_peer(from, to)` between 2 `CudaContext`s. At revision `b7fe543` it has no
@@ -600,12 +613,6 @@ function that returns the number of GPUs, so the Rust program calls the driver f
 line. The driver must already be initialised when the call is made, which
 `CudaContext::new(0)` ensures.
 
-<p class="listing"><b>Listing 27.2</b> The number of GPUs and the peer matrix, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">code/oxide/ch18_peer/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch18_peer/src/main.rs:37:69}}
-```
-
 ### 27.5.3 Enabling peer access and allocating the buffers
 
 `cudaDeviceEnablePeerAccess(peer, 0)` allows the current GPU, selected with `cudaSetDevice`, to
@@ -613,7 +620,21 @@ access the memory of the GPU `peer`. The second argument is reserved for flags a
 The call maps the peer's memory into the page tables of the current GPU. This mapping takes
 time, so the call is made once and not inside a loop.
 
-<p class="listing"><b>Listing 27.3</b> Choosing the 2 GPUs and enabling access, in C++.</p>
+<p class="listing"><b>Listing 27.2</b> Choosing the 2 GPUs and enabling access.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch18_peer/src/main.rs:115:123}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 int main()
@@ -624,12 +645,32 @@ int main()
 }
 ```
 
+</div>
+</div>
+
+`peer::enable_peer_access(from, to)` corresponds to `cudaDeviceEnablePeerAccess`; it also
+returns `Ok` when access is already enabled.
+
 Each buffer is allocated on its own GPU. Since `cudaMalloc` allocates on the current GPU, the
 program selects GPU `src` before allocating `a` and GPU `dst` before allocating `b`.
 `cudaPointerGetAttributes` then determines, from the pointer `b` alone, which GPU holds the
 buffer.
 
-<p class="listing"><b>Listing 27.4</b> A buffer on each GPU, and the location of <code>b</code> reported through UVA, in C++.</p>
+<p class="listing"><b>Listing 27.3</b> A buffer on each GPU, and, in C++, the location of <code>b</code> reported through UVA.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch18_peer/src/main.rs:125:130}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 int main()
@@ -640,19 +681,11 @@ int main()
 }
 ```
 
+</div>
+</div>
+
 In Rust, each GPU has its own `CudaContext` and its own stream, and a `DeviceBuffer` is
-allocated on the GPU whose stream creates it. `peer::enable_peer_access(from, to)` corresponds
-to `cudaDeviceEnablePeerAccess`; it also returns `Ok` when access is already enabled.
-
-<p class="listing"><b>Listing 27.5</b> Choosing the 2 GPUs and allocating, in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Error> {
-    // ...
-{{#include ../../../../code/oxide/ch18_peer/src/main.rs:115:130}}
-    // ...
-}
-```
+allocated on the GPU whose stream creates it.
 
 ### 27.5.4 Peer copies and copy kernels
 
@@ -663,13 +696,40 @@ an ordinary copy within its memory. The second method is a kernel running on GPU
 each thread copies 1 float from `a` to `b`. On 2 GPUs, the stores of this kernel are written to
 the peer's memory.
 
-<p class="listing"><b>Listing 27.6</b> The copy kernel, in C++.</p>
+<p class="listing"><b>Listing 27.4</b> The copy kernel.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch18_peer/src/main.rs:22:35}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch18_peer/peer.cu:25:29}}
 ```
 
-<p class="listing"><b>Listing 27.7</b> A copy and a kernel, each timed and checked, in C++.</p>
+</div>
+</div>
+
+<p class="listing"><b>Listing 27.5</b> A copy and a kernel, each timed and checked.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch18_peer/src/main.rs:139:148}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 int main()
@@ -679,6 +739,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 The function `averageMs` first runs its argument for 0.4 s so that the GPU's clock can rise,
 as measured in Chapter 6, and then times 50 runs with events. The function `matches` copies `b`
@@ -690,22 +753,6 @@ In Rust, `DeviceBuffer::copy_from_device_async` performs the copy. It calls the 
 device-to-device copy, which, with UVA, also works between GPUs. The kernel uses the 1-D launch
 contract of Chapter 13: `src` is a plain slice, and `DisjointSlice` allows each thread to write
 its own element of `dst` without `unsafe` code.
-
-<p class="listing"><b>Listing 27.8</b> The copy kernel, in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch18_peer/src/main.rs:22:35}}
-```
-
-<p class="listing"><b>Listing 27.9</b> A copy and a kernel, each timed and checked, in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Error> {
-    // ...
-{{#include ../../../../code/oxide/ch18_peer/src/main.rs:139:148}}
-    // ...
-}
-```
 
 ### 27.5.5 Results
 
@@ -767,7 +814,7 @@ peer access (row can reach column):
 no peer to reach: copying within GPU0
 128 MiB from GPU0 to GPU0, average of 50 copies
   copy_from_device_async       3.528 ms    38.0 GB/s  PASSED
-    copy kernel on GPU0          3.769 ms    35.6 GB/s  PASSED
+  copy kernel on GPU0          3.769 ms    35.6 GB/s  PASSED
 ```
 
 `copy_from_device_async` calls the same driver copy as the C++ program, and it ran within 2% of
@@ -909,17 +956,24 @@ table above, and `nvmlDeviceGetNvLinkState` reports the state of each link.
 
 ## 27.8 The complete programs
 
-<p class="listing"><b>Listing 27.10</b> The complete <code>peer.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">code/ch18_peer/peer.cu</a></p>
+<p class="listing"><b>Listing 27.6</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">code/oxide/ch18_peer/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch18_peer/peer.cu">code/ch18_peer/peer.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch18_peer/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch18_peer/peer.cu}}
 ```
 
-<p class="listing"><b>Listing 27.11</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch18_peer/src/main.rs">code/oxide/ch18_peer/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch18_peer/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

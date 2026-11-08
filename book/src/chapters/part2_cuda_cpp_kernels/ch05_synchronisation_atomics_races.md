@@ -65,11 +65,54 @@ blocks of 256 threads, and every thread executes `*counter = *counter + 1` on th
 The second kernel, `countAtomic`, performs the same increment with `atomicAdd`, which we discuss
 in section 5.5.
 
-<p class="listing"><b>Listing 5.1</b> 2 ways to count, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+<p class="listing"><b>Listing 5.1</b> 2 ways to count. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+    #[kernel]
+    #[launch_contract(domain = 1, block = (256, 1, 1))]
+    pub fn count_racy(counter: &[u32]) {
+        counter[0] = counter[0] + 1;
+    }
+    // ...
+}
+```
+
+```console
+$ cargo oxide build
+error[E0594]: cannot assign to `counter[_]`, which is behind a `&` reference
+  --> src/main.rs:20:9
+   |
+20 |         counter[0] = counter[0] + 1;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ `counter` is a `&` reference, so it cannot be written to
+   |
+help: consider changing this to be a mutable reference
+   |
+19 |     pub fn count_racy(counter: &mut [u32]) {
+   |                                 +++
+```
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:17:21}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:24:33}}
 ```
+
+</div>
+</div>
 
 The measurements in this chapter come from 2 integrated GPUs, a Jetson Orin NX and a Jetson AGX
 Thor. The output below is from the first.
@@ -105,31 +148,57 @@ gives each thread access to its own element only. Neither type allows every thre
 `DeviceAtomicU32`, whose operations are all indivisible. Listing 5.2 shows the counting kernel
 written this way.
 
-<p class="listing"><b>Listing 5.2</b> The counter in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a></p>
+<p class="listing"><b>Listing 5.2</b> The counter. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:16:20}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:17:21}}
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch05_sync/sync.cu:30:33}}
+```
+
+</div>
+</div>
 
 The host allocates the counter as ordinary zeroed `u32` memory, as listing 5.3 shows. The
 function `atomic_u32` then calls `cast_elem` to change the element type that the kernel sees to
 `DeviceAtomicU32`. The bytes in device memory are not moved or changed.
 
-<p class="listing"><b>Listing 5.3</b> Allocating atomic counters and launching the count, in Rust.</p>
+<p class="listing"><b>Listing 5.3</b> Allocating atomic counters and launching the count.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:86:92}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:148:154}}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:100:107}}
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:162:169}}
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch05_sync/sync.cu:105:127}}
+```
+
+</div>
+</div>
 
 ```console
 $ cargo oxide run
@@ -161,11 +230,28 @@ illustrates.
 Listing 5.4 measures this cost. Every thread executes 1 of 2 loops of 64 iterations, and half the
 threads take each loop. The 2 runs of the kernel differ only in which threads take which loop.
 
-<p class="listing"><b>Listing 5.4</b> A branch on alternate lanes or alternate warps, in C++.</p>
+<p class="listing"><b>Listing 5.4</b> A branch on alternate lanes or alternate warps.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:96:123}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:78:94}}
 ```
+
+</div>
+</div>
 
 The variable `odd` decides the path. When `byWarp` is true, `odd` is computed from
 `threadIdx.x / 32`, the number of the warp within the block. All 32 threads of a warp then compute
@@ -228,11 +314,28 @@ levels. Figure 5.4 shows the same tree for 8 values.
 <figcaption><b>Figure 5.4</b> A tree sum of 8 values, with a barrier between levels.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 5.5</b> A block sum with or without barriers, in C++.</p>
+<p class="listing"><b>Listing 5.5</b> A block sum with or without barriers.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:64:94}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:59:76}}
 ```
+
+</div>
+</div>
 
 Each level reads values that the previous level wrote, and these values were often written by
 threads in other warps. A barrier must therefore separate each level from the next. The parameter
@@ -265,11 +368,26 @@ reach it wait for threads that never arrive, and the block hangs. In listing 5.5
 `if (barrier) __syncthreads();` is allowed only because `barrier` has the same value in every
 thread. The following code is incorrect:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+if thread::threadIdx_x() % 2 == 0 {
+    thread::sync_threads(); // odd threads never arrive: the block hangs
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 if (threadIdx.x % 2 == 0) {
     __syncthreads();     // odd threads never arrive: the block hangs
 }
 ```
+
+</div>
+</div>
 
 Note also that a barrier applies to exactly 1 block. The blocks of a grid run on different SMs,
 and a GPU does not guarantee that all the blocks of a launch are running at the same time.
@@ -356,11 +474,28 @@ values, so a histogram of bytes has 256 counters, called **bins**. The direct ke
 listing 5.6, assigns a set of bytes to each thread, and the thread adds 1 to the bin of each byte
 with `atomicAdd`.
 
-<p class="listing"><b>Listing 5.6</b> A histogram with global bins, in C++.</p>
+<p class="listing"><b>Listing 5.6</b> A histogram with global bins.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:23:33}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:35:42}}
 ```
+
+</div>
+</div>
 
 The launch uses 1,024 blocks of 256 threads, 262,144 threads in total, for 67,108,864 bytes, so
 each thread processes 256 bytes. The loop advances by `stride`, the total number of threads in the
@@ -377,11 +512,28 @@ At the end, each block adds its totals to the global bins once (figure 5.6).
 <figcaption><b>Figure 5.6</b> A privatised histogram: count in shared memory, then add each bin to global memory once.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 5.7</b> A histogram with shared bins, in C++.</p>
+<p class="listing"><b>Listing 5.7</b> A histogram with shared bins.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:35:62}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:44:57}}
 ```
+
+</div>
+</div>
 
 The kernel has 3 phases, separated by 2 barriers. In the first phase, each thread sets 1 bin of
 `local` to 0. The first barrier ensures that every bin is 0 before any thread counts into it. In
@@ -393,16 +545,6 @@ global bins. Since the block has 256 threads and there are 256 bins, each thread
 The Rust versions have the same structure. In the shared version, the bins are held in a
 `SharedArray`, and every access to it is `unsafe`. The compiler cannot see the barriers that make
 these accesses correct, so each `unsafe` block carries a `SAFETY` comment that states the reason.
-
-<p class="listing"><b>Listing 5.8</b> Both histograms in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:22:61}}
-    // ...
-}
-```
 
 `BlockAtomicU32::from_ptr` treats 1 shared bin as an atomic with block scope, which is sufficient
 for a counter in shared memory. We ran each kernel on 2 inputs: random bytes, which are spread
@@ -467,21 +609,30 @@ a sum depends on the order of the additions. A `float` has 24 bits of precision,
 (10<sup>8</sup> − 10<sup>8</sup>) + 1 = 1.
 
 An `atomicAdd` on a `float` performs the additions in the order in which the threads arrive, and
-that order changes from run to run. Listing 5.9 sums 1,048,576 values with 1 atomic operation per
+that order changes from run to run. Listing 5.8 sums 1,048,576 values with 1 atomic operation per
 value.
 
-<p class="listing"><b>Listing 5.9</b> A float sum by atomics, in C++ and in Rust.</p>
+<p class="listing"><b>Listing 5.8</b> A float sum by atomics.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs:125:133}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu:96:103}}
 ```
 
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs:63:71}}
-}
-```
+</div>
+</div>
 
 ```console
 sum of 1,048,576 floats by atomicAdd (exact: 7851.7077)
@@ -522,17 +673,24 @@ contains a race, even if every test so far has passed. The `racecheck` tool of C
 
 ## 5.8 The complete programs
 
-<p class="listing"><b>Listing 5.10</b> The complete <code>sync.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+<p class="listing"><b>Listing 5.9</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch05_sync/sync.cu">code/ch05_sync/sync.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch05_sync/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch05_sync/sync.cu}}
 ```
 
-<p class="listing"><b>Listing 5.11</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch05_sync/src/main.rs">code/oxide/ch05_sync/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch05_sync/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

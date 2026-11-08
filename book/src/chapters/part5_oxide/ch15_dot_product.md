@@ -934,7 +934,7 @@ with 3,350 GB/s.
 
 ## 15.9 The complete programs
 
-<p class="listing"><b>Listing 15.6</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch15_dot_product/src/main.rs">code/oxide/ch15_dot_product/src/main.rs</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch15_dot_product/dot.cu">code/cuda/ch15_dot_product/dot.cu</a></p>
+<p class="listing"><b>Listing 15.6</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch15_dot_product/src/main.rs">code/oxide/ch15_dot_product/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/cuda/ch15_dot_product/dot.cu">code/cuda/ch15_dot_product/dot.cu</a></p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">

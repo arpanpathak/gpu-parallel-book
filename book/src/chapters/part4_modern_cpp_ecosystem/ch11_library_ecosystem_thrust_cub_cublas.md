@@ -171,6 +171,20 @@ differently, though not less accurately. Listing 11.1 times `thrust::reduce` on 
 
 <p class="listing"><b>Listing 11.1</b> A sum with <code>thrust::reduce</code>, timed. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/reduce_scan.cu">code/ch11_libraries/reduce_scan.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:300:306}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool sums(const float* in, float* partial, float* total, int n, double exact)
 {
@@ -179,6 +193,12 @@ bool sums(const float* in, float* partial, float* total, int n, double exact)
     // ...
 }
 ```
+
+</div>
+</div>
+
+cuda-oxide has no call that sums a whole array, so the Rust tab times the 2 launches of
+`block_reduce` from Section 11.3.2.
 
 Note that `thrust::reduce` returns the sum to the host as a `float`. The call therefore also
 waits for the GPU to finish and copies 4 bytes back to the host. The program compares every
@@ -250,13 +270,32 @@ that can be called on both the host and the device.
 
 <p class="listing"><b>Listing 11.2</b> The sum of squares in 2 passes and in 1.</p>
 
-```cpp
-{{#include ../../../../code/ch11_libraries/reduce_scan.cu:117:119}}
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:101:140}}
+}
+
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:172:215}}
 ```
 
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
+{{#include ../../../../code/ch11_libraries/reduce_scan.cu:117:119}}
+
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu:175:196}}
 ```
+
+</div>
+</div>
+
+In the Rust tab, the generic kernels `map` and `map_sum` take the closure `square` in the role
+of the functor `Square`.
 
 ```console
 sum of squares, GB/s of input read
@@ -346,6 +385,20 @@ of actual memory traffic, although its program reports 43.0 GB/s because it coun
 
 <p class="listing"><b>Listing 11.3</b> An inclusive scan with Thrust, an exclusive scan with CUB.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:309:315}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool scans(int n)
 {
@@ -354,6 +407,12 @@ bool scans(int n)
     // ...
 }
 ```
+
+</div>
+</div>
+
+cuda-oxide has no scan of a whole array; the Rust tab scans each block of 256 values with
+`block_scan`, the kernel of Listing 11.8.
 
 ```console
 scan of 67108864 values 0 to 3, average of 20 runs
@@ -469,6 +528,9 @@ int main()
 }
 ```
 
+cuda-oxide provides no sort, so Listings 11.4 and 11.5 have no Rust form; in Chapter 22 we
+write a radix sort in Rust from its histogram, scan and scatter.
+
 The program sorts 16,777,216 random 32-bit keys (64 MiB) and checks each result against
 `std::sort` on the CPU. It also runs CUB's own radix sort, `cub::DeviceRadixSort`, with its
 temporary storage allocated once, as described in Section 11.3.3.
@@ -553,9 +615,26 @@ replaced by CUB.
 
 <p class="listing"><b>Listing 11.6</b> Chapter 8's sum with <code>cub::BlockReduce</code>.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:64:84}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu:99:115}}
 ```
+
+</div>
+</div>
 
 `cub::BlockReduce<float, BLOCK>` is a class template, a class written in terms of template
 parameters (Chapter 10), here the element type and the number of threads. Both are fixed when
@@ -590,7 +669,10 @@ at the same time, so the compiler cannot guarantee that assumption, and Rust 202
 a reference to a `static mut`. The kernel therefore passes `&raw mut WARPS`, the Rust 2024
 way to obtain a raw pointer to a `static mut` without creating a reference.
 
-<p class="listing"><b>Listing 11.7</b> Chapter 8's Rust sum with <code>block_reduce</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch11_blocks/src/main.rs">code/oxide/ch11_blocks/src/main.rs</a></p>
+<p class="listing"><b>Listing 11.7</b> Chapter 8's sum with <code>block_reduce</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch11_blocks/src/main.rs">code/oxide/ch11_blocks/src/main.rs</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
 mod kernels {
@@ -599,6 +681,16 @@ mod kernels {
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch11_libraries/reduce_scan.cu:99:115}}
+```
+
+</div>
+</div>
 
 The `8` in `block_reduce::<f32, Sum, 8>` is the number of warps, and the call checks it at
 compile time: a block of more than 32 warps fails to build. `block_scan` has the same form.
@@ -609,12 +701,25 @@ kernel writes its results without `unsafe`.
 
 <p class="listing"><b>Listing 11.8</b> A scan of each block with <code>block_scan</code>.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
 mod kernels {
     // ...
 {{#include ../../../../code/oxide/ch11_blocks/src/main.rs:86:99}}
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch11_libraries/reduce_scan.cu:274:286}}
+```
+
+</div>
+</div>
 
 ```console
 $ cargo oxide run
@@ -624,6 +729,14 @@ sum of 67108864 floats, average of 20 runs
   exact (f64)                               sum 33557630.3
 block_scan of 67108864 values, 256 per block
   first block: [0, 1, 1, 3, 5, 5, 5, 6] ... 403
+sum of squares, GB/s of input read
+  map, then map_sum     14.67 ms    18.3 GB/s  sum 22372548.0
+  map_sum, fused         4.17 ms    64.4 GB/s  sum 22372548.0
+  exact (f64)                               sum 22372547.9
+sum of 4096 floats, microseconds per sum
+  allocated each time, result copied    40.7 us
+  allocated once, result copied         24.1 us
+  allocated once, result kept            8.4 us
 PASSED
 ```
 
@@ -632,7 +745,9 @@ float per load, so they reach 68 GB/s rather than the 93 GB/s of the C++ kernels
 `float4` loads, each of which reads 4 floats, 16 bytes, in 1 instruction; we measured
 the same difference in Chapter 8. The first 8 scanned values increase by
 0 to 3 at each step, as the inputs 0, 1, 0, 2, 2, 0, 0, 1 require, and the program checked all
-67,108,864 results.
+67,108,864 results. The last 8 lines are the Rust counterparts of Listings 11.2 and
+11.10: the fused sum of squares ran 3.5 times as fast as the 2 passes, and the small sum took
+8.4 µs instead of 40.7 µs once the allocation and the copy were removed.
 
 ### 11.3.3 Device-wide calls and temporary storage
 
@@ -651,6 +766,24 @@ call. A CUB device-wide call is made twice:
 
 <p class="listing"><b>Listing 11.9</b> <code>cub::DeviceReduce::Sum</code>, called twice.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn small_sums(
+    module: &kernels::LoadedModule,
+    stream: &Arc<CudaStream>,
+    values: &[f32],
+) -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:243:258}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool sums(const float* in, float* partial, float* total, int n, double exact)
 {
@@ -659,6 +792,12 @@ bool sums(const float* in, float* partial, float* total, int n, double exact)
     // ...
 }
 ```
+
+</div>
+</div>
+
+The Rust kernels need no temporary storage beyond the partial sums, whose number the program
+knows, so the Rust tab allocates them once and reuses them.
 
 For the sum of 64 Mi floats, CUB asked for 1,279 bytes, enough for the partial sums of its
 blocks. The result `total` remains in device memory, and the call returns without waiting for
@@ -677,9 +816,22 @@ kernel, which is still 49 times the time the memory needs.
 
 <p class="listing"><b>Listing 11.10</b> 3 ways to sum 4,096 floats.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs:217:260}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu:198:224}}
 ```
+
+</div>
+</div>
 
 ```console
 sum of 4096 floats, microseconds per sum
@@ -853,6 +1005,20 @@ Worked example: \\(A\\) is 2 × 3, \\(B = [7\ 8;\ 9\ 10;\ 11\ 12]\\) is 3 × 2
 
 <p class="listing"><b>Listing 11.11</b> The incorrect call and the correct one. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/gemm.cu">code/ch11_libraries/gemm.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn small_product(handle: Handle, stream: &Arc<CudaStream>) -> Result<bool, Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:97:120}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool smallProduct(cublasHandle_t handle)
 {
@@ -861,6 +1027,12 @@ bool smallProduct(cublasHandle_t handle)
     // ...
 }
 ```
+
+</div>
+</div>
+
+The Rust program declares `cublasSgemm_v2`, the C function behind `cublasSgemm`, with
+`#[link(name = "cublas")]`, and passes the same arguments.
 
 The 2 calls differ only in the order of their operands and leading dimensions. cuBLAS
 computes \\(C \leftarrow \alpha \cdot \mathrm{op}(A)\,\mathrm{op}(B) + \beta C\\), where
@@ -903,6 +1075,20 @@ instruction.
 
 <p class="listing"><b>Listing 11.12</b> SGEMM in FP32, then with TF32 tensor cores allowed.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs:176:205}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
@@ -911,6 +1097,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 $ ./gemm
@@ -982,6 +1171,20 @@ numbers that precede them.
 
 <p class="listing"><b>Listing 11.13</b> 16 Mi normal numbers with cuRAND. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/fft_rand.cu">code/ch11_libraries/fft_rand.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn normal_numbers(stream: &Arc<CudaStream>) -> Result<bool, Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:63:81}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool normalNumbers()
 {
@@ -990,6 +1193,9 @@ bool normalNumbers()
     // ...
 }
 ```
+
+</div>
+</div>
 
 The program draws 16,777,216 numbers from the **normal distribution** with mean 0 and
 standard deviation 1, the bell-shaped distribution in which about 68% of the values lie between
@@ -1037,6 +1243,20 @@ frequency.
 
 <p class="listing"><b>Listing 11.14</b> A plan, then the transform.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn spectrum(stream: &Arc<CudaStream>) -> Result<bool, Error> {
+    // ...
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs:115:123}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 bool spectrum()
 {
@@ -1045,6 +1265,9 @@ bool spectrum()
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 cuFFT, 1024 samples of sin(50 t) + 0.5 sin(120 t)
@@ -1121,11 +1344,24 @@ be the slowest stage of the pipeline.
 
 ## 11.7 The complete programs
 
-<p class="listing"><b>Listing 11.15</b> The complete <code>reduce_scan.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/reduce_scan.cu">code/ch11_libraries/reduce_scan.cu</a></p>
+<p class="listing"><b>Listing 11.15</b> The complete programs for the sums and scans.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch11_libraries/reduce_scan.cu}}
 ```
+
+</div>
+</div>
 
 <p class="listing"><b>Listing 11.16</b> The complete <code>sort.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/sort.cu">code/ch11_libraries/sort.cu</a></p>
 
@@ -1133,23 +1369,48 @@ be the slowest stage of the pipeline.
 {{#include ../../../../code/ch11_libraries/sort.cu}}
 ```
 
-<p class="listing"><b>Listing 11.17</b> The complete <code>gemm.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/gemm.cu">code/ch11_libraries/gemm.cu</a></p>
+The sort has no Rust program, because cuda-oxide provides no sort (Section 11.2.4).
+
+<p class="listing"><b>Listing 11.17</b> The complete cuBLAS programs.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/gemm.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch11_libraries/gemm.cu}}
 ```
 
-<p class="listing"><b>Listing 11.18</b> The complete <code>fft_rand.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch11_libraries/fft_rand.cu">code/ch11_libraries/fft_rand.cu</a></p>
+</div>
+</div>
+
+<p class="listing"><b>Listing 11.18</b> The complete cuRAND and cuFFT programs.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch11_blocks/src/bin/fft_rand.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch11_libraries/fft_rand.cu}}
 ```
 
-<p class="listing"><b>Listing 11.19</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch11_blocks/src/main.rs">code/oxide/ch11_blocks/src/main.rs</a></p>
+</div>
+</div>
 
-```rust,ignore
-{{#include ../../../../code/oxide/ch11_blocks/src/main.rs}}
-```
+The 3 Rust programs run with `cargo oxide run`, `cargo oxide run --bin gemm` and
+`cargo oxide run --bin fft_rand` in `code/oxide/ch11_blocks`.
 
 ## Common mistakes
 

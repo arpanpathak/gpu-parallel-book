@@ -233,21 +233,28 @@ throughput of operations that are issued one at a time.
 ## 4.4 Measuring copies
 
 We now test the model with measurements. The C++ program `transfers.cu` measures 4 quantities
-on whatever GPU it runs on, and its Rust counterpart measures the first 2.
+on whatever GPU it runs on, and its Rust counterpart measures the same 4.
 
 ### 4.4.1 Timing a copy
 
-<p class="listing"><b>Listing 4.1</b> Timing a copy, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch04_memory/transfers.cu">code/ch04_memory/transfers.cu</a></p>
+<p class="listing"><b>Listing 4.1</b> Timing a copy. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch04_transfers/src/main.rs">code/oxide/ch04_transfers/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch04_memory/transfers.cu">code/ch04_memory/transfers.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:31:44}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch04_memory/transfers.cu:24:35}}
 ```
 
-<p class="listing"><b>Listing 4.2</b> Timing a copy, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch04_transfers/src/main.rs">code/oxide/ch04_transfers/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:12:25}}
-```
+</div>
+</div>
 
 The function `timeCopy` first performs 1 copy that is not timed. This warm-up copy includes
 work that happens only once, such as setting up the staging buffer, and would distort the
@@ -263,20 +270,27 @@ operator passes any failure up to `main` instead of ignoring it.
 
 ### 4.4.2 Pageable and pinned copies
 
-<p class="listing"><b>Listing 4.3</b> 4 copies of 64 MiB, in C++.</p>
+<p class="listing"><b>Listing 4.2</b> 4 copies of 64 MiB.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:135:155}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch04_memory/transfers.cu:58:74}}
 ```
 
-<p class="listing"><b>Listing 4.4</b> The same copies, in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:32:52}}
-    // ...
-}
-```
+</div>
+</div>
 
 The function `copySpeeds` measures 4 copies of 64 MiB: from pageable and from pinned host
 memory to the device, and from the device back to each. The C++ version lists the 4 cases in
@@ -290,21 +304,28 @@ the staging buffer. `copy_to_pinned_host` copies from the device into a `PinnedH
 
 ### 4.4.3 Copy time as a function of size
 
-<p class="listing"><b>Listing 4.5</b> Copies from 4 KiB to 64 MiB, in C++.</p>
+<p class="listing"><b>Listing 4.3</b> Copies from 4 KiB to 64 MiB.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:157:170}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch04_memory/transfers.cu:76:86}}
 ```
 
-<p class="listing"><b>Listing 4.6</b> The same sweep, in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // ...
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:54:67}}
-    // ...
-}
-```
+</div>
+</div>
 
 The function `sizeSweep` copies pinned memory to the device at sizes from 4 KiB to 64 MiB, each
 size 4 times the previous one. Each size is copied 200 times. The small copies take only
@@ -429,11 +450,24 @@ the page run at full speed.
 <figcaption><b>Animation 2</b> Unified memory: pages move on first touch, then stay; with a prefetch they move in bulk before the kernel.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 4.7</b> Unified memory, in C++.</p>
+<p class="listing"><b>Listing 4.4</b> Unified memory.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:69:97}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch04_memory/transfers.cu:88:106}}
 ```
+
+</div>
+</div>
 
 The function `unifiedMemory` allocates 64 MiB with `cudaMallocManaged` and sets every element
 to 1.0 on the host. It then launches a kernel that doubles every element, first once and then
@@ -457,9 +491,23 @@ data in many small pieces, each paying a latency, the real cost is higher still.
 A program can avoid the page faults by moving the pages to the device in 1 bulk transfer before
 the kernel needs them:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+// move the pages to device 0 now
+unsafe { sys::cuMemPrefetchAsync(managed, bytes, 0, stream.cu_stream()) }.result()?;
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 cudaMemPrefetchAsync(managed, bytes, 0);    // move the pages to device 0 now
 ```
+
+</div>
+</div>
 
 Unified memory is best suited to data structures that contain many pointers, such as trees and
 graphs, which are difficult to copy by hand. For large arrays, explicit copies or prefetching
@@ -468,7 +516,9 @@ give the program control over when the bytes move.
 <div class="callout note" markdown="1">
 
 **NOTE:** The version of cuda-oxide used in this book has no wrapper for unified memory or
-zero-copy memory, so sections 4.5 and 4.6 use C++ only.
+zero-copy memory, so the Rust code of sections 4.5 and 4.6 calls the CUDA driver functions
+`cuMemAllocManaged`, `cuMemPrefetchAsync`, `cuMemHostAlloc` and `cuMemHostGetDevicePointer`
+through `cuda_core::sys`.
 
 </div>
 
@@ -480,11 +530,24 @@ copy. CUDA allocates it with `cudaHostAlloc` and the flag `cudaHostAllocMapped`,
 must be pinned for the reason given in section 4.2: the GPU accesses it by physical address. On
 a discrete GPU, every load or store that a kernel makes to zero-copy memory crosses the link.
 
-<p class="listing"><b>Listing 4.8</b> Zero-copy memory, in C++.</p>
+<p class="listing"><b>Listing 4.5</b> Zero-copy memory.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs:99:132}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch04_memory/transfers.cu:108:124}}
 ```
+
+</div>
+</div>
 
 The function `zeroCopy` allocates mapped host memory, obtains the device address of that memory,
 and runs the same doubling kernel 10 times on device memory and 10 times on the mapped memory.
@@ -551,17 +614,24 @@ which Chapter 6 introduces.
 
 ## 4.9 The complete programs
 
-<p class="listing"><b>Listing 4.9</b> The complete <code>transfers.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch04_memory/transfers.cu">code/ch04_memory/transfers.cu</a></p>
+<p class="listing"><b>Listing 4.6</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch04_transfers/src/main.rs">code/oxide/ch04_transfers/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch04_memory/transfers.cu">code/ch04_memory/transfers.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch04_transfers/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch04_memory/transfers.cu}}
 ```
 
-<p class="listing"><b>Listing 4.10</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch04_transfers/src/main.rs">code/oxide/ch04_transfers/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch04_transfers/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

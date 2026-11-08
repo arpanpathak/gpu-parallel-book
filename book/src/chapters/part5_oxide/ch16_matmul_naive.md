@@ -642,9 +642,25 @@ and `#[launch_bounds(256)]` limits a block to 256 threads, so the same kernel se
 2 × 2 threads of our example and the blocks of 16 × 16 threads of the measurements. The `requires`
 clause adds 3 relations between the sizes and the buffers:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
 requires = (a.len() >= m * k, b.len() >= k * n, c.len() >= m * n)
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch16_matmul_naive/matmul_naive.cu:232:246}}
+```
+
+</div>
+</div>
+
+In C++ we write the 3 relations ourselves, as the host function `violated`, and call it before a
+launch; the C++ program refuses the same launch with it.
 
 The host prepares a launch once with `module.prepare_matmul::<T>(config)`, which checks the grid
 and block shapes against the contract and against the limits of the GPU, and then launches with
@@ -693,9 +709,22 @@ Both kernels are written once for any element type. In C++, `template <typename 
 type, and the compiler reports an error only if the body uses an operation the type lacks. In Rust,
 the bound
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
 T: Copy + Default + Add<Output = T> + Mul<Output = T>,
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/cuda/ch16_matmul_naive/matmul_naive.cu:19:20}}
+```
+
+</div>
+</div>
 
 lists the operations the kernel performs: copying values, creating the initial 0 with
 `T::default()`, adding, and multiplying. A type that lacks 1 of them is refused at the call, with

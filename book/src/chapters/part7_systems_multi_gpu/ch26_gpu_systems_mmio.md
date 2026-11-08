@@ -211,11 +211,28 @@ are built for high bandwidth and are used on graphics cards and data-centre GPUs
 A program can ask the CUDA runtime how its GPU is attached. The first part of the chapter's
 program prints what `cudaGetDeviceProperties` and `cudaDeviceGetPCIBusId` report.
 
-<p class="listing"><b>Listing 26.1</b> What the runtime knows about the device, in C++.</p>
+<p class="listing"><b>Listing 26.1</b> What the runtime knows about the device.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:15:22}}
+
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:144:151}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu:36:60}}
 ```
+
+</div>
+</div>
 
 ```console
 device            Orin, sm_87                device            NVIDIA Thor, sm_110
@@ -244,17 +261,7 @@ The Rust program asks the driver directly. cuda-core wraps the common queries, s
 `device_name` and `multiprocessor_count`. For an attribute it does not wrap, such as
 `INTEGRATED`, the program calls `cuDeviceGetAttribute` from `cuda_core::sys`, the raw bindings,
 inside 1 small `unsafe` function. The **raw bindings** are Rust declarations of the C functions of
-the CUDA driver, which Rust can call only inside `unsafe` code.
-
-<p class="listing"><b>Listing 26.2</b> Device queries, in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs:15:22}}
-
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs:144:151}}
-    // ...
-}
-```
+the CUDA driver, which Rust can call only inside `unsafe` code. The Rust program prints:
 
 ```console
 device      Orin, sm_87                      device      NVIDIA Thor, sm_110
@@ -522,11 +529,28 @@ memory from `malloc`, which the operating system may move; pinned memory from `c
 pinned write-combined memory; and **managed memory** from `cudaMallocManaged`, which CPU and GPU
 reach through the same pointer (Chapter 4).
 
-<p class="listing"><b>Listing 26.3</b> The same CPU loops over 4 kinds of memory, in C++.</p>
+<p class="listing"><b>Listing 26.2</b> The same CPU loops over each kind of memory.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), DriverError> {
+    // ...
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:153:159}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu:108:134}}
 ```
+
+</div>
+</div>
 
 `timeCpu` writes the value 1 into every word, sums every word, keeps the best of 5 passes, and
 checks that the sum equals the number of words. The output on both machines:
@@ -755,11 +779,24 @@ is the same. A **cache line** is the unit of 64 bytes in which the CPU's caches 
 memory. Each counter sits on its own cache line, as each register of a device has its own
 address.
 
-<p class="listing"><b>Listing 26.4</b> The ring, the device and the doorbell, in C++.</p>
+<p class="listing"><b>Listing 26.3</b> The ring, the device and the doorbell.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs:58:104}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu:136:188}}
 ```
+
+</div>
+</div>
 
 `submit` waits while the ring holds `depth` entries, writes the entry, then stores PUT + 1 with
 release ordering: the barrier of section 26.3.3, built into the store. The device loads PUT
@@ -772,12 +809,6 @@ Rust's version stores each entry in an `AtomicU64`, with the opcode in the high 
 does not allow 2 threads to touch the same plain memory when one of them writes, so the slots are
 atomics too. A `Relaxed` store is an atomic store that promises no ordering with other accesses;
 it compiles to an ordinary store, and the `Release` store of the doorbell provides the order.
-
-<p class="listing"><b>Listing 26.5</b> The ring, the device and the doorbell, in Rust.</p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs:58:104}}
-```
 
 ### 26.4.5 Ring depth and run-ahead
 
@@ -1151,17 +1182,24 @@ pages, that is, to move them to the processor that touched them. **Peer access**
 
 ## 26.10 The complete programs
 
-<p class="listing"><b>Listing 26.6</b> The complete <code>systems.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch17_systems/systems.cu">code/ch17_systems/systems.cu</a></p>
+<p class="listing"><b>Listing 26.4</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch17_systems/src/main.rs">code/oxide/ch17_systems/src/main.rs</a> and <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch17_systems/systems.cu">code/ch17_systems/systems.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch17_systems/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch17_systems/systems.cu}}
 ```
 
-<p class="listing"><b>Listing 26.7</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch17_systems/src/main.rs">code/oxide/ch17_systems/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch17_systems/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

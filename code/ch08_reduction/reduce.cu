@@ -208,7 +208,7 @@ void scan(const unsigned* in, unsigned* out, int n, unsigned* scratch)
     }
 }
 
-// 6. Histograms of bytes in shared bins (Chapter 5): 1 byte, or 16 bytes, per load.
+// 6. Histograms of bytes in shared bins (Chapter 5): 1 byte, 16 bytes or 4 bytes per load.
 __global__ void histBytes(const unsigned char* data, unsigned* bins, int n)
 {
     __shared__ unsigned local[256];
@@ -242,6 +242,20 @@ __global__ void histWords(const uint4* data, unsigned* bins, int n16)
         countWord(local, q.y);
         countWord(local, q.z);
         countWord(local, q.w);
+    }
+    __syncthreads();
+
+    atomicAdd(&bins[threadIdx.x], local[threadIdx.x]);
+}
+
+__global__ void histUint(const unsigned* data, unsigned* bins, int n4)
+{
+    __shared__ unsigned local[256];
+    local[threadIdx.x] = 0;
+    __syncthreads();
+
+    for (int i = blockIdx.x * BLOCK + threadIdx.x; i < n4; i += gridDim.x * BLOCK) {
+        countWord(local, data[i]);
     }
     __syncthreads();
 
@@ -353,6 +367,21 @@ void histograms(int n)
         std::printf("  %s  16 bytes per load %6.2f ms  %6.1f GB/s  total %lld\n", name,
                     ms16, n / ms16 / 1e6, total);
     }
+
+    check(cudaMemcpy(data, random.data(), n, cudaMemcpyHostToDevice));
+    double ms4 = timeKernel([&] {
+        check(cudaMemsetAsync(bins, 0, 256 * sizeof(unsigned)));
+        histUint<<<GRID, BLOCK>>>((const unsigned*)data, bins, n / 4);
+    });
+
+    std::vector<unsigned> counts(256);
+    check(cudaMemcpy(counts.data(), bins, 1024, cudaMemcpyDeviceToHost));
+    long long total = 0;
+    for (unsigned c : counts) {
+        total += c;
+    }
+    std::printf("  random bytes  4 bytes per load  %6.2f ms  %6.1f GB/s  total %lld\n", ms4,
+                n / ms4 / 1e6, total);
 
     check(cudaFree(data));
     check(cudaFree(bins));

@@ -66,9 +66,22 @@ the attribute `cudaMemPoolAttrUsedMemCurrent`, which Listing 10.1 reads and conv
 
 <p class="listing"><b>Listing 10.1</b> The bytes in use from the pool, in MiB. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/raw.cu">code/ch10_modern/raw.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:115:129}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/raw.cu:19:28}}
 ```
+
+</div>
+</div>
 
 The older function `cudaMemGetInfo` is not suitable for this purpose. It reports the free memory
 of the whole device, which other programs also change. On an integrated GPU, which shares its
@@ -84,9 +97,22 @@ the GPU and contains such a leak.
 
 <p class="listing"><b>Listing 10.2</b> An early return before the frees.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:131:157}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/raw.cu:30:52}}
 ```
+
+</div>
+</div>
 
 The function allocates 2 device buffers, `in` and `out`, with the 2 calls to `cudaMallocAsync`.
 It then copies the input to the device, launches the kernel `scale`, copies the result back, and
@@ -116,6 +142,9 @@ such as a server or a training job that calls this function millions of times, w
 run out of device memory, long after the leak occurred and in code that has nothing to do with
 it.
 
+In Rust, frees are written by hand only after `ManuallyDrop` has turned the automatic ones off,
+and the Rust function of Listing 10.2 then loses the same 128.0 MiB.
+
 ### 10.1.3 Unchecked launch errors
 
 Recall from Chapter 3 that a GPU contains several **streaming multiprocessors** (SMs), the
@@ -128,6 +157,22 @@ threads. The second error in `raw.cu` launches blocks of 2,048 threads, twice th
 
 <p class="listing"><b>Listing 10.3</b> A launch that exceeds the block size limit.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:291:304}}
+
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:378:382}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
@@ -136,6 +181,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 2. 2048 threads per block: out[0] = 0.0, expected 2.0
@@ -154,6 +202,9 @@ data and reports nothing. On the second GPU, CUDA 13.2 describes the same failur
 argument`. The wording of the message differs between CUDA versions, but in both cases the error
 is visible only to a program that asks for it.
 
+The Rust launch of Listing 10.3 never reaches the driver: `prepare_scale` returns an `Err`, and
+the `?` passes it to the caller (section 10.2.6).
+
 ### 10.1.4 Size errors in copies
 
 The function `cudaMemcpy(dst, src, count, kind)` copies `count` **bytes**. Its pointer
@@ -164,6 +215,16 @@ was intended.
 
 <p class="listing"><b>Listing 10.4</b> A count of floats passed as a count of bytes.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:159:178}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
@@ -172,6 +233,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 Consider a small example with N = 16. The host array holds 16 floats of 4 bytes, or 64 bytes.
 The call `cudaMemcpy(in, host, 16, ...)` copies 16 bytes, which are the first 16 ÷ 4 = 4 floats.
@@ -191,6 +255,10 @@ shows.
 With N = 2,097,152, the copy moved 2,097,152 bytes, which are 524,288 floats, so again exactly 1
 result in 4 is correct. Every call returned `cudaSuccess`, because the API did exactly what its
 arguments asked for.
+
+The Rust function calls the driver's copy inside `unsafe` and also finds 524,288 of 2,097,152
+correct: `unsafe` states that the copy stays inside both arrays, which it does, not that the count
+is the one intended.
 
 <div class="bee bee-shocked" markdown="1">
 
@@ -278,13 +346,31 @@ through CUDA calls.
 `DeviceBuffer<T>` holds `count` values of type `T` in device memory. Listing 10.5 shows its
 constructors and destructor.
 
-<p class="listing"><b>Listing 10.5</b> <code>DeviceBuffer</code>: construction and destruction. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a></p>
+<p class="listing"><b>Listing 10.5</b> <code>DeviceBuffer</code> and <code>PoolBuffer</code>: construction and destruction. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:190:218}}
+
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:237:243}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch10_modern/device_buffer.hpp:38:57}}
     // ...
 };
 ```
+
+</div>
+</div>
+
+The Rust type `PoolBuffer<T>` frees its memory in the method `drop` of the trait `Drop`, which
+section 10.2.6 describes.
 
 The first constructor allocates `count` elements. The second constructor allocates enough
 elements for a host vector and copies the vector into them. The destructor frees the
@@ -367,6 +453,16 @@ perform the transfer, instead of the copy operations. Figure 10.4 shows both cas
 
 <p class="listing"><b>Listing 10.6</b> Copies deleted, moves allowed.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:220:225}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 // `count` values of T in device memory, owned by exactly 1 object.
 template <typename T>
@@ -376,6 +472,9 @@ class DeviceBuffer {
     // ...
 };
 ```
+
+</div>
+</div>
 
 The move constructor uses `std::exchange(other.data_, nullptr)`, which returns the old value of
 `other.data_` and stores `nullptr` in its place in a single step. The move assignment operator
@@ -405,10 +504,35 @@ copy.cu(113): error: function "DeviceBuffer<T>::DeviceBuffer(const DeviceBuffer<
                                  ^
 ```
 
+In Rust, `let b = a;` moves the buffer, as `move_once` in Listing 10.6 does, and a later use of
+`a` is the compile error:
+
+```console
+error[E0382]: borrow of moved value: `a`
+   --> src/main.rs:224:17
+    |
+222 |     let a = PoolBuffer::from_host(stream, host)?;
+    |         - move occurs because `a` has type `PoolBuffer<f32>`, which does not implement the `Copy` trait
+223 |     let b = a;
+    |             - value moved here
+224 |     let first = a.len();
+    |                 ^ value borrowed here after move
+```
+
 Listing 10.7 shows the rest of the class: the functions that give access to the memory, and the
 single function that frees it.
 
 <p class="listing"><b>Listing 10.7</b> Access, and the 1 place that frees.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:227:243}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 // `count` values of T in device memory, owned by exactly 1 object.
@@ -419,9 +543,13 @@ class DeviceBuffer {
 };
 ```
 
+</div>
+</div>
+
 `view()` returns a read-only view of the buffer and `span()` a writable one; we introduce
 the type of these views in section 10.6.1. `release()` tests for `nullptr` because a buffer that has
-been moved from no longer owns any memory.
+been moved from no longer owns any memory. A Rust value that has been moved from is never
+dropped, so `drop` needs no such test.
 
 ### 10.2.4 Error reporting without a macro
 
@@ -442,9 +570,25 @@ site, so it records the file and line of the caller rather than a line inside `c
 
 <p class="listing"><b>Listing 10.8</b> <code>check</code>, with the caller's file and line.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:180:188}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/device_buffer.hpp:14:25}}
 ```
+
+</div>
+</div>
+
+In Rust, the attribute `#[track_caller]` makes `Location::caller()` return the file and line of
+the call, so the Rust `check` needs no macro either.
 
 `check` reports a failure by throwing an **exception**, an object that travels up the chain of
 function calls until a `catch` clause handles it. On its way, the exception leaves every scope
@@ -468,9 +612,22 @@ shows the function with the early return and the launch with 2,048 threads per b
 
 <p class="listing"><b>Listing 10.9</b> The early return and the launch over the limit, with <code>DeviceBuffer</code> and <code>check</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/modern.cu">code/ch10_modern/modern.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:271:304}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:112:135}}
 ```
+
+</div>
+</div>
 
 The function `main` in Listing 10.10 makes the same 8 calls as `raw.cu`, launches the 2,048
 threads inside a `try` block, and copies 2,097,152 floats through the constructor that takes a
@@ -478,14 +635,31 @@ host vector.
 
 <p class="listing"><b>Listing 10.10</b> The measurements of section 10.1, repeated.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:369:387}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
     // ...
-{{#include ../../../../code/ch10_modern/modern.cu:176:200}}
+{{#include ../../../../code/ch10_modern/modern.cu:182:206}}
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 $ nvcc -std=c++20 --extended-lambda -arch=native modern.cu -o modern && ./modern
@@ -527,11 +701,32 @@ call inside an `unsafe` block, which states that the programmer has checked it.
 `uninitialized_async` is `unsafe` only because the contents of the buffer are undefined until
 they are written, and the copy on the next line writes every element.
 
-<p class="listing"><b>Listing 10.11</b> The early return in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a></p>
+<p class="listing"><b>Listing 10.11</b> The early return, with buffers that free themselves. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:95:124}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:260:289}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+// `count` values of T in device memory, owned by exactly 1 object.
+template <typename T>
+class DeviceBuffer {
+    // ...
+{{#include ../../../../code/ch10_modern/device_buffer.hpp:44:52}}
+    // ...
+};
+
+{{#include ../../../../code/ch10_modern/modern.cu:112:126}}
+```
+
+</div>
+</div>
 
 The Rust launch in Listing 10.12 carries a **launch contract** (Chapter 13): the kernel declares
 that it runs in blocks of 256 threads, and `prepare_scale` checks the requested configuration
@@ -542,9 +737,22 @@ wrong memory, but it must be written explicitly.
 
 <p class="listing"><b>Listing 10.12</b> The launch over the limit, and the only way to leak.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:126:146}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:291:311}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:128:141}}
+```
+
+</div>
+</div>
 
 ```console
 $ cargo oxide run
@@ -558,7 +766,8 @@ ownership
 
 Each of the 8 calls of `forget_on_gpu` forgot 1 buffer of 8 MiB, for the 64.0 MiB shown. The
 other results match those of the C++ program, with 1 difference: the wrong block size was
-rejected before it reached the driver.
+rejected before it reached the driver. In C++, the counterpart of `forget` is a buffer created
+with `new` and never deleted, and 8 calls of `leakOnGpu` lost the same 64.0 MiB.
 
 <details class="check">
 <summary>A function creates a DeviceBuffer, then calls a function that throws. Who frees the buffer, and when?</summary>
@@ -611,9 +820,26 @@ KERNEL transform<T, F>(in, out, f):         # T: element type, F: operation from
 
 <p class="listing"><b>Listing 10.13</b> A template kernel and an operation to pass to it.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:66:80}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:34:49}}
 ```
+
+</div>
+</div>
 
 The line `template <Number T, UnaryOp<T> F>` states that `T` must be a numeric type and `F` an
 operation that maps a `T` to a `T`; we define both conditions in section 10.7. The arguments `in`
@@ -627,7 +853,8 @@ arrays of more than 2<sup>31</sup> elements.
 object `triple` of type `Scale<float>` with `factor` = 3 can be called as `triple(x)`, and
 `triple(2.0f)` returns 6.0. It stores its state, the factor, as a member, and it is passed to
 the GPU as a kernel argument of `sizeof(T)` bytes. Its `operator()` is marked `__host__
-__device__` so that the kernel can call it; we explain these qualifiers in section 10.4.
+__device__` so that the kernel can call it; we explain these qualifiers in section 10.4. The Rust kernel `transform` takes a closure, the
+Rust form of a lambda, as its operation `f`.
 
 Let us run `transform<float, Scale<float>>` by hand on 4 values, `in` = 1, 2, 3, 4, with `f` =
 `triple`. With blocks of 256 threads, 1 block is launched, and threads 0 to 3 pass the test `i <
@@ -646,9 +873,22 @@ instantiates the whole chain from that 1 line.
 
 <p class="listing"><b>Listing 10.14</b> 1 timing function, instantiated for 3 types.</p>
 
-```cpp
-{{#include ../../../../code/ch10_modern/modern.cu:137:164}}
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:334:358}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:143:170}}
+```
+
+</div>
+</div>
 
 ### 10.3.2 Lambdas as operations
 
@@ -729,13 +969,26 @@ used with, a process that Rust calls **monomorphization**. cuda-oxide applies it
 
 <p class="listing"><b>Listing 10.15</b> A generic kernel.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:41:54}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:51:64}}
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:34:49}}
+```
+
+</div>
+</div>
 
 A **trait bound** is a condition, written after a type parameter, that the type must implement
 the named traits. The bound `T: Copy + Mul<Output = T>` lists the operations that the body
@@ -747,9 +1000,22 @@ can do so for its own `T`.
 
 <p class="listing"><b>Listing 10.16</b> 1 generic timing function for 3 types.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:169:193}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:334:358}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:143:170}}
+```
+
+</div>
+</div>
 
 ```console
 1 generic kernel, 3 types, 16777216 values
@@ -798,6 +1064,9 @@ __host__ __device__ float logOf(float x)
 }
 ```
 
+The Rust programs of this book have no counterpart of this guard: a Rust function called from a
+kernel is compiled for both processors from the same text (section 10.4.3).
+
 ### 10.4.2 Floating-point differences between host and device
 
 As an example, we use the polynomial 1 + x + x²/2 + x³/6, the first 4 terms of the series of
@@ -808,9 +1077,22 @@ multiplications, each followed by an addition. At x = 1, for example, the 3 step
 
 <p class="listing"><b>Listing 10.17</b> 1 polynomial, written 2 ways, for both processors.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:35:45}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:60:72}}
 ```
+
+</div>
+</div>
 
 The test in Listing 10.18 wraps each function in an extended `__host__ __device__` lambda, runs
 it in `transform` on 2,097,152 values from −1 to 1, calls the same lambda on the CPU, and
@@ -818,14 +1100,31 @@ compares the bits of the results with `memcmp`.
 
 <p class="listing"><b>Listing 10.18</b> The differential test.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:409:420}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
     // ...
-{{#include ../../../../code/ch10_modern/modern.cu:226:247}}
+{{#include ../../../../code/ch10_modern/modern.cu:237:258}}
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 1 function on both sides, 2097152 values in [-1, 1)
@@ -900,11 +1199,24 @@ Rust) where the 2 sides must agree bit for bit.
 In cuda-oxide, an ordinary Rust function that is called from a kernel is compiled for the device
 as well as for the host, so it needs no qualifier.
 
-<p class="listing"><b>Listing 10.19</b> The polynomial in Rust, called by a kernel and by the CPU.</p>
+<p class="listing"><b>Listing 10.19</b> The polynomial, called by a kernel and by the CPU.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:25:35}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:35:45}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:60:72}}
+```
+
+</div>
+</div>
 
 `x.mul_add(a, b)` is Rust's FMA. The kernels `poly` and `poly_fma` call the 2 functions, and
 `main` compares their results with those of the same functions run on the CPU.
@@ -935,9 +1247,22 @@ compiling.
 
 <p class="listing"><b>Listing 10.20</b> The block size, checked while compiling.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:20:28}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:14:23}}
 ```
+
+</div>
+</div>
 
 The function `blocksFor` computes the number of blocks needed for a given number of elements,
 rounding up. For 1,000 elements and blocks of 256 threads, it computes
@@ -966,10 +1291,39 @@ wherever its name appears.
 Rust writes the same checks as constant assertions. An `assert!` inside a `const` item is
 evaluated by the compiler, and a false condition is a compile error.
 
-<p class="listing"><b>Listing 10.21</b> The checks in Rust.</p>
+<p class="listing"><b>Listing 10.21</b> The checks of Listing 10.20.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs:16:18}}
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:20:28}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+{{#include ../../../../code/ch10_modern/modern.cu:14:23}}
+```
+
+</div>
+</div>
+
+With `const BLOCK: u32 = 100;`, both Rust assertions fail while compiling:
+
+```console
+error[E0080]: evaluation panicked: a block is a whole number of warps
+  --> src/main.rs:21:15
+   |
+21 | const _: () = assert!(BLOCK % 32 == 0, "a block is a whole number of warps");
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
+
+error[E0080]: evaluation panicked: assertion failed: blocks_for(1000) == 4
+  --> src/main.rs:28:15
+   |
+28 | const _: () = assert!(blocks_for(1000) == 4);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
 ```
 
 ## 10.6 CUDA 12 and the `cuda::` Namespace
@@ -1006,9 +1360,22 @@ receives it tests `i < in.size()`, that is `i < 1000`.
 `cuda::std::span<const T>` allows reading, and `cuda::std::span<T>` allows writing as well.
 `DeviceBuffer::view()` and `span()` return one of each, and `transform` receives them:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:287:287}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 transform<<<blocksFor(in.size()), BLOCK>>>(in.view(), out.span(), Scale{factor});
 ```
+
+</div>
+</div>
 
 The length of a span comes from the buffer it views, so the bounds check `i < in.size()` always
 uses the correct length. A span occupies 16 bytes, a pointer
@@ -1053,9 +1420,26 @@ agreement. The table lists the 3 scopes.
 
 <p class="listing"><b>Listing 10.22</b> A count with <code>cuda::atomic_ref</code>.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:104:112}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:74:83}}
 ```
+
+</div>
+</div>
 
 The kernel in Listing 10.22 counts the results of `expPolyFma` that are greater than 1.5. Its
 2,097,152 threads, in 8,192 blocks of 256, all add to a single `int` in global memory, so the
@@ -1072,7 +1456,8 @@ inputs are evenly spaced from −1 to 1, so the fraction above 0.40629 is (1 −
 0.29686, and 0.29686 × 2,097,152 = 622,552 values, the number that both processors counted.
 
 The Rust programs of Chapter 5 use `DeviceAtomicU32` from cuda-device, which serves the same
-purpose.
+purpose. The Rust kernel `count_above` of Listing 10.22 uses it and counted the same 622,552
+values.
 
 ## 10.7 C++20 Concepts
 
@@ -1098,9 +1483,29 @@ Listing 10.23 defines the 2 concepts that `transform` requires.
 
 <p class="listing"><b>Listing 10.23</b> 2 concepts.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs:66:72}}
+    {
+        // ...
+    }
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu:28:32}}
 ```
+
+</div>
+</div>
 
 `Number<T>` holds when `T` is an integer or floating-point type. `UnaryOp<F, T>` holds when an
 `F` can be called with a `T` and returns exactly a `T`. Writing `UnaryOp<T> F` in the template's
@@ -1135,7 +1540,20 @@ parameters, here `T` and `F`, from the types of the arguments of a call. When a 
 fails a concept, the compiler discards the template, and the message reports that deduction
 failed. A Rust generic states its conditions in the same way, as **trait bounds**. Rust checks
 them when the function is used, and also when it is defined: the body of `scale<T>` may perform
-only the operations that `Copy + Mul<Output = T>` allows.
+only the operations that `Copy + Mul<Output = T>` allows. The closure `|v: f32| v > 0.0`, passed
+to the Rust kernel `transform`, fails its bound `F: Fn(T) -> T` at the call:
+
+```console
+error[E0271]: expected `{closure@main.rs:455:20}` to return `f32`, but it returns `bool`
+   --> src/main.rs:455:29
+    |
+455 |     let positive = |v: f32| v > 0.0;
+    |                    -------- ^^^^^^^ expected `f32`, found `bool`
+    |                    |
+    |                    this closure
+456 |     let prepared = module.prepare_transform_for(&0.0f32, &positive, config)?;
+    |                           ---------------------          --------- closure used here
+```
 
 ## 10.8 Style Summary
 
@@ -1173,29 +1591,38 @@ hand-written kernel at 74.5 GB/s.
 
 ## 10.9 The complete programs
 
-<p class="listing"><b>Listing 10.24</b> The complete <code>device_buffer.hpp</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a></p>
+<p class="listing"><b>Listing 10.24</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/device_buffer.hpp">code/ch10_modern/device_buffer.hpp</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/raw.cu">code/ch10_modern/raw.cu</a>, <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/modern.cu">code/ch10_modern/modern.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch10_modern/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+<p><code>device_buffer.hpp</code></p>
 
 ```cpp
 {{#include ../../../../code/ch10_modern/device_buffer.hpp}}
 ```
 
-<p class="listing"><b>Listing 10.25</b> The complete <code>raw.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/raw.cu">code/ch10_modern/raw.cu</a></p>
+<p><code>raw.cu</code></p>
 
 ```cpp
 {{#include ../../../../code/ch10_modern/raw.cu}}
 ```
 
-<p class="listing"><b>Listing 10.26</b> The complete <code>modern.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch10_modern/modern.cu">code/ch10_modern/modern.cu</a></p>
+<p><code>modern.cu</code></p>
 
 ```cpp
 {{#include ../../../../code/ch10_modern/modern.cu}}
 ```
 
-<p class="listing"><b>Listing 10.27</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch10_modern/src/main.rs">code/oxide/ch10_modern/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch10_modern/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

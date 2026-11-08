@@ -1,9 +1,12 @@
-//! Chapter 3 in Rust: every thread prints who it is, then vector addition.
+//! Chapter 3 in Rust: every thread prints who it is, vector addition, and a 2-dimensional
+//! launch that numbers the pixels of an 8 x 8 image.
 //!
 //!     cargo oxide run
 
-use cuda_core::{CudaContext, DeviceBuffer, LaunchConfig1D};
+use cuda_core::{CudaContext, DeviceBuffer, LaunchConfig1D, LaunchConfig2D};
+use cuda_device::thread::Runtime2DIndex;
 use cuda_device::{DisjointSlice, cuda_module, gpu_printf, kernel, launch_contract, thread};
+use cuda_host::RowWidth;
 
 const N: usize = 1 << 20;
 const BLOCK: u32 = 256;
@@ -29,6 +32,23 @@ mod kernels {
         let i = idx.get();
         if let Some(out) = c.get_mut(idx) {
             *out = a[i] + b[i];
+        }
+    }
+
+    #[kernel]
+    #[launch_contract(domain = 2, block = (4, 4, 1))]
+    pub fn pixel_numbers(mut image: DisjointSlice<u32, Runtime2DIndex>) {
+        let width = image.row_width();
+
+        // Column ix and row iy, as in 1 dimension; rows are stored 1 after another.
+        let ix = thread::blockIdx_x() * thread::blockDim_x() + thread::threadIdx_x();
+        let iy = thread::blockIdx_y() * thread::blockDim_y() + thread::threadIdx_y();
+        let pixel = iy * width + ix;
+
+        if let Some(idx) = thread::index_2d_runtime(&image)
+            && let Some(out) = image.get_mut(idx)
+        {
+            *out = pixel;
         }
     }
 }
@@ -63,6 +83,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("n = {N}, {blocks} blocks of {BLOCK} threads");
     println!("c[0] = {}, c[1] = {}, c[{}] = {}", c[0], c[1], N - 1, c[N - 1]);
     println!("max error = {max_err}");
+
+    // A 2-dimensional launch over an 8 x 8 image: each thread stores its pixel's number.
+    let mut image = DeviceBuffer::<u32>::zeroed(&stream, 8 * 8)?;
+
+    let threads_per_block = (4, 4); // 4 x 4 = 16 threads per block
+    let blocks = (2, 2); // 2 x 2 = 4 blocks
+    let config = LaunchConfig2D::new(blocks, threads_per_block, 0);
+
+    let pixels = module.prepare_pixel_numbers(config)?;
+    module.pixel_numbers(&stream, &pixels, RowWidth::new(&mut image, 8))?;
+
+    let numbers = image.to_host_vec(&stream)?;
+    if numbers.iter().enumerate().any(|(p, &number)| number != p as u32) {
+        return Err("a thread computed the wrong pixel number".into());
+    }
 
     Ok(())
 }

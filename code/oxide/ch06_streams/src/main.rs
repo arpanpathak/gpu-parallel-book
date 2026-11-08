@@ -1,4 +1,5 @@
-//! Chapter 6 in Rust: a launch timed with events, and a pipeline on 2 streams.
+//! Chapter 6 in Rust: a launch timed with events, a pipeline on 2 streams, streams with
+//! priorities, and a CUDA graph of 1,000 launches.
 //!
 //!     cargo oxide run
 
@@ -6,8 +7,10 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use cuda_core::sys::CUevent_flags_enum_CU_EVENT_DEFAULT as TIMING;
+use cuda_core::sys::CUstreamCaptureMode_enum_CU_STREAM_CAPTURE_MODE_GLOBAL as GLOBAL;
 use cuda_core::{
-    CudaContext, CudaStream, DeviceBuffer, DriverError, LaunchConfig1D, PinnedHostBuffer,
+    CudaContext, CudaStream, DeviceBuffer, DriverError, IntoResult, LaunchConfig1D,
+    PinnedHostBuffer, sys,
 };
 use cuda_device::{DisjointSlice, cuda_module, kernel, launch_contract, thread};
 
@@ -30,6 +33,11 @@ mod kernels {
             *v = a;
         }
     }
+
+    /// A kernel that does nothing, so that its time is the cost of its launch.
+    #[kernel]
+    #[launch_contract(domain = 1, block = (32, 1, 1))]
+    pub fn empty() {}
 }
 
 /// 1 chunk of the data: its pinned host buffer and its device buffer.
@@ -86,6 +94,67 @@ fn pipeline(
     Ok(start.elapsed().as_secs_f64() * 1e3 / 5.0)
 }
 
+/// A stream for urgent work and a stream for bulk work, at the 2 ends of the range.
+fn priorities(ctx: &Arc<CudaContext>) -> Result<(), DriverError> {
+    let range = ctx.stream_priority_range()?;
+    let urgent = ctx.new_stream_with_priority(range.greatest())?;
+    let bulk = ctx.new_stream_with_priority(range.least())?;
+
+    println!("stream priorities: urgent {}, bulk {}", urgent.priority()?, bulk.priority()?);
+    Ok(())
+}
+
+/// 1,000 launches of an empty kernel: one by one, and replayed from a graph.
+fn graphs(
+    module: &kernels::LoadedModule,
+    stream: &CudaStream,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let launches = 1000;
+    let launch = module.prepare_empty(LaunchConfig1D::new(1, 32, 0))?;
+    module.empty(stream, &launch)?;
+    stream.synchronize()?;
+
+    let t0 = Instant::now();
+    for _ in 0..launches {
+        module.empty(stream, &launch)?;
+    }
+    stream.synchronize()?;
+    let direct = t0.elapsed().as_secs_f64() * 1e3 / launches as f64;
+
+    let s = stream.cu_stream();
+    let mut graph = std::ptr::null_mut();
+    let mut exec = std::ptr::null_mut();
+    // SAFETY: `s` is a live stream, and no other thread queues work while it is captured.
+    unsafe { sys::cuStreamBeginCapture_v2(s, GLOBAL).result()? };
+    for _ in 0..launches {
+        module.empty(stream, &launch)?;
+    }
+    // SAFETY: `graph` and `exec` receive new handles, used only in this function.
+    unsafe {
+        sys::cuStreamEndCapture(s, &mut graph).result()?;
+        sys::cuGraphInstantiateWithFlags(&mut exec, graph, 0).result()?;
+        sys::cuGraphLaunch(exec, s).result()?; // warm up
+    }
+    stream.synchronize()?;
+
+    let t0 = Instant::now();
+    // SAFETY: `exec` is the graph instantiated above, and `s` is still live.
+    unsafe { sys::cuGraphLaunch(exec, s).result()? };
+    stream.synchronize()?;
+    let replay = t0.elapsed().as_secs_f64() * 1e3 / launches as f64;
+
+    println!("1,000 launches of an empty kernel, time per kernel");
+    println!("  launched one by one   {:6.2} us", direct * 1e3);
+    println!("  replayed from a graph {:6.2} us", replay * 1e3);
+
+    // SAFETY: the stream is synchronized, so the GPU no longer uses either handle.
+    unsafe {
+        sys::cuGraphExecDestroy(exec).result()?;
+        sys::cuGraphDestroy(graph).result()?;
+    }
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ctx = CudaContext::new(0)?;
     let streams = [ctx.new_stream()?, ctx.new_stream()?];
@@ -121,6 +190,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let eight = pipeline(&module, &streams, &mut eighths)?;
     println!("  1 stream, 1 chunk        {one:7.2} ms");
     println!("  2 streams, 8 chunks      {eight:7.2} ms");
+
+    // 3. Streams with priorities, and a graph.
+    priorities(&ctx)?;
+    graphs(&module, stream)?;
 
     Ok(())
 }

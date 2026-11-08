@@ -95,21 +95,28 @@ The kernel in Listing 7.1 takes the stride as a parameter. Thread \\(i\\) reads 
 \times\\) `stride` of the input and writes element \\(i\\) of the output. The writes therefore
 remain coalesced for every stride, and only the reads change from one run to the next.
 
-<p class="listing"><b>Listing 7.1</b> A strided read, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch07_memory/memory.cu">code/ch07_memory/memory.cu</a></p>
+<p class="listing"><b>Listing 7.1</b> A strided read. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch07_memory/src/main.rs">code/oxide/ch07_memory/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch07_memory/memory.cu">code/ch07_memory/memory.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:32:42}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch07_memory/memory.cu:26:33}}
 ```
 
-<p class="listing"><b>Listing 7.2</b> The same kernel in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch07_memory/src/main.rs">code/oxide/ch07_memory/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:21:31}}
-    // ...
-}
-```
+</div>
+</div>
 
 The program launches 16,777,216 threads, so every run reads the 64 MiB that the task requires. The
 input array is 32 times as large, 2 GiB, so that stride 32 stays within it. The array is also far
@@ -178,12 +185,29 @@ dependence. The program launches a grid of fixed size, and each thread processes
 then element \\(i + s\\), then \\(i + 2s\\), and so on, where \\(s\\) = `gridDim.x * blockDim.x` is
 the number of threads in the grid.
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:44:56}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int stride = gridDim.x * blockDim.x;
 for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += stride) {
     out[i] = in[i];
 }
 ```
+
+</div>
+</div>
 
 In every iteration of the loop, neighbouring threads access neighbouring elements, so the loop
 keeps the coalescing of the kernel with 1 thread per element. It allows a kernel to process data of
@@ -205,11 +229,28 @@ of 32 rows (figure 7.3).
 <figcaption><b>Figure 7.3</b> The naive transpose: a coalesced read and a strided write.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 7.3</b> The naive transpose, in C++.</p>
+<p class="listing"><b>Listing 7.2</b> The naive transpose.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:82:91}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch07_memory/memory.cu:60:66}}
 ```
+
+</div>
+</div>
 
 Exchanging the 2 accesses does not help, because the read then goes down a column instead. The
 solution is to perform the column access in a memory that does not transfer data in sectors, and to
@@ -236,11 +277,28 @@ Global memory is accessed only along rows; the column access takes place in shar
 <figcaption><b>Figure 7.4</b> The tiled transpose: rows in, columns out of the tile, rows out to memory.</figcaption>
 </figure>
 
-<p class="listing"><b>Listing 7.4</b> The tiled transpose, in C++.</p>
+<p class="listing"><b>Listing 7.3</b> The tiled transpose.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:93:110}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch07_memory/memory.cu:68:81}}
 ```
+
+</div>
+</div>
 
 After the barrier, the kernel recomputes `x` and `y` for the output. The block's x and y block
 numbers are exchanged, because tile (bx, by) of the input becomes tile (by, bx) of the output.
@@ -254,21 +312,13 @@ additional column. Animation 2 follows a 4 × 4 tile through shared memory.
 
 ### 7.4.3 The transposes in Rust
 
-In Rust, both transpose kernels require `unsafe`, for a reason that the compiler cannot check. A
-`DisjointSlice` allows a thread to write only the element named by its own index, which guarantees
-that no 2 threads write the same element. A transpose, however, writes element `x * WIDTH + y`,
-which is the index of a different thread. The writes are still disjoint, because the mapping from
-\\((x, y)\\) to `x * WIDTH + y` is a permutation, but the compiler cannot prove this. The kernel
-therefore states the argument in a `SAFETY` comment and writes through `get_unchecked_mut`.
-
-<p class="listing"><b>Listing 7.5</b> Both transposes in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs:33:61}}
-}
-```
+In Rust, both transpose kernels, Listings 7.2 and 7.3, require `unsafe`, for a reason that the
+compiler cannot check. A `DisjointSlice` allows a thread to write only the element named by its own
+index, which guarantees that no 2 threads write the same element. A transpose, however, writes
+element `x * WIDTH + y`, which is the index of a different thread. The writes are still disjoint,
+because the mapping from \\((x, y)\\) to `x * WIDTH + y` is a permutation, but the compiler cannot
+prove this. The kernel therefore states the argument in a `SAFETY` comment and writes through
+`get_unchecked_mut`.
 
 `Index2D<WIDTH>` declares the output to be a 2-D grid of width `WIDTH`, which a launch with a 2-D
 contract requires. The tile is a `SharedArray<f32, { 32 * 33 }>`, indexed as `row * 33 + column`.
@@ -348,11 +398,30 @@ floats. With a `float4` load, 1 instruction moves 16 bytes per thread and 512 by
 times as much as a `float` load. The kernel therefore issues a quarter as many load and store
 instructions for the same number of bytes.
 
-<p class="listing"><b>Listing 7.6</b> A copy with 1 and with 4 floats per thread, in C++.</p>
+<p class="listing"><b>Listing 7.4</b> A copy with 1 and with 4 floats per thread.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:20:26}}
+
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:58:80}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch07_memory/memory.cu:43:58}}
 ```
+
+</div>
+</div>
 
 ```console
 copy of 64 MiB                             # Orin NX, then Thor
@@ -366,9 +435,8 @@ The wider loads made the copy 19% faster on the Orin NX and 12% faster on the Th
 reached 92% of the peak of 273 GB/s. A `float4` access must be aligned to 16 bytes. Memory returned
 by `cudaMalloc` is aligned to a much larger boundary, so it is safe to cast the start of an
 allocation to `float4*`. A pointer offset by 1, 2 or 3 floats, however, is not aligned, and the last
-\\(n \bmod 4\\) elements of an array must be handled with a plain `float` loop. The version of
-cuda-oxide used here provides `Float4` for device code, but the Rust listings of this chapter are
-limited to the access patterns above.
+\\(n \bmod 4\\) elements of an array must be handled with a plain `float` loop. In Rust, the
+type `Float4`, 4 floats with the attribute `#[repr(C, align(16))]`, takes the place of `float4`.
 
 ## 7.7 Constant memory
 
@@ -378,6 +446,25 @@ called a **broadcast**. When the threads read different addresses, the accesses 
 another. This behaviour is the opposite of global and shared memory, which perform best when the
 threads access different addresses.
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:112:125}}
+}
+
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs:223:224}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 __constant__ float coeffs[16];                                // device side, at file scope
 
@@ -385,6 +472,9 @@ cudaMemcpyToSymbol(coeffs, host, 16 * sizeof(float));         // host side: fill
 
 out[i] = in[i] * coeffs[k];                                   // in a kernel: every thread reads coeffs[k]
 ```
+
+</div>
+</div>
 
 Constant memory is therefore suited to parameters, coefficients and small tables that every thread
 of a warp reads at the same index. When each thread needs a different entry, ordinary global
@@ -421,17 +511,24 @@ For a memory-bound kernel, check the following items in order, and measure after
 
 ## 7.10 The complete programs
 
-<p class="listing"><b>Listing 7.7</b> The complete <code>memory.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch07_memory/memory.cu">code/ch07_memory/memory.cu</a></p>
+<p class="listing"><b>Listing 7.5</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch07_memory/src/main.rs">code/oxide/ch07_memory/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch07_memory/memory.cu">code/ch07_memory/memory.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch07_memory/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch07_memory/memory.cu}}
 ```
 
-<p class="listing"><b>Listing 7.8</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch07_memory/src/main.rs">code/oxide/ch07_memory/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch07_memory/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

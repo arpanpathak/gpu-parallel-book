@@ -827,11 +827,29 @@ overwrites it. Listing 28.1 shows the data structures. The function `addStep` ap
 transfers of 1 step to the plan and records where they start, how many there are, how many floats
 each one moves, and whether they add.
 
-<p class="listing"><b>Listing 28.1</b> A plan of steps and transfers, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+<p class="listing"><b>Listing 28.1</b> A plan of steps and transfers. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">Rust</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">C++</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:66:90}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:19:43}}
 ```
+
+</div>
+</div>
+
+The Rust version stores each transfer as 2 numbers in 1 flat `Vec<u32>`, so that the plan
+can be copied to the GPU with `DeviceBuffer::from_host` and read by the kernel as a `&[u32]`.
 
 The function `ring` in Listing 28.2 builds the plan of the procedure Ring-All-Reduce of Section
 28.4.2. The first loop creates the k − 1 reduce-scatter steps of lines 1 to 6. In step `s`, rank `r`
@@ -841,21 +859,24 @@ overwrites. The term `+ k` inside each `%` keeps the left operand positive, beca
 negative `int` is negative in C++. The function `tree` builds the 2 phases of Section 28.5.1 in the
 same way, with the distance `d` doubling in the reduce phase and halving in the broadcast phase.
 
-<p class="listing"><b>Listing 28.2</b> The ring and the tree as plans, in C++.</p>
+<p class="listing"><b>Listing 28.2</b> The ring and the tree as plans.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:106:144}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:45:97}}
 ```
 
-The Rust version builds the same plans. It stores each transfer as 2 numbers in 1 flat `Vec<u32>`,
-so that the plan can be copied to the GPU with `DeviceBuffer::from_host` and read by the kernel as
-a `&[u32]`.
-
-<p class="listing"><b>Listing 28.3</b> The ring and the tree as plans, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:106:144}}
-```
+</div>
+</div>
 
 ### 28.6.2 The step kernel
 
@@ -877,22 +898,43 @@ that receive are 2 separate sets. The order of the steps is maintained by the **
 queue of GPU work introduced in Chapter 6: a launch starts only after the previous launch on the
 same stream has finished.
 
-In the kernel `runStep` of Listing 28.4, each thread first reads the transfer of its block,
+In the kernel `runStep` of Listing 28.3, each thread first reads the transfer of its block,
 `sends[blockIdx.x / per]`. The loop then starts at the thread's position within the `per` blocks
 of the transfer and advances by `stride`, the total number of threads that work on the transfer.
 In each iteration, the thread reads 1 float from the source slice and either adds it to the
 destination or overwrites the destination, depending on `add`. The host function `run` computes
 `per` and launches the kernel on the stream.
 
-<p class="listing"><b>Listing 28.4</b> The step kernel and its launch, in C++.</p>
+<p class="listing"><b>Listing 28.3</b> The step kernel and its launch.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:21:50}}
+    // ...
+}
+
+impl Gpu<'_> {
+    // ...
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:161:173}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:113:124}}
-```
 
-```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu:143:148}}
 ```
+
+</div>
+</div>
 
 The function `run` gives every step at most 1,024 blocks of 256 threads, divided among its
 transfers, and never gives a transfer more blocks than it has floats to cover. For example, a tree
@@ -904,24 +946,6 @@ prove to be different, which is the thread's own index. The step kernel writes a
 reads at `from + i`, where the offsets come from the plan, so it uses `get_unchecked_mut` inside an
 `unsafe` block, as the per-block writes of Chapter 8 did. The `SAFETY` comment states the argument
 of the previous paragraph: no element is both read and written within 1 step.
-
-<p class="listing"><b>Listing 28.5</b> The step kernel and its launch, in Rust.</p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:21:50}}
-    // ...
-}
-```
-
-```rust,ignore
-impl Gpu<'_> {
-    // ...
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs:161:173}}
-    // ...
-}
-```
 
 ### 28.6.3 Running the 4-rank example
 
@@ -1095,6 +1119,10 @@ check(cudaSetDevice(localGpu));
 check(ncclCommInitRank(&comm, nranks, id, rank));
 ```
 
+cuda-oxide does not wrap NCCL, so a Rust program makes these calls through other bindings to
+the library, such as the `nccl` module of the `cudarc` crate, where `Id::new` and
+`Comm::from_rank` correspond to the 2 calls above.
+
 Rank 0 creates the ID in the second line, and every rank creates its communicator in the last line,
 after selecting its GPU with `cudaSetDevice`. Note that `ncclCommInitRank` returns only when all
 `nranks` ranks have called it with the same ID. A rank that never calls it, or that received a
@@ -1112,6 +1140,8 @@ Once the communicator exists, an all-reduce is a single call:
 check(ncclAllReduce(send, recv, count, ncclFloat, ncclSum, comm, stream));
 check(cudaStreamSynchronize(stream));
 ```
+
+In `cudarc`, the same collective is the method `all_reduce` of a `Comm`.
 
 `ncclAllReduce` reads `count` floats at `send` on every rank and writes their sum into `recv` on
 every rank; `send` and `recv` may be the same buffer. Like a kernel launch, the call returns as
@@ -1138,6 +1168,8 @@ for (int r = 0; r < k; ++r) {
 }
 check(ncclGroupEnd());
 ```
+
+`cudarc` provides the same pair as the functions `group_start` and `group_end`.
 
 Without the group, the first call could block while it waits for ranks whose calls the same thread
 has not yet made. Group calls also combine a `ncclSend` and a `ncclRecv` into 1 exchange, which is
@@ -1211,17 +1243,24 @@ ring that must cross a `SYS` path, between processor sockets, runs at the speed 
 
 ## 28.9 The complete programs
 
-<p class="listing"><b>Listing 28.6</b> The complete <code>allreduce.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+<p class="listing"><b>Listing 28.4</b> The complete programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a> <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch19_collectives/allreduce.cu">code/ch19_collectives/allreduce.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch19_collectives/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch19_collectives/allreduce.cu}}
 ```
 
-<p class="listing"><b>Listing 28.7</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch19_collectives/src/main.rs">code/oxide/ch19_collectives/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch19_collectives/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 

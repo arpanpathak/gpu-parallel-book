@@ -84,18 +84,12 @@ its results by writing to memory. The 2 qualifiers `__host__ __device__` togethe
 1 function for both sides, which suits small helpers such as a function that clamps a value
 to a range (Chapter 10).
 
-```cpp
-__device__ float square(float x) { return x * x; }        // helper, GPU only
-
-__global__ void squares(float* out, const float* in, int n) // kernel, launched from the host
-{
-    // ... each thread computes 1 element, using square() ...
-}
-```
-
 In Rust with cuda-oxide, an attribute plays the part of the qualifier. `#[kernel]` marks a
 kernel and `#[device]` a helper that runs on the GPU, and both live in a module marked
 `#[cuda_module]`, which cuda-oxide compiles for the GPU.
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 ```rust
 #[cuda_module]
@@ -110,6 +104,21 @@ mod kernels {
 }
 ```
 
+</div>
+<div class="code-tab" data-lang="C++">
+
+```cpp
+__device__ float square(float x) { return x * x; }        // helper, GPU only
+
+__global__ void squares(float* out, const float* in, int n) // kernel, launched from the host
+{
+    // ... each thread computes 1 element, using square() ...
+}
+```
+
+</div>
+</div>
+
 ## 3.3 Launching a kernel: grids and blocks
 
 ### 3.3.1 A 1-dimensional launch
@@ -117,9 +126,23 @@ mod kernels {
 A launch names the kernel, then the shape of the work between triple angle brackets, then
 the kernel's arguments:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust
+let add = module.prepare_add_vectors(LaunchConfig1D::new(blocks, BLOCK, 0))?;
+module.add_vectors(&stream, &add, &a_dev, &b_dev, &mut c_dev)?;
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 addVectors<<<blocks, threadsPerBlock>>>(d_a, d_b, d_c, n);
 ```
+
+</div>
+</div>
 
 The part between `<<<` and `>>>` is the **execution configuration**. Its first number is
 the number of blocks in the grid, and its second the number of threads in each block. The
@@ -129,11 +152,6 @@ In Rust, a launch takes 2 calls: `prepare_` checks the configuration against wha
 declares, and the second call runs it. `LaunchConfig1D::new(blocks, threads, 0)` holds the
 same 2 numbers as `<<<blocks, threads>>>`; its last argument, 0 here, is the shared memory
 each block asks for (Chapter 7).
-
-```rust
-let add = module.prepare_add_vectors(LaunchConfig1D::new(blocks, BLOCK, 0))?;
-module.add_vectors(&stream, &add, &a_dev, &b_dev, &mut c_dev)?;
-```
 
 <figure>
 <img src="../../figures/ch03-launch-1d.svg" alt="Three zones, block 0, 1 and 2, each with 8 threads. In each block a row shows threadIdx.x from 0 to 7 and a row below shows the index i: 0 to 7 in block 0, 8 to 15 in block 1, 16 to 23 in block 2. Thread 5 of block 2, index 21, is highlighted. A card reads i = blockIdx.x × blockDim.x + threadIdx.x, and for the highlighted thread 2 × 8 + 5 = 21.">
@@ -152,11 +170,28 @@ scan or a simulated volume has layers as well. CUDA lets a grid and its blocks h
 shape. Both numbers of the execution configuration can be a `dim3`, a small type with 3
 fields, `x`, `y` and `z`; a field that is not given is 1.
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:90:95}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 dim3 threadsPerBlock(4, 4);     // 4 × 4 = 16 threads per block, z = 1
 dim3 blocks(2, 2);              // 2 × 2 = 4 blocks
 kernel<<<blocks, threadsPerBlock>>>(...);
 ```
+
+</div>
+</div>
 
 The 4 blocks of 4 × 4 threads cover an image of 8 × 8 pixels, 1 thread per pixel (figure
 3.3). Each thread computes its column and row with the same formula as in 1 dimension, once
@@ -226,9 +261,29 @@ hold 3 unsigned integers.
 Chapter 2 found a thread's index by counting the threads of the blocks before it, then
 adding its position. In CUDA's names:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+    pub fn who_am_i() {
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:21:23}}
+        // ...
+    }
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 const int i = blockIdx.x * blockDim.x + threadIdx.x;
 ```
+
+</div>
+</div>
 
 `blockIdx.x * blockDim.x` counts the threads of all earlier blocks: block 2 of a launch with
 8 threads per block starts after 2 × 8 = 16 threads. Adding `threadIdx.x`, the position in
@@ -252,11 +307,31 @@ Block 2 covers indexes 512 to 767. Its warp 0 holds positions 0 to 31, indexes 5
 For a 2-dimensional launch the same formula is applied to each axis, and the pixel's place
 in memory follows from its row and column (figure 3.3):
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+    pub fn pixel_numbers(mut image: DisjointSlice<u32, Runtime2DIndex>) {
+        // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:43:46}}
+        // ...
+    }
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 const int ix = blockIdx.x * blockDim.x + threadIdx.x;   // column
 const int iy = blockIdx.y * blockDim.y + threadIdx.y;   // row
 const int pixel = iy * width + ix;                      // rows are stored 1 after another
 ```
+
+</div>
+</div>
 
 An image stored row after row puts a row's pixels at consecutive addresses. Neighbouring
 threads of a warp have consecutive `threadIdx.x`, so they read consecutive pixels of 1 row:
@@ -278,17 +353,54 @@ C++ integer division rounds down: 1,000 / 256 = 3. Adding 255, 1 less than the b
 before dividing makes any remainder reach the next multiple: (1,000 + 255) / 256 =
 1,255 / 256 = 4. In general,
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:75:75}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 const int blocks = (n + threadsPerBlock - 1) / threadsPerBlock;
 ```
+
+</div>
+</div>
 
 gives the smallest number of blocks that covers n. When n is already a multiple, the
 added 255 does not reach the next multiple, and no extra block is launched. Every kernel
 then needs a **guard**, a test that stops threads whose index is past the end of the data:
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+    pub fn add_vectors(a: &[f32], b: &[f32], mut c: DisjointSlice<f32>) {
+        // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:33:35}}
+    }
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 if (i < n) { c[i] = a[i] + b[i]; }
 ```
+
+</div>
+</div>
 
 Without the guard, threads 1,000 to 1,023 would read and write outside the arrays. The guard
 costs 1 comparison per thread, and only the last block contains threads that fail it.
@@ -304,9 +416,25 @@ stops 1,000,192 − 1,000,000 = 192 of them, all in the last block.
 ## 3.6 The first program: vector addition
 
 The program adds 2 arrays of 1,048,576 floats on the GPU, copies the result back, and checks
-every element. Each step is shown in C++ first, then in Rust.
+every element.
 
 ### 3.6.1 The kernel
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+<p class="listing"><b>Listing 3.2</b> The kernel, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch03_basics/src/main.rs">code/oxide/ch03_basics/src/main.rs</a></p>
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:28:36}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 <p class="listing"><b>Listing 3.1</b> The kernel, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch03_vector_add/vector_add.cu">code/ch03_vector_add/vector_add.cu</a></p>
 
@@ -314,14 +442,8 @@ every element. Each step is shown in C++ first, then in Rust.
 {{#include ../../../../code/ch03_vector_add/vector_add.cu:19:25}}
 ```
 
-<p class="listing"><b>Listing 3.2</b> The kernel, in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch03_basics/src/main.rs">code/oxide/ch03_basics/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:25:33}}
-}
-```
+</div>
+</div>
 
 In C++, each thread computes its index, checks it against `n`, and adds 1 pair of elements.
 
@@ -337,6 +459,22 @@ to the same address, and the threads need no coordination.
 
 ### 3.6.2 Memory on both sides
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+<p class="listing"><b>Listing 3.4</b> Host and device arrays, in Rust.</p>
+
+```rust,ignore
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:67:73}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 <p class="listing"><b>Listing 3.3</b> Host and device arrays, in C++.</p>
 
 ```cpp
@@ -347,15 +485,8 @@ int main()
 }
 ```
 
-<p class="listing"><b>Listing 3.4</b> Host and device arrays, in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // ...
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:47:53}}
-    // ...
-}
-```
+</div>
+</div>
 
 `1 << 20` shifts 1 left by 20 bits, which is 2<sup>20</sup> = 1,048,576. Each array holds
 1,048,576 floats of 4 bytes, so `bytes` is 4,194,304, 4 MiB.
@@ -371,6 +502,22 @@ equivalent of `cudaFree`.
 
 ### 3.6.3 Launch and wait
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+<p class="listing"><b>Listing 3.6</b> Launch, in Rust.</p>
+
+```rust,ignore
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ...
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:75:79}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 <p class="listing"><b>Listing 3.5</b> Launch, in C++.</p>
 
 ```cpp
@@ -382,15 +529,8 @@ int main()
 }
 ```
 
-<p class="listing"><b>Listing 3.6</b> Launch, in Rust.</p>
-
-```rust,ignore
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // ...
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:55:59}}
-    // ...
-}
-```
+</div>
+</div>
 
 The block size of 256 is 8 full warps, and small enough that several blocks fit on 1 SM
 (Chapter 2, section 2.9); sizes from 128 to 512 are common. With n = 1,048,576, the grid has
@@ -427,21 +567,30 @@ is 3 × 1,048,575 = 3,145,725, and the maximum error over all 1,048,576 elements
 A second, tiny kernel makes the index formula visible. Every thread of a launch of 2 blocks
 of 4 threads prints its block, its position and its index.
 
-<p class="listing"><b>Listing 3.7</b> Every thread prints who it is, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch03_vector_add/whoami.cu">code/ch03_vector_add/whoami.cu</a></p>
-
-```cpp
-{{#include ../../../../code/ch03_vector_add/whoami.cu:7:18}}
-```
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 <p class="listing"><b>Listing 3.8</b> The same kernel, in Rust.</p>
 
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch03_basics/src/main.rs:15:23}}
+{{#include ../../../../code/oxide/ch03_basics/src/main.rs:18:26}}
     // ...
 }
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+<p class="listing"><b>Listing 3.7</b> Every thread prints who it is, in C++. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch03_vector_add/whoami.cu">code/ch03_vector_add/whoami.cu</a></p>
+
+```cpp
+{{#include ../../../../code/ch03_vector_add/whoami.cu:7:18}}
+```
+
+</div>
+</div>
 
 ```console
 $ ./whoami
@@ -462,17 +611,26 @@ defined, and a correct kernel never depends on it.
 
 ### 3.6.6 The complete programs
 
-<p class="listing"><b>Listing 3.9</b> The complete <code>vector_add.cu</code>.</p>
-
-```cpp
-{{#include ../../../../code/ch03_vector_add/vector_add.cu}}
-```
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
 
 <p class="listing"><b>Listing 3.10</b> The complete Rust program.</p>
 
 ```rust,ignore
 {{#include ../../../../code/oxide/ch03_basics/src/main.rs}}
 ```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
+<p class="listing"><b>Listing 3.9</b> The complete <code>vector_add.cu</code>.</p>
+
+```cpp
+{{#include ../../../../code/ch03_vector_add/vector_add.cu}}
+```
+
+</div>
+</div>
 
 ## 3.7 The memory functions
 

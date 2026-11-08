@@ -229,6 +229,22 @@ void warmUp()
     check(cudaFree(c_gpu));
 }
 
+// The relation of the Rust launch contract that a launch of matmul
+// would violate, or nullptr if there is none.
+const char* violated(int m, int n, int k, size_t aLen, size_t bLen, size_t cLen)
+{
+    if (aLen < size_t(m) * k) {
+        return "aLen >= m * k";
+    }
+    if (bLen < size_t(k) * n) {
+        return "bLen >= k * n";
+    }
+    if (cLen < size_t(m) * n) {
+        return "cLen >= m * n";
+    }
+    return nullptr;
+}
+
 int main()
 {
     cudaDeviceProp prop;
@@ -246,6 +262,15 @@ int main()
     passed &= runFixed();
     for (int n : {512, 1024, 2048}) {
         passed &= runGeneric<double>("f64", n);
+    }
+
+    // A launch that claims k = 2 n for buffers of 256 x 256: the check refuses it.
+    size_t len = 256 * 256;
+    const char* broken = violated(256, 256, 512, len, len, len);
+    if (broken != nullptr) {
+        std::printf("k = 2 n refused before launch: %s is false\n", broken);
+    } else {
+        passed = false;
     }
 
     std::printf("%s\n", passed ? "PASSED" : "FAILED");

@@ -394,9 +394,22 @@ moves 2 × 8 bytes × 10<sup>9</sup> = 16 GB/s.
 
 <p class="listing"><b>Listing 25.1</b> The limits of the GPU, and the peaks they imply. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/measure.cu">code/ch16_profiling/measure.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_measure/src/main.rs:66:105}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch16_profiling/measure.cu:61:90}}
 ```
+
+</div>
+</div>
 
 ```console
 Orin, compute capability 8.7                   NVIDIA Thor, compute capability 11.0
@@ -499,6 +512,20 @@ blocks of a given size fit on 1 SM, given the registers and shared memory of the
 
 <p class="listing"><b>Listing 25.2</b> The theoretical occupancy of <code>scale</code>.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+fn main() -> Result<(), Error> {
+    // ...
+{{#include ../../../../code/oxide/ch16_measure/src/main.rs:149:151}}
+    // ...
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 int main()
 {
@@ -507,6 +534,9 @@ int main()
     // ...
 }
 ```
+
+</div>
+</div>
 
 ```console
 blocks of 256 per SM          6 = 1536 threads
@@ -576,9 +606,37 @@ Listing 25.3 leaves the guard out.
 
 <p class="listing"><b>Listing 25.3</b> Vector addition without its guard. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/bugs.cu">code/ch16_profiling/bugs.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:18:26}}
+}
+```
+
+In Rust, `get_mut` returns an `Option`, which is `None` for an index past the end of `c`, so the
+guard cannot be left out, and the compiler rejects the kernel:
+
+```console
+$ cargo oxide build --features no_guard
+error[E0614]: type `Option<&mut f32>` cannot be dereferenced
+  --> src/main.rs:25:9
+   |
+25 |         *c.get_mut(i) = a[k] + b[k];
+   |         ^^^^^^^^^^^^^ can't be dereferenced
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:19:24}}
 ```
+
+</div>
+</div>
 
 The program launches 4 blocks of 256 threads, 1,024 threads in total, for 1,000 elements.
 Threads 1,000 to 1,023 therefore read `a[i]` and `b[i]` and write `c[i]` past the end of each
@@ -653,9 +711,28 @@ Listing 25.4 leaves the barriers out of the sum of 256 values.
 
 <p class="listing"><b>Listing 25.4</b> A block sum without barriers.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:28:54}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:26:42}}
 ```
+
+</div>
+</div>
+
+In Rust every access to the shared array `S` is `unsafe`, and the compiler accepts the kernel
+without its barriers; the Rust program also printed 64 wrong block sums.
 
 All 64 block sums were wrong, and racecheck reports the conflicting lines:
 
@@ -699,9 +776,25 @@ the even and odd threads of every warp wait at 2 different instructions.
 
 <p class="listing"><b>Listing 25.5</b> 2 barriers, 1 per branch.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:56:79}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:44:58}}
 ```
+
+</div>
+</div>
 
 On the second GPU, the kernel produced the correct 256 elements, because the hardware happened to
 release both groups of threads together. On the first GPU, the same program never finished. The
@@ -730,9 +823,28 @@ a value that the program did not choose. Listing 25.6 sums 1,024 floats that not
 
 <p class="listing"><b>Listing 25.6</b> A sum of unwritten memory.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch16_bugs/src/main.rs:81:92}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu:60:68}}
 ```
+
+</div>
+</div>
+
+In Rust, unwritten device memory comes only from the `unsafe` function
+`DeviceBuffer::uninitialized_async`; the safe constructors `zeroed` and `from_host` write it first.
 
 The result was 0, because the memory happened to contain zeros. initcheck reports all 1,024 reads,
 each with its thread:
@@ -886,9 +998,25 @@ Listing 25.7 implements the first measurement in 2 forms.
 
 <p class="listing"><b>Listing 25.7</b> 1 dependent chain, and 4 independent chains, timed with <code>clock64()</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch16_latency/src/main.rs:17:72}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch16_profiling/latency.cu:19:50}}
 ```
+
+</div>
+</div>
 
 The first kernel performs 4,096 multiply-adds as a single dependent chain. The second kernel
 performs the same 4,096 multiply-adds as 4 chains of 1,024. The 4 operations of each step do not
@@ -919,9 +1047,25 @@ step of 1 MiB + 128 bytes and has no warm-up, so every load goes to DRAM.
 
 <p class="listing"><b>Listing 25.8</b> The pointer chase.</p>
 
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+mod kernels {
+    // ...
+{{#include ../../../../code/oxide/ch16_latency/src/main.rs:74:107}}
+}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
+
 ```cpp
 {{#include ../../../../code/ch16_profiling/latency.cu:52:69}}
 ```
+
+</div>
+</div>
 
 The host checks that each chain ended at the expected position: after \\(w\\) warm-up hops and
 \\(h\\) timed hops of step \\(s\\) through \\(c\\) positions, the index is \\((w + h)\,s \bmod c\\).
@@ -974,17 +1118,8 @@ cuda-oxide exposes the same counter as `cuda_device::debug::clock64()`, and the 
 in C++. The kernels launch 1 thread with the contract `block = (1, 1, 1)`, a declaration that the
 kernel is always launched with blocks of that shape. They write their results through
 `DisjointSlice`, the slice type of Chapter 13 through which each thread writes only its own
-elements. The chase reads `next` with `get_unchecked`, which reads an element without first
+elements. The chase of Listing 25.8 reads `next` with `get_unchecked`, which reads an element without first
 comparing the index with the length of the slice; we explain why in section 25.9.
-
-<p class="listing"><b>Listing 25.9</b> The pointer chase in Rust. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_latency/src/main.rs">code/oxide/ch16_latency/src/main.rs</a></p>
-
-```rust,ignore
-mod kernels {
-    // ...
-{{#include ../../../../code/oxide/ch16_latency/src/main.rs:74:107}}
-}
-```
 
 ```console
 $ cargo oxide run                              # first GPU
@@ -1012,13 +1147,26 @@ iterations. Less of each step is therefore spent on counting, and the Rust kerne
 A **benchmark** is a measurement of a program's speed made in such a way that it can be repeated
 and compared. The first rule of benchmarking is to measure the program in the state in which it
 will normally run. To see why, `measure.cu` times the kernel `y = 2 x` 40 times in a row with
-events, starting after the GPU has been idle. Listing 25.10 shows how a single launch is timed.
+events, starting after the GPU has been idle. Listing 25.9 shows how a single launch is timed.
 
-<p class="listing"><b>Listing 25.10</b> 1 launch, timed with 2 events.</p>
+<p class="listing"><b>Listing 25.9</b> 1 launch, timed with 2 events.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_measure/src/main.rs:48:64}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/measure.cu:42:59}}
 ```
+
+</div>
+</div>
 
 ```console
 y = 2 x over 256 MiB, the first 40 runs in ms
@@ -1153,16 +1301,29 @@ same **relative size**, the error divided by the value: about 1 part in 4 millio
 Because positive floats are stored in order, the number of floats between 2 of them is the
 difference of their bit patterns read as integers. For example, the float 1.0 has the bit pattern
 0x3F80_0000, and the next larger float, 1 + 2<sup>−23</sup>, has the pattern 0x3F80_0001. The
-difference of the 2 patterns read as integers is 1, and the 2 floats are 1 ULP apart. Listing 25.11 uses this property to measure the
+difference of the 2 patterns read as integers is 1, and the 2 floats are 1 ULP apart. Listing 25.10 uses this property to measure the
 error of `expf`, and of `__expf`, the faster hardware version that `--use_fast_math` substitutes,
 against the nearest float to the exact value. `--use_fast_math` is a compiler flag of `nvcc` that
 replaces standard math functions with faster and less accurate versions.
 
-<p class="listing"><b>Listing 25.11</b> The distance between 2 floats in ULPs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
+<p class="listing"><b>Listing 25.10</b> The distance between 2 floats in ULPs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_verify/src/main.rs:78:93}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/verify.cu:61:79}}
 ```
+
+</div>
+</div>
 
 ```console
 y = exp(x) for 1,048,576 values of x in [-10, 10)
@@ -1217,11 +1378,24 @@ Worked example: \\(d\\) for the 2-launch sum
 
 </div>
 
-<p class="listing"><b>Listing 25.12</b> The sum tested against its tolerance, and against a known answer.</p>
+<p class="listing"><b>Listing 25.11</b> The sum tested against its tolerance, and against a known answer.</p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_verify/src/main.rs:138:195}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/verify.cu:126:175}}
 ```
+
+</div>
+</div>
 
 ### 25.8.3 Known-answer and property tests
 
@@ -1317,35 +1491,81 @@ which the memory system moves data. The procedure above is how each of these exp
 
 ## 25.10 The complete programs
 
-<p class="listing"><b>Listing 25.13</b> The complete <code>bugs.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/bugs.cu">code/ch16_profiling/bugs.cu</a></p>
+<p class="listing"><b>Listing 25.12</b> The complete <code>bugs</code> programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_bugs/src/main.rs">code/oxide/ch16_bugs/src/main.rs</a> and <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/bugs.cu">code/ch16_profiling/bugs.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_bugs/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/bugs.cu}}
 ```
 
-<p class="listing"><b>Listing 25.14</b> The complete <code>measure.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/measure.cu">code/ch16_profiling/measure.cu</a></p>
+</div>
+</div>
+
+<p class="listing"><b>Listing 25.13</b> The complete <code>measure</code> programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_measure/src/main.rs">code/oxide/ch16_measure/src/main.rs</a> and <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/measure.cu">code/ch16_profiling/measure.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_measure/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/measure.cu}}
 ```
 
-<p class="listing"><b>Listing 25.15</b> The complete <code>latency.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
+</div>
+</div>
+
+<p class="listing"><b>Listing 25.14</b> The complete <code>latency</code> programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_latency/src/main.rs">code/oxide/ch16_latency/src/main.rs</a> and <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_latency/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/latency.cu}}
 ```
 
-<p class="listing"><b>Listing 25.16</b> The complete <code>verify.cu</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
+</div>
+</div>
+
+<p class="listing"><b>Listing 25.15</b> The complete <code>verify</code> programs. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_verify/src/main.rs">code/oxide/ch16_verify/src/main.rs</a> and <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/verify.cu">code/ch16_profiling/verify.cu</a></p>
+
+<div class="code-tabs">
+<div class="code-tab" data-lang="Rust">
+
+```rust,ignore
+{{#include ../../../../code/oxide/ch16_verify/src/main.rs}}
+```
+
+</div>
+<div class="code-tab" data-lang="C++">
 
 ```cpp
 {{#include ../../../../code/ch16_profiling/verify.cu}}
 ```
 
-<p class="listing"><b>Listing 25.17</b> The complete Rust program. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/oxide/ch16_latency/src/main.rs">code/oxide/ch16_latency/src/main.rs</a></p>
-
-```rust,ignore
-{{#include ../../../../code/oxide/ch16_latency/src/main.rs}}
-```
+</div>
+</div>
 
 ## Common mistakes
 
