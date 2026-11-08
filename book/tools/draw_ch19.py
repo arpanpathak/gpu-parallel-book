@@ -120,8 +120,8 @@ save(OUT + "ch19-plate.svg", 640, 460,
 
 # 19.2  The 5-point stencil, checked on cell (1, 1) of the final plate.
 cx, cy, s = 154, 236, 76
-cross = [((0, 0), "row, col", "store"), ((0, -1), "row−1, col", "client"), ((0, 1), "row+1, col", "client"),
-         ((-1, 0), "row, col−1", "client"), ((1, 0), "row, col+1", "client")]
+cross = [((0, 0), "r, c", "store"), ((0, -1), "r−1, c", "client"), ((0, 1), "r+1, c", "client"),
+         ((-1, 0), "r, c−1", "client"), ((1, 0), "r, c+1", "client")]
 parts = [zone(32, 96, 250, 320, "5-point stencil")]
 for (dx, dy), name, kind in cross:
     accent, tint = KINDS[kind]
@@ -250,8 +250,8 @@ parts += [mono(358, 150, "cell (1, 1) reads:"),
           mono(358, 296, "correct:"),
           mono(358, 318, "(100 + 0 + 0 + 25) / 4"),
           mono(358, 340, "= 31.25", fill=GREEN),
-          note(52, 382, "The kernel never writes row 0,"),
-          note(52, 398, "so it stays at 0 in buffer next.")]
+          note(52, 376, "The kernel never writes row 0,"),
+          note(52, 392, "so it stays at 0 in buffer next.")]
 save(OUT + "ch19-boundary-bug.svg", 640, 420,
      "Left: buffer next after step 1 when it was created filled with 0: row 1 holds 25 but the top row "
      "holds 0 instead of 100. Right: step 2 reads that buffer; cell (1, 1) gets (0 + 0 + 0 + 25) / 4 "
@@ -260,26 +260,26 @@ save(OUT + "ch19-boundary-bug.svg", 640, 420,
      "Step 2 reads a cold top edge: cell (1, 1) becomes 6.25 in place of 31.25.", parts)
 
 # 19.7  The invariant of the ping-pong loop.
-parts = [text(150, 106, "start of pass k", "name", "middle"),
-         text(500, 106, "after the launch, then exchange", "name", "middle")]
+parts = [text(195, 106, "start of pass k", "name", "middle"),
+         text(545, 106, "after the launch, then exchange", "name", "middle")]
 for k in range(3):
     y = 124 + k * 92
     parts += [note(32, y + 30, f"pass {k}")]
-    for x, name, content, kind in [(90, "current", f"u({k})", "client"),
-                                   (210, "next", f"u({max(k - 1, 0)})", "idle"),
-                                   (400, "current", f"u({k + 1})", "good"),
-                                   (520, "next", f"u({k})", "idle")]:
+    for x, name, content, kind in [(78, "current", f"u({k})", "client"),
+                                   (204, "next", f"u({max(k - 1, 0)})", "idle"),
+                                   (430, "current", f"u({k + 1})", "good"),
+                                   (556, "next", f"u({k})", "idle")]:
         accent, tint = KINDS[kind]
-        parts.append(square(x, y, 100, 52, tint, accent, f"{name}: {content}", width=1.5))
-    parts.append(f'  <path d="M312,{y + 26} H396" stroke="{WIRE}" stroke-width="1.8" fill="none" '
+        parts.append(square(x, y, 116, 52, tint, accent, f"{name}: {content}", width=1.5))
+    parts.append(f'  <path d="M330,{y + 26} H426" stroke="{WIRE}" stroke-width="1.8" fill="none" '
                  f'marker-end="url(#head)"/>')
-    parts.append(tag(318, y + 4, "read current", "client"))
-    parts.append(tag(318, y + 32, "write next", "good"))
+    parts.append(tag(332, y - 2, "read current", "client"))
+    parts.append(tag(332, y + 36, "write next", "good"))
 parts += [note(32, 418, "Invariant: at the start of pass k, buffer current holds the Jacobi grid u(k) in "
                         "every cell,"),
           note(32, 436, "and every boundary cell of buffer next holds its given value. Pass 0: "
                         "both buffers hold u(0).")]
-save(OUT + "ch19-pingpong.svg", 640, 456,
+save(OUT + "ch19-pingpong.svg", 700, 456,
      "3 rows, one per pass. Before pass 0, buffer current holds u0 and buffer next holds u0. The kernel "
      "reads current and writes the interior of next, which then holds u1; the names are exchanged, so current "
      "holds u1 and next holds u0. Before pass 1, current holds u1; after the launch and the exchange, current holds "

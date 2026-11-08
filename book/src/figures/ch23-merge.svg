@@ -27,9 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
-    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
-    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="432" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Merging 2 partial states</text>
@@ -54,7 +54,7 @@
   <line x1="240.0" y1="216.0" x2="240.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
   <line x1="98.0" y1="236.0" x2="240.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
   <circle cx="169" cy="236" r="3" fill="#3F5873"/>
-  <path d="M169,236 V265" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M 169,236 L 169.0,259.0" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="butt" marker-end="url(#head)"/>
   <rect filter="url(#m3-shadow)" x="32" y="268" width="274" height="72" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <path d="M44,268.7 H38 V339.3 H44 A11.3,11.3 0 0 1 32.7,328 V280 A11.3,11.3 0 0 1 44,268.7 Z" fill="#2E8B3D"/>
   <text x="52.0" y="291.0" class="name" text-anchor="start" xml:space="preserve">2, 4, 4, 5</text>
@@ -76,7 +76,7 @@
   <line x1="562.0" y1="216.0" x2="562.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
   <line x1="420.0" y1="236.0" x2="562.0" y2="236.0" stroke="#3F5873" stroke-width="1.6"/>
   <circle cx="491" cy="236" r="3" fill="#3F5873"/>
-  <path d="M491,236 V265" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M 491,236 L 491.0,259.0" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="butt" marker-end="url(#head)"/>
   <rect filter="url(#m3-shadow)" x="354" y="268" width="274" height="72" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <path d="M366,268.7 H360 V339.3 H366 A11.3,11.3 0 0 1 354.7,328 V280 A11.3,11.3 0 0 1 366,268.7 Z" fill="#2E8B3D"/>
   <text x="374.0" y="291.0" class="name" text-anchor="start" xml:space="preserve">1, 2, 3, 4</text>

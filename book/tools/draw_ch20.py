@@ -249,9 +249,9 @@ for r in range(N):
         if nohalo[r][c] != STEP2[r][c]:
             parts.append(outline(354 + c * side - 2, 124 + r * side - 2, side + 1, side + 1, RED,
                                  2.2))
-parts += [note(50, 400, "Thick lines: borders between blocks of 2 × 2."),
-          note(354, 400, "Red: 8 wrong cells, each with a neighbor"),
-          note(354, 416, "in another block.")]
+parts += [note(50, 394, "Thick lines: borders between blocks of 2 × 2."),
+          note(354, 394, "Red: 8 wrong cells, each with a neighbor"),
+          note(354, 410, "in another block.")]
 save(OUT + "ch20-nohalo.svg", 640, 436,
      "2 versions of the plate after step 2, side by side. Left, correct: row 1 reads 31.25, 37.5, "
      "37.5, 31.25 and row 2 reads 6.25 in each interior cell. Right, without the halo: row 1 reads "

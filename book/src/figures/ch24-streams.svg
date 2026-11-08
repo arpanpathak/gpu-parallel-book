@@ -27,9 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
-    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
-    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="404" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A batch of images on streams</text>
@@ -60,11 +60,11 @@
   <rect x="398.4" y="152.0" width="126.7" height="22.0" rx="6" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="461.7" y="167.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">image 2</text>
   <rect x="526.6" y="152.0" width="6.2" height="22.0" rx="6" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
-  <rect x="120" y="226" width="14" height="14" rx="4" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
+  <rect x="120" y="226" width="14" height="14" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
   <text x="141.0" y="237.5" class="note" text-anchor="start" xml:space="preserve">copy in, 0.20 ms</text>
-  <rect x="268.6" y="226" width="14" height="14" rx="4" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
+  <rect x="268.6" y="226" width="14" height="14" rx="4" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
   <text x="289.6" y="237.5" class="note" text-anchor="start" xml:space="preserve">7 kernels, 1.17 ms</text>
-  <rect x="430.40000000000003" y="226" width="14" height="14" rx="4" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
+  <rect x="430.40000000000003" y="226" width="14" height="14" rx="4" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
   <text x="451.4" y="237.5" class="note" text-anchor="start" xml:space="preserve">copy out, 0.07 ms</text>
   <text x="150.0" y="278.0" class="name" text-anchor="end" xml:space="preserve">1 stream</text>
   <rect x="162.0" y="262.0" width="275.0" height="22.0" rx="6" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>

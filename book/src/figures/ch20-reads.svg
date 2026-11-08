@@ -27,9 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
-    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
-    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="446" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Every value is read by its neighbors</text>
@@ -114,13 +114,13 @@
   <text x="270.5" y="346.5" class="mono" text-anchor="middle" style="font-size:11px;fill:#1B2430" xml:space="preserve">0</text>
   <rect x="130.0" y="202.0" width="41.0" height="41.0" rx="5" fill="none" stroke="#B7791F" stroke-width="2.6"/>
   <rect x="130.0" y="162.0" width="41.0" height="41.0" rx="5" fill="none" stroke="#2F6FDB" stroke-width="2.4"/>
-  <path d="M150.5,212.5 L150.5,201.5" stroke="#3F5873" stroke-width="1.6" fill="none" marker-end="url(#head)"/>
+  <path d="M 150.5,212.5 L 150.5,199.1" stroke="#3F5873" stroke-width="1.6" fill="none" stroke-linecap="butt" marker-end="url(#head-small)"/>
   <rect x="130.0" y="242.0" width="41.0" height="41.0" rx="5" fill="none" stroke="#2F6FDB" stroke-width="2.4"/>
-  <path d="M150.5,232.5 L150.5,243.5" stroke="#3F5873" stroke-width="1.6" fill="none" marker-end="url(#head)"/>
+  <path d="M 150.5,232.5 L 150.5,245.9" stroke="#3F5873" stroke-width="1.6" fill="none" stroke-linecap="butt" marker-end="url(#head-small)"/>
   <rect x="90.0" y="202.0" width="41.0" height="41.0" rx="5" fill="none" stroke="#2F6FDB" stroke-width="2.4"/>
-  <path d="M140.5,222.5 L129.5,222.5" stroke="#3F5873" stroke-width="1.6" fill="none" marker-end="url(#head)"/>
+  <path d="M 140.5,222.5 L 127.1,222.5" stroke="#3F5873" stroke-width="1.6" fill="none" stroke-linecap="butt" marker-end="url(#head-small)"/>
   <rect x="170.0" y="202.0" width="41.0" height="41.0" rx="5" fill="none" stroke="#2F6FDB" stroke-width="2.4"/>
-  <path d="M160.5,222.5 L171.5,222.5" stroke="#3F5873" stroke-width="1.6" fill="none" marker-end="url(#head)"/>
+  <path d="M 160.5,222.5 L 173.9,222.5" stroke="#3F5873" stroke-width="1.6" fill="none" stroke-linecap="butt" marker-end="url(#head-small)"/>
   <rect x="348.0" y="124.0" width="37.0" height="37.0" rx="4" fill="#FFFFFF" stroke="#1B2430" stroke-width="1.6"/>
   <text x="366.5" y="146.5" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
   <rect x="388.0" y="124.0" width="37.0" height="37.0" rx="4" fill="#F1F4F7" stroke="#1B2430" stroke-width="1.6"/>

@@ -27,9 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
-    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
-    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="464" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Register tiles, measured</text>
@@ -37,43 +37,43 @@
   <text x="40.0" y="106.0" class="name" text-anchor="start" xml:space="preserve">Rate at n = 4,096, GFLOP/s; red mark: shared-memory limit</text>
   <text x="140.0" y="146.0" class="note" text-anchor="end" style="fill:#1B2430" xml:space="preserve">Ch. 17, T = 16</text>
   <line x1="202.5" y1="122" x2="202.5" y2="166" stroke="#CF4526" stroke-width="2"/>
-  <rect x="150.0" y="125.0" width="47.6" height="17.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="125.0" width="47.6" height="17.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
   <text x="203.6" y="138.0" style="font-size:11.5px;font-weight:700;fill:#5B6BD6;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">271.9</text>
-  <rect x="150.0" y="145.0" width="48.0" height="17.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="145.0" width="48.0" height="17.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
   <text x="204.0" y="158.0" style="font-size:11.5px;font-weight:700;fill:#1F8A70;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">274.4</text>
   <text x="140.0" y="196.0" class="note" text-anchor="end" style="fill:#1B2430" xml:space="preserve">1 × 1</text>
   <line x1="202.5" y1="172" x2="202.5" y2="216" stroke="#CF4526" stroke-width="2"/>
-  <rect x="150.0" y="175.0" width="38.6" height="17.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="175.0" width="38.6" height="17.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
   <text x="194.6" y="188.0" style="font-size:11.5px;font-weight:700;fill:#5B6BD6;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">220.4</text>
-  <rect x="150.0" y="195.0" width="38.4" height="17.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="195.0" width="38.4" height="17.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
   <text x="194.4" y="208.0" style="font-size:11.5px;font-weight:700;fill:#1F8A70;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">219.4</text>
   <text x="140.0" y="246.0" class="note" text-anchor="end" style="fill:#1B2430" xml:space="preserve">2 × 1</text>
   <line x1="220.0" y1="222" x2="220.0" y2="266" stroke="#CF4526" stroke-width="2"/>
-  <rect x="150.0" y="225.0" width="68.5" height="17.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="225.0" width="68.5" height="17.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
   <text x="224.5" y="238.0" style="font-size:11.5px;font-weight:700;fill:#5B6BD6;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">391.5</text>
-  <rect x="150.0" y="245.0" width="68.2" height="17.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="245.0" width="68.2" height="17.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
   <text x="224.2" y="258.0" style="font-size:11.5px;font-weight:700;fill:#1F8A70;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">389.8</text>
   <text x="140.0" y="296.0" class="note" text-anchor="end" style="fill:#1B2430" xml:space="preserve">2 × 2</text>
   <line x1="255.0" y1="272" x2="255.0" y2="316" stroke="#CF4526" stroke-width="2"/>
-  <rect x="150.0" y="275.0" width="102.1" height="17.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="275.0" width="102.1" height="17.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
   <text x="258.1" y="288.0" style="font-size:11.5px;font-weight:700;fill:#5B6BD6;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">583.5</text>
-  <rect x="150.0" y="295.0" width="99.5" height="17.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="295.0" width="99.5" height="17.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
   <text x="255.5" y="308.0" style="font-size:11.5px;font-weight:700;fill:#1F8A70;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">568.5</text>
   <text x="140.0" y="346.0" class="note" text-anchor="end" style="fill:#1B2430" xml:space="preserve">4 × 4</text>
   <line x1="360.0" y1="322" x2="360.0" y2="366" stroke="#CF4526" stroke-width="2"/>
-  <rect x="150.0" y="325.0" width="176.7" height="17.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="325.0" width="176.7" height="17.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
   <text x="332.7" y="338.0" style="font-size:11.5px;font-weight:700;fill:#5B6BD6;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">1009.9</text>
-  <rect x="150.0" y="345.0" width="153.2" height="17.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="345.0" width="153.2" height="17.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
   <text x="309.2" y="358.0" style="font-size:11.5px;font-weight:700;fill:#1F8A70;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">875.5</text>
   <text x="140.0" y="396.0" class="note" text-anchor="end" style="fill:#1B2430" xml:space="preserve">8 × 8</text>
   <line x1="570.0" y1="372" x2="570.0" y2="416" stroke="#CF4526" stroke-width="2"/>
-  <rect x="150.0" y="375.0" width="135.3" height="17.0" rx="4" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="375.0" width="135.3" height="17.0" rx="4" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
   <text x="291.3" y="388.0" style="font-size:11.5px;font-weight:700;fill:#5B6BD6;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">773.1</text>
-  <rect x="150.0" y="395.0" width="144.8" height="17.0" rx="4" fill="#B6DED1" stroke="none" stroke-width="1.2"/>
+  <rect x="150.0" y="395.0" width="144.8" height="17.0" rx="4" fill="#D7F0E6" stroke="#1F8A70" stroke-width="1.2"/>
   <text x="300.8" y="408.0" style="font-size:11.5px;font-weight:700;fill:#1F8A70;stroke:#FBFAF6;stroke-width:4px;paint-order:stroke">827.5</text>
-  <rect x="40" y="430" width="12" height="12" rx="3" fill="#C6CDF4" stroke="none"/>
+  <rect x="40" y="430" width="12" height="12" rx="3" fill="#DDE3FB" stroke="#5B6BD6"/>
   <text x="58.0" y="440.0" class="note" text-anchor="start" style="fill:#1B2430" xml:space="preserve">C++</text>
-  <rect x="100" y="430" width="12" height="12" rx="3" fill="#B6DED1" stroke="none"/>
+  <rect x="100" y="430" width="12" height="12" rx="3" fill="#D7F0E6" stroke="#1F8A70"/>
   <text x="118.0" y="440.0" class="note" text-anchor="start" style="fill:#1B2430" xml:space="preserve">Rust</text>
   <line x1="170" y1="436" x2="186" y2="436" stroke="#CF4526" stroke-width="2"/>
   <text x="192.0" y="440.0" class="note" text-anchor="start" style="fill:#1B2430" xml:space="preserve">300 × 2 / (reads per multiply-add); 2,400 is the FP32 peak</text>

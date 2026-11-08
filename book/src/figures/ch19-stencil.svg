@@ -27,9 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker>
-    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker>
-    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="440" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The 5-point stencil</text>
@@ -38,18 +38,18 @@
   <rect x="50" y="85" width="146.0" height="22" rx="11" fill="#1B2430"/>
   <text x="123.0" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">5-POINT STENCIL</text>
   <rect x="120.0" y="202.0" width="68.0" height="68.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.6"/>
-  <text x="154.0" y="240.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">row, col</text>
+  <text x="154.0" y="240.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">r, c</text>
   <rect x="120.0" y="126.0" width="68.0" height="68.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.6"/>
-  <text x="154.0" y="164.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">row−1, col</text>
+  <text x="154.0" y="164.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">r−1, c</text>
   <text x="154.0" y="182.0" class="note" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">× 1/4</text>
   <rect x="120.0" y="278.0" width="68.0" height="68.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.6"/>
-  <text x="154.0" y="316.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">row+1, col</text>
+  <text x="154.0" y="316.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">r+1, c</text>
   <text x="154.0" y="334.0" class="note" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">× 1/4</text>
   <rect x="44.0" y="202.0" width="68.0" height="68.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.6"/>
-  <text x="78.0" y="240.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">row, col−1</text>
+  <text x="78.0" y="240.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">r, c−1</text>
   <text x="78.0" y="258.0" class="note" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">× 1/4</text>
   <rect x="196.0" y="202.0" width="68.0" height="68.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.6"/>
-  <text x="230.0" y="240.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">row, col+1</text>
+  <text x="230.0" y="240.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">r, c+1</text>
   <text x="230.0" y="258.0" class="note" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">× 1/4</text>
   <text x="48.0" y="372.0" class="note" text-anchor="start" xml:space="preserve">weight 1/4 on each neighbor,</text>
   <text x="48.0" y="390.0" class="note" text-anchor="start" xml:space="preserve">0 on the center</text>
