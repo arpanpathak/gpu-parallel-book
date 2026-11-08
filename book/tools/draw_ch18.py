@@ -76,8 +76,8 @@ parts.append(grid(50, 148, [[1, 2], [5, 6]], lambda i, j: LAV if i == 0 else IDL
 parts.append(grid(168, 148, [[1, 0], [0, 1]], lambda i, j: AMBER if j == 0 else IDLE, side=30))
 parts += [label(82, 240, "row 0", "middle"), label(200, 240, "column 0", "middle"),
           label(36, 274, "thread (0, 0) computes c00", room=220)]
-rows = [("u = 0", "read tileA[0][0] = 1, tileB[0][0] = 1", "sum += 1 · 1"),
-        ("u = 1", "read tileA[0][1] = 2, tileB[1][0] = 0", "sum += 2 · 0")]
+rows = [("offset = 0", "read tileA[0][0] = 1, tileB[0][0] = 1", "sum += 1 · 1"),
+        ("offset = 1", "read tileA[0][1] = 2, tileB[1][0] = 0", "sum += 2 · 0")]
 for r, (u, reads, op) in enumerate(rows):
     y = 120 + r * 78
     parts += [cell(290, y, 352, 62, ("#FFFFFF", EDGE)),
@@ -92,8 +92,8 @@ parts += [card(16, 318, 304, 76, "client", "1 thread, 1 phase", ["4 reads from s
           label(16, 442, "read by 2 threads, and each read feeds 1 multiply-add.", room=626)]
 save(OUT + "ch18-tiled-reads.svg", 660, 462,
      "Left: tileA = 1 2 / 5 6 and tileB = 1 0 / 0 1 in shared memory during phase 0; row 0 of tileA and column 0 "
-     "of tileB are highlighted. Right: thread (0, 0) of the tiled kernel of Chapter 17 at u = 0 reads 1 and 1 and "
-     "adds 1 times 1; at u = 1 it reads 2 and 0 and adds 2 times 0: 2 reads from shared memory for each "
+     "of tileB are highlighted. Right: thread (0, 0) of the tiled kernel of Chapter 17 at offset = 0 reads 1 and 1 and "
+     "adds 1 times 1; at offset = 1 it reads 2 and 0 and adds 2 times 0: 2 reads from shared memory for each "
      "multiply-add. Below: 1 thread makes 4 reads for 2 multiply-adds, 4 FLOP, in a phase; the block of 4 "
      "threads makes 16 reads for 8 multiply-adds. Thread (0, 1) reads the same row 0 of tileA again.",
      "1 read per FLOP in the tiled kernel", "Thread (0, 0) of Chapter 17 in phase 0: 2 shared-memory reads per multiply-add.",
@@ -111,7 +111,7 @@ parts = [small(24, 116, A, lambda i, j: LAV if (i, j) in ((0, 0), (1, 0)) else I
          text(278, 172, "=", "name", "middle"),
          small(292, 116, [[11, "", "", ""], [27, "", "", ""], ["", "", "", ""], ["", "", "", ""]],
                lambda i, j: MINT if (i, j) in ((0, 0), (1, 0)) else IDLE, "C")]
-parts += [zone(420, 106, 222, 112, "registers, u = 0"),
+parts += [zone(420, 106, 222, 112, "registers, offset = 0"),
           label(436, 140, "a_reg", cls="mono"), cell(490, 126, 28, 24, LAV, 1), cell(522, 126, 28, 24, LAV, 5),
           label(436, 178, "b_reg", cls="mono"), cell(490, 164, 28, 24, AMBER, 1),
           label(436, 206, "3 reads from shared memory", room=196)]
@@ -122,7 +122,7 @@ parts += [cell(24, 248, 300, 34, MINT, ""), label(36, 270, "c00 += a_reg[0] · b
           card(344, 344, 298, 62, "client", "per multiply-add", ["2 reads before, 1.5 reads now"])]
 save(OUT + "ch18-two-by-one.svg", 660, 426,
      "A, B and C of the 4 by 4 example. a00 = 1 and a10 = 5 of A, b00 = 1 of B, and c00 and c10 of C are "
-     "highlighted. In registers at u = 0: a_reg = 1, 5 and b_reg = 1, 3 reads from shared memory. The thread "
+     "highlighted. In registers at offset = 0: a_reg = 1, 5 and b_reg = 1, 3 reads from shared memory. The thread "
      "adds 1 times 1 = 1 to c00 and 5 times 1 = 5 to c10: 3 reads for 2 multiply-adds, because b00 is read once "
      "and used twice. 2 threads of Chapter 17 needed 4 reads for the same 2 multiply-adds: 1.5 reads per "
      "multiply-add instead of 2.",
@@ -130,7 +130,7 @@ save(OUT + "ch18-two-by-one.svg", 660, 426,
 
 
 # 18.3  1 thread computes a 2 x 2 block: 4 reads, 4 products, the outer product.
-parts = [label(24, 112, "u = 0: column 0 of A, rows 0 and 1, and row 0 of B, columns 0 and 1", room=600)]
+parts = [label(24, 112, "offset = 0: column 0 of A, rows 0 and 1, and row 0 of B, columns 0 and 1", room=600)]
 ox, oy, s = 200, 196, 64
 parts += [matrix_title(ox - 56, oy - 14, "A_REG"), matrix_title(ox + s + 2, oy - 64, "B_REG")]
 parts += [cell(ox - 72, oy, 40, s - 4, LAV, 1), cell(ox - 72, oy + s, 40, s - 4, LAV, 5),
@@ -146,7 +146,7 @@ parts += [card(380, 150, 262, 68, "client", "4 reads", ["2 values of A, 2 values
           card(380, 230, 262, 68, "good", "4 multiply-adds", ["every value read is used twice"]),
           card(380, 310, 262, 52, "store", "1 read per multiply-add", [])]
 save(OUT + "ch18-two-by-two.svg", 660, 384,
-     "For u = 0, the values 1 and 5 from column 0 of A run down the left, and the values 1 and 0 from row 0 of "
+     "For offset = 0, the values 1 and 5 from column 0 of A run down the left, and the values 1 and 0 from row 0 of "
      "B run across the top. The 4 cells hold the products 1 times 1 = 1, 1 times 0 = 0, 5 times 1 = 5 and 5 times "
      "0 = 0, which are added to c00, c01, c10 and c11. Cards: 4 reads, 2 values of A and 2 of B; 4 "
      "multiply-adds, every value read is used twice; 1 read per multiply-add.",
@@ -162,19 +162,19 @@ for u in range(4):
     b = (B[u][0], B[u][1])
     prod = [[a[0] * b[0], a[0] * b[1]], [a[1] * b[0], a[1] * b[1]]]
     parts += [cell(x, 102, pw, 196, ("#FFFFFF", EDGE)),
-              text(x + pw / 2, 126, f"u = {u}", "name", "middle"),
+              text(x + pw / 2, 126, f"s = {u}", "name", "middle"),
               label(x + pw / 2, 148, f"({a[0]}, {a[1]}) × ({b[0]}, {b[1]})", "middle", cls="mono", fill=INK, room=pw - 10),
               cell(x + 14, 196, 26, 30, LAV, a[0]), cell(x + 14, 230, 26, 30, LAV, a[1]),
               cell(x + 52, 160, 34, 26, AMBER, b[0]), cell(x + 90, 160, 34, 26, AMBER, b[1])]
     for i in range(2):
         for j in range(2):
             parts.append(cell(x + 52 + j * 38, 196 + i * 34, 34, 30, LAV if True else IDLE, prod[i][j], bold=True))
-    parts.append(label(x + pw / 2, 284, "A column u, B row u", "middle", room=pw - 6))
+    parts.append(label(x + pw / 2, 284, "A column s, B row s", "middle", room=pw - 6))
     if u < 3:
         parts.append(text(x + pw + 9, 236, "+", "name", "middle"))
 total = [[sum(A[i][u] * B[u][j] for u in range(4)) for j in range(2)] for i in range(2)]
 assert total == [[11, 13], [27, 29]]
-parts += [text(160, 352, "sum over u = 0, 1, 2, 3", "name", "middle"),
+parts += [text(160, 352, "sum over s = 0, 1, 2, 3", "name", "middle"),
           text(300, 352, "=", "name", "middle")]
 for i in range(2):
     for j in range(2):
@@ -183,12 +183,12 @@ parts += [label(430, 344, "c00 = 1 + 0 + 6 + 4 = 11", cls="mono", fill=INK),
           label(430, 364, "c11 = 0 + 6 + 7 + 16 = 29", cls="mono", fill=INK),
           label(430, 392, "c01 = 13, c10 = 27", fill=MUTED)]
 save(OUT + "ch18-outer-sum.svg", 660, 420,
-     "4 panels, 1 for each u from 0 to 3. In each, the 2 values of column u of A, rows 0 and 1, multiply the 2 "
-     "values of row u of B, columns 0 and 1. u = 0: (1, 5) times (1, 0) gives 1 0 / 5 0. u = 1: (2, 6) times "
-     "(0, 1) gives 0 2 / 0 6. u = 2: (3, 7) times (2, 1) gives 6 3 / 14 7. u = 3: (4, 8) times (1, 2) gives 4 8 "
+     "4 panels, 1 for each s from 0 to 3. In each, the 2 values of column s of A, rows 0 and 1, multiply the 2 "
+     "values of row s of B, columns 0 and 1. s = 0: (1, 5) times (1, 0) gives 1 0 / 5 0. s = 1: (2, 6) times "
+     "(0, 1) gives 0 2 / 0 6. s = 2: (3, 7) times (2, 1) gives 6 3 / 14 7. s = 3: (4, 8) times (1, 2) gives 4 8 "
      "/ 8 16. Their sum is 11 13 / 27 29, the 2 by 2 block of C in rows 0 and 1 and columns 0 and 1: for "
      "example c00 = 1 + 0 + 6 + 4 = 11 and c11 = 0 + 6 + 7 + 16 = 29.",
-     "A block of C as a sum of outer products", "Each value of u adds 1 outer product to the thread's 4 sums.",
+     "A block of C as a sum of outer products", "Each term index s adds 1 outer product to the thread's 4 sums.",
      parts)
 
 
@@ -230,8 +230,8 @@ parts += [harrow(212, 232, 170), harrow(428, 448, 170)]
 parts += [zone(16, 262, 628, 168, "counts for 4 × 4 per thread, blocks of 64 × 64, BK = 16")]
 rows = [("global → shared", "per phase, 1 block copies 64 · 16 + 16 · 64 = 2,048 floats"),
         ("", "each of the 256 threads copies 8 of them"),
-        ("shared → registers", "per value of u, 1 thread reads 4 + 4 = 8 floats"),
-        ("registers", "per value of u, 1 thread does 4 · 4 = 16 multiply-adds"),
+        ("shared → registers", "per offset, 1 thread reads 4 + 4 = 8 floats"),
+        ("registers", "per offset, 1 thread does 4 · 4 = 16 multiply-adds"),
         ("", "0.5 shared-memory reads per multiply-add")]
 for r, (head, body) in enumerate(rows):
     y = 298 + r * 26
@@ -243,7 +243,7 @@ save(OUT + "ch18-levels.svg", 660, 452,
      "of cycles. Shared memory holds tileA of 64 by 16 and tileB of 16 by 64 floats for 1 block during 1 phase. "
      "Registers hold a_reg of 4 values, b_reg of 4 values and acc of 4 by 4 = 16 sums for 1 thread. Below, the "
      "counts for 4 by 4 per thread with blocks of 64 by 64 and BK = 16: per phase a block copies 64 times 16 "
-     "plus 16 times 64 = 2,048 floats, 8 per thread; per value of u a thread reads 8 floats from shared memory "
+     "plus 16 times 64 = 2,048 floats, 8 per thread; per offset a thread reads 8 floats from shared memory "
      "and does 16 multiply-adds, 0.5 reads per multiply-add.",
      "3 levels of memory", "Each value moves once per level and is reused at the level below it.", parts)
 
@@ -253,8 +253,8 @@ owner = lambda i, j: THREAD[(i // 2) * 2 + j // 2]
 parts = [matrix_title(86, 116, "C, OWNED BY THREADS")]
 parts.append(grid(24, 128, C, owner, side=30))
 names = ["(0, 0)", "(0, 1)", "(1, 0)", "(1, 1)"]
-parts += [label(24, 280, "thread (ty, tx) owns rows", room=220),
-          label(24, 298, "2ty, 2ty + 1, columns 2tx, 2tx + 1", room=236)]
+parts += [label(24, 280, "thread (1, 0) owns rows 2 and 3", room=220),
+          label(24, 298, "and columns 0 and 1", room=236)]
 for t in range(4):
     parts += [cell(24 + (t % 2) * 100, 318 + (t // 2) * 30, 18, 18, THREAD[t]),
               label(48 + (t % 2) * 100, 332 + (t // 2) * 30, f"thread {names[t]}")]
@@ -268,18 +268,18 @@ parts += [matrix_title(304, 116, "TILEA, 4 × 2"),
           grid(420, 128, tileB0, copierB, side=30),
           label(420, 212, "phase 0: columns 0-1 of A,", room=220),
           label(420, 230, "rows 0-1 of B", room=220),
-          label(420, 262, "thread id = 2ty + tx copies", room=220),
-          label(420, 280, "elements e = id and id + 4", room=220),
+          label(420, 262, "thread (0, 1) has number 1;", room=220),
+          label(420, 280, "it copies slots 1 and 5", room=220),
           label(420, 298, "of each tile (row-major)", room=220)]
 parts += [card(270, 324, 372, 76, "idle", "Chapter 17, T = 2",
                ["the 4 threads of block (0, 0)", "computed c00, c01, c10 and c11"]),
           label(270, 422, "Here thread (0, 0) alone computes those 4 entries.", room=372)]
 save(OUT + "ch18-ownership.svg", 660, 440,
      "Left: C of the example, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, colored in 4 blocks of 2 by "
-     "2, 1 color per thread of the single block of 2 by 2 threads: thread (ty, tx) owns rows 2ty and 2ty + 1 "
-     "and columns 2tx and 2tx + 1. Right: the tiles of phase 0, tileA of 4 by 2 = columns 0 and 1 of A, 1 2 / 5 "
+     "2, 1 color per thread of the single block of 2 by 2 threads: thread (1, 0), for example, owns rows 2 "
+     "and 3 and columns 0 and 1. Right: the tiles of phase 0, tileA of 4 by 2 = columns 0 and 1 of A, 1 2 / 5 "
      "6 / 9 10 / 13 14, and tileB of 2 by 4 = rows 0 and 1 of B, 1 0 2 1 / 0 1 1 2, colored by the thread "
-     "that copies each value: thread id = 2ty + tx copies elements id and id + 4 of each tile in row-major "
+     "that copies each value: thread (0, 1), whose number is 1, copies slots 1 and 5 of each tile in row-major "
      "order. A card recalls that in Chapter 17 with T = 2 the 4 threads of block (0, 0) computed c00, c01, c10 "
      "and c11; here thread (0, 0) alone computes them.",
      "1 block, 4 threads, 4 entries each", "Each thread owns a 2 × 2 block of C and copies 2 values of each tile.",
@@ -297,7 +297,7 @@ def phase_row(y, t, before, added, after):
     shown_a = lambda i, j: (LAV if i < 2 else ("#F1F4F7", "#B9C3CF")) if 2 * t <= j < 2 * t + 2 else IDLE
     shown_b = lambda i, j: (AMBER if j < 2 else ("#F1F4F7", "#B9C3CF")) if 2 * t <= i < 2 * t + 2 else IDLE
     parts = [text(24, y + 8, f"phase {t}", "name"),
-             label(24, y + 26, f"u = {2 * t}, {2 * t + 1}", fill=MUTED),
+             label(24, y + 26, f"s = {2 * t}, {2 * t + 1}", fill=MUTED),
              grid(104, y - 6, A, shown_a, side=22, gap=3),
              outline(104 + 2 * t * 25 - 3, y - 9, 50, 103, "#5B6BD6", 1.6),
              grid(222, y - 6, B, shown_b, side=22, gap=3),
@@ -327,9 +327,9 @@ parts = [matrix_title(152, 108, "A"), matrix_title(270, 108, "B"),
                room=620),
          label(24, 404, "After phase 1 the 4 sums are c00 = 11, c01 = 13, c10 = 27 and c11 = 29.", room=620)]
 save(OUT + "ch18-phases.svg", 660, 424,
-     "2 rows, 1 per phase. Phase 0 uses columns 0 and 1 of A and rows 0 and 1 of B, u = 0 and 1; thread (0, 0) "
+     "2 rows, 1 per phase. Phase 0 uses columns 0 and 1 of A and rows 0 and 1 of B, s = 0 and 1; thread (0, 0) "
      "reads rows 0 and 1 of that part of A and columns 0 and 1 of that part of B. Its 4 sums go from 0 0 / 0 0 "
-     "to 1 2 / 5 6. Phase 1 uses columns 2 and 3 of A and rows 2 and 3 of B, u = 2 and 3, and adds 10 11 / 22 23, "
+     "to 1 2 / 5 6. Phase 1 uses columns 2 and 3 of A and rows 2 and 3 of B, s = 2 and 3, and adds 10 11 / 22 23, "
      "so the sums become 11 13 / 27 29: c00, c01, c10 and c11.",
      "Thread (0, 0) over 2 phases", "The 4 sums grow by 2 outer products in each phase.", parts)
 
