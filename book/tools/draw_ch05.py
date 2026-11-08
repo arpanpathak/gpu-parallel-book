@@ -86,7 +86,7 @@ parts += [line(gate + 3, 124, gate + 3, 132 + 6 * 40, KINDS["danger"][0], 2.4),
           tag(gate + 3, 132 + 6 * 40 + 14, "__syncthreads()", "danger", "middle"),
           legend(gx, 132 + 6 * 40 + 54, [("client", "working"), ("idle", "waiting"), ("service", "after the barrier")])]
 save(OUT + "ch05-barrier.svg", 660, 462,
-     "Six warps of a block write shared memory and reach __syncthreads at different times. Each early warp "
+     "Six warps of a block write shared memory and reach __syncthreads() at different times. Each early warp "
      "waits, shown dashed, at a vertical line marking the barrier. When the last warp arrives, all 6 start "
      "phase 2 together and can read what the others wrote.",
      "A block barrier", "No thread of the block passes __syncthreads() until all of them reach it.", parts)

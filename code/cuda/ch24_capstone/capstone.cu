@@ -37,35 +37,35 @@ double nowMs()
     return duration<double, std::milli>(steady_clock::now().time_since_epoch()).count();
 }
 
-// Position i - 2 clamped to [0, n): slot i of a window that starts 2 before.
-__host__ __device__ int tap(int i, int n)
+// Position slot - 2 clamped to [0, size): slot `slot` of a window that starts 2 before.
+__host__ __device__ int tap(int slot, int size)
 {
-    int j = i < 2 ? 0 : i - 2;
-    return j < n ? j : n - 1;
+    int position = slot < 2 ? 0 : slot - 2;
+    return position < size ? position : size - 1;
 }
 
-__device__ unsigned warpScan(unsigned v)
+__device__ unsigned warpScan(unsigned value)
 {
     int lane = threadIdx.x % 32;
     #pragma unroll
     for (int offset = 1; offset < 32; offset *= 2) {
-        unsigned left = __shfl_up_sync(0xffffffffu, v, offset);
+        unsigned left = __shfl_up_sync(0xffffffffu, value, offset);
         if (lane >= offset) {
-            v += left;
+            value += left;
         }
     }
-    return v;
+    return value;
 }
 
 // 1 thread per pixel. BT.601 weights in 8-bit fixed point: 77 + 150 + 29 = 256.
 __global__ void grayscale(const uint8_t* rgb, uint8_t* gray)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < PIXELS) {
-        unsigned r = rgb[3 * i];
-        unsigned g = rgb[3 * i + 1];
-        unsigned b = rgb[3 * i + 2];
-        gray[i] = (77 * r + 150 * g + 29 * b + 128) >> 8;
+    int pixel = blockIdx.x * blockDim.x + threadIdx.x;
+    if (pixel < PIXELS) {
+        unsigned red = rgb[3 * pixel];
+        unsigned green = rgb[3 * pixel + 1];
+        unsigned blue = rgb[3 * pixel + 2];
+        gray[pixel] = (77 * red + 150 * green + 29 * blue + 128) >> 8;
     }
 }
 
@@ -73,46 +73,45 @@ __global__ void grayscale(const uint8_t* rgb, uint8_t* gray)
 __global__ void histogram(const uint8_t* gray, unsigned* bins)
 {
     __shared__ unsigned local[256];
-    int tid = threadIdx.x;
 
-    local[tid] = 0;
+    local[threadIdx.x] = 0;
     __syncthreads();
 
     int stride = gridDim.x * 256;
-    for (int i = blockIdx.x * 256 + tid; i < PIXELS; i += stride) {
-        atomicAdd(&local[gray[i]], 1u);
+    for (int pixel = blockIdx.x * 256 + threadIdx.x; pixel < PIXELS; pixel += stride) {
+        atomicAdd(&local[gray[pixel]], 1u);
     }
     __syncthreads();
 
-    if (local[tid] > 0) {
-        atomicAdd(&bins[tid], local[tid]);
+    if (local[threadIdx.x] > 0) {
+        atomicAdd(&bins[threadIdx.x], local[threadIdx.x]);
     }
 }
 
-// 1 block of 256 threads, thread v for gray level v: the cumulative count of level v,
+// 1 block of 256 threads, 1 thread per gray level: the cumulative count of the level,
 // then its new level. Each bin is read and reset to 0 for the next image.
 __global__ void equaliseTable(unsigned* bins, uint8_t* table)
 {
     __shared__ unsigned warps[8];
     __shared__ unsigned first;
-    int v = threadIdx.x;
-    int lane = v % 32;
-    int warp = v / 32;
+    int level = threadIdx.x;
+    int lane = level % 32;
+    int warp = level / 32;
 
-    unsigned count = atomicExch(&bins[v], 0u);
+    unsigned count = atomicExch(&bins[level], 0u);
     unsigned inclusive = warpScan(count);
     if (lane == 31) {
         warps[warp] = inclusive;
     }
-    if (v == 0) {
+    if (level == 0) {
         first = 0xffffffffu;
     }
     __syncthreads();
 
     if (warp == 0) {
-        unsigned w = warpScan(lane < 8 ? warps[lane] : 0);
+        unsigned scannedTotal = warpScan(lane < 8 ? warps[lane] : 0);
         if (lane < 8) {
-            warps[lane] = w;
+            warps[lane] = scannedTotal;
         }
     }
     __syncthreads();
@@ -125,38 +124,37 @@ __global__ void equaliseTable(unsigned* bins, uint8_t* table)
 
     uint64_t span = warps[7] - first;
     uint64_t above = cdf > first ? cdf - first : 0;
-    uint64_t level = span == 0 ? v : (above * 255 + span / 2) / span;
-    table[v] = level;
+    uint64_t newLevel = span == 0 ? level : (above * 255 + span / 2) / span;
+    table[level] = newLevel;
 }
 
 // 1 thread per pixel: the new level of each pixel, looked up in the table.
 __global__ void applyTable(const uint8_t* gray, const uint8_t* table, uint8_t* out)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < PIXELS) {
-        out[i] = table[gray[i]];
+    int pixel = blockIdx.x * blockDim.x + threadIdx.x;
+    if (pixel < PIXELS) {
+        out[pixel] = table[gray[pixel]];
     }
 }
 
-// Row pass, weights 1 4 6 4 1. Slot s of the tile holds pixel x0 + s - 2 of the row,
+// Row pass, weights 1 4 6 4 1. Slot `slot` of the tile holds pixel left + slot - 2,
 // clamped: 2 halo slots on the left, 128 own pixels, 2 halo slots on the right.
 __global__ void blurRows(const uint8_t* src, uint16_t* out)
 {
     __shared__ unsigned tile[ROW_T + 4];
-    int tx = threadIdx.x;
-    int x0 = blockIdx.x * ROW_T;
+    int left = blockIdx.x * ROW_T;
     const uint8_t* row = src + blockIdx.y * W;
 
-    tile[tx + 2] = row[tap(x0 + tx + 2, W)];
-    if (tx < 2) {
-        tile[tx] = row[tap(x0 + tx, W)];
-        tile[ROW_T + 2 + tx] = row[tap(x0 + ROW_T + 2 + tx, W)];
+    tile[threadIdx.x + 2] = row[tap(left + threadIdx.x + 2, W)];
+    if (threadIdx.x < 2) {
+        tile[threadIdx.x] = row[tap(left + threadIdx.x, W)];
+        tile[ROW_T + 2 + threadIdx.x] = row[tap(left + ROW_T + 2 + threadIdx.x, W)];
     }
     __syncthreads();
 
-    const unsigned* t = tile + tx;
-    unsigned sum = t[0] + 4 * t[1] + 6 * t[2] + 4 * t[3] + t[4];
-    out[blockIdx.y * W + x0 + tx] = sum;
+    const unsigned* window = tile + threadIdx.x;
+    unsigned sum = window[0] + 4 * window[1] + 6 * window[2] + 4 * window[3] + window[4];
+    out[blockIdx.y * W + left + threadIdx.x] = sum;
 }
 
 // Column pass on a tile of 32 columns and 8 + 4 rows. The 2 passes weigh by
@@ -164,22 +162,24 @@ __global__ void blurRows(const uint8_t* src, uint16_t* out)
 __global__ void blurCols(const uint16_t* src, uint8_t* out)
 {
     __shared__ unsigned tile[COL_H + 4][COL_W];
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    int x = blockIdx.x * COL_W + tx;
-    int y0 = blockIdx.y * COL_H;
+    int tileRow = threadIdx.y;
+    int tileCol = threadIdx.x;
+    int x = blockIdx.x * COL_W + tileCol;
+    int top = blockIdx.y * COL_H;
 
-    tile[ty + 2][tx] = src[tap(y0 + ty + 2, H) * W + x];
-    if (ty < 2) {
-        tile[ty][tx] = src[tap(y0 + ty, H) * W + x];
-        tile[COL_H + 2 + ty][tx] = src[tap(y0 + COL_H + 2 + ty, H) * W + x];
+    tile[tileRow + 2][tileCol] = src[tap(top + tileRow + 2, H) * W + x];
+    if (tileRow < 2) {
+        tile[tileRow][tileCol] = src[tap(top + tileRow, H) * W + x];
+        tile[COL_H + 2 + tileRow][tileCol] = src[tap(top + COL_H + 2 + tileRow, H) * W + x];
     }
     __syncthreads();
 
-    unsigned sum = tile[ty][tx] + 4 * tile[ty + 1][tx] + 6 * tile[ty + 2][tx];
-    sum += 4 * tile[ty + 3][tx] + tile[ty + 4][tx];
-    out[(y0 + ty) * W + x] = (sum + 128) >> 8;
+    unsigned sum = tile[tileRow][tileCol] + 4 * tile[tileRow + 1][tileCol];
+    sum += 6 * tile[tileRow + 2][tileCol] + 4 * tile[tileRow + 3][tileCol];
+    sum += tile[tileRow + 4][tileCol];
+    out[(top + tileRow) * W + x] = (sum + 128) >> 8;
 }
+
 
 // Sobel gradient magnitude divided by 4, rounded and clamped to 255. The 8 neighbors
 // come from global memory; neighboring threads share them through the L1 cache.
@@ -187,15 +187,19 @@ __global__ void sobel(const uint8_t* src, uint8_t* out)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
-    int xl = max(x - 1, 0);
-    int xr = min(x + 1, W - 1);
-    int yu = max(y - 1, 0);
-    int yd = min(y + 1, H - 1);
+    int xLeft = max(x - 1, 0);
+    int xRight = min(x + 1, W - 1);
+    int yAbove = max(y - 1, 0);
+    int yBelow = min(y + 1, H - 1);
 
-    int right = src[yu * W + xr] + 2 * src[y * W + xr] + src[yd * W + xr];
-    int left = src[yu * W + xl] + 2 * src[y * W + xl] + src[yd * W + xl];
-    int below = src[yd * W + xl] + 2 * src[yd * W + x] + src[yd * W + xr];
-    int above = src[yu * W + xl] + 2 * src[yu * W + x] + src[yu * W + xr];
+    const uint8_t* upper = src + yAbove * W;
+    const uint8_t* middle = src + y * W;
+    const uint8_t* lower = src + yBelow * W;
+
+    int right = upper[xRight] + 2 * middle[xRight] + lower[xRight];
+    int left = upper[xLeft] + 2 * middle[xLeft] + lower[xLeft];
+    int below = lower[xLeft] + 2 * lower[x] + lower[xRight];
+    int above = upper[xLeft] + 2 * upper[x] + upper[xRight];
     int gx = right - left;
     int gy = below - above;
 
@@ -258,81 +262,86 @@ const Stage STAGES[7] = {
     {"sobel", 2},
 };
 
-// Launches stage k of the pipeline on stream s.
-void stage(cudaStream_t s, Buffers& b, int k)
+// Launches stage `index` of the pipeline on `stream`.
+void stage(cudaStream_t stream, Buffers& buffers, int index)
 {
     int line = PIXELS / 256;
     dim3 rows(W / ROW_T, H);
     dim3 tiles(W / COL_W, H / COL_H);
     dim3 tile(COL_W, COL_H);
 
-    switch (k) {
+    switch (index) {
     case 0:
-        grayscale<<<line, 256, 0, s>>>(b.rgb, b.gray);
+        grayscale<<<line, 256, 0, stream>>>(buffers.rgb, buffers.gray);
         break;
     case 1:
-        histogram<<<64, 256, 0, s>>>(b.gray, b.bins);
+        histogram<<<64, 256, 0, stream>>>(buffers.gray, buffers.bins);
         break;
     case 2:
-        equaliseTable<<<1, 256, 0, s>>>(b.bins, b.table);
+        equaliseTable<<<1, 256, 0, stream>>>(buffers.bins, buffers.table);
         break;
     case 3:
-        applyTable<<<line, 256, 0, s>>>(b.gray, b.table, b.equal);
+        applyTable<<<line, 256, 0, stream>>>(buffers.gray, buffers.table, buffers.equal);
         break;
     case 4:
-        blurRows<<<rows, ROW_T, 0, s>>>(b.equal, b.rows);
+        blurRows<<<rows, ROW_T, 0, stream>>>(buffers.equal, buffers.rows);
         break;
     case 5:
-        blurCols<<<tiles, tile, 0, s>>>(b.rows, b.blurred);
+        blurCols<<<tiles, tile, 0, stream>>>(buffers.rows, buffers.blurred);
         break;
     default:
-        sobel<<<tiles, tile, 0, s>>>(b.blurred, b.edges);
+        sobel<<<tiles, tile, 0, stream>>>(buffers.blurred, buffers.edges);
     }
 }
 
-// All 7 stages of 1 image, in order, on stream s.
-void process(cudaStream_t s, Buffers& b)
+// All 7 stages of 1 image, in order, on `stream`.
+void process(cudaStream_t stream, Buffers& buffers)
 {
-    for (int k = 0; k < 7; ++k) {
-        stage(s, b, k);
+    for (int index = 0; index < 7; ++index) {
+        stage(stream, buffers, index);
     }
 }
 
 // Average time of 100 runs of `launch`, in milliseconds, after 1 warm-up run.
 template <typename F>
-double timeMs(cudaStream_t s, F launch)
+double timeMs(cudaStream_t stream, F launch)
 {
     launch();
-    check(cudaStreamSynchronize(s));
+    check(cudaStreamSynchronize(stream));
 
     double t0 = nowMs();
-    for (int r = 0; r < 100; ++r) {
+    for (int timed = 0; timed < 100; ++timed) {
         launch();
     }
     check(cudaGetLastError());
-    check(cudaStreamSynchronize(s));
+    check(cudaStreamSynchronize(stream));
     return (nowMs() - t0) / 100;
 }
 
-// Uploads, processes and downloads `count` images, image i on stream i % n.
+// Uploads, processes and downloads `count` images, image `image` on stream image % n.
 // Returns images per second.
 double batch(cudaStream_t* streams, Buffers* lanes, int n, uint8_t** inputs,
              uint8_t** outputs, int count)
 {
     double t0 = nowMs();
 
-    for (int i = 0; i < count; ++i) {
-        int k = i % n;
-        cudaStream_t s = streams[k];
-        Buffers& b = lanes[k];
+    for (int image = 0; image < count; ++image) {
+        int slot = image % n;
+        cudaStream_t stream = streams[slot];
+        Buffers& buffers = lanes[slot];
 
-        check(cudaMemcpyAsync(b.rgb, inputs[i % 4], 3 * PIXELS, cudaMemcpyHostToDevice, s));
-        process(s, b);
-        check(cudaMemcpyAsync(outputs[k], b.edges, PIXELS, cudaMemcpyDeviceToHost, s));
+        const uint8_t* input = inputs[image % 4];
+        uint8_t* output = outputs[slot];
+
+        size_t bytes = 3 * PIXELS;
+        check(cudaMemcpyAsync(buffers.rgb, input, bytes, cudaMemcpyHostToDevice, stream));
+        process(stream, buffers);
+        uint8_t* edges = buffers.edges;
+        check(cudaMemcpyAsync(output, edges, PIXELS, cudaMemcpyDeviceToHost, stream));
     }
 
-    for (int k = 0; k < n; ++k) {
-        check(cudaStreamSynchronize(streams[k]));
+    for (int slot = 0; slot < n; ++slot) {
+        check(cudaStreamSynchronize(streams[slot]));
     }
     return count / ((nowMs() - t0) / 1e3);
 }
@@ -369,28 +378,30 @@ Images cpuPipeline(const std::vector<uint8_t>& rgb)
     img.gray.resize(PIXELS);
     parRows([&](int y) {
         for (int x = 0; x < W; ++x) {
-            int p = 3 * (y * W + x);
-            unsigned r = rgb[p], g = rgb[p + 1], b = rgb[p + 2];
-            img.gray[y * W + x] = (77 * r + 150 * g + 29 * b + 128) >> 8;
+            int byte = 3 * (y * W + x);
+            unsigned red = rgb[byte];
+            unsigned green = rgb[byte + 1];
+            unsigned blue = rgb[byte + 2];
+            img.gray[y * W + x] = (77 * red + 150 * green + 29 * blue + 128) >> 8;
         }
     });
 
     unsigned bins[256] = {};
-    for (uint8_t g : img.gray) {
-        bins[g] += 1;
+    for (uint8_t level : img.gray) {
+        bins[level] += 1;
     }
 
     unsigned first = 0;
     unsigned cdf = 0;
-    for (int v = 0; v < 256 && first == 0; ++v) {
-        first = bins[v];
+    for (int level = 0; level < 256 && first == 0; ++level) {
+        first = bins[level];
     }
     uint64_t span = PIXELS - first;
     uint8_t table[256];
-    for (int v = 0; v < 256; ++v) {
-        cdf += bins[v];
+    for (int level = 0; level < 256; ++level) {
+        cdf += bins[level];
         uint64_t above = cdf > first ? cdf - first : 0;
-        table[v] = span == 0 ? v : (above * 255 + span / 2) / span;
+        table[level] = span == 0 ? level : (above * 255 + span / 2) / span;
     }
 
     img.equal.resize(PIXELS);
@@ -402,10 +413,11 @@ Images cpuPipeline(const std::vector<uint8_t>& rgb)
 
     std::vector<unsigned> rows(PIXELS);
     parRows([&](int y) {
-        const uint8_t* e = &img.equal[y * W];
+        const uint8_t* equal = &img.equal[y * W];
         for (int x = 0; x < W; ++x) {
-            unsigned sum = e[tap(x, W)] + 4 * e[tap(x + 1, W)] + 6 * e[tap(x + 2, W)];
-            rows[y * W + x] = sum + 4 * e[tap(x + 3, W)] + e[tap(x + 4, W)];
+            unsigned sum = equal[tap(x, W)] + 4 * equal[tap(x + 1, W)];
+            sum += 6 * equal[tap(x + 2, W)] + 4 * equal[tap(x + 3, W)];
+            rows[y * W + x] = sum + equal[tap(x + 4, W)];
         }
     });
 
@@ -422,15 +434,16 @@ Images cpuPipeline(const std::vector<uint8_t>& rgb)
     img.edges.resize(PIXELS);
     parRows([&](int y) {
         const uint8_t* src = img.blurred.data();
-        int yu = std::max(y - 1, 0);
-        int yd = std::min(y + 1, H - 1);
+        const uint8_t* upper = src + std::max(y - 1, 0) * W;
+        const uint8_t* middle = src + y * W;
+        const uint8_t* lower = src + std::min(y + 1, H - 1) * W;
         for (int x = 0; x < W; ++x) {
-            int xl = std::max(x - 1, 0);
-            int xr = std::min(x + 1, W - 1);
-            int right = src[yu * W + xr] + 2 * src[y * W + xr] + src[yd * W + xr];
-            int left = src[yu * W + xl] + 2 * src[y * W + xl] + src[yd * W + xl];
-            int below = src[yd * W + xl] + 2 * src[yd * W + x] + src[yd * W + xr];
-            int above = src[yu * W + xl] + 2 * src[yu * W + x] + src[yu * W + xr];
+            int xLeft = std::max(x - 1, 0);
+            int xRight = std::min(x + 1, W - 1);
+            int right = upper[xRight] + 2 * middle[xRight] + lower[xRight];
+            int left = upper[xLeft] + 2 * middle[xLeft] + lower[xLeft];
+            int below = lower[xLeft] + 2 * lower[x] + lower[xRight];
+            int above = upper[xLeft] + 2 * upper[x] + upper[xRight];
             int gx = right - left;
             int gy = below - above;
 

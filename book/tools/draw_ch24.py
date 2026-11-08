@@ -251,7 +251,7 @@ def pipeline():
     links_left = ["rgb", "gray", "bins", "table"]
     links_right = ["rows, 2 B", "blurred", "edges"]
 
-    parts = [zone(18, 92, 302, 400, "Equalise"), zone(326, 92, 298, 324, "Blur and edges")]
+    parts = [zone(18, 92, 302, 400, "Equalize"), zone(326, 92, 298, 324, "Blur and edges")]
     for k, (kind, name, sub) in enumerate(stages_left):
         y = top + k * gap
         parts.append(card(left, y, w, h, kind, name, sub))
@@ -268,7 +268,7 @@ def pipeline():
                        (right - 3, top + h / 2)]))
     parts.append(note(334, 444, "the equalized image goes to blur rows"))
     parts.append(legend(334, 474, [("client", "map"), ("service", "global"),
-                                   ("model", "neighbourhood")]))
+                                   ("model", "neighborhood")]))
     save(OUT + "ch24-pipeline.svg", 640, 512,
          "The pipeline in 2 columns. Equalize: the RGB image of 3 bytes per pixel goes to "
          "grayscale, a map; histogram counts the gray levels into 256 bins; equalize table "
@@ -291,7 +291,7 @@ def equalise():
     parts.append(note(56, base + 36, "every other level of 0 to 255 has count 0"))
 
     ty = 300
-    rows = [("level v", LEVELS, "idle"), ("count", [BINS[v] for v in LEVELS], "service"),
+    rows = [("level", LEVELS, "idle"), ("count", [BINS[v] for v in LEVELS], "service"),
             ("c(v), scan", [CDF[v] for v in LEVELS], "client"),
             ("new level", [TABLE[v] for v in LEVELS], "good")]
     for r, (name, values, kind) in enumerate(rows):
@@ -401,7 +401,7 @@ def tile():
     """The shared tile of row 2 for a block of 8 threads, and the windows of 2 threads."""
     slots = [EQ[2][clamp(t - 2)] for t in range(N + 4)]
     y = 122
-    parts = [text(40, 92, "slot s of the tile of row 2 holds pixel x = s - 2, clamped",
+    parts = [text(40, 92, "each slot of the tile of row 2 holds pixel x = slot - 2, clamped",
                   "name"),
              tile_slots(slots, y)]
     x0, s = 40, 46
@@ -420,7 +420,7 @@ def tile():
         else:
             parts.append(mono(side, yy + 14, f"sum {total:,}"))
     parts.append(legend(40, y + 178, [("store", "halo: loaded by threads 0 and 1"),
-                                      ("client", "own pixels: thread t loads slot t + 2")]))
+                                      ("client", "own pixels: each thread loads slot threadIdx.x + 2")]))
     parts.append(note(40, y + 204, "8 threads load 12 values once; the 8 sums read 40 "
                                    "values, all from shared memory."))
     save(OUT + "ch24-tile.svg", 640, y + 220,

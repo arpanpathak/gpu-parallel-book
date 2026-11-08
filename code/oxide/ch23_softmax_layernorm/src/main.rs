@@ -23,89 +23,97 @@ mod kernels {
     use super::*;
 
     #[device]
-    fn warp_max(mut v: f32) -> f32 {
+    fn warp_max(mut value: f32) -> f32 {
         let mut mask = 16;
         while mask > 0 {
-            v = v.max(warp::shuffle_xor_f32(v, mask));
+            value = value.max(warp::shuffle_xor_f32(value, mask));
             mask /= 2;
         }
-        v
+        value
     }
 
     #[device]
-    fn warp_sum(mut v: f32) -> f32 {
+    fn warp_sum(mut value: f32) -> f32 {
         let mut mask = 16;
         while mask > 0 {
-            v += warp::shuffle_xor_f32(v, mask);
+            value += warp::shuffle_xor_f32(value, mask);
             mask /= 2;
         }
-        v
+        value
     }
 
     /// The maximum over the block, returned to every thread. `slots` holds 8 floats.
     #[device]
-    fn block_max(v: f32, slots: *mut f32) -> f32 {
-        let v = warp_max(v);
+    fn block_max(value: f32, slots: *mut f32) -> f32 {
+        let value = warp_max(value);
         let warp = thread::threadIdx_x() as usize / 32;
         if warp::lane_id() == 0 {
             // SAFETY: lane 0 of each warp writes its own slot, before the barrier.
-            unsafe { *slots.add(warp) = v };
+            unsafe { *slots.add(warp) = value };
         }
         thread::sync_threads();
 
         // SAFETY: between the 2 barriers the slots are only read.
-        let mut m = unsafe { *slots };
-        let mut w = 1;
-        while w < WARPS {
-            m = m.max(unsafe { *slots.add(w) });
-            w += 1;
+        let mut largest = unsafe { *slots };
+        let mut other = 1;
+        while other < WARPS {
+            largest = largest.max(unsafe { *slots.add(other) });
+            other += 1;
         }
         thread::sync_threads();
-        m
+        largest
     }
 
     /// The sum over the block, returned to every thread. `slots` holds 8 floats.
     #[device]
-    fn block_sum(v: f32, slots: *mut f32) -> f32 {
-        let v = warp_sum(v);
+    fn block_sum(value: f32, slots: *mut f32) -> f32 {
+        let value = warp_sum(value);
         let warp = thread::threadIdx_x() as usize / 32;
         if warp::lane_id() == 0 {
             // SAFETY: lane 0 of each warp writes its own slot, before the barrier.
-            unsafe { *slots.add(warp) = v };
+            unsafe { *slots.add(warp) = value };
         }
         thread::sync_threads();
 
         // SAFETY: between the 2 barriers the slots are only read.
-        let mut s = 0.0;
-        let mut w = 0;
-        while w < WARPS {
-            s += unsafe { *slots.add(w) };
-            w += 1;
+        let mut sum = 0.0;
+        let mut other = 0;
+        while other < WARPS {
+            sum += unsafe { *slots.add(other) };
+            other += 1;
         }
         thread::sync_threads();
-        s
+        sum
     }
 
     /// Merges 2 softmax states (maximum m, sum of exp(x - m)); (-inf, 0) is empty.
     #[device]
-    fn merge_softmax(m: f32, s: f32, m2: f32, s2: f32) -> (f32, f32) {
-        let top = m.max(m2);
+    fn merge_softmax(
+        largest: f32,
+        sum: f32,
+        other_largest: f32,
+        other_sum: f32,
+    ) -> (f32, f32) {
+        let top = largest.max(other_largest);
         if top == f32::NEG_INFINITY {
             return (top, 0.0);
         }
-        (top, s * (m - top).exp() + s2 * (m2 - top).exp())
+        let first_part = sum * (largest - top).exp();
+        let second_part = other_sum * (other_largest - top).exp();
+        (top, first_part + second_part)
     }
 
     /// Merges 2 Welford states (count n, mean, sum of squared deviations q).
     #[device]
-    fn merge_welford(a: (f32, f32, f32), b: (f32, f32, f32)) -> (f32, f32, f32) {
-        let n = a.0 + b.0;
-        if n == 0.0 {
-            return a;
+    fn merge_welford(first: (f32, f32, f32), second: (f32, f32, f32)) -> (f32, f32, f32) {
+        let count = first.0 + second.0;
+        if count == 0.0 {
+            return first;
         }
-        let delta = b.1 - a.1;
-        let mean = a.1 + delta * b.0 / n;
-        (n, mean, a.2 + b.2 + delta * delta * a.0 * b.0 / n)
+        let delta = second.1 - first.1;
+        let mean = first.1 + delta * second.0 / count;
+        let between = delta * delta * first.0 * second.0 / count;
+        (count, mean, first.2 + second.2 + between)
     }
 
     /// Softmax without the maximum: exp(x) / sum of exp(x). Overflows for large x.
@@ -119,18 +127,20 @@ mod kernels {
         let tid = thread::threadIdx_x() as usize;
 
         let mut sum = 0.0;
-        let mut j = tid;
-        while j < cols as usize {
-            sum += input[base + j].exp();
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            sum += input[base + column].exp();
+            column += BLOCK as usize;
         }
         let total = block_sum(sum, slots);
 
-        let mut j = tid;
-        while j < cols as usize {
-            // SAFETY: block b writes only row b; thread t only columns t, t + 256, ...
-            unsafe { *out.get_unchecked_mut(base + j) = input[base + j].exp() / total };
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            let probability = input[base + column].exp() / total;
+            // SAFETY: each block writes only its own row, and each thread only its own
+            // columns threadIdx.x, threadIdx.x + 256, ...
+            unsafe { *out.get_unchecked_mut(base + column) = probability };
+            column += BLOCK as usize;
         }
     }
 
@@ -144,28 +154,29 @@ mod kernels {
         let base = thread::blockIdx_x() as usize * cols as usize;
         let tid = thread::threadIdx_x() as usize;
 
-        let mut m = f32::NEG_INFINITY;
-        let mut j = tid;
-        while j < cols as usize {
-            m = m.max(input[base + j]);
-            j += BLOCK as usize;
+        let mut largest = f32::NEG_INFINITY;
+        let mut column = tid;
+        while column < cols as usize {
+            largest = largest.max(input[base + column]);
+            column += BLOCK as usize;
         }
-        let top = block_max(m, slots);
+        let top = block_max(largest, slots);
 
         let mut sum = 0.0;
-        let mut j = tid;
-        while j < cols as usize {
-            sum += (input[base + j] - top).exp();
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            sum += (input[base + column] - top).exp();
+            column += BLOCK as usize;
         }
         let total = block_sum(sum, slots);
 
-        let mut j = tid;
-        while j < cols as usize {
-            let p = (input[base + j] - top).exp() / total;
-            // SAFETY: block b writes only row b; thread t only columns t, t + 256, ...
-            unsafe { *out.get_unchecked_mut(base + j) = p };
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            let probability = (input[base + column] - top).exp() / total;
+            // SAFETY: each block writes only its own row, and each thread only its own
+            // columns threadIdx.x, threadIdx.x + 256, ...
+            unsafe { *out.get_unchecked_mut(base + column) = probability };
+            column += BLOCK as usize;
         }
     }
 
@@ -178,51 +189,52 @@ mod kernels {
         let base = thread::blockIdx_x() as usize * cols as usize;
         let tid = thread::threadIdx_x() as usize;
 
-        let mut m = f32::NEG_INFINITY;
-        let mut s = 0.0;
-        let mut j = tid;
-        while j < cols as usize {
-            let v = input[base + j];
-            if v > m {
-                s = s * (m - v).exp() + 1.0;
-                m = v;
+        let mut largest = f32::NEG_INFINITY;
+        let mut sum = 0.0;
+        let mut column = tid;
+        while column < cols as usize {
+            let value = input[base + column];
+            if value > largest {
+                sum = sum * (largest - value).exp() + 1.0;
+                largest = value;
             } else {
-                s += (v - m).exp();
+                sum += (value - largest).exp();
             }
-            j += BLOCK as usize;
+            column += BLOCK as usize;
         }
 
         let mut mask = 16;
         while mask > 0 {
-            let m2 = warp::shuffle_xor_f32(m, mask);
-            let s2 = warp::shuffle_xor_f32(s, mask);
-            (m, s) = merge_softmax(m, s, m2, s2);
+            let m2 = warp::shuffle_xor_f32(largest, mask);
+            let s2 = warp::shuffle_xor_f32(sum, mask);
+            (largest, sum) = merge_softmax(largest, sum, m2, s2);
             mask /= 2;
         }
         let warp = tid / 32;
         if warp::lane_id() == 0 {
             // SAFETY: lane 0 of each warp writes its own slots, before the barrier.
             unsafe {
-                MAXES[warp] = m;
-                SUMS[warp] = s;
+                MAXES[warp] = largest;
+                SUMS[warp] = sum;
             }
         }
         thread::sync_threads();
 
         // SAFETY: after the barrier the slots are only read.
         let (mut top, mut total) = unsafe { (MAXES[0], SUMS[0]) };
-        let mut w = 1;
-        while w < WARPS {
-            (top, total) = unsafe { merge_softmax(top, total, MAXES[w], SUMS[w]) };
-            w += 1;
+        let mut other = 1;
+        while other < WARPS {
+            (top, total) = unsafe { merge_softmax(top, total, MAXES[other], SUMS[other]) };
+            other += 1;
         }
 
-        let mut j = tid;
-        while j < cols as usize {
-            let p = (input[base + j] - top).exp() / total;
-            // SAFETY: block b writes only row b; thread t only columns t, t + 256, ...
-            unsafe { *out.get_unchecked_mut(base + j) = p };
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            let probability = (input[base + column] - top).exp() / total;
+            // SAFETY: each block writes only its own row, and each thread only its own
+            // columns threadIdx.x, threadIdx.x + 256, ...
+            unsafe { *out.get_unchecked_mut(base + column) = probability };
+            column += BLOCK as usize;
         }
     }
 
@@ -236,34 +248,35 @@ mod kernels {
         let base = thread::blockIdx_x() as usize * COLS;
         let tid = thread::threadIdx_x() as usize;
 
-        let mut x = [0.0f32; PER_THREAD];
-        let mut m = f32::NEG_INFINITY;
-        let mut k = 0;
+        let mut kept = [0.0f32; PER_THREAD];
+        let mut largest = f32::NEG_INFINITY;
+        let mut index = 0;
         #[unroll]
-        while k < PER_THREAD {
-            x[k] = input[base + k * BLOCK as usize + tid];
-            m = m.max(x[k]);
-            k += 1;
+        while index < PER_THREAD {
+            kept[index] = input[base + index * BLOCK as usize + tid];
+            largest = largest.max(kept[index]);
+            index += 1;
         }
-        let top = block_max(m, slots);
+        let top = block_max(largest, slots);
 
         let mut sum = 0.0;
-        let mut k = 0;
+        let mut index = 0;
         #[unroll]
-        while k < PER_THREAD {
-            x[k] = (x[k] - top).exp();
-            sum += x[k];
-            k += 1;
+        while index < PER_THREAD {
+            kept[index] = (kept[index] - top).exp();
+            sum += kept[index];
+            index += 1;
         }
         let scale = 1.0 / block_sum(sum, slots);
 
-        let mut k = 0;
+        let mut index = 0;
         #[unroll]
-        while k < PER_THREAD {
-            let j = k * BLOCK as usize + tid;
-            // SAFETY: block b writes only row b; thread t only columns t, t + 256, ...
-            unsafe { *out.get_unchecked_mut(base + j) = x[k] * scale };
-            k += 1;
+        while index < PER_THREAD {
+            let column = index * BLOCK as usize + tid;
+            // SAFETY: each block writes only its own row, and each thread only its own
+            // columns threadIdx.x, threadIdx.x + 256, ...
+            unsafe { *out.get_unchecked_mut(base + column) = kept[index] * scale };
+            index += 1;
         }
     }
 
@@ -285,23 +298,25 @@ mod kernels {
 
         let mut sum = 0.0;
         let mut squares = 0.0;
-        let mut j = tid;
-        while j < cols as usize {
-            let v = input[base + j];
-            sum += v;
-            squares += v * v;
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            let value = input[base + column];
+            sum += value;
+            squares += value * value;
+            column += BLOCK as usize;
         }
         let mean = block_sum(sum, slots) / cols as f32;
         let var = block_sum(squares, slots) / cols as f32 - mean * mean;
-        let rstd = 1.0 / (var + EPS).sqrt();
+        let inverse_std = 1.0 / (var + EPS).sqrt();
 
-        let mut j = tid;
-        while j < cols as usize {
-            let y = (input[base + j] - mean) * rstd * gamma[j] + beta[j];
-            // SAFETY: block b writes only row b; thread t only columns t, t + 256, ...
-            unsafe { *out.get_unchecked_mut(base + j) = y };
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            let scaled = (input[base + column] - mean) * inverse_std;
+            let normalized = scaled * gamma[column] + beta[column];
+            // SAFETY: each block writes only its own row, and each thread only its own
+            // columns threadIdx.x, threadIdx.x + 256, ...
+            unsafe { *out.get_unchecked_mut(base + column) = normalized };
+            column += BLOCK as usize;
         }
     }
 
@@ -319,55 +334,58 @@ mod kernels {
         let base = thread::blockIdx_x() as usize * cols as usize;
         let tid = thread::threadIdx_x() as usize;
 
-        let mut st = (0.0f32, 0.0f32, 0.0f32);
-        let mut j = tid;
-        while j < cols as usize {
-            let v = input[base + j];
-            let n = st.0 + 1.0;
-            let delta = v - st.1;
-            let mean = st.1 + delta / n;
-            st = (n, mean, st.2 + delta * (v - mean));
-            j += BLOCK as usize;
+        let mut state = (0.0f32, 0.0f32, 0.0f32);
+        let mut column = tid;
+        while column < cols as usize {
+            let value = input[base + column];
+            let count = state.0 + 1.0;
+            let delta = value - state.1;
+            let mean = state.1 + delta / count;
+            state = (count, mean, state.2 + delta * (value - mean));
+            column += BLOCK as usize;
         }
 
         let mut mask = 16;
         while mask > 0 {
             let other = (
-                warp::shuffle_xor_f32(st.0, mask),
-                warp::shuffle_xor_f32(st.1, mask),
-                warp::shuffle_xor_f32(st.2, mask),
+                warp::shuffle_xor_f32(state.0, mask),
+                warp::shuffle_xor_f32(state.1, mask),
+                warp::shuffle_xor_f32(state.2, mask),
             );
-            st = merge_welford(st, other);
+            state = merge_welford(state, other);
             mask /= 2;
         }
         let warp = tid / 32;
         if warp::lane_id() == 0 {
             // SAFETY: lane 0 of each warp writes its own 3 slots, before the barrier.
             unsafe {
-                STATE[3 * warp] = st.0;
-                STATE[3 * warp + 1] = st.1;
-                STATE[3 * warp + 2] = st.2;
+                STATE[3 * warp] = state.0;
+                STATE[3 * warp + 1] = state.1;
+                STATE[3 * warp + 2] = state.2;
             }
         }
         thread::sync_threads();
 
         // SAFETY: after the barrier the slots are only read.
         let mut all = unsafe { (STATE[0], STATE[1], STATE[2]) };
-        let mut w = 1;
-        while w < WARPS {
-            let next = unsafe { (STATE[3 * w], STATE[3 * w + 1], STATE[3 * w + 2]) };
+        let mut other = 1;
+        while other < WARPS {
+            let slot = 3 * other;
+            let next = unsafe { (STATE[slot], STATE[slot + 1], STATE[slot + 2]) };
             all = merge_welford(all, next);
-            w += 1;
+            other += 1;
         }
         let mean = all.1;
-        let rstd = 1.0 / (all.2 / cols as f32 + EPS).sqrt();
+        let inverse_std = 1.0 / (all.2 / cols as f32 + EPS).sqrt();
 
-        let mut j = tid;
-        while j < cols as usize {
-            let y = (input[base + j] - mean) * rstd * gamma[j] + beta[j];
-            // SAFETY: block b writes only row b; thread t only columns t, t + 256, ...
-            unsafe { *out.get_unchecked_mut(base + j) = y };
-            j += BLOCK as usize;
+        let mut column = tid;
+        while column < cols as usize {
+            let scaled = (input[base + column] - mean) * inverse_std;
+            let normalized = scaled * gamma[column] + beta[column];
+            // SAFETY: each block writes only its own row, and each thread only its own
+            // columns threadIdx.x, threadIdx.x + 256, ...
+            unsafe { *out.get_unchecked_mut(base + column) = normalized };
+            column += BLOCK as usize;
         }
     }
 
@@ -386,34 +404,36 @@ mod kernels {
         let base = thread::blockIdx_x() as usize * COLS;
         let tid = thread::threadIdx_x() as usize;
 
-        let mut x = [0.0f32; PER_THREAD];
+        let mut kept = [0.0f32; PER_THREAD];
         let mut sum = 0.0;
-        let mut k = 0;
+        let mut index = 0;
         #[unroll]
-        while k < PER_THREAD {
-            x[k] = input[base + k * BLOCK as usize + tid];
-            sum += x[k];
-            k += 1;
+        while index < PER_THREAD {
+            kept[index] = input[base + index * BLOCK as usize + tid];
+            sum += kept[index];
+            index += 1;
         }
         let mean = block_sum(sum, slots) / COLS as f32;
 
         let mut squares = 0.0;
-        let mut k = 0;
+        let mut index = 0;
         #[unroll]
-        while k < PER_THREAD {
-            x[k] -= mean;
-            squares += x[k] * x[k];
-            k += 1;
+        while index < PER_THREAD {
+            kept[index] -= mean;
+            squares += kept[index] * kept[index];
+            index += 1;
         }
-        let rstd = 1.0 / (block_sum(squares, slots) / COLS as f32 + EPS).sqrt();
+        let inverse_std = 1.0 / (block_sum(squares, slots) / COLS as f32 + EPS).sqrt();
 
-        let mut k = 0;
+        let mut index = 0;
         #[unroll]
-        while k < PER_THREAD {
-            let j = k * BLOCK as usize + tid;
-            // SAFETY: block b writes only row b; thread t only columns t, t + 256, ...
-            unsafe { *out.get_unchecked_mut(base + j) = x[k] * rstd * gamma[j] + beta[j] };
-            k += 1;
+        while index < PER_THREAD {
+            let column = index * BLOCK as usize + tid;
+            let normalized = kept[index] * inverse_std * gamma[column] + beta[column];
+            // SAFETY: each block writes only its own row, and each thread only its own
+            // columns threadIdx.x, threadIdx.x + 256, ...
+            unsafe { *out.get_unchecked_mut(base + column) = normalized };
+            index += 1;
         }
     }
 }

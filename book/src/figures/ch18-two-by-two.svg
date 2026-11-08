@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 384" width="660" height="384" role="img" aria-label="For u = 0, the values 1 and 5 from column 0 of A run down the left, and the values 1 and 0 from row 0 of B run across the top. The 4 cells hold the products 1 times 1 = 1, 1 times 0 = 0, 5 times 1 = 5 and 5 times 0 = 0, which are added to c00, c01, c10 and c11. Cards: 4 reads, 2 values of A and 2 of B; 4 multiply-adds, every value read is used twice; 1 read per multiply-add.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 384" width="660" height="384" role="img" aria-label="For offset = 0, the values 1 and 5 from column 0 of A run down the left, and the values 1 and 0 from row 0 of B run across the top. The 4 cells hold the products 1 times 1 = 1, 1 times 0 = 0, 5 times 1 = 5 and 5 times 0 = 0, which are added to c00, c01, c10 and c11. Cards: 4 reads, 2 values of A and 2 of B; 4 multiply-adds, every value read is used twice; 1 read per multiply-add.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -39,7 +39,7 @@
   <rect width="660" height="384" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 thread, a 2 × 2 block of C</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">4 values read, 4 products: the outer product of a column and a row.</text>
-  <text x="24.0" y="112.0" class="note" text-anchor="start" xml:space="preserve">u = 0: column 0 of A, rows 0 and 1, and row 0 of B, columns 0 and 1</text>
+  <text x="24.0" y="112.0" class="note" text-anchor="start" xml:space="preserve">offset = 0: column 0 of A, rows 0 and 1, and row 0 of B, columns 0 and 1</text>
   <text x="144.0" y="182.0" class="tab" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">A_REG</text>
   <text x="266.0" y="132.0" class="tab" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">B_REG</text>
   <rect x="128.0" y="196.0" width="40.0" height="60.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>

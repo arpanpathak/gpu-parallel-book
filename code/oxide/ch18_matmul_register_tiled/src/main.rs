@@ -39,36 +39,37 @@ mod kernels {
         static mut TILE_A: SharedArray<f32, 256> = SharedArray::UNINIT;
         static mut TILE_B: SharedArray<f32, 256> = SharedArray::UNINIT;
 
-        let tx = thread::threadIdx_x() as usize;
-        let ty = thread::threadIdx_y() as usize;
+        let thread_x = thread::threadIdx_x() as usize;
+        let thread_y = thread::threadIdx_y() as usize;
         let row = thread::index_2d_row();
         let col = thread::index_2d_col();
         let (m, n, k) = (m as usize, n as usize, k as usize);
 
         let mut sum = 0.0;
-        let mut t = 0;
-        while t < k.div_ceil(16) {
-            let (a_col, b_row) = (t * 16 + tx, t * 16 + ty);
+        let mut phase = 0;
+        while phase < k.div_ceil(16) {
+            let (a_col, b_row) = (phase * 16 + thread_x, phase * 16 + thread_y);
             let a_value = if row < m && a_col < k { a[row * k + a_col] } else { 0.0 };
             let b_value = if b_row < k && col < n { b[b_row * n + col] } else { 0.0 };
-            // SAFETY: the contract fixes the block at 16 x 16, so slot ty * 16 + tx is
-            // below 256 and is this thread's alone.
+            // SAFETY: the contract fixes the block at 16 x 16, so slot
+            // thread_y * 16 + thread_x is below 256 and is this thread's alone.
             unsafe {
-                TILE_A[ty * 16 + tx] = a_value;
-                TILE_B[ty * 16 + tx] = b_value;
+                TILE_A[thread_y * 16 + thread_x] = a_value;
+                TILE_B[thread_y * 16 + thread_x] = b_value;
             }
             thread::sync_threads();
 
-            let mut u = 0;
+            let mut offset = 0;
             #[unroll]
-            while u < 16 {
+            while offset < 16 {
+                let (a_slot, b_slot) = (thread_y * 16 + offset, offset * 16 + thread_x);
                 // SAFETY: between the 2 barriers no thread writes either tile.
-                sum += unsafe { TILE_A[ty * 16 + u] * TILE_B[u * 16 + tx] };
-                u += 1;
+                sum += unsafe { TILE_A[a_slot] * TILE_B[b_slot] };
+                offset += 1;
             }
             thread::sync_threads();
 
-            t += 1;
+            phase += 1;
         }
 
         if row < m
@@ -81,8 +82,9 @@ mod kernels {
     }
 
     /// C (m x n) = A (m x k) B (k x n), all row-major. A block computes a BM x BN tile of
-    /// C in phases of BK; thread (ty, tx) computes the TM x TN block of that tile that
-    /// starts at row ty * TM and column tx * TN, and keeps its TM * TN sums in registers.
+    /// C in phases of BK; thread (threadIdx.y, threadIdx.x) computes the TM x TN block of
+    /// that tile that starts at row threadIdx.y * TM and column threadIdx.x * TN, and keeps
+    /// its TM * TN sums in registers.
     #[kernel(launch_context = lc)]
     #[launch_bounds(256)]
     #[launch_contract(
@@ -109,96 +111,99 @@ mod kernels {
         let tile_b: *mut f32 = DynamicSharedArray::<f32>::offset(BM * (BK + 1) * 4);
 
         let threads = (BM / TM) * (BN / TN);
-        let tx = thread::threadIdx_x() as usize;
-        let ty = thread::threadIdx_y() as usize;
-        let id = ty * (BN / TN) + tx;
-        let row0 = thread::blockIdx_y() as usize * BM;
-        let col0 = thread::blockIdx_x() as usize * BN;
+        let thread_x = thread::threadIdx_x() as usize;
+        let thread_y = thread::threadIdx_y() as usize;
+        let thread_number = thread_y * (BN / TN) + thread_x;
+        let block_row = thread::blockIdx_y() as usize * BM;
+        let block_col = thread::blockIdx_x() as usize * BN;
         let (m, n, k) = (m as usize, n as usize, k as usize);
 
         let mut acc = [[0.0f32; TN]; TM];
-        let mut t = 0;
-        while t < k.div_ceil(BK) {
-            let mut q = 0;
+        let mut phase = 0;
+        while phase < k.div_ceil(BK) {
+            let mut pass = 0;
             #[unroll]
-            while q < BM * BK / threads {
-                let e = q * threads + id;
-                let (r, s) = (row0 + e / BK, t * BK + e % BK);
-                let value = if r < m && s < k { a[r * k + s] } else { 0.0 };
-                // SAFETY: regtile_config launches `threads` threads, so slot e of tile A
+            while pass < BM * BK / threads {
+                let element = pass * threads + thread_number;
+                let (tile_row, tile_col) = (element / BK, element % BK);
+                let (a_row, a_col) = (block_row + tile_row, phase * BK + tile_col);
+                let value = if a_row < m && a_col < k { a[a_row * k + a_col] } else { 0.0 };
+                // SAFETY: regtile_config launches `threads` threads, so each slot of tile A
                 // has 1 writer; the slot lies inside the BM x (BK + 1) tile.
-                unsafe { *tile_a.add(e / BK * (BK + 1) + e % BK) = value };
-                q += 1;
+                unsafe { *tile_a.add(tile_row * (BK + 1) + tile_col) = value };
+                pass += 1;
             }
 
-            let mut q = 0;
+            let mut pass = 0;
             #[unroll]
-            while q < BK * BN / threads {
-                let e = q * threads + id;
-                let (s, col) = (t * BK + e / BN, col0 + e % BN);
-                let value = if s < k && col < n { b[s * n + col] } else { 0.0 };
+            while pass < BK * BN / threads {
+                let element = pass * threads + thread_number;
+                let (b_row, b_col) = (phase * BK + element / BN, block_col + element % BN);
+                let value = if b_row < k && b_col < n { b[b_row * n + b_col] } else { 0.0 };
                 // SAFETY: as for tile A, with BK x BN slots.
-                unsafe { *tile_b.add(e) = value };
-                q += 1;
+                unsafe { *tile_b.add(element) = value };
+                pass += 1;
             }
             thread::sync_threads();
 
-            let mut u = 0;
+            let mut offset = 0;
             #[unroll]
-            while u < BK {
+            while offset < BK {
                 let mut a_reg = [0.0f32; TM];
                 let mut b_reg = [0.0f32; TN];
 
-                let mut i = 0;
+                let mut local_row = 0;
                 #[unroll]
-                while i < TM {
+                while local_row < TM {
+                    let slot = (thread_y * TM + local_row) * (BK + 1) + offset;
                     // SAFETY: between the 2 barriers no thread writes either tile.
-                    a_reg[i] = unsafe { *tile_a.add((ty * TM + i) * (BK + 1) + u) };
-                    i += 1;
+                    a_reg[local_row] = unsafe { *tile_a.add(slot) };
+                    local_row += 1;
                 }
 
-                let mut j = 0;
+                let mut local_col = 0;
                 #[unroll]
-                while j < TN {
+                while local_col < TN {
+                    let slot = offset * BN + thread_x * TN + local_col;
                     // SAFETY: between the 2 barriers no thread writes either tile.
-                    b_reg[j] = unsafe { *tile_b.add(u * BN + tx * TN + j) };
-                    j += 1;
+                    b_reg[local_col] = unsafe { *tile_b.add(slot) };
+                    local_col += 1;
                 }
 
-                let mut i = 0;
+                let mut local_row = 0;
                 #[unroll]
-                while i < TM {
-                    let mut j = 0;
+                while local_row < TM {
+                    let mut local_col = 0;
                     #[unroll]
-                    while j < TN {
-                        acc[i][j] += a_reg[i] * b_reg[j];
-                        j += 1;
+                    while local_col < TN {
+                        acc[local_row][local_col] += a_reg[local_row] * b_reg[local_col];
+                        local_col += 1;
                     }
-                    i += 1;
+                    local_row += 1;
                 }
 
-                u += 1;
+                offset += 1;
             }
             thread::sync_threads();
 
-            t += 1;
+            phase += 1;
         }
 
         if let Some(mut tile) = c.tile_2d32_rt(thread::coord_2d_u32(lc)) {
-            let mut i = 0;
+            let mut local_row = 0;
             #[unroll]
-            while i < TM {
-                let mut j = 0;
+            while local_row < TM {
+                let mut local_col = 0;
                 #[unroll]
-                while j < TN {
-                    if let Some(r) = LocalIndex32::new(i as u32)
-                        && let Some(q) = LocalIndex32::new(j as u32)
+                while local_col < TN {
+                    if let Some(row_in_tile) = LocalIndex32::new(local_row as u32)
+                        && let Some(col_in_tile) = LocalIndex32::new(local_col as u32)
                     {
-                        tile.at(r, q).write(acc[i][j]);
+                        tile.at(row_in_tile, col_in_tile).write(acc[local_row][local_col]);
                     }
-                    j += 1;
+                    local_col += 1;
                 }
-                i += 1;
+                local_row += 1;
             }
         }
     }
@@ -319,15 +324,17 @@ impl Problem {
         let count = samples.min(m * n);
 
         let mut exact = 0;
-        for s in 0..count {
-            let i = if count == m * n { s / n } else { s * 977 % m };
-            let j = if count == m * n { s % n } else { (s * 1231 + 7) % n };
+        for sample in 0..count {
+            let row = if count == m * n { sample / n } else { sample * 977 % m };
+            let col = if count == m * n { sample % n } else { (sample * 1231 + 7) % n };
 
             let mut sum = 0.0;
-            for p in 0..k {
-                sum += self.a_host[i * k + p] as f64 * self.b_host[p * n + j] as f64;
+            for inner in 0..k {
+                let a_value = self.a_host[row * k + inner] as f64;
+                let b_value = self.b_host[inner * n + col] as f64;
+                sum += a_value * b_value;
             }
-            if c[i * n + j] as f64 == sum {
+            if c[row * n + col] as f64 == sum {
                 exact += 1;
             }
         }

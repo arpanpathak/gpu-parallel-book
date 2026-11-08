@@ -576,7 +576,7 @@ For k ranks and a message of m bytes, each phase of the ring takes k − 1 steps
 takes 2 (k − 1) steps. In each step, a rank sends 1 chunk of m / k bytes. Over the whole
 all-reduce, each rank therefore sends
 
-\\[ 2 (k - 1) \cdot \frac{m}{k} = \frac{2 (k - 1)}{k} \, m \\]
+\\[ 2 (k - 1) \cdot \frac{m}{k} = \frac{2 (k - 1)}{k} \\, m \\]
 
 bytes, and it receives the same number of bytes. For k = 4, the factor is 2 × 3 / 4 = 1.5, as
 counted above.
@@ -598,7 +598,7 @@ is said to be **bandwidth-optimal**.
 
 With the cost model of Section 28.3, the time of a ring all-reduce is
 
-\\[ T_{\text{ring}} = 2 (k - 1) \, \alpha + \frac{2 (k - 1)}{k} \cdot \frac{m}{B} \\]
+\\[ T_{\text{ring}} = 2 (k - 1) \\, \alpha + \frac{2 (k - 1)}{k} \cdot \frac{m}{B} \\]
 
 | Symbol | Meaning | For the example of section 28.1.2 |
 |---|---|---|
@@ -738,7 +738,7 @@ message in each of the 3 steps of the reduce phase and sends a message in each o
 the broadcast phase, so its link carries 3m in each direction, compared with 1.75m for a ring of 8
 ranks. The time of the tree all-reduce is therefore
 
-\\[ T_{\text{tree}} = 2 \log_2 k \, \left( \alpha + \frac{m}{B} \right) \\]
+\\[ T_{\text{tree}} = 2 \log_2 k \\, \left( \alpha + \frac{m}{B} \right) \\]
 
 Compared with the ring, the number of steps contains \\(\log_2 k\\) in place of \\(k - 1\\), and
 every step carries the whole message rather than a chunk.

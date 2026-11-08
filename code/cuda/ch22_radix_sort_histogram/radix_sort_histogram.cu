@@ -57,8 +57,8 @@ __device__ unsigned digitOf(unsigned key, int shift)
 __global__ void histGlobal(const unsigned* keys, int shift, unsigned* bins, int n)
 {
     int stride = gridDim.x * blockDim.x;
-    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += stride) {
-        atomicAdd(&bins[digitOf(keys[i], shift)], 1u);
+    for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < n; index += stride) {
+        atomicAdd(&bins[digitOf(keys[index], shift)], 1u);
     }
 }
 
@@ -72,8 +72,8 @@ __global__ void histShared(const unsigned* keys, int shift, unsigned* bins, int 
     __syncthreads();
 
     int stride = gridDim.x * blockDim.x;
-    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += stride) {
-        atomicAdd(&local[digitOf(keys[i], shift)], 1u);
+    for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < n; index += stride) {
+        atomicAdd(&local[digitOf(keys[index], shift)], 1u);
     }
     __syncthreads();
 
@@ -94,12 +94,12 @@ __global__ void histAggregated(const unsigned* keys, int shift, unsigned* bins, 
     int lane = threadIdx.x % 32;
     int stride = gridDim.x * blockDim.x;
     for (int base = blockIdx.x * blockDim.x; base < n; base += stride) {
-        int i = base + threadIdx.x;
-        unsigned d = i < n ? digitOf(keys[i], shift) : RADIX;
-        unsigned peers = __match_any_sync(FULL, d);
+        int index = base + threadIdx.x;
+        unsigned digit = index < n ? digitOf(keys[index], shift) : RADIX;
+        unsigned peers = __match_any_sync(FULL, digit);
         int leader = __ffs(peers) - 1;
-        if (lane == leader && d < RADIX) {
-            atomicAdd(&local[d], __popc(peers));
+        if (lane == leader && digit < RADIX) {
+            atomicAdd(&local[digit], __popc(peers));
         }
     }
     __syncthreads();
@@ -110,16 +110,16 @@ __global__ void histAggregated(const unsigned* keys, int shift, unsigned* bins, 
 }
 
 // The scan of Chapter 21: 256 threads, 4 elements each, warp shuffles and 2 barriers.
-__device__ unsigned warpScan(unsigned v)
+__device__ unsigned warpScan(unsigned value)
 {
     int lane = threadIdx.x % 32;
     for (int offset = 1; offset < 32; offset *= 2) {
-        unsigned left = __shfl_up_sync(FULL, v, offset);
+        unsigned left = __shfl_up_sync(FULL, value, offset);
         if (lane >= offset) {
-            v += left;
+            value += left;
         }
     }
-    return v;
+    return value;
 }
 
 __global__ void scanWarps(const unsigned* x, unsigned* y, unsigned* sums, int n)
@@ -129,35 +129,35 @@ __global__ void scanWarps(const unsigned* x, unsigned* y, unsigned* sums, int n)
     int lane = threadIdx.x % 32;
     int warp = threadIdx.x / 32;
 
-    unsigned a[4];
+    unsigned prefix[4];
     unsigned own = 0;
-    for (int k = 0; k < 4; ++k) {
-        own += first + k < n ? x[first + k] : 0;
-        a[k] = own;
+    for (int element = 0; element < 4; ++element) {
+        own += first + element < n ? x[first + element] : 0;
+        prefix[element] = own;
     }
 
-    unsigned v = warpScan(own);
+    unsigned warpPrefix = warpScan(own);
     if (lane == 31) {
-        warps[warp] = v;
+        warps[warp] = warpPrefix;
     }
     __syncthreads();
 
     if (warp == 0) {
-        unsigned w = warpScan(lane < 8 ? warps[lane] : 0);
+        unsigned scannedTotal = warpScan(lane < 8 ? warps[lane] : 0);
         if (lane < 8) {
-            warps[lane] = w;
+            warps[lane] = scannedTotal;
         }
     }
     __syncthreads();
 
-    unsigned before = v - own + (warp > 0 ? warps[warp - 1] : 0);
-    for (int k = 0; k < 4; ++k) {
-        if (first + k < n) {
-            y[first + k] = before + a[k];
+    unsigned before = warpPrefix - own + (warp > 0 ? warps[warp - 1] : 0);
+    for (int element = 0; element < 4; ++element) {
+        if (first + element < n) {
+            y[first + element] = before + prefix[element];
         }
     }
     if (threadIdx.x == 255) {
-        sums[blockIdx.x] = before + a[3];
+        sums[blockIdx.x] = before + prefix[3];
     }
 }
 
@@ -167,10 +167,10 @@ __global__ void addOffsets(unsigned* y, const unsigned* scanned, int n)
         return;
     }
     unsigned offset = scanned[blockIdx.x - 1];
-    for (int k = 0; k < 4; ++k) {
-        int g = blockIdx.x * TILE + k * 256 + threadIdx.x;
-        if (g < n) {
-            y[g] += offset;
+    for (int step = 0; step < 4; ++step) {
+        int index = blockIdx.x * TILE + step * 256 + threadIdx.x;
+        if (index < n) {
+            y[index] += offset;
         }
     }
 }
@@ -187,12 +187,12 @@ void scan(const unsigned* x, unsigned* y, int n, unsigned* scratch)
     }
 }
 
-// The split on 1 bit: flags[i] = 1 if the bit of keys[i] is 0.
+// The split on 1 bit: flags[index] = 1 if the bit of keys[index] is 0.
 __global__ void zeroFlags(const unsigned* keys, int bit, unsigned* flags, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < n) {
-        flags[i] = 1 - ((keys[i] >> bit) & 1);
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n) {
+        flags[index] = 1 - ((keys[index] >> bit) & 1);
     }
 }
 
@@ -200,17 +200,17 @@ __global__ void zeroFlags(const unsigned* keys, int bit, unsigned* flags, int n)
 __global__ void splitScatter(const unsigned* keys, const unsigned* flags,
                              const unsigned* scanned, unsigned* out, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < n) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n) {
         unsigned zeros = scanned[n - 1];
-        unsigned upto = scanned[i];           // zero-bit keys among 0 to i
-        unsigned at = flags[i] == 1 ? upto - 1 : zeros + i - upto;
-        out[at] = keys[i];
+        unsigned upto = scanned[index];       // zero-bit keys among 0 to index
+        unsigned at = flags[index] == 1 ? upto - 1 : zeros + index - upto;
+        out[at] = keys[index];
     }
 }
 
 // The 4-bit pass, step 1: the digit histogram of every tile, stored digit by digit:
-// counts[d * tiles + b] is the number of keys with digit d in tile b.
+// counts[digit * tiles + tile] is the number of keys with that digit in that tile.
 __global__ void digitCounts(const unsigned* keys, int shift, unsigned* counts, int n)
 {
     __shared__ unsigned local[RADIX];
@@ -219,10 +219,10 @@ __global__ void digitCounts(const unsigned* keys, int shift, unsigned* counts, i
     }
     __syncthreads();
 
-    for (int k = 0; k < 4; ++k) {
-        int i = blockIdx.x * TILE + k * 256 + threadIdx.x;
-        if (i < n) {
-            atomicAdd(&local[digitOf(keys[i], shift)], 1u);
+    for (int step = 0; step < 4; ++step) {
+        int index = blockIdx.x * TILE + step * 256 + threadIdx.x;
+        if (index < n) {
+            atomicAdd(&local[digitOf(keys[index], shift)], 1u);
         }
     }
     __syncthreads();
@@ -239,43 +239,42 @@ __global__ void scatterDigits(const unsigned* keys, int shift, const unsigned* c
 {
     __shared__ unsigned start[RADIX];
     __shared__ unsigned warpCounts[8 * RADIX];         // [warp][digit]
-    int t = threadIdx.x;
-    int lane = t % 32;
-    int warp = t / 32;
+    int lane = threadIdx.x % 32;
+    int warp = threadIdx.x / 32;
     unsigned below = (1u << lane) - 1;
 
-    if (t < RADIX) {
-        int j = t * gridDim.x + blockIdx.x;
-        start[t] = scanned[j] - counts[j];             // the exclusive scan
+    if (threadIdx.x < RADIX) {
+        int entry = threadIdx.x * gridDim.x + blockIdx.x;
+        start[threadIdx.x] = scanned[entry] - counts[entry];  // the exclusive scan
     }
-    for (int k = 0; k < 4; ++k) {
-        if (t < 8 * RADIX) {
-            warpCounts[t] = 0;
+    for (int step = 0; step < 4; ++step) {
+        if (threadIdx.x < 8 * RADIX) {
+            warpCounts[threadIdx.x] = 0;
         }
         __syncthreads();
 
-        int i = blockIdx.x * TILE + k * 256 + t;
-        unsigned key = i < n ? keys[i] : 0;
-        unsigned d = i < n ? digitOf(key, shift) : RADIX;
-        unsigned peers = __match_any_sync(FULL, d);
+        int index = blockIdx.x * TILE + step * 256 + threadIdx.x;
+        unsigned key = index < n ? keys[index] : 0;
+        unsigned digit = index < n ? digitOf(key, shift) : RADIX;
+        unsigned peers = __match_any_sync(FULL, digit);
         unsigned rank = __popc(peers & below);
-        if (rank == 0 && d < RADIX) {
-            warpCounts[warp * RADIX + d] = __popc(peers);
+        if (rank == 0 && digit < RADIX) {
+            warpCounts[warp * RADIX + digit] = __popc(peers);
         }
         __syncthreads();
 
-        if (d < RADIX) {
+        if (digit < RADIX) {
             unsigned before = 0;
-            for (int w = 0; w < warp; ++w) {
-                before += warpCounts[w * RADIX + d];
+            for (int other = 0; other < warp; ++other) {
+                before += warpCounts[other * RADIX + digit];
             }
-            out[start[d] + before + rank] = key;
+            out[start[digit] + before + rank] = key;
         }
         __syncthreads();
 
-        if (t < RADIX) {
-            for (int w = 0; w < 8; ++w) {
-                start[t] += warpCounts[w * RADIX + t];
+        if (threadIdx.x < RADIX) {
+            for (int other = 0; other < 8; ++other) {
+                start[threadIdx.x] += warpCounts[other * RADIX + threadIdx.x];
             }
         }
         __syncthreads();
@@ -291,34 +290,40 @@ struct Buffers {
 
 // 32 stable splits of 1 bit, bit 0 first. After an even number of passes the sorted
 // keys are back in `keys`.
-void sortBits(unsigned*& keys, Buffers& b, int n)
+void sortBits(unsigned*& keys, Buffers& buffers, int n)
 {
     int blocks = (n + 255) / 256;
+    unsigned* flags = buffers.flags;
+    unsigned* scanned = buffers.scanned;
+
     for (int bit = 0; bit < 32; ++bit) {
-        zeroFlags<<<blocks, 256>>>(keys, bit, b.flags, n);
-        scan(b.flags, b.scanned, n, b.scratch);
-        splitScatter<<<blocks, 256>>>(keys, b.flags, b.scanned, b.spare, n);
-        std::swap(keys, b.spare);
+        zeroFlags<<<blocks, 256>>>(keys, bit, flags, n);
+        scan(flags, scanned, n, buffers.scratch);
+        splitScatter<<<blocks, 256>>>(keys, flags, scanned, buffers.spare, n);
+        std::swap(keys, buffers.spare);
     }
 }
 
 // 8 passes of 4 bits: digit histograms per tile, 1 scan of the table, a stable scatter.
-void sortDigits(unsigned*& keys, Buffers& b, int n)
+void sortDigits(unsigned*& keys, Buffers& buffers, int n)
 {
     int tiles = (n + TILE - 1) / TILE;
+    unsigned* counts = buffers.flags;
+    unsigned* scanned = buffers.scanned;
+
     for (int shift = 0; shift < 32; shift += 4) {
-        digitCounts<<<tiles, 256>>>(keys, shift, b.flags, n);
-        scan(b.flags, b.scanned, RADIX * tiles, b.scratch);
-        scatterDigits<<<tiles, 256>>>(keys, shift, b.flags, b.scanned, b.spare, n);
-        std::swap(keys, b.spare);
+        digitCounts<<<tiles, 256>>>(keys, shift, counts, n);
+        scan(counts, scanned, RADIX * tiles, buffers.scratch);
+        scatterDigits<<<tiles, 256>>>(keys, shift, counts, scanned, buffers.spare, n);
+        std::swap(keys, buffers.spare);
     }
 }
 
-std::vector<unsigned> toHost(const unsigned* d, int n)
+std::vector<unsigned> toHost(const unsigned* device, int n)
 {
-    std::vector<unsigned> h(n);
-    check(cudaMemcpy(h.data(), d, n * sizeof(unsigned), cudaMemcpyDeviceToHost));
-    return h;
+    std::vector<unsigned> host(n);
+    check(cudaMemcpy(host.data(), device, n * sizeof(unsigned), cudaMemcpyDeviceToHost));
+    return host;
 }
 
 void print(const char* name, const std::vector<unsigned>& v)
@@ -331,7 +336,7 @@ void print(const char* name, const std::vector<unsigned>& v)
 }
 
 // The worked example: 8 keys of 3 bits, 3 splits, then 1 pass on a 4-bit digit.
-bool smallExample(Buffers& b)
+bool smallExample(Buffers& buffers)
 {
     std::vector<unsigned> host = {5, 2, 7, 2, 0, 6, 3, 5};
     unsigned *keys, *other, *bins;
@@ -344,9 +349,9 @@ bool smallExample(Buffers& b)
     unsigned* from = keys;
     unsigned* to = other;
     for (int bit = 0; bit < 3; ++bit) {
-        zeroFlags<<<1, 256>>>(from, bit, b.flags, 8);
-        scan(b.flags, b.scanned, 8, b.scratch);
-        splitScatter<<<1, 256>>>(from, b.flags, b.scanned, to, 8);
+        zeroFlags<<<1, 256>>>(from, bit, buffers.flags, 8);
+        scan(buffers.flags, buffers.scanned, 8, buffers.scratch);
+        splitScatter<<<1, 256>>>(from, buffers.flags, buffers.scanned, to, 8);
         std::swap(from, to);
         char name[16];
         std::snprintf(name, sizeof(name), "split bit %d", bit);
@@ -360,13 +365,13 @@ bool smallExample(Buffers& b)
     std::vector<unsigned> hist = toHost(bins, 8);
     print("histogram", hist);
 
-    digitCounts<<<1, 256>>>(keys, 0, b.flags, 8);
-    scan(b.flags, b.scanned, RADIX, b.scratch);
-    scatterDigits<<<1, 256>>>(keys, 0, b.flags, b.scanned, other, 8);
-    std::vector<unsigned> inclusive = toHost(b.scanned, 8);
+    digitCounts<<<1, 256>>>(keys, 0, buffers.flags, 8);
+    scan(buffers.flags, buffers.scanned, RADIX, buffers.scratch);
+    scatterDigits<<<1, 256>>>(keys, 0, buffers.flags, buffers.scanned, other, 8);
+    std::vector<unsigned> inclusive = toHost(buffers.scanned, 8);
     std::vector<unsigned> starts(8);
-    for (int d = 0; d < 8; ++d) {
-        starts[d] = inclusive[d] - hist[d];
+    for (int digit = 0; digit < 8; ++digit) {
+        starts[digit] = inclusive[digit] - hist[digit];
     }
     print("digit starts", starts);
     std::vector<unsigned> byDigits = toHost(other, 8);
@@ -430,7 +435,7 @@ bool histograms(unsigned* keys)
 }
 
 // Both radix sorts of N random keys, best of 3 runs each, checked against std::sort.
-bool sorts(unsigned* keys, Buffers& b)
+bool sorts(unsigned* keys, Buffers& buffers)
 {
     std::vector<unsigned> host(N);
     unsigned state = 11;
@@ -449,9 +454,9 @@ bool sorts(unsigned* keys, Buffers& b)
             check(cudaMemcpy(keys, host.data(), bytes, cudaMemcpyHostToDevice));
             double start = nowMs();
             if (method == 0) {
-                sortBits(keys, b, N);
+                sortBits(keys, buffers, N);
             } else {
-                sortDigits(keys, b, N);
+                sortDigits(keys, buffers, N);
             }
             check(cudaDeviceSynchronize());
             double ms = nowMs() - start;
@@ -471,11 +476,13 @@ bool sorts(unsigned* keys, Buffers& b)
     // The 3 parts of 1 pass of 4 bits on the random keys, averaged like the histograms.
     check(cudaMemcpy(keys, host.data(), N * sizeof(unsigned), cudaMemcpyHostToDevice));
     int tiles = (N + TILE - 1) / TILE;
-    unsigned* counts = b.flags;
+    unsigned* counts = buffers.flags;
+    unsigned* starts = buffers.scanned;
+    unsigned* spare = buffers.spare;
+    unsigned* scratch = buffers.scratch;
     double countMs = timeMs([&] { digitCounts<<<tiles, 256>>>(keys, 0, counts, N); });
-    double scanMs = timeMs([&] { scan(counts, b.scanned, RADIX * tiles, b.scratch); });
-    unsigned* starts = b.scanned;
-    auto move = [&] { scatterDigits<<<tiles, 256>>>(keys, 0, counts, starts, b.spare, N); };
+    double scanMs = timeMs([&] { scan(counts, starts, RADIX * tiles, scratch); });
+    auto move = [&] { scatterDigits<<<tiles, 256>>>(keys, 0, counts, starts, spare, N); };
     double scatterMs = timeMs(move);
     std::printf("  1 pass of 4 bits: counts %.2f ms, scan %.2f ms, scatter %.2f ms\n",
                 countMs, scanMs, scatterMs);
@@ -485,22 +492,22 @@ bool sorts(unsigned* keys, Buffers& b)
 int main()
 {
     unsigned* keys;
-    Buffers b;
+    Buffers buffers;
     check(cudaMalloc(&keys, N * sizeof(unsigned)));
-    check(cudaMalloc(&b.spare, N * sizeof(unsigned)));
-    check(cudaMalloc(&b.flags, N * sizeof(unsigned)));
-    check(cudaMalloc(&b.scanned, N * sizeof(unsigned)));
-    check(cudaMalloc(&b.scratch, N / 512 * sizeof(unsigned)));
+    check(cudaMalloc(&buffers.spare, N * sizeof(unsigned)));
+    check(cudaMalloc(&buffers.flags, N * sizeof(unsigned)));
+    check(cudaMalloc(&buffers.scanned, N * sizeof(unsigned)));
+    check(cudaMalloc(&buffers.scratch, N / 512 * sizeof(unsigned)));
 
-    bool ok = smallExample(b);
+    bool ok = smallExample(buffers);
     ok = histograms(keys) && ok;
-    ok = sorts(keys, b) && ok;
+    ok = sorts(keys, buffers) && ok;
 
     check(cudaFree(keys));
-    check(cudaFree(b.spare));
-    check(cudaFree(b.flags));
-    check(cudaFree(b.scanned));
-    check(cudaFree(b.scratch));
+    check(cudaFree(buffers.spare));
+    check(cudaFree(buffers.flags));
+    check(cudaFree(buffers.scanned));
+    check(cudaFree(buffers.scratch));
     std::printf("%s\n", ok ? "PASSED" : "FAILED");
     return ok ? 0 : 1;
 }

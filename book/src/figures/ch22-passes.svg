@@ -152,6 +152,6 @@
   <text x="250.0" y="434.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">next bit is 0</text>
   <rect x="346.0" y="418.0" width="160.0" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
   <text x="426.0" y="434.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">next bit is 1</text>
-  <text x="32.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">Each pass is a stable split on the next bit. After the pass on bit b, the keys are in</text>
-  <text x="32.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">order of their bits 0 to b; after bit 2 they are sorted: 0, 2, 2, 3, 5, 5, 6, 7.</text>
+  <text x="32.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">Each pass is a stable split on the next bit. After the pass on a bit, the keys are in</text>
+  <text x="32.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">order of their bits up to that one; after bit 2 they are sorted: 0, 2, 2, 3, 5, 5, 6, 7.</text>
 </svg>

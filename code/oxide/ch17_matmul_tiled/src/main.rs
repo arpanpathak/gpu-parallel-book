@@ -45,11 +45,11 @@ mod kernels {
             && let Some(out) = c.get_mut(idx)
         {
             let mut sum = 0.0;
-            let mut s = 0;
+            let mut inner = 0;
             #[unroll(4)]
-            while s < k {
-                sum += a[row * k + s] * b[s * n + col];
-                s += 1;
+            while inner < k {
+                sum += a[row * k + inner] * b[inner * n + col];
+                inner += 1;
             }
             *out = sum;
         }
@@ -76,39 +76,41 @@ mod kernels {
         let tile_a: *mut f32 = DynamicSharedArray::<f32>::get();
         let tile_b: *mut f32 = DynamicSharedArray::<f32>::offset(T * T * 4);
 
-        let tx = thread::threadIdx_x() as usize;
-        let ty = thread::threadIdx_y() as usize;
+        let thread_x = thread::threadIdx_x() as usize;
+        let thread_y = thread::threadIdx_y() as usize;
         let row = thread::index_2d_row();
         let col = thread::index_2d_col();
         let (m, n, k) = (m as usize, n as usize, k as usize);
 
         let mut sum = 0.0;
-        let mut t = 0;
-        while t < k.div_ceil(T) {
-            let a_col = t * T + tx;
-            let b_row = t * T + ty;
+        let mut phase = 0;
+        while phase < k.div_ceil(T) {
+            let a_col = phase * T + thread_x;
+            let b_row = phase * T + thread_y;
             let a_value = if row < m && a_col < k { a[row * k + a_col] } else { 0.0 };
             let b_value = if b_row < k && col < n { b[b_row * n + col] } else { 0.0 };
             // SAFETY: tiled_config::<T> launches T x T threads with 2 T^2 floats
-            // of shared memory, so slot ty * T + tx lies in each tile and belongs
-            // to this thread alone; the barrier below completes these writes
+            // of shared memory, so slot thread_y * T + thread_x lies in each tile
+            // and belongs to this thread alone; the barrier below completes these writes
             // before any thread reads them.
             unsafe {
-                *tile_a.add(ty * T + tx) = a_value;
-                *tile_b.add(ty * T + tx) = b_value;
+                *tile_a.add(thread_y * T + thread_x) = a_value;
+                *tile_b.add(thread_y * T + thread_x) = b_value;
             }
             thread::sync_threads();
 
-            let mut u = 0;
+            let mut offset = 0;
             #[unroll]
-            while u < T {
+            while offset < T {
+                let a_slot = thread_y * T + offset;
+                let b_slot = offset * T + thread_x;
                 // SAFETY: between the 2 barriers no thread writes either tile.
-                sum += unsafe { *tile_a.add(ty * T + u) * *tile_b.add(u * T + tx) };
-                u += 1;
+                sum += unsafe { *tile_a.add(a_slot) * *tile_b.add(b_slot) };
+                offset += 1;
             }
             thread::sync_threads();
 
-            t += 1;
+            phase += 1;
         }
 
         if row < m
@@ -216,15 +218,17 @@ impl Problem {
         let count = samples.min(m * n);
 
         let mut exact = 0;
-        for s in 0..count {
-            let i = if count == m * n { s / n } else { s * 977 % m };
-            let j = if count == m * n { s % n } else { (s * 1231 + 7) % n };
+        for sample in 0..count {
+            let row = if count == m * n { sample / n } else { sample * 977 % m };
+            let col = if count == m * n { sample % n } else { (sample * 1231 + 7) % n };
 
             let mut sum = 0.0;
-            for p in 0..k {
-                sum += self.a_host[i * k + p] as f64 * self.b_host[p * n + j] as f64;
+            for inner in 0..k {
+                let a_value = self.a_host[row * k + inner] as f64;
+                let b_value = self.b_host[inner * n + col] as f64;
+                sum += a_value * b_value;
             }
-            if c[i * n + j] as f64 == sum {
+            if c[row * n + col] as f64 == sum {
                 exact += 1;
             }
         }

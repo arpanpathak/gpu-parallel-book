@@ -174,15 +174,15 @@ parts += [note(52, 352, "16 threads load 1 slot each;"),
           note(52, 368, "the 4 green ones also compute."),
           note(52, 396, "Programs: 34 × 10 = 340 threads,"),
           note(52, 412, "256 of them compute."),
-          note(348, 352, "Each thread loads every slot (i, j)"),
-          note(348, 368, "with i ≡ ty, j ≡ tx (mod 2): 4 slots."),
+          note(348, 352, "Each thread loads every slot whose"),
+          note(348, 368, "row and column match its own mod 2."),
           note(348, 396, "Programs: 256 threads; 180 load 1 slot,"),
           note(348, 412, "72 load 2, and 4 load 4.")]
 save(OUT + "ch20-loaders.svg", 640, 456,
      "Two ways to load the 4 by 4 tile of block (1, 1). Left, extra threads: the block has 4 by 4 = "
      "16 threads, 1 per slot; all 16 load, and only the inner 4 compute. Right, a loop: the block "
-     "has 2 by 2 = 4 threads, and each loads 4 slots, at rows ty and ty + 2 and columns tx and tx + "
-     "2; the slots are colored by the thread that loads them. A note gives the counts for the "
+     "has 2 by 2 = 4 threads, and each loads 4 slots, at rows threadIdx.y and threadIdx.y + 2 "
+     "and columns threadIdx.x and threadIdx.x + 2; the slots are colored by the thread that loads them. A note gives the counts for the "
      "programs: 34 by 10 = 340 threads, 256 of which compute; or 256 threads, of which 180 load 1 "
      "slot, 72 load 2 and 4 load 4.",
      "2 ways to load a tile and its halo",

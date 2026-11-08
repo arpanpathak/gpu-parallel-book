@@ -28,65 +28,65 @@ void check(cudaError_t err)
     }
 }
 
-// The sum of v over the 32 lanes of a warp, left in lane 0.
-__device__ float warpSum(float v)
+// The sum of value over the 32 lanes of a warp, left in lane 0.
+__device__ float warpSum(float value)
 {
-    for (int offset = 16; offset > 0; offset /= 2) {
-        v += __shfl_down_sync(0xffffffff, v, offset);
+    for (int distance = 16; distance > 0; distance /= 2) {
+        value += __shfl_down_sync(0xffffffff, value, distance);
     }
-    return v;
+    return value;
 }
 
-// The sum of v over the 256 threads of a block, returned to thread 0.
-__device__ float blockSum(float v)
+// The sum of value over the 256 threads of a block, returned to thread 0.
+__device__ float blockSum(float value)
 {
-    __shared__ float warps[8];
+    __shared__ float warpSums[8];
     int lane = threadIdx.x % 32;
-    int warp = threadIdx.x / 32;
+    int warpIndex = threadIdx.x / 32;
 
-    v = warpSum(v);
+    value = warpSum(value);
     if (lane == 0) {
-        warps[warp] = v;
+        warpSums[warpIndex] = value;
     }
     __syncthreads();
 
-    float w = lane < 8 ? warps[lane] : 0.0f;
-    return warp == 0 ? warpSum(w) : 0.0f;
+    float warpTotal = lane < 8 ? warpSums[lane] : 0.0f;
+    return warpIndex == 0 ? warpSum(warpTotal) : 0.0f;
 }
 
-// The sum of a[i] * b[i] over this thread's elements i = t, t + P, t + 2P, ...
+// The sum of a[index] * b[index] over this thread's elements, a grid apart.
 __device__ float products(const float* a, const float* b, int n)
 {
-    int threads = gridDim.x * blockDim.x;
+    int gridSize = gridDim.x * blockDim.x;
     float sum = 0.0f;
 
-    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += threads) {
-        sum += a[i] * b[i];
+    for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < n; index += gridSize) {
+        sum += a[index] * b[index];
     }
     return sum;
 }
 
-// Map: p[i] = a[i] * b[i], 1 element per thread.
-__global__ void multiply(const float* a, const float* b, float* p, int n)
+// Map: elementProducts[index] = a[index] * b[index], one element per thread.
+__global__ void multiply(const float* a, const float* b, float* elementProducts, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (i < n) {
-        p[i] = a[i] * b[i];
+    if (index < n) {
+        elementProducts[index] = a[index] * b[index];
     }
 }
 
 // Reduce: 1 partial sum of input per block.
 __global__ void sum(const float* input, float* partial, int n)
 {
-    int threads = gridDim.x * blockDim.x;
-    float v = 0.0f;
+    int gridSize = gridDim.x * blockDim.x;
+    float mySum = 0.0f;
 
-    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += threads) {
-        v += input[i];
+    for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < n; index += gridSize) {
+        mySum += input[index];
     }
 
-    float total = blockSum(v);
+    float total = blockSum(mySum);
     if (threadIdx.x == 0) {
         partial[blockIdx.x] = total;
     }
@@ -96,19 +96,18 @@ __global__ void sum(const float* input, float* partial, int n)
 __global__ void dotTree(const float* a, const float* b, float* partial, int n)
 {
     __shared__ float cells[BLOCK];
-    int t = threadIdx.x;
 
-    cells[t] = products(a, b, n);
+    cells[threadIdx.x] = products(a, b, n);
     __syncthreads();
 
-    for (int s = BLOCK / 2; s > 0; s /= 2) {
-        if (t < s) {
-            cells[t] += cells[t + s];
+    for (int stride = BLOCK / 2; stride > 0; stride /= 2) {
+        if (threadIdx.x < stride) {
+            cells[threadIdx.x] += cells[threadIdx.x + stride];
         }
         __syncthreads();
     }
 
-    if (t == 0) {
+    if (threadIdx.x == 0) {
         partial[blockIdx.x] = cells[0];
     }
 }
@@ -151,7 +150,7 @@ const MethodInfo METHODS[4] = {
 // The device memory of 1 problem.
 struct Buffers {
     int n;
-    float *a, *b, *p, *partial, *total;
+    float *a, *b, *products, *partial, *total;
 };
 
 Buffers upload(const std::vector<float>& a, const std::vector<float>& b)
@@ -162,7 +161,7 @@ Buffers upload(const std::vector<float>& a, const std::vector<float>& b)
 
     check(cudaMalloc(&buf.a, bytes));
     check(cudaMalloc(&buf.b, bytes));
-    check(cudaMalloc(&buf.p, bytes));
+    check(cudaMalloc(&buf.products, bytes));
     check(cudaMalloc(&buf.partial, GRID * sizeof(float)));
     check(cudaMalloc(&buf.total, sizeof(float)));
 
@@ -175,7 +174,7 @@ void release(Buffers& buf)
 {
     check(cudaFree(buf.a));
     check(cudaFree(buf.b));
-    check(cudaFree(buf.p));
+    check(cudaFree(buf.products));
     check(cudaFree(buf.partial));
     check(cudaFree(buf.total));
 }
@@ -188,8 +187,8 @@ void run(Method method, const Buffers& buf)
 
     switch (method) {
     case MAP_REDUCE:
-        multiply<<<mapBlocks, BLOCK>>>(buf.a, buf.b, buf.p, n);
-        sum<<<GRID, BLOCK>>>(buf.p, buf.partial, n);
+        multiply<<<mapBlocks, BLOCK>>>(buf.a, buf.b, buf.products, n);
+        sum<<<GRID, BLOCK>>>(buf.products, buf.partial, n);
         sum<<<1, BLOCK>>>(buf.partial, buf.total, GRID);
         break;
     case TREE:
@@ -220,7 +219,7 @@ float result(Method method, const Buffers& buf)
 // Milliseconds per run of method: 10 warm-up runs, then RUNS runs timed with events.
 float timeMs(Method method, const Buffers& buf)
 {
-    for (int r = 0; r < 10; ++r) {
+    for (int warmup = 0; warmup < 10; ++warmup) {
         run(method, buf);
     }
 
@@ -229,7 +228,7 @@ float timeMs(Method method, const Buffers& buf)
     check(cudaEventCreate(&stop));
 
     check(cudaEventRecord(start));
-    for (int r = 0; r < RUNS; ++r) {
+    for (int timed = 0; timed < RUNS; ++timed) {
         run(method, buf);
     }
     check(cudaEventRecord(stop));
@@ -336,7 +335,7 @@ int main()
     const MethodInfo combine[2] = {{"second launch", SHUFFLE, 8}, {"atomic", ATOMIC, 8}};
     for (const MethodInfo& m : combine) {
         std::set<unsigned> seen;
-        for (int r = 0; r < 100; ++r) {
+        for (int trial = 0; trial < 100; ++trial) {
             seen.insert(bits(result(m.method, buf)));
         }
 

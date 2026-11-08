@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 462" width="660" height="462" role="img" aria-label="Six warps of a block write shared memory and reach __syncthreads at different times. Each early warp waits, shown dashed, at a vertical line marking the barrier. When the last warp arrives, all 6 start phase 2 together and can read what the others wrote.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 462" width="660" height="462" role="img" aria-label="Six warps of a block write shared memory and reach __syncthreads() at different times. Each early warp waits, shown dashed, at a vertical line marking the barrier. When the last warp arrives, all 6 start phase 2 together and can read what the others wrote.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

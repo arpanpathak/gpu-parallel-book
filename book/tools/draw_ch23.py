@@ -375,7 +375,7 @@ save(OUT + "ch23-row-block.svg", 660, 412,
      "A row of 4,096 columns drawn as 16 groups of 256. Thread 5 reads column 5 of every group, 16 values in "
      "all. Below, block 1 of the example: threads 0 to 3 hold 2, 4, 4 and 5, and threads 4 to 255 hold no "
      "value.",
-     "1 block per row", "Thread t of block b reads columns t, t + 256, t + 512, ... of row b.", parts)
+     "1 block per row", "Each thread reads every 256th column of its block's row, from threadIdx.x on.", parts)
 
 
 # 23.12  A butterfly maximum on 8 lanes (a real warp has 32 lanes and 5 steps).

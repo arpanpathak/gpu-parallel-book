@@ -161,35 +161,35 @@ the width or the height. For example, with \\(n = 8\\), \\(\mathrm{clamp}(-2, 8)
 \\(w = (1, 4, 6, 4, 1)\\), and we explain them in Section 24.5.
 
 <div class="algo">
-<p class="algo-name">Image-Pipeline(\(rgb, W, H\))</p>
+<p class="algo-name">Image-Pipeline(\(\mathsf{rgb}, W, H\))</p>
 <ol>
-<li>for \(p \in [0, WH)\) {</li>
-<li style="--d:1">\(gray[p] = (77\, rgb[3p] + 150\, rgb[3p+1] + 29\, rgb[3p+2] + 128) \gg 8\)</li>
+<li><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
+<li style="--d:1">\(\mathsf{gray}[\mathsf{pixel}] = (77\, \mathsf{rgb}[3 \cdot \mathsf{pixel}] + 150\, \mathsf{rgb}[3 \cdot \mathsf{pixel}+1] + 29\, \mathsf{rgb}[3 \cdot \mathsf{pixel}+2] + 128) \gg 8\)</li>
 <li>}</li>
-<li>\(bins[v] = 0\) for every \(v \in [0, 256)\)</li>
-<li>for \(p \in [0, WH)\) {</li>
-<li style="--d:1">\(bins[gray[p]] = bins[gray[p]] + 1\) <span class="c">// histogram</span></li>
+<li>\(\mathsf{bins}[\mathsf{level}] = 0\) <b class="kw">for</b> every \(\mathsf{level} \in [0, 256)\)</li>
+<li><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
+<li style="--d:1">\(\mathsf{bins}[\mathsf{gray}[\mathsf{pixel}]] = \mathsf{bins}[\mathsf{gray}[\mathsf{pixel}]] + 1\) <span class="c">// histogram</span></li>
 <li>}</li>
-<li>\(c = 0\)</li>
-<li>for \(v \in [0, 256)\) {</li>
-<li style="--d:1">\(c = c + bins[v]\), \(\;cdf[v] = c\) <span class="c">// scan</span></li>
+<li>\(\mathsf{total} = 0\)</li>
+<li><b class="kw">for</b> \(\mathsf{level} \in [0, 256)\) {</li>
+<li style="--d:1">\(\mathsf{total} = \mathsf{total} + \mathsf{bins}[\mathsf{level}]\), \(\;\mathsf{cdf}[\mathsf{level}] = \mathsf{total}\) <span class="c">// scan</span></li>
 <li>}</li>
-<li>\(c_{\min} = cdf[v]\) for the lowest \(v\) with \(bins[v] > 0\), \(\;s = WH - c_{\min}\)</li>
-<li>for \(v \in [0, 256)\) {</li>
-<li style="--d:1">\(table[v] = \lfloor (\max(cdf[v] - c_{\min}, 0) \cdot 255 + \lfloor s/2 \rfloor) / s \rfloor\)</li>
+<li>\(\mathsf{first} = \mathsf{cdf}[\mathsf{level}]\) <b class="kw">for</b> the lowest \(\mathsf{level}\) with \(\mathsf{bins}[\mathsf{level}] > 0\), \(\;\mathsf{span} = W \cdot H - \mathsf{first}\)</li>
+<li><b class="kw">for</b> \(\mathsf{level} \in [0, 256)\) {</li>
+<li style="--d:1">\(\mathsf{table}[\mathsf{level}] = \lfloor (\max(\mathsf{cdf}[\mathsf{level}] - \mathsf{first}, 0) \cdot 255 + \lfloor \mathsf{span}/2 \rfloor) / \mathsf{span} \rfloor\)</li>
 <li>}</li>
-<li>for \(p \in [0, WH)\) {</li>
-<li style="--d:1">\(equal[p] = table[gray[p]]\)</li>
+<li><b class="kw">for</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
+<li style="--d:1">\(\mathsf{equal}[\mathsf{pixel}] = \mathsf{table}[\mathsf{gray}[\mathsf{pixel}]]\)</li>
 <li>}</li>
-<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
-<li style="--d:1">\(rows[y][x] = \sum_{j \in [0,5)} w_j \cdot equal[y][\mathrm{clamp}(x + j - 2, W)]\)</li>
+<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li style="--d:1">\(\mathsf{rows}[y][x] = \sum_{j \in [0,5)} w_j \cdot \mathsf{equal}[y][\mathrm{clamp}(x + j - 2, W)]\)</li>
 <li>}</li>
-<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
-<li style="--d:1">\(blurred[y][x] = (\sum_{i \in [0,5)} w_i \cdot rows[\mathrm{clamp}(y + i - 2, H)][x] + 128) \gg 8\)</li>
+<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li style="--d:1">\(\mathsf{blurred}[y][x] = (\sum_{i \in [0,5)} w_i \cdot \mathsf{rows}[\mathrm{clamp}(y + i - 2, H)][x] + 128) \gg 8\)</li>
 <li>}</li>
-<li>for \(y \in [0, H)\), \(x \in [0, W)\) {</li>
-<li style="--d:1">\((g_x, g_y) = \) <span class="sc">Sobel</span>\((blurred, x, y)\)</li>
-<li style="--d:1">\(edges[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
+<li><b class="kw">for</b> \(y \in [0, H)\), \(x \in [0, W)\) {</li>
+<li style="--d:1">\((g_x, g_y) = \) <span class="sc">Sobel</span>\((\mathsf{blurred}, x, y)\)</li>
+<li style="--d:1">\(\mathsf{edges}[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -197,8 +197,8 @@ the width or the height. For example, with \\(n = 8\\), \\(\mathrm{clamp}(-2, 8)
 Lines 1 to 3 convert to gray, lines 4 to 18 equalize, lines 19 to 24 blur in 2 passes, and lines 25
 to 28 compute the edges. The symbol \\(\gg 8\\) is a shift right by 8 bits, which is a division by
 256 that discards the remainder; for example, \\(37{,}088 \gg 8 = 144\\). In lines 12 and 14,
-\\(c_{\min}\\) is the cumulative count of the darkest level in use, and \\(s\\) is the number of
-pixels above that level. In the example, \\(c_{\min} = 16\\) and \\(s = 64 - 16 = 48\\). In
+\\(\mathsf{first}\\) is the cumulative count of the darkest level in use, and \\(\mathsf{span}\\) is the number of
+pixels above that level. In the example, \\(\mathsf{first} = 16\\) and \\(\mathsf{span} = 64 - 16 = 48\\). In
 Sections 24.3 to 24.6, we explain each group of lines on the example. In this section, we count the
 work and examine what each line depends on.
 
@@ -212,21 +212,21 @@ weighted terms. The example therefore needs 192 multiplications for the gray lev
 multiply-adds for the blur and 768 weighted terms for the edges, and the CPU performs them one after
 another.
 
-In general, with \\(N = WH\\) pixels, every line except lines 10 and 14 runs \\(N\\) times. For an
+In general, with \\(N = W \cdot H\\) pixels, every line except lines 10 and 14 runs \\(N\\) times. For an
 image of 1,920 × 1,080 pixels, \\(N = 2{,}073{,}600\\), and the 2 blur passes alone perform
 \\(2 \cdot 5N = 20{,}736{,}000\\) multiply-adds. In Section 24.10, we measure the whole sequence on 8
 CPU cores at 38 to 51 images per second.
 
 ### 24.2.3 What each line depends on
 
-The sequential order of the loops hides how little most lines need. Line 2 computes \\(gray[p]\\)
-from the 3 bytes of pixel \\(p\\) and from nothing else. Line 17 reads \\(gray[p]\\) and 1 entry of a
+The sequential order of the loops hides how little most lines need. Line 2 computes \\(\mathsf{gray}[\mathsf{pixel}]\\)
+from the 3 bytes of pixel \\(\mathsf{pixel}\\) and from nothing else. Line 17 reads \\(\mathsf{gray}[\mathsf{pixel}]\\) and 1 entry of a
 table of 256 bytes. Line 20 reads 5 pixels of 1 row, line 23 reads 5 row sums of 1 column, and line
 26 reads the 3 × 3 pixels around \\((x, y)\\). For each of these lines, every output could be computed
 at the same time as every other output, as soon as its few inputs exist.
 
-Lines 4 to 14 are different. The table entry of line 14 needs \\(cdf[v]\\), which counts every pixel
-of the image with a level of at most \\(v\\). For example, \\(cdf[112] = 32\\) counts the 16 pixels of
+Lines 4 to 14 are different. The table entry of line 14 needs \\(\mathsf{cdf}[\mathsf{level}]\\), which counts every pixel
+of the image with a level of at most \\(\mathsf{level}\\). For example, \\(\mathsf{cdf}[112] = 32\\) counts the 16 pixels of
 level 96 and the 16 pixels of level 112, wherever they lie in the image. No entry of the table, and
 therefore no pixel of the equalized image, can be computed until the histogram of the whole image is
 complete.
@@ -248,7 +248,7 @@ Exercises
 many times does line 26 read each pixel of the blurred image?<br>
 24.5 Lines 10 and 14 run 256 times for an image of any size. What fraction of the work of
 Image-Pipeline do they represent for the image of 1,920 × 1,080 pixels?<br>
-24.6 Which lines of Image-Pipeline could start on pixel \\(p\\) before line 2 has finished every
+24.6 Which lines of Image-Pipeline could start on pixel \\(\mathsf{pixel}\\) before line 2 has finished every
 pixel? Which could not, and why?
 
 </div>
@@ -311,17 +311,17 @@ converts pixel \\((3, 0)\\).
 </div>
 
 <div class="algo">
-<p class="algo-name">Gray-Kernel(\(rgb, gray, W, H\))</p>
+<p class="algo-name">Gray-Kernel(\(\mathsf{rgb}, \mathsf{gray}, W, H\))</p>
 <ol>
-<li>\(i = blockIdx.x \cdot blockDim.x + threadIdx.x\)</li>
-<li>if \(i \in [0, WH)\) {</li>
-<li style="--d:1">\(r = rgb[3i]\), \(\;g = rgb[3i + 1]\), \(\;b = rgb[3i + 2]\) <span class="c">// 3 reads</span></li>
-<li style="--d:1">\(gray[i] = (77r + 150g + 29b + 128) \gg 8\) <span class="c">// 1 write</span></li>
+<li>\(\mathsf{pixel} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\)</li>
+<li><b class="kw">if</b> \(\mathsf{pixel} \in [0, W \cdot H)\) {</li>
+<li style="--d:1">\(\mathsf{red} = \mathsf{rgb}[3 \cdot \mathsf{pixel}]\), \(\;\mathsf{green} = \mathsf{rgb}[3 \cdot \mathsf{pixel} + 1]\), \(\;\mathsf{blue} = \mathsf{rgb}[3 \cdot \mathsf{pixel} + 2]\) <span class="c">// 3 reads</span></li>
+<li style="--d:1">\(\mathsf{gray}[\mathsf{pixel}] = (77 \cdot \mathsf{red} + 150 \cdot \mathsf{green} + 29 \cdot \mathsf{blue} + 128) \gg 8\) <span class="c">// 1 write</span></li>
 <li>}</li>
 </ol>
 </div>
 
-Line 1 gives each thread a pixel number \\(i\\). Line 2 skips the threads of the last block whose
+Line 1 gives each thread a pixel number \\(\mathsf{pixel}\\). Line 2 skips the threads of the last block whose
 number lies past the end of the image, since such threads have no pixel to convert. Figure 24.4
 follows thread 3 of the example. It reads bytes 9, 10 and 11, computes 144, and writes byte 3 of the
 gray image. This makes 3 reads from global memory and 1 write, and no other thread is involved.
@@ -342,7 +342,7 @@ of 32 consecutive threads of a block that execute the same instruction together;
 warp to global memory is **coalesced** when its 32 addresses fall into as few aligned segments of
 32 bytes as the data allow, so that the memory system serves the whole warp with a few transfers.
 
-*Example.* The 32 threads of a warp of the gray kernel read pixels \\(i\\) to \\(i + 31\\), which
+*Example.* The 32 threads of a warp of the gray kernel read pixels \\(\mathsf{pixel}\\) to \\(\mathsf{pixel} + 31\\), which
 are 96 consecutive bytes of the color image, and the memory system serves each of the 3 read
 instructions from the same 3 segments of 32 bytes.
 
@@ -358,7 +358,7 @@ implement lines 1 to 5 of Gray-Kernel.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:57:68}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:57:69}}
     // ...
 }
 ```
@@ -419,11 +419,11 @@ quantities, which we now define.
 
 <span class="box-label">Definition 24.5</span> **Histogram and cumulative count.** The **histogram**
 of a gray image counts, for each level \\(v \in [0, 256)\\), the pixels whose level is \\(v\\); we
-call the counts \\(bins[v]\\). The **cumulative count** \\(c(v)\\) is the number of pixels whose
-level is at most \\(v\\), \\(c(v) = \sum_{u \le v} bins[u]\\). The sequence \\(c\\) is the
+call the counts \\(\mathsf{bins}[v]\\). The **cumulative count** \\(c(v)\\) is the number of pixels whose
+level is at most \\(v\\), \\(c(v) = \sum_{u \le v} \mathsf{bins}[u]\\). The sequence \\(c\\) is the
 **inclusive scan** of the histogram (Chapter 21).
 
-*Example.* The gray image of Figure 24.1 has \\(bins[96] = bins[112] = bins[120] = bins[144] = 16\\)
+*Example.* The gray image of Figure 24.1 has \\(\mathsf{bins}[96] = \mathsf{bins}[112] = \mathsf{bins}[120] = \mathsf{bins}[144] = 16\\)
 and every other count 0. Its cumulative counts are \\(c(96) = 16\\), \\(c(112) = 32\\), \\(c(120) =
 48\\) and \\(c(144) = 64\\).
 
@@ -505,24 +505,24 @@ Each block of the histogram kernel counts into its own 256 counters in shared me
 them to the global counters only once, at the end. The following procedure gives the details.
 
 <div class="algo">
-<p class="algo-name">Histogram-Kernel(\(gray, bins, N\))</p>
+<p class="algo-name">Histogram-Kernel(\(\mathsf{gray}, \mathsf{bins}, N\))</p>
 <ol>
-<li>\(t = threadIdx.x\)</li>
-<li>\(local[t] = 0\) <span class="c">// 256 threads clear 256 counters</span></li>
+<li>\(\mathsf{stride} = \mathsf{gridDim{.}x} \cdot 256\) <span class="c">// threads in the grid</span></li>
+<li>\(\mathsf{local}[\mathsf{threadIdx{.}x}] = 0\) <span class="c">// 256 threads clear 256 counters</span></li>
 <li><span class="sc">Barrier</span>()</li>
-<li>for \(i = blockIdx.x \cdot 256 + t\); \(i &lt; N\); \(i = i + gridDim.x \cdot 256\) {</li>
-<li style="--d:1"><span class="sc">Atomic-Add</span>\((local[gray[i]], 1)\) <span class="c">// shared memory</span></li>
+<li><b class="kw">for</b> \(\mathsf{pixel} = \mathsf{blockIdx{.}x} \cdot 256 + \mathsf{threadIdx{.}x}\); \(\mathsf{pixel} &lt; N\); \(\mathsf{pixel} = \mathsf{pixel} + \mathsf{stride}\) {</li>
+<li style="--d:1"><span class="sc">Atomic-Add</span>\((\mathsf{local}[\mathsf{gray}[\mathsf{pixel}]], 1)\) <span class="c">// shared memory</span></li>
 <li>}</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>if \(local[t] > 0\) {</li>
-<li style="--d:1"><span class="sc">Atomic-Add</span>\((bins[t], local[t])\) <span class="c">// global memory</span></li>
+<li><b class="kw">if</b> \(\mathsf{local}[\mathsf{threadIdx{.}x}] > 0\) {</li>
+<li style="--d:1"><span class="sc">Atomic-Add</span>\((\mathsf{bins}[\mathsf{threadIdx{.}x}], \mathsf{local}[\mathsf{threadIdx{.}x}])\) <span class="c">// global memory</span></li>
 <li>}</li>
 </ol>
 </div>
 
-Line 2 clears the counters, 1 per thread. The loop of lines 4 to 6 walks through the image with a
+Line 1 computes the number of threads in the grid, and line 2 clears the counters, 1 per thread. The loop of lines 4 to 6 walks through the image with a
 stride of the whole grid, that is, a thread advances by the total number of threads,
-\\(gridDim.x \cdot 256\\), from 1 pixel to its next. Line 5 counts each pixel in the block's own
+\\(\mathsf{gridDim{.}x} \cdot 256\\), from 1 pixel to its next. Line 5 counts each pixel in the block's own
 counter for its level. The barrier of line 3 ensures that no count starts before every counter is
 0, and the barrier of line 7 ensures that no block total is read before every count of the block is
 done. Lines 8 to 10 add the block's 256 totals to the global histogram, skipping the counters that
@@ -540,7 +540,7 @@ and threads 96, 112, 120 and 144 would each add 16 to the global counter of thei
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:70:99}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:71:100}}
     // ...
 }
 ```
@@ -549,7 +549,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:72:90}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:72:89}}
 ```
 
 </div>
@@ -566,47 +566,47 @@ the argument instead, which rests on the 2 barriers of the pseudocode.
 
 ### 24.4.3 The table kernel
 
-The table needs the scan of the 256 counts and the value \\(c_{\min}\\). A scan of 256 values is
-small, so a single block of 256 threads computes it, with thread \\(v\\) responsible for level
-\\(v\\). As in the block scan of Chapter 21, the block first scans each warp with register shuffles
+The table needs the scan of the 256 counts and the value \\(\mathsf{cumulative}_{\min}\\). A scan of 256 values is
+small, so a single block of 256 threads computes it, with thread \\(\mathsf{level}\\) responsible for level
+\\(\mathsf{level}\\). As in the block scan of Chapter 21, the block first scans each warp with register shuffles
 and then scans the 8 warp totals.
 
 <div class="algo">
-<p class="algo-name">Table-Kernel(\(bins, table\))</p>
+<p class="algo-name">Table-Kernel(\(\mathsf{bins}, \mathsf{table}\))</p>
 <ol>
-<li>\(v = threadIdx.x\), \(\;lane = v \bmod 32\), \(\;w = \lfloor v / 32 \rfloor\)</li>
-<li>\(count = \) <span class="sc">Atomic-Exchange</span>\((bins[v], 0)\) <span class="c">// read and clear</span></li>
-<li>\(s = \) <span class="sc">Warp-Scan</span>\((count)\) <span class="c">// inclusive, within the warp</span></li>
-<li>if \(lane = 31\) { \(warps[w] = s\) }</li>
-<li>if \(v = 0\) { \(first = \infty\) }</li>
+<li>\(\mathsf{level} = \mathsf{threadIdx{.}x}\), \(\;\mathsf{lane} = \mathsf{level} \bmod 32\), \(\;\mathsf{warp} = \lfloor \mathsf{level} / 32 \rfloor\)</li>
+<li>\(\mathsf{count} = \) <span class="sc">Atomic-Exchange</span>\((\mathsf{bins}[\mathsf{level}], 0)\) <span class="c">// read and clear</span></li>
+<li>\(\mathsf{partial} = \) <span class="sc">Warp-Scan</span>\((\mathsf{count})\) <span class="c">// inclusive, within the warp</span></li>
+<li><b class="kw">if</b> \(\mathsf{lane} = 31\) { \(\mathsf{warps}[\mathsf{warp}] = \mathsf{partial}\) }</li>
+<li><b class="kw">if</b> \(\mathsf{level} = 0\) { \(\mathsf{first} = \infty\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>if \(w = 0\) and \(lane &lt; 8\) { \(warps[lane] = \) <span class="sc">Warp-Scan</span>\((warps[lane])\) }</li>
+<li><b class="kw">if</b> \(\mathsf{warp} = 0\) and \(\mathsf{lane} &lt; 8\) { \(\mathsf{warps}[\mathsf{lane}] = \) <span class="sc">Warp-Scan</span>\((\mathsf{warps}[\mathsf{lane}])\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(c = s + warps[w - 1]\) if \(w > 0\), else \(c = s\) <span class="c">// c = c(v)</span></li>
-<li>if \(count > 0\) { <span class="sc">Atomic-Min</span>\((first, c)\) }</li>
+<li>\(\mathsf{cumulative} = \mathsf{partial} + \mathsf{warps}[\mathsf{warp} - 1]\) <b class="kw">if</b> \(\mathsf{warp} > 0\), <b class="kw">else</b> \(\mathsf{cumulative} = \mathsf{partial}\) <span class="c">// cumulative = c(level)</span></li>
+<li><b class="kw">if</b> \(\mathsf{count} > 0\) { <span class="sc">Atomic-Min</span>\((\mathsf{first}, \mathsf{cumulative})\) }</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(span = warps[7] - first\)</li>
-<li>\(table[v] = \lfloor (\max(c - first, 0) \cdot 255 + \lfloor span/2 \rfloor) / span \rfloor\)</li>
+<li>\(\mathsf{span} = \mathsf{warps}[7] - \mathsf{first}\)</li>
+<li>\(\mathsf{table}[\mathsf{level}] = \lfloor (\max(\mathsf{cumulative} - \mathsf{first}, 0) \cdot 255 + \lfloor \mathsf{span}/2 \rfloor) / \mathsf{span} \rfloor\)</li>
 </ol>
 </div>
 
-In the procedure, \\(lane\\) is the position of thread \\(v\\) in its warp and \\(w\\) the number of
-its warp; for thread 112, for example, \\(lane = 16\\) and \\(w = 3\\). The array \\(warps\\) in
-shared memory holds the 8 warp totals, and \\(first\\) receives the smallest cumulative count of a
-level in use, which is \\(c_{\min}\\).
+In the procedure, \\(\mathsf{lane}\\) is the position of thread \\(\mathsf{level}\\) in its warp and \\(\mathsf{warp}\\) the number of
+its warp; for thread 112, for example, \\(\mathsf{lane} = 16\\) and \\(\mathsf{warp} = 3\\). The array \\(\mathsf{warps}\\) in
+shared memory holds the 8 warp totals, and \\(\mathsf{first}\\) receives the smallest cumulative count of a
+level in use, which is \\(\mathsf{cumulative}_{\min}\\).
 
 Let us follow the example. The 4 levels in use belong to 2 warps. Warp 3 holds threads 96 to 127,
 and its scan gives 16 at lane 0 (level 96), 32 at lane 16 (level 112), and 48 from lane 24 (level
-120) to lane 31, so \\(warps[3] = 48\\). Warp 4 holds level 144 at lane 16, so \\(warps[4] = 16\\).
+120) to lane 31, so \\(\mathsf{warps}[3] = 48\\). Warp 4 holds level 144 at lane 16, so \\(\mathsf{warps}[4] = 16\\).
 After line 7, the scanned warp totals are 0, 0, 0, 48, 64, 64, 64 and 64, and line 9 gives thread
-144 the count \\(c = 16 + 48 = 64\\). Line 10 leaves \\(first = 16\\), the smallest cumulative count
-among the 4 levels in use, which is \\(c_{\min}\\). The total number of pixels is the last warp
-total, \\(warps[7] = 64\\), so the kernel needs no parameter for \\(N\\).
+144 the count \\(\mathsf{cumulative} = 16 + 48 = 64\\). Line 10 leaves \\(\mathsf{first} = 16\\), the smallest cumulative count
+among the 4 levels in use, which is \\(\mathsf{cumulative}_{\min}\\). The total number of pixels is the last warp
+total, \\(\mathsf{warps}[7] = 64\\), so the kernel needs no parameter for \\(N\\).
 
 Line 2 reads each count with an atomic exchange, which returns the old value and stores 0. The kernel
 therefore leaves the global histogram cleared for the next image, and the pipeline needs no separate
 launch to clear it. In the programs, line 13 works in 64-bit integers, because
-\\(\max(c - first, 0) \cdot 255\\) reaches \\(2{,}073{,}600 \cdot 255 = 528{,}768{,}000\\) for the
+\\(\max(\mathsf{cumulative} - \mathsf{first}, 0) \cdot 255\\) reaches \\(2{,}073{,}600 \cdot 255 = 528{,}768{,}000\\) for the
 large image, which is close to the limit of a 32-bit integer. Line 12 gives a span of 0 for an image
 of a single level, and in that case, the programs keep every level unchanged.
 
@@ -616,7 +616,7 @@ of a single level, and in that case, the programs keep every level unchanged.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:101:149}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:102:155}}
     // ...
 }
 ```
@@ -625,7 +625,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:92:130}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:91:129}}
 ```
 
 </div>
@@ -649,7 +649,7 @@ and writes the entry of the table for that level.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:151:161}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:157:167}}
     // ...
 }
 ```
@@ -658,7 +658,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:132:139}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:131:138}}
 ```
 
 </div>
@@ -682,7 +682,7 @@ and 1 of the 2 pixels is lost.
 </figure>
 
 On the example, 16 threads of 1 block count the 16 sky pixels, all of them of level 144. If they
-lose any of their additions, \\(bins[144]\\) ends below 16, the total \\(warps[7]\\) ends below 64,
+lose any of their additions, \\(\mathsf{bins}[144]\\) ends below 16, the total \\(\mathsf{warps}[7]\\) ends below 64,
 and the table changes. We ran the C++ program with this 1 change, and it printed the following
 report.
 
@@ -841,8 +841,8 @@ into shared memory, once, and every thread then reads its 5 inputs from the copy
 <div class="definition">
 
 <span class="box-label">Definition 24.9</span> **Tile and halo.** A **tile** is the piece of the
-input that a block copies into shared memory. For a block of \\(T\\) outputs of a filter that reads
-\\(r\\) positions on each side, the tile holds \\(T + 2r\\) inputs: the \\(T\\) positions of the
+input that a block copies into shared memory. For a block of \\(\mathsf{blockDim{.}x}\\) outputs of a filter that reads
+\\(r\\) positions on each side, the tile holds \\(\mathsf{blockDim{.}x} + 2r\\) inputs: the \\(\mathsf{blockDim{.}x}\\) positions of the
 block's own outputs and \\(r\\) more on each side. The \\(2r\\) extra positions are the **halo**.
 
 *Example.* A block of 8 outputs of the row pass, with \\(r = 2\\), needs a tile of 12 pixels; its
@@ -850,13 +850,13 @@ halo is 2 pixels on the left and 2 on the right.
 
 </div>
 
-Figure 24.9 shows the tile of row 2 of the example for a block of 8 threads. Slot \\(s\\) of the tile
-holds pixel \\(x_0 + s - 2\\) of the row, clamped, where \\(x_0\\) is the column of the first output
+Figure 24.9 shows the tile of row 2 of the example for a block of 8 threads. The slot with number
+\\(\mathsf{slot}\\) holds pixel \\(\mathsf{left} + \mathsf{slot} - 2\\) of the row, clamped, where \\(\mathsf{left}\\) is the column of the first output
 of the block. The shift by 2 makes room for the 2 halo pixels on the left. In the example,
-\\(x_0 = 0\\), so slot 2 holds pixel 0, and slots 0 and 1 hold the clamped pixels \\(-2\\) and
-\\(-1\\), which are both pixel 0. Thread \\(t\\) copies its own pixel into slot \\(t + 2\\), and
-threads 0 and 1 also copy the 4 halo slots. After a barrier, thread \\(t\\) reads slots \\(t\\) to
-\\(t + 4\\), which hold pixels \\(x_0 + t - 2\\) to \\(x_0 + t + 2\\). For example, thread 3 reads
+\\(\mathsf{left} = 0\\), so slot 2 holds pixel 0, and slots 0 and 1 hold the clamped pixels \\(-2\\) and
+\\(-1\\), which are both pixel 0. Thread \\(\mathsf{threadIdx{.}x}\\) copies its own pixel into slot \\(\mathsf{threadIdx{.}x} + 2\\), and
+threads 0 and 1 also copy the 4 halo slots. After a barrier, thread \\(\mathsf{threadIdx{.}x}\\) reads slots \\(\mathsf{threadIdx{.}x}\\) to
+\\(\mathsf{threadIdx{.}x} + 4\\), which hold pixels \\(\mathsf{left} + \mathsf{threadIdx{.}x} - 2\\) to \\(\mathsf{left} + \mathsf{threadIdx{.}x} + 2\\). For example, thread 3 reads
 slots 3 to 7, which hold pixels 1 to 5.
 
 <figure>
@@ -865,22 +865,22 @@ slots 3 to 7, which hold pixels 1 to 5.
 </figure>
 
 <div class="algo">
-<p class="algo-name">Blur-Rows(\(src, rows, W\))</p>
+<p class="algo-name">Blur-Rows(\(\mathsf{src}, \mathsf{rows}, W\))</p>
 <ol>
-<li>\(t = threadIdx.x\), \(\;x_0 = blockIdx.x \cdot T\), \(\;y = blockIdx.y\)</li>
-<li>\(tile[t + 2] = src[y][\mathrm{clamp}(x_0 + t, W)]\) <span class="c">// own pixel</span></li>
-<li>if \(t &lt; 2\) {</li>
-<li style="--d:1">\(tile[t] = src[y][\mathrm{clamp}(x_0 + t - 2, W)]\) <span class="c">// left halo</span></li>
-<li style="--d:1">\(tile[T + 2 + t] = src[y][\mathrm{clamp}(x_0 + T + t, W)]\) <span class="c">// right halo</span></li>
+<li>\(\mathsf{left} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\), \(\;y = \mathsf{blockIdx{.}y}\)</li>
+<li>\(\mathsf{tile}[\mathsf{threadIdx{.}x} + 2] = \mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{threadIdx{.}x}, W)]\) <span class="c">// own pixel</span></li>
+<li><b class="kw">if</b> \(\mathsf{threadIdx{.}x} &lt; 2\) {</li>
+<li style="--d:1">\(\mathsf{tile}[\mathsf{threadIdx{.}x}] = \mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{threadIdx{.}x} - 2, W)]\) <span class="c">// left halo</span></li>
+<li style="--d:1">\(\mathsf{tile}[\mathsf{blockDim{.}x} + 2 + \mathsf{threadIdx{.}x}] = \mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}, W)]\) <span class="c">// right halo</span></li>
 <li>}</li>
 <li><span class="sc">Barrier</span>()</li>
-<li>\(rows[y][x_0 + t] = \sum_{k \in [0,5)} w_k \cdot tile[t + k]\)</li>
+<li>\(\mathsf{rows}[y][\mathsf{left} + \mathsf{threadIdx{.}x}] = \sum_{\mathsf{tap} \in [0,5)} w_{\mathsf{tap}} \cdot \mathsf{tile}[\mathsf{threadIdx{.}x} + \mathsf{tap}]\)</li>
 </ol>
 </div>
 
 Lines 2 to 6 are the joint copy, line 7 separates the copy from the reads, and line 8 is line 20 of
-Image-Pipeline with every read taken from the tile. A block now fetches \\(T + 4\\) pixels from
-global memory for \\(T\\) outputs, instead of \\(5T\\). The programs use \\(T = 128\\), which gives 132
+Image-Pipeline with every read taken from the tile. A block now fetches \\(\mathsf{blockDim{.}x} + 4\\) pixels from
+global memory for \\(\mathsf{blockDim{.}x}\\) outputs, instead of \\(5 \cdot \mathsf{blockDim{.}x}\\). The programs use \\(\mathsf{blockDim{.}x} = 128\\), which gives 132
 fetches instead of 640 per block, and 15 blocks cover a row of 1,920 pixels exactly.
 
 The column pass works in the same way along the columns. A block of 32 × 8 threads computes 8 rows
@@ -895,7 +895,7 @@ consecutive bytes. The column pass finishes with the rounding of line 23 of Imag
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:163:221}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:169:232}}
     // ...
 }
 ```
@@ -904,7 +904,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:141:182}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:140:181}}
 ```
 
 </div>
@@ -913,7 +913,7 @@ mod kernels {
 In the row pass, the line that writes `TILE[tx + 2]` (C++: `tile[tx + 2]`) is line 2 of Blur-Rows,
 the `if tx < 2` block is lines 3 to 6, and the barrier is line 7. The device function `tap(i, n)`
 computes \\(\mathrm{clamp}(i - 2, n)\\), so `tap(x0 + s, W)` is the pixel that belongs in slot
-\\(s\\). The two languages declare the tile differently. C++ writes `__shared__ unsigned tile[ROW_T +
+\\(\mathsf{slot}\\). The two languages declare the tile differently. C++ writes `__shared__ unsigned tile[ROW_T +
 4]`. Rust writes `static mut TILE: SharedArray<u32, { ROW_T + 4 }>`, a type whose length is part of
 the type and must be a constant, and this is why the tile widths are the constants `ROW_T`, `COL_W`
 and `COL_H`. Every access to the tile is `unsafe` in Rust, and the 2 `// SAFETY:` comments state the
@@ -928,23 +928,24 @@ now prove that this is the case.
 
 <div class="theorem">
 
-<span class="box-label">Theorem 24.2</span> After the barrier of line 7 of Blur-Rows, slot \\(s\\)
-of the tile holds \\(src[y][\mathrm{clamp}(x_0 + s - 2, W)]\\) for every \\(s \in [0, T + 4)\\), and
-line 8 computes the row sum \\(R(x_0 + t, y)\\) of Theorem 24.1.
+<span class="box-label">Theorem 24.2</span> After the barrier of line 7 of Blur-Rows, every slot
+\\(\mathsf{slot} \in [0, \mathsf{blockDim{.}x} + 4)\\) of the tile holds
+\\(\mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{slot} - 2, W)]\\), and
+line 8 computes the row sum \\(R(\mathsf{left} + \mathsf{threadIdx{.}x}, y)\\) of Theorem 24.1.
 
 </div>
 
 <div class="proof">
 
-*Proof.* Line 2 writes slot \\(t + 2\\) for \\(t \in [0, T)\\), that is, the slots \\([2, T + 2)\\).
-Lines 4 and 5 write slots \\(t\\) and \\(T + 2 + t\\) for \\(t \in [0, 2)\\), that is, the slots
-\\([0, 2)\\) and \\([T + 2, T + 4)\\). The 3 ranges are disjoint and together cover \\([0, T + 4)\\),
-so every slot is written exactly once, and each write stores the pixel \\(x_0 + s - 2\\), clamped,
-for its slot \\(s\\). No thread passes the barrier of line 7 before every thread has finished lines
+*Proof.* Line 2 writes slot \\(\mathsf{threadIdx{.}x} + 2\\) for \\(\mathsf{threadIdx{.}x} \in [0, \mathsf{blockDim{.}x})\\), that is, the slots \\([2, \mathsf{blockDim{.}x} + 2)\\).
+Lines 4 and 5 write slots \\(\mathsf{threadIdx{.}x}\\) and \\(\mathsf{blockDim{.}x} + 2 + \mathsf{threadIdx{.}x}\\) for \\(\mathsf{threadIdx{.}x} \in [0, 2)\\), that is, the slots
+\\([0, 2)\\) and \\([\mathsf{blockDim{.}x} + 2, \mathsf{blockDim{.}x} + 4)\\). The 3 ranges are disjoint and together cover \\([0, \mathsf{blockDim{.}x} + 4)\\),
+so every slot is written exactly once, and each write into a slot \\(\mathsf{slot}\\) stores the pixel
+\\(\mathsf{left} + \mathsf{slot} - 2\\), clamped. No thread passes the barrier of line 7 before every thread has finished lines
 2 to 6, so every slot holds its value before any thread reads. After the barrier, the tile is only
-read. Thread \\(t\\) reads slots \\(t + k\\) for \\(k \in [0, 5)\\), which hold
-\\(src[y][\mathrm{clamp}(x_0 + t + k - 2, W)]\\), and line 8 adds them with the weights \\(w_k\\),
-which is \\(R(x_0 + t, y)\\).
+read. Thread \\(\mathsf{threadIdx{.}x}\\) reads slots \\(\mathsf{threadIdx{.}x} + \mathsf{tap}\\) for \\(\mathsf{tap} \in [0, 5)\\), which hold
+\\(\mathsf{src}[y][\mathrm{clamp}(\mathsf{left} + \mathsf{threadIdx{.}x} + \mathsf{tap} - 2, W)]\\), and line 8 adds them with the weights \\(w_{\mathsf{tap}}\\),
+which is \\(R(\mathsf{left} + \mathsf{threadIdx{.}x}, y)\\).
 
 </div>
 
@@ -952,11 +953,11 @@ The same argument, with rows in place of columns, proves the column pass.
 
 ### 24.5.6 A missing halo
 
-The halo is easy to forget, because the block has \\(T\\) threads, and it seems natural to copy
-\\(T\\) values. Suppose that lines 3 to 6 of Blur-Rows are left out. Slots 0, 1, \\(T + 2\\) and
-\\(T + 3\\) are then never written, and the proof of Theorem 24.2 fails at its first step. The
+The halo is easy to forget, because the block has \\(\mathsf{blockDim{.}x}\\) threads, and it seems natural to copy
+\\(\mathsf{blockDim{.}x}\\) values. Suppose that lines 3 to 6 of Blur-Rows are left out. Slots 0, 1, \\(\mathsf{blockDim{.}x} + 2\\) and
+\\(\mathsf{blockDim{.}x} + 3\\) are then never written, and the proof of Theorem 24.2 fails at its first step. The
 threads whose windows reach into those slots read whatever the memory held before. These are
-threads 0 and 1 on the left, and threads \\(T - 2\\) and \\(T - 1\\) on the right.
+threads 0 and 1 on the left, and threads \\(\mathsf{blockDim{.}x} - 2\\) and \\(\mathsf{blockDim{.}x} - 1\\) on the right.
 
 Figure 24.10 shows the effect on the example, with a block of 8 threads per row and with 0 in the
 4 slots that are never written. Thread 0 of row 2 should add \\(85 + 4 \cdot 85 + 6 \cdot 85 + 4
@@ -1000,8 +1001,8 @@ them at once.
 
 <div class="rule-box">
 
-<span class="box-label">Rule</span> A tile for \\(T\\) outputs of a filter that reads \\(r\\)
-positions on each side holds \\(T + 2r\\) inputs, and every one of them must be written before the
+<span class="box-label">Rule</span> A tile for \\(\mathsf{blockDim{.}x}\\) outputs of a filter that reads \\(r\\)
+positions on each side holds \\(\mathsf{blockDim{.}x} + 2r\\) inputs, and every one of them must be written before the
 barrier. Count the slots, not the threads.
 
 </div>
@@ -1075,17 +1076,17 @@ to the row below, and it barely changes from left to right. The magnitude is
 ### 24.6.2 The kernel
 
 The Sobel operator is a stencil of radius 1, the pattern of Chapter 19, and its kernel therefore
-gives each output pixel a thread. In the following procedure, \\(p(r, c)\\) is the level of the
-blurred image in row \\(r\\) and column \\(c\\), with both coordinates clamped to the image.
+gives each output pixel a thread. In the following procedure, \\(\mathsf{at}(\mathsf{row}, \mathsf{col})\\) is the level of the
+blurred image in row \\(\mathsf{row}\\) and column \\(\mathsf{col}\\), with both coordinates clamped to the image.
 
 <div class="algo">
-<p class="algo-name">Sobel-Kernel(\(src, edges, W, H\))</p>
+<p class="algo-name">Sobel-Kernel(\(\mathsf{src}, \mathsf{edges}, W, H\))</p>
 <ol>
-<li>\(x = blockIdx.x \cdot blockDim.x + threadIdx.x\), \(\;y = blockIdx.y \cdot blockDim.y + threadIdx.y\)</li>
-<li>\(p(r, c) = src[\mathrm{clamp}(r, H)][\mathrm{clamp}(c, W)]\)</li>
-<li>\(g_x = (p(y{-}1, x{+}1) + 2p(y, x{+}1) + p(y{+}1, x{+}1)) - (p(y{-}1, x{-}1) + 2p(y, x{-}1) + p(y{+}1, x{-}1))\)</li>
-<li>\(g_y = (p(y{+}1, x{-}1) + 2p(y{+}1, x) + p(y{+}1, x{+}1)) - (p(y{-}1, x{-}1) + 2p(y{-}1, x) + p(y{-}1, x{+}1))\)</li>
-<li>\(edges[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
+<li>\(x = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\), \(\;y = \mathsf{blockIdx{.}y} \cdot \mathsf{blockDim{.}y} + \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{at}(\mathsf{row}, \mathsf{col}) = \mathsf{src}[\mathrm{clamp}(\mathsf{row}, H)][\mathrm{clamp}(\mathsf{col}, W)]\)</li>
+<li>\(g_x = (\mathsf{at}(y{-}1, x{+}1) + 2 \cdot \mathsf{at}(y, x{+}1) + \mathsf{at}(y{+}1, x{+}1)) - (\mathsf{at}(y{-}1, x{-}1) + 2 \cdot \mathsf{at}(y, x{-}1) + \mathsf{at}(y{+}1, x{-}1))\)</li>
+<li>\(g_y = (\mathsf{at}(y{+}1, x{-}1) + 2 \cdot \mathsf{at}(y{+}1, x) + \mathsf{at}(y{+}1, x{+}1)) - (\mathsf{at}(y{-}1, x{-}1) + 2 \cdot \mathsf{at}(y{-}1, x) + \mathsf{at}(y{-}1, x{+}1))\)</li>
+<li>\(\mathsf{edges}[y][x] = \min(\lfloor \sqrt{g_x^2 + g_y^2}\,/\,4 + 1/2 \rfloor, 255)\)</li>
 </ol>
 </div>
 
@@ -1101,7 +1102,7 @@ would help. The following kernels implement the procedure.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:223:245}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:234:256}}
 }
 ```
 
@@ -1109,14 +1110,15 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:184:204}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:184:208}}
 ```
 
 </div>
 </div>
 
 The kernels compute the 4 weighted sums of lines 3 and 4 as `right`, `left`, `below` and `above`,
-and the clamped neighbors `xl`, `xr`, `yu` and `yd` of line 2. The largest possible component is
+and the clamped neighbor positions `xLeft`, `xRight`, `yAbove` and `yBelow` (`x_left` and so on in
+Rust) of line 2. The largest possible component is
 \\(4 \cdot 255 = 1{,}020\\), so the sum of squares is at most \\(2 \cdot 1{,}020^2 = 2{,}080{,}800\\).
 This is an integer below \\(2^{24} = 16{,}777{,}216\\), and its conversion to a 32-bit float is
 therefore exact. The square root is `sqrt_rn_f32` in Rust and `sqrtf` in C++. Both round to the
@@ -1128,7 +1130,7 @@ square root. The edge image still agreed with the CPU's edge image in every pixe
 checksum. The rounding of line 5 depends on the exact root only at the sums of squares
 \\((4k + 2)^2\\), where \\(k\\) is any non-negative integer. For example, for \\(g_x = 10\\) and
 \\(g_y = 0\\), with \\(k = 2\\), we have \\(\sqrt{100} = 10\\) and \\(10 / 4 + 1/2 = 3\\) exactly,
-and a root a little below 10 would give 2. The approximate root of the measured GPU returned these
+and a root slightly below 10 would give 2. The approximate root of the measured GPU returned these
 integer roots exactly. The programs nevertheless keep the correctly rounded root, because it agrees
 with the CPU by its definition, not by a test on 1 GPU and 1 image.
 
@@ -1220,14 +1222,14 @@ waiting, and the stream keeps them in order.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:286:341}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:297:353}}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:261:299}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:265:303}}
 ```
 
 </div>
@@ -1259,14 +1261,14 @@ a separate mutable slice, so the compiler verifies that no 2 threads write the s
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:397:412}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:411:426}}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:345:363}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:354:372}}
 ```
 
 </div>
@@ -1322,7 +1324,7 @@ writes 1, and the row pass reads 1 byte and writes a 2-byte row sum. For the gra
 effective bandwidth is therefore \\(4 \cdot 2{,}073{,}600\\) bytes in 0.183 ms, about 45 GB/s. The
 histogram was the only stage whose time changed by much more than 10% between runs, from 0.054 to
 0.117 ms in both languages, and the table quotes the more frequent value. The 7 stages issued 1
-after the other take 1.165 ms in C++, a little more than the sum of their separate times.
+after the other take 1.165 ms in C++, slightly more than the sum of their separate times.
 
 <figure>
 <img src="../../figures/ch24-stages.svg" alt="Paired horizontal bars of the measured time of each stage for 1 image, Rust then C++: grayscale 0.200 ms and 0.183 ms; histogram 0.056 ms and 0.055 ms; table 0.007 ms and 0.007 ms; apply table 0.185 ms and 0.192 ms; blur rows 0.301 ms and 0.208 ms; blur columns 0.280 ms and 0.210 ms; sobel 0.350 ms and 0.225 ms. The sums are 1.380 ms in Rust and 1.079 ms in C++.">
@@ -1402,26 +1404,26 @@ the buffers of a second stream.
 
 </div>
 
-The batch therefore gives image \\(i\\) to stream \\(i \bmod S\\), with 1 set of buffers for each of
-the \\(S\\) streams, as in Chapter 6. Here \\(S\\) is the number of streams, and \\(i \bmod S\\) is the
-remainder of \\(i\\) on division by \\(S\\); with \\(S = 3\\), for example, images 0, 3 and 6 go to
+The batch therefore gives image \\(\mathsf{image}\\) to stream \\(\mathsf{image} \bmod S\\), with 1 set of buffers for each of
+the \\(S\\) streams, as in Chapter 6. Here \\(S\\) is the number of streams, and \\(\mathsf{image} \bmod S\\) is the
+remainder of \\(\mathsf{image}\\) on division by \\(S\\); with \\(S = 3\\), for example, images 0, 3 and 6 go to
 stream 0, and image 4 goes to stream 1. The programs call such a set of buffers a lane, a name that
 has nothing to do with the lanes of a warp.
 
 <div class="algo">
-<p class="algo-name">Batch(\(images, n, S\))</p>
+<p class="algo-name">Batch(\(\mathsf{images}, n, S\))</p>
 <ol>
-<li>for \(i \in [0, n)\) {</li>
-<li style="--d:1">\(k = i \bmod S\)</li>
-<li style="--d:1">on stream \(k\): copy \(images[i]\) into \(lanes[k].rgb\) <span class="c">// host to device</span></li>
-<li style="--d:1">on stream \(k\): the 7 kernels on \(lanes[k]\)</li>
-<li style="--d:1">on stream \(k\): copy \(lanes[k].edges\) into \(out[k]\) <span class="c">// device to host</span></li>
+<li><b class="kw">for</b> \(\mathsf{image} \in [0, n)\) {</li>
+<li style="--d:1">\(\mathsf{slot} = \mathsf{image} \bmod S\)</li>
+<li style="--d:1">on stream \(\mathsf{slot}\): copy \(\mathsf{images}[\mathsf{image}]\) into \(\mathsf{lanes}[\mathsf{slot}].\mathsf{rgb}\) <span class="c">// host to device</span></li>
+<li style="--d:1">on stream \(\mathsf{slot}\): the 7 kernels on \(\mathsf{lanes}[\mathsf{slot}]\)</li>
+<li style="--d:1">on stream \(\mathsf{slot}\): copy \(\mathsf{lanes}[\mathsf{slot}].\mathsf{edges}\) into \(\mathsf{out}[\mathsf{slot}]\) <span class="c">// device to host</span></li>
 <li>}</li>
 <li>wait for every stream</li>
 </ol>
 </div>
 
-The kernels of images \\(i\\) and \\(i + S\\) use the same lane on the same stream, so they run in
+The kernels of images \\(\mathsf{image}\\) and \\(\mathsf{image} + S\\) use the same lane on the same stream, so they run in
 order and cannot overwrite each other's buffers. The host loop issues all the work at once and then
 waits in line 7. The following code implements the procedure.
 
@@ -1429,14 +1431,14 @@ waits in line 7. The following code implements the procedure.
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:360:387}}
+{{#include ../../../../code/oxide/ch24_capstone/src/main.rs:372:401}}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:317:338}}
+{{#include ../../../../code/cuda/ch24_capstone/capstone.cu:321:347}}
 ```
 
 </div>

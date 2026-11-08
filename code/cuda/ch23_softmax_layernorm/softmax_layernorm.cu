@@ -24,89 +24,92 @@ void check(cudaError_t err)
     }
 }
 
-__device__ float warpMax(float v)
+__device__ float warpMax(float value)
 {
     for (int mask = 16; mask > 0; mask /= 2) {
-        v = fmaxf(v, __shfl_xor_sync(0xffffffff, v, mask));
+        value = fmaxf(value, __shfl_xor_sync(0xffffffff, value, mask));
     }
-    return v;
+    return value;
 }
 
-__device__ float warpSum(float v)
+__device__ float warpSum(float value)
 {
     for (int mask = 16; mask > 0; mask /= 2) {
-        v += __shfl_xor_sync(0xffffffff, v, mask);
+        value += __shfl_xor_sync(0xffffffff, value, mask);
     }
-    return v;
+    return value;
 }
 
 // The maximum over the block, returned to every thread. `slots` holds 8 floats.
-__device__ float blockMax(float v, float* slots)
+__device__ float blockMax(float value, float* slots)
 {
-    v = warpMax(v);
+    value = warpMax(value);
     int warp = threadIdx.x / 32;
     if (threadIdx.x % 32 == 0) {
-        slots[warp] = v;
+        slots[warp] = value;
     }
     __syncthreads();
 
-    float m = slots[0];
-    for (int w = 1; w < WARPS; ++w) {
-        m = fmaxf(m, slots[w]);
+    float largest = slots[0];
+    for (int other = 1; other < WARPS; ++other) {
+        largest = fmaxf(largest, slots[other]);
     }
     __syncthreads();
-    return m;
+    return largest;
 }
 
 // The sum over the block, returned to every thread. `slots` holds 8 floats.
-__device__ float blockSum(float v, float* slots)
+__device__ float blockSum(float value, float* slots)
 {
-    v = warpSum(v);
+    value = warpSum(value);
     int warp = threadIdx.x / 32;
     if (threadIdx.x % 32 == 0) {
-        slots[warp] = v;
+        slots[warp] = value;
     }
     __syncthreads();
 
-    float s = 0.0f;
-    for (int w = 0; w < WARPS; ++w) {
-        s += slots[w];
+    float sum = 0.0f;
+    for (int other = 0; other < WARPS; ++other) {
+        sum += slots[other];
     }
     __syncthreads();
-    return s;
+    return sum;
 }
 
-// A softmax state: the maximum m and the sum of exp(x - m). (-inf, 0) is the empty state.
+// A softmax state: the maximum m and the sum s of exp(x - m). (-inf, 0) is the empty state.
 struct SoftmaxState {
-    float m;
-    float s;
+    float largest;  // m
+    float sum;      // s
 };
 
-__device__ SoftmaxState mergeSoftmax(SoftmaxState a, SoftmaxState b)
+__device__ SoftmaxState mergeSoftmax(SoftmaxState first, SoftmaxState second)
 {
-    float top = fmaxf(a.m, b.m);
+    float top = fmaxf(first.largest, second.largest);
     if (top == -INFINITY) {
         return {top, 0.0f};
     }
-    return {top, a.s * expf(a.m - top) + b.s * expf(b.m - top)};
+    float firstPart = first.sum * expf(first.largest - top);
+    float secondPart = second.sum * expf(second.largest - top);
+    return {top, firstPart + secondPart};
 }
 
-// A Welford state: the count n, the mean, and the sum of squared deviations q.
+// A Welford state: the count n, the mean, and the sum q of squared deviations.
 struct WelfordState {
-    float n;
+    float count;    // n
     float mean;
-    float q;
+    float squares;  // q
 };
 
-__device__ WelfordState mergeWelford(WelfordState a, WelfordState b)
+__device__ WelfordState mergeWelford(WelfordState first, WelfordState second)
 {
-    float n = a.n + b.n;
-    if (n == 0.0f) {
-        return a;
+    float count = first.count + second.count;
+    if (count == 0.0f) {
+        return first;
     }
-    float delta = b.mean - a.mean;
-    float mean = a.mean + delta * b.n / n;
-    return {n, mean, a.q + b.q + delta * delta * a.n * b.n / n};
+    float delta = second.mean - first.mean;
+    float mean = first.mean + delta * second.count / count;
+    float between = delta * delta * first.count * second.count / count;
+    return {count, mean, first.squares + second.squares + between};
 }
 
 // Softmax without the maximum: exp(x) / sum of exp(x). Overflows for large x.
@@ -114,16 +117,16 @@ __global__ void softmaxNaive(const float* in, float* out, int cols)
 {
     __shared__ float slots[WARPS];
     const float* row = in + (size_t)blockIdx.x * cols;
-    float* res = out + (size_t)blockIdx.x * cols;
+    float* result = out + (size_t)blockIdx.x * cols;
 
     float sum = 0.0f;
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        sum += expf(row[j]);
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        sum += expf(row[column]);
     }
     float total = blockSum(sum, slots);
 
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        res[j] = expf(row[j]) / total;
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        result[column] = expf(row[column]) / total;
     }
 }
 
@@ -132,22 +135,22 @@ __global__ void softmaxThreePass(const float* in, float* out, int cols)
 {
     __shared__ float slots[WARPS];
     const float* row = in + (size_t)blockIdx.x * cols;
-    float* res = out + (size_t)blockIdx.x * cols;
+    float* result = out + (size_t)blockIdx.x * cols;
 
-    float m = -INFINITY;
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        m = fmaxf(m, row[j]);
+    float largest = -INFINITY;
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        largest = fmaxf(largest, row[column]);
     }
-    float top = blockMax(m, slots);
+    float top = blockMax(largest, slots);
 
     float sum = 0.0f;
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        sum += expf(row[j] - top);
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        sum += expf(row[column] - top);
     }
     float total = blockSum(sum, slots);
 
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        res[j] = expf(row[j] - top) / total;
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        result[column] = expf(row[column] - top) / total;
     }
 }
 
@@ -156,37 +159,37 @@ __global__ void softmaxOnline(const float* in, float* out, int cols)
 {
     __shared__ SoftmaxState slots[WARPS];
     const float* row = in + (size_t)blockIdx.x * cols;
-    float* res = out + (size_t)blockIdx.x * cols;
+    float* result = out + (size_t)blockIdx.x * cols;
 
-    SoftmaxState st = {-INFINITY, 0.0f};
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        float v = row[j];
-        if (v > st.m) {
-            st.s = st.s * expf(st.m - v) + 1.0f;
-            st.m = v;
+    SoftmaxState state = {-INFINITY, 0.0f};
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        float value = row[column];
+        if (value > state.largest) {
+            state.sum = state.sum * expf(state.largest - value) + 1.0f;
+            state.largest = value;
         } else {
-            st.s += expf(v - st.m);
+            state.sum += expf(value - state.largest);
         }
     }
 
     for (int mask = 16; mask > 0; mask /= 2) {
         SoftmaxState other;
-        other.m = __shfl_xor_sync(0xffffffff, st.m, mask);
-        other.s = __shfl_xor_sync(0xffffffff, st.s, mask);
-        st = mergeSoftmax(st, other);
+        other.largest = __shfl_xor_sync(0xffffffff, state.largest, mask);
+        other.sum = __shfl_xor_sync(0xffffffff, state.sum, mask);
+        state = mergeSoftmax(state, other);
     }
     if (threadIdx.x % 32 == 0) {
-        slots[threadIdx.x / 32] = st;
+        slots[threadIdx.x / 32] = state;
     }
     __syncthreads();
 
     SoftmaxState all = slots[0];
-    for (int w = 1; w < WARPS; ++w) {
-        all = mergeSoftmax(all, slots[w]);
+    for (int other = 1; other < WARPS; ++other) {
+        all = mergeSoftmax(all, slots[other]);
     }
 
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        res[j] = expf(row[j] - all.m) / all.s;
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        result[column] = expf(row[column] - all.largest) / all.sum;
     }
 }
 
@@ -195,28 +198,28 @@ __global__ void softmaxFused(const float* in, float* out)
 {
     __shared__ float slots[WARPS];
     const float* row = in + (size_t)blockIdx.x * COLS;
-    float* res = out + (size_t)blockIdx.x * COLS;
+    float* result = out + (size_t)blockIdx.x * COLS;
 
-    float x[PER_THREAD];
-    float m = -INFINITY;
+    float kept[PER_THREAD];
+    float largest = -INFINITY;
 #pragma unroll
-    for (int k = 0; k < PER_THREAD; ++k) {
-        x[k] = row[k * BLOCK + threadIdx.x];
-        m = fmaxf(m, x[k]);
+    for (int index = 0; index < PER_THREAD; ++index) {
+        kept[index] = row[index * BLOCK + threadIdx.x];
+        largest = fmaxf(largest, kept[index]);
     }
-    float top = blockMax(m, slots);
+    float top = blockMax(largest, slots);
 
     float sum = 0.0f;
 #pragma unroll
-    for (int k = 0; k < PER_THREAD; ++k) {
-        x[k] = expf(x[k] - top);
-        sum += x[k];
+    for (int index = 0; index < PER_THREAD; ++index) {
+        kept[index] = expf(kept[index] - top);
+        sum += kept[index];
     }
     float scale = 1.0f / blockSum(sum, slots);
 
 #pragma unroll
-    for (int k = 0; k < PER_THREAD; ++k) {
-        res[k * BLOCK + threadIdx.x] = x[k] * scale;
+    for (int index = 0; index < PER_THREAD; ++index) {
+        result[index * BLOCK + threadIdx.x] = kept[index] * scale;
     }
 }
 
@@ -226,21 +229,21 @@ __global__ void layernormNaive(const float* in, const float* gamma, const float*
 {
     __shared__ float slots[WARPS];
     const float* row = in + (size_t)blockIdx.x * cols;
-    float* res = out + (size_t)blockIdx.x * cols;
+    float* result = out + (size_t)blockIdx.x * cols;
 
     float sum = 0.0f;
     float squares = 0.0f;
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        float v = row[j];
-        sum += v;
-        squares += v * v;
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        float value = row[column];
+        sum += value;
+        squares += value * value;
     }
     float mean = blockSum(sum, slots) / cols;
-    float var = blockSum(squares, slots) / cols - mean * mean;
-    float rstd = 1.0f / sqrtf(var + EPS);
+    float variance = blockSum(squares, slots) / cols - mean * mean;
+    float inverseStd = 1.0f / sqrtf(variance + EPS);
 
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        res[j] = (row[j] - mean) * rstd * gamma[j] + beta[j];
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        result[column] = (row[column] - mean) * inverseStd * gamma[column] + beta[column];
     }
 }
 
@@ -250,37 +253,38 @@ __global__ void layernormWelford(const float* in, const float* gamma, const floa
 {
     __shared__ WelfordState slots[WARPS];
     const float* row = in + (size_t)blockIdx.x * cols;
-    float* res = out + (size_t)blockIdx.x * cols;
+    float* result = out + (size_t)blockIdx.x * cols;
 
-    WelfordState st = {0.0f, 0.0f, 0.0f};
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        float v = row[j];
-        st.n += 1.0f;
-        float delta = v - st.mean;
-        st.mean += delta / st.n;
-        st.q += delta * (v - st.mean);
+    WelfordState state = {0.0f, 0.0f, 0.0f};
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        float value = row[column];
+        state.count += 1.0f;
+        float delta = value - state.mean;
+        state.mean += delta / state.count;
+        state.squares += delta * (value - state.mean);
     }
 
     for (int mask = 16; mask > 0; mask /= 2) {
         WelfordState other;
-        other.n = __shfl_xor_sync(0xffffffff, st.n, mask);
-        other.mean = __shfl_xor_sync(0xffffffff, st.mean, mask);
-        other.q = __shfl_xor_sync(0xffffffff, st.q, mask);
-        st = mergeWelford(st, other);
+        other.count = __shfl_xor_sync(0xffffffff, state.count, mask);
+        other.mean = __shfl_xor_sync(0xffffffff, state.mean, mask);
+        other.squares = __shfl_xor_sync(0xffffffff, state.squares, mask);
+        state = mergeWelford(state, other);
     }
     if (threadIdx.x % 32 == 0) {
-        slots[threadIdx.x / 32] = st;
+        slots[threadIdx.x / 32] = state;
     }
     __syncthreads();
 
     WelfordState all = slots[0];
-    for (int w = 1; w < WARPS; ++w) {
-        all = mergeWelford(all, slots[w]);
+    for (int other = 1; other < WARPS; ++other) {
+        all = mergeWelford(all, slots[other]);
     }
-    float rstd = 1.0f / sqrtf(all.q / cols + EPS);
+    float inverseStd = 1.0f / sqrtf(all.squares / cols + EPS);
 
-    for (int j = threadIdx.x; j < cols; j += BLOCK) {
-        res[j] = (row[j] - all.mean) * rstd * gamma[j] + beta[j];
+    for (int column = threadIdx.x; column < cols; column += BLOCK) {
+        float normalized = (row[column] - all.mean) * inverseStd;
+        result[column] = normalized * gamma[column] + beta[column];
     }
 }
 
@@ -290,29 +294,29 @@ __global__ void layernormFused(const float* in, const float* gamma, const float*
 {
     __shared__ float slots[WARPS];
     const float* row = in + (size_t)blockIdx.x * COLS;
-    float* res = out + (size_t)blockIdx.x * COLS;
+    float* result = out + (size_t)blockIdx.x * COLS;
 
-    float x[PER_THREAD];
+    float kept[PER_THREAD];
     float sum = 0.0f;
 #pragma unroll
-    for (int k = 0; k < PER_THREAD; ++k) {
-        x[k] = row[k * BLOCK + threadIdx.x];
-        sum += x[k];
+    for (int index = 0; index < PER_THREAD; ++index) {
+        kept[index] = row[index * BLOCK + threadIdx.x];
+        sum += kept[index];
     }
     float mean = blockSum(sum, slots) / COLS;
 
     float squares = 0.0f;
 #pragma unroll
-    for (int k = 0; k < PER_THREAD; ++k) {
-        x[k] -= mean;
-        squares += x[k] * x[k];
+    for (int index = 0; index < PER_THREAD; ++index) {
+        kept[index] -= mean;
+        squares += kept[index] * kept[index];
     }
-    float rstd = 1.0f / sqrtf(blockSum(squares, slots) / COLS + EPS);
+    float inverseStd = 1.0f / sqrtf(blockSum(squares, slots) / COLS + EPS);
 
 #pragma unroll
-    for (int k = 0; k < PER_THREAD; ++k) {
-        int j = k * BLOCK + threadIdx.x;
-        res[j] = x[k] * rstd * gamma[j] + beta[j];
+    for (int index = 0; index < PER_THREAD; ++index) {
+        int column = index * BLOCK + threadIdx.x;
+        result[column] = kept[index] * inverseStd * gamma[column] + beta[column];
     }
 }
 
@@ -327,15 +331,15 @@ double nowMs()
 template <typename F>
 double timeMs(F launch)
 {
-    for (int r = 0; r < 100; ++r) {
+    for (int warmup = 0; warmup < 100; ++warmup) {
         launch();
     }
     check(cudaDeviceSynchronize());
 
     std::vector<double> batches;
-    for (int b = 0; b < 7; ++b) {
+    for (int batch = 0; batch < 7; ++batch) {
         double start = nowMs();
-        for (int r = 0; r < 20; ++r) {
+        for (int timed = 0; timed < 20; ++timed) {
             launch();
         }
         check(cudaGetLastError());
@@ -363,18 +367,18 @@ std::vector<float> uniform(size_t n, float low, float high, unsigned seed)
 std::vector<double> softmaxReference(const std::vector<float>& in, int cols)
 {
     std::vector<double> out(in.size());
-    for (size_t r = 0; r < in.size() / cols; ++r) {
-        const float* row = in.data() + r * cols;
+    for (size_t rowIndex = 0; rowIndex < in.size() / cols; ++rowIndex) {
+        const float* row = in.data() + rowIndex * cols;
         double top = -INFINITY;
-        for (int j = 0; j < cols; ++j) {
-            top = std::max(top, (double)row[j]);
+        for (int column = 0; column < cols; ++column) {
+            top = std::max(top, (double)row[column]);
         }
         double total = 0.0;
-        for (int j = 0; j < cols; ++j) {
-            total += std::exp(row[j] - top);
+        for (int column = 0; column < cols; ++column) {
+            total += std::exp(row[column] - top);
         }
-        for (int j = 0; j < cols; ++j) {
-            out[r * cols + j] = std::exp(row[j] - top) / total;
+        for (int column = 0; column < cols; ++column) {
+            out[rowIndex * cols + column] = std::exp(row[column] - top) / total;
         }
     }
     return out;
@@ -387,22 +391,23 @@ std::vector<double> layernormReference(const std::vector<float>& in,
 {
     int cols = gamma.size();
     std::vector<double> out(in.size());
-    for (size_t r = 0; r < in.size() / cols; ++r) {
-        const float* row = in.data() + r * cols;
+    for (size_t rowIndex = 0; rowIndex < in.size() / cols; ++rowIndex) {
+        const float* row = in.data() + rowIndex * cols;
         double mean = 0.0;
-        for (int j = 0; j < cols; ++j) {
-            mean += row[j];
+        for (int column = 0; column < cols; ++column) {
+            mean += row[column];
         }
         mean /= cols;
 
-        double var = 0.0;
-        for (int j = 0; j < cols; ++j) {
-            var += (row[j] - mean) * (row[j] - mean);
+        double variance = 0.0;
+        for (int column = 0; column < cols; ++column) {
+            variance += (row[column] - mean) * (row[column] - mean);
         }
-        double rstd = 1.0 / std::sqrt(var / cols + EPS);
+        double inverseStd = 1.0 / std::sqrt(variance / cols + EPS);
 
-        for (int j = 0; j < cols; ++j) {
-            out[r * cols + j] = (row[j] - mean) * rstd * gamma[j] + beta[j];
+        for (int column = 0; column < cols; ++column) {
+            double normalized = (row[column] - mean) * inverseStd;
+            out[rowIndex * cols + column] = normalized * gamma[column] + beta[column];
         }
     }
     return out;

@@ -28,61 +28,61 @@ type Error = Box<dyn std::error::Error>;
 mod kernels {
     use super::*;
 
-    /// The sum of `v` over the 32 lanes of a warp, left in lane 0.
+    /// The sum of `value` over the 32 lanes of a warp, left in lane 0.
     #[device]
-    fn warp_sum(mut v: f32) -> f32 {
+    fn warp_sum(mut value: f32) -> f32 {
         let mut step: u32 = 0;
 
         #[unroll]
         while step < 5 {
-            v += warp::shuffle_down_f32(v, 16u32 >> step);
+            value += warp::shuffle_down_f32(value, 16u32 >> step);
             step += 1;
         }
-        v
+        value
     }
 
-    /// The sum of `v` over the 256 threads of a block, returned to thread 0.
+    /// The sum of `value` over the 256 threads of a block, returned to thread 0.
     #[device]
-    fn block_sum(v: f32) -> f32 {
-        static mut WARPS: SharedArray<f32, 8> = SharedArray::UNINIT;
+    fn block_sum(value: f32) -> f32 {
+        static mut WARP_SUMS: SharedArray<f32, 8> = SharedArray::UNINIT;
         let lane = warp::lane_id() as usize;
-        let warp = thread::threadIdx_x() as usize / 32;
+        let warp_index = thread::threadIdx_x() as usize / 32;
 
-        let v = warp_sum(v);
+        let value = warp_sum(value);
         if lane == 0 {
             // SAFETY: lane 0 of each warp writes its own slot, before the barrier.
-            unsafe { WARPS[warp] = v };
+            unsafe { WARP_SUMS[warp_index] = value };
         }
         thread::sync_threads();
 
         // SAFETY: after the barrier the slots are only read.
-        let w = if lane < 8 { unsafe { WARPS[lane] } } else { 0.0 };
-        if warp == 0 { warp_sum(w) } else { 0.0 }
+        let warp_total = if lane < 8 { unsafe { WARP_SUMS[lane] } } else { 0.0 };
+        if warp_index == 0 { warp_sum(warp_total) } else { 0.0 }
     }
 
-    /// The sum of a[i] * b[i] over this thread's elements i = t, t + P, t + 2P, ...
+    /// The sum of a[index] * b[index] over this thread's elements, a grid apart.
     #[device]
     fn products(a: &[f32], b: &[f32]) -> f32 {
-        let threads = (thread::gridDim_x() * BLOCK) as usize;
-        let mut i = thread::index_1d().get();
+        let grid_size = (thread::gridDim_x() * BLOCK) as usize;
+        let mut index = thread::index_1d().get();
 
         let mut sum = 0.0;
-        while i < a.len() {
-            sum += a[i] * b[i];
-            i += threads;
+        while index < a.len() {
+            sum += a[index] * b[index];
+            index += grid_size;
         }
         sum
     }
 
-    /// Map: p[i] = a[i] * b[i], 1 element per thread.
+    /// Map: products[index] = a[index] * b[index], one element per thread.
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
-    pub fn multiply(a: &[f32], b: &[f32], mut p: DisjointSlice<f32>) {
-        let idx = thread::index_1d();
-        let i = idx.get();
+    pub fn multiply(a: &[f32], b: &[f32], mut element_products: DisjointSlice<f32>) {
+        let thread_id = thread::index_1d();
+        let index = thread_id.get();
 
-        if let Some(out) = p.get_mut(idx) {
-            *out = a[i] * b[i];
+        if let Some(out) = element_products.get_mut(thread_id) {
+            *out = a[index] * b[index];
         }
     }
 
@@ -90,16 +90,16 @@ mod kernels {
     #[kernel]
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn sum(input: &[f32], mut partial: DisjointSlice<f32>) {
-        let threads = (thread::gridDim_x() * BLOCK) as usize;
-        let mut i = thread::index_1d().get();
+        let grid_size = (thread::gridDim_x() * BLOCK) as usize;
+        let mut index = thread::index_1d().get();
 
-        let mut v = 0.0;
-        while i < input.len() {
-            v += input[i];
-            i += threads;
+        let mut my_sum = 0.0;
+        while index < input.len() {
+            my_sum += input[index];
+            index += grid_size;
         }
 
-        let total = block_sum(v);
+        let total = block_sum(my_sum);
         if thread::threadIdx_x() == 0 {
             // SAFETY: only thread 0 of each block writes, at its own block number.
             unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = total };
@@ -111,26 +111,26 @@ mod kernels {
     #[launch_contract(domain = 1, block = (256, 1, 1))]
     pub fn dot_tree(a: &[f32], b: &[f32], mut partial: DisjointSlice<f32>) {
         static mut CELLS: SharedArray<f32, 256> = SharedArray::UNINIT;
-        let t = thread::threadIdx_x() as usize;
+        let thread_idx = thread::threadIdx_x() as usize;
 
         // SAFETY: each thread writes only its own cell, before the barrier.
-        unsafe { CELLS[t] = products(a, b) };
+        unsafe { CELLS[thread_idx] = products(a, b) };
         thread::sync_threads();
 
         let mut step: usize = 0;
         #[unroll]
         while step < 8 {
-            let s: usize = 128 >> step;
-            if t < s {
-                // SAFETY: in this step thread t alone writes cell t, and it reads cell
-                // t + s, which no thread writes in this step.
-                unsafe { CELLS[t] += CELLS[t + s] };
+            let stride: usize = 128 >> step;
+            if thread_idx < stride {
+                // SAFETY: in this step, this thread alone writes its cell and reads cell
+                // thread_idx + stride, which no thread writes in this step.
+                unsafe { CELLS[thread_idx] += CELLS[thread_idx + stride] };
             }
             thread::sync_threads();
             step += 1;
         }
 
-        if t == 0 {
+        if thread_idx == 0 {
             // SAFETY: only thread 0 of each block writes, at its own block number.
             unsafe { *partial.get_unchecked_mut(thread::blockIdx_x() as usize) = CELLS[0] };
         }
@@ -198,7 +198,7 @@ const METHODS: [(&str, Method, usize); 4] = [
 struct Buffers {
     a: DeviceBuffer<f32>,
     b: DeviceBuffer<f32>,
-    p: DeviceBuffer<f32>,
+    products: DeviceBuffer<f32>,
     partial: DeviceBuffer<f32>,
     total: DeviceBuffer<f32>,
     atomic: DeviceBuffer<DeviceAtomicF32>,
@@ -209,7 +209,7 @@ impl Buffers {
         Ok(Buffers {
             a: DeviceBuffer::from_host(stream, a)?,
             b: DeviceBuffer::from_host(stream, b)?,
-            p: DeviceBuffer::zeroed(stream, a.len())?,
+            products: DeviceBuffer::zeroed(stream, a.len())?,
             partial: DeviceBuffer::zeroed(stream, GRID as usize)?,
             total: DeviceBuffer::zeroed(stream, 1)?,
             atomic: DeviceBuffer::<f32>::zeroed(stream, 1)?.cast_elem(),
@@ -318,25 +318,25 @@ fn main() -> Result<(), Error> {
 
     // Launches 1 dot product; the result ends in `buf.total`.
     let run = |method: Method, buf: &mut Buffers| -> Result<(), Error> {
-        let (a, b, s) = (&buf.a, &buf.b, &stream);
+        let (a, b, stream) = (&buf.a, &buf.b, &stream);
         match method {
             Method::MapReduce => {
-                module.multiply(s, &multiply, a, b, &mut buf.p)?;
-                module.sum(s, &reduce, &buf.p, &mut buf.partial)?;
-                module.sum(s, &last, &buf.partial, &mut buf.total)?;
+                module.multiply(stream, &multiply, a, b, &mut buf.products)?;
+                module.sum(stream, &reduce, &buf.products, &mut buf.partial)?;
+                module.sum(stream, &last, &buf.partial, &mut buf.total)?;
             }
             Method::Tree => {
-                module.dot_tree(s, &tree, a, b, &mut buf.partial)?;
-                module.sum(s, &last, &buf.partial, &mut buf.total)?;
+                module.dot_tree(stream, &tree, a, b, &mut buf.partial)?;
+                module.sum(stream, &last, &buf.partial, &mut buf.total)?;
             }
             Method::Shuffle => {
-                module.dot_shuffle(s, &shuffle, a, b, &mut buf.partial)?;
-                module.sum(s, &last, &buf.partial, &mut buf.total)?;
+                module.dot_shuffle(stream, &shuffle, a, b, &mut buf.partial)?;
+                module.sum(stream, &last, &buf.partial, &mut buf.total)?;
             }
             Method::Atomic => {
-                module.clear(s, &clear, &buf.atomic)?;
-                module.dot_atomic(s, &atomic, a, b, &buf.atomic)?;
-                module.publish(s, &publish, &buf.atomic, &mut buf.total)?;
+                module.clear(stream, &clear, &buf.atomic)?;
+                module.dot_atomic(stream, &atomic, a, b, &buf.atomic)?;
+                module.publish(stream, &publish, &buf.atomic, &mut buf.total)?;
             }
         }
         Ok(())
@@ -345,8 +345,8 @@ fn main() -> Result<(), Error> {
     println!("exact tests                   map+red      tree   shuffle    atomic");
     let mut failed = exact_test(&run, &stream, "worked example, 16 pairs", &A16, &B16)?;
 
-    let ones_a: Vec<f32> = (0..N).map(|i| f32::from(i % 3 == 0)).collect();
-    let ones_b: Vec<f32> = (0..N).map(|i| f32::from(i % 2 == 0)).collect();
+    let ones_a: Vec<f32> = (0..N).map(|index| f32::from(index % 3 == 0)).collect();
+    let ones_b: Vec<f32> = (0..N).map(|index| f32::from(index % 2 == 0)).collect();
     failed += exact_test(&run, &stream, "0s and 1s, 16777216 pairs", &ones_a, &ones_b)?;
 
     let a = random(N, 1);

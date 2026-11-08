@@ -50,11 +50,11 @@ mod kernels {
             && let Some(out) = c.get_mut(idx)
         {
             let mut sum = T::default();
-            let mut s = 0;
+            let mut inner = 0;
             #[unroll(4)]
-            while s < k {
-                sum = sum + a[row * k + s] * b[s * n + col];
-                s += 1;
+            while inner < k {
+                sum = sum + a[row * k + inner] * b[inner * n + col];
+                inner += 1;
             }
             *out = sum;
         }
@@ -71,11 +71,11 @@ mod kernels {
             && let Some(out) = c.get_mut(idx)
         {
             let mut sum = 0.0;
-            let mut s = 0;
+            let mut inner = 0;
             #[unroll(4)]
-            while s < FIXED {
-                sum += a[row * FIXED + s] * b[s * FIXED + col];
-                s += 1;
+            while inner < FIXED {
+                sum += a[row * FIXED + inner] * b[inner * FIXED + col];
+                inner += 1;
             }
             *out = sum;
         }

@@ -18,8 +18,9 @@ void check(cudaError_t err)
 }
 
 // C (m x n) = A (m x k) B (k x n), all row-major. A block computes a BM x BN tile of C
-// in phases of BK; thread (ty, tx) computes the TM x TN block of that tile that starts
-// at row ty * TM and column tx * TN, and keeps its TM * TN sums in registers.
+// in phases of BK; thread (threadIdx.y, threadIdx.x) computes the TM x TN block of that
+// tile that starts at row threadIdx.y * TM and column threadIdx.x * TN, and keeps its
+// TM * TN sums in registers.
 template <int BM, int BN, int BK, int TM, int TN>
 __global__ void __launch_bounds__((BM / TM) * (BN / TN))
 matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
@@ -28,49 +29,56 @@ matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
     __shared__ float tile_a[BM][BK + 1];      // 1 column of padding against bank conflicts
     __shared__ float tile_b[BK][BN];
 
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    int id = ty * (BN / TN) + tx;
-    int row0 = blockIdx.y * BM;
-    int col0 = blockIdx.x * BN;
+    int thread_number = threadIdx.y * (BN / TN) + threadIdx.x;
+    int block_row = blockIdx.y * BM;
+    int block_col = blockIdx.x * BN;
 
     float acc[TM][TN] = {};
     float a_reg[TM];
     float b_reg[TN];
 
     int phases = (k + BK - 1) / BK;
-    for (int t = 0; t < phases; ++t) {
+    for (int phase = 0; phase < phases; ++phase) {
         #pragma unroll
-        for (int q = 0; q < BM * BK / threads; ++q) {
-            int e = q * threads + id;
-            int r = row0 + e / BK;
-            int s = t * BK + e % BK;
-            tile_a[e / BK][e % BK] = r < m && s < k ? a[r * k + s] : 0.0f;
+        for (int pass = 0; pass < BM * BK / threads; ++pass) {
+            int element = pass * threads + thread_number;
+            int tile_row = element / BK;
+            int tile_col = element % BK;
+            int a_row = block_row + tile_row;
+            int a_col = phase * BK + tile_col;
+            float value = a_row < m && a_col < k ? a[a_row * k + a_col] : 0.0f;
+            tile_a[tile_row][tile_col] = value;
         }
+
         #pragma unroll
-        for (int q = 0; q < BK * BN / threads; ++q) {
-            int e = q * threads + id;
-            int s = t * BK + e / BN;
-            int col = col0 + e % BN;
-            tile_b[e / BN][e % BN] = s < k && col < n ? b[s * n + col] : 0.0f;
+        for (int pass = 0; pass < BK * BN / threads; ++pass) {
+            int element = pass * threads + thread_number;
+            int tile_row = element / BN;
+            int tile_col = element % BN;
+            int b_row = phase * BK + tile_row;
+            int b_col = block_col + tile_col;
+            float value = b_row < k && b_col < n ? b[b_row * n + b_col] : 0.0f;
+            tile_b[tile_row][tile_col] = value;
         }
         __syncthreads();
 
         #pragma unroll
-        for (int u = 0; u < BK; ++u) {
+        for (int offset = 0; offset < BK; ++offset) {
             #pragma unroll
-            for (int i = 0; i < TM; ++i) {
-                a_reg[i] = tile_a[ty * TM + i][u];
+            for (int local_row = 0; local_row < TM; ++local_row) {
+                a_reg[local_row] = tile_a[threadIdx.y * TM + local_row][offset];
             }
+
             #pragma unroll
-            for (int j = 0; j < TN; ++j) {
-                b_reg[j] = tile_b[u][tx * TN + j];
+            for (int local_col = 0; local_col < TN; ++local_col) {
+                b_reg[local_col] = tile_b[offset][threadIdx.x * TN + local_col];
             }
+
             #pragma unroll
-            for (int i = 0; i < TM; ++i) {
+            for (int local_row = 0; local_row < TM; ++local_row) {
                 #pragma unroll
-                for (int j = 0; j < TN; ++j) {
-                    acc[i][j] += a_reg[i] * b_reg[j];
+                for (int local_col = 0; local_col < TN; ++local_col) {
+                    acc[local_row][local_col] += a_reg[local_row] * b_reg[local_col];
                 }
             }
         }
@@ -78,13 +86,13 @@ matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
     }
 
     #pragma unroll
-    for (int i = 0; i < TM; ++i) {
+    for (int local_row = 0; local_row < TM; ++local_row) {
         #pragma unroll
-        for (int j = 0; j < TN; ++j) {
-            int row = row0 + ty * TM + i;
-            int col = col0 + tx * TN + j;
+        for (int local_col = 0; local_col < TN; ++local_col) {
+            int row = block_row + threadIdx.y * TM + local_row;
+            int col = block_col + threadIdx.x * TN + local_col;
             if (row < m && col < n) {
-                c[row * n + col] = acc[i][j];
+                c[row * n + col] = acc[local_row][local_col];
             }
         }
     }
@@ -98,22 +106,22 @@ __global__ void matmulTiled(int m, int n, int k, const float* a, const float* b,
     __shared__ float tile_a[T][T];
     __shared__ float tile_b[T][T];
 
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    int row = blockIdx.y * T + ty;
-    int col = blockIdx.x * T + tx;
+    int row = blockIdx.y * T + threadIdx.y;
+    int col = blockIdx.x * T + threadIdx.x;
 
     float sum = 0.0f;
     int phases = (k + T - 1) / T;
-    for (int t = 0; t < phases; ++t) {
-        int a_col = t * T + tx;
-        int b_row = t * T + ty;
-        tile_a[ty][tx] = row < m && a_col < k ? a[row * k + a_col] : 0.0f;
-        tile_b[ty][tx] = b_row < k && col < n ? b[b_row * n + col] : 0.0f;
+    for (int phase = 0; phase < phases; ++phase) {
+        int a_col = phase * T + threadIdx.x;
+        int b_row = phase * T + threadIdx.y;
+        float a_value = row < m && a_col < k ? a[row * k + a_col] : 0.0f;
+        float b_value = b_row < k && col < n ? b[b_row * n + col] : 0.0f;
+        tile_a[threadIdx.y][threadIdx.x] = a_value;
+        tile_b[threadIdx.y][threadIdx.x] = b_value;
         __syncthreads();
 
-        for (int u = 0; u < T; ++u) {
-            sum += tile_a[ty][u] * tile_b[u][tx];
+        for (int offset = 0; offset < T; ++offset) {
+            sum += tile_a[threadIdx.y][offset] * tile_b[offset][threadIdx.x];
         }
         __syncthreads();
     }
@@ -184,15 +192,15 @@ int exactEntries(const Matrix& a, const Matrix& b, const Matrix& c,
 {
     int count = m * n < samples ? m * n : samples;
     int exact = 0;
-    for (int s = 0; s < count; ++s) {
-        int i = count == m * n ? s / n : s * 977 % m;
-        int j = count == m * n ? s % n : (s * 1231 + 7) % n;
+    for (int sample = 0; sample < count; ++sample) {
+        int row = count == m * n ? sample / n : sample * 977 % m;
+        int col = count == m * n ? sample % n : (sample * 1231 + 7) % n;
 
         double sum = 0.0;
-        for (int p = 0; p < k; ++p) {
-            sum += double(a[i * k + p]) * double(b[p * n + j]);
+        for (int inner = 0; inner < k; ++inner) {
+            sum += double(a[row * k + inner]) * double(b[inner * n + col]);
         }
-        exact += double(c[i * n + j]) == sum;
+        exact += double(c[row * n + col]) == sum;
     }
     return exact;
 }

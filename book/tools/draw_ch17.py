@@ -266,11 +266,11 @@ for k, (name, sub, (fill, stroke)) in enumerate(steps):
 last = x0 + 3 * (w + gap) + w / 2
 first = x0 + w / 2
 parts.append(wire([(last, y0 + 58), (last, 222), (first, 222), (first, y0 + 58)],
-                  label="next phase: t = t + 1, while t < ⌈K/T⌉", on=1))
+                  label="next phase: phase + 1, while phase < ⌈K/T⌉", on=1))
 save(OUT + "ch17-cycle.svg", 660, 250,
      "4 boxes in a row: load tiles, global to shared; barrier, all loads complete; compute, T multiply-adds; "
-     "barrier, all reads complete. An arrow runs from the last box back to the first, labeled next phase: t = t + 1, "
-     "while t is less than the ceiling of K over T.",
+     "barrier, all reads complete. An arrow runs from the last box back to the first, labeled next phase: phase + 1, "
+     "while phase is less than the ceiling of K over T.",
      "One phase of the tiled kernel", "Copy, wait, compute, wait. The cycle repeats ⌈K/T⌉ times.", parts)
 
 
@@ -334,8 +334,8 @@ b1, b2 = 270, 470
 loads = [218, 256, 236, 206]
 nexts = [520, 556, 540, 510]
 names = [(0, 0), (0, 1), (1, 0), (1, 1)]
-parts = [label(205, 100, "load phase t", room=120), label(370, 100, "compute phase t", room=180),
-         label(540, 100, "load phase t+1", room=120)]
+parts = [label(205, 100, "load this phase", room=120), label(370, 100, "compute this phase", room=180),
+         label(540, 100, "load next phase", room=120)]
 for k, who in enumerate(names):
     y = 114 + k * 40
     fill, _ = THREAD[who]
@@ -347,9 +347,9 @@ for k, who in enumerate(names):
 parts += [vline(b1, 106, 280, INK, 2.5), vline(b2, 106, 280, INK, 2.5),
           label(b1, 300, "barrier 1", fill=INK, bold=True), label(b2, 300, "barrier 2", fill=INK, bold=True)]
 save(OUT + "ch17-schedule.svg", 660, 322,
-     "A timeline of 4 threads over 1 phase with both barriers. The loads of phase t end at different times, and "
-     "each thread waits on a dotted line until barrier 1. All 4 threads then compute phase t, meet at barrier 2, "
-     "and start the loads of phase t + 1.",
+     "A timeline of 4 threads over 1 phase with both barriers. The loads of one phase end at different times, and "
+     "each thread waits on a dotted line until barrier 1. All 4 threads then compute that phase, meet at barrier 2, "
+     "and start the loads of the next phase.",
      "1 phase with both barriers", "The dotted segments show threads waiting for the slowest thread.", parts)
 
 
@@ -360,9 +360,9 @@ for c in range(4):
     colours = PHASE[0] if c < 2 else PHASE[1]
     parts.append(cell(x0 + c * (s + g), 100, s, A[0][c], colours))
     parts.append(cell(x0 + c * (s + g), 152, s, B[c][0], colours))
-rows = [("start of t = 0", 0, "s ∈ [0, 0): sum = 0"),
-        ("start of t = 1", 2, "s ∈ [0, 2): sum = 1·1 + 2·0 = 1"),
-        ("end, t = 2", 4, "s ∈ [0, 4): sum = 1 + 3·2 + 4·1 = 11 = c00")]
+rows = [("start of phase 0", 0, "s ∈ [0, 0): sum = 0"),
+        ("start of phase 1", 2, "s ∈ [0, 2): sum = 1·1 + 2·0 = 1"),
+        ("end of the loop", 4, "s ∈ [0, 4): sum = 1 + 3·2 + 4·1 = 11 = c00")]
 for k, (name, terms, note) in enumerate(rows):
     y = 226 + k * 36
     parts.append(label(x0 - 14, y + 13, name, "end", INK, bold=True))
@@ -372,9 +372,9 @@ for k, (name, terms, note) in enumerate(rows):
 save(OUT + "ch17-invariant.svg", 660, 340,
      "Row 0 of A, 1 2 3 4, and column 0 of B, 1 0 2 1, drawn as 2 rows of cells: the first 2 cells of each in blue "
      "(phase 0), the last 2 in amber (phase 1). Below, 3 bars show how much of the dot product sum covers: at the start "
-     "of t = 0 no terms, sum = 0; at the start of t = 1 the terms s in [0, 2), sum = 1 times 1 plus 2 times 0 = 1; at "
-     "the end, t = 2, the terms s in [0, 4), sum = 1 + 3 times 2 + 4 times 1 = 11 = c00.",
-     "The loop invariant", "Thread (0, 0) with T = 2: before phase t, sum holds the terms s ∈ [0, tT).", parts)
+     "of phase 0 no terms, sum = 0; at the start of phase 1 the terms s in [0, 2), sum = 1 times 1 plus 2 times 0 = 1; at "
+     "the end of the loop, the terms s in [0, 4), sum = 1 + 3 times 2 + 4 times 1 = 11 = c00.",
+     "The loop invariant", "Thread (0, 0) with T = 2: before each phase, sum holds the terms s ∈ [0, phase · T).", parts)
 
 
 # 17.12  Matrices whose size is not a multiple of T.
@@ -419,14 +419,14 @@ for k in range(4):
     x = 320 + k * (s + g)
     parts += [cell(x, 116, s, f"({r},{c})", THREAD[(r, c)]), label(x + s / 2, 186, str(k))]
 parts += [box(320 + 2 * (s + g) - 3, 113, s + 6, s + 6, "#2F6FDB", 2.2),
-          label(330, 248, "index(ty, tx, T) = ty · T + tx; for (1, 0): 1 · 2 + 0 = 2", fill="#2F6FDB",
+          label(330, 248, "index = threadIdx.y · T + threadIdx.x = 1 · 2 + 0 = 2", fill="#2F6FDB",
                 bold=True, room=600),
           label(330, 270, "with T = 16 the array holds 256 values", room=600)]
 save(OUT + "ch17-flat-tile.svg", 660, 292,
      "Left: a 2 by 2 tile with slots (0,0), (0,1), (1,0) and (1,1), 1 color per thread. Right: the same 4 slots in "
-     "a flat array at indices 0 to 3, in row-major order; slot (1,0) at index 2 is outlined. The rule: index(ty, tx, "
-     "T) = ty times T plus tx, so (1, 0) is at 1 times 2 plus 0 = 2. With T = 16 the array holds 256 values.",
-     "A tile as a flat array", "Slot (ty, tx) of a T × T tile is element ty · T + tx.", parts)
+     "a flat array at indices 0 to 3, in row-major order; slot (1,0) at index 2 is outlined. The rule: index = threadIdx.y times T "
+     "plus threadIdx.x, so (1, 0) is at 1 times 2 plus 0 = 2. With T = 16 the array holds 256 values.",
+     "A tile as a flat array", "Slot (threadIdx.y, threadIdx.x) is element threadIdx.y · T + threadIdx.x.", parts)
 
 
 # 17.14  The path of data through 1 thread of the tiled kernel.

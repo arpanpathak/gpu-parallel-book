@@ -38,7 +38,7 @@
   </defs>
   <rect width="680" height="536" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The Hillis-Steele scan of the 8 values</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">3 steps; at each step every element adds the one d to its left.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">3 steps; at each step every element adds the one at that distance to its left.</text>
   <text x="156.0" y="96.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">i</text>
   <text x="194.0" y="96.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
   <text x="252.0" y="96.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
@@ -73,7 +73,7 @@
   <rect x="576.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
   <text x="600.0" y="125.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">3</text>
   <text x="600.0" y="149.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">7</text>
-  <text x="156.0" y="211.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">d = 1</text>
+  <text x="156.0" y="211.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">distance = 1</text>
   <rect x="170.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
   <text x="194.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
   <text x="194.0" y="235.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0</text>
@@ -100,7 +100,7 @@
   <text x="600.0" y="235.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">6..7</text>
   <path d="M542.0,154.0 V176.0 H594.0 V189.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
   <path d="M606.0,154.0 V189.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" marker-end="url(#m-outside)"/>
-  <text x="156.0" y="297.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">d = 2</text>
+  <text x="156.0" y="297.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">distance = 2</text>
   <rect x="170.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
   <text x="194.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
   <text x="194.0" y="321.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0</text>
@@ -127,7 +127,7 @@
   <text x="600.0" y="321.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">4..7</text>
   <path d="M484.0,240.0 V262.0 H594.0 V275.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
   <path d="M606.0,240.0 V275.0" fill="none" stroke="#B7791F" stroke-width="1.4" marker-end="url(#m-store)"/>
-  <text x="156.0" y="383.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">d = 4</text>
+  <text x="156.0" y="383.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">distance = 4</text>
   <rect x="170.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
   <text x="194.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
   <text x="194.0" y="407.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">0</text>
@@ -157,7 +157,7 @@
   <defs><marker id="m-outside" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7A4FD0"/></marker></defs>
   <defs><marker id="m-store" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#B7791F"/></marker></defs>
   <defs><marker id="m-service" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker></defs>
-  <text x="32.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">At offset d, element i adds element i - d of the previous row (gray cells, i &lt; d,</text>
+  <text x="32.0" y="470.0" class="note" text-anchor="start" xml:space="preserve">Element i adds element i - distance of the previous row (gray cells, i &lt; distance,</text>
   <text x="32.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">are copied). The small labels give the range of x that each cell sums; the arrows</text>
   <text x="32.0" y="506.0" class="note" text-anchor="start" xml:space="preserve">show element 7: 9 = 6 + 3, then 14 = 9 + 5, then 25 = 14 + 11.</text>
 </svg>

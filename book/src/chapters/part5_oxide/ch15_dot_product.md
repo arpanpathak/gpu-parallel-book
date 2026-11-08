@@ -84,7 +84,7 @@ faulty kernels of Sections 15.4 and 15.6 then produce 24 instead of 32, and 31 i
 <span class="box-label">Definition 15.1</span> **Dot product.** The dot product of 2 vectors
 \\(a\\) and \\(b\\) of \\(n\\) elements is
 
-\\[ a \cdot b = \sum_{i \in [0, n)} a_i\, b_i . \\]
+\\[ a \cdot b = \sum_{i \in [0, n)} a_i\\, b_i . \\]
 
 *Example.* For the vectors above, \\(a \cdot b = 2 + 6 + 3 + \cdots + 4 = 63\\).
 
@@ -95,7 +95,7 @@ faulty kernels of Sections 15.4 and 15.6 then produce 24 instead of 32, and 31 i
 | \\(n\\) | number of elements in each vector | 16 |
 | \\(i\\) | position, from 0 to \\(n - 1\\) | 0 to 15 |
 | \\(a_i, b_i\\) | elements of \\(a\\) and \\(b\\) at position \\(i\\) | \\(a_1 = 2\\), \\(b_1 = 3\\) |
-| \\(a_i\, b_i\\) | product at position \\(i\\) | \\(a_1 b_1 = 6\\) |
+| \\(a_i\\, b_i\\) | product at position \\(i\\) | \\(a_1 b_1 = 6\\) |
 | \\(\sum_{i \in [0, n)}\\) | sum over all positions \\(i\\) from 0 to \\(n - 1\\) | \\(2 + 6 + \cdots + 4\\) |
 | \\(a \cdot b\\) | the dot product | 63 |
 
@@ -118,8 +118,8 @@ with \\(\oplus = \max\\) and identity \\(-\infty\\).
 </div>
 
 The symbol \\(\oplus\\) stands for any operator that takes 2 values and returns 1 value. For the dot
-product, \\(\oplus\\) is ordinary addition, so the reduction is \\(p_0 + p_1 + \cdots + p_{15} = 2 + 6
-+ \cdots + 4 = 63\\). The identity is the value that changes nothing when it is combined with
+product, \\(\oplus\\) is ordinary addition, so the reduction is \\(p_0 + p_1 + \cdots + p_{15} = 2 + 6 +
+\cdots + 4 = 63\\). The identity is the value that changes nothing when it is combined with
 another value. For addition, the identity is 0, since \\(0 + 6 = 6\\). We need the identity later,
 when a thread that has no value of its own must still contribute something to a reduction.
 
@@ -139,17 +139,17 @@ contribute?
 
 ### 15.2.1 The loop and its chain
 
-On a CPU, Definition 15.1 becomes a single loop that keeps a running sum \\(s\\) and adds 1 product
+On a CPU, Definition 15.1 becomes a single loop that keeps a running sum \\(\mathsf{sum}\\) and adds 1 product
 to it in each iteration.
 
 <div class="algo">
 <p class="algo-name">Dot<span style="font-variant: normal">(\(a, b, n\))</span></p>
 <ol>
-<li>\(s = 0\)</li>
-<li>for \(i \in [0, n)\) {</li>
-<li style="--d:1">\(s = s + a_i \cdot b_i\) <span class="c">// 2 reads, 2 FLOP</span></li>
+<li>\(\mathsf{sum} = 0\)</li>
+<li><b class="kw">for</b> \(i \in [0, n)\) {</li>
+<li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + a_i \cdot b_i\) <span class="c">// 2 reads, 2 FLOP</span></li>
 <li>}</li>
-<li>return \(s\)</li>
+<li class="gap"><b class="kw">return</b> \(\mathsf{sum}\)</li>
 </ol>
 </div>
 
@@ -159,7 +159,7 @@ that we measure at the end of the chapter have \\(n = 2^{24}\\) elements, and fo
 performs 33.6 million FLOP on 134.2 MB.
 
 Recall that in the loop of SAXPY in Chapter 14, the iterations shared nothing. This loop is
-different. Iteration \\(i\\) reads \\(s\\), which iteration \\(i - 1\\) wrote, so it cannot start
+different. Iteration \\(i\\) reads \\(\mathsf{sum}\\), which iteration \\(i - 1\\) wrote, so it cannot start
 before iteration \\(i - 1\\) has finished. In our example, the running sum takes the values 2, 8,
 11, 15, 20, 21, 29, 32, 35, 37, 41, 47, 48, 57, 59 and 63, and each of these values is obtained
 from the one before it, as shown in Figure 15.2. For example, the value 11 after iteration 2 is
@@ -278,30 +278,32 @@ We now place the values of a block in a shared array, 1 value per thread, and ca
 this array *cells*. In block 0 of our example, cell \\(k\\) holds the product \\(p_k\\), so the 8 cells
 hold 2, 6, 3, 4, 5, 1, 8 and 3. The tree of Figure 15.3 adds neighboring cells: cells 0 and 1,
 cells 2 and 3, cells 4 and 5, and cells 6 and 7. On a GPU, we prefer a different pairing, in which
-the 2 cells of a pair lie a fixed distance apart. In the step with **stride** \\(s\\), thread \\(t\\)
-adds cell \\(t + s\\) into cell \\(t\\), for every \\(t < s\\). With 8 cells, the strides are 4, 2 and
-1. In the first step, with \\(s = 4\\), threads 0 to 3 add cells 4 to 7 into cells 0 to 3. For
-example, thread 2 adds cell \\(2 + 4 = 6\\) into cell 2. In the second step, with \\(s = 2\\),
-threads 0 and 1 add cells 2 and 3 into cells 0 and 1. In the third step, with \\(s = 1\\), thread 0
+the 2 cells of a pair lie a fixed distance apart. We call this distance the **stride**. Recall that
+\\(\mathsf{threadIdx{.}x}\\) is the position of a thread in its block. In a step with a given
+\\(\mathsf{stride}\\), we let every thread whose \\(\mathsf{threadIdx{.}x}\\) is smaller than \\(\mathsf{stride}\\)
+add cell \\(\mathsf{threadIdx{.}x} + \mathsf{stride}\\) into its own cell, \\(\mathsf{threadIdx{.}x}\\). With 8 cells,
+the strides are 4, 2 and 1. In the first step, with \\(\mathsf{stride} = 4\\), threads 0 to 3 add cells 4 to 7 into cells 0 to 3. For
+example, thread 2 adds cell \\(2 + 4 = 6\\) into cell 2. In the second step, with \\(\mathsf{stride} = 2\\),
+threads 0 and 1 add cells 2 and 3 into cells 0 and 1. In the third step, with \\(\mathsf{stride} = 1\\), thread 0
 adds cell 1 into cell 0.
 
 | Symbol | Meaning | Thread 2, first step of block 0 |
 |---|---|---|
-| \\(s\\) | stride: distance between the 2 cells of a pair, and number of working threads | 4 |
-| \\(t\\) | index of the thread in its block, which works only if \\(t < s\\) | 2 |
-| \\(t + s\\) | cell that thread \\(t\\) reads and adds into cell \\(t\\) | 6 |
+| \\(\mathsf{stride}\\) | stride: distance between the 2 cells of a pair, and number of working threads | 4 |
+| \\(\mathsf{threadIdx{.}x}\\) | index of the thread in its block, which works only if \\(\mathsf{threadIdx{.}x} < \mathsf{stride}\\) | 2 |
+| \\(\mathsf{threadIdx{.}x} + \mathsf{stride}\\) | cell that the thread reads and adds into its own cell | 6 |
 
 The stride pairing adds \\(p_0 + p_4\\) where Figure 15.3 added \\(p_0 + p_1\\), so it relies on
 commutativity as well as on associativity. In return, the threads that work in each step are always
-the lowest \\(s\\) threads, 0 to \\(s - 1\\), and they read the neighboring cells \\(s\\) to
-\\(2s - 1\\). This has 2 advantages in a block of 256 threads. In the first steps, whole warps are
+the lowest \\(\mathsf{stride}\\) threads, 0 to \\(\mathsf{stride} - 1\\), and they read the neighboring cells \\(\mathsf{stride}\\) to
+\\(2\\,\mathsf{stride} - 1\\). This has 2 advantages in a block of 256 threads. In the first steps, whole warps are
 busy and whole warps are idle, instead of half the threads of every warp being idle, and the cells
 that a warp reads at once are neighbors in memory.
 
 In Figure 15.4, we run this pairing in block 0 of the example. The 8 cells start with the products
-2, 6, 3, 4, 5, 1, 8 and 3. With \\(s = 4\\), threads 0 to 3 compute \\(2 + 5 = 7\\), \\(6 + 1 = 7\\),
-\\(3 + 8 = 11\\) and \\(4 + 3 = 7\\). With \\(s = 2\\), threads 0 and 1 compute \\(7 + 11 = 18\\) and
-\\(7 + 7 = 14\\). With \\(s = 1\\), thread 0 computes \\(18 + 14 = 32\\). In the same way, block 1
+2, 6, 3, 4, 5, 1, 8 and 3. With \\(\mathsf{stride} = 4\\), threads 0 to 3 compute \\(2 + 5 = 7\\), \\(6 + 1 = 7\\),
+\\(3 + 8 = 11\\) and \\(4 + 3 = 7\\). With \\(\mathsf{stride} = 2\\), threads 0 and 1 compute \\(7 + 11 = 18\\) and
+\\(7 + 7 = 14\\). With \\(\mathsf{stride} = 1\\), thread 0 computes \\(18 + 14 = 32\\). In the same way, block 1
 computes 4, 11, 6 and 10 in the first step, 10 and 21 in the second, and 31 in the third.
 
 <figure>
@@ -312,71 +314,72 @@ computes 4, 11, 6 and 10 in the first step, 10 and 21 in the second, and 31 in t
 ### 15.3.3 The algorithm
 
 In our example, each block has 8 threads, and each thread holds exactly 1 product. A real block,
-however, has \\(B = 256\\) threads, and a real vector has millions of elements, many more than the
+however, has \\(\mathsf{blockDim{.}x} = 256\\) threads, and a real vector has millions of elements, many more than the
 threads of the grid. Each thread therefore begins with the grid-stride loop of Chapter 14. It
-multiplies the elements \\(g, g + P, g + 2P, \ldots\\) of the 2 vectors and adds the products in a
-register, where \\(g\\) is its global index and \\(P\\) is the number of threads in the grid. The
-products are never stored in memory. The tree then combines the \\(B\\) register sums of the block,
+multiplies the elements \\(\mathsf{index}, \mathsf{index} + \mathsf{gridSize}, \mathsf{index} + 2\\,\mathsf{gridSize}, \ldots\\) of the 2 vectors and adds the products in a
+register, where \\(\mathsf{index}\\) starts at the thread's global index and \\(\mathsf{gridSize}\\) is the number of threads in the grid. The
+products are never stored in memory. The tree then combines the \\(\mathsf{blockDim{.}x}\\) register sums of the block,
 and thread 0 writes the block's sum to a **partial sum** array, which holds one element per block.
-Every thread executes the following procedure, in which `cells` is a shared array of \\(B\\)
-floats and \\(v\\) is the thread's register sum.
+Every thread executes the following procedure, in which `cells` is a shared array of \\(\mathsf{blockDim{.}x}\\)
+floats and \\(\mathsf{mySum}\\) is the thread's register sum.
 
 <div class="algo">
-<p class="algo-name">Dot-Block<span style="font-variant: normal">(\(a, b, \mathit{partial}, n\))</span></p>
+<p class="algo-name">Dot-Block<span style="font-variant: normal">(\(a, b, \mathsf{partial}, n\))</span></p>
 <ol>
-<li>\(t = \textit{threadIdx.x}\), \(\quad i = \textit{blockIdx.x} \cdot B + t\), \(\quad P = \textit{gridDim.x} \cdot B\)</li>
-<li>\(v = 0\)</li>
-<li>while \(i \lt n\) { <span class="c">// the grid-stride loop of Chapter 14</span></li>
-<li style="--d:1">\(v = v + a_i \cdot b_i\)</li>
-<li style="--d:1">\(i = i + P\)</li>
+<li>\(\mathsf{index} = \mathsf{blockIdx{.}x} \times \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\) <span class="c">// first element</span></li>
+<li>\(\mathsf{gridSize} = \mathsf{gridDim{.}x} \times \mathsf{blockDim{.}x}\) <span class="c">// threads in the grid</span></li>
+<li class="gap">\(\mathsf{mySum} = 0\)</li>
+<li><b class="kw">while</b> \(\mathsf{index} \lt n\) { <span class="c">// the grid-stride loop of Chapter 14</span></li>
+<li style="--d:1">\(\mathsf{mySum} = \mathsf{mySum} + a_{\mathsf{index}} \times b_{\mathsf{index}}\)</li>
+<li style="--d:1">\(\mathsf{index} = \mathsf{index} + \mathsf{gridSize}\)</li>
 <li>}</li>
-<li>\(\mathit{cells}[t] = v\)</li>
+<li class="gap">\(\mathsf{cells}[\mathsf{threadIdx{.}x}] = \mathsf{mySum}\)</li>
 <li><span class="sc">Barrier</span>() <span class="c">// every cell holds its value</span></li>
-<li>for \(s = B/2, B/4, \ldots, 1\) {</li>
-<li style="--d:1">if \(t \lt s\) {</li>
-<li style="--d:2">\(\mathit{cells}[t] = \mathit{cells}[t] + \mathit{cells}[t + s]\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{stride} = \mathsf{blockDim{.}x}/2, \mathsf{blockDim{.}x}/4, \ldots, 1\) {</li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} \lt \mathsf{stride}\) {</li>
+<li style="--d:2">\(\mathsf{cells}[\mathsf{threadIdx{.}x}] = \mathsf{cells}[\mathsf{threadIdx{.}x}] + \mathsf{cells}[\mathsf{threadIdx{.}x} + \mathsf{stride}]\)</li>
 <li style="--d:1">}</li>
-<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// step \(s\) is complete</span></li>
+<li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// this step is complete</span></li>
 <li>}</li>
-<li>if \(t = 0\) {</li>
-<li style="--d:1">\(\mathit{partial}[\textit{blockIdx.x}] = \mathit{cells}[0]\)</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} = 0\) {</li>
+<li style="--d:1">\(\mathsf{partial}[\mathsf{blockIdx{.}x}] = \mathsf{cells}[0]\)</li>
 <li>}</li>
 </ol>
 </div>
 
 | Symbol | Meaning | Thread 2 of block 0, example |
 |---|---|---|
-| \\(B\\) | number of threads in a block | 8 (256 in the measured program) |
-| \\(t\\) | index of the thread in its block (`threadIdx.x`) | 2 |
-| \\(i\\) | element the thread processes next; starts at its global index \\(g\\) | 2 |
-| \\(P\\) | number of threads in the grid, the stride of the loop | \\(2 \cdot 8 = 16\\) |
-| \\(v\\) | the thread's register sum | \\(a_2 b_2 = 3\\) |
-| \\(s\\) | stride of the current step of the tree | 4, 2, 1 |
+| \\(\mathsf{blockDim{.}x}\\) | number of threads in a block | 8 (256 in the measured program) |
+| \\(\mathsf{threadIdx{.}x}\\) | index of the thread in its block (`threadIdx.x`) | 2 |
+| \\(\mathsf{index}\\) | element the thread processes next; starts at its global index | 2 |
+| \\(\mathsf{gridSize}\\) | number of threads in the grid, and the distance from one of the thread's elements to the next | \\(2 \cdot 8 = 16\\) |
+| \\(\mathsf{mySum}\\) | the thread's register sum | \\(a_2 b_2 = 3\\) |
+| \\(\mathsf{stride}\\) | stride of the current step of the tree | 4, 2, 1 |
 
-Lines 1 to 6 compute the thread's register sum. On the example, launched with 2 blocks of 8
-threads, \\(P = 16 = n\\), so the loop runs once, and \\(v\\) is the thread's single product. For
-instance, thread 2 of block 0 sets \\(v = a_2 b_2 = 3 \cdot 1 = 3\\) and then leaves the loop, since
-\\(2 + 16 = 18 \ge 16\\). Line 7 stores the sum in the thread's own cell, and the barrier of line 8
-waits until all \\(B\\) cells are filled. Lines 9 to 14 are the tree of Figure 15.4, with a barrier
-after every step, and lines 15 to 17 write the block's sum. On the example, block 0 writes 32 into
+Lines 1 to 7 compute the thread's register sum. On the example, launched with 2 blocks of 8
+threads, \\(\mathsf{gridSize} = 16 = n\\), so the loop runs once, and \\(\mathsf{mySum}\\) is the thread's single product. For
+instance, thread 2 of block 0 sets \\(\mathsf{mySum} = a_2 b_2 = 3 \cdot 1 = 3\\) and then leaves the loop, since
+\\(2 + 16 = 18 \ge 16\\). Line 8 stores the sum in the thread's own cell, and the barrier of line 9
+waits until all \\(\mathsf{blockDim{.}x}\\) cells are filled. Lines 10 to 15 are the tree of Figure 15.4, with a barrier
+after every step, and lines 16 to 18 write the block's sum. On the example, block 0 writes 32 into
 `partial[0]`, and block 1 writes 31 into `partial[1]`. In Section 15.6, we add the partial sums.
 
-Note that lines 8 and 13 lie outside every `if`. The barrier of line 13 is therefore executed by
-all \\(B\\) threads in every step, including the threads with \\(t \ge s\\), which have nothing to
+Note that lines 9 and 14 lie outside every `if`. The barrier of line 14 is therefore executed by
+all \\(\mathsf{blockDim{.}x}\\) threads in every step, including the threads with \\(\mathsf{threadIdx{.}x} \ge \mathsf{stride}\\), which have nothing to
 add.
 
 ### 15.3.4 Counting
 
-Let us count the work of the tree. A block of \\(B\\) threads performs \\(B - 1\\) additions in its
-tree, in \\(\log_2 B\\) steps, with \\(\log_2 B + 1\\) barriers: 1 barrier in line 8 and 1 barrier
+Let us count the work of the tree. A block of \\(\mathsf{blockDim{.}x}\\) threads performs \\(\mathsf{blockDim{.}x} - 1\\) additions in its
+tree, in \\(\log_2 \mathsf{blockDim{.}x}\\) steps, with \\(\log_2 \mathsf{blockDim{.}x} + 1\\) barriers: 1 barrier in line 9 and 1 barrier
 after each step. For our block of 8 threads, this is 7 additions in 3 steps, with 4 barriers. For
-\\(B = 256\\), it is 255 additions in 8 steps, with 9 barriers. The number of working threads halves
+\\(\mathsf{blockDim{.}x} = 256\\), it is 255 additions in 8 steps, with 9 barriers. The number of working threads halves
 in every step, from 128 through 64, 32, 16, 8, 4 and 2 to 1. In the last 5 steps, at most 16
 threads work, all of them in warp 0, and the other 7 warps wait at the barrier.
 
 The cost of the tree is paid once per block, not once per element. With a grid of 1,024 blocks of
-256 threads, \\(P = 262{,}144\\), and each thread adds \\(2^{24} / 262{,}144 = 64\\) products in
-lines 3 to 6 before the tree begins. The kernel reads every element of \\(a\\) and \\(b\\) exactly
+256 threads, \\(\mathsf{gridSize} = 262{,}144\\), and each thread adds \\(2^{24} / 262{,}144 = 64\\) products in
+lines 4 to 7 before the tree begins. The kernel reads every element of \\(a\\) and \\(b\\) exactly
 once, which is 8 bytes per element, and it performs 2 FLOP per element. Its arithmetic intensity is
 therefore \\(2 / 8 = 0.25\\) FLOP/B, far below the ridge point of any GPU (Section 14.6). Like
 SAXPY, the dot product is memory-bound.
@@ -387,9 +390,9 @@ Exercises
 
 15.7 Run Figure 15.4 for block 1, whose cells start with 3, 2, 4, 6, 1, 9, 2, 4. Which threads
 work in each step, and what does each compute?<br>
-15.8 For \\(B = 512\\), how many steps, additions and barriers does the tree take?<br>
+15.8 For \\(\mathsf{blockDim{.}x} = 512\\), how many steps, additions and barriers does the tree take?<br>
 15.9 With 1,024 blocks of 256 threads and \\(n = 10^6\\), how many products does thread 0 add in
-lines 3 to 6, and how many does thread 262,143 add?
+lines 4 to 7, and how many does thread 262,143 add?
 
 </div>
 
@@ -398,21 +401,21 @@ lines 3 to 6, and how many does thread 262,143 add?
 The threads of a block run at different speeds, and they read cells that other threads write. As a
 result, 2 things can go wrong. A thread can read a cell before the thread responsible for it has
 written the value of the current step, and a thread can overwrite a cell that another thread has
-not yet read. The 2 barriers prevent both errors. In this section, we remove the barrier of line 13
+not yet read. The 2 barriers prevent both errors. In this section, we remove the barrier of line 14
 and follow the effect on the example, and we then prove that the kernel with both barriers is
 correct.
 
 ### 15.4.1 Without the barrier between the steps
 
-Suppose that line 13 is deleted, and that in block 0, thread 2 runs late. Thread 0 finishes its
-addition for \\(s = 4\\), which is \\(2 + 5 = 7\\), and moves on to \\(s = 2\\), where it needs cell 2.
+Suppose that line 14 is deleted, and that in block 0, thread 2 runs late. Thread 0 finishes its
+addition for \\(\mathsf{stride} = 4\\), which is \\(2 + 5 = 7\\), and moves on to \\(\mathsf{stride} = 2\\), where it needs cell 2.
 Thread 2 should have stored \\(3 + 8 = 11\\) there, but it has not yet done so, and cell 2 still
 holds the product 3, as shown in Figure 15.5. Thread 0 therefore computes \\(7 + 3 = 10\\) instead
 of 18, and in the last step, it computes \\(10 + 14 = 24\\) instead of 32.
 
 <figure>
 <img src="../../figures/ch15-broken.svg" alt="Without the barrier after step s = 4. Thread 0 finishes s = 4 early and in step s = 2 reads cell 2 while it still holds 3, because thread 2 has not yet stored 3 + 8 = 11. Cell 0 becomes 7 + 3 = 10 in place of 18, and the block sum 10 + 14 = 24 in place of 32.">
-<figcaption><b>Figure 15.5</b> Without the barrier of line 13, thread 0 reads cell 2 before thread 2 has updated it. Block 0 sums to 24 in place of 32.</figcaption>
+<figcaption><b>Figure 15.5</b> Without the barrier of line 14, thread 0 reads cell 2 before thread 2 has updated it. Block 0 sums to 24 in place of 32.</figcaption>
 </figure>
 
 We deleted the barrier from both programs and ran them. The C++ build also contained the faulty
@@ -436,7 +439,7 @@ the compiler may also load a cell earlier than the program text suggests, becaus
 no other thread changes the cell in between. Every wrong value has the same cause as the wrong
 value in Figure 15.5.
 
-The barrier of line 8 protects the first step in the same way. Without it, thread 0 could add cell
+The barrier of line 9 protects the first step in the same way. Without it, thread 0 could add cell
 4 before thread 4 has stored its sum there, and it would then add whatever the undefined shared
 memory held.
 
@@ -444,89 +447,89 @@ memory held.
 
 With both barriers in place, the tree computes the block's sum. To prove this, we follow which
 products each cell holds at the start of every step, as shown in Figure 15.6. At the start of the
-step with stride \\(s = 4\\), cell 0 holds \\(p_0\\). At the start of the step with \\(s = 2\\), it holds
-\\(p_0 + p_4\\), and at the start of the step with \\(s = 1\\), it holds \\(p_0 + p_2 + p_4 + p_6\\).
+step with stride \\(\mathsf{stride} = 4\\), cell 0 holds \\(p_0\\). At the start of the step with \\(\mathsf{stride} = 2\\), it holds
+\\(p_0 + p_4\\), and at the start of the step with \\(\mathsf{stride} = 1\\), it holds \\(p_0 + p_2 + p_4 + p_6\\).
 After the last step, it holds all 8 products. We can describe this pattern with remainders. At the
-start of the step with stride \\(s\\), cell \\(k\\) holds the products whose index \\(j\\) leaves the
-remainder \\(k\\) when divided by \\(2s\\). For example, at the start of the step with \\(s = 2\\), we
-have \\(2s = 4\\), and the indices 0 and 4 are exactly the indices below 8 that leave the remainder
+start of the step with stride \\(\mathsf{stride}\\), cell \\(k\\) holds the products whose index \\(j\\) leaves the
+remainder \\(k\\) when divided by \\(2\\,\mathsf{stride}\\). For example, at the start of the step with \\(\mathsf{stride} = 2\\), we
+have \\(2\\,\mathsf{stride} = 4\\), and the indices 0 and 4 are exactly the indices below 8 that leave the remainder
 0 when divided by 4, so cell 0 holds \\(p_0 + p_4 = 2 + 5 = 7\\).
 
 <figure>
 <img src="../../figures/ch15-invariant.svg" alt="The loop invariant for cell 0 of block 0. At the start of step s = 4 it holds p0 = 2; of s = 2, p0 + p4 = 7; of s = 1, p0 + p2 + p4 + p6 = 18; after s = 1, all 8 products, 32.">
-<figcaption><b>Figure 15.6</b> The loop invariant for cell 0 of block 0: at the start of the step with stride \(s\), it holds the products with index \(j \equiv 0 \pmod{2s}\).</figcaption>
+<figcaption><b>Figure 15.6</b> The loop invariant for cell 0 of block 0: at the start of the step with stride \(\mathsf{stride}\), it holds the products with index \(j \equiv 0 \pmod{2\,\mathsf{stride}}\).</figcaption>
 </figure>
 
-We write \\(j \equiv k \pmod{2s}\\), read "\\(j\\) is congruent to \\(k\\) modulo \\(2s\\)", when \\(j\\) and
-\\(k\\) leave the same remainder when divided by \\(2s\\). For example, \\(6 \equiv 2 \pmod{4}\\), since
+We write \\(j \equiv k \pmod{2\\,\mathsf{stride}}\\), read "\\(j\\) is congruent to \\(k\\) modulo \\(2\\,\mathsf{stride}\\)", when \\(j\\) and
+\\(k\\) leave the same remainder when divided by \\(2\\,\mathsf{stride}\\). For example, \\(6 \equiv 2 \pmod{4}\\), since
 both 6 and 2 leave the remainder 2 when divided by 4. The theorem and its proof use this notation.
 
 <div class="theorem">
 
-<span class="box-label">Theorem 15.1</span> Let \\(B\\) be a power of 2 and let \\(v_j\\) be the
-value that thread \\(j\\) of a block stores in line 7 of <span class="sc">Dot-Block</span>. When
-the loop of lines 9 to 14 finishes, \\(\mathit{cells}[0] = \sum_{j \in [0, B)} v_j\\).
+<span class="box-label">Theorem 15.1</span> Let \\(\mathsf{blockDim{.}x}\\) be a power of 2 and let \\(v_j\\) be the
+value that thread \\(j\\) of a block stores in line 8 of <span class="sc">Dot-Block</span>. When
+the loop of lines 10 to 15 finishes, \\(\mathsf{cells}[0] = \sum_{j \in [0, \mathsf{blockDim{.}x})} v_j\\).
 
 </div>
 
 <div class="proof">
 
 *Proof.* We show that the loop maintains the following invariant: *at the start of the iteration
-with stride \\(s\\), for every \\(k \in [0, 2s)\\),*
+with stride \\(\mathsf{stride}\\), for every \\(k \in [0, 2\\,\mathsf{stride})\\),*
 
-\\[ \mathit{cells}[k] = \sum_{j \in [0, B),\ j \equiv k \ (\mathrm{mod}\ 2s)} v_j . \\]
+\\[ \mathsf{cells}[k] = \sum_{j \in [0, B),\ j \equiv k \ (\mathrm{mod}\ 2s)} v_j . \\]
 
-| Symbol | Meaning | Block 0 of the example, \\(s = 2\\), \\(k = 1\\) |
+| Symbol | Meaning | Block 0 of the example, \\(\mathsf{stride} = 2\\), \\(k = 1\\) |
 |---|---|---|
-| \\(B\\) | number of threads, and cells, in the block | 8 |
-| \\(v_j\\) | value stored by thread \\(j\\) in line 7 | \\(v_1 = 6\\), \\(v_5 = 1\\) |
-| \\(s\\) | stride of the current iteration | 2 |
-| \\(k\\) | a cell that is still read, \\(k < 2s\\) | 1 |
-| \\(j \equiv k \pmod{2s}\\) | \\(j\\) leaves the remainder \\(k\\) when divided by \\(2s\\) | \\(j = 1, 5\\) |
-| \\(\mathit{cells}[k]\\) | content of cell \\(k\\) at the start of the iteration | \\(6 + 1 = 7\\) |
+| \\(\mathsf{blockDim{.}x}\\) | number of threads, and cells, in the block | 8 |
+| \\(v_j\\) | value stored by thread \\(j\\) in line 8 | \\(v_1 = 6\\), \\(v_5 = 1\\) |
+| \\(\mathsf{stride}\\) | stride of the current iteration | 2 |
+| \\(k\\) | a cell that is still read, \\(k < 2\\,\mathsf{stride}\\) | 1 |
+| \\(j \equiv k \pmod{2\\,\mathsf{stride}}\\) | \\(j\\) leaves the remainder \\(k\\) when divided by \\(2\\,\mathsf{stride}\\) | \\(j = 1, 5\\) |
+| \\(\mathsf{cells}[k]\\) | content of cell \\(k\\) at the start of the iteration | \\(6 + 1 = 7\\) |
 
-In words, at the start of each iteration, the first \\(2s\\) cells together hold all \\(B\\) values,
+In words, at the start of each iteration, the first \\(2\\,\mathsf{stride}\\) cells together hold all \\(\mathsf{blockDim{.}x}\\) values,
 and cell \\(k\\) holds those values whose index leaves the remainder \\(k\\). In Figure 15.4, at the
-start of the step with \\(s = 2\\), cell 1 indeed holds \\(6 + 1 = 7\\), the sum of \\(v_1\\) and
+start of the step with \\(\mathsf{stride} = 2\\), cell 1 indeed holds \\(6 + 1 = 7\\), the sum of \\(v_1\\) and
 \\(v_5\\).
 
-*Initialization.* The first iteration has \\(s = B/2\\), so \\(2s = B\\), and the only
-\\(j \in [0, B)\\) with \\(j \equiv k \pmod{B}\\) is \\(k\\) itself. The sum in the invariant therefore
-consists of the single value \\(v_k\\). Line 7 stored \\(v_k\\) in \\(\mathit{cells}[k]\\), and the
-barrier of line 8 makes every one of these stores complete before any thread reads a cell in
-line 11. The invariant therefore holds.
+*Initialization.* The first iteration has \\(\mathsf{stride} = \mathsf{blockDim{.}x}/2\\), so \\(2\\,\mathsf{stride} = \mathsf{blockDim{.}x}\\), and the only
+\\(j \in [0, \mathsf{blockDim{.}x})\\) with \\(j \equiv k \pmod{\mathsf{blockDim{.}x}}\\) is \\(k\\) itself. The sum in the invariant therefore
+consists of the single value \\(v_k\\). Line 8 stored \\(v_k\\) in \\(\mathsf{cells}[k]\\), and the
+barrier of line 9 makes every one of these stores complete before any thread reads a cell in
+line 12. The invariant therefore holds.
 
-*Maintenance.* Assume that the invariant holds at the start of the iteration with stride \\(s\\).
-In line 11, each thread \\(t < s\\) reads cells \\(t\\) and \\(t + s\\) and writes cell \\(t\\). The
-cells written, \\([0, s)\\), and the cells that are only read, \\([s, 2s)\\), do not overlap, and each
-cell of \\([0, s)\\) is written by exactly 1 thread. Hence, no read in this iteration sees a write
-of this iteration, except the thread's own. After line 11, for \\(t < s\\), cell \\(t\\) holds the
-sum over \\(j \equiv t \pmod{2s}\\) plus the sum over \\(j \equiv t + s \pmod{2s}\\). An index
-\\(j\\) belongs to one of these 2 groups exactly when it leaves the remainder \\(t\\) when divided by
-\\(s\\), so the 2 sums together are the sum over \\(j \equiv t \pmod{s}\\). For example, with
-\\(s = 2\\) and \\(t = 1\\), cell 1 holds \\(v_1 + v_5\\) and cell 3 holds \\(v_3 + v_7\\), and their
-sum is the sum over the odd \\(j\\), that is, over \\(j \equiv 1 \pmod{2}\\). The barrier of line 13
+*Maintenance.* Assume that the invariant holds at the start of the iteration with stride \\(\mathsf{stride}\\).
+In line 12, each thread \\(\mathsf{threadIdx{.}x} < \mathsf{stride}\\) reads cells \\(\mathsf{threadIdx{.}x}\\) and \\(\mathsf{threadIdx{.}x} + \mathsf{stride}\\) and writes cell \\(\mathsf{threadIdx{.}x}\\). The
+cells written, \\([0, \mathsf{stride})\\), and the cells that are only read, \\([\mathsf{stride}, 2\\,\mathsf{stride})\\), do not overlap, and each
+cell of \\([0, \mathsf{stride})\\) is written by exactly 1 thread. Hence, no read in this iteration sees a write
+of this iteration, except the thread's own. After line 12, for \\(\mathsf{threadIdx{.}x} < \mathsf{stride}\\), cell \\(\mathsf{threadIdx{.}x}\\) holds the
+sum over \\(j \equiv \mathsf{threadIdx{.}x} \pmod{2\\,\mathsf{stride}}\\) plus the sum over \\(j \equiv \mathsf{threadIdx{.}x} + \mathsf{stride} \pmod{2\\,\mathsf{stride}}\\). An index
+\\(j\\) belongs to one of these 2 groups exactly when it leaves the remainder \\(\mathsf{threadIdx{.}x}\\) when divided by
+\\(\mathsf{stride}\\), so the 2 sums together are the sum over \\(j \equiv \mathsf{threadIdx{.}x} \pmod{\mathsf{stride}}\\). For example, with
+\\(\mathsf{stride} = 2\\) and \\(\mathsf{threadIdx{.}x} = 1\\), cell 1 holds \\(v_1 + v_5\\) and cell 3 holds \\(v_3 + v_7\\), and their
+sum is the sum over the odd \\(j\\), that is, over \\(j \equiv 1 \pmod{2}\\). The barrier of line 14
 makes these writes complete before any thread starts the next iteration. That iteration has the
-stride \\(s/2\\), and \\(2 \cdot (s/2) = s\\), so the invariant holds for the next iteration.
+stride \\(\mathsf{stride}/2\\), and \\(2 \cdot (\mathsf{stride}/2) = \mathsf{stride}\\), so the invariant holds for the next iteration.
 
-*Termination.* After the iteration with \\(s = 1\\), the maintenance step shows that cell 0 holds
+*Termination.* After the iteration with \\(\mathsf{stride} = 1\\), the maintenance step shows that cell 0 holds
 the sum over \\(j \equiv 0 \pmod{1}\\). Every integer leaves the remainder 0 when divided by 1, so
-this is the sum over all \\(j \in [0, B)\\).
+this is the sum over all \\(j \in [0, \mathsf{blockDim{.}x})\\).
 
 </div>
 
-The proof uses each barrier once, the barrier of line 8 in the initialization and the
-barrier of line 13 in the maintenance. Removing either barrier breaks exactly the step of the proof
+The proof uses each barrier once, the barrier of line 9 in the initialization and the
+barrier of line 14 in the maintenance. Removing either barrier breaks exactly the step of the proof
 that uses it, and in Section 15.4.1, we saw the wrong value that follows.
 
 <div class="rule-box">
 
 <span class="box-label">Rule</span> Every thread of a block must reach every barrier. Never place
-a barrier inside a branch that only some threads of the block take, such as the `if` of line 10.
+a barrier inside a branch that only some threads of the block take, such as the `if` of line 11.
 
 </div>
 
-A barrier inside `if t < s` would be reached by \\(s\\) threads but awaited by all \\(B\\) threads.
+A barrier inside `if t < s` would be reached by \\(\mathsf{stride}\\) threads but awaited by all \\(\mathsf{blockDim{.}x}\\) threads.
 The behavior of such a kernel is undefined, and in practice, it hangs or returns wrong values.
 
 ### 15.4.3 Shared memory in Rust
@@ -534,7 +537,7 @@ The behavior of such a kernel is undefined, and in practice, it hangs or returns
 In cuda-oxide, a shared array is a `static mut` of type `SharedArray<f32, 256>` declared inside
 the kernel. Rust requires an `unsafe` block for every access to a `static mut`, because the
 compiler cannot prove that 2 threads do not access it at the same time. If we write the store of
-line 7 without the block, the build stops with the following error.
+line 8 without the block, the build stops with the following error.
 
 ```console
 $ cargo oxide build
@@ -548,20 +551,20 @@ error[E0133]: use of mutable static is unsafe and requires unsafe block
 ```
 
 The program's `// SAFETY:` comments state the two facts that the proof of Theorem 15.1 uses. The
-first is that each thread writes only its own cell before the barrier of line 8. The second is that
-in each step, thread \\(t\\) alone writes cell \\(t\\) and reads cell \\(t + s\\), which no thread writes
-in that step. The compiler accepts the program without the barrier as well, because the `unsafe`
+first is that each thread writes only its own cell before the barrier of line 9. The second is that
+in each step, each working thread alone writes its own cell and reads cell
+\\(\mathsf{threadIdx{.}x} + \mathsf{stride}\\), which no thread writes in that step. The compiler accepts the program without the barrier as well, because the `unsafe`
 blocks are still there, and only the argument in their comments is then false.
 
 <div class="exercises">
 
 Exercises
 
-15.10 Without the barrier of line 13, suppose thread 1 of block 1 runs late in step \\(s = 4\\).
-Which cell does thread 0 read too early in step \\(s = 2\\), and what block sum results?<br>
-15.11 In the proof of Theorem 15.1, where is it used that \\(B\\) is a power of 2? What goes wrong
-for \\(B = 6\\)?<br>
-15.12 Explain why moving the barrier of line 13 inside the `if` of line 10 can make the kernel
+15.10 Without the barrier of line 14, suppose thread 1 of block 1 runs late in step \\(\mathsf{stride} = 4\\).
+Which cell does thread 0 read too early in step \\(\mathsf{stride} = 2\\), and what block sum results?<br>
+15.11 In the proof of Theorem 15.1, where is it used that \\(\mathsf{blockDim{.}x}\\) is a power of 2? What goes wrong
+for \\(\mathsf{blockDim{.}x} = 6\\)?<br>
+15.12 Explain why moving the barrier of line 14 inside the `if` of line 11 can make the kernel
 hang.
 
 </div>
@@ -579,18 +582,19 @@ can exchange values without shared memory and without a barrier.
 
 <span class="box-label">Definition 15.6</span> **Warp shuffle.** A warp shuffle is an instruction
 with which every lane of a warp (Definition 14.6) reads a register of another lane of the same
-warp. In the form *shuffle down* with offset \\(d\\), lane \\(k\\) receives the value that lane
-\\(k + d\\) holds; a lane with \\(k + d \ge 32\\) receives its own value. All lanes named in the
+warp. In the form *shuffle down* with offset \\(\mathsf{distance}\\), lane \\(k\\) receives the value that lane
+\\(k + \mathsf{distance}\\) holds; a lane with \\(k + \mathsf{distance} \ge 32\\) receives its own value. All lanes named in the
 instruction's mask execute it together, so the values are exchanged without a barrier.
 
 *Example.* With offset 4, lane 0 receives the value of lane 4, and lane 3 the value of lane 7.
 
 </div>
 
-A shuffle closely resembles a step of the tree. In the step with stride \\(s\\), thread \\(t\\) adds cell
-\\(t + s\\) into cell \\(t\\). A shuffle-down with offset \\(d\\), followed by an addition, lets lane
-\\(k\\) add the register of lane \\(k + d\\) into its own register, which is the same step with
-registers in place of cells and \\(d\\) in place of \\(s\\). A sequence of shuffles with offsets 16, 8,
+A shuffle closely resembles a step of the tree. In a tree step, each working thread adds cell
+\\(\mathsf{threadIdx{.}x} + \mathsf{stride}\\) into its own cell. A shuffle-down by \\(\mathsf{distance}\\),
+followed by an addition, lets each lane add the register of the lane \\(\mathsf{distance}\\) places to its
+right into its own register, which is the same step with
+registers in place of cells and \\(\mathsf{distance}\\) in place of \\(\mathsf{stride}\\). A sequence of shuffles with offsets 16, 8,
 4, 2 and 1, each followed by an addition, is therefore the tree of Section 15.3 inside 1 warp. In
 Figure 15.7, we draw it on 8 lanes with the products of block 0, so that only the last 3 of the 5
 steps, with offsets 4, 2 and 1, are needed. The registers take the same values as the cells of
@@ -602,12 +606,12 @@ Figure 15.4: 7, 7, 11 and 7 after offset 4, then 18 and 14, and finally 32.
 </figure>
 
 <div class="algo">
-<p class="algo-name">Warp-Sum<span style="font-variant: normal">(\(v\))</span></p>
+<p class="algo-name">Warp-Sum<span style="font-variant: normal">(\(\mathsf{value}\))</span></p>
 <ol>
-<li>for \(d = 16, 8, 4, 2, 1\) {</li>
-<li style="--d:1">\(v = v + \) <span class="sc">Shuffle-Down</span>\((v, d)\) <span class="c">// lane \(k\) adds lane \(k + d\)</span></li>
+<li><b class="kw">for</b> \(\mathsf{distance} = 16, 8, 4, 2, 1\) {</li>
+<li style="--d:1">\(\mathsf{value} = \mathsf{value} + \) <span class="sc">Shuffle-Down</span>\((\mathsf{value}, \mathsf{distance})\) <span class="c">// lane k adds lane k + distance</span></li>
 <li>}</li>
-<li>return \(v\) <span class="c">// the sum of the warp, in lane 0</span></li>
+<li><b class="kw">return</b> \(\mathsf{value}\) <span class="c">// the sum of the warp, in lane 0</span></li>
 </ol>
 </div>
 
@@ -616,22 +620,28 @@ Figure 15.4: 7, 7, 11 and 7 after offset 4, then 18 and 14, and finally 32.
 A shuffle reaches only the lanes of its own warp, so <span class="sc">Warp-Sum</span> alone
 cannot add the values of a whole block. A block of 256 threads consists of 8 warps. Each warp first
 reduces its 32 values with <span class="sc">Warp-Sum</span>, and lane 0 of each warp stores the
-warp's sum in 1 of 8 shared slots, called \\(\mathit{warps}[0]\\) to \\(\mathit{warps}[7]\\). A
+warp's sum in 1 of 8 shared slots, called \\(\mathsf{warps}[0]\\) to \\(\mathsf{warps}[7]\\). A
 single barrier makes the 8 sums visible to all threads, and warp 0 then reduces them with a second
-<span class="sc">Warp-Sum</span>, as shown in Figure 15.8. In the procedure below, \\(\mathit{lane}\\)
-is the position of the thread within its warp and \\(w\\) is the number of its warp. For example,
-thread 70 of the block has \\(\mathit{lane} = 70 \bmod 32 = 6\\) and \\(w = \lfloor 70 / 32 \rfloor =
+<span class="sc">Warp-Sum</span>, as shown in Figure 15.8. In the procedure below, \\(\mathsf{lane}\\)
+is the position of the thread within its warp and \\(\mathsf{warpIndex}\\) is the number of its warp. For example,
+thread 70 of the block has \\(\mathsf{lane} = 70 \bmod 32 = 6\\) and \\(w = \lfloor 70 / 32 \rfloor =
 2\\), where \\(\lfloor \cdot \rfloor\\) rounds down.
 
 <div class="algo">
-<p class="algo-name">Block-Sum<span style="font-variant: normal">(\(v\))</span></p>
+<p class="algo-name">Block-Sum<span style="font-variant: normal">(\(\mathsf{mySum}\))</span></p>
 <ol>
-<li>\(\mathit{lane} = \textit{threadIdx.x} \bmod 32\), \(\quad w = \lfloor \textit{threadIdx.x} / 32 \rfloor\)</li>
-<li>\(v = \) <span class="sc">Warp-Sum</span>\((v)\)</li>
-<li>if \(\mathit{lane} = 0\) { \(\mathit{warps}[w] = v\) }</li>
-<li><span class="sc">Barrier</span>()</li>
-<li>\(u = \mathit{warps}[\mathit{lane}]\) if \(\mathit{lane} \lt 8\), else \(0\)</li>
-<li>return <span class="sc">Warp-Sum</span>\((u)\) if \(w = 0\), else \(0\) <span class="c">// the block sum, in thread 0</span></li>
+<li>\(\mathsf{lane} = \mathsf{threadIdx{.}x} \bmod 32\) <span class="c">// position in the warp</span></li>
+<li>\(\mathsf{warpIndex} = \lfloor \mathsf{threadIdx{.}x} / 32 \rfloor\) <span class="c">// warp number in the block</span></li>
+<li class="gap">\(\mathsf{warpTotal} = \) <span class="sc">Warp-Sum</span>\((\mathsf{mySum})\)</li>
+<li><b class="kw">if</b> \(\mathsf{lane} = 0\) {</li>
+<li style="--d:1">\(\mathsf{warpSums}[\mathsf{warpIndex}] = \mathsf{warpTotal}\)</li>
+<li>}</li>
+<li class="gap"><span class="sc">Barrier</span>()</li>
+<li><b class="kw">if</b> \(\mathsf{warpIndex} \ne 0\) {</li>
+<li style="--d:1"><b class="kw">return</b> 0 <span class="c">// only warp 0 finishes the sum</span></li>
+<li>}</li>
+<li class="gap">\(\mathsf{value} = \mathsf{warpSums}[\mathsf{lane}]\) <b class="kw">if</b> \(\mathsf{lane} \lt 8\), <b class="kw">else</b> 0</li>
+<li><b class="kw">return</b> <span class="sc">Warp-Sum</span>\((\mathsf{value})\) <span class="c">// the block sum, in thread 0</span></li>
 </ol>
 </div>
 
@@ -640,13 +650,13 @@ thread 70 of the block has \\(\mathit{lane} = 70 \bmod 32 = 6\\) and \\(w = \lfl
 <figcaption><b>Figure 15.8</b> The block sum: 5 shuffles in every warp, 1 barrier, 5 shuffles in warp 0.</figcaption>
 </figure>
 
-In line 5, lanes 8 to 31 of warp 0 contribute 0, the identity of addition, so the second
+In line 11, lanes 8 to 31 of warp 0 contribute 0, the identity of addition, so the second
 <span class="sc">Warp-Sum</span> adds exactly the 8 warp sums. Only warp 0 calls
 <span class="sc">Warp-Sum</span> the second time, and all 32 of its lanes do so, as the shuffle
 requires. Compared with the tree of Section 15.3, <span class="sc">Block-Sum</span> uses 1 barrier
 instead of 9, and 8 floats of shared memory instead of 256. A fused kernel with shuffles computes
-the register sum \\(v\\) with lines 1 to 6 of <span class="sc">Dot-Block</span>, and it replaces
-lines 7 to 14 by \\(v = \\) <span class="sc">Block-Sum</span>\\((v)\\).
+the register sum \\(\mathsf{mySum}\\) with lines 1 to 7 of <span class="sc">Dot-Block</span>, and it replaces
+lines 8 to 15 by \\(\mathsf{mySum} = \\) <span class="sc">Block-Sum</span>\\((\mathsf{mySum})\\).
 
 <div class="exercises">
 
@@ -654,8 +664,8 @@ Exercises
 
 15.13 In <span class="sc">Warp-Sum</span> on 32 lanes holding the values 0 to 31, what does lane
 0 hold after each of the 5 steps?<br>
-15.14 Why may lines 5 and 6 of <span class="sc">Block-Sum</span> not read `warps` before the
-barrier of line 4?
+15.14 Why may lines 11 and 12 of <span class="sc">Block-Sum</span> not read `warpSums` before the
+barrier of line 7?
 
 </div>
 
@@ -682,7 +692,7 @@ requires an addition that no other thread can interrupt.
 <span class="box-label">Definition 15.7</span> **Atomic operation.** An atomic operation is a
 read-modify-write of 1 memory location that executes as 1 indivisible step. No other thread can
 access the location between the read and the write. `atomicAdd(p, v)` in C++ and
-`fetch_add(v, ...)` on a `DeviceAtomicF32` in Rust add \\(v\\) to the value at \\(p\\) atomically.
+`fetch_add(v, ...)` on a `DeviceAtomicF32` in Rust add \\(\mathsf{mySum}\\) to the value at \\(p\\) atomically.
 
 *Example.* If block 1 finishes first, it atomically changes the result from 0 to 31, and block 0
 then changes it from 31 to 63.
@@ -763,12 +773,12 @@ produce, and what is the largest?
 
 ### 15.7.1 The register sum
 
-We implement the grid-stride loop of lines 1 to 6 as a device function, that is, a function that
+We implement the grid-stride loop of lines 1 to 7 as a device function, that is, a function that
 runs on the GPU and is called from kernels rather than launched by the host. In C++, a device
 function is marked `__device__`, and in Rust, it is marked `#[device]`. The following code computes
 the register sum of 1 thread.
 
-<p class="listing"><b>Listing 15.1</b> The register sum of 1 thread: lines 1 to 6 of <span class="sc">Dot-Block</span>.</p>
+<p class="listing"><b>Listing 15.1</b> The register sum of 1 thread: lines 1 to 7 of <span class="sc">Dot-Block</span>.</p>
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -794,7 +804,7 @@ mod kernels {
 The loop reads `a[i]` and `b[i]` and adds their product to `sum` without storing the product. In
 Rust, the slices are indexed with an ordinary `usize`. The loop condition `i < a.len()` lets the
 compiler drop the bounds check on `a`, and the check on `b` costs 1 comparison per 8 bytes loaded,
-which does not change the speed of a memory-bound loop. The Rust function computes \\(P\\) from the
+which does not change the speed of a memory-bound loop. The Rust function computes \\(\mathsf{gridSize}\\) from the
 constant `BLOCK`, which the launch contract of every kernel that calls the function fixes at 256.
 
 ### 15.7.2 The tree kernel
@@ -819,22 +829,22 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch15_dot_product/dot.cu:95:114}}
+{{#include ../../../../code/cuda/ch15_dot_product/dot.cu:95:113}}
 ```
 
 </div>
 </div>
 
-The call `products(a, b)` performs lines 1 to 6, the store into `cells[t]` or `CELLS[t]` is
-line 7, and the first barrier is line 8. The loop performs lines 9 to 14, with the barrier of
-line 13 after the `if`, and the final `if t == 0` performs lines 15 to 17.
+The call `products(a, b)` performs lines 1 to 7, the store into `cells[t]` or `CELLS[t]` is
+line 8, and the first barrier is line 9. The loop performs lines 10 to 15, with the barrier of
+line 14 after the `if`, and the final `if t == 0` performs lines 16 to 18.
 
 The two languages differ in 3 places. First, C++ declares the shared array with `__shared__`, while
 Rust declares a `static mut SharedArray<f32, 256>`. The length of the Rust array is part of its
 type, and this is why the Rust kernel's launch contract fixes the block at exactly 256 threads.
 Every access to the array is in an `unsafe` block with its argument (Section 15.4.3). Second, the
-C++ loop halves `s` directly, whereas the Rust loop counts `step` from 0 to 7 and computes
-`s = 128 >> step`, which is 128, 64, 32 and so on down to 1. The reason is that cuda-oxide unrolls a
+C++ loop halves `stride` directly, whereas the Rust loop counts `step` from 0 to 7 and computes
+`stride = 128 >> step`, which is 128, 64, 32 and so on down to 1. The reason is that cuda-oxide unrolls a
 loop marked `#[unroll]` only when the loop has an integer counter that is compared with a constant
 and increased by a constant. With `s /= 2`, the compiler reports that the loop was not unrolled.
 Third, thread 0 writes `partial[blockIdx.x]`, at an index that is not its own global index, so Rust
@@ -875,7 +885,7 @@ the shuffle of Definition 15.6. The mask `0xffffffff` has all 32 bits set and th
 `16u32 >> step`, which gives 16, 8, 4, 2 and 1 for `step` from 0 to 4. The counter is declared
 `u32`, and the shifted constant is written `16u32`, because with both types left to inference, the
 GPU backend of cuda-oxide stopped with an internal error about a shift of a 64-bit value by a
-32-bit amount. The shared array `WARPS` is declared inside the device function, and every block
+32-bit amount. The shared array `WARP_SUMS` is declared inside the device function, and every block
 that calls `block_sum` still receives its own 8 slots.
 
 ### 15.7.4 Combining the block sums
@@ -898,7 +908,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch15_dot_product/dot.cu:126:134}}
+{{#include ../../../../code/cuda/ch15_dot_product/dot.cu:125:133}}
 ```
 
 </div>
@@ -936,7 +946,7 @@ fn main() -> Result<(), Error> {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch15_dot_product/dot.cu:183:209}}
+{{#include ../../../../code/cuda/ch15_dot_product/dot.cu:182:208}}
 ```
 
 </div>
@@ -1033,9 +1043,9 @@ same speed in both languages.
 ### 15.8.4 Barriers, shuffles and atomics
 
 The tree with 9 barriers and the warp shuffles with 1 barrier run at the same speed, 1.409 ms and
-1.405 ms in Rust. We let each thread add 64 products in its register before the block sum begins, so a
-block pays for its 9 barriers only once per \\(64 \cdot 256 = 16{,}384\\) products, which is a small
-part of its time. In Chapter 8, we found the same for the plain sum: after coarsening, its tree and
+1.405 ms in Rust. We let each thread add 64 products in its register before the block sum begins, so the 9 barriers of a
+block cost time only once per \\(64 \cdot 256 = 16{,}384\\) products, which is a small
+part of its time. In Chapter 8, we found the same for the plain sum. After coarsening, its tree and
 its shuffle sum ran at 64.1 GB/s and 64.4 GB/s. Shuffles matter where combinations are frequent,
 as in the many short reductions of a softmax over the rows of a matrix (Chapter 23).
 
@@ -1115,13 +1125,13 @@ barrier.
 - The sequential sum is a chain of \\(n\\) dependent additions. Because addition is associative
   and commutative, the additions can be regrouped into a tree of \\(\log_2 n\\) steps, 4 for the
   example.
-- In shared memory, the step with stride \\(s\\) lets threads \\(t < s\\) add cell \\(t + s\\) into
-  cell \\(t\\); block 0 of the example computes 7, 7, 11, 7, then 18, 14, then 32. A barrier must
+- In shared memory, each step lets the threads with \\(\mathsf{threadIdx{.}x} < \mathsf{stride}\\) add cell
+  \\(\mathsf{threadIdx{.}x} + \mathsf{stride}\\) into their own cell; block 0 of the example computes 7, 7, 11, 7, then 18, 14, then 32. A barrier must
   follow every step: without it, the example's block summed to 24 instead of 32, and the real
   programs returned 26 and 36 instead of 63.
 - Theorem 15.1 proves the tree correct with the invariant that, at the start of the step with
-  stride \\(s\\), cell \\(k\\) holds the values whose index \\(j\\) leaves the remainder \\(k\\) when
-  divided by \\(2s\\).
+  stride \\(\mathsf{stride}\\), cell \\(k\\) holds the values whose index \\(j\\) leaves the remainder \\(k\\) when
+  divided by \\(2\\,\mathsf{stride}\\).
 - Warp shuffles exchange registers within a warp without a barrier; a block sum with shuffles
   needs 1 barrier and 8 shared floats instead of 9 and 256.
 - Block sums are combined by a second launch, in a fixed order, or by atomic additions, in the
@@ -1142,7 +1152,7 @@ barrier.
    steps is it idle?
 5. Write the maximum of an array as a reduction, reusing the tree of
    <span class="sc">Dot-Block</span> with \\(\max\\) in place of \\(+\\). What must the threads
-   with no element store in line 7?
+   with no element store in line 8?
 6. Prove that <span class="sc">Block-Sum</span> returns the sum of the 256 values to thread 0,
    using Theorem 15.1 for each warp.
 7. The exact dot product of the measured vectors is 4,195,680.2. Explain why no float program can

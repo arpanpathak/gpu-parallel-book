@@ -232,8 +232,8 @@ A and chunk 1 to stream B, and operations of different streams may overlap:
 | 5 to 6 | idle | idle | chunk 1 |
 
 The run takes 6 ms. The kernel lane is busy for 4 of the 6 ms, and the two kernels run back to back,
-from 1 ms to 5 ms. The run is therefore made of three parts: the first copy in, 1 ms; the kernels, 2
-+ 2 = 4 ms; and the last copy out, 1 ms. The copies of the other chunk are hidden behind the
+from 1 ms to 5 ms. The run is therefore made of three parts: the first copy in, 1 ms; the kernels, 2 +
+2 = 4 ms; and the last copy out, 1 ms. The copies of the other chunk are hidden behind the
 kernels.
 
 <div class="key-observation">
@@ -1072,7 +1072,7 @@ mod kernels {
 </div>
 
 The host checks that each chain ended at the expected position: after \\(w\\) warm-up hops and
-\\(h\\) timed hops of step \\(s\\) through \\(c\\) positions, the index is \\((w + h)\,s \bmod c\\).
+\\(h\\) timed hops of step \\(s\\) through \\(c\\) positions, the index is \\((w + h)\\,s \bmod c\\).
 In the array of 8 positions above, with \\(s\\) = 2, 1 warm-up hop and 3 timed hops end at (1 + 3)
 × 2 mod 8 = 0, the position we found by hand.
 
@@ -1353,7 +1353,7 @@ through 2 additions on its way to the total. In a loop, \\(((x_0 + x_1) + x_2) +
 \\(x_0\\) and \\(x_1\\) pass through 3 additions, \\(x_2\\) through 2 and \\(x_3\\) through 1. Each
 addition that an input passes through may round the partial sum that contains it, and so adds an
 error of at most \\(u\\) times that partial sum. An input element that passes through \\(d\\)
-additions on its way to the total therefore contributes rounding errors of at most \\(d\,u\\)
+additions on its way to the total therefore contributes rounding errors of at most \\(d\\,u\\)
 times its own size, and the error of the sum is bounded by
 
 \\[ |\text{error}| \le d \cdot u \cdot \sum_i |x_i| \\]
@@ -1363,7 +1363,7 @@ times its own size, and the error of the sum is bounded by
 | \\(d\\) | most additions any element passes through | 84 |
 | \\(u\\) | largest relative rounding of 1 addition | \\(2^{-24}\\) = 5.96 × 10<sup>−8</sup> |
 | \\(\sum_i \lvert x_i \rvert\\) | sum of the sizes of the inputs | 8,391,134.58 |
-| \\(d\,u\sum_i \lvert x_i \rvert\\) | the tolerance | 42.01 |
+| \\(d\\,u\sum_i \lvert x_i \rvert\\) | the tolerance | 42.01 |
 
 The program `verify.cu` sums 16,777,216 random floats in [0, 1) with the 2-launch reduction of
 Chapter 8. To obtain the tolerance, we count the additions that an element can pass through.

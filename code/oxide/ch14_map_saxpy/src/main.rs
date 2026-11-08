@@ -26,20 +26,20 @@ type Error = Box<dyn std::error::Error>;
 mod kernels {
     use super::*;
 
-    /// y[i] = a * x[i] + y[i], 1 thread per element.
+    /// y[index] = a * x[index] + y[index], one thread per element.
     #[kernel]
     #[launch_bounds(256)]
     #[launch_contract(domain = 1)]
     pub fn saxpy(a: f32, x: &[f32], mut y: DisjointSlice<f32>) {
-        let idx = thread::index_1d();
-        let i = idx.get();
+        let thread_id = thread::index_1d();
+        let index = thread_id.get();
 
-        if let Some(yi) = y.get_mut(idx) {
-            *yi = a * x[i] + *yi;
+        if let Some(y_element) = y.get_mut(thread_id) {
+            *y_element = a * x[index] + *y_element;
         }
     }
 
-    /// y[i] = f(x[i], y[i]), 1 thread per element, for any function f.
+    /// y[index] = f(x[index], y[index]), one thread per element, for any function f.
     #[kernel]
     #[launch_bounds(256)]
     #[launch_contract(domain = 1)]
@@ -47,16 +47,16 @@ mod kernels {
     where
         F: Fn(f32, f32) -> f32 + Copy,
     {
-        let idx = thread::index_1d();
-        let i = idx.get();
+        let thread_id = thread::index_1d();
+        let index = thread_id.get();
 
-        if let Some(yi) = y.get_mut(idx) {
-            *yi = f(x[i], *yi);
+        if let Some(y_element) = y.get_mut(thread_id) {
+            *y_element = f(x[index], *y_element);
         }
     }
 
-    /// y[i] = f(x[i], y[i]) for i = t, t + P, t + 2P, ..., where P is the number of
-    /// threads in the grid and t the index of this thread.
+    /// y[index] = f(x[index], y[index]) for every index that starts at this thread's global
+    /// index and steps by grid_size, the number of threads in the grid.
     #[kernel]
     #[launch_bounds(256)]
     #[launch_contract(domain = 1)]
@@ -64,15 +64,15 @@ mod kernels {
     where
         F: Fn(f32, f32) -> f32 + Copy,
     {
-        let threads = (thread::gridDim_x() * thread::blockDim_x()) as usize;
-        let mut i = thread::index_1d().get();
+        let grid_size = (thread::gridDim_x() * thread::blockDim_x()) as usize;
+        let mut index = thread::index_1d().get();
 
-        while i < y.len() {
-            // SAFETY: thread t writes only the elements i with i % P == t. The P threads
-            // of the grid have P different values of t, so no 2 threads share an i.
-            let yi = unsafe { y.get_unchecked_mut(i) };
-            *yi = f(x[i], *yi);
-            i += threads;
+        while index < y.len() {
+            // SAFETY: this thread writes only indices whose remainder modulo grid_size is
+            // its global index, and no 2 threads of the grid share a global index.
+            let y_element = unsafe { y.get_unchecked_mut(index) };
+            *y_element = f(x[index], *y_element);
+            index += grid_size;
         }
     }
 }

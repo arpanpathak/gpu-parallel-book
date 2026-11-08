@@ -27,36 +27,36 @@ void check(cudaError_t err)
     }
 }
 
-// y[i] = a * x[i] + y[i], 1 thread per element.
+// y[index] = a * x[index] + y[index], one thread per element.
 __global__ void saxpy(float a, const float* x, float* y, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (i < n) {
-        y[i] = a * x[i] + y[i];
+    if (index < n) {
+        y[index] = a * x[index] + y[index];
     }
 }
 
-// y[i] = f(x[i], y[i]), 1 thread per element, for any function f.
+// y[index] = f(x[index], y[index]), one thread per element, for any function f.
 template <typename F>
 __global__ void map(F f, const float* x, float* y, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (i < n) {
-        y[i] = f(x[i], y[i]);
+    if (index < n) {
+        y[index] = f(x[index], y[index]);
     }
 }
 
-// y[i] = f(x[i], y[i]) for i = t, t + P, t + 2P, ..., where P is the number of
-// threads in the grid and t the index of this thread.
+// y[index] = f(x[index], y[index]) for every index that starts at this thread's global
+// index and steps by gridSize, the number of threads in the grid.
 template <typename F>
 __global__ void mapStride(F f, const float* x, float* y, int n)
 {
-    int threads = gridDim.x * blockDim.x;
+    int gridSize = gridDim.x * blockDim.x;
 
-    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += threads) {
-        y[i] = f(x[i], y[i]);
+    for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < n; index += gridSize) {
+        y[index] = f(x[index], y[index]);
     }
 }
 

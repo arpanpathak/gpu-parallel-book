@@ -39,7 +39,7 @@ double timeMs(F launch)
     }
 
     double t0 = nowMs();
-    for (int r = 0; r < 20; ++r) {
+    for (int timed = 0; timed < 20; ++timed) {
         launch();
     }
     check(cudaGetLastError());
@@ -51,87 +51,85 @@ double timeMs(F launch)
 __global__ void scanHillisSteele(const unsigned* x, unsigned* y, unsigned* sums, int n)
 {
     __shared__ unsigned buf[2 * TILE];
-    int i = threadIdx.x;
-    int g = blockIdx.x * TILE + i;
+    int index = blockIdx.x * TILE + threadIdx.x;
 
-    buf[i] = g < n ? x[g] : 0;
+    buf[threadIdx.x] = index < n ? x[index] : 0;
     __syncthreads();
 
     int src = 0;
-    for (int d = 1; d < TILE; d *= 2) {
+    for (int distance = 1; distance < TILE; distance *= 2) {
         int dst = TILE - src;
-        unsigned v = buf[src + i];
-        if (i >= d) {
-            v += buf[src + i - d];
+        unsigned value = buf[src + threadIdx.x];
+        if (threadIdx.x >= distance) {
+            value += buf[src + threadIdx.x - distance];
         }
-        buf[dst + i] = v;
+        buf[dst + threadIdx.x] = value;
         __syncthreads();                      // the step is complete before any read
         src = dst;
     }
 
-    if (g < n) {
-        y[g] = buf[src + i];
+    if (index < n) {
+        y[index] = buf[src + threadIdx.x];
     }
-    if (i == TILE - 1) {
-        sums[blockIdx.x] = buf[src + i];
+    if (threadIdx.x == TILE - 1) {
+        sums[blockIdx.x] = buf[src + threadIdx.x];
     }
 }
 
 // Blelloch: 512 threads, 2 elements each, 1 buffer; an up-sweep, then a down-sweep.
 __global__ void scanBlelloch(const unsigned* x, unsigned* y, unsigned* sums, int n)
 {
-    __shared__ unsigned s[TILE];
-    int t = threadIdx.x;
-    int g = blockIdx.x * TILE + 2 * t;
+    __shared__ unsigned cells[TILE];
+    int index = blockIdx.x * TILE + 2 * threadIdx.x;
 
-    unsigned x0 = g < n ? x[g] : 0;
-    unsigned x1 = g + 1 < n ? x[g + 1] : 0;
-    s[2 * t] = x0;
-    s[2 * t + 1] = x1;
+    unsigned first = index < n ? x[index] : 0;
+    unsigned second = index + 1 < n ? x[index + 1] : 0;
+    cells[2 * threadIdx.x] = first;
+    cells[2 * threadIdx.x + 1] = second;
 
-    for (int d = 1; d < TILE; d *= 2) {
+    for (int distance = 1; distance < TILE; distance *= 2) {
         __syncthreads();
-        if (t < TILE / (2 * d)) {
-            int i = (2 * t + 2) * d - 1;
-            s[i] += s[i - d];
+        if (threadIdx.x < TILE / (2 * distance)) {
+            int right = (2 * threadIdx.x + 2) * distance - 1;
+            cells[right] += cells[right - distance];
         }
     }
     __syncthreads();
-    if (t == 0) {
-        sums[blockIdx.x] = s[TILE - 1];
-        s[TILE - 1] = 0;
+    if (threadIdx.x == 0) {
+        sums[blockIdx.x] = cells[TILE - 1];
+        cells[TILE - 1] = 0;
     }
 
-    for (int d = TILE / 2; d >= 1; d /= 2) {
+    for (int distance = TILE / 2; distance >= 1; distance /= 2) {
         __syncthreads();
-        if (t < TILE / (2 * d)) {
-            int i = (2 * t + 2) * d - 1;
-            unsigned left = s[i - d];
-            s[i - d] = s[i];
-            s[i] += left;
+        if (threadIdx.x < TILE / (2 * distance)) {
+            int right = (2 * threadIdx.x + 2) * distance - 1;
+            unsigned left = cells[right - distance];
+            cells[right - distance] = cells[right];
+            cells[right] += left;
         }
     }
     __syncthreads();
 
-    if (g < n) {
-        y[g] = s[2 * t] + x0;                 // exclusive plus own: inclusive
+    if (index < n) {
+        y[index] = cells[2 * threadIdx.x] + first;    // exclusive plus own: inclusive
     }
-    if (g + 1 < n) {
-        y[g + 1] = s[2 * t + 1] + x1;
+    if (index + 1 < n) {
+        y[index + 1] = cells[2 * threadIdx.x + 1] + second;
     }
 }
 
 // The scan of Chapter 8: 256 threads, 4 elements each, warp shuffles and 2 barriers.
-__device__ unsigned warpScan(unsigned v)
+__device__ unsigned warpScan(unsigned value)
 {
     int lane = threadIdx.x % 32;
     for (int offset = 1; offset < 32; offset *= 2) {
-        unsigned left = __shfl_up_sync(0xffffffff, v, offset);
+        unsigned left = __shfl_up_sync(0xffffffff, value, offset);
         if (lane >= offset) {
-            v += left;
+            value += left;
         }
     }
-    return v;
+    return value;
 }
 
 __global__ void scanWarps(const unsigned* x, unsigned* y, unsigned* sums, int n)
@@ -141,49 +139,49 @@ __global__ void scanWarps(const unsigned* x, unsigned* y, unsigned* sums, int n)
     int lane = threadIdx.x % 32;
     int warp = threadIdx.x / 32;
 
-    unsigned a[4];
+    unsigned prefix[4];
     unsigned own = 0;
-    for (int k = 0; k < 4; ++k) {
-        own += first + k < n ? x[first + k] : 0;
-        a[k] = own;
+    for (int element = 0; element < 4; ++element) {
+        own += first + element < n ? x[first + element] : 0;
+        prefix[element] = own;
     }
 
-    unsigned v = warpScan(own);
+    unsigned warpPrefix = warpScan(own);
     if (lane == 31) {
-        warps[warp] = v;
+        warps[warp] = warpPrefix;
     }
     __syncthreads();
 
     if (warp == 0) {
-        unsigned w = warpScan(lane < 8 ? warps[lane] : 0);
+        unsigned scannedTotal = warpScan(lane < 8 ? warps[lane] : 0);
         if (lane < 8) {
-            warps[lane] = w;
+            warps[lane] = scannedTotal;
         }
     }
     __syncthreads();
 
-    unsigned before = v - own + (warp > 0 ? warps[warp - 1] : 0);
-    for (int k = 0; k < 4; ++k) {
-        if (first + k < n) {
-            y[first + k] = before + a[k];
+    unsigned before = warpPrefix - own + (warp > 0 ? warps[warp - 1] : 0);
+    for (int element = 0; element < 4; ++element) {
+        if (first + element < n) {
+            y[first + element] = before + prefix[element];
         }
     }
     if (threadIdx.x == 255) {
-        sums[blockIdx.x] = before + a[3];
+        sums[blockIdx.x] = before + prefix[3];
     }
 }
 
-// Adds to every element of tile b the total of tiles 0 to b - 1.
+// Adds to every element of a tile the total of the tiles before it.
 __global__ void addOffsets(unsigned* y, const unsigned* scanned, int n)
 {
     if (blockIdx.x == 0) {
         return;
     }
     unsigned offset = scanned[blockIdx.x - 1];
-    for (int k = 0; k < 4; ++k) {
-        int g = blockIdx.x * TILE + k * 256 + threadIdx.x;
-        if (g < n) {
-            y[g] += offset;
+    for (int step = 0; step < 4; ++step) {
+        int index = blockIdx.x * TILE + step * 256 + threadIdx.x;
+        if (index < n) {
+            y[index] += offset;
         }
     }
 }
@@ -213,22 +211,22 @@ void scan(Method method, const unsigned* x, unsigned* y, int n, unsigned* scratc
     }
 }
 
-// flags[i] = 1 if x[i] is kept.
+// flags[index] = 1 if x[index] is kept.
 __global__ void keepFlags(const unsigned* x, unsigned threshold, unsigned* flags, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < n) {
-        flags[i] = x[i] >= threshold;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n) {
+        flags[index] = x[index] >= threshold;
     }
 }
 
-// Writes kept element i at its exclusive scan, the inclusive scan minus its flag of 1.
+// Writes each kept element at its exclusive scan, the inclusive scan minus its flag of 1.
 __global__ void scatterKept(const unsigned* x, const unsigned* flags,
                             const unsigned* scanned, unsigned* out, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < n && flags[i] == 1) {
-        out[scanned[i] - 1] = x[i];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n && flags[index] == 1) {
+        out[scanned[index] - 1] = x[index];
     }
 }
 
@@ -239,9 +237,9 @@ __global__ void countKept(const unsigned* x, unsigned threshold, unsigned* count
     int base = blockIdx.x * TILE;
 
     unsigned count = 0;
-    for (int k = 0; k < 4; ++k) {
-        int i = base + k * 256 + threadIdx.x;
-        bool keep = i < n && x[i] >= threshold;
+    for (int step = 0; step < 4; ++step) {
+        int index = base + step * 256 + threadIdx.x;
+        bool keep = index < n && x[index] >= threshold;
         count += __popc(__ballot_sync(0xffffffff, keep));
     }
     if (threadIdx.x % 32 == 0) {
@@ -251,8 +249,8 @@ __global__ void countKept(const unsigned* x, unsigned threshold, unsigned* count
 
     if (threadIdx.x == 0) {
         unsigned total = 0;
-        for (int w = 0; w < 8; ++w) {
-            total += warps[w];
+        for (int other = 0; other < 8; ++other) {
+            total += warps[other];
         }
         counts[blockIdx.x] = total;
     }
@@ -268,9 +266,9 @@ __global__ void compactVotes(const unsigned* x, unsigned threshold,
     unsigned below = (1u << lane) - 1;        // the lanes to the left of this one
 
     unsigned next = blockIdx.x > 0 ? scanned[blockIdx.x - 1] : 0;
-    for (int k = 0; k < 4; ++k) {
-        int i = blockIdx.x * TILE + k * 256 + threadIdx.x;
-        bool keep = i < n && x[i] >= threshold;
+    for (int step = 0; step < 4; ++step) {
+        int index = blockIdx.x * TILE + step * 256 + threadIdx.x;
+        bool keep = index < n && x[index] >= threshold;
         unsigned votes = __ballot_sync(0xffffffff, keep);
         if (lane == 0) {
             warps[warp] = __popc(votes);
@@ -279,13 +277,13 @@ __global__ void compactVotes(const unsigned* x, unsigned threshold,
 
         unsigned before = 0;
         unsigned total = 0;
-        for (int w = 0; w < 8; ++w) {
-            before += w < warp ? warps[w] : 0;
-            total += warps[w];
+        for (int other = 0; other < 8; ++other) {
+            before += other < warp ? warps[other] : 0;
+            total += warps[other];
         }
 
         if (keep) {
-            out[next + before + __popc(votes & below)] = x[i];
+            out[next + before + __popc(votes & below)] = x[index];
         }
         next += total;
         __syncthreads();

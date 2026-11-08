@@ -120,8 +120,8 @@ save(OUT + "ch19-plate.svg", 640, 460,
 
 # 19.2  The 5-point stencil, checked on cell (1, 1) of the final plate.
 cx, cy, s = 154, 236, 76
-cross = [((0, 0), "r, c", "store"), ((0, -1), "r−1, c", "client"), ((0, 1), "r+1, c", "client"),
-         ((-1, 0), "r, c−1", "client"), ((1, 0), "r, c+1", "client")]
+cross = [((0, 0), "row, col", "store"), ((0, -1), "row−1, col", "client"), ((0, 1), "row+1, col", "client"),
+         ((-1, 0), "row, col−1", "client"), ((1, 0), "row, col+1", "client")]
 parts = [zone(32, 96, 250, 320, "5-point stencil")]
 for (dx, dy), name, kind in cross:
     accent, tint = KINDS[kind]
@@ -208,7 +208,7 @@ save(OUT + "ch19-inplace.svg", 640, 480,
 
 # 19.5  The work of 1 thread: cell (2, 2) in step 2.
 side = 40
-parts = [zone(32, 96, 270, 300, "buffer a: step 1"), zone(338, 96, 270, 300, "buffer b: step 2")]
+parts = [zone(32, 96, 270, 300, "buffer current: step 1"), zone(338, 96, 270, 300, "buffer next: step 2")]
 parts += plate(52, 124, STEP1, side, size=11)
 after = [row[:] for row in STEP1]
 after = [[START[r][c] if r in (0, N - 1) or c in (0, N - 1) else None for c in range(N)]
@@ -226,18 +226,18 @@ parts += [outline(52 + 2 * side - 2, 124 + 2 * side - 2, side + 1, side + 1, AMB
           f'stroke="{WIRE}" stroke-width="1.8" fill="none" marker-end="url(#head)"/>',
           note(52, 382, "4 reads: 25 + 0 + 0 + 0"),
           note(358, 382, "1 write: 25 / 4 = 6.25"),
-          note(32, 424, "Thread (2, 2) reads only buffer a and writes only its own cell of "
-                        "buffer b: 4 reads, 1 write.")]
+          note(32, 424, "Thread (2, 2) reads only buffer current and writes only its own cell of "
+                        "buffer next: 4 reads, 1 write.")]
 save(OUT + "ch19-thread.svg", 640, 446,
-     "Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbors of cell (2, 2) are "
-     "outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer b on the right, where "
+     "Left: buffer current, the plate after step 1, with row 1 at 25. The 4 neighbors of cell (2, 2) are "
+     "outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer next on the right, where "
      "cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.",
      "The work of 1 thread",
      "Cell (2, 2) in step 2: 4 reads from global memory, 1 write.", parts)
 
 # 19.6  A second buffer without the boundary.
 zeroed = [[0.0] * N] + [row[:] for row in STEP1[1:]]
-parts = [zone(32, 96, 270, 300, "buffer b after step 1"), zone(338, 96, 270, 300, "step 2")]
+parts = [zone(32, 96, 270, 300, "buffer next after step 1"), zone(338, 96, 270, 300, "step 2")]
 parts += plate(52, 124, zeroed, 40, size=11)
 for c in range(N):
     parts.append(outline(52 + c * 40 - 1, 123, 39, 39, RED, 2.0))
@@ -251,9 +251,9 @@ parts += [mono(358, 150, "cell (1, 1) reads:"),
           mono(358, 318, "(100 + 0 + 0 + 25) / 4"),
           mono(358, 340, "= 31.25", fill=GREEN),
           note(52, 382, "The kernel never writes row 0,"),
-          note(52, 398, "so it stays at 0 in buffer b.")]
+          note(52, 398, "so it stays at 0 in buffer next.")]
 save(OUT + "ch19-boundary-bug.svg", 640, 420,
-     "Left: buffer b after step 1 when it was created filled with 0: row 1 holds 25 but the top row "
+     "Left: buffer next after step 1 when it was created filled with 0: row 1 holds 25 but the top row "
      "holds 0 instead of 100. Right: step 2 reads that buffer; cell (1, 1) gets (0 + 0 + 0 + 25) / 4 "
      "= 6.25 instead of (100 + 0 + 0 + 25) / 4 = 31.25.",
      "A buffer without the boundary",
@@ -265,28 +265,28 @@ parts = [text(150, 106, "start of pass k", "name", "middle"),
 for k in range(3):
     y = 124 + k * 92
     parts += [note(32, y + 30, f"pass {k}")]
-    for x, name, content, kind in [(90, "a", f"u({k})", "client"),
-                                   (210, "b", f"u({max(k - 1, 0)})", "idle"),
-                                   (400, "a", f"u({k + 1})", "good"),
-                                   (520, "b", f"u({k})", "idle")]:
+    for x, name, content, kind in [(90, "current", f"u({k})", "client"),
+                                   (210, "next", f"u({max(k - 1, 0)})", "idle"),
+                                   (400, "current", f"u({k + 1})", "good"),
+                                   (520, "next", f"u({k})", "idle")]:
         accent, tint = KINDS[kind]
         parts.append(square(x, y, 100, 52, tint, accent, f"{name}: {content}", width=1.5))
     parts.append(f'  <path d="M312,{y + 26} H396" stroke="{WIRE}" stroke-width="1.8" fill="none" '
                  f'marker-end="url(#head)"/>')
-    parts.append(tag(318, y + 4, "read a", "client"))
-    parts.append(tag(318, y + 32, "write b", "good"))
-parts += [note(32, 418, "Invariant: at the start of pass k, buffer a holds the Jacobi grid u(k) in "
+    parts.append(tag(318, y + 4, "read current", "client"))
+    parts.append(tag(318, y + 32, "write next", "good"))
+parts += [note(32, 418, "Invariant: at the start of pass k, buffer current holds the Jacobi grid u(k) in "
                         "every cell,"),
-          note(32, 436, "and every boundary cell of buffer b holds its given value. Pass 0: "
+          note(32, 436, "and every boundary cell of buffer next holds its given value. Pass 0: "
                         "both buffers hold u(0).")]
 save(OUT + "ch19-pingpong.svg", 640, 456,
-     "3 rows, one per pass. Before pass 0, buffer a holds u0 and buffer b holds u0. The kernel "
-     "reads a and writes the interior of b, which then holds u1; the names are exchanged, so a "
-     "holds u1 and b holds u0. Before pass 1, a holds u1; after the launch and the exchange, a holds "
-     "u2 and b holds u1. A note states the invariant: at the start of pass k, a holds u(k) and b "
+     "3 rows, one per pass. Before pass 0, buffer current holds u0 and buffer next holds u0. The kernel "
+     "reads current and writes the interior of next, which then holds u1; the names are exchanged, so current "
+     "holds u1 and next holds u0. Before pass 1, current holds u1; after the launch and the exchange, current holds "
+     "u2 and next holds u1. A note states the invariant: at the start of pass k, current holds u(k) and next "
      "holds the boundary values.",
      "Ping-pong buffers and their invariant",
-     "Each pass reads a, writes b and exchanges the names; a holds the newest grid.", parts)
+     "Each pass reads current, writes next, then exchanges the 2 names.", parts)
 
 # Measured: the convergence runs and the 4096 x 4096 timings quoted in the chapter.
 SMALL = [(1, 8.33), (2, 3.90), (3, 2.52), (4, 1.82), (10, 0.448), (20, 0.0538), (40, 7.75e-4)]

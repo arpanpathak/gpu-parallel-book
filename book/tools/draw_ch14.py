@@ -13,23 +13,24 @@ from pathlib import Path
 OUT = Path(__file__).resolve().parent.parent / "src" / "figures"
 
 INK = "#1F2633"
-GREY = "#8A94A3"
-EDGE = "#CBD1D9"
-HI = "#4F52C4"
+GREY = "#8E99A8"
+EDGE = "#D6DCE4"
+HI = "#3F51B5"
 RED = "#C2412D"
 GREEN = "#2E8B57"
 
 # name: (fill, stroke)
 PAL = {
-    "blue": ("#DEDFFA", "#7275D6"),
-    "mint": ("#D5F0E6", "#3F9F80"),
-    "peach": ("#FCE2D2", "#D98654"),
-    "pink": ("#F9DBE6", "#CC6A91"),
-    "amber": ("#FCEBC9", "#C99520"),
-    "grey": ("#F0F2F5", "#C5CBD3"),
-    "white": ("#FFFFFF", "#C5CBD3"),
-    "red": ("#FBE4E0", "#C2412D"),
-    "hi": ("#C9CAF6", "#4F52C4"),
+    # Material tonal pairs: (container fill, accent). Accents are the 600 shades.
+    "blue": ("#E3E8FD", "#3F51B5"),
+    "mint": ("#DDF3EC", "#00897B"),
+    "peach": ("#FFE6D6", "#E65100"),
+    "pink": ("#FCE0EA", "#C2185B"),
+    "amber": ("#FFF0CC", "#B26A00"),
+    "grey": ("#F1F3F6", "#B0B8C4"),
+    "white": ("#FFFFFF", "#C9D0D9"),
+    "red": ("#FDE3E0", "#C62828"),
+    "hi": ("#3F51B5", "#283593"),
 }
 THREADS = ["blue", "mint", "peach", "pink", "amber"]
 
@@ -38,7 +39,7 @@ MARKERS = {"hi": HI, "grey": GREY, "red": RED, "ink": INK, "green": GREEN,
            "pink": PAL["pink"][1]}
 
 STYLE = """  <style>
-    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>"""
 
@@ -46,9 +47,12 @@ STYLE = """  <style>
 def defs():
     out = ["  <defs>"]
     for name, colour in MARKERS.items():
-        out.append(f'    <marker id="m-{name}" viewBox="0 0 10 10" refX="8.5" refY="5" '
-                   f'markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" '
-                   f'orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="{colour}"/></marker>')
+        out.append(f'    <marker id="m-{name}" viewBox="0 0 10 10" refX="10" refY="5" '
+                   f'markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" '
+                   f'orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="{colour}"/></marker>')
+    out.append('    <filter id="elev" x="-20%" y="-20%" width="140%" height="160%">'
+               '<feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" '
+               'flood-opacity="0.18"/></filter>')
     out.append("  </defs>")
     return "\n".join(out)
 
@@ -71,14 +75,23 @@ def rect(x, y, w, h, fill="#FFFFFF", stroke=EDGE, sw=1.2, rx=5, dash=None, opaci
 
 def cell(x, y, w, h, label=None, col="white", size=13, outline=False, dash=False,
          fill_text=INK, weight=400, faded=False, mono=False):
-    """A rounded cell holding 1 value. `outline` draws the thick highlight of the paper."""
-    fill, stroke = PAL[col]
-    parts = [rect(x, y, w, h, fill, HI if outline else stroke, 2.2 if outline else 1.1,
-                  dash="4 3" if dash else None)]
+    """A rounded cell holding 1 value, in the Material style: a tonal fill on a soft shadow.
+    `outline` marks the highlighted result with a solid primary fill and white text."""
+    fill, accent = PAL[col]
+    if outline:
+        fill, accent, fill_text, weight = HI, HI, "#FFFFFF", 700
+    shadow = "" if faded or dash else ' filter="url(#elev)"'
+    stroke = accent if col in ("white", "grey") or dash else fill
+    d = ' stroke-dasharray="4 3"' if dash else ""
+    parts = [f'  <rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="8" '
+             f'fill="{fill}" stroke="{stroke}" stroke-width="1.2"{d}{shadow}/>']
+    if col not in ("white", "grey") and not outline:
+        parts.append(f'  <rect x="{x:.1f}" y="{y + h - 3:.1f}" width="{w:.1f}" height="3" '
+                     f'rx="1.5" fill="{accent}"/>')
     if label is not None:
         colour = "#A7B0BC" if faded else fill_text
         parts.append(T(x + w / 2, y + h / 2 + size * 0.36, label, size, colour,
-                       weight=weight, mono=mono))
+                       weight=weight if not outline else 700, mono=mono))
     return "\n".join(parts)
 
 
@@ -88,14 +101,15 @@ def line(x1, y1, x2, y2, col=GREY, w=1.2, dash=None):
             f'stroke="{col}" stroke-width="{w}"{d}/>')
 
 
-def arrow(x1, y1, x2, y2, col="hi", w=1.4, dash=None):
+def arrow(x1, y1, x2, y2, col="hi", w=2.0, dash=None):
     """A straight arrow; the tip stops on (x2, y2)."""
     d = f' stroke-dasharray="{dash}"' if dash else ""
     return (f'  <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" '
-            f'stroke="{MARKERS[col]}" stroke-width="{w}"{d} marker-end="url(#m-{col})"/>')
+            f'stroke="{MARKERS[col]}" stroke-width="{w}"{d} '
+            f'marker-end="url(#m-{col})"/>')
 
 
-def curve(d, col="hi", w=1.4, head=True, dash=None):
+def curve(d, col="hi", w=2.0, head=True, dash=None):
     """An arrow along an SVG path."""
     m = f' marker-end="url(#m-{col})"' if head else ""
     dd = f' stroke-dasharray="{dash}"' if dash else ""
@@ -110,12 +124,95 @@ def brace(x1, x2, y, label, size=11):
                       T(mid, y + 22, label, size, GREY)])
 
 
+# The title and one-line explanation printed inside each figure, as in the rest of the book.
+HEADS = {
+    "ch14-example.svg": ("SAXPY on 12 elements", "Each result is 2 times x plus y at the same position."),
+    "ch14-sequential.svg": ("The sequential loop", "One pass per element, one after another."),
+    "ch14-independence.svg": ("Which results depend on others",
+                              "SAXPY uses only its own column; a running sum needs the result before it."),
+    "ch14-grid.svg": ("A grid that covers 12 elements",
+                      "2 blocks of 8 threads; the last 4 threads have no element."),
+    "ch14-thread.svg": ("What one thread reads and writes", "2 reads, 1 write and 2 FLOP for element 9."),
+    "ch14-assign.svg": ("Two ways to give 12 elements to 4 threads",
+                        "Chunks spread each step over 40 bytes; a stride keeps it in 16."),
+    "ch14-twice.svg": ("A stride that is too small", "Two threads update element 2, and it ends at 8, not 6."),
+    "ch14-overrun.svg": ("Threads past the end of the array",
+                         "Without the guard, threads 12 to 15 write into other data."),
+    "ch14-intensity.svg": ("Why SAXPY waits for memory",
+                           "0.17 FLOP per byte, far below the ridge point of any GPU."),
+    "ch14-closure.svg": ("A closure passed to a kernel",
+                         "Each closure type gets its own kernel; its captured values ride along."),
+    "ch14-measured.svg": ("Measured SAXPY rates", "Every version reaches about 90% of the memory bandwidth."),
+    "ch14-blocks.svg": ("Blocks per SM in a grid-stride loop",
+                        "The rate follows the bytes in flight until the bandwidth caps it."),
+    "ch15-example.svg": ("The dot product on 16 pairs", "The 16 products add up to 63."),
+    "ch15-chain.svg": ("A running sum is a chain", "Each addition waits for the one before it: 16 steps."),
+    "ch15-regroup.svg": ("The same additions in pairs", "15 additions in 4 steps instead of 16."),
+    "ch15-steps.svg": ("A tree sum in shared memory",
+                       "Each step adds 2 cells into 1; a barrier separates the steps."),
+    "ch15-broken.svg": ("A tree sum without its barrier", "Thread 0 reads cell 2 too early: 24, not 32."),
+    "ch15-invariant.svg": ("What cell 0 holds before each step",
+                           "The products whose index leaves remainder 0 when divided by 2 × stride."),
+    "ch15-shuffle.svg": ("A warp sum with shuffles", "The same additions as the tree, in registers."),
+    "ch15-blocksum.svg": ("A block sum with shuffles", "5 shuffles per warp, 1 barrier, 5 shuffles in warp 0."),
+    "ch15-combine.svg": ("Two ways to combine block sums",
+                         "A second launch has a fixed order; atomic additions do not."),
+    "ch15-race.svg": ("A plain addition loses an update", "Both blocks read 0, and the later write wins."),
+    "ch15-order.svg": ("Float sums depend on the order", "The same 3 floats in 2 orders give 2 sums."),
+    "ch15-traffic.svg": ("Bytes moved per pair", "16 when the products are stored, 8 when they stay in registers."),
+    "ch15-measured.svg": ("Measured dot-product rates", "The fused kernels reach about 95% of the bandwidth."),
+}
+PAPER = "#FBFAF6"
+DANGER = "#CF4526"
+HEAD_ROOM = 78
+
+
 def save(name, w, h, alt, parts):
+    """Writes a figure in the book's house style: a paper card with a title and a one-line
+    explanation inside the figure, then the drawing."""
+    title, lede = HEADS[name]
     body = "\n".join(parts)
-    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" '
-           f'height="{h}" role="img" aria-label="{escape(alt)}">\n{STYLE}\n{defs()}\n'
-           f'  <rect width="{w}" height="{h}" rx="12" fill="#FFFFFF"/>\n{body}\n</svg>\n')
+    total = h + HEAD_ROOM
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {total}" width="{w}" '
+           f'height="{total}" role="img" aria-label="{escape(alt)}">\n{STYLE}\n{defs()}\n'
+           f'  <rect width="{w}" height="{total}" rx="14" fill="{PAPER}"/>\n'
+           f'{T(28, 38, title, 18, INK, "start", 700)}\n'
+           f'{T(28, 60, lede, 12.5, "#5D6B7A", "start")}\n'
+           f'  <g transform="translate(0,{HEAD_ROOM})">\n{body}\n  </g>\n</svg>\n')
     (OUT / name).write_text(svg)
+
+
+def barrier(x1, x2, y):
+    """A barrier across the threads of a block: a red dashed line with a label."""
+    return "\n".join([
+        line(x1, y, x2, y, DANGER, 1.6, "6 4"),
+        f'  <rect x="{x2 + 6:.1f}" y="{y - 10:.1f}" width="62" height="20" rx="10" '
+        f'fill="#FCEBE6"/>',
+        T(x2 + 37, y + 4, "barrier", 11, DANGER, weight=700)])
+
+
+def pill(x, y, label, size=11):
+    """A dark capsule label with white capital letters, as in the rest of the book."""
+    body = str(label).upper()
+    width = 8.2 * len(body) * size / 11 + 24
+    return "\n".join([
+        f'  <rect x="{x:.1f}" y="{y:.1f}" width="{width:.1f}" height="22" rx="11" fill="#1B2430"/>',
+        T(x + width / 2, y + 15, body, size, "#FFFFFF", weight=700)])
+
+
+GLYPH = {
+    "stack": "M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z",
+    "chip": "M8 2h2v3h4V2h2v3h2a1 1 0 0 1 1 1v2h3v2h-3v4h3v2h-3v2a1 1 0 0 1-1 1h-2v3h-2v-3h-4v3H8v-3H6a1 1 0 0 1-1-1v-2H2v-2h3v-4H2V8h3V6a1 1 0 0 1 1-1h2zm-1 5v10h10V7z",
+}
+
+
+def icon_tile(x, y, glyph, col="blue"):
+    """A rounded tile with an icon, like the cards of the rest of the book."""
+    fill, accent = PAL[col]
+    return "\n".join([
+        f'  <rect x="{x:.1f}" y="{y:.1f}" width="26" height="26" rx="7" fill="{fill}"/>',
+        f'  <path transform="translate({x + 4:.1f},{y + 4:.1f}) scale(0.75)" d="{GLYPH[glyph]}" '
+        f'fill="{accent}"/>'])
 
 
 def bars(x0, y0, rows, scale, unit, label_w=170, h=20, gap=10, peak=None, peak_label="",

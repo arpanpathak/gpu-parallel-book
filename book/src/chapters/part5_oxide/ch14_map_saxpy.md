@@ -82,7 +82,7 @@ vectors.
 and \\(y\\) be vectors of \\(n\\) single-precision floating-point numbers. SAXPY replaces each
 element of \\(y\\) by \\(a\\) times the element of \\(x\\) plus the old element of \\(y\\).
 
-\\[ y_i \leftarrow a\,x_i + y_i \qquad \text{for every } i \in [0, n). \\]
+\\[ y_i \leftarrow a\\,x_i + y_i \qquad \text{for every } i \in [0, n). \\]
 
 *Example.* With \\(a = 2\\), \\(x_9 = 8\\) and \\(y_9 = 3\\), SAXPY sets \\(y_9\\) to 19.
 
@@ -155,8 +155,8 @@ another and updates each of them.
 <div class="algo">
 <p class="algo-name">Saxpy<span style="font-variant: normal">(\(a, x, y, n\))</span></p>
 <ol>
-<li>for \(i \in [0, n)\) {</li>
-<li style="--d:1">\(y_i = a \cdot x_i + y_i\) <span class="c">// 2 reads, 1 write, 2 FLOP</span></li>
+<li><b class="kw">for</b> \(\mathsf{index} \in [0, n)\) {</li>
+<li style="--d:1">\(y_{\mathsf{index}} = a \cdot x_{\mathsf{index}} + y_{\mathsf{index}}\) <span class="c">// 2 reads, 1 write, 2 FLOP</span></li>
 <li>}</li>
 </ol>
 </div>
@@ -187,7 +187,7 @@ Before we run the passes of the loop at the same time, we must know whether any 
 result of another pass. If pass 9 needed the value that pass 8 writes, pass 9 would have to wait
 for pass 8, and the two could not run together.
 
-Let us look at what each pass uses. Pass \\(i\\) reads \\(x_i\\) and \\(y_i\\), and it writes
+Consider what each pass uses. Pass \\(i\\) reads \\(x_i\\) and \\(y_i\\), and it writes
 \\(y_i\\). For example, pass 9 reads \\(x_9 = 8\\) and \\(y_9 = 3\\), and it writes 19. No other
 pass reads or writes position 9. The same is true at every position. The 12 passes therefore use 12
 separate pairs of memory locations, and no pass ever needs a value that another pass produces.
@@ -263,24 +263,24 @@ index of the thread within its block.
 </div>
 
 We want each thread to find the element it is responsible for. The simplest plan is to number all
-threads of the grid in one sequence, starting at 0, and to let thread number \\(i\\) handle element
-\\(i\\). The 3 numbers above are enough to compute this sequence number.
+threads of the grid in one sequence, starting at 0, and to let thread number \\(\mathsf{globalIdx}\\) handle element
+\\(\mathsf{globalIdx}\\). The 3 numbers above are enough to compute this sequence number.
 
 Let us work it out for block number \\(b\\). Blocks 0 to \\(b - 1\\) come before block \\(b\\).
 Each of them holds `blockDim.x` threads, so together they hold \\(b \cdot\\) `blockDim.x` threads.
 The first thread of block \\(b\\) therefore gets the number \\(b \cdot\\) `blockDim.x`. The other
 threads of block \\(b\\) follow it, so we add the index of a thread within its block. The result
-is called the **global index** of the thread.
+is called the **global index** of the thread, and we write it as \\(\mathsf{globalIdx}\\).
 
-\\[ i = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}. \\]
+\\[ \mathsf{globalIdx} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
 
 | Symbol | Meaning | Thread 1 of block 1 |
 |---|---|---|
-| \\(\textit{blockIdx.x}\\) | number of the thread's block in the grid | 1 |
-| \\(\textit{blockDim.x}\\) | number of threads in every block | 8 |
-| \\(\textit{blockIdx.x} \cdot \textit{blockDim.x}\\) | number of threads in the blocks before this one | \\(1 \cdot 8 = 8\\) |
-| \\(\textit{threadIdx.x}\\) | index of the thread within its block | 1 |
-| \\(i\\) | global index, the thread's number in the whole grid | \\(8 + 1 = 9\\) |
+| \\(\mathsf{blockIdx{.}x}\\) | number of the thread's block in the grid | 1 |
+| \\(\mathsf{blockDim{.}x}\\) | number of threads in every block | 8 |
+| \\(\mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\\) | number of threads in the blocks before this one | \\(1 \cdot 8 = 8\\) |
+| \\(\mathsf{threadIdx{.}x}\\) | index of the thread within its block | 1 |
+| \\(\mathsf{globalIdx}\\) | global index, the thread's number in the whole grid | \\(8 + 1 = 9\\) |
 
 In our example, thread 1 of block 1 has the global index \\(1 \cdot 8 + 1 = 9\\). We therefore use
 this thread to compute element 9, as shown in Figure 14.4. No 2 threads of the grid get the same
@@ -290,25 +290,25 @@ into different runs of `blockDim.x` consecutive numbers.
 ### 14.3.2 Covering an array of any length
 
 When we launch a kernel, we choose 2 numbers. The first is the number of threads in each block,
-which we call \\(B\\). The second is the number of blocks in the grid. To give every element its
-own thread, we need at least \\(n\\) threads. A grid of \\(k\\) blocks holds \\(kB\\) threads, so
-we need \\(kB \ge n\\), which means at least \\(n / B\\) blocks. The number of blocks must be a
-whole number, so we round \\(n / B\\) up to the next integer.
+which we call \\(\mathsf{blockDim{.}x}\\). The second is the number of blocks in the grid. To give every element its
+own thread, we need at least \\(n\\) threads. A grid of \\(\mathsf{blocks}\\) blocks holds \\(\mathsf{blocks} \cdot \mathsf{blockDim{.}x}\\) threads, so
+we need \\(\mathsf{blocks} \cdot \mathsf{blockDim{.}x} \ge n\\), which means at least \\(n / \mathsf{blockDim{.}x}\\) blocks. The number of blocks must be a
+whole number, so we round \\(n / \mathsf{blockDim{.}x}\\) up to the next integer.
 
 \\[ \text{blocks} = \lceil n / B \rceil. \\]
 
 | Symbol | Meaning | In the example |
 |---|---|---|
 | \\(n\\) | number of elements | 12 |
-| \\(B\\) | number of threads in each block (`blockDim.x`) | 8 |
-| \\(\lceil n / B \rceil\\) | \\(n / B\\) rounded up to the next integer | \\(\lceil 1.5 \rceil = 2\\) |
+| \\(\mathsf{blockDim{.}x}\\) | number of threads in each block (`blockDim.x`) | 8 |
+| \\(\lceil n / \mathsf{blockDim{.}x} \rceil\\) | \\(n / \mathsf{blockDim{.}x}\\) rounded up to the next integer | \\(\lceil 1.5 \rceil = 2\\) |
 
-With \\(n = 12\\) and \\(B = 8\\), the quotient \\(12 / 8 = 1.5\\) is rounded up to 2. The 2 blocks
+With \\(n = 12\\) and \\(\mathsf{blockDim{.}x} = 8\\), the quotient \\(12 / 8 = 1.5\\) is rounded up to 2. The 2 blocks
 hold 16 threads. Threads 0 to 11 each have one element. Threads 12 to 15, the last 4 threads of
-block 1, have no element at all. In general, the grid has \\(B \lceil n / B \rceil - n\\) threads
-without an element, which is always fewer than \\(B\\). In our example, there are
+block 1, have no element at all. In general, the grid has \\(\mathsf{blockDim{.}x} \cdot \lceil n / \mathsf{blockDim{.}x} \rceil - n\\) threads
+without an element, which is always fewer than \\(\mathsf{blockDim{.}x}\\). In our example, there are
 \\(16 - 12 = 4\\) of them. For the measured arrays, \\(n = 2^{24}\\) is a multiple of
-\\(B = 256\\), so the grid has exactly 65,536 blocks and every thread has an element.
+\\(\mathsf{blockDim{.}x} = 256\\), so the grid has exactly 65,536 blocks and every thread has an element.
 
 <figure>
 <img src="../../figures/ch14-grid.svg" alt="The grid for n = 12 with blocks of 8 threads: 2 blocks, 16 threads, indices i = 0 to 15. Threads with i from 0 to 11 each own 1 element of y. Threads 12 to 15, the last 4 of block 1, are dashed: i is at least n and they have no element. Thread 1 of block 1 is highlighted: i = 1 times 8 plus 1 = 9.">
@@ -318,21 +318,21 @@ without an element, which is always fewer than \\(B\\). In our example, there ar
 A thread without an element must not read or write memory, because the positions from \\(n\\)
 onwards do not belong to \\(y\\). We therefore let every thread first compare its global index with
 \\(n\\). We now obtain the parallel algorithm from <span class="sc">Saxpy</span>. We delete the
-loop, and we let the global index play the role of the loop variable \\(i\\). Every thread runs
+loop, and we let the global index play the role of the loop variable \\(\mathsf{index}\\). Every thread runs
 the following procedure.
 
 <div class="algo">
 <p class="algo-name">Saxpy-Kernel<span style="font-variant: normal">(\(a, x, y, n\))</span></p>
 <ol>
-<li>\(i = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}\)</li>
-<li>if \(i \lt n\) { <span class="c">// the guard</span></li>
-<li style="--d:1">\(y_i = a \cdot x_i + y_i\) <span class="c">// 2 reads, 1 write in global memory</span></li>
+<li>\(\mathsf{index} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\) <span class="c">// the global index</span></li>
+<li><b class="kw">if</b> \(\mathsf{index} \lt n\) { <span class="c">// the guard</span></li>
+<li style="--d:1">\(y_{\mathsf{index}} = a \cdot x_{\mathsf{index}} + y_{\mathsf{index}}\) <span class="c">// 2 reads, 1 write in global memory</span></li>
 <li>}</li>
 </ol>
 </div>
 
-We launch <span class="sc">Saxpy-Kernel</span> on a grid of \\(\lceil n / B \rceil\\) blocks of
-\\(B\\) threads. Line 1 computes the global index with the formula of Section 14.3.1. Line 2 is
+We launch <span class="sc">Saxpy-Kernel</span> on a grid of \\(\lceil n / \mathsf{blockDim{.}x} \rceil\\) blocks of
+\\(\mathsf{blockDim{.}x}\\) threads. Line 1 computes the global index with the formula of Section 14.3.1. Line 2 is
 called the **guard**, also known as the bounds check. When a thread's index lies at or beyond the
 end of the array, line 2 skips the update, and the thread does nothing. Line 3 is line 2 of
 <span class="sc">Saxpy</span>. We now run it once per thread instead of once per pass of a loop.
@@ -421,17 +421,17 @@ every length.
 
 ### 14.4.2 Dividing the elements among the threads
 
-Suppose now that the grid has \\(P\\) threads in total and that \\(P\\) is smaller than \\(n\\).
+Suppose now that the grid has \\(\mathsf{gridSize}\\) threads in total and that \\(\mathsf{gridSize}\\) is smaller than \\(n\\).
 Each thread must then process several elements. We must divide the elements so that every element
-is processed exactly once. In our example, we use \\(P = 4\\) threads, arranged as 2 blocks of 2
+is processed exactly once. In our example, we use \\(\mathsf{gridSize} = 4\\) threads, arranged as 2 blocks of 2
 threads, for the 12 elements. Each thread then processes \\(12 / 4 = 3\\) elements.
 
 There are 2 natural ways to divide the elements. Both are drawn in Figure 14.6, and in both we
-write \\(t\\) for the global index of a thread, from 0 to 3. In the first way, which we call
-chunks, thread \\(t\\) takes the 3 neighboring elements \\(3t\\), \\(3t + 1\\) and \\(3t + 2\\).
+write \\(\mathsf{globalIdx}\\) for the global index of a thread, from 0 to 3. In the first way, which we call
+chunks, thread \\(\mathsf{globalIdx}\\) takes the 3 neighboring elements \\(3 \cdot \mathsf{globalIdx}\\), \\(3 \cdot \mathsf{globalIdx} + 1\\) and \\(3 \cdot \mathsf{globalIdx} + 2\\).
 For example, thread 3 takes elements 9, 10 and 11. In the second way, which we call a stride,
-thread \\(t\\) takes every fourth element, starting at its own index. It takes elements \\(t\\),
-\\(t + 4\\) and \\(t + 8\\). For example, thread 1 takes elements 1, 5 and 9.
+thread \\(\mathsf{globalIdx}\\) takes every fourth element, starting at its own index. It takes elements \\(\mathsf{globalIdx}\\),
+\\(\mathsf{globalIdx} + 4\\) and \\(\mathsf{globalIdx} + 8\\). For example, thread 1 takes elements 1, 5 and 9.
 
 Both ways are correct, because each gives every element to exactly one thread. They are not
 equally fast. The difference comes from 2 properties of the hardware. Threads run in groups of 32,
@@ -500,32 +500,32 @@ division therefore keeps every read of every warp coalesced. Figure 14.6 shows a
 <figcaption><b>Figure 14.6</b> 12 elements on 4 threads. Chunks spread the 4 accesses of each step over 40 bytes; a stride of 4 keeps them in 16 neighboring bytes.</figcaption>
 </figure>
 
-| Thread \\(t\\) | Block, thread in block | Elements | Values of \\(y\\) after SAXPY |
+| Thread \\(\mathsf{globalIdx}\\) | Block, thread in block | Elements | Values of \\(y\\) after SAXPY |
 |---|---|---|---|
 | 0 | 0, 0 | 0, 4, 8 | 7, 9, 9 |
 | 1 | 0, 1 | 1, 5, 9 | 15, 25, 19 |
 | 2 | 1, 0 | 2, 6, 10 | 6, 4, 13 |
 | 3 | 1, 1 | 3, 7, 11 | 17, 22, 18 |
 
-<p class="listing"><b>Table 14.1</b> The stride assignment on the example: 4 threads, 12 elements, \\(P = 4\\).</p>
+<p class="listing"><b>Table 14.1</b> The stride assignment on the example: 4 threads, 12 elements, \\(\mathsf{gridSize} = 4\\).</p>
 
 ### 14.4.3 The grid-stride loop
 
 Table 14.1 lists the stride division for the example. Thread 1 starts at element 1. Each further
 element lies 4 places after the previous one, because 4 is the number of threads in the grid. In
-general, the stride division gives thread \\(t\\) the elements \\(t, t + P, t + 2P, \ldots\\) that
-lie below \\(n\\). Here \\(t\\) is the global index of Section 14.3.1, and \\(P\\) is the number of
+general, the stride division gives thread \\(\mathsf{globalIdx}\\) the elements \\(\mathsf{globalIdx}, \mathsf{globalIdx} + \mathsf{gridSize}, \mathsf{globalIdx} + 2 \cdot \mathsf{gridSize}, \ldots\\) that
+lie below \\(n\\). Here \\(\mathsf{globalIdx}\\) is the global index of Section 14.3.1, and \\(\mathsf{gridSize}\\) is the number of
 threads in the grid. A loop that walks through these elements is called a grid-stride loop. Mark
 Harris of NVIDIA gave the pattern this name in a widely read article in 2013.[^harris]
 
 <div class="definition">
 
 <span class="box-label">Definition 14.8</span> **Grid-stride loop.** In a grid-stride loop, each
-thread starts at its global index \\(t\\) and moves forward by the number of threads in the grid,
-\\(P = \textit{gridDim.x} \cdot \textit{blockDim.x}\\). Here `gridDim.x` is the number of blocks of
-the grid. The distance \\(P\\) is called the **stride**.
+thread starts at its global index \\(\mathsf{globalIdx}\\) and moves forward by the number of threads in the grid,
+\\(\mathsf{gridSize} = \mathsf{gridDim{.}x} \cdot \mathsf{blockDim{.}x}\\). Here `gridDim.x` is the number of blocks of
+the grid. The distance \\(\mathsf{gridSize}\\) is called the **stride**.
 
-*Example.* With 2 blocks of 2 threads, \\(P = 4\\). Thread 1 of block 0, whose global index is 1,
+*Example.* With 2 blocks of 2 threads, \\(\mathsf{gridSize} = 4\\). Thread 1 of block 0, whose global index is 1,
 visits elements 1, 5 and 9.
 
 </div>
@@ -533,11 +533,11 @@ visits elements 1, 5 and 9.
 <div class="algo">
 <p class="algo-name">Grid-Stride-Saxpy<span style="font-variant: normal">(\(a, x, y, n\))</span></p>
 <ol>
-<li>\(P = \textit{gridDim.x} \cdot \textit{blockDim.x}\) <span class="c">// threads in the grid</span></li>
-<li>\(i = \textit{blockIdx.x} \cdot \textit{blockDim.x} + \textit{threadIdx.x}\)</li>
-<li>while \(i \lt n\) {</li>
-<li style="--d:1">\(y_i = a \cdot x_i + y_i\)</li>
-<li style="--d:1">\(i = i + P\)</li>
+<li>\(\mathsf{gridSize} = \mathsf{gridDim{.}x} \cdot \mathsf{blockDim{.}x}\) <span class="c">// threads in the grid</span></li>
+<li>\(\mathsf{index} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\) <span class="c">// the global index</span></li>
+<li><b class="kw">while</b> \(\mathsf{index} \lt n\) {</li>
+<li style="--d:1">\(y_{\mathsf{index}} = a \cdot x_{\mathsf{index}} + y_{\mathsf{index}}\)</li>
+<li style="--d:1">\(\mathsf{index} = \mathsf{index} + \mathsf{gridSize}\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -545,32 +545,32 @@ visits elements 1, 5 and 9.
 Lines 2 and 4 are lines 1 and 3 of <span class="sc">Saxpy-Kernel</span>. The guard of
 <span class="sc">Saxpy-Kernel</span> has become the condition of the loop in line 3. A thread
 whose index is already at least \\(n\\) therefore runs the loop 0 times. Line 5 moves the index
-forward by the stride. In our example, thread 1 runs the loop 3 times, with \\(i = 1\\), 5 and 9.
-It computes 15, 25 and 19, and it leaves the loop when \\(i = 13\\), because \\(13 \ge 12\\).
+forward by the stride. In our example, thread 1 runs the loop 3 times, with \\(\mathsf{index} = 1\\), 5 and 9.
+It computes 15, 25 and 19, and it leaves the loop when \\(\mathsf{index} = 13\\), because \\(13 \ge 12\\).
 
 Let us count how many elements a thread processes. We number the passes through the loop with
-\\(k\\), starting from 0. In pass \\(k\\), the thread is at element \\(t + kP\\). Thread \\(t\\)
-processes every element \\(t + kP\\) that is smaller than \\(n\\), and there are
-\\(\lceil (n - t) / P \rceil\\) of them. For thread 1 of our example,
+\\(\mathsf{pass}\\), starting from 0. In pass \\(\mathsf{pass}\\), the thread is at element \\(\mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\). Thread \\(\mathsf{globalIdx}\\)
+processes every element \\(\mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\) that is smaller than \\(n\\), and there are
+\\(\lceil (n - \mathsf{globalIdx}) / \mathsf{gridSize} \rceil\\) of them. For thread 1 of our example,
 \\(\lceil (12 - 1) / 4 \rceil = \lceil 2.75 \rceil = 3\\), which matches its 3 passes.
 
 | Symbol | Meaning | Thread 1 of the example |
 |---|---|---|
-| \\(t\\) | global index of the thread, which is also its first element | 1 |
-| \\(P\\) | number of threads in the grid, the stride | 4 |
-| \\(k\\) | number of the pass through the loop, from 0 | 0, 1, 2 |
-| \\(t + kP\\) | element processed in pass \\(k\\) | 1, 5, 9 |
-| \\(\lceil (n - t) / P \rceil\\) | number of elements the thread processes | 3 |
+| \\(\mathsf{globalIdx}\\) | global index of the thread, which is also its first element | 1 |
+| \\(\mathsf{gridSize}\\) | number of threads in the grid, the stride | 4 |
+| \\(\mathsf{pass}\\) | number of the pass through the loop, from 0 | 0, 1, 2 |
+| \\(\mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\) | element processed in pass \\(\mathsf{pass}\\) | 1, 5, 9 |
+| \\(\lceil (n - \mathsf{globalIdx}) / \mathsf{gridSize} \rceil\\) | number of elements the thread processes | 3 |
 
-For \\(n = 12\\) and \\(P = 4\\), each of the 4 threads processes 3 elements. For \\(P = 5\\),
+For \\(n = 12\\) and \\(\mathsf{gridSize} = 4\\), each of the 4 threads processes 3 elements. For \\(\mathsf{gridSize} = 5\\),
 threads 0 and 1 process 3 elements, and threads 2, 3 and 4 process 2. The loop therefore handles a
-length \\(n\\) that is not a multiple of \\(P\\) without any extra code.
+length \\(n\\) that is not a multiple of \\(\mathsf{gridSize}\\) without any extra code.
 
 <div class="exercises">
 
 Exercises
 
-14.9 With \\(P = 5\\), list the elements of the example that each thread processes.<br>
+14.9 With \\(\mathsf{gridSize} = 5\\), list the elements of the example that each thread processes.<br>
 14.10 A warp of 32 threads uses chunks of 4 elements. How many 32-byte segments does one read
 instruction need, and how many of the delivered bytes are used?<br>
 14.11 How many times does the loop of <span class="sc">Grid-Stride-Saxpy</span> run for thread 7
@@ -589,8 +589,8 @@ each of them in turn and follow the effect on the example.
 
 Suppose that we delete line 2 of <span class="sc">Saxpy-Kernel</span> and keep the launch of 2
 blocks of 8 threads. Threads 12 to 15 then no longer stop. Each of them computes the address of
-its element \\(y_i\\), which lies \\(4i\\) bytes after the start of \\(y\\). The 4 threads therefore
-use the addresses 48 to 60 bytes past the start of \\(y\\). They write \\(2 x_i + y_i\\) there,
+its element \\(y_{\mathsf{index}}\\), which lies \\(4 \cdot \mathsf{index}\\) bytes after the start of \\(y\\). The 4 threads therefore
+use the addresses 48 to 60 bytes past the start of \\(y\\). They write \\(2 x_{\mathsf{index}} + y_{\mathsf{index}}\\) there,
 into memory that does not belong to \\(y\\), as shown in Figure 14.7.
 
 <figure>
@@ -615,30 +615,30 @@ array. The wrong values would then appear later, in a computation that has nothi
 SAXPY, and the cause would be hard to find.
 
 In Rust, we cannot make this mistake in the same kernel. Its output is a `DisjointSlice<f32>`. The
-only way to obtain a writable element of it is `y.get_mut(idx)`, and that method returns `None`
-when `idx` lies at or beyond the end of the slice. The guard is therefore part of the type of the
+only way to obtain a writable element of it is `y.get_mut(thread_id)`, and that method returns `None`
+when `thread_id` lies at or beyond the end of the slice. The guard is therefore part of the type of the
 output, and a kernel without it does not compile.
 
 ### 14.5.2 A proof that the grid-stride loop is correct
 
 <span class="sc">Grid-Stride-Saxpy</span> is correct only if it updates every element exactly
 once. An element that is never updated keeps its old value. An element that is updated twice
-receives \\(a x_i\\) twice, because the second update reads the result of the first. For example,
+receives \\(a x_{\mathsf{index}}\\) twice, because the second update reads the result of the first. For example,
 if \\(y_9\\) were updated twice, it would become \\(2 \cdot 8 + 19 = 35\\) instead of 19. We
 therefore prove that the grid-stride loop updates every element exactly once.
 
 Table 14.1 already suggests which thread updates which element. Thread 1 updates elements 1, 5 and
-9. Each of these leaves the remainder 1 when we divide it by \\(P = 4\\). We write \\(e \bmod P\\)
-for the remainder of \\(e\\) divided by \\(P\\). For example, \\(9 \bmod 4 = 1\\), because
+9. Each of these leaves the remainder 1 when we divide it by \\(\mathsf{gridSize} = 4\\). We write \\(\mathsf{element} \bmod \mathsf{gridSize}\\)
+for the remainder of \\(\mathsf{element}\\) divided by \\(\mathsf{gridSize}\\). For example, \\(9 \bmod 4 = 1\\), because
 \\(9 = 2 \cdot 4 + 1\\), and element 9 is indeed updated by thread 1. The theorem states that the
 same holds for every element.
 
 <div class="theorem">
 
-<span class="box-label">Theorem 14.1</span> When every thread of a grid of \\(P\\) threads has
-finished <span class="sc">Grid-Stride-Saxpy</span>, every element \\(y_e\\) with
-\\(e \in [0, n)\\) has been updated exactly once, by the thread whose global index is
-\\(e \bmod P\\).
+<span class="box-label">Theorem 14.1</span> When every thread of a grid of \\(\mathsf{gridSize}\\) threads has
+finished <span class="sc">Grid-Stride-Saxpy</span>, every element \\(y_{\mathsf{element}}\\) with
+\\(\mathsf{element} \in [0, n)\\) has been updated exactly once, by the thread whose global index is
+\\(\mathsf{element} \bmod \mathsf{gridSize}\\).
 
 </div>
 
@@ -647,43 +647,43 @@ finished <span class="sc">Grid-Stride-Saxpy</span>, every element \\(y_e\\) with
 *Proof.* The proof has 2 parts. In the first part, we describe what one thread does. In the second
 part, we show that the threads together update every element once.
 
-Fix a thread with global index \\(t \in [0, P)\\). We show that the loop of lines 3 to 6 keeps the
+Fix a thread with global index \\(\mathsf{globalIdx} \in [0, \mathsf{gridSize})\\). We show that the loop of lines 3 to 6 keeps the
 following statement true at the start of every pass. Such a statement is called a **loop
-invariant**. *At the start of pass \\(k\\), \\(i = t + kP\\), and the thread has updated exactly the
-elements \\(t + jP\\) with \\(j \in [0, k)\\).* For thread 1 of the example, at the start of pass
-2, the invariant says that \\(i = 1 + 2 \cdot 4 = 9\\) and that the thread has updated elements 1
+invariant**. *At the start of pass \\(\mathsf{pass}\\), \\(\mathsf{index} = \mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\), and the thread has updated exactly the
+elements \\(\mathsf{globalIdx} + j \cdot \mathsf{gridSize}\\) with \\(j \in [0, \mathsf{pass})\\).* For thread 1 of the example, at the start of pass
+2, the invariant says that \\(\mathsf{index} = 1 + 2 \cdot 4 = 9\\) and that the thread has updated elements 1
 and 5.
 
-*Initialization.* Before pass 0, line 2 has set \\(i = t\\), and the thread has not yet updated any
-element. Both parts of the invariant hold with \\(k = 0\\), because \\(t + 0 \cdot P = t\\) and the
+*Initialization.* Before pass 0, line 2 has set \\(\mathsf{index} = \mathsf{globalIdx}\\), and the thread has not yet updated any
+element. Both parts of the invariant hold with \\(\mathsf{pass} = 0\\), because \\(\mathsf{globalIdx} + 0 \cdot \mathsf{gridSize} = \mathsf{globalIdx}\\) and the
 range \\([0, 0)\\) is empty.
 
-*Maintenance.* Assume that the invariant holds at the start of pass \\(k\\), and that \\(i < n\\),
-so that the pass runs. Line 4 updates element \\(i = t + kP\\). Line 5 sets
-\\(i = t + kP + P = t + (k + 1)P\\). The thread has now updated the elements \\(t + jP\\) with
-\\(j \in [0, k + 1)\\), which is the invariant for pass \\(k + 1\\).
+*Maintenance.* Assume that the invariant holds at the start of pass \\(\mathsf{pass}\\), and that \\(\mathsf{index} < n\\),
+so that the pass runs. Line 4 updates element \\(\mathsf{index} = \mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\). Line 5 sets
+\\(\mathsf{index} = \mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize} + \mathsf{gridSize} = \mathsf{globalIdx} + (\mathsf{pass} + 1) \cdot \mathsf{gridSize}\\). The thread has now updated the elements \\(\mathsf{globalIdx} + j \cdot \mathsf{gridSize}\\) with
+\\(j \in [0, \mathsf{pass} + 1)\\), which is the invariant for pass \\(\mathsf{pass} + 1\\).
 
-*Termination.* The loop ends at the first \\(k\\) with \\(t + kP \ge n\\). By the invariant, the
-thread has then updated exactly the elements below \\(n\\) of the form \\(t + jP\\). It has updated
-each of them only once, because \\(i\\) grows with every pass, so no value of \\(i\\) repeats.
+*Termination.* The loop ends at the first \\(\mathsf{pass}\\) with \\(\mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize} \ge n\\). By the invariant, the
+thread has then updated exactly the elements below \\(n\\) of the form \\(\mathsf{globalIdx} + j \cdot \mathsf{gridSize}\\). It has updated
+each of them only once, because \\(\mathsf{index}\\) grows with every pass, so no value of \\(\mathsf{index}\\) repeats.
 
-For the second part, take any element \\(e \in [0, n)\\), and write \\(e = jP + r\\) with
-\\(r = e \bmod P\\). The thread with \\(t = r\\) updates \\(e\\) in its pass \\(j\\). Every other
-thread updates only elements whose remainder is its own index \\(t \ne r\\), so it never updates
-\\(e\\). Hence \\(e\\) is updated exactly once. In the example, element \\(9 = 2 \cdot 4 + 1\\) is
+For the second part, take any element \\(\mathsf{element} \in [0, n)\\), and write \\(\mathsf{element} = j \cdot \mathsf{gridSize} + r\\) with
+\\(r = \mathsf{element} \bmod \mathsf{gridSize}\\). The thread with \\(\mathsf{globalIdx} = r\\) updates \\(\mathsf{element}\\) in its pass \\(j\\). Every other
+thread updates only elements whose remainder is its own index \\(\mathsf{globalIdx} \ne r\\), so it never updates
+\\(\mathsf{element}\\). Hence \\(\mathsf{element}\\) is updated exactly once. In the example, element \\(9 = 2 \cdot 4 + 1\\) is
 updated by thread 1 in its pass 2, and by no other thread.
 
 </div>
 
-The proof relies on 2 facts about the launch. The first is that the grid has exactly \\(P\\)
-threads, with the global indices 0 to \\(P - 1\\). The second is that line 1 computes this same
-\\(P\\). If line 1 computes a different number, the remainders no longer separate the threads, and
+The proof relies on 2 facts about the launch. The first is that the grid has exactly \\(\mathsf{gridSize}\\)
+threads, with the global indices 0 to \\(\mathsf{gridSize} - 1\\). The second is that line 1 computes this same
+\\(\mathsf{gridSize}\\). If line 1 computes a different number, the remainders no longer separate the threads, and
 2 threads may update the same element. The next section shows what happens then.
 
 ### 14.5.3 A stride that is too small
 
 A common mistake is to move forward by the number of threads in a block, `blockDim.x`, instead of
-the number of threads in the grid. In our example, line 1 then computes \\(P = 2\\) instead of 4.
+the number of threads in the grid. In our example, line 1 then computes \\(\mathsf{gridSize} = 2\\) instead of 4.
 Thread 0 visits elements 0, 2, 4, 6, 8 and 10. Thread 2, which is thread 0 of block 1, starts at
 element 2 and visits elements 2, 4, 6, 8 and 10. In the same way, threads 1 and 3 both visit the
 odd elements from 3 onwards. Each of the elements 2 to 11 is therefore updated by 2 threads.
@@ -700,7 +700,7 @@ Figure 14.8 shows one order in which the 2 updates of element 2 can happen. Thre
 We ran the C++ program with `int threads = blockDim.x;` in place of `gridDim.x * blockDim.x`. On
 the 12 elements of the example, the output was correct. The 2 blocks ran at the same moment on 2
 SMs. Both threads read \\(y_2 = 4\\) before either of them wrote, and both wrote 6. On the measured
-arrays, with 8 blocks of 256 threads, the program used \\(P = 256\\) instead of 2,048, and it
+arrays, with 8 blocks of 256 threads, the program used \\(\mathsf{gridSize} = 256\\) instead of 2,048, and it
 reported the following errors.
 
 ```console
@@ -718,7 +718,7 @@ result of the first and added 320 again. The result is \\(4 + 320 + 320 = 644\\)
 value is 324.
 
 In 3 further runs, the count of wrong elements was 3,197, 2,781 and 3,038. In most double visits,
-the second thread read \\(y_i\\) before the first thread's write had arrived, and it wrote the
+the second thread read \\(y_{\mathsf{index}}\\) before the first thread's write had arrived, and it wrote the
 correct value by chance. A bug of this kind can pass a small test and fail a large one, and it can
 fail by a different amount on every run.
 
@@ -732,7 +732,7 @@ starting index from the global index.
 
 Rust does not catch this mistake. In the grid-stride kernel, we cannot use `get_mut`, because
 `get_mut` accepts only the index of the calling thread, while the loop writes at the computed
-indices \\(t + kP\\). We therefore call `get_unchecked_mut(i)` inside an `unsafe` block. Above the
+indices \\(\mathsf{globalIdx} + \mathsf{pass} \cdot \mathsf{gridSize}\\). We therefore call `get_unchecked_mut(index)` inside an `unsafe` block. Above the
 block, we write a comment that begins with `// SAFETY:` and states the argument of Theorem 14.1 in
 2 lines. The compiler does not check this argument. A wrong stride therefore compiles in Rust as
 well, and the comment then states something false.
@@ -743,7 +743,7 @@ Exercises
 
 14.12 In Theorem 14.1, where does the proof use the fact that line 1 computes the number of
 threads of the whole grid?<br>
-14.13 With the wrong stride \\(P = 2\\) on the example, which elements can end up wrong, and what
+14.13 With the wrong stride \\(\mathsf{gridSize} = 2\\) on the example, which elements can end up wrong, and what
 is the wrong value of \\(y_9\\) if both updates happen one after the other?<br>
 14.14 A kernel computes the starting index as `threadIdx.x` instead of the global index, with the
 correct stride. Which elements of the example are updated twice, and which are never updated?
@@ -803,7 +803,7 @@ A memory-bound kernel cannot finish before all of its bytes have passed through 
 on \\(n\\) elements moves \\(12n\\) bytes. A GPU whose memory bandwidth is \\(W\\) bytes per second
 needs at least \\(12n / W\\) seconds to move them. The time \\(T\\) of SAXPY therefore satisfies
 
-\\[ T \ge \frac{12\,n}{W}. \\]
+\\[ T \ge \frac{12\\,n}{W}. \\]
 
 | Symbol | Meaning | Measured arrays on the Orin NX |
 |---|---|---|
@@ -877,9 +877,9 @@ mod kernels {
 
 In C++, we write line 1 of the pseudocode out with `blockIdx.x`, `blockDim.x` and `threadIdx.x`,
 and the guard of line 2 is the `if (i < n)`. In Rust, `thread::index_1d()` computes the same global
-index, and `y.get_mut(idx)` performs the guard. It returns `Some` with a mutable reference to
-element `idx` when the index is in range, and `None` otherwise. Recall from Chapter 13 that the
-type of `idx` is `ThreadIndex`, and that only `thread::index_1d()` can create one. A thread can
+index, and `y.get_mut(thread_id)` performs the guard. It returns `Some` with a mutable reference to
+element `thread_id` when the index is in range, and `None` otherwise. Recall from Chapter 13 that the
+type of `thread_id` is `ThreadIndex`, and that only `thread::index_1d()` can create one. A thread can
 therefore obtain a writable reference only to its own element. In both languages, we pass the
 scalar `a` by value. The host copies its 4 bytes into the launch, and every thread reads the same
 value.
@@ -966,15 +966,15 @@ mod kernels {
 </div>
 </div>
 
-The code follows the pseudocode line by line. The variable `threads` is the stride \\(P\\) of line
-1. The first value of `i` is line 2, and the loop condition is line 3. Line 4 has become the call
-`f(x[i], y[i])`, and line 5 is the step `i += threads`. In C++, we write the loop as a `for`
+The code follows the pseudocode line by line. The variable `grid_size` (`gridSize` in C++) is \\(\mathsf{gridSize}\\) of line
+1. The first value of `index` is line 2, and the loop condition is line 3. Line 4 has become the call
+`f(x[index], y[index])`, and line 5 is the step `index += grid_size`. In C++, we write the loop as a `for`
 statement. In Rust, we write it as a `while` loop over a plain `usize`.
 
-The Rust loop writes at the computed index `i`, which is not the thread's own `ThreadIndex`. We
-therefore call `get_unchecked_mut(i)` in an `unsafe` block, and its `SAFETY` comment repeats the
+The Rust loop writes at the computed index `index`, which is not the thread's own `ThreadIndex`. We
+therefore call `get_unchecked_mut(index)` in an `unsafe` block, and its `SAFETY` comment repeats the
 argument of Theorem 14.1. The method also skips the bounds check, which the loop condition
-`i < y.len()` already makes unnecessary.
+`index < y.len()` already makes unnecessary.
 
 We pass the function as the first argument of the launch. Listing 14.3 builds the SAXPY closure,
 prepares the launch for the example's 2 blocks of 2 threads, and launches the kernel.
@@ -1057,7 +1057,7 @@ Exercises
 \\(y_i \leftarrow x_i - y_i\\). How many bytes does its kernel parameter hold?<br>
 14.18 Why must the Rust bound include `Copy`? What would a closure that captured a `Vec<f32>` mean
 on the GPU?<br>
-14.19 Listing 14.2 computes `threads` from `blockDim_x()` in Rust and `blockDim.x` in C++. Why is
+14.19 Listing 14.2 computes `grid_size` from `blockDim_x()` in Rust and `blockDim.x` in C++. Why is
 this safer than a constant 256?
 
 </div>
@@ -1070,7 +1070,7 @@ The measurements come from an integrated GPU, a Jetson Orin NX 16 GB, with 8 SMs
 bandwidth of 102 GB/s. We fill \\(x\\) and \\(y\\) with \\(2^{24}\\) values each, which is 64 MiB
 per vector. This is much more than the 2 MiB L2 cache of the GPU, so every launch reads and writes
 global memory and not the cache. The values are \\(x_i = (i \bmod 1024) \cdot 0.5\\),
-\\(y_i = i \bmod 7\\) and \\(a = 2.5\\). With these values, every product \\(2.5\,x_i\\) is a
+\\(y_i = i \bmod 7\\) and \\(a = 2.5\\). With these values, every product \\(2.5\\,x_i\\) is a
 multiple of 1.25 below 1,280, and a float represents every such number exactly. For example,
 \\(x_{256} = 128\\) gives the product 320. No result is rounded, so we can compare the GPU's
 results with the CPU's for exact equality.
@@ -1299,19 +1299,19 @@ A stride computed from the block instead of the grid makes several blocks update
 elements. With `blockDim.x` in place of `gridDim.x * blockDim.x`, the result of an in-place map is
 wrong, by a different amount on each run (Section 14.5.3).
 
-Calling `get_mut` with a computed index does not compile. In a grid-stride loop, the index `i` is a
+Calling `get_mut` with a computed index does not compile. In a grid-stride loop, the index `index` is a
 `usize`, and `get_mut` accepts only the `ThreadIndex` of the calling thread. If we replace
-`get_unchecked_mut(i)` in Listing 14.2 by `y.get_mut(i)`, the build stops with the following error.
+`get_unchecked_mut(index)` in Listing 14.2 by `y.get_mut(index)`, the build stops with the following error.
 
 ```console
 $ cargo oxide build
 error[E0308]: mismatched types
-   --> src/main.rs:73:41
+   --> src/main.rs:73:48
     |
- 73 |             if let Some(yi) = y.get_mut(i) {
-    |                                 ------- ^ expected `ThreadIndex<'_>`, found `usize`
-    |                                 |
-    |                                 arguments to this method are incorrect
+ 73 |             if let Some(y_element) = y.get_mut(index) {
+    |                                        ------- ^^^^^ expected `ThreadIndex<'_>`, found `usize`
+    |                                        |
+    |                                        arguments to this method are incorrect
 ```
 
 A closure that refers to a host variable makes the GPU read a host address. The Rust closure

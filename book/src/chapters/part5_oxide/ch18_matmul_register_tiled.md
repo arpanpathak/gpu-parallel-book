@@ -57,20 +57,20 @@ begins, and *tileA* and *tileB* are the 2 tiles that a block holds in shared mem
 To see where the reads of shared memory go, we return to block \\((0, 0)\\) of Chapter 17, with
 tile width \\(T = 2\\), in phase 0. Recall from Figure 17.3 that in this phase, the 2 tiles in
 shared memory hold
-\\(\textit{tileA} = \begin{pmatrix} 1 & 2 \\\\ 5 & 6 \end{pmatrix}\\) and
-\\(\textit{tileB} = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix}\\), that is, columns 0 and 1
+\\(\mathsf{tileA} = \begin{pmatrix} 1 & 2 \\\\ 5 & 6 \end{pmatrix}\\) and
+\\(\mathsf{tileB} = \begin{pmatrix} 1 & 0 \\\\ 0 & 1 \end{pmatrix}\\), that is, columns 0 and 1
 of rows 0 and 1 of \\(A\\), and rows 0 and 1 of columns 0 and 1 of \\(B\\). Thread \\((0, 0)\\)
 computes \\(c_{00}\\), so in this phase it multiplies row 0 of *tileA* by column 0 of *tileB*. It
-does so by running line 10 of <span style="font-variant: small-caps">Tiled-Kernel</span> twice,
-once for each position \\(u\\) of a term within the phase. For \\(u = 0\\), it reads
-\\(\textit{tileA}[0][0] = 1\\) and \\(\textit{tileB}[0][0] = 1\\) from shared memory and adds
-\\(1 \cdot 1\\) to its sum. For \\(u = 1\\), it reads \\(\textit{tileA}[0][1] = 2\\) and
-\\(\textit{tileB}[1][0] = 0\\) and adds \\(2 \cdot 0\\) (Figure 18.1). In this phase, the thread
+does so by running line 11 of <span style="font-variant: small-caps">Tiled-Kernel</span> twice,
+once for each position \\(\mathsf{offset}\\) of a term within the phase. For \\(\mathsf{offset} = 0\\), it reads
+\\(\mathsf{tileA}[0][0] = 1\\) and \\(\mathsf{tileB}[0][0] = 1\\) from shared memory and adds
+\\(1 \cdot 1\\) to its sum. For \\(\mathsf{offset} = 1\\), it reads \\(\mathsf{tileA}[0][1] = 2\\) and
+\\(\mathsf{tileB}[1][0] = 0\\) and adds \\(2 \cdot 0\\) (Figure 18.1). In this phase, the thread
 therefore makes 4 reads from shared memory for 2 multiply-adds. Since a multiply-add counts as 2
 floating-point operations, this is 4 reads for 4 FLOP.
 
 <figure>
-<img src="../../figures/ch18-tiled-reads.svg" alt="Left: tileA = 1 2 / 5 6 and tileB = 1 0 / 0 1 in shared memory during phase 0; row 0 of tileA and column 0 of tileB are highlighted. Right: thread (0, 0) of the tiled kernel of Chapter 17 at u = 0 reads 1 and 1 and adds 1 times 1; at u = 1 it reads 2 and 0 and adds 2 times 0: 2 reads from shared memory for each multiply-add. Below: 1 thread makes 4 reads for 2 multiply-adds, 4 FLOP, in a phase; the block of 4 threads makes 16 reads for 8 multiply-adds. Thread (0, 1) reads the same row 0 of tileA again.">
+<img src="../../figures/ch18-tiled-reads.svg" alt="Left: tileA = 1 2 / 5 6 and tileB = 1 0 / 0 1 in shared memory during phase 0; row 0 of tileA and column 0 of tileB are highlighted. Right: thread (0, 0) of the tiled kernel of Chapter 17 at offset = 0 reads 1 and 1 and adds 1 times 1; at offset = 1 it reads 2 and 0 and adds 2 times 0: 2 reads from shared memory for each multiply-add. Below: 1 thread makes 4 reads for 2 multiply-adds, 4 FLOP, in a phase; the block of 4 threads makes 16 reads for 8 multiply-adds. Thread (0, 1) reads the same row 0 of tileA again.">
 <figcaption><b>Figure 18.1</b> In the tiled kernel of Chapter 17, thread (0, 0) reads 2 values from shared memory for each multiply-add.</figcaption>
 </figure>
 
@@ -121,14 +121,14 @@ confused with a block of threads.
 
 Both entries use column 0 of \\(B\\): \\(c_{00}\\) is row 0 of \\(A\\) times column 0 of \\(B\\),
 and \\(c_{10}\\) is row 1 of \\(A\\) times the same column. Consider the first term of each sum,
-the term with \\(u = 0\\). For \\(c_{00}\\), the thread needs \\(a_{00} = 1\\); for \\(c_{10}\\),
+the term with \\(\mathsf{offset} = 0\\). For \\(c_{00}\\), the thread needs \\(a_{00} = 1\\); for \\(c_{10}\\),
 it needs \\(a_{10} = 5\\); and for both, it needs \\(b_{00} = 1\\). The thread reads these 3
 values from shared memory once, keeps them in registers, and performs 2 multiply-adds. It adds
 \\(1 \cdot 1 = 1\\) to the sum of \\(c_{00}\\), and \\(5 \cdot 1 = 5\\) to the sum of \\(c_{10}\\)
 (Figure 18.2).
 
 <figure>
-<img src="../../figures/ch18-two-by-one.svg" alt="A, B and C of the 4 by 4 example. a00 = 1 and a10 = 5 of A, b00 = 1 of B, and c00 and c10 of C are highlighted. In registers at u = 0: a_reg = 1, 5 and b_reg = 1, 3 reads from shared memory. The thread adds 1 times 1 = 1 to c00 and 5 times 1 = 5 to c10: 3 reads for 2 multiply-adds, because b00 is read once and used twice. 2 threads of Chapter 17 needed 4 reads for the same 2 multiply-adds: 1.5 reads per multiply-add instead of 2.">
+<img src="../../figures/ch18-two-by-one.svg" alt="A, B and C of the 4 by 4 example. a00 = 1 and a10 = 5 of A, b00 = 1 of B, and c00 and c10 of C are highlighted. In registers at offset = 0: a_reg = 1, 5 and b_reg = 1, 3 reads from shared memory. The thread adds 1 times 1 = 1 to c00 and 5 times 1 = 5 to c10: 3 reads for 2 multiply-adds, because b00 is read once and used twice. 2 threads of Chapter 17 needed 4 reads for the same 2 multiply-adds: 1.5 reads per multiply-add instead of 2.">
 <figcaption><b>Figure 18.2</b> A thread that computes c<sub>00</sub> and c<sub>10</sub> reads b<sub>00</sub> once and uses it twice: 3 reads for 2 multiply-adds.</figcaption>
 </figure>
 
@@ -143,15 +143,15 @@ and used twice from a register.
 The 2 × 1 block shares only the values of \\(B\\). If the thread also computes the entries of a
 second column, it can share the values of \\(A\\) as well. Let 1 thread compute \\(c_{00}\\),
 \\(c_{01}\\), \\(c_{10}\\) and \\(c_{11}\\), the 4 entries that the whole block \\((0, 0)\\)
-computed in Chapter 17. Let us list what these 4 entries need for 1 value of \\(u\\). The 2 entries
-in row 0 need \\(a_{0u}\\), and the 2 entries in row 1 need \\(a_{1u}\\); these are 2 values from
-column \\(u\\) of \\(A\\). The 2 entries in column 0 need \\(b_{u0}\\), and the 2 entries in
-column 1 need \\(b_{u1}\\); these are 2 values from row \\(u\\) of \\(B\\). Each of the 4 entries
+computed in Chapter 17. Let us list what these 4 entries need for 1 value of \\(\mathsf{offset}\\). The 2 entries
+in row 0 need \\(a_{0, \mathsf{offset}}\\), and the 2 entries in row 1 need \\(a_{1, \mathsf{offset}}\\); these are 2 values from
+column \\(\mathsf{offset}\\) of \\(A\\). The 2 entries in column 0 need \\(b_{\mathsf{offset}, 0}\\), and the 2 entries in
+column 1 need \\(b_{\mathsf{offset}, 1}\\); these are 2 values from row \\(\mathsf{offset}\\) of \\(B\\). Each of the 4 entries
 needs the product of 1 of the 2 values of \\(A\\) with 1 of the 2 values of \\(B\\); for example,
-\\(c_{01}\\) needs \\(a_{0u} b_{u1}\\). Conversely, each value of \\(A\\) meets each value of
+\\(c_{01}\\) needs \\(a_{0, \mathsf{offset}} b_{\mathsf{offset}, 1}\\). Conversely, each value of \\(A\\) meets each value of
 \\(B\\) in exactly 1 of the 4 entries.
 
-For \\(u = 0\\), the thread therefore reads \\((a_{00}, a_{10}) = (1, 5)\\) from \\(A\\) and
+For \\(\mathsf{offset} = 0\\), the thread therefore reads \\((a_{00}, a_{10}) = (1, 5)\\) from \\(A\\) and
 \\((b_{00}, b_{01}) = (1, 0)\\) from \\(B\\), and it forms all 4 products of a value of the first
 pair with a value of the second (Figure 18.3). If we write the 2 values of \\(A\\) as a column and
 the 2 values of \\(B\\) as a row, the 4 products form a 2 × 2 matrix, whose entry in row \\(i\\)
@@ -166,7 +166,7 @@ in row 1 and column 0, \\(5 \cdot 1 = 5\\), is the first term of \\(c_{10}\\); a
 the 2 zeros are the first terms of \\(c_{01}\\) and \\(c_{11}\\).
 
 <figure>
-<img src="../../figures/ch18-two-by-two.svg" alt="For u = 0, the values 1 and 5 from column 0 of A run down the left, and the values 1 and 0 from row 0 of B run across the top. The 4 cells hold the products 1 times 1 = 1, 1 times 0 = 0, 5 times 1 = 5 and 5 times 0 = 0, which are added to c00, c01, c10 and c11. Cards: 4 reads, 2 values of A and 2 of B; 4 multiply-adds, every value read is used twice; 1 read per multiply-add.">
+<img src="../../figures/ch18-two-by-two.svg" alt="For offset = 0, the values 1 and 5 from column 0 of A run down the left, and the values 1 and 0 from row 0 of B run across the top. The 4 cells hold the products 1 times 1 = 1, 1 times 0 = 0, 5 times 1 = 5 and 5 times 0 = 0, which are added to c00, c01, c10 and c11. Cards: 4 reads, 2 values of A and 2 of B; 4 multiply-adds, every value read is used twice; 1 read per multiply-add.">
 <figcaption><b>Figure 18.3</b> For a 2 × 2 block of C, 1 thread reads 4 values and forms their 4 products, the outer product.</figcaption>
 </figure>
 
@@ -195,11 +195,12 @@ column of \\(B\\); the outer product, in contrast, combines a column of \\(A\\) 
 
 ### 18.2.3 The outer-product form
 
-For \\(u = 0\\), the outer product gives the first term of each of the 4 sums. The remaining terms
-come from the remaining values of \\(u\\). For now, we ignore the division into phases and let
-\\(u\\) run over all \\(K = 4\\) terms of the sums. For \\(u = 1\\), the thread reads \\((2, 6)\\)
-from column 1 of \\(A\\) and \\((0, 1)\\) from row 1 of \\(B\\); for \\(u = 2\\), it reads
-\\((3, 7)\\) and \\((2, 1)\\); and for \\(u = 3\\), it reads \\((4, 8)\\) and \\((1, 2)\\). Each
+For \\(\mathsf{offset} = 0\\), the outer product gives the first term of each of the 4 sums. The remaining terms
+come from the remaining positions. For now, we ignore the division into phases, so the position of
+a term is its index \\(s\\), which runs over all \\(K = 4\\) terms of the sums. For \\(s = 1\\), the
+thread reads \\((2, 6)\\) from column 1 of \\(A\\) and \\((0, 1)\\) from row 1 of \\(B\\); for
+\\(s = 2\\), it reads \\((3, 7)\\) and \\((2, 1)\\); and for \\(s = 3\\), it reads \\((4, 8)\\) and
+\\((1, 2)\\). Each
 pair gives 1 outer product, and the sum of the 4 outer products is the 2 × 2 block of \\(C\\)
 (Figure 18.4):
 
@@ -208,8 +209,8 @@ pair gives 1 outer product, and the sum of the 4 outer products is the 2 × 2 bl
 = \begin{pmatrix} 11 & 13 \\\\ 27 & 29 \end{pmatrix}. \\]
 
 <figure>
-<img src="../../figures/ch18-outer-sum.svg" alt="4 panels, 1 for each u from 0 to 3. In each, the 2 values of column u of A, rows 0 and 1, multiply the 2 values of row u of B, columns 0 and 1. u = 0: (1, 5) times (1, 0) gives 1 0 / 5 0. u = 1: (2, 6) times (0, 1) gives 0 2 / 0 6. u = 2: (3, 7) times (2, 1) gives 6 3 / 14 7. u = 3: (4, 8) times (1, 2) gives 4 8 / 8 16. Their sum is 11 13 / 27 29, the 2 by 2 block of C in rows 0 and 1 and columns 0 and 1: for example c00 = 1 + 0 + 6 + 4 = 11 and c11 = 0 + 6 + 7 + 16 = 29.">
-<figcaption><b>Figure 18.4</b> The 2 × 2 block of C in rows 0 and 1 and columns 0 and 1 is the sum of 4 outer products, 1 for each u.</figcaption>
+<img src="../../figures/ch18-outer-sum.svg" alt="4 panels, 1 for each s from 0 to 3. In each, the 2 values of column s of A, rows 0 and 1, multiply the 2 values of row s of B, columns 0 and 1. s = 0: (1, 5) times (1, 0) gives 1 0 / 5 0. s = 1: (2, 6) times (0, 1) gives 0 2 / 0 6. s = 2: (3, 7) times (2, 1) gives 6 3 / 14 7. s = 3: (4, 8) times (1, 2) gives 4 8 / 8 16. Their sum is 11 13 / 27 29, the 2 by 2 block of C in rows 0 and 1 and columns 0 and 1: for example c00 = 1 + 0 + 6 + 4 = 11 and c11 = 0 + 6 + 7 + 16 = 29.">
+<figcaption><b>Figure 18.4</b> The 2 × 2 block of C in rows 0 and 1 and columns 0 and 1 is the sum of 4 outer products, 1 for each s.</figcaption>
 </figure>
 
 Let us check 1 entry. The top-left entries of the 4 outer products add up to
@@ -403,11 +404,11 @@ We now assign the entries of \\(C\\) and the values of the tiles to the threads 
 computes \\(B_M \times B_N\\) entries, and each of its threads computes \\(T_M \times T_N\\) of them,
 so the block needs \\((B_M / T_M) \cdot (B_N / T_N)\\) threads, arranged as \\(B_M/T_M\\) rows and
 \\(B_N/T_N\\) columns. For the configuration of Figure 18.6, these are \\(64/4 = 16\\) rows and 16
-columns of threads, 256 threads in all. Thread \\((ty, tx)\\) of block \\((by, bx)\\) owns the
+columns of threads, 256 threads in all. Thread \\((\mathsf{threadIdx{.}y}, \mathsf{threadIdx{.}x})\\) of block \\((\mathsf{blockIdx{.}y}, \mathsf{blockIdx{.}x})\\) owns the
 \\(T_M \times T_N\\) block of \\(C\\) whose top-left entry lies in row
-\\(by \cdot B_M + ty \cdot T_M\\) and column \\(bx \cdot B_N + tx \cdot T_N\\). The first term,
-\\(by \cdot B_M\\), is the first row of the block's part of \\(C\\), and the second term,
-\\(ty \cdot T_M\\), is the number of rows owned by the \\(ty\\) rows of threads above the thread in
+\\(\mathsf{blockIdx{.}y} \cdot B_M + \mathsf{threadIdx{.}y} \cdot T_M\\) and column \\(\mathsf{blockIdx{.}x} \cdot B_N + \mathsf{threadIdx{.}x} \cdot T_N\\). The first term,
+\\(\mathsf{blockIdx{.}y} \cdot B_M\\), is the first row of the block's part of \\(C\\), and the second term,
+\\(\mathsf{threadIdx{.}y} \cdot T_M\\), is the number of rows owned by the \\(\mathsf{threadIdx{.}y}\\) rows of threads above the thread in
 its block; the column is found in the same way.
 
 In our example, we take \\(B_M = B_N = 4\\), \\(B_K = 2\\) and \\(T_M = T_N = 2\\). A single block
@@ -420,48 +421,48 @@ Chapter 17.
 
 | Symbol | Meaning | Thread \\((1, 0)\\) of the example |
 |---|---|---|
-| \\(by, bx\\) | row and column of the block in the grid | 0, 0 |
-| \\(ty, tx\\) | row and column of the thread within its block | 1, 0 |
-| \\(by \cdot B_M + ty \cdot T_M\\) | first row of the thread's block of \\(C\\) | \\(0 \cdot 4 + 1 \cdot 2 = 2\\) |
-| \\(bx \cdot B_N + tx \cdot T_N\\) | first column of the thread's block of \\(C\\) | \\(0 \cdot 4 + 0 \cdot 2 = 0\\) |
+| \\(\mathsf{blockIdx{.}y}, \mathsf{blockIdx{.}x}\\) | row and column of the block in the grid | 0, 0 |
+| \\(\mathsf{threadIdx{.}y}, \mathsf{threadIdx{.}x}\\) | row and column of the thread within its block | 1, 0 |
+| \\(\mathsf{blockIdx{.}y} \cdot B_M + \mathsf{threadIdx{.}y} \cdot T_M\\) | first row of the thread's block of \\(C\\) | \\(0 \cdot 4 + 1 \cdot 2 = 2\\) |
+| \\(\mathsf{blockIdx{.}x} \cdot B_N + \mathsf{threadIdx{.}x} \cdot T_N\\) | first column of the thread's block of \\(C\\) | \\(0 \cdot 4 + 0 \cdot 2 = 0\\) |
 
 <figure>
-<img src="../../figures/ch18-ownership.svg" alt="Left: C of the example, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, colored in 4 blocks of 2 by 2, 1 color per thread of the single block of 2 by 2 threads: thread (ty, tx) owns rows 2ty and 2ty + 1 and columns 2tx and 2tx + 1. Right: the tiles of phase 0, tileA of 4 by 2 = columns 0 and 1 of A, 1 2 / 5 6 / 9 10 / 13 14, and tileB of 2 by 4 = rows 0 and 1 of B, 1 0 2 1 / 0 1 1 2, colored by the thread that copies each value: thread id = 2ty + tx copies elements id and id + 4 of each tile in row-major order. A card recalls that in Chapter 17 with T = 2 the 4 threads of block (0, 0) computed c00, c01, c10 and c11; here thread (0, 0) alone computes them.">
+<img src="../../figures/ch18-ownership.svg" alt="Left: C of the example, 11 13 8 8 / 27 29 24 24 / 43 45 40 40 / 59 61 56 56, colored in 4 blocks of 2 by 2, 1 color per thread of the single block of 2 by 2 threads: thread (1, 0), for example, owns rows 2 and 3 and columns 0 and 1. Right: the tiles of phase 0, tileA of 4 by 2 = columns 0 and 1 of A, 1 2 / 5 6 / 9 10 / 13 14, and tileB of 2 by 4 = rows 0 and 1 of B, 1 0 2 1 / 0 1 1 2, colored by the thread that copies each value: thread (0, 1), whose number is 1, copies slots 1 and 5 of each tile in row-major order. A card recalls that in Chapter 17 with T = 2 the 4 threads of block (0, 0) computed c00, c01, c10 and c11; here thread (0, 0) alone computes them.">
 <figcaption><b>Figure 18.7</b> In the example, each thread of the single 2 × 2 block owns a 2 × 2 block of C and copies 2 values of each tile.</figcaption>
 </figure>
 
-The tiles are no longer square. In phase \\(t\\), the block needs the piece of \\(A\\) that lies in
-its own \\(B_M\\) rows and in the \\(B_K\\) columns \\([tB_K, tB_K + B_K)\\), and the piece of
-\\(B\\) that lies in the \\(B_K\\) rows \\([tB_K, tB_K + B_K)\\) and in its own \\(B_N\\) columns. As
-in Chapter 17, the product \\(tB_K\\) is the index \\(s\\) at which phase \\(t\\) begins; in the
+The tiles are no longer square. In the phase with number \\(\mathsf{phase}\\), the block needs the piece of \\(A\\) that lies in
+its own \\(B_M\\) rows and in the \\(B_K\\) columns \\([\mathsf{phase} \cdot B_K, \mathsf{phase} \cdot B_K + B_K)\\), and the piece of
+\\(B\\) that lies in the \\(B_K\\) rows \\([\mathsf{phase} \cdot B_K, \mathsf{phase} \cdot B_K + B_K)\\) and in its own \\(B_N\\) columns. As
+in Chapter 17, the product \\(\mathsf{phase} \cdot B_K\\) is the index \\(s\\) at which the phase begins; in the
 example, with \\(B_K = 2\\), phase 1 begins at column 2 of \\(A\\) and row 2 of \\(B\\). In the
 example, *tileA* therefore has 4 rows and 2 columns, and *tileB* has 2 rows and 4 columns. Both
 hold 8 values, and the block has only 4 threads, so each thread must copy 2 values of each tile.
 
 In Chapter 17, each thread copied the value at its own position in the tile, but this rule no
 longer works when a tile has more values than the block has threads. Instead, we number the threads
-of a block in row-major order, \\(\textit{id} = ty \cdot (B_N/T_N) + tx\\), and we write \\(P\\)
+of a block in row-major order, \\(\mathsf{threadNumber} = \mathsf{threadIdx{.}y} \cdot (B_N/T_N) + \mathsf{threadIdx{.}x}\\), and we write \\(\mathsf{threads}\\)
 for the number of threads. We also number the slots of each tile in row-major order, 0, 1, 2, and
-so on, and we write \\(e\\) for the number of a slot. Thread \\(\textit{id}\\) then copies the slots
-\\(e = \textit{id}\\), \\(\textit{id} + P\\), \\(\textit{id} + 2P\\), and so forth, up to the end of
-the tile. Slot \\(e\\) of *tileA*, whose rows have \\(B_K\\) slots, lies in row
-\\(\lfloor e/B_K \rfloor\\) and column \\(e \bmod B_K\\) of the tile. In the example, \\(P = 4\\),
-and thread \\((0, 1)\\) has \\(\textit{id} = 0 \cdot 2 + 1 = 1\\), so it copies slots 1 and 5 of
+so on, and we write \\(\mathsf{element}\\) for the number of a slot. Thread \\(\mathsf{threadNumber}\\) then copies the slots
+\\(\mathsf{element} = \mathsf{threadNumber}\\), \\(\mathsf{threadNumber} + \mathsf{threads}\\), \\(\mathsf{threadNumber} + 2 \cdot \mathsf{threads}\\), and so forth, up to the end of
+the tile. Slot \\(\mathsf{element}\\) of *tileA*, whose rows have \\(B_K\\) slots, lies in row
+\\(\lfloor \mathsf{element}/B_K \rfloor\\) and column \\(\mathsf{element} \bmod B_K\\) of the tile. In the example, \\(\mathsf{threads} = 4\\),
+and thread \\((0, 1)\\) has \\(\mathsf{threadNumber} = 0 \cdot 2 + 1 = 1\\), so it copies slots 1 and 5 of
 each tile. Slot 5 of *tileA* lies in row \\(\lfloor 5/2 \rfloor = 2\\) and column
 \\(5 \bmod 2 = 1\\), so in phase 0, the thread copies \\(a_{21} = 10\\) into it.
 
 | Symbol | Meaning | Thread \\((0, 1)\\) of the example |
 |---|---|---|
-| \\(P\\) | number of threads in a block, \\((B_M/T_M)(B_N/T_N)\\) | \\(2 \cdot 2 = 4\\) |
-| \\(\textit{id}\\) | number of the thread, \\(ty \cdot (B_N/T_N) + tx\\) | \\(0 \cdot 2 + 1 = 1\\) |
-| \\(e\\) | number of a slot of a tile, in row-major order | 1 and 5 |
-| \\(\lfloor e/B_K \rfloor\\) | row of slot \\(e\\) in *tileA* | \\(\lfloor 5/2 \rfloor = 2\\) |
-| \\(e \bmod B_K\\) | column of slot \\(e\\) in *tileA* | \\(5 \bmod 2 = 1\\) |
+| \\(\mathsf{threads}\\) | number of threads in a block, \\((B_M/T_M)(B_N/T_N)\\) | \\(2 \cdot 2 = 4\\) |
+| \\(\mathsf{threadNumber}\\) | number of the thread, \\(\mathsf{threadIdx{.}y} \cdot (B_N/T_N) + \mathsf{threadIdx{.}x}\\) | \\(0 \cdot 2 + 1 = 1\\) |
+| \\(\mathsf{element}\\) | number of a slot of a tile, in row-major order | 1 and 5 |
+| \\(\lfloor \mathsf{element}/B_K \rfloor\\) | row of slot \\(\mathsf{element}\\) in *tileA* | \\(\lfloor 5/2 \rfloor = 2\\) |
+| \\(\mathsf{element} \bmod B_K\\) | column of slot \\(\mathsf{element}\\) in *tileA* | \\(5 \bmod 2 = 1\\) |
 
 With this numbering, consecutive threads copy consecutive values of a row, which lie next to each
 other in global memory, so the reads of a warp can be combined into few memory transactions. For
-the scheme to cover each tile exactly once, \\(P\\) must divide the sizes of both tiles,
-\\(B_M B_K\\) and \\(B_K B_N\\). In the example, \\(P = 4\\) divides 8, and all our configurations
+the scheme to cover each tile exactly once, \\(\mathsf{threads}\\) must divide the sizes of both tiles,
+\\(B_M B_K\\) and \\(B_K B_N\\). In the example, \\(\mathsf{threads} = 4\\) divides 8, and all our configurations
 satisfy this condition.
 
 ### 18.4.2 The kernel
@@ -473,62 +474,74 @@ belong to the thread and are kept in its registers.
 <div class="algo">
 <p class="algo-name">Register-Tiled-Kernel(\(A, B, C, M, K, N\))</p>
 <ol>
-<li>\(P = (B_M/T_M)(B_N/T_N)\), \(\textit{id} = ty \cdot (B_N/T_N) + tx\) <span class="c">// threads, my number</span></li>
-<li>\(r_0 = \textit{blockIdx.y} \cdot B_M\), \(c_0 = \textit{blockIdx.x} \cdot B_N\)</li>
-<li>\(\textit{acc}[i][j] = 0\) for all \(i \in [0, T_M)\), \(j \in [0, T_N)\) <span class="c">// in registers</span></li>
-<li>for \(t \in [0, \lceil K/B_K \rceil)\) {</li>
-<li style="--d:1">for \(e \in \{\textit{id}, \textit{id} + P, \ldots\} \cap [0, B_M B_K)\) { <span class="c">// copy tile A</span></li>
-<li style="--d:2">\(\textit{tileA}[\lfloor e/B_K \rfloor][e \bmod B_K] = a_{r_0 + \lfloor e/B_K \rfloor,\, tB_K + e \bmod B_K}\), or 0 outside \(A\)</li>
+<li>\(\mathsf{threads} = (B_M/T_M) \cdot (B_N/T_N)\)</li>
+<li>\(\mathsf{threadNumber} = \mathsf{threadIdx{.}y} \cdot (B_N/T_N) + \mathsf{threadIdx{.}x}\)</li>
+<li>\(\mathsf{blockRow} = \mathsf{blockIdx{.}y} \cdot B_M\)</li>
+<li>\(\mathsf{blockCol} = \mathsf{blockIdx{.}x} \cdot B_N\)</li>
+<li class="gap">\(\mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}] = 0\) <b class="kw">for all</b> \(\mathsf{localRow} \in [0, T_M)\), \(\mathsf{localCol} \in [0, T_N)\)</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{phase} \in [0, \lceil K/B_K \rceil)\) {</li>
+<li style="--d:1"><b class="kw">for</b> \(\mathsf{element} \in \{\mathsf{threadNumber}, \mathsf{threadNumber} + \mathsf{threads}, \ldots\} \cap [0, B_M B_K)\) {</li>
+<li style="--d:2">\(\mathsf{tileRow} = \lfloor \mathsf{element} / B_K \rfloor\)</li>
+<li style="--d:2">\(\mathsf{tileCol} = \mathsf{element} \bmod B_K\)</li>
+<li style="--d:2">\(\mathsf{tileA}[\mathsf{tileRow}][\mathsf{tileCol}] = a_{\mathsf{blockRow} + \mathsf{tileRow},\, \mathsf{phase} \cdot B_K + \mathsf{tileCol}}\), or 0 outside \(A\)</li>
 <li style="--d:1">}</li>
-<li style="--d:1">for \(e \in \{\textit{id}, \textit{id} + P, \ldots\} \cap [0, B_K B_N)\) { <span class="c">// copy tile B</span></li>
-<li style="--d:2">\(\textit{tileB}[\lfloor e/B_N \rfloor][e \bmod B_N] = b_{tB_K + \lfloor e/B_N \rfloor,\, c_0 + e \bmod B_N}\), or 0 outside \(B\)</li>
+<li class="gap" style="--d:1"><b class="kw">for</b> \(\mathsf{element} \in \{\mathsf{threadNumber}, \mathsf{threadNumber} + \mathsf{threads}, \ldots\} \cap [0, B_K B_N)\) {</li>
+<li style="--d:2">\(\mathsf{tileRow} = \lfloor \mathsf{element} / B_N \rfloor\)</li>
+<li style="--d:2">\(\mathsf{tileCol} = \mathsf{element} \bmod B_N\)</li>
+<li style="--d:2">\(\mathsf{tileB}[\mathsf{tileRow}][\mathsf{tileCol}] = b_{\mathsf{phase} \cdot B_K + \mathsf{tileRow},\, \mathsf{blockCol} + \mathsf{tileCol}}\), or 0 outside \(B\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
-<li style="--d:1">for \(u \in [0, B_K)\) {</li>
-<li style="--d:2">\(\textit{aReg}[i] = \textit{tileA}[ty \cdot T_M + i][u]\) for all \(i \in [0, T_M)\) <span class="c">// \(T_M\) reads</span></li>
-<li style="--d:2">\(\textit{bReg}[j] = \textit{tileB}[u][tx \cdot T_N + j]\) for all \(j \in [0, T_N)\) <span class="c">// \(T_N\) reads</span></li>
-<li style="--d:2">\(\textit{acc}[i][j] = \textit{acc}[i][j] + \textit{aReg}[i] \cdot \textit{bReg}[j]\) for all \(i, j\) <span class="c">// outer product</span></li>
+<li class="gap" style="--d:1"><b class="kw">for</b> \(\mathsf{offset} \in [0, B_K)\) {</li>
+<li style="--d:2">\(\mathsf{aReg}[\mathsf{localRow}] = \mathsf{tileA}[\mathsf{threadIdx{.}y} \cdot T_M + \mathsf{localRow}][\mathsf{offset}]\) <b class="kw">for all</b> \(\mathsf{localRow}\)</li>
+<li style="--d:2">\(\mathsf{bReg}[\mathsf{localCol}] = \mathsf{tileB}[\mathsf{offset}][\mathsf{threadIdx{.}x} \cdot T_N + \mathsf{localCol}]\) <b class="kw">for all</b> \(\mathsf{localCol}\)</li>
+<li style="--d:2">\(\mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}] \mathrel{+}= \mathsf{aReg}[\mathsf{localRow}] \cdot \mathsf{bReg}[\mathsf{localCol}]\) <b class="kw">for all</b> pairs</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>()</li>
 <li>}</li>
-<li>for \(i \in [0, T_M)\), \(j \in [0, T_N)\) {</li>
-<li style="--d:1">\(\textit{row} = r_0 + ty \cdot T_M + i\), \(\textit{col} = c_0 + tx \cdot T_N + j\)</li>
-<li style="--d:1">if \(\textit{row} \in [0, M)\) and \(\textit{col} \in [0, N)\) { \(c_{\textit{row}, \textit{col}} = \textit{acc}[i][j]\) }</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{localRow} \in [0, T_M)\), \(\mathsf{localCol} \in [0, T_N)\) {</li>
+<li style="--d:1">\(\mathsf{row} = \mathsf{blockRow} + \mathsf{threadIdx{.}y} \cdot T_M + \mathsf{localRow}\)</li>
+<li style="--d:1">\(\mathsf{col} = \mathsf{blockCol} + \mathsf{threadIdx{.}x} \cdot T_N + \mathsf{localCol}\)</li>
+<li style="--d:1"><b class="kw">if</b> \(\mathsf{row} \in [0, M)\) <b class="kw">and</b> \(\mathsf{col} \in [0, N)\) {</li>
+<li style="--d:2">\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}]\)</li>
+<li style="--d:1">}</li>
 <li>}</li>
 </ol>
 </div>
 
-The procedure has the shape of <span style="font-variant: small-caps">Tiled-Kernel</span>. Line 1
-computes the number of threads \\(P\\) and the thread's number \\(\textit{id}\\), and line 2
-computes the first row \\(r_0\\) and the first column \\(c_0\\) of the block's part of \\(C\\); in
-the example, \\(r_0 = c_0 = 0\\). Line 3 sets the thread's \\(T_M T_N\\) sums to 0. Lines 5 to 10
-are the joint copy of Section 18.4.1, now several values per thread. In line 6, slot \\(e\\) of
-*tileA* receives the value of \\(A\\) in row \\(r_0 + \lfloor e/B_K \rfloor\\) and column
-\\(tB_K + e \bmod B_K\\), that is, the value at the same position within the piece of \\(A\\) that
-phase \\(t\\) needs; line 9 does the same for *tileB*, whose rows have \\(B_N\\) slots. Lines 11
-and 17 are the 2 barriers.
+The procedure has the shape of <span style="font-variant: small-caps">Tiled-Kernel</span>. Lines 1
+and 2 compute the number of threads in a block, \\(\mathsf{threads}\\), and the number of this
+thread within its block, \\(\mathsf{threadNumber}\\). Lines 3 and 4 compute the first row
+\\(\mathsf{blockRow}\\) and the first column \\(\mathsf{blockCol}\\) of the block's part of \\(C\\); in
+the example, \\(\mathsf{blockRow} = \mathsf{blockCol} = 0\\). Line 5 sets the thread's \\(T_M T_N\\)
+sums to 0. Lines 7 to 16 are the joint copy of Section 18.4.1, now several values per thread.
+Lines 8 and 9 find the row \\(\mathsf{tileRow}\\) and the column \\(\mathsf{tileCol}\\) of slot
+\\(\mathsf{element}\\) in *tileA*, and line 10 copies into it the value of \\(A\\) in row
+\\(\mathsf{blockRow} + \mathsf{tileRow}\\) and column \\(\mathsf{phase} \cdot B_K + \mathsf{tileCol}\\),
+that is, the value at the same position within the piece of \\(A\\) that the current phase needs.
+Lines 13 to 15 do the same for *tileB*, whose rows have \\(B_N\\) slots. Lines 17 and 23 are the
+2 barriers.
 
-Lines 12 to 16 replace the inner loop of
-<span style="font-variant: small-caps">Tiled-Kernel</span>. Line 13 reads the \\(T_M\\) values of
-column \\(u\\) of *tileA* that lie in the thread's own rows. For example, thread \\((1, 0)\\) owns
-rows 2 and 3, so for \\(u = 0\\) in phase 0, it reads \\(\textit{tileA}[2][0] = a_{20} = 9\\) and
-\\(\textit{tileA}[3][0] = a_{30} = 13\\). Line 14 reads, in the same way, the \\(T_N\\) values of
-row \\(u\\) of *tileB* that lie in the thread's own columns. Line 15 then adds the outer product of
-these values to the sums, \\(T_M T_N\\) multiply-adds that use registers only. Finally, lines 19 to
-22 store the \\(T_M T_N\\) results. As in Chapter 17, every thread stays in the loop until the end
+Lines 18 to 22 replace the inner loop of
+<span style="font-variant: small-caps">Tiled-Kernel</span>. Line 19 reads the \\(T_M\\) values of
+column \\(\mathsf{offset}\\) of *tileA* that lie in the thread's own rows. For example, thread \\((1, 0)\\) owns
+rows 2 and 3, so for \\(\mathsf{offset} = 0\\) in phase 0, it reads \\(\mathsf{tileA}[2][0] = a_{20} = 9\\) and
+\\(\mathsf{tileA}[3][0] = a_{30} = 13\\). Line 20 reads, in the same way, the \\(T_N\\) values of
+row \\(\mathsf{offset}\\) of *tileB* that lie in the thread's own columns. Line 21 then adds the outer product of
+these values to the sums, \\(T_M T_N\\) multiply-adds that use registers only. Finally, lines 25 to
+31 store the \\(T_M T_N\\) results. As in Chapter 17, every thread stays in the loop until the end
 and reaches every barrier, and only the stores are guarded.
 
 In Figure 18.8, we follow the procedure for thread \\((0, 0)\\) of the example. In phase 0,
 *tileA* holds columns 0 and 1 of \\(A\\), and *tileB* holds rows 0 and 1 of \\(B\\). For
-\\(u = 0\\), the thread reads *aReg* = (1, 5) and *bReg* = (1, 0) and adds their outer product; for
-\\(u = 1\\), it reads (2, 6) and (0, 1). After phase 0, its sums are
+\\(\mathsf{offset} = 0\\), the thread reads *aReg* = (1, 5) and *bReg* = (1, 0) and adds their outer product; for
+\\(\mathsf{offset} = 1\\), it reads (2, 6) and (0, 1). After phase 0, its sums are
 \\(\begin{pmatrix} 1 & 2 \\\\ 5 & 6 \end{pmatrix}\\), the same 4 values that the 4 threads of
 Chapter 17 held after phase 0 (Figure 17.3). Phase 1 adds
 \\(\begin{pmatrix} 10 & 11 \\\\ 22 & 23 \end{pmatrix}\\), and the thread ends with
 \\(c_{00} = 11\\), \\(c_{01} = 13\\), \\(c_{10} = 27\\) and \\(c_{11} = 29\\).
 
 <figure>
-<img src="../../figures/ch18-phases.svg" alt="2 rows, 1 per phase. Phase 0 uses columns 0 and 1 of A and rows 0 and 1 of B, u = 0 and 1; thread (0, 0) reads rows 0 and 1 of that part of A and columns 0 and 1 of that part of B. Its 4 sums go from 0 0 / 0 0 to 1 2 / 5 6. Phase 1 uses columns 2 and 3 of A and rows 2 and 3 of B, u = 2 and 3, and adds 10 11 / 22 23, so the sums become 11 13 / 27 29: c00, c01, c10 and c11.">
+<img src="../../figures/ch18-phases.svg" alt="2 rows, 1 per phase. Phase 0 uses columns 0 and 1 of A and rows 0 and 1 of B, s = 0 and 1; thread (0, 0) reads rows 0 and 1 of that part of A and columns 0 and 1 of that part of B. Its 4 sums go from 0 0 / 0 0 to 1 2 / 5 6. Phase 1 uses columns 2 and 3 of A and rows 2 and 3 of B, s = 2 and 3, and adds 10 11 / 22 23, so the sums become 11 13 / 27 29: c00, c01, c10 and c11.">
 <figcaption><b>Figure 18.8</b> The 4 sums of thread (0, 0) over the 2 phases: 1 2 / 5 6 after phase 0, then 11 13 / 27 29.</figcaption>
 </figure>
 
@@ -537,9 +550,9 @@ Chapter 17 held after phase 0 (Figure 17.3). Phase 1 adds
 Exercises
 
 18.8 Run phase 0 of the example for thread \\((1, 1)\\). Which values does it copy into each tile,
-which values does it read for \\(u = 0\\), and what are its 4 sums after the phase?<br>
+which values does it read for \\(\mathsf{offset} = 0\\), and what are its 4 sums after the phase?<br>
 18.9 With \\(B_M = B_N = 64\\), \\(B_K = 16\\) and \\(T_M = T_N = 4\\), which slots of *tileA* does
-thread \\(\textit{id} = 37\\) copy, and from which rows and columns of \\(A\\) in phase \\(t\\)?
+thread \\(\mathsf{threadNumber} = 37\\) copy, and from which rows and columns of \\(A\\) in the phase with number \\(\mathsf{phase}\\)?
 
 </div>
 
@@ -553,57 +566,58 @@ invariant written for every sum of a thread.
 
 <span class="box-label">Theorem 18.1</span> When
 <span style="font-variant: small-caps">Register-Tiled-Kernel</span> finishes, every entry of \\(C\\)
-equals the corresponding entry of \\(AB\\), provided the block has \\(P\\) threads and \\(P\\) divides
+equals the corresponding entry of \\(AB\\), provided the block has \\(\mathsf{threads}\\) threads and \\(\mathsf{threads}\\) divides
 \\(B_M B_K\\) and \\(B_K B_N\\).
 
 </div>
 
 <div class="proof">
 
-*Proof.* Fix a thread and a pair \\(i \in [0, T_M)\\), \\(j \in [0, T_N)\\), let
-\\(\textit{row} = r_0 + ty \cdot T_M + i\\) and \\(\textit{col} = c_0 + tx \cdot T_N + j\\), and
-treat entries beyond the edge of a matrix as 0. We show that the loop of lines 4 to 18 maintains
+*Proof.* Fix a thread and a pair \\(\mathsf{localRow} \in [0, T_M)\\), \\(\mathsf{localCol} \in [0, T_N)\\), let
+\\(\mathsf{row} = \mathsf{blockRow} + \mathsf{threadIdx{.}y} \cdot T_M + \mathsf{localRow}\\) and \\(\mathsf{col} = \mathsf{blockCol} + \mathsf{threadIdx{.}x} \cdot T_N + \mathsf{localCol}\\), and
+treat entries beyond the edge of a matrix as 0. We show that the loop of lines 6 to 24 maintains
 the invariant
 
-\\[ \text{at the start of phase } t, \qquad \textit{acc}[i][j] = \sum_{s \in [0,\\, tB_K)} a_{\textit{row}, s}\\;
-b_{s, \textit{col}}. \\]
+\\[ \text{at the start of the phase with number } \mathsf{phase}, \qquad \mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}] = \sum_{s \in [0,\\, \mathsf{phase} \cdot B_K)} a_{\mathsf{row}, s}\\;
+b_{s, \mathsf{col}}. \\]
 
 In words, at the start of each phase, every sum of the thread holds the terms of its entry that
-precede the phase. For example, for thread \\((0, 1)\\) of the example with \\(i = 1\\) and
-\\(j = 0\\), we have \\(\textit{row} = 0 + 0 \cdot 2 + 1 = 1\\) and
-\\(\textit{col} = 0 + 1 \cdot 2 + 0 = 2\\), and at the start of phase 1, the invariant states that
-\\(\textit{acc}[1][0] = a_{10} b_{02} + a_{11} b_{12} = 5 \cdot 2 + 6 \cdot 1 = 16\\).
+precede the phase. For example, for thread \\((0, 1)\\) of the example with \\(\mathsf{localRow} = 1\\) and
+\\(\mathsf{localCol} = 0\\), we have \\(\mathsf{row} = 0 + 0 \cdot 2 + 1 = 1\\) and
+\\(\mathsf{col} = 0 + 1 \cdot 2 + 0 = 2\\), and at the start of phase 1, the invariant states that
+\\(\mathsf{acc}[1][0] = a_{10} b_{02} + a_{11} b_{12} = 5 \cdot 2 + 6 \cdot 1 = 16\\).
 
-| Symbol | Meaning | Thread \\((0, 1)\\), \\(i = 1\\), \\(j = 0\\), phase 1 |
+| Symbol | Meaning | Thread \\((0, 1)\\), \\(\mathsf{localRow} = 1\\), \\(\mathsf{localCol} = 0\\), phase 1 |
 |---|---|---|
-| \\(\textit{row}, \textit{col}\\) | row and column of \\(C\\) of the sum \\(\textit{acc}[i][j]\\) | 1, 2 |
-| \\(tB_K\\) | number of terms added before phase \\(t\\) | \\(1 \cdot 2 = 2\\) |
-| \\(\textit{acc}[i][j]\\) | the thread's sum for entry \\((i, j)\\) of its block | 16 |
+| \\(\mathsf{row}, \mathsf{col}\\) | row and column of \\(C\\) of the sum \\(\mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}]\\) | 1, 2 |
+| \\(\mathsf{phase} \cdot B_K\\) | number of terms added before the phase | \\(1 \cdot 2 = 2\\) |
+| \\(\mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}]\\) | the thread's sum for entry \\((\mathsf{localRow}, \mathsf{localCol})\\) of its block | 16 |
 
-*Initialization.* Line 3 sets every sum to 0, the empty sum.
+*Initialization.* Line 5 sets every sum to 0, the empty sum.
 
-*Maintenance.* In lines 5 to 10, thread \\(\textit{id}\\) writes slots \\(\textit{id}\\),
-\\(\textit{id} + P, \ldots\\) of each tile. Because \\(P\\) divides the size of each tile, the
-\\(P\\) threads write every slot exactly once, and the barrier of line 11 makes every write visible
-before any thread reaches line 13. Hence,
-\\(\textit{tileA}[ty \cdot T_M + i][u] = a_{\textit{row},\\, tB_K + u}\\) and
-\\(\textit{tileB}[u][tx \cdot T_N + j] = b_{tB_K + u,\\, \textit{col}}\\) for every
-\\(u \in [0, B_K)\\), and over the \\(B_K\\) passes of lines 12 to 16, line 15 adds exactly the
-terms with \\(s \in [tB_K, tB_K + B_K)\\) to \\(\textit{acc}[i][j]\\). Because of the barrier of
-line 17, no thread overwrites a tile for phase \\(t + 1\\) while another thread still reads it in
-phase \\(t\\). Therefore, the invariant holds at the start of phase \\(t + 1\\).
+*Maintenance.* In lines 7 to 16, thread \\(\mathsf{threadNumber}\\) writes slots \\(\mathsf{threadNumber}\\),
+\\(\mathsf{threadNumber} + \mathsf{threads}, \ldots\\) of each tile. Because \\(\mathsf{threads}\\) divides the size of each tile, the
+\\(\mathsf{threads}\\) threads write every slot exactly once, and the barrier of line 17 makes every write visible
+before any thread reaches line 19. Hence,
+\\(\mathsf{tileA}[\mathsf{threadIdx{.}y} \cdot T_M + \mathsf{localRow}][\mathsf{offset}] = a_{\mathsf{row},\\, \mathsf{phase} \cdot B_K + \mathsf{offset}}\\) and
+\\(\mathsf{tileB}[\mathsf{offset}][\mathsf{threadIdx{.}x} \cdot T_N + \mathsf{localCol}] = b_{\mathsf{phase} \cdot B_K + \mathsf{offset},\\, \mathsf{col}}\\) for every
+\\(\mathsf{offset} \in [0, B_K)\\), and over the \\(B_K\\) passes of lines 18 to 22, line 21 adds exactly the
+terms with \\(s \in [\mathsf{phase} \cdot B_K, \mathsf{phase} \cdot B_K + B_K)\\) to \\(\mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}]\\). Because of the barrier of
+line 23, no thread overwrites a tile for the next phase while another thread still reads it in
+this one. Therefore, the invariant holds at the start of the phase with number
+\\(\mathsf{phase} + 1\\).
 
-*Termination.* The loop ends with \\(t = \lceil K/B_K \rceil\\), so \\(tB_K \ge K\\), and
-\\(\textit{acc}[i][j] = c_{\textit{row}, \textit{col}}\\). Line 21 stores it if
-\\((\textit{row}, \textit{col})\\) lies in \\(C\\). Distinct threads and distinct \\((i, j)\\) give
-distinct \\((\textit{row}, \textit{col})\\), so every entry of \\(C\\) is stored exactly once.
+*Termination.* The loop ends with \\(\mathsf{phase} = \lceil K/B_K \rceil\\), so \\(\mathsf{phase} \cdot B_K \ge K\\), and
+\\(\mathsf{acc}[\mathsf{localRow}][\mathsf{localCol}] = c_{\mathsf{row}, \mathsf{col}}\\). Lines 28 to 30 store it if
+\\((\mathsf{row}, \mathsf{col})\\) lies in \\(C\\). Distinct threads and distinct \\((\mathsf{localRow}, \mathsf{localCol})\\) give
+distinct \\((\mathsf{row}, \mathsf{col})\\), so every entry of \\(C\\) is stored exactly once.
 
 </div>
 
 The 2 barriers play the same roles as in Chapter 17, and removing either of them produces the same
-errors as in Sections 17.6.1 and 17.6.2. The only new condition is the one on \\(P\\). If the block
-had fewer threads than \\(P\\), some slots of each tile would never be written, and the sums would
-add values left over from an earlier phase. If \\(P\\) did not divide the size of a tile, the last
+errors as in Sections 17.6.1 and 17.6.2. The only new condition is the one on \\(\mathsf{threads}\\). If the block
+had fewer threads than \\(\mathsf{threads}\\), some slots of each tile would never be written, and the sums would
+add values left over from an earlier phase. If \\(\mathsf{threads}\\) did not divide the size of a tile, the last
 pass of the copy loop would run past the end of the tile. For this reason, the Rust host function
 that builds the launch derives the block shape from the 5 constants, so that the caller cannot
 break the condition. The same function also checks a second condition of the Rust implementation,
@@ -620,7 +634,7 @@ was derived for. Compute the block shape from the tile sizes, in 1 place.
 
 Exercises
 
-18.10 Which line of the proof fails if the block has \\(P/2\\) threads? Which entries of the example
+18.10 Which line of the proof fails if the block has \\(\mathsf{threads}/2\\) threads? Which entries of the example
 would then be wrong?<br>
 18.11 Write the invariant of Theorem 18.1 for thread \\((1, 0)\\) of the example at the start of
 phase 1, with numbers.
@@ -661,7 +675,7 @@ mod kernels {
         b: &[f32],
         mut c: DisjointSlice<f32, RuntimeRowMajorTiles<TM, TN>>,
     ) {
-{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:108:119}}
+{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:110:121}}
         // ...
     }
 }
@@ -671,7 +685,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:20:39}}
+{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:20:38}}
     // ...
 }
 ```
@@ -687,8 +701,8 @@ template parameters, whereas Rust, which cannot size a `static` by a generic par
 tiles from 1 region of dynamic shared memory.
 
 Note that *tileA* has 1 column of padding, so each of its rows holds \\(B_K + 1\\) values. The
-padding prevents a conflict between the reads of line 13. A warp of a 16 × 16 block consists of 2
-rows of 16 threads, and in line 13, the 2 rows of threads read rows of *tileA* that are
+padding prevents a conflict between the reads of line 19. A warp of a 16 × 16 block consists of 2
+rows of 16 threads, and in line 19, the 2 rows of threads read rows of *tileA* that are
 \\(T_M\\) rows apart. Without padding, these rows are \\(T_M B_K\\) values apart, which is 64 values
 for a 4 × 4 register tile with \\(B_K = 16\\). Since shared memory has 32 banks and 64 is a
 multiple of 32, the 2 values fall in the same bank, and the 2 reads are served one after the other
@@ -697,7 +711,7 @@ places them in different banks.
 
 ### 18.6.2 The copy and the outer product
 
-The following code performs the copy of lines 5 to 11 of the pseudocode.
+The following code performs the copy of lines 7 to 17 of the pseudocode.
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -721,7 +735,7 @@ mod kernels {
     ) {
         // ...
         while t < k.div_ceil(BK) {
-{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:122:144}}
+{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:124:147}}
             // ...
         }
         // ...
@@ -742,7 +756,7 @@ matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
 {
     // ...
     for (int t = 0; t < phases; ++t) {
-{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:43:57}}
+{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:42:63}}
         // ...
     }
     // ...
@@ -752,18 +766,18 @@ matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
 </div>
 </div>
 
-In pass \\(q\\) of a copy loop, the thread copies slot \\(e = q \cdot P + \textit{id}\\), so the
-passes \\(q = 0, 1, \ldots\\) visit exactly the slots \\(\textit{id}\\), \\(\textit{id} + P\\),
-and so forth, of Section 18.4.1. The loops over `q` are therefore the loops of lines 5 and 8,
-written with a fixed count: \\(B_M B_K / P\\) passes for *tileA* and \\(B_K B_N / P\\) passes for
+In the pass with number \\(\mathsf{pass}\\) of a copy loop, the thread copies slot \\(\mathsf{element} = \mathsf{pass} \cdot \mathsf{threads} + \mathsf{threadNumber}\\), so the
+passes \\(\mathsf{pass} = 0, 1, \ldots\\) visit exactly the slots \\(\mathsf{threadNumber}\\), \\(\mathsf{threadNumber} + \mathsf{threads}\\),
+and so forth, of Section 18.4.1. The loops over `pass` are therefore the loops of lines 7 and 12,
+written with a fixed count: \\(B_M B_K / \mathsf{threads}\\) passes for *tileA* and \\(B_K B_N / \mathsf{threads}\\) passes for
 *tileB*, which are \\(64 \cdot 16 / 256 = 4\\) passes each for the 4 × 4 configuration. With a
 fixed count, the compiler can unroll the loop and issue all the loads from global memory of a phase
-before the first store to shared memory, so that their waiting times overlap. An earlier version of
-the kernel ran `e` from `id` in steps of \\(P\\) while \\(e < B_M B_K\\), the literal form of
-line 5. It does the same work, but its count is unknown to the compiler, and on the measured GPU, it
-ran the 2 × 2 configuration at 380 GFLOP/s, against 580 GFLOP/s with the fixed count.
+before the first store to shared memory, so that their waiting times overlap. A loop that runs
+`element` from `thread_number` in steps of `threads` while \\(\mathsf{element} < B_M B_K\\), the
+literal form of line 7, does the same work. However, its count is unknown to the compiler, and on
+the measured GPU, it ran the 2 × 2 configuration at 380 GFLOP/s, against 580 GFLOP/s with the fixed count.
 
-The following code performs the steps of lines 12 to 16 of the pseudocode, the reads into
+The following code performs the steps of lines 18 to 22 of the pseudocode, the reads into
 registers and the outer product.
 
 <div class="code-tabs">
@@ -789,7 +803,7 @@ mod kernels {
         // ...
         while t < k.div_ceil(BK) {
             // ...
-{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:146:182}}
+{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:149:187}}
             // ...
         }
         // ...
@@ -811,7 +825,7 @@ matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
     // ...
     for (int t = 0; t < phases; ++t) {
         // ...
-{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:59:77}}
+{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:65:85}}
     }
     // ...
 }
@@ -821,9 +835,9 @@ matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
 </div>
 
 Every loop in this code has a count that is fixed by the constants, and every one of them must be
-unrolled. When the loops over `i` and `j` are unrolled, they become \\(T_M T_N\\) separate
-multiply-adds with constant indices, and each of `acc[i][j]`, `a_reg[i]` and `b_reg[j]` names 1
-register. If a loop is not unrolled, its index is computed at run time, and the compiler must then
+unrolled. When the loops over `local_row` and `local_col` are unrolled, they become \\(T_M T_N\\) separate
+multiply-adds with constant indices, and each of `acc[local_row][local_col]`, `a_reg[local_row]` and
+`b_reg[local_col]` names 1 register. If a loop is not unrolled, its index is computed at run time, and the compiler must then
 keep `acc` in local memory, a per-thread area of global memory. In C++, `#pragma unroll` asks the
 compiler to unroll the next loop. nvcc unrolls loops with constant bounds of this size on its own,
 so the pragma mainly states the intent. In cuda-oxide, `#[unroll]` on a `while` loop does the same,
@@ -832,7 +846,7 @@ range, and in Section 9.7, we measured the 4 × 4 kernel 33% slower with `for` l
 
 ### 18.6.3 Writing the register tile
 
-We let each thread write \\(T_M T_N\\) entries of \\(C\\), not 1. In C++, the store of lines 19 to 22 is
+We let each thread write \\(T_M T_N\\) entries of \\(C\\), not 1. In C++, the store of lines 25 to 31 is
 a pair of loops with a guard. In Rust, the index space `Runtime2DIndex` of a `DisjointSlice` gives
 each thread a single element. Recall that in Chapter 9, we therefore wrote the 4 × 4 patch through
 `get_unchecked_mut`, an `unsafe` call whose `SAFETY` comment argued that the patches of different
@@ -840,7 +854,7 @@ threads do not overlap. cuda-oxide has an index space for this case, `RuntimeRow
 in which thread \\((y, x)\\) of the grid owns rows \\([y T_M, y T_M + T_M)\\) and columns
 \\([x T_N, x T_N + T_N)\\) of a matrix whose row width the host binds with `RowWidth`, exactly as in
 Chapter 16. For example, with \\(T_M = T_N = 2\\), thread \\((1, 0)\\) of the grid owns rows 2 and 3
-and columns 0 and 1. The following code stores the register tile, lines 19 to 22 of the
+and columns 0 and 1. The following code stores the register tile, lines 25 to 31 of the
 pseudocode.
 
 <div class="code-tabs">
@@ -864,7 +878,7 @@ mod kernels {
         mut c: DisjointSlice<f32, RuntimeRowMajorTiles<TM, TN>>,
     ) {
         // ...
-{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:187:203}}
+{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:192:208}}
     }
 }
 ```
@@ -881,7 +895,7 @@ __global__ void __launch_bounds__((BM / TM) * (BN / TN))
 matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
 {
     // ...
-{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:80:90}}
+{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:88:98}}
 }
 ```
 
@@ -889,17 +903,17 @@ matmulRegister(int m, int n, int k, const float* a, const float* b, float* c)
 </div>
 
 In the Rust code, `thread::coord_2d_u32(lc)` returns the thread's coordinates in the grid, row
-\\(by \cdot (B_M/T_M) + ty\\) and column \\(bx \cdot (B_N/T_N) + tx\\). It is available only in a
+\\(\mathsf{blockIdx{.}y} \cdot (B_M/T_M) + \mathsf{threadIdx{.}y}\\) and column \\(\mathsf{blockIdx{.}x} \cdot (B_N/T_N) + \mathsf{threadIdx{.}x}\\). It is available only in a
 kernel whose contract declares `domain = 2, coordinates = u32` and whose
 `#[kernel(launch_context = lc)]` names the launch context; both attributes stand above the kernel
 in the complete program of Section 18.8. Before it creates any pointer,
 `c.tile_2d32_rt(...)` checks that the whole \\(T_M \times T_N\\) rectangle of this thread lies
 inside a single row band of the slice, and it returns a tile view, or `None` if the rectangle does
-not fit. `LocalIndex32::new(i)` turns `i` into an index that is known to be below `TM`, and
-`tile.at(r, q).write(...)` stores the value without a further check. Distinct grid coordinates give
+not fit. `LocalIndex32::new(local_row)` turns `local_row` into an index that is known to be below `TM`,
+and `tile.at(row_in_tile, col_in_tile).write(...)` stores the value without a further check. Distinct grid coordinates give
 disjoint rectangles, so the write needs no `unsafe`. Note also that multiplying the grid
 coordinates by the tile sizes gives exactly the ownership of Section 18.4.1: the row
-\\((by \cdot (B_M/T_M) + ty) \cdot T_M\\) equals \\(by \cdot B_M + ty \cdot T_M\\).
+\\((\mathsf{blockIdx{.}y} \cdot (B_M/T_M) + \mathsf{threadIdx{.}y}) \cdot T_M\\) equals \\(\mathsf{blockIdx{.}y} \cdot B_M + \mathsf{threadIdx{.}y} \cdot T_M\\).
 
 ### 18.6.4 The launch
 
@@ -910,14 +924,14 @@ The following functions compute the grid, the block and, in Rust, the dynamic sh
 <div class="code-tab" data-lang="Rust">
 
 ```rust,ignore
-{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:207:229}}
+{{#include ../../../../code/oxide/ch18_matmul_register_tiled/src/main.rs:212:234}}
 ```
 
 </div>
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:132:138}}
+{{#include ../../../../code/cuda/ch18_matmul_register_tiled/matmul_register_tiled.cu:140:146}}
 ```
 
 </div>
@@ -944,7 +958,7 @@ Exercises
 18.12 Add the configuration \\(B_M = 64\\), \\(B_N = 32\\), \\(B_K = 16\\), \\(T_M = 4\\),
 \\(T_N = 2\\) to both programs. How many threads does a block have, and how many values does each
 copy per tile per phase?<br>
-18.13 Remove `#[unroll]` from the loops over `i` and `j` in the Rust kernel, run the 4 × 4
+18.13 Remove `#[unroll]` from the loops over `local_row` and `local_col` in the Rust kernel, run the 4 × 4
 configuration, and explain the change in speed.<br>
 18.14 Launch the Rust kernel for a 1,002 × 1,002 product with the 4 × 4 configuration. What does
 `regtile_config` return, and why?
@@ -1027,7 +1041,7 @@ of its limit: in C++, 391.5 of 400 GFLOP/s for 2 × 1 and 583.5 of 600 GFLOP/s f
 within 3% of C++. The 1 × 1 configuration performs the same arithmetic as the tiled kernel of
 Chapter 17 and fetches the same values, but it ran at 220 GFLOP/s instead of 272. The two kernels
 differ only in their copy code, which in the general kernel computes each slot from the slot number
-\\(e\\).
+\\(\mathsf{element}\\).
 
 The 4 × 4 register tile reached 1,009.9 GFLOP/s in C++, which is 42% of the FP32 peak and 3.7
 times the rate of the tiled kernel of Chapter 17, but only 84% of its limit of 1,200 GFLOP/s. At
@@ -1135,7 +1149,7 @@ neighborhood of the input, and we apply the same staging in shared memory to a g
    bytes fetched from global memory and the FLOP per float fetched.
 3. Extend both programs with a 4 × 8 thread tile (\\(B_M = 64\\), \\(B_N = 128\\), \\(B_K = 8\\)).
    Predict its reads per multiply-add and its shared-memory limit, and measure it.
-4. Store *tileA* transposed, as \\(B_K \times B_M\\), so that line 13 reads \\(T_M\\) consecutive
+4. Store *tileA* transposed, as \\(B_K \times B_M\\), so that line 19 reads \\(T_M\\) consecutive
    values. Which loads into shared memory now conflict, and is the kernel faster?
 5. Replace the Rust store through `RuntimeRowMajorTiles` by `get_unchecked_mut` as in Chapter 9, and
    write the `SAFETY` comment that the new code needs.
