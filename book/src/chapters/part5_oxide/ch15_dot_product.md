@@ -84,7 +84,7 @@ faulty kernels of Sections 15.4 and 15.6 then produce 24 instead of 32, and 31 i
 <span class="box-label">Definition 15.1</span> **Dot product.** The dot product of 2 vectors
 \\(a\\) and \\(b\\) of \\(n\\) elements is
 
-\\[ a \cdot b = \sum_{i \in [0, n)} a_i\, b_i . \\]
+\\[ a \cdot b = \sum_{i \in [0, n)} a_i\\, b_i . \\]
 
 *Example.* For the vectors above, \\(a \cdot b = 2 + 6 + 3 + \cdots + 4 = 63\\).
 
@@ -95,7 +95,7 @@ faulty kernels of Sections 15.4 and 15.6 then produce 24 instead of 32, and 31 i
 | \\(n\\) | number of elements in each vector | 16 |
 | \\(i\\) | position, from 0 to \\(n - 1\\) | 0 to 15 |
 | \\(a_i, b_i\\) | elements of \\(a\\) and \\(b\\) at position \\(i\\) | \\(a_1 = 2\\), \\(b_1 = 3\\) |
-| \\(a_i\, b_i\\) | product at position \\(i\\) | \\(a_1 b_1 = 6\\) |
+| \\(a_i\\, b_i\\) | product at position \\(i\\) | \\(a_1 b_1 = 6\\) |
 | \\(\sum_{i \in [0, n)}\\) | sum over all positions \\(i\\) from 0 to \\(n - 1\\) | \\(2 + 6 + \cdots + 4\\) |
 | \\(a \cdot b\\) | the dot product | 63 |
 
@@ -296,7 +296,7 @@ adds cell 1 into cell 0.
 The stride pairing adds \\(p_0 + p_4\\) where Figure 15.3 added \\(p_0 + p_1\\), so it relies on
 commutativity as well as on associativity. In return, the threads that work in each step are always
 the lowest \\(\mathsf{stride}\\) threads, 0 to \\(\mathsf{stride} - 1\\), and they read the neighboring cells \\(\mathsf{stride}\\) to
-\\(2\,\mathsf{stride} - 1\\). This has 2 advantages in a block of 256 threads. In the first steps, whole warps are
+\\(2\\,\mathsf{stride} - 1\\). This has 2 advantages in a block of 256 threads. In the first steps, whole warps are
 busy and whole warps are idle, instead of half the threads of every warp being idle, and the cells
 that a warp reads at once are neighbors in memory.
 
@@ -316,7 +316,7 @@ computes 4, 11, 6 and 10 in the first step, 10 and 21 in the second, and 31 in t
 In our example, each block has 8 threads, and each thread holds exactly 1 product. A real block,
 however, has \\(\mathsf{blockDim{.}x} = 256\\) threads, and a real vector has millions of elements, many more than the
 threads of the grid. Each thread therefore begins with the grid-stride loop of Chapter 14. It
-multiplies the elements \\(\mathsf{index}, \mathsf{index} + \mathsf{gridSize}, \mathsf{index} + 2\,\mathsf{gridSize}, \ldots\\) of the 2 vectors and adds the products in a
+multiplies the elements \\(\mathsf{index}, \mathsf{index} + \mathsf{gridSize}, \mathsf{index} + 2\\,\mathsf{gridSize}, \ldots\\) of the 2 vectors and adds the products in a
 register, where \\(\mathsf{index}\\) starts at the thread's global index and \\(\mathsf{gridSize}\\) is the number of threads in the grid. The
 products are never stored in memory. The tree then combines the \\(\mathsf{blockDim{.}x}\\) register sums of the block,
 and thread 0 writes the block's sum to a **partial sum** array, which holds one element per block.
@@ -451,8 +451,8 @@ step with stride \\(\mathsf{stride} = 4\\), cell 0 holds \\(p_0\\). At the start
 \\(p_0 + p_4\\), and at the start of the step with \\(\mathsf{stride} = 1\\), it holds \\(p_0 + p_2 + p_4 + p_6\\).
 After the last step, it holds all 8 products. We can describe this pattern with remainders. At the
 start of the step with stride \\(\mathsf{stride}\\), cell \\(k\\) holds the products whose index \\(j\\) leaves the
-remainder \\(k\\) when divided by \\(2\,\mathsf{stride}\\). For example, at the start of the step with \\(\mathsf{stride} = 2\\), we
-have \\(2\,\mathsf{stride} = 4\\), and the indices 0 and 4 are exactly the indices below 8 that leave the remainder
+remainder \\(k\\) when divided by \\(2\\,\mathsf{stride}\\). For example, at the start of the step with \\(\mathsf{stride} = 2\\), we
+have \\(2\\,\mathsf{stride} = 4\\), and the indices 0 and 4 are exactly the indices below 8 that leave the remainder
 0 when divided by 4, so cell 0 holds \\(p_0 + p_4 = 2 + 5 = 7\\).
 
 <figure>
@@ -460,8 +460,8 @@ have \\(2\,\mathsf{stride} = 4\\), and the indices 0 and 4 are exactly the indic
 <figcaption><b>Figure 15.6</b> The loop invariant for cell 0 of block 0: at the start of the step with stride \(\mathsf{stride}\), it holds the products with index \(j \equiv 0 \pmod{2\,\mathsf{stride}}\).</figcaption>
 </figure>
 
-We write \\(j \equiv k \pmod{2\,\mathsf{stride}}\\), read "\\(j\\) is congruent to \\(k\\) modulo \\(2\,\mathsf{stride}\\)", when \\(j\\) and
-\\(k\\) leave the same remainder when divided by \\(2\,\mathsf{stride}\\). For example, \\(6 \equiv 2 \pmod{4}\\), since
+We write \\(j \equiv k \pmod{2\\,\mathsf{stride}}\\), read "\\(j\\) is congruent to \\(k\\) modulo \\(2\\,\mathsf{stride}\\)", when \\(j\\) and
+\\(k\\) leave the same remainder when divided by \\(2\\,\mathsf{stride}\\). For example, \\(6 \equiv 2 \pmod{4}\\), since
 both 6 and 2 leave the remainder 2 when divided by 4. The theorem and its proof use this notation.
 
 <div class="theorem">
@@ -475,7 +475,7 @@ the loop of lines 10 to 15 finishes, \\(\mathsf{cells}[0] = \sum_{j \in [0, \mat
 <div class="proof">
 
 *Proof.* We show that the loop maintains the following invariant: *at the start of the iteration
-with stride \\(\mathsf{stride}\\), for every \\(k \in [0, 2\,\mathsf{stride})\\),*
+with stride \\(\mathsf{stride}\\), for every \\(k \in [0, 2\\,\mathsf{stride})\\),*
 
 \\[ \mathsf{cells}[k] = \sum_{j \in [0, B),\ j \equiv k \ (\mathrm{mod}\ 2s)} v_j . \\]
 
@@ -484,16 +484,16 @@ with stride \\(\mathsf{stride}\\), for every \\(k \in [0, 2\,\mathsf{stride})\\)
 | \\(\mathsf{blockDim{.}x}\\) | number of threads, and cells, in the block | 8 |
 | \\(v_j\\) | value stored by thread \\(j\\) in line 8 | \\(v_1 = 6\\), \\(v_5 = 1\\) |
 | \\(\mathsf{stride}\\) | stride of the current iteration | 2 |
-| \\(k\\) | a cell that is still read, \\(k < 2\,\mathsf{stride}\\) | 1 |
-| \\(j \equiv k \pmod{2\,\mathsf{stride}}\\) | \\(j\\) leaves the remainder \\(k\\) when divided by \\(2\,\mathsf{stride}\\) | \\(j = 1, 5\\) |
+| \\(k\\) | a cell that is still read, \\(k < 2\\,\mathsf{stride}\\) | 1 |
+| \\(j \equiv k \pmod{2\\,\mathsf{stride}}\\) | \\(j\\) leaves the remainder \\(k\\) when divided by \\(2\\,\mathsf{stride}\\) | \\(j = 1, 5\\) |
 | \\(\mathsf{cells}[k]\\) | content of cell \\(k\\) at the start of the iteration | \\(6 + 1 = 7\\) |
 
-In words, at the start of each iteration, the first \\(2\,\mathsf{stride}\\) cells together hold all \\(\mathsf{blockDim{.}x}\\) values,
+In words, at the start of each iteration, the first \\(2\\,\mathsf{stride}\\) cells together hold all \\(\mathsf{blockDim{.}x}\\) values,
 and cell \\(k\\) holds those values whose index leaves the remainder \\(k\\). In Figure 15.4, at the
 start of the step with \\(\mathsf{stride} = 2\\), cell 1 indeed holds \\(6 + 1 = 7\\), the sum of \\(v_1\\) and
 \\(v_5\\).
 
-*Initialization.* The first iteration has \\(\mathsf{stride} = \mathsf{blockDim{.}x}/2\\), so \\(2\,\mathsf{stride} = \mathsf{blockDim{.}x}\\), and the only
+*Initialization.* The first iteration has \\(\mathsf{stride} = \mathsf{blockDim{.}x}/2\\), so \\(2\\,\mathsf{stride} = \mathsf{blockDim{.}x}\\), and the only
 \\(j \in [0, \mathsf{blockDim{.}x})\\) with \\(j \equiv k \pmod{\mathsf{blockDim{.}x}}\\) is \\(k\\) itself. The sum in the invariant therefore
 consists of the single value \\(v_k\\). Line 8 stored \\(v_k\\) in \\(\mathsf{cells}[k]\\), and the
 barrier of line 9 makes every one of these stores complete before any thread reads a cell in
@@ -501,10 +501,10 @@ line 12. The invariant therefore holds.
 
 *Maintenance.* Assume that the invariant holds at the start of the iteration with stride \\(\mathsf{stride}\\).
 In line 12, each thread \\(\mathsf{threadIdx{.}x} < \mathsf{stride}\\) reads cells \\(\mathsf{threadIdx{.}x}\\) and \\(\mathsf{threadIdx{.}x} + \mathsf{stride}\\) and writes cell \\(\mathsf{threadIdx{.}x}\\). The
-cells written, \\([0, \mathsf{stride})\\), and the cells that are only read, \\([\mathsf{stride}, 2\,\mathsf{stride})\\), do not overlap, and each
+cells written, \\([0, \mathsf{stride})\\), and the cells that are only read, \\([\mathsf{stride}, 2\\,\mathsf{stride})\\), do not overlap, and each
 cell of \\([0, \mathsf{stride})\\) is written by exactly 1 thread. Hence, no read in this iteration sees a write
 of this iteration, except the thread's own. After line 12, for \\(\mathsf{threadIdx{.}x} < \mathsf{stride}\\), cell \\(\mathsf{threadIdx{.}x}\\) holds the
-sum over \\(j \equiv \mathsf{threadIdx{.}x} \pmod{2\,\mathsf{stride}}\\) plus the sum over \\(j \equiv \mathsf{threadIdx{.}x} + \mathsf{stride} \pmod{2\,\mathsf{stride}}\\). An index
+sum over \\(j \equiv \mathsf{threadIdx{.}x} \pmod{2\\,\mathsf{stride}}\\) plus the sum over \\(j \equiv \mathsf{threadIdx{.}x} + \mathsf{stride} \pmod{2\\,\mathsf{stride}}\\). An index
 \\(j\\) belongs to one of these 2 groups exactly when it leaves the remainder \\(\mathsf{threadIdx{.}x}\\) when divided by
 \\(\mathsf{stride}\\), so the 2 sums together are the sum over \\(j \equiv \mathsf{threadIdx{.}x} \pmod{\mathsf{stride}}\\). For example, with
 \\(\mathsf{stride} = 2\\) and \\(\mathsf{threadIdx{.}x} = 1\\), cell 1 holds \\(v_1 + v_5\\) and cell 3 holds \\(v_3 + v_7\\), and their
@@ -1131,7 +1131,7 @@ barrier.
   programs returned 26 and 36 instead of 63.
 - Theorem 15.1 proves the tree correct with the invariant that, at the start of the step with
   stride \\(\mathsf{stride}\\), cell \\(k\\) holds the values whose index \\(j\\) leaves the remainder \\(k\\) when
-  divided by \\(2\,\mathsf{stride}\\).
+  divided by \\(2\\,\mathsf{stride}\\).
 - Warp shuffles exchange registers within a warp without a barrier; a block sum with shuffles
   needs 1 barrier and 8 shared floats instead of 9 and 256.
 - Block sums are combined by a second launch, in a fixed order, or by atomic additions, in the

@@ -858,7 +858,7 @@ The pattern that survives longest is the smoothest one that is 0 on the boundary
 that is largest in the middle of the plate. On a grid whose cells are numbered 0 to \\(n\\) along
 each side, this pattern is
 
-\\[ e_{r,c} = \sin\frac{\pi r}{n} \, \sin\frac{\pi c}{n}. \\]
+\\[ e_{r,c} = \sin\frac{\pi r}{n} \\, \sin\frac{\pi c}{n}. \\]
 
 | Symbol | Meaning | On the 6 × 6 plate |
 |---|---|---|

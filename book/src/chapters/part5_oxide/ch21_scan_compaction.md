@@ -744,7 +744,7 @@ for every \\(i \in [0, n)\\).
 *Proof.* Write \\(\ell(i, d) = \max(0, i - d + 1)\\) for the first position of the window. We show
 that the loop of lines 4 to 9 maintains the invariant
 
-\\[ a[i] = S[\ell(i, d)\,..\,i] \quad \text{for every } i \in [0, n), \text{ at the start of the
+\\[ a[i] = S[\ell(i, d)\\,..\\,i] \quad \text{for every } i \in [0, n), \text{ at the start of the
 iteration with offset } d. \\]
 
 *Initialization.* Before the first iteration, \\(d = 1\\), and line 2 stored \\(a[i] = x_i =

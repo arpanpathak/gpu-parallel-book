@@ -267,7 +267,7 @@ A polynomial of degree \\(d\\) has \\(d + 1\\) coefficients:
 Computing each power of \\(x\\) separately wastes multiplications. **Horner's rule** rewrites
 the polynomial so that each coefficient costs 1 multiplication and 1 addition:
 
-\\[ p(x) = c_0 + x\,(c_1 + x\,(c_2 + \dots + x\,c_d)) \\]
+\\[ p(x) = c_0 + x\\,(c_1 + x\\,(c_2 + \dots + x\\,c_d)) \\]
 
 The evaluation starts with the highest coefficient. At each step, it multiplies the running
 value by \\(x\\) and adds the next lower coefficient. For example, consider \\(p(x) = 1 + x/2 +

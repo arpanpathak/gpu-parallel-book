@@ -82,7 +82,7 @@ vectors.
 and \\(y\\) be vectors of \\(n\\) single-precision floating-point numbers. SAXPY replaces each
 element of \\(y\\) by \\(a\\) times the element of \\(x\\) plus the old element of \\(y\\).
 
-\\[ y_i \leftarrow a\,x_i + y_i \qquad \text{for every } i \in [0, n). \\]
+\\[ y_i \leftarrow a\\,x_i + y_i \qquad \text{for every } i \in [0, n). \\]
 
 *Example.* With \\(a = 2\\), \\(x_9 = 8\\) and \\(y_9 = 3\\), SAXPY sets \\(y_9\\) to 19.
 
@@ -803,7 +803,7 @@ A memory-bound kernel cannot finish before all of its bytes have passed through 
 on \\(n\\) elements moves \\(12n\\) bytes. A GPU whose memory bandwidth is \\(W\\) bytes per second
 needs at least \\(12n / W\\) seconds to move them. The time \\(T\\) of SAXPY therefore satisfies
 
-\\[ T \ge \frac{12\,n}{W}. \\]
+\\[ T \ge \frac{12\\,n}{W}. \\]
 
 | Symbol | Meaning | Measured arrays on the Orin NX |
 |---|---|---|
@@ -1070,7 +1070,7 @@ The measurements come from an integrated GPU, a Jetson Orin NX 16 GB, with 8 SMs
 bandwidth of 102 GB/s. We fill \\(x\\) and \\(y\\) with \\(2^{24}\\) values each, which is 64 MiB
 per vector. This is much more than the 2 MiB L2 cache of the GPU, so every launch reads and writes
 global memory and not the cache. The values are \\(x_i = (i \bmod 1024) \cdot 0.5\\),
-\\(y_i = i \bmod 7\\) and \\(a = 2.5\\). With these values, every product \\(2.5\,x_i\\) is a
+\\(y_i = i \bmod 7\\) and \\(a = 2.5\\). With these values, every product \\(2.5\\,x_i\\) is a
 multiple of 1.25 below 1,280, and a float represents every such number exactly. For example,
 \\(x_{256} = 128\\) gives the product 320. No result is rounded, so we can compare the GPU's
 results with the CPU's for exact equality.

@@ -1037,7 +1037,7 @@ The Rust program declares `cublasSgemm_v2`, the C function behind `cublasSgemm`,
 `#[link(name = "cublas")]`, and passes the same arguments.
 
 The 2 calls differ only in the order of their operands and leading dimensions. cuBLAS
-computes \\(C \leftarrow \alpha \cdot \mathrm{op}(A)\,\mathrm{op}(B) + \beta C\\), where
+computes \\(C \leftarrow \alpha \cdot \mathrm{op}(A)\\,\mathrm{op}(B) + \beta C\\), where
 \\(\alpha\\) and \\(\beta\\) are scalars and \\(\mathrm{op}\\) either leaves an operand as it is
 or transposes it. With \\(\alpha = 1\\) and \\(\beta = 0\\), the formula reduces to
 \\(C \leftarrow AB\\); with \\(\beta = 1\\), it adds the product to the previous contents of
