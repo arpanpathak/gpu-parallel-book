@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 480" width="660" height="480" role="img" aria-label="Block (0, 0) in 2 phases, 1 colour per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is coloured by the thread that copies it into the same slot of tileA or tileB in shared memory; the 4 sums are then 1, 2, 5 and 6. Phase 1: the tile of A moves to columns 2 and 3 (3 4, 7 8) and the tile of B to rows 2 and 3 (2 1, 1 2); the sums become 11, 13, 27 and 29, the top-left square of C.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 480" width="660" height="480" role="img" aria-label="Block (0, 0) in 2 phases, 1 color per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is colored by the thread that copies it into the same slot of tileA or tileB in shared memory; the 4 sums are then 1, 2, 5 and 6. Phase 1: the tile of A moves to columns 2 and 3 (3 4, 7 8) and the tile of B to rows 2 and 3 (2 1, 1 2); the sums become 11, 13, 27 and 29, the top-left square of C.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -38,7 +38,7 @@
   </defs>
   <rect width="660" height="480" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Block (0, 0) in 2 phases</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each colour marks 1 thread: the values it copies, the slots it fills, its sum.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each color marks 1 thread: the values it copies, the slots it fills, its sum.</text>
   <text x="30.0" y="104.0" text-anchor="start" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">Phase 0</text>
   <text x="96.0" y="104.0" text-anchor="start" xml:space="preserve" style="font-size:12px;fill:#5D6B7A">tiles at columns 0 to 1 of A and rows 0 to 1 of B</text>
   <text x="30.0" y="300.0" text-anchor="start" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">Phase 1</text>

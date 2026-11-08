@@ -99,8 +99,8 @@ parts += [line(52, 206, px + 4 * (pw + 4) + 12, 206, KINDS["client"][0], 1.6),
           card(170, 240, 320, 56, "client", "thread 5: 1 register", "sum of elements 5, 5 + 262,144, …"),
           wire([(330, 296), (330, 330)]),
           card(170, 330, 320, 56, "service", "1 tree per block", "over 256 register sums, at the end"),
-          note(40, 424, "Thread i reads element i of every pass, so neighbouring threads still read", room=600),
-          note(40, 442, "neighbouring floats. Each thread adds 256 values before it touches shared memory.", room=600)]
+          note(40, 424, "Thread i reads element i of every pass, so neighboring threads still read", room=600),
+          note(40, 442, "neighboring floats. Each thread adds 256 values before it touches shared memory.", room=600)]
 save(OUT + "ch08-coarsen.svg", 660, 464,
      "The array of 67,108,864 floats as 256 passes of 262,144 elements, 1 per thread. Thread 5 reads element "
      "5 of every pass and adds them in a register. At the end, 1 tree per block combines the 256 register "

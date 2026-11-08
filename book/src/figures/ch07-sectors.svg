@@ -189,6 +189,6 @@
   <text x="171.0" y="419.5" class="note" text-anchor="start" xml:space="preserve">sector fetched</text>
   <rect x="285.4" y="408" width="14" height="14" rx="4" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
   <text x="306.4" y="419.5" class="note" text-anchor="start" xml:space="preserve">not fetched</text>
-  <text x="40.0" y="456.0" class="note" text-anchor="start" xml:space="preserve">Memory moves in 32-byte sectors. A warp&#x27;s 32 floats fill 4 sectors when neighbours</text>
+  <text x="40.0" y="456.0" class="note" text-anchor="start" xml:space="preserve">Memory moves in 32-byte sectors. A warp&#x27;s 32 floats fill 4 sectors when neighbors</text>
   <text x="40.0" y="474.0" class="note" text-anchor="start" xml:space="preserve">are adjacent; at stride 8 or more every float needs a sector of its own.</text>
 </svg>

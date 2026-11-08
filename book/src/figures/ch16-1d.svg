@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 260" width="660" height="260" role="img" aria-label="12 elements in 3 blocks of 4 threads, 1 colour per block. Each block&#x27;s threads are labelled t0 to t3, and below them the element index i runs from 0 to 11. Thread 1 of block 2 is outlined, above i = 9, and a line reads: block 2, thread 1: i = 2 times 4 plus 1 = 9.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 260" width="660" height="260" role="img" aria-label="12 elements in 3 blocks of 4 threads, 1 color per block. Each block&#x27;s threads are labeled t0 to t3, and below them the element index i runs from 0 to 11. Thread 1 of block 2 is outlined, above i = 9, and a line reads: block 2, thread 1: i = 2 times 4 plus 1 = 9.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

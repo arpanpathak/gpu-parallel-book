@@ -34,7 +34,7 @@ for k, (stride, kind, summary) in enumerate([(1, "good", "4 sectors, 128 B, all 
             parts.append(rect(x0 + s * sw + 1, y + 1, (sw - 4) * used / 8, 22, KINDS[kind][0], rx=2))
     parts.append(text(x0, y + 46, summary, "sub"))
 parts += [legend(x0, 418, [("good", "sector fetched"), ("idle", "not fetched")]),
-          note(40, 456, "Memory moves in 32-byte sectors. A warp's 32 floats fill 4 sectors when neighbours", room=600),
+          note(40, 456, "Memory moves in 32-byte sectors. A warp's 32 floats fill 4 sectors when neighbors", room=600),
           note(40, 474, "are adjacent; at stride 8 or more every float needs a sector of its own.", room=600)]
 save(OUT + "ch07-sectors.svg", 660, 496,
      "Three rows of 32 memory sectors of 32 bytes. Stride 1: the warp's 32 floats fill 4 sectors completely. "
@@ -85,10 +85,10 @@ parts = [text(60, 120, "input: 1 warp reads a row", "sub")] + grid(60, 132, 8, c
 parts += [text(440, 120, "output: it writes a column", "sub")] + grid(440, 132, 8, cell, col, "danger")
 parts += [wire([(240, 132 + 2.5 * cell), (440, 132 + 2.5 * cell)]),
           mono(340, 132 + 2.5 * cell - 12, "out[x][y] = in[y][x]", "middle", INK),
-          note(40, 340, "The read is coalesced: 32 neighbouring floats, 4 sectors. The write is not: 32 floats", room=600),
+          note(40, 340, "The read is coalesced: 32 neighboring floats, 4 sectors. The write is not: 32 floats", room=600),
           note(40, 358, "in 32 different rows, 32 sectors, and 7 of every 8 bytes written to memory are waste.", room=600)]
 save(OUT + "ch07-transpose-naive.svg", 660, 380,
-     "Two 8 by 8 grids. In the input, a warp reads row 2: neighbouring elements, coalesced. In the output, the "
+     "Two 8 by 8 grids. In the input, a warp reads row 2: neighboring elements, coalesced. In the output, the "
      "same warp writes column 2: 1 element in each of 8 rows, strided.",
      "The naive transpose", "Reading rows is coalesced; writing them as columns is not.", parts)
 

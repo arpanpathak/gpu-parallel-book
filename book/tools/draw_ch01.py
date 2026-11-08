@@ -126,7 +126,7 @@ parts += [
 save(OUT + "ch01-one-processor.svg", 640, top + 218,
      "A processor card, which adds two numbers in 4 cycles, is wired to a main memory store, which takes "
      "500 cycles per read. Below, the processor adds four rows of the vector one after another: each row "
-     "is a long grey bar, waiting 500 cycles for a[i] and b[i], and a thin red bar, the 4-cycle add. The "
+     "is a long gray bar, waiting 500 cycles for a[i] and b[i], and a thin red bar, the 4-cycle add. The "
      "four rows take 2,016 cycles and the adder is busy for 16 of them. A sleepy bee sits beside the result.",
      "One processor adds 4 rows", "Each row waits about 500 cycles for memory, then adds for 4.", parts)
 

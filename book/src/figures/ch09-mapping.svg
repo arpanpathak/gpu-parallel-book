@@ -329,5 +329,5 @@
   <text x="364.0" y="474.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">4 × 32 bytes = 128 bytes</text>
   <text x="16.0" y="534.0" class="note" text-anchor="start" xml:space="preserve">1 sector is 32 bytes, 8 floats. A warp is 16 values of x for 2 of y. Down a column,</text>
   <text x="16.0" y="552.0" class="note" text-anchor="start" xml:space="preserve">x lands on 16 rows of A. Along a row, the 16 lanes of each y share 1 element of A</text>
-  <text x="16.0" y="570.0" class="note" text-anchor="start" xml:space="preserve">and read 16 neighbouring elements of B: 64 bytes, 2 sectors.</text>
+  <text x="16.0" y="570.0" class="note" text-anchor="start" xml:space="preserve">and read 16 neighboring elements of B: 64 bytes, 2 sectors.</text>
 </svg>

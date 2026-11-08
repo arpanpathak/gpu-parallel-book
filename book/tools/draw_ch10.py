@@ -134,7 +134,7 @@ parts += [gather([cx - 150, cx, cx + 150], 346, 368, cx, 390),
           note(504, 312, "Nothing in the", room=140), note(504, 330, "function body asks", room=140),
           note(504, 348, "for it, so nothing", room=140), note(504, 366, "can forget it.", room=140)]
 save(OUT + "ch10-lifetime.svg", 660, 546,
-     "A column of steps inside a zone labelled 1 scope. DeviceBuffer<float> in(host) calls the constructor, "
+     "A column of steps inside a zone labeled 1 scope. DeviceBuffer<float> in(host) calls the constructor, "
      "which allocates with cudaMallocAsync and copies; kernels then read in.view(). 3 ways out branch from "
      "there: return false, check() throws, and the closing brace. All 3 join into 1 box, the destructor, "
      "which calls cudaFreeAsync and gives the 8 MiB back to the pool.",

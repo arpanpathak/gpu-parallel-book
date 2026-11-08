@@ -336,8 +336,8 @@ def assignments():
     save("ch14-assign.svg", w, 310,
          "2 ways to give 12 elements to 4 threads, shown as 3 steps. Top, chunks: in step 0 the "
          "4 threads touch elements 0, 3, 6 and 9, spread over 40 bytes. Bottom, stride 4: in step "
-         "0 they touch elements 0 to 3, then 4 to 7, then 8 to 11, each step 16 neighbouring "
-         "bytes. Colours mark threads 0 to 3.", parts)
+         "0 they touch elements 0 to 3, then 4 to 7, then 8 to 11, each step 16 neighboring "
+         "bytes. Colors mark threads 0 to 3.", parts)
 
 
 def twice():

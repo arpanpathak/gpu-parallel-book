@@ -129,7 +129,7 @@ for k, (kind, where, what) in enumerate(decode):
     parts += [box(40, y, 96, 24, kind, where, cls="pill"), text(150, y + 16.5, what, "sub")]
 parts += [note(40, 486, "Numbers wider than 1 byte are stored low byte first: de 10 is 0x10de.", room=580)]
 save(OUT + "ch26-config.svg", 660, 508,
-     "A grid of 64 bytes in 4 rows of 16, read without root from the configuration space of an integrated GPU presented as a PCIe function. Coloured fields: "
+     "A grid of 64 bytes in 4 rows of 16, read without root from the configuration space of an integrated GPU presented as a PCIe function. Colored fields: "
      "bytes 0 to 3, de 10 00 2b, vendor 0x10de and device 0x2b00; bytes 4 and 5, 06 04, command 0x0406 with memory "
      "space and bus master enabled; bytes 9 to 11, 00 02 03, class 3D controller; bytes 16 to 23, 0c 00 00 c0 d0 00 00 "
      "00, BAR0 = 0xd0c000000c, address 0xd0c0000000; byte 52, 40, the capability pointer; byte 61, 01, interrupt pin A.",
@@ -320,11 +320,11 @@ for k in range(4):
               wire([(400, y + 17), (426 + 9 * k, y + 17), (426 + 9 * k, ty), (470, ty)])]
 parts += [box(256, 340, 144, 34, "danger", "no entry: fault", cls="pill"),
           wire([(186, 357), (256, 357)], kind="danger"),
-          note(16, 438, "The device sees 4 neighbouring pages; the SMMU maps each to wherever the OS put it. An", room=628),
+          note(16, 438, "The device sees 4 neighboring pages; the SMMU maps each to wherever the OS put it. An", room=628),
           note(16, 456, "address with no entry stops at the SMMU with a fault and never reaches the kernel's data.", room=628),
           note(16, 474, "A 64 MiB buffer in 4 KiB pages needs 64 MiB ÷ 4 KiB = 16,384 entries.", room=628)]
 save(OUT + "ch26-iommu.svg", 660, 496,
-     "3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighbouring 4 KiB pages; the SMMU page table maps "
+     "3 columns. Device addresses 0x10000000 to 0x10003000 are 4 neighboring 4 KiB pages; the SMMU page table maps "
      "page 0 to slot 3, page 1 to slot 0, page 2 to slot 5 and page 3 to slot 1 among scattered physical pages. A fifth "
      "device address, 0x20000000, has no entry: the access stops at the SMMU with a fault and never reaches a page of "
      "kernel data. A 64 MiB buffer in 4 KiB pages needs 16,384 entries.",

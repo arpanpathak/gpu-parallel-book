@@ -100,5 +100,5 @@
   <text x="548.0" y="258.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
   <text x="136.0" y="258.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">offset 1</text>
   <text x="150.0" y="292.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">Lane k adds the value of lane k + offset. A real warp has 32 lanes and 5 steps:</text>
-  <text x="150.0" y="310.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">offsets 16, 8, 4, 2, 1. Grey lanes compute values nobody uses.</text>
+  <text x="150.0" y="310.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">offsets 16, 8, 4, 2, 1. Gray lanes compute values nobody uses.</text>
 </svg>

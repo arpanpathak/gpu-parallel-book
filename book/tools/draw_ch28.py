@@ -73,8 +73,8 @@ parts += [note(338 + 16, 128 + 2 * 162 + 34, "4 ranks hold 4 numbers each.", roo
           note(338 + 16, 128 + 2 * 162 + 88, "all-gather: 2 rows of this figure.", room=280)]
 save(OUT + "ch28-collectives.svg", 660, 610,
      "Five panels, 1 per collective, each showing 4 ranks before and after. Broadcast: only rank 0 holds "
-     "1 0 2 1, and afterwards every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 "
-     "1, and afterwards rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: "
+     "1 0 2 1, and afterward every rank holds it. Reduce: the ranks hold 1 0 2 1, 2 1 0 3, 0 3 1 0 and 1 2 4 "
+     "1, and afterward rank 0 holds their sum 4 6 7 5. All-reduce: every rank holds 4 6 7 5. Reduce-scatter: "
      "rank r keeps element r of the sum, 4, 6, 7 and 5. All-gather: each rank starts with 1 piece and ends "
      "with all 4, 4 6 7 5.",
      "The 5 collectives", "4 ranks, 4 numbers each: what every rank holds before and after.", parts)

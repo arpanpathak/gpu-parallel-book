@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 380" width="660" height="380" role="img" aria-label="Two 8 by 8 grids. In the input, a warp reads row 2: neighbouring elements, coalesced. In the output, the same warp writes column 2: 1 element in each of 8 rows, strided.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 380" width="660" height="380" role="img" aria-label="Two 8 by 8 grids. In the input, a warp reads row 2: neighboring elements, coalesced. In the output, the same warp writes column 2: 1 element in each of 8 rows, strided.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -171,6 +171,6 @@
   <rect x="594.0" y="286.0" width="20.0" height="20.0" rx="3" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
   <path class="wire" d="M240,187.0 L440,187.0" marker-end="url(#head)"/>
   <text x="340.0" y="175.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">out[x][y] = in[y][x]</text>
-  <text x="40.0" y="340.0" class="note" text-anchor="start" xml:space="preserve">The read is coalesced: 32 neighbouring floats, 4 sectors. The write is not: 32 floats</text>
+  <text x="40.0" y="340.0" class="note" text-anchor="start" xml:space="preserve">The read is coalesced: 32 neighboring floats, 4 sectors. The write is not: 32 floats</text>
   <text x="40.0" y="358.0" class="note" text-anchor="start" xml:space="preserve">in 32 different rows, 32 sectors, and 7 of every 8 bytes written to memory are waste.</text>
 </svg>

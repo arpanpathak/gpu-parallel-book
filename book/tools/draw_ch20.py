@@ -71,10 +71,10 @@ save(OUT + "ch20-reads.svg", 640, 446,
      "Left: the 6 by 6 plate after step 1. Value u(2,2) is highlighted and 4 arrows lead from it to "
      "the threads of cells (1,2), (3,2), (2,1) and (2,3), each of which fetches it from global "
      "memory. Right: the same plate with the number of threads that read each value: 4 in the 4 "
-     "centre cells, 3 along the edges of the interior, 2 in the interior corners, 1 in the boundary "
+     "center cells, 3 along the edges of the interior, 2 in the interior corners, 1 in the boundary "
      "cells next to the interior, 0 in the 4 corners of the plate. Totals: 64 reads of 32 different "
      "values.",
-     "Every value is read by its neighbours",
+     "Every value is read by its neighbors",
      "In the direct kernel, value u(2, 2) is fetched from global memory by 4 threads.", parts)
 
 # 20.2  9 blocks of 2 x 2 threads; block (1, 1) and its tile.
@@ -102,15 +102,15 @@ parts += [outline(x0 + 2 * side + 1, y0 + 2 * side + 1, 2 * side - 6, 2 * side -
           note(390, 248, "the 36 cells, 1 thread per cell."),
           note(390, 284, "The tile holds the 4 own cells and"),
           note(390, 302, "the 12 cells around them, which"),
-          note(390, 320, "belong to the 8 neighbouring blocks."),
+          note(390, 320, "belong to the 8 neighboring blocks."),
           note(390, 356, "Values shown: the plate after step 1.")]
 save(OUT + "ch20-blocks.svg", 640, 420,
-     "The 6 by 6 plate cut into 9 blocks of 2 by 2 cells, 1 colour per block. Block (1, 1) owns "
+     "The 6 by 6 plate cut into 9 blocks of 2 by 2 cells, 1 color per block. Block (1, 1) owns "
      "cells (2,2), (2,3), (3,2) and (3,3). Its tile, the 4 by 4 square of rows 1 to 4 and columns 1 "
      "to 4, is outlined: the 4 owned cells in the middle and 12 cells around them, which belong to "
-     "the 8 neighbouring blocks.",
+     "the 8 neighboring blocks.",
      "Blocks of 2 × 2 threads on the plate",
-     "Block (1, 1) computes the 4 centre cells and needs the 4 × 4 square around them.", parts)
+     "Block (1, 1) computes the 4 center cells and needs the 4 × 4 square around them.", parts)
 
 # 20.3  The tile of block (1, 1) in step 2.
 side = 56
@@ -146,11 +146,11 @@ parts += [line(370, 262, 592, 262, INK, 1.0),
 save(OUT + "ch20-tile.svg", 640, 432,
      "The 4 by 4 tile of block (1, 1) in step 2, as it sits in shared memory. Its top row holds 25, "
      "25, 25, 25 (row 1 of the plate) and the other 3 rows hold 0. The 4 inner positions are blue "
-     "(own cells), the 8 edge positions amber (halo), the 4 corners grey (loaded, never read). For "
-     "cell (2, 2), at tile position (1, 1), the 4 neighbours at positions (0, 1), (2, 1), (1, 0) and "
+     "(own cells), the 8 edge positions amber (halo), the 4 corners gray (loaded, never read). For "
+     "cell (2, 2), at tile position (1, 1), the 4 neighbors at positions (0, 1), (2, 1), (1, 0) and "
      "(1, 2) are outlined: 25 + 0 + 0 + 0, times 1/4, gives 6.25.",
      "Computing from the tile",
-     "Cell (2, 2) reads its 4 neighbours from shared memory instead of global memory.", parts)
+     "Cell (2, 2) reads its 4 neighbors from shared memory instead of global memory.", parts)
 
 # 20.4  2 ways to fill the tile.
 side = 50
@@ -182,7 +182,7 @@ save(OUT + "ch20-loaders.svg", 640, 456,
      "Two ways to load the 4 by 4 tile of block (1, 1). Left, extra threads: the block has 4 by 4 = "
      "16 threads, 1 per slot; all 16 load, and only the inner 4 compute. Right, a loop: the block "
      "has 2 by 2 = 4 threads, and each loads 4 slots, at rows ty and ty + 2 and columns tx and tx + "
-     "2; the slots are coloured by the thread that loads them. A note gives the counts for the "
+     "2; the slots are colored by the thread that loads them. A note gives the counts for the "
      "programs: 34 by 10 = 340 threads, 256 of which compute; or 256 threads, of which 180 load 1 "
      "slot, 72 load 2 and 4 load 4.",
      "2 ways to load a tile and its halo",
@@ -226,7 +226,7 @@ parts += [f'  <path d="M330,146 V176" stroke="{RED}" stroke-width="2" '
 save(OUT + "ch20-nobarrier.svg", 640, 310,
      "A timeline of 2 threads of block (1, 1) without the barrier. Thread (0, 0) loads its 4 slots "
      "and goes on to compute cell (2, 2); it reads tile position (0, 1) at a moment marked in red. "
-     "Thread (0, 1) is delayed and stores 25 into position (0, 1) only afterwards. The result: thread "
+     "Thread (0, 1) is delayed and stores 25 into position (0, 1) only afterward. The result: thread "
      "(0, 0) reads the stale value 0 and writes 0 instead of 6.25.",
      "Without the barrier",
      "A thread reads a halo slot before the thread that loads it has stored the value.", parts)
@@ -250,16 +250,16 @@ for r in range(N):
             parts.append(outline(354 + c * side - 2, 124 + r * side - 2, side + 1, side + 1, RED,
                                  2.2))
 parts += [note(50, 400, "Thick lines: borders between blocks of 2 × 2."),
-          note(354, 400, "Red: 8 wrong cells, each with a neighbour"),
+          note(354, 400, "Red: 8 wrong cells, each with a neighbor"),
           note(354, 416, "in another block.")]
 save(OUT + "ch20-nohalo.svg", 640, 436,
      "2 versions of the plate after step 2, side by side. Left, correct: row 1 reads 31.25, 37.5, "
      "37.5, 31.25 and row 2 reads 6.25 in each interior cell. Right, without the halo: row 1 reads "
      "25, 31.25, 31.25, 25 and row 2 reads 0; every differing cell is outlined in red. Block "
-     "boundaries are drawn as thick lines, showing that each wrong cell has a neighbour in another "
+     "boundaries are drawn as thick lines, showing that each wrong cell has a neighbor in another "
      "block.",
      "Without the halo",
-     "Every cell whose neighbour belongs to another block loses that neighbour.", parts)
+     "Every cell whose neighbor belongs to another block loses that neighbor.", parts)
 
 # 20.8  Loads per result against the block width.
 left, right, top, bottom = 90, 590, 110, 330
@@ -419,7 +419,7 @@ parts += [line(left, y, right, y, BLUE, 1.6, "6 4"),
           note(left + 30, top - 14, f"dashed: direct kernel in the same run, {PLAIN} GB/s",
                fill=BLUE)]
 save(OUT + "ch20-temporal-sweep.svg", 640, 420,
-     "A chart over K = 1, 2, 4, 6, 8 steps per load. Bars give the modelled bytes per cell and step: "
+     "A chart over K = 1, 2, 4, 6, 8 steps per load. Bars give the modeled bytes per cell and step: "
      "8.55, 4.61, 2.78, 2.37, 2.50. Under each bar, thread-steps per kept cell and step: 1.14, 1.31, "
      "1.78, 2.56, 4.00. Points give the measured effective bandwidth: 30.3, 48.4, 62.4, 57.1, 43.7 "
      "GB/s, highest at K = 4. A dashed line marks the direct kernel in the same run at 65.0 GB/s.",

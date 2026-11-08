@@ -156,7 +156,7 @@ for r in range(4):
     x1, x2 = mx + 4 * r * step, mx + (4 * r + 4) * step - 4
     parts += [brace(x1, x2, my + 58), label((x1 + x2) / 2, my + 90, f"row {r}", "middle", MUTED, 11)]
 figure("ch16-rowmajor.svg", 660, 424,
-       "Top: A as a 4 by 4 grid, 1 colour per row; the entry 10 in row 2, column 1 is outlined. A note "
+       "Top: A as a 4 by 4 grid, 1 color per row; the entry 10 in row 2, column 1 is outlined. A note "
        "reads: row 2, column 1 is stored at location 2 times 4 plus 1 = 9. Bottom: the same 16 values in "
        "memory, locations 0 to 15, row 0 at 0 to 3, row 1 at 4 to 7, row 2 at 8 to 11 and row 3 at 12 to "
        "15. The value 10 is outlined at location 9.",
@@ -263,8 +263,8 @@ parts += [rounded(tx0, 128, 296, 222, "#FFFFFF", EDGE, 12),
           label(tx0 + 20, 290, "    = 1 · 2 + 0 = 2", "start", INK, 12, mono=True, room=262),
           label(tx0 + 20, 322, "so this thread computes c12 = 24", "start", DEEP, 12.5, True, room=260)]
 figure("ch16-grid.svg", 660, 404,
-       "A grid of 2 by 2 blocks over the 4 by 4 matrix C, 1 colour per block: block (0, 0) lavender, "
-       "(0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labelled (ty, tx) from "
+       "A grid of 2 by 2 blocks over the 4 by 4 matrix C, 1 color per block: block (0, 0) lavender, "
+       "(0, 1) mint, (1, 0) peach and (1, 1) pink. Each block holds 4 threads labeled (ty, tx) from "
        "(0, 0) to (1, 1). Thread (1, 0) of block (0, 1) is outlined. The panel on the right: the block "
        "covers rows 0 to 1 and columns 2 to 3; row = 0 times 2 + 1 = 1, col = 1 times 2 + 0 = 2, so the "
        "thread computes c12 = 24.",
@@ -287,7 +287,7 @@ for b in range(3):
 parts += [label(x0 - 14, y0 + 54, "i =", "end", MUTED, 12),
           label(330, y0 + 92, "block 2, thread 1:  i = 2 · 4 + 1 = 9", "middle", DEEP, 13, True)]
 figure("ch16-1d.svg", 660, 260,
-       "12 elements in 3 blocks of 4 threads, 1 colour per block. Each block's threads are labelled t0 to "
+       "12 elements in 3 blocks of 4 threads, 1 color per block. Each block's threads are labeled t0 to "
        "t3, and below them the element index i runs from 0 to 11. Thread 1 of block 2 is outlined, above "
        "i = 9, and a line reads: block 2, thread 1: i = 2 times 4 plus 1 = 9.",
        "Threads and blocks in 1 dimension", "Thread t of block b handles element b · blockDim.x + t.", parts)
@@ -342,7 +342,7 @@ parts += [arrow(ox, oy + 2 * s + 18, ox + 4 * s, oy + 2 * s + 18), label(ox + 2 
                                                                  True)]
 tx0 = 372
 parts += [label(tx0, 128, "4 × 2 × 4 volume", "start", INK, 12.5, True, room=270),
-          label(tx0, 146, "blocks of 2 × 2 × 2, 1 colour per block", "start", MUTED, 12, room=270),
+          label(tx0, 146, "blocks of 2 × 2 × 2, 1 color per block", "start", MUTED, 12, room=270),
           label(tx0, 170, "outlined: block (1, 0, 1),", "start", MUTED, 12, room=270),
           label(tx0, 188, "thread (1, 0, 0), written as (x, y, z)", "start", MUTED, 12, room=270),
           label(tx0, 214, "x = 1 · 2 + 1 = 3", "start", DEEP, 12.5, mono=True),
@@ -350,7 +350,7 @@ parts += [label(tx0, 128, "4 × 2 × 4 volume", "start", INK, 12.5, True, room=2
           label(tx0, 258, "z = 1 · 2 + 0 = 2", "start", DEEP, 12.5, mono=True)]
 figure("ch16-3d.svg", 660, 380,
        "A box of 4 by 2 by 4 cells drawn in perspective, cut into 4 blocks of 2 by 2 by 2 threads, 1 "
-       "colour per block. Axes: x to the right, y downwards, z into the page. The cell of thread (1, 0, 0) "
+       "color per block. Axes: x to the right, y downwards, z into the page. The cell of thread (1, 0, 0) "
        "in block (1, 0, 1) is outlined on the top and right faces. The text computes its position: "
        "x = 1 times 2 + 1 = 3, y = 0 times 2 + 0 = 0, z = 1 times 2 + 0 = 2.",
        "Threads and blocks in 3 dimensions", "Each of the 3 coordinates is computed on its own axis.", parts)

@@ -37,7 +37,7 @@
     </marker>
   </defs>
   <rect width="660" height="466" rx="14" fill="#FBFAF6"/>
-  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A privatised histogram</text>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A privatized histogram</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each block counts in its own shared memory, then adds its bins once.</text>
   <rect x="16" y="104" width="300" height="290" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="34" y="93" width="271.8" height="22" rx="11" fill="#1B2430"/>

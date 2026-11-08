@@ -38,7 +38,7 @@
   </defs>
   <rect width="660" height="432" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Merging 2 partial states</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each half is summarised by a few numbers, and 2 summaries combine.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each half is summarized by a few numbers, and 2 summaries combine.</text>
   <rect x="16" y="96" width="306" height="320" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="34" y="85" width="193.2" height="22" rx="11" fill="#1B2430"/>
   <text x="130.6" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SOFTMAX STATES, ROW 1</text>

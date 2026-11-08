@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" width="660" height="340" role="img" aria-label="Left: a 4 by 4 grid of threads from 4 blocks of 2 by 2 laid over a 3 by 3 matrix C, outlined in black. The 9 cells inside C are coloured by block; the 7 cells in row 3 and column 3 are dashed: threads with no entry. Right: tileA in phase 1 when K = 3. Its left column holds A[0][2] and A[1][2]; its right column would hold column 3 of A, which does not exist, so both slots hold 0.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" width="660" height="340" role="img" aria-label="Left: a 4 by 4 grid of threads from 4 blocks of 2 by 2 laid over a 3 by 3 matrix C, outlined in black. The 9 cells inside C are colored by block; the 7 cells in row 3 and column 3 are dashed: threads with no entry. Right: tileA in phase 1 when K = 3. Its left column holds A[0][2] and A[1][2]; its right column would hold column 3 of A, which does not exist, so both slots hold 0.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }

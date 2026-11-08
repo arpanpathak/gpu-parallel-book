@@ -119,7 +119,7 @@ parts += [box(ax - 4, y0 - 4, 4 * s + 3 * g + 8, 2 * s + g + 8, PHASE[0][1]),
 save(OUT + "ch17-block-needs.svg", 660, 372,
      "Matrices A, B and C of the 4 by 4 example. Rows 0 and 1 of A (1 2 3 4 and 5 6 7 8) are outlined in blue, "
      "columns 0 and 1 of B (1 0 2 1 and 0 1 1 2) in amber, and the other cells are faded. In C, the top-left 2 by 2 "
-     "square is block (0, 0), its 4 cells coloured for threads (0,0), (0,1), (1,0) and (1,1). The note: block (0, 0) "
+     "square is block (0, 0), its 4 cells colored for threads (0,0), (0,1), (1,0) and (1,1). The note: block (0, 0) "
      "needs 16 values, and the direct kernel fetches them 32 times.",
      "The values needed by 1 block", "Block (0, 0) computes 4 entries of C from 2 rows of A and 2 columns of B.",
      parts)
@@ -152,7 +152,7 @@ parts += [bar(150, 310, 150, 34, PHASE[0], "1·1 + 2·0 = 1", INK),
           label(225, 364, "phase 0", fill=PHASE[0][1], bold=True),
           label(415, 364, "phase 1", fill=PHASE[1][1], bold=True)]
 save(OUT + "ch17-split.svg", 660, 386,
-     "Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are coloured in 2 groups: columns 0 and 1 "
+     "Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are colored in 2 groups: columns 0 and 1 "
      "of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue "
      "group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), "
      "and 1 + 10 = 11, the entry c00.",
@@ -193,12 +193,12 @@ parts = [label(30, 104, "Phase 0", "start", INK, 13, True),
 parts += phase_row(140, 0, [[1, 2], [5, 6]])
 parts += phase_row(336, 1, [[11, 13], [27, 29]])
 save(OUT + "ch17-phases.svg", 660, 480,
-     "Block (0, 0) in 2 phases, 1 colour per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the "
-     "tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is coloured by the thread "
+     "Block (0, 0) in 2 phases, 1 color per thread. Phase 0: the tile of A at columns 0 and 1 (1 2, 5 6) and the "
+     "tile of B at rows 0 and 1 (1 0, 0 1) are outlined in the global matrices; each value is colored by the thread "
      "that copies it into the same slot of tileA or tileB in shared memory; the 4 sums are then 1, 2, 5 and 6. "
      "Phase 1: the tile of A moves to columns 2 and 3 (3 4, 7 8) and the tile of B to rows 2 and 3 (2 1, 1 2); the "
      "sums become 11, 13, 27 and 29, the top-left square of C.",
-     "Block (0, 0) in 2 phases", "Each colour marks 1 thread: the values it copies, the slots it fills, its sum.",
+     "Block (0, 0) in 2 phases", "Each color marks 1 thread: the values it copies, the slots it fills, its sum.",
      parts)
 
 
@@ -221,9 +221,9 @@ parts += [label(322, 140, "thread (0, 1): row 0 of tileA · column 1 of tileB", 
           label(322, 222, "in the order the operands appear", "start", room=310)]
 save(OUT + "ch17-operands.svg", 660, 272,
      "The shared tiles of block (0, 0) in phase 0: tileA holds 1 2 and 5 6, tileB holds 1 0 and 0 1. Row 0 of tileA "
-     "and column 1 of tileB are coloured by the threads that wrote them: 1 by thread (0,0), 2 by thread (0,1), 0 by "
+     "and column 1 of tileB are colored by the threads that wrote them: 1 by thread (0,0), 2 by thread (0,1), 0 by "
      "thread (0,1) and 1 by thread (1,1). Thread (0, 1) computes 1 times 0 plus 2 times 1 = 2. It copied 2 of its 4 "
-     "operands; its neighbours copied the other 2.",
+     "operands; its neighbors copied the other 2.",
      "The operands of 1 thread", "Thread (0, 1) in phase 0 uses 4 values and copied only 2 of them.", parts)
 
 
@@ -269,7 +269,7 @@ parts.append(wire([(last, y0 + 58), (last, 222), (first, 222), (first, y0 + 58)]
                   label="next phase: t = t + 1, while t < ⌈K/T⌉", on=1))
 save(OUT + "ch17-cycle.svg", 660, 250,
      "4 boxes in a row: load tiles, global to shared; barrier, all loads complete; compute, T multiply-adds; "
-     "barrier, all reads complete. An arrow runs from the last box back to the first, labelled next phase: t = t + 1, "
+     "barrier, all reads complete. An arrow runs from the last box back to the first, labeled next phase: t = t + 1, "
      "while t is less than the ceiling of K over T.",
      "One phase of the tiled kernel", "Copy, wait, compute, wait. The cycle repeats ⌈K/T⌉ times.", parts)
 
@@ -400,7 +400,7 @@ parts += [label(tx0 + 92, 98, "tileA, phase 1", fill=INK, bold=True),
           label(tx0 + 92, y0 + 134, "so its slots hold 0", room=250)]
 save(OUT + "ch17-edges.svg", 660, 340,
      "Left: a 4 by 4 grid of threads from 4 blocks of 2 by 2 laid over a 3 by 3 matrix C, outlined in black. The 9 "
-     "cells inside C are coloured by block; the 7 cells in row 3 and column 3 are dashed: threads with no entry. "
+     "cells inside C are colored by block; the 7 cells in row 3 and column 3 are dashed: threads with no entry. "
      "Right: tileA in phase 1 when K = 3. Its left column holds A[0][2] and A[1][2]; its right column would hold "
      "column 3 of A, which does not exist, so both slots hold 0.",
      "Matrices of any size", "Blocks stick out past the edge of C, and a tile past the last column of A holds 0.",
@@ -423,7 +423,7 @@ parts += [box(320 + 2 * (s + g) - 3, 113, s + 6, s + 6, "#2F6FDB", 2.2),
                 bold=True, room=600),
           label(330, 270, "with T = 16 the array holds 256 values", room=600)]
 save(OUT + "ch17-flat-tile.svg", 660, 292,
-     "Left: a 2 by 2 tile with slots (0,0), (0,1), (1,0) and (1,1), 1 colour per thread. Right: the same 4 slots in "
+     "Left: a 2 by 2 tile with slots (0,0), (0,1), (1,0) and (1,1), 1 color per thread. Right: the same 4 slots in "
      "a flat array at indices 0 to 3, in row-major order; slot (1,0) at index 2 is outlined. The rule: index(ty, tx, "
      "T) = ty times T plus tx, so (1, 0) is at 1 times 2 plus 0 = 2. With T = 16 the array holds 256 values.",
      "A tile as a flat array", "Slot (ty, tx) of a T × T tile is element ty · T + tx.", parts)

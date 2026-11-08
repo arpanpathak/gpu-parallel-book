@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 446" width="640" height="446" role="img" aria-label="Left: the 6 by 6 plate after step 1. Value u(2,2) is highlighted and 4 arrows lead from it to the threads of cells (1,2), (3,2), (2,1) and (2,3), each of which fetches it from global memory. Right: the same plate with the number of threads that read each value: 4 in the 4 centre cells, 3 along the edges of the interior, 2 in the interior corners, 1 in the boundary cells next to the interior, 0 in the 4 corners of the plate. Totals: 64 reads of 32 different values.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 446" width="640" height="446" role="img" aria-label="Left: the 6 by 6 plate after step 1. Value u(2,2) is highlighted and 4 arrows lead from it to the threads of cells (1,2), (3,2), (2,1) and (2,3), each of which fetches it from global memory. Right: the same plate with the number of threads that read each value: 4 in the 4 center cells, 3 along the edges of the interior, 2 in the interior corners, 1 in the boundary cells next to the interior, 0 in the 4 corners of the plate. Totals: 64 reads of 32 different values.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -37,7 +37,7 @@
     </marker>
   </defs>
   <rect width="640" height="446" rx="14" fill="#FBFAF6"/>
-  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Every value is read by its neighbours</text>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Every value is read by its neighbors</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">In the direct kernel, value u(2, 2) is fetched from global memory by 4 threads.</text>
   <rect x="32" y="96" width="280" height="330" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="50" y="85" width="224.6" height="22" rx="11" fill="#1B2430"/>

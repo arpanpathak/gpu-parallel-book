@@ -108,7 +108,7 @@ special = [("", "float p = 3.03e-2f;"), ("", "p = p * v + 3.13e-2f;"), ("", "p =
            ("", "... 29 more lines ..."), ("", "p = p * v + 1.00e+0f;")]
 parts = [sheet(24, 96, 296, 196, "client", "generic: built by nvcc", generic,
                ["per step: read c[k], count k,", "then 1 multiply-add"]),
-         sheet(340, 96, 296, 196, "good", "specialised: built by NVRTC", special,
+         sheet(340, 96, 296, 196, "good", "specialized: built by NVRTC", special,
                ["per step: 1 multiply-add,", "the constant inside it"])]
 scale = 230 / 2.7
 for row, (name, ms, kind) in enumerate([("generic", 2.61, "client"), ("specialised", 1.84, "good"),
@@ -120,14 +120,14 @@ for row, (name, ms, kind) in enumerate([("generic", 2.61, "client"), ("specialis
               f'  <rect x="200" y="{y}" width="{ms * scale:.1f}" height="26" rx="6" fill="{tint}" stroke="{accent}"'
               f' stroke-width="1.3"{dash}/>',
               mono(208 + ms * scale, y + 18, f"{ms:.2f} ms", fill=accent)]
-parts += [note(24, 470, "16,777,216 values, degree 32. Both move 134 MB: the specialised", room=612),
+parts += [note(24, 470, "16,777,216 values, degree 32. Both move 134 MB: the specialized", room=612),
           note(24, 488, "kernel at 73 GB/s, 71% of the rated 102 GB/s, and the generic one at 52 GB/s.", room=612)]
 save(OUT + "ch12-specialise.svg", 660, 508,
      "Two code sheets. The generic kernel, built by nvcc, loops from c[degree] down, and each step reads c[k] "
-     "from memory, counts k and does 1 multiply-add. The specialised kernel, built by NVRTC, is 32 straight lines "
+     "from memory, counts k and does 1 multiply-add. The specialized kernel, built by NVRTC, is 32 straight lines "
      "such as p = p times v plus 3.13e-2f: each step is 1 multiply-add with the constant inside it. Below, bars: "
-     "generic 2.61 ms, specialised 1.84 ms, and the time to move 134 MB at the rated 102 GB/s, 1.32 ms.",
-     "Generic and specialised", "The same polynomial; 1 kernel reads its coefficients, the other contains them.",
+     "generic 2.61 ms, specialized 1.84 ms, and the time to move 134 MB at the rated 102 GB/s, 1.32 ms.",
+     "Generic and specialized", "The same polynomial; 1 kernel reads its coefficients, the other contains them.",
      parts)
 
 
@@ -203,7 +203,7 @@ save(OUT + "ch12-context.svg", 660, 476,
 
 # 12.8  Where the milliseconds go, on a log scale, and when compiling pays back.
 rows = [("compile to cubin", 52.0, "outside"), ("load PTX, cache miss", 32.0, "danger"),
-        ("generic kernel, 1 run", 2.61, "client"), ("specialised kernel, 1 run", 1.84, "good"),
+        ("generic kernel, 1 run", 2.61, "client"), ("specialized kernel, 1 run", 1.84, "good"),
         ("load PTX, cache hit", 0.77, "store"), ("load cubin", 0.05, "service")]
 left, right, low, high = 230, 610, math.log10(0.01), math.log10(100)
 X = lambda ms: left + (right - left) * (math.log10(ms) - low) / (high - low)
@@ -223,7 +223,7 @@ parts += [card(24, 396, 612, 84, "good", "when compiling pays back",
                 "52 ms ÷ 0.77 ms = 68 runs to break even"])]
 save(OUT + "ch12-costs.svg", 660, 500,
      "Horizontal bars on a logarithmic time axis from 0.01 ms to 100 ms, measured: compile to "
-     "cubin 52 ms; load PTX with a cache miss 32 ms; 1 run of the generic kernel 2.61 ms; 1 run of the specialised "
+     "cubin 52 ms; load PTX with a cache miss 32 ms; 1 run of the generic kernel 2.61 ms; 1 run of the specialized "
      "kernel 1.84 ms; load PTX with a cache hit 0.77 ms; load cubin 0.05 ms. Below, a card: each run saves 0.77 ms, "
      "compiling costs 52 ms, so it pays back after 68 runs.",
      "Where the milliseconds go", "Compiling costs as much as 20 to 30 runs of the kernel itself.", parts)

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 648" width="660" height="648" role="img" aria-label="Paired bars of Rust and C++ times per 4,096 by 4,096 matrix on a Jetson Orin NX. Softmax rows of 4,096: 3 passes 2.025 and 1.434 ms, online 2.255 and 1.480 ms, fused 1.435 and 1.417 ms. Rows of 65,536: 3 passes 3.985 and 3.129 ms, online 3.015 and 2.373 ms. Layer norm: sum of squares 1.808 and 1.464 ms, Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modelled byte count at 102 GB/s.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 648" width="660" height="648" role="img" aria-label="Paired bars of Rust and C++ times per 4,096 by 4,096 matrix on a Jetson Orin NX. Softmax rows of 4,096: 3 passes 2.025 and 1.434 ms, online 2.255 and 1.480 ms, fused 1.435 and 1.417 ms. Rows of 65,536: 3 passes 3.985 and 3.129 ms, online 3.015 and 2.373 ms. Layer norm: sum of squares 1.808 and 1.464 ms, Welford 2.112 and 1.920 ms, fused 1.424 and 1.445 ms. Dashed lines mark the modeled byte count at 102 GB/s.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -91,5 +91,5 @@
   <text x="430.0" y="578.0" class="mono" text-anchor="start" xml:space="preserve">C++  1.445 ms</text>
   <line x1="249.0" y1="542.0" x2="249.0" y2="584.0" stroke="#B7791F" stroke-width="1.4" stroke-dasharray="4 3"/>
   <text x="40.0" y="608.0" class="note" text-anchor="start" xml:space="preserve">Dashed: bytes per element × 16,777,216 elements ÷ 102 GB/s, the time if every</text>
-  <text x="40.0" y="626.0" class="note" text-anchor="start" xml:space="preserve">modelled byte went to memory at peak bandwidth.</text>
+  <text x="40.0" y="626.0" class="note" text-anchor="start" xml:space="preserve">modeled byte went to memory at peak bandwidth.</text>
 </svg>

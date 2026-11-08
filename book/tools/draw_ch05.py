@@ -138,7 +138,7 @@ save(OUT + "ch05-privatise.svg", 660, 466,
      "Phase 1: blocks 0, 1 and so on to 1,023 each count their 65,536 bytes into 256 bins in shared memory. "
      "Phase 2: each block adds its 256 counts to the 256 global bins. The global atomics drop from "
      "67,108,864 to 262,144.",
-     "A privatised histogram", "Each block counts in its own shared memory, then adds its bins once.", parts)
+     "A privatized histogram", "Each block counts in its own shared memory, then adds its bins once.", parts)
 
 
 # 5.7  Measured histogram times on a Jetson Orin NX.

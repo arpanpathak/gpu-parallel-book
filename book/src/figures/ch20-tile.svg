@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 432" width="640" height="432" role="img" aria-label="The 4 by 4 tile of block (1, 1) in step 2, as it sits in shared memory. Its top row holds 25, 25, 25, 25 (row 1 of the plate) and the other 3 rows hold 0. The 4 inner positions are blue (own cells), the 8 edge positions amber (halo), the 4 corners grey (loaded, never read). For cell (2, 2), at tile position (1, 1), the 4 neighbours at positions (0, 1), (2, 1), (1, 0) and (1, 2) are outlined: 25 + 0 + 0 + 0, times 1/4, gives 6.25.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 432" width="640" height="432" role="img" aria-label="The 4 by 4 tile of block (1, 1) in step 2, as it sits in shared memory. Its top row holds 25, 25, 25, 25 (row 1 of the plate) and the other 3 rows hold 0. The 4 inner positions are blue (own cells), the 8 edge positions amber (halo), the 4 corners gray (loaded, never read). For cell (2, 2), at tile position (1, 1), the 4 neighbors at positions (0, 1), (2, 1), (1, 0) and (1, 2) are outlined: 25 + 0 + 0 + 0, times 1/4, gives 6.25.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -38,7 +38,7 @@
   </defs>
   <rect width="640" height="432" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Computing from the tile</text>
-  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Cell (2, 2) reads its 4 neighbours from shared memory instead of global memory.</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Cell (2, 2) reads its 4 neighbors from shared memory instead of global memory.</text>
   <rect x="32" y="96" width="300" height="316" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
   <rect x="50" y="85" width="185.3" height="22" rx="11" fill="#1B2430"/>
   <text x="142.7" y="100.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">TILE OF BLOCK (1, 1)</text>

@@ -157,7 +157,7 @@ def axis_labels(x, y, side=30, n=N):
 def example():
     """The 8 x 8 colour image, its 4 colours, and its gray levels."""
     side, x0, x1, y0 = 30, 52, 360, 112
-    parts = [text(x0, 92, "colour image, 3 bytes per pixel", "name"),
+    parts = [text(x0, 92, "color image, 3 bytes per pixel", "name"),
              text(x1, 92, "gray image, 1 byte per pixel", "name"),
              axis_labels(x0, y0), axis_labels(x1, y0)]
     for r in range(N):
@@ -177,21 +177,21 @@ def example():
         parts.append(mono(x0 + 230, yy, f"({sum3:,} + 128) >> 8 = {gray_of(col)}"))
         parts.append(note(x0 + 470, yy, "16 pixels"))
     save(OUT + "ch24-example.svg", 640, y + 4 * 24 + 6,
-         "Left: an 8 by 8 colour image. Rows 0 and 1 are sky blue, rows 6 and 7 are brown "
+         "Left: an 8 by 8 color image. Rows 0 and 1 are sky blue, rows 6 and 7 are brown "
          "ground, and rows 2 to 5 hold a red-brown house in columns 2 to 5 between green "
          "hill pixels in columns 0, 1, 6 and 7. Right: the gray levels of the same pixels: "
          "144 for the sky, 112 for the hill, 120 for the house and 96 for the ground. Below, "
-         "the 4 colours: sky (120, 150, 180) gives (36,960 + 128) >> 8 = 144; hill (70, 140, "
+         "the 4 colors: sky (120, 150, 180) gives (36,960 + 128) >> 8 = 144; hill (70, 140, "
          "80) gives 112; house (170, 100, 90) gives 120; ground (120, 90, 60) gives 96. Each "
-         "colour covers 16 pixels.",
-         "The worked example", "An 8 x 8 image of 4 colours, 16 pixels each, and its gray "
+         "color covers 16 pixels.",
+         "The worked example", "An 8 x 8 image of 4 colors, 16 pixels each, and its gray "
          "levels.", parts)
 
 
 def thread_work():
     """1 thread of the gray kernel: 3 bytes in, 1 byte out."""
     side, x0, y0 = 40, 60, 120
-    parts = [text(x0, y0 - 22, "rgb: row 0 of the colour image, as it sits in memory",
+    parts = [text(x0, y0 - 22, "rgb: row 0 of the color image, as it sits in memory",
                   "name")]
     kinds = ["client", "service", "store", "outside"]
     for i in range(12):
@@ -222,8 +222,8 @@ def thread_work():
               note(tx, gy + 66, "3 reads from global memory, 1 write; no other thread "
                    "is involved")]
     save(OUT + "ch24-thread.svg", 640, gy + 92,
-         "Row 0 of the colour image as 12 bytes in memory, 120, 150, 180 repeated for pixels "
-         "0 to 3, one colour per pixel. Thread 3 computes p = 9, reads bytes 9, 10 and 11, "
+         "Row 0 of the color image as 12 bytes in memory, 120, 150, 180 repeated for pixels "
+         "0 to 3, one color per pixel. Thread 3 computes p = 9, reads bytes 9, 10 and 11, "
          "computes 77 times 120 plus 150 times 150 plus 29 times 180 = 36,960, adds 128 and "
          "shifts right by 8 to get 144, and writes element 3 of the gray image.",
          "The work of 1 thread of the gray kernel", "Thread i reads bytes 3i to 3i + 2 and "
@@ -239,7 +239,7 @@ def pipeline():
         ("store", "RGB image", "3 bytes per pixel, 6.2 MB"),
         ("client", "grayscale", "map (Chapter 14)"),
         ("service", "histogram", "histogram (Chapter 22)"),
-        ("service", "equalise table", "scan of 256 counts (Chapter 21)"),
+        ("service", "equalize table", "scan of 256 counts (Chapter 21)"),
         ("client", "apply table", "map with a lookup (Chapter 14)"),
     ]
     stages_right = [
@@ -266,12 +266,12 @@ def pipeline():
     turn = top + 4 * gap + h / 2
     parts.append(wire([(left + w, turn), (322, turn), (322, top + h / 2),
                        (right - 3, top + h / 2)]))
-    parts.append(note(334, 444, "the equalised image goes to blur rows"))
+    parts.append(note(334, 444, "the equalized image goes to blur rows"))
     parts.append(legend(334, 474, [("client", "map"), ("service", "global"),
                                    ("model", "neighbourhood")]))
     save(OUT + "ch24-pipeline.svg", 640, 512,
-         "The pipeline in 2 columns. Equalise: the RGB image of 3 bytes per pixel goes to "
-         "grayscale, a map; histogram counts the gray levels into 256 bins; equalise table "
+         "The pipeline in 2 columns. Equalize: the RGB image of 3 bytes per pixel goes to "
+         "grayscale, a map; histogram counts the gray levels into 256 bins; equalize table "
          "scans the 256 counts; apply table maps each pixel through the table. Blur and "
          "edges: blur rows and blur columns are stencils with a halo, sobel is a stencil, "
          "and the edge image has 1 byte per pixel, 2.1 MB.",
@@ -302,15 +302,15 @@ def equalise():
             parts.append(cell(142 + k * 46, y, 42, 28, value, tint, accent, INK, 12))
     parts.append(mono(40, ty + 4 * 34 + 18, "new(112) = round((32 - 16) x 255 / (64 - 16))"))
     parts.append(mono(40, ty + 4 * 34 + 38, "         = (16 x 255 + 24) / 48 = 85"))
-    parts.append(grid(352, 112, EQ, 34, title="equalised image"))
+    parts.append(grid(352, 112, EQ, 34, title="equalized image"))
     save(OUT + "ch24-equalise.svg", 640, ty + 4 * 34 + 60,
          "Left top: the histogram of the gray image has 4 bars of 16 pixels at levels 96, "
          "112, 120 and 144. Left bottom: a table with level, count, cumulative count c(v) "
          "and new level: 96, 16, 16, 0; 112, 16, 32, 85; 120, 16, 48, 170; 144, 16, 64, "
-         "255. new(112) = round((32 - 16) times 255 / (64 - 16)) = 85. Right: the equalised "
+         "255. new(112) = round((32 - 16) times 255 / (64 - 16)) = 85. Right: the equalized "
          "image: rows 0 and 1 are 255, rows 2 to 5 are 85 85 170 170 170 170 85 85, rows 6 "
          "and 7 are 0.",
-         "Histogram equalisation of the example", "4 levels, 16 pixels each, move to 0, 85, "
+         "Histogram equalization of the example", "4 levels, 16 pixels each, move to 0, 85, "
          "170 and 255.", parts)
 
 
@@ -346,7 +346,7 @@ def separable():
               note(tx, 334, "instead of 5 x 5 = 25")]
     save(OUT + "ch24-separable.svg", 640, 372,
          "Left: the column weights 1, 4, 6, 4, 1 and the row weights 1, 4, 6, 4, 1, and "
-         "their 25 products from 1 at the corners to 36 in the centre, summing to 256. "
+         "their 25 products from 1 at the corners to 36 in the center, summing to 256. "
          "Right: pixel (3, 3) of the example. The row pass gives 4,080 in row 1 and 2,635 in "
          "rows 2 to 5; the column pass gives 4,080 + 15 times 2,635 = 43,605, and (43,605 + "
          "128) >> 8 = 170. 1 pass over 25 weights gives the same 43,605. 2 passes cost 10 "
@@ -360,7 +360,7 @@ def blur_grids():
     marks_eq = {(c, r): "client" for r in range(1, 6) for c in range(1, 6)}
     marks_rows = {(3, r): "model" for r in range(1, 6)}
     marks_blur = {(3, 3): "good"}
-    parts = [grid(40, 112, EQ, side, marks=marks_eq, title="equalised image"),
+    parts = [grid(40, 112, EQ, side, marks=marks_eq, title="equalized image"),
              grid(340, 112, ROWS, side, top=4080, marks=marks_rows, size=10,
                   title="row pass: sums, 0 to 4,080"),
              grid(40, 432, BLUR, side, marks=marks_blur, title="column pass: blurred image")]
@@ -373,7 +373,7 @@ def blur_grids():
               note(340, 580, "row -1 repeats row 0, column 8 repeats"),
               note(340, 598, "column 7.")]
     save(OUT + "ch24-blur.svg", 640, 712,
-         "3 grids of the example. The equalised image, with the 5 by 5 window of pixel "
+         "3 grids of the example. The equalized image, with the 5 by 5 window of pixel "
          "(3, 3) outlined. The row sums: 4,080 in rows 0 and 1; 1,445, 1,785, 2,295, 2,635, "
          "2,635, 2,295, 1,785, 1,445 in rows 2 to 5; 0 in rows 6 and 7, with the 5 sums "
          "that pixel (3, 3) reads outlined. The blurred image, from 245 at the top left "
@@ -424,7 +424,7 @@ def tile():
     parts.append(note(40, y + 204, "8 threads load 12 values once; the 8 sums read 40 "
                                    "values, all from shared memory."))
     save(OUT + "ch24-tile.svg", 640, y + 220,
-         "12 slots of a shared tile for row 2 of the equalised image, block of 8 threads. "
+         "12 slots of a shared tile for row 2 of the equalized image, block of 8 threads. "
          "Slots 0 and 1 hold pixel 0, value 85, the clamped left halo; slots 2 to 9 hold "
          "pixels 0 to 7: 85, 85, 170, 170, 170, 170, 85, 85; slots 10 and 11 hold pixel 7, "
          "85, the clamped right halo. Thread 0 reads slots 0 to 4 and sums 1,445; thread 3 "
@@ -455,7 +455,7 @@ def halo_bug():
               note(340, gy + 110, "Only columns 0, 1, 6 and 7 can be"),
               note(340, gy + 128, "wrong: their windows reach into a"),
               note(340, gy + 146, "halo slot. Rows 6 and 7 are 0 in the"),
-              note(340, gy + 164, "equalised image, so 0 in a halo slot"),
+              note(340, gy + 164, "equalized image, so 0 in a halo slot"),
               note(340, gy + 182, "does no harm there.")]
     save(OUT + "ch24-halo-bug.svg", 640, gy + 8 * 34 + 14,
          "The tile of row 2 with slots 0, 1, 10 and 11 marked as never written. Thread 0 "
@@ -506,7 +506,7 @@ def sobel():
               note(340, 406, "the ground. Shading here runs from 0"),
               note(340, 424, "(dark) to 100 (light).")]
     save(OUT + "ch24-sobel.svg", 640, 340 + 8 * 34 + 14,
-         "Top: the 3 by 3 neighbourhood of pixel (3, 1) in the blurred image, 248 249 249, "
+         "Top: the 3 by 3 neighborhood of pixel (3, 1) in the blurred image, 248 249 249, "
          "220 227 227, 178 193 193, beside the Gx mask, -1 0 1 with the middle row doubled, "
          "and the Gy mask, -1 -2 -1 on top and 1 2 1 at the bottom. gx = 896 - 866 = 30, "
          "gy = 757 - 995 = -238, the square root of 57,544 is 239.88, and 239.88 / 4 rounds "
@@ -616,9 +616,9 @@ def montage(folder):
     pair.paste(zoom("equalised.pgm"), (0, 0))
     pair.paste(zoom("blurred.pgm"), (244, 0))
 
-    panels = [(open_rgb("input.ppm").resize((480, 270)), "input (colour)"),
+    panels = [(open_rgb("input.ppm").resize((480, 270)), "input (color)"),
               (open_rgb("equalised.pgm").resize((480, 270)), "equalised"),
-              (pair, "equalised | blurred, 4 x zoom on the window"),
+              (pair, "equalized | blurred, 4 x zoom on the window"),
               (open_rgb("edges.pgm").resize((480, 270)), "edges")]
     sheet = Image.new("RGB", (2 * 480 + 30, 2 * 300 + 30), "#FBFAF6")
     draw = ImageDraw.Draw(sheet)

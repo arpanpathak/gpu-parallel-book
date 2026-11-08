@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 338" width="640" height="338" role="img" aria-label="The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. With s = 4, threads 0 to 3 add cell t + 4 into cell t, giving 7, 7, 11, 7. With s = 2, threads 0 and 1 give 18 and 14. With s = 1, thread 0 gives 32. A barrier separates the steps; cells no longer read are grey.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 338" width="640" height="338" role="img" aria-label="The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. With s = 4, threads 0 to 3 add cell t + 4 into cell t, giving 7, 7, 11, 7. With s = 2, threads 0 and 1 give 18 and 14. With s = 1, thread 0 gives 32. A barrier separates the steps; cells no longer read are gray.">
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
@@ -108,5 +108,5 @@
   <text x="492.0" y="288.5" font-size="12.5" fill="#A7B0BC" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
   <text x="136.0" y="283.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">s = 1</text>
   <text x="136.0" y="297.0" font-size="10.5" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">thread 0 adds</text>
-  <text x="150.0" y="324.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">Grey cells are no longer read. After step s = 1, cell 0 holds 32.</text>
+  <text x="150.0" y="324.0" font-size="11.5" fill="#8A94A3" text-anchor="start" font-weight="400" xml:space="preserve">Gray cells are no longer read. After step s = 1, cell 0 holds 32.</text>
 </svg>

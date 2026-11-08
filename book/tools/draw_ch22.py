@@ -35,7 +35,7 @@ def ex_keys():
                          "(from positions 1 and 3) and the 2 keys 5 (from 0 and 7) in their input order."])
     save(OUT + "ch22-keys.svg", 660, 334,
          "The keys 5, 2, 7, 2, 0, 6, 3, 5 with their binary digits 101, 010, 111, 010, 000, 110, 011, 101, and "
-         "the sorted keys 0, 2, 2, 3, 5, 5, 6, 7, labelled with the positions they came from: 4, 1, 3, 6, 0, 7, "
+         "the sorted keys 0, 2, 2, 3, 5, 5, 6, 7, labeled with the positions they came from: 4, 1, 3, 6, 0, 7, "
          "5, 2.",
          "The worked example", "8 keys of 3 bits, before and after sorting.", parts)
 
