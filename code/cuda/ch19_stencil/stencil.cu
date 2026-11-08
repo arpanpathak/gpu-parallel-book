@@ -12,8 +12,8 @@
 
 using Grid = std::vector<float>;
 
-const int BX = 32;                            // block width: 1 warp along a row of the grid
-const int BY = 8;                             // block height: 8 warps, 256 threads
+const int BLOCK_WIDTH = 32;                   // 1 warp along a row of the grid
+const int BLOCK_HEIGHT = 8;                   // 8 warps, 256 threads
 const float HOT = 100.0f;                     // the top edge; the others are held at 0
 
 void check(cudaError_t err)
@@ -33,18 +33,20 @@ __global__ void jacobi(const float* __restrict__ old, float* __restrict__ next,
     bool interior = row >= 1 && row + 1 < height && col >= 1 && col + 1 < width;
 
     if (interior) {
-        int c = row * width + col;
-        float sum = old[c - width] + old[c + width] + old[c - 1] + old[c + 1];
-        next[c] = 0.25f * sum;
+        int center = row * width + col;
+        float above = old[center - width];
+        float below = old[center + width];
+        float sum = above + below + old[center - 1] + old[center + 1];
+        next[center] = 0.25f * sum;
     }
 }
 
 // A copy: 1 read and 1 write per cell, the least traffic a step can have.
 __global__ void copy(const float* __restrict__ in, float* __restrict__ out, int n)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < n) {
-        out[i] = in[i];
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n) {
+        out[index] = in[index];
     }
 }
 
@@ -63,9 +65,11 @@ void cpuStep(const Grid& old, Grid& next, int width, int height)
 {
     for (int row = 1; row + 1 < height; ++row) {
         for (int col = 1; col + 1 < width; ++col) {
-            int c = row * width + col;
-            float sum = old[c - width] + old[c + width] + old[c - 1] + old[c + 1];
-            next[c] = 0.25f * sum;
+            int center = row * width + col;
+            float above = old[center - width];
+            float below = old[center + width];
+            float sum = above + below + old[center - 1] + old[center + 1];
+            next[center] = 0.25f * sum;
         }
     }
 }
@@ -75,8 +79,8 @@ double rmsChange(const Grid& next, const Grid& old)
 {
     double squares = 0.0;
     for (size_t i = 0; i < next.size(); ++i) {
-        double d = next[i] - old[i];
-        squares += d * d;
+        double change = next[i] - old[i];
+        squares += change * change;
     }
     return std::sqrt(squares / next.size());
 }
@@ -114,7 +118,9 @@ std::pair<float*, float*> deviceGrids(const Grid& start)
 // Enough 32 x 8 blocks to cover a grid of width x height cells, 1 thread per cell.
 dim3 blocksFor(int width, int height)
 {
-    return dim3((width + BX - 1) / BX, (height + BY - 1) / BY);
+    int columns = (width + BLOCK_WIDTH - 1) / BLOCK_WIDTH;
+    int rows = (height + BLOCK_HEIGHT - 1) / BLOCK_HEIGHT;
+    return dim3(columns, rows);
 }
 
 double nowMs()
@@ -134,7 +140,7 @@ double timeMs(F launch, int runs)
     }
 
     double t0 = nowMs();
-    for (int r = 0; r < runs; ++r) {
+    for (int run = 0; run < runs; ++run) {
         launch();
     }
     check(cudaGetLastError());
@@ -148,29 +154,29 @@ int main()
     cudaDeviceProp prop;
     check(cudaGetDeviceProperties(&prop, 0));
     std::printf("GPU: %s, %d SMs\n", prop.name, prop.multiProcessorCount);
-    dim3 block(BX, BY);
+    dim3 block(BLOCK_WIDTH, BLOCK_HEIGHT);
 
     // 1. The 6 x 6 plate of the text, small enough to check by hand.
-    int w = 6;
-    int h = 6;
-    Grid start = initialGrid(w, h);
-    float* a;
-    float* b;
-    std::tie(a, b) = deviceGrids(start);
+    int width = 6;
+    int height = 6;
+    Grid start = initialGrid(width, height);
+    float* current;
+    float* next;
+    std::tie(current, next) = deviceGrids(start);
 
     std::printf("1. 6 x 6 plate, top edge at %.0f\n", HOT);
     std::vector<double> changes;
     for (int step = 1; step <= 100; ++step) {
-        jacobi<<<blocksFor(w, h), block>>>(a, b, w, h);
-        std::swap(a, b);
+        jacobi<<<blocksFor(width, height), block>>>(current, next, width, height);
+        std::swap(current, next);
 
-        Grid next = toHost(a, w, h);
-        Grid old = toHost(b, w, h);
-        changes.push_back(rmsChange(next, old));
+        Grid newer = toHost(current, width, height);
+        Grid older = toHost(next, width, height);
+        changes.push_back(rmsChange(newer, older));
         if (step <= 2 || step == 100) {
             char label[32];
             std::snprintf(label, sizeof label, "after step %d", step);
-            printGrid(label, next, w);
+            printGrid(label, newer, width);
         }
     }
 
@@ -184,30 +190,32 @@ int main()
     Grid cpuA = start;
     Grid cpuB = start;
     for (int step = 0; step < 100; ++step) {
-        cpuStep(cpuA, cpuB, w, h);
+        cpuStep(cpuA, cpuB, width, height);
         std::swap(cpuA, cpuB);
     }
-    bool smallSame = toHost(a, w, h) == cpuA;
+    bool smallSame = toHost(current, width, height) == cpuA;
     const char* answer = smallSame ? "true" : "false";
     std::printf("  same bits as the CPU after 100 steps: %s\n", answer);
-    check(cudaFree(a));
-    check(cudaFree(b));
+    check(cudaFree(current));
+    check(cudaFree(next));
 
     // 2. A 64 x 64 plate, iterated until the RMS change per step is below 1e-6.
-    w = 64;
-    h = 64;
-    start = initialGrid(w, h);
-    std::tie(a, b) = deviceGrids(start);
+    width = 64;
+    height = 64;
+    start = initialGrid(width, height);
+    std::tie(current, next) = deviceGrids(start);
 
     std::printf("2. 64 x 64 plate until the RMS change per step is below 1e-6\n");
     int steps = 0;
     while (true) {
-        jacobi<<<blocksFor(w, h), block>>>(a, b, w, h);
-        std::swap(a, b);
+        jacobi<<<blocksFor(width, height), block>>>(current, next, width, height);
+        std::swap(current, next);
         steps += 1;
 
         if (steps % 1000 == 0) {
-            double rms = rmsChange(toHost(a, w, h), toHost(b, w, h));
+            Grid newer = toHost(current, width, height);
+            Grid older = toHost(next, width, height);
+            double rms = rmsChange(newer, older);
             std::printf("  step %5d   RMS change %.2e\n", steps, rms);
             if (rms < 1e-6) {
                 break;
@@ -215,11 +223,11 @@ int main()
         }
     }
 
-    Grid field = toHost(a, w, h);
+    Grid field = toHost(current, width, height);
     cpuA = start;
     cpuB = start;
     for (int step = 0; step < steps; ++step) {
-        cpuStep(cpuA, cpuB, w, h);
+        cpuStep(cpuA, cpuB, width, height);
         std::swap(cpuA, cpuB);
     }
     float diff = 0.0f;
@@ -227,30 +235,30 @@ int main()
         diff = std::fmax(diff, std::fabs(field[i] - cpuA[i]));
     }
     std::printf("  largest difference from the CPU after %d steps: %.2e\n", steps, diff);
-    check(cudaFree(a));
-    check(cudaFree(b));
+    check(cudaFree(current));
+    check(cudaFree(next));
 
     // 3. A 4096 x 4096 plate: time per step and effective bandwidth.
-    w = 4096;
-    h = 4096;
-    int n = w * h;
-    start = initialGrid(w, h);
-    std::tie(a, b) = deviceGrids(start);
+    width = 4096;
+    height = 4096;
+    int cells = width * height;
+    start = initialGrid(width, height);
+    std::tie(current, next) = deviceGrids(start);
 
-    auto copyStep = [&] { copy<<<n / 256, 256>>>(a, b, n); };
+    auto copyStep = [&] { copy<<<cells / 256, 256>>>(current, next, cells); };
     auto twoSteps = [&] {
-        jacobi<<<blocksFor(w, h), block>>>(a, b, w, h);
-        jacobi<<<blocksFor(w, h), block>>>(b, a, w, h);
+        jacobi<<<blocksFor(width, height), block>>>(current, next, width, height);
+        jacobi<<<blocksFor(width, height), block>>>(next, current, width, height);
     };
     double msCopy = timeMs(copyStep, 50);
     double msJacobi = timeMs(twoSteps, 50) / 2.0;
 
-    auto gb = [&](double ms) { return 2.0 * n * 4 / 1e9 / (ms / 1e3); };
+    auto gb = [&](double ms) { return 2.0 * cells * 4 / 1e9 / (ms / 1e3); };
     std::printf("3. 4096 x 4096 plate, 8 bytes per cell per step (1 read, 1 write)\n");
     std::printf("  copy kernel        %6.3f ms   %6.1f GB/s\n", msCopy, gb(msCopy));
     std::printf("  jacobi             %6.3f ms   %6.1f GB/s\n", msJacobi, gb(msJacobi));
-    check(cudaFree(a));
-    check(cudaFree(b));
+    check(cudaFree(current));
+    check(cudaFree(next));
 
     bool passed = smallSame && diff == 0.0f;
     std::printf("%s\n", passed ? "PASSED" : "FAILED");

@@ -250,9 +250,9 @@ and \\(K\\) is the number of steps to perform.
 <div class="algo">
 <p class="algo-name">Jacobi-Step(\(u, v, W, H\))</p>
 <ol>
-<li><b class="kw">for</b> \(r \in [1, H - 1)\) {</li>
-<li style="--d:1"><b class="kw">for</b> \(c \in [1, W - 1)\) {</li>
-<li style="--d:2">\(v_{r,c} = (u_{r-1,c} + u_{r+1,c} + u_{r,c-1} + u_{r,c+1}) / 4\)</li>
+<li><b class="kw">for</b> \(\mathsf{row} \in [1, H - 1)\) {</li>
+<li style="--d:1"><b class="kw">for</b> \(\mathsf{col} \in [1, W - 1)\) {</li>
+<li style="--d:2">\(v_{\mathsf{row},\mathsf{col}} = (u_{\mathsf{row}-1,\mathsf{col}} + u_{\mathsf{row}+1,\mathsf{col}} + u_{\mathsf{row},\mathsf{col}-1} + u_{\mathsf{row},\mathsf{col}+1}) / 4\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
 </ol>
@@ -262,15 +262,15 @@ and \\(K\\) is the number of steps to perform.
 <p class="algo-name">Jacobi(\(u, W, H, K\))</p>
 <ol>
 <li>\(v = u\) <span class="c">// both grids hold the boundary</span></li>
-<li><b class="kw">for</b> \(k \in [0, K)\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{step} \in [0, K)\) {</li>
 <li style="--d:1"><span class="sc">Jacobi-Step</span>(\(u, v, W, H\))</li>
 <li style="--d:1">exchange the names \(u\) and \(v\) <span class="c">// u is the newest grid</span></li>
 <li>}</li>
-<li><b class="kw">return</b> \(u\)</li>
+<li class="gap"><b class="kw">return</b> \(u\)</li>
 </ol>
 </div>
 
-Lines 1 and 2 of Jacobi-Step visit the interior cells only. On our plate, \\(r\\) and \\(c\\) run
+Lines 1 and 2 of Jacobi-Step visit the interior cells only. On our plate, \\(\mathsf{row}\\) and \\(\mathsf{col}\\) run
 over \\([1, 5)\\), that is, over 1, 2, 3 and 4, so the boundary cells of \\(v\\) are never written.
 For this reason, line 1 of Jacobi copies the whole starting grid into \\(v\\), so that \\(v\\)
 holds the boundary values as well. Line 4 exchanges the names after each step, so that the grid
@@ -353,8 +353,8 @@ This arrangement has a name.
 2 buffers of the same size. Each step reads 1 buffer and writes the other, and after each step the
 2 exchange roles, so that the buffer written last is the one read next.
 
-*Example.* Step 1 of the plate reads buffer \\(a\\) and writes buffer \\(b\\); step 2 reads \\(b\\)
-and writes \\(a\\); step 3 reads \\(a\\) again.
+*Example.* Step 1 of the plate reads buffer \\(\mathsf{current}\\) and writes buffer \\(\mathsf{next}\\); step 2 reads \\(\mathsf{next}\\)
+and writes \\(\mathsf{current}\\); step 3 reads \\(\mathsf{current}\\) again.
 
 </div>
 
@@ -395,27 +395,27 @@ chapter, we say "grid" for the cells and "the blocks of a launch" for the other 
 
 We give each cell its own thread. A thread finds its cell from 3 values that the GPU supplies:
 the position of its block among the blocks of the launch (blockIdx), its position inside the block
-(threadIdx), and the size of a block (blockDim). We use blocks of \\(B_x \times B_y = 32 \times 8\\)
-threads, that is, 32 threads along a row and 8 rows of threads. The thread at position
+(threadIdx), and the size of a block (blockDim). We use blocks of 32 × 8 threads, so \\(\mathsf{blockDim{.}x} = 32\\) and \\(\mathsf{blockDim{.}y} = 8\\)
+that is, 32 threads along a row and 8 rows of threads. The thread at position
 (threadIdx.x, threadIdx.y) of block (blockIdx.x, blockIdx.y) then owns the cell
 
-\\[ row = \text{blockIdx.y} \cdot B_y + \text{threadIdx.y}, \qquad col = \text{blockIdx.x} \cdot
-B_x + \text{threadIdx.x}. \\]
+\\[ \mathsf{row} = \mathsf{blockIdx{.}y} \cdot \mathsf{blockDim{.}y} + \mathsf{threadIdx{.}y}, \qquad \mathsf{col} = \mathsf{blockIdx{.}x} \cdot
+\mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}. \\]
 
 | Symbol | Meaning | Example: thread (4, 2) of block (1, 0) |
 |---|---|---|
-| \\(B_x, B_y\\) | width and height of a block in threads | 32, 8 |
+| \\(\mathsf{blockDim{.}x}, \mathsf{blockDim{.}y}\\) | width and height of a block in threads | 32, 8 |
 | blockIdx.x, blockIdx.y | column and row of the block among the blocks | 1, 0 |
 | threadIdx.x, threadIdx.y | column and row of the thread inside its block | 4, 2 |
 | \\(\mathsf{row}\\) | row of the cell the thread owns | \\(0 \cdot 8 + 2 = 2\\) |
 | \\(\mathsf{col}\\) | column of the cell the thread owns | \\(1 \cdot 32 + 4 = 36\\) |
 
 The formula has a simple reading. Along a row, the blocks to the left of block blockIdx.x cover
-\\(\text{blockIdx.x} \cdot B_x\\) columns, and the thread lies threadIdx.x columns further on. In
+\\(\mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x}\\) columns, and the thread lies threadIdx.x columns further on. In
 the example of the table, block 1 has 1 block of 32 columns to its left, so its thread 4 owns
 column 36. The rows are counted in the same way.
 
-A grid of \\(W \times H\\) cells needs \\(\lceil W / B_x \rceil \times \lceil H / B_y \rceil\\)
+A grid of \\(W \times H\\) cells needs \\(\lceil W / \mathsf{blockDim{.}x} \rceil \times \lceil H / \mathsf{blockDim{.}y} \rceil\\)
 blocks, where \\(\lceil x \rceil\\) denotes \\(x\\) rounded up to the next integer, so that a
 partly filled block at the edge is still counted. A grid of 4096 × 4096 cells needs
 \\(4096 / 32 = 128\\) blocks along a row and \\(4096 / 8 = 512\\) along a column. For the plate,
@@ -446,9 +446,10 @@ buffers in global memory, the large memory of the GPU that every thread can read
 <div class="algo">
 <p class="algo-name">Jacobi-Kernel(\(u, v, W, H\))</p>
 <ol>
-<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot B_y + \mathsf{threadIdx{.}y}\), \(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot B_x + \mathsf{threadIdx{.}x}\)</li>
-<li><b class="kw">if</b> \(\mathsf{row} \in [1, H - 1)\) and \(\mathsf{col} \in [1, W - 1)\) { <span class="c">// interior cells only</span></li>
-<li style="--d:1">\(v_{row,\mathsf{col}} = (u_{row-1,\mathsf{col}} + u_{row+1,\mathsf{col}} + u_{row,\mathsf{col}-1} + u_{row,\mathsf{col}+1}) / 4\)</li>
+<li>\(\mathsf{row} = \mathsf{blockIdx{.}y} \cdot \mathsf{blockDim{.}y} + \mathsf{threadIdx{.}y}\)</li>
+<li>\(\mathsf{col} = \mathsf{blockIdx{.}x} \cdot \mathsf{blockDim{.}x} + \mathsf{threadIdx{.}x}\)</li>
+<li class="gap"><b class="kw">if</b> \(\mathsf{row} \in [1, H - 1)\) <b class="kw">and</b> \(\mathsf{col} \in [1, W - 1)\) { <span class="c">// interior cells only</span></li>
+<li style="--d:1">\(v_{\mathsf{row},\mathsf{col}} = (u_{\mathsf{row}-1,\mathsf{col}} + u_{\mathsf{row}+1,\mathsf{col}} + u_{\mathsf{row},\mathsf{col}-1} + u_{\mathsf{row},\mathsf{col}+1}) / 4\)</li>
 <li>}</li>
 </ol>
 </div>
@@ -456,35 +457,35 @@ buffers in global memory, the large memory of the GPU that every thread can read
 <div class="algo">
 <p class="algo-name">Jacobi-GPU(\(u, W, H, K\))</p>
 <ol>
-<li>copy \(u\) into 2 device buffers \(a\) and \(b\) <span class="c">// both hold the boundary</span></li>
-<li><b class="kw">for</b> \(k \in [0, K)\) {</li>
-<li style="--d:1">launch <span class="sc">Jacobi-Kernel</span>(\(a, b, W, H\)) on \(\lceil W/B_x \rceil \times \lceil H/B_y \rceil\) blocks</li>
-<li style="--d:1">exchange the names \(a\) and \(b\)</li>
+<li>copy \(u\) into 2 device buffers \(\mathsf{current}\) and \(\mathsf{next}\) <span class="c">// both hold the boundary</span></li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{step} \in [0, K)\) {</li>
+<li style="--d:1">launch <span class="sc">Jacobi-Kernel</span>(\(\mathsf{current}, \mathsf{next}, W, H\)) on \(\lceil W/\mathsf{blockDim{.}x} \rceil \times \lceil H/\mathsf{blockDim{.}y} \rceil\) blocks</li>
+<li style="--d:1">exchange the names \(\mathsf{current}\) and \(\mathsf{next}\)</li>
 <li>}</li>
-<li>copy \(a\) to the host</li>
+<li class="gap">copy \(\mathsf{current}\) to the host</li>
 </ol>
 </div>
 
 Jacobi-Kernel is the body of Jacobi-Step with its 2 loops removed. The position of the thread,
-computed in line 1, plays the role of the loop variables \\(r\\) and \\(c\\). Line 2 lets only the
-threads of interior cells continue, and line 3 is line 3 of Jacobi-Step. Jacobi-GPU is Jacobi with
-the call of Jacobi-Step replaced by a launch of the kernel, and \\(a\\) and \\(b\\) are the 2
+computed in lines 1 and 2, plays the role of the loop variables \\(\mathsf{row}\\) and \\(\mathsf{col}\\). Line 3 lets only the
+threads of interior cells continue, and line 4 is line 3 of Jacobi-Step. Jacobi-GPU is Jacobi with
+the call of Jacobi-Step replaced by a launch of the kernel, and \\(\mathsf{current}\\) and \\(\mathsf{next}\\) are the 2
 buffers on the device. Launches issued one after another on the same stream run in that order, so
-the launch of step \\(k + 1\\) starts only after every thread of step \\(k\\) has written its value.
+each launch starts only after every thread of the previous launch has written its value.
 The loop of the CPU is thus replaced by threads within a step, while the steps themselves still run
 one after another.
 
 ### 19.4.3 The work of 1 thread
 
 Figure 19.5 follows the thread of cell (2, 2) through step 2. The thread reads 4 values from buffer
-\\(a\\), which holds the grid after step 1, namely 25 above, 0 below, 0 to the left and 0 to the
-right. It then writes \\(25 / 4 = 6.25\\) into cell (2, 2) of buffer \\(b\\). In total, the thread
+\\(\mathsf{current}\\), which holds the grid after step 1, namely 25 above, 0 below, 0 to the left and 0 to the
+right. It then writes \\(25 / 4 = 6.25\\) into cell (2, 2) of buffer \\(\mathsf{next}\\). In total, the thread
 makes 4 reads from global memory and 1 write, and none of the values that it reads was written in
 the same step.
 
 <figure>
-<img src="../../figures/ch19-thread.svg" alt="Left: buffer a, the plate after step 1, with row 1 at 25. The 4 neighbors of cell (2, 2) are outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer b on the right, where cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.">
-<figcaption><b>Figure 19.5</b> The work of 1 thread in step 2: 4 reads from buffer a, 1 write into buffer b.</figcaption>
+<img src="../../figures/ch19-thread.svg" alt="Left: buffer current, the plate after step 1, with row 1 at 25. The 4 neighbors of cell (2, 2) are outlined: 25 above, 0 below, 0 left, 0 right. An arrow leads to buffer next on the right, where cell (2, 2) receives 6.25. A note counts 4 reads from global memory and 1 write.">
+<figcaption><b>Figure 19.5</b> The work of 1 thread in step 2: 4 reads from buffer current, 1 write into buffer next.</figcaption>
 </figure>
 
 Over the whole step, the 16 interior threads of the plate read 64 values and write 16. A grid of
@@ -512,7 +513,8 @@ program computes Jacobi iteration exactly.
 ### 19.5.1 1 buffer for both arguments
 
 Suppose that we launch the kernel with the same buffer as \\(u\\) and as \\(v\\). This is the
-update in place of Section 19.3. In C++, the launch `jacobi<<<blocks, block>>>(a, a, w, h)`
+update in place of Section 19.3. In C++, the launch
+`jacobi<<<blocks, block>>>(current, current, width, height)`
 compiles without a warning. We ran it for 10 steps on the 4096 × 4096 plate, 3 times, and compared
 each result with the result of 10 correct steps. The program printed the following counts.
 
@@ -535,11 +537,11 @@ same buffer as both arguments borrows it as shared and as mutable at the same ti
 borrow checker rejects with the following message.
 
 ```console
-error[E0502]: cannot borrow `a` as mutable because it is also borrowed as immutable
-   --> src/main.rs:146:58
+error[E0502]: cannot borrow `current` as mutable because it is also borrowed as immutable
+   --> src/main.rs:154:64
     |
-146 |         module.jacobi(&stream, &small, &a, RowWidth::new(&mut a, w as u32))?;
-    |                ------                  --                ^^^^^^ mutable borrow occurs here
+154 |         module.jacobi(&stream, &small, &current, RowWidth::new(&mut current, width as u32))?;
+    |                ------                  --------                ^^^^^^^^^^^^ mutable borrow occurs here
     |                |                       |
     |                |                       immutable borrow occurs here
     |                immutable borrow later used by call
@@ -548,9 +550,9 @@ error[E0502]: cannot borrow `a` as mutable because it is also borrowed as immuta
 ### 19.5.2 A buffer without the boundary
 
 The compiler can check that the 2 arguments are different buffers, but it cannot check what a
-buffer holds. Suppose that line 1 of Jacobi-GPU copies the plate into \\(a\\) only, and that \\(b\\)
-is created filled with 0. The kernel never writes a boundary cell, so the top row of \\(b\\) stays
-at 0. Step 1 is unaffected, because it reads \\(a\\). Step 2, however, reads \\(b\\), whose top
+buffer holds. Suppose that line 1 of Jacobi-GPU copies the plate into \\(\mathsf{current}\\) only, and that \\(\mathsf{next}\\)
+is created filled with 0. The kernel never writes a boundary cell, so the top row of \\(\mathsf{next}\\) stays
+at 0. Step 1 is unaffected, because it reads \\(\mathsf{current}\\). Step 2, however, reads \\(\mathsf{next}\\), whose top
 edge is cold, and cell (1, 1) becomes \\((0 + 0 + 0 + 25) / 4 = 6.25\\) instead of 31.25, as shown
 in Figure 19.6. We ran this variant, and it printed the following grids.
 
@@ -572,12 +574,12 @@ in Figure 19.6. We ran this variant, and it printed the following grids.
 ```
 
 <figure>
-<img src="../../figures/ch19-boundary-bug.svg" alt="Left: buffer b after step 1 when it was created filled with 0: row 1 holds 25 but the top row holds 0 instead of 100. Right: step 2 reads that buffer; cell (1, 1) gets (0 + 0 + 0 + 25) / 4 = 6.25 instead of (100 + 0 + 0 + 25) / 4 = 31.25.">
+<img src="../../figures/ch19-boundary-bug.svg" alt="Left: buffer next after step 1 when it was created filled with 0: row 1 holds 25 but the top row holds 0 instead of 100. Right: step 2 reads that buffer; cell (1, 1) gets (0 + 0 + 0 + 25) / 4 = 6.25 instead of (100 + 0 + 0 + 25) / 4 = 31.25.">
 <figcaption><b>Figure 19.6</b> A second buffer without the boundary: step 2 reads a cold top edge, and cell (1, 1) becomes 6.25 in place of 31.25.</figcaption>
 </figure>
 
 The grid printed after step 2 shows 100 in its top row. The program printed buffer
-\\(a\\), which holds the boundary, while the step itself had read the cold top row of \\(b\\). The
+\\(\mathsf{current}\\), which holds the boundary, while the step itself had read the cold top row of \\(\mathsf{next}\\). The
 iteration still converges, but to the answer of a different problem, in which the top edge is hot
 only in every second step. After 200 steps, cell (2, 2) holds 17.55, whereas the correct value is
 32.95. No error is reported, and only a comparison with known values exposes the mistake.
@@ -588,13 +590,13 @@ We can now prove that the correct program computes Jacobi iteration. The proof f
 buffers at the start of each pass through the loop of Jacobi-GPU, as shown in Figure 19.7.
 
 <figure>
-<img src="../../figures/ch19-pingpong.svg" alt="3 rows, one per step. Before step 1, buffer a holds u0 and buffer b holds u0. The kernel reads a and writes the interior of b, which then holds u1; the names are exchanged, so a holds u1 and b holds u0. Before step 2, a holds u1; after step 2 and the exchange, a holds u2 and b holds u1. A note states the invariant: at the start of pass k, a holds u(k) and b holds the boundary values.">
-<figcaption><b>Figure 19.7</b> The 2 buffers at the start of each pass: a holds the newest grid, b holds the boundary.</figcaption>
+<img src="../../figures/ch19-pingpong.svg" alt="3 rows, one per step. Before step 1, buffer current holds u0 and buffer next holds u0. The kernel reads current and writes the interior of next, which then holds u1; the names are exchanged, so a holds u1 and b holds u0. Before step 2, a holds u1; after step 2 and the exchange, a holds u2 and b holds u1. A note states the invariant: at the start of pass k, current holds u(k) and next holds the boundary values.">
+<figcaption><b>Figure 19.7</b> The 2 buffers at the start of each pass: current holds the newest grid, next the grid before it.</figcaption>
 </figure>
 
 <div class="theorem">
 
-<span class="box-label">Theorem 19.1</span> When Jacobi-GPU finishes, buffer \\(a\\) holds the grid
+<span class="box-label">Theorem 19.1</span> When Jacobi-GPU finishes, buffer \\(\mathsf{current}\\) holds the grid
 \\(u^{(K)}\\) of Definition 19.3, in every cell.
 
 </div>
@@ -602,31 +604,31 @@ buffers at the start of each pass through the loop of Jacobi-GPU, as shown in Fi
 <div class="proof">
 
 *Proof.* We show that the loop of lines 2 to 5 maintains the following invariant: at the start of
-pass \\(k\\), (i) buffer \\(a\\) holds \\(u^{(k)}\\) in every cell, and (ii) every boundary cell of
-\\(b\\) holds its given value.
+pass \\(k\\), (i) buffer \\(\mathsf{current}\\) holds \\(u^{(k)}\\) in every cell, and (ii) every boundary cell of
+\\(\mathsf{next}\\) holds its given value.
 
 *Initialization.* Before pass 0, line 1 has copied the starting grid \\(u = u^{(0)}\\) into both
 buffers. Both parts of the invariant therefore hold.
 
 *Maintenance.* Assume that the invariant holds at the start of pass \\(k\\). The launch in line 3
-reads only \\(a\\) and writes only interior cells of \\(b\\), and \\(a\\) and \\(b\\) are different
+reads only \\(\mathsf{current}\\) and writes only interior cells of \\(\mathsf{next}\\), and \\(\mathsf{current}\\) and \\(\mathsf{next}\\) are different
 buffers, so no thread reads a value that another thread of the launch writes. Every thread
-therefore reads values of \\(u^{(k)}\\), and line 3 of Jacobi-Kernel stores \\(u^{(k+1)}_{r,c}\\)
-into each interior cell of \\(b\\). The boundary cells of \\(b\\) are not written, so they still
-hold the given values, which are also the boundary values of \\(u^{(k+1)}\\). Hence, \\(b\\) holds
-\\(u^{(k+1)}\\) in every cell. Buffer \\(a\\) was not written, so its boundary cells still hold the
+therefore reads values of \\(u^{(k)}\\), and line 4 of Jacobi-Kernel stores \\(u^{(k+1)}_{r,c}\\)
+into each interior cell of \\(\mathsf{next}\\). The boundary cells of \\(\mathsf{next}\\) are not written, so they still
+hold the given values, which are also the boundary values of \\(u^{(k+1)}\\). Hence, \\(\mathsf{next}\\) holds
+\\(u^{(k+1)}\\) in every cell. Buffer \\(\mathsf{current}\\) was not written, so its boundary cells still hold the
 given values. Line 4 exchanges the names, after which (i) and (ii) hold for pass \\(k + 1\\). The
 next launch starts only after this one has finished, because launches on 1 stream run in order.
 
-*Termination.* The loop ends after \\(K\\) passes, so \\(a\\) holds \\(u^{(K)}\\), and line 6
+*Termination.* The loop ends after \\(K\\) passes, so \\(\mathsf{current}\\) holds \\(u^{(K)}\\), and line 6
 copies it to the host.
 
 </div>
 
 Each broken variant of this section violates 1 step of the proof. The launch with 1 buffer violates
-the condition "\\(a\\) and \\(b\\) are different buffers" in the maintenance step. The zeroed buffer
+the condition "\\(\mathsf{current}\\) and \\(\mathsf{next}\\) are different buffers" in the maintenance step. The zeroed buffer
 violates part (ii) of the invariant at initialization, and the proof then fails at the first
-exchange, when \\(b\\) becomes the buffer that the next step reads.
+exchange, when \\(\mathsf{next}\\) becomes the buffer that the next step reads.
 
 <div class="rule-box">
 
@@ -654,11 +656,13 @@ the 6 × 6 plate did not?
 
 ### 19.6.1 The kernel
 
-Listing 19.1 shows the kernel in both languages. We let each thread compute its position, which is line 1
-of Jacobi-Kernel, keeps only interior cells, which is line 2, and stores the mean of its 4
-neighbors, which is line 3. In the flat array, the cell itself is element `c = row * width + col`.
-Its neighbors above and below are \\(W\\) elements away, at `c - width` and `c + width`, and those
-to the left and right are at `c - 1` and `c + 1`. For cell (2, 2) of the plate, `c` is
+Listing 19.1 shows the kernel in both languages. We let each thread compute its position, which is lines 1
+and 2 of Jacobi-Kernel, keep only interior cells, which is line 3, and store the mean of its 4
+neighbors, which is line 4. In the flat array, the cell itself is element
+`center = row * width + col`.
+Its neighbors above and below are \\(W\\) elements away, at `center - width` and `center + width`, and
+those to the left and right are at `center - 1` and `center + 1`. For cell (2, 2) of the plate,
+`center` is
 \\(2 \cdot 6 + 2 = 14\\), and the 4 neighbors are elements 8, 20, 13 and 15. Both versions add the
 4 values in the same order and multiply by 0.25 last, as the CPU reference of the programs does,
 so that the GPU and the CPU round identically.
@@ -671,7 +675,7 @@ so that the GPU and the CPU round identically.
 ```rust,ignore
 mod kernels {
     // ...
-{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:23:43}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:23:45}}
     // ...
 }
 ```
@@ -680,7 +684,7 @@ mod kernels {
 <div class="code-tab" data-lang="C++">
 
 ```cpp
-{{#include ../../../../code/cuda/ch19_stencil/stencil.cu:27:40}}
+{{#include ../../../../code/cuda/ch19_stencil/stencil.cu:27:42}}
 ```
 
 </div>
@@ -715,7 +719,7 @@ step, and prints the grid after steps 1, 2 and 100.
 ```rust,ignore
 fn main() -> Result<(), Error> {
     // ...
-{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:136:154}}
+{{#include ../../../../code/oxide/ch19_stencil/src/main.rs:144:162}}
     // ...
 }
 ```
@@ -727,7 +731,7 @@ fn main() -> Result<(), Error> {
 int main()
 {
     // ...
-{{#include ../../../../code/cuda/ch19_stencil/stencil.cu:153:175}}
+{{#include ../../../../code/cuda/ch19_stencil/stencil.cu:159:181}}
     // ...
 }
 ```
