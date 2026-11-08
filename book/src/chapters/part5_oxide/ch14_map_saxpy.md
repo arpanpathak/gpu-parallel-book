@@ -15,8 +15,8 @@ fewer threads than elements cover the array. We prove that the grid-stride loop 
 element exactly once, and we break both algorithms on purpose to see what goes wrong. Counting the
 bytes and operations of SAXPY then explains why its speed is set by the memory and not by the
 arithmetic. The implementation is given in Rust with cuda-oxide and in CUDA C++, including a
-generic map that takes a Rust closure or a C++ lambda, and the measurements compare both with the
-bandwidth of the GPU.
+generic map that takes a Rust closure or a C++ lambda, and we compare the measured rates of both
+with the bandwidth of the GPU.
 
 <div class="covers" markdown="1">
 
@@ -169,7 +169,7 @@ each on its own thread.
 
 </div>
 
-The running sum has no such property, and Chapter 15 shows the different algorithm it needs.
+The running sum has no such property, and in Chapter 15 we show the different algorithm it needs.
 
 <div class="exercises">
 
@@ -291,8 +291,8 @@ The parallel algorithm therefore does the same work as the sequential one: 24 FL
 on the example, 12 bytes per element in general. What changes is the time. The \\(n\\) iterations
 no longer form a sequence of \\(n\\) steps; with enough threads they all fit in 1 step. The cost
 that remains, 12 bytes per element from global memory, cannot be reduced by any arrangement of
-threads, because every value of \\(x\\) and \\(y\\) is used exactly once. Section 14.6 shows that
-this cost decides the speed of SAXPY.
+threads, because every value of \\(x\\) and \\(y\\) is used exactly once. In Section 14.6 we show
+that this cost decides the speed of SAXPY.
 
 <div class="exercises">
 
@@ -315,7 +315,7 @@ Which elements of the example are never computed with \\(B = 8\\)?
 the measured arrays. A GPU does not run so many at once. A Jetson Orin NX, for example, holds at
 most 1,536 threads on each of its 8 SMs, 12,288 threads in total, so the 65,536 blocks
 of 256 threads run in about 1,366 rounds, each block starting when an earlier one has finished.
-Nothing is wrong with this, and Section 14.8 measures it at full speed. 3 reasons nevertheless
+Nothing is wrong with this, and we measure it at full speed in Section 14.8. 3 reasons nevertheless
 lead to a grid with fewer threads than elements.
 
 1. Work that a thread does once, before or after its elements, is shared by all of its elements.
@@ -582,7 +582,7 @@ stride. Which elements of the example are updated twice, and which never?
 
 ### 14.6.1 Arithmetic intensity
 
-Section 14.3.3 found that SAXPY moves 12 bytes for every 2 FLOP. To decide whether the memory or
+In Section 14.3.3 we found that SAXPY moves 12 bytes for every 2 FLOP. To decide whether the memory or
 the arithmetic limits its speed, we compare this ratio with the corresponding ratio of the GPU.
 
 <div class="definition">
@@ -643,8 +643,8 @@ SAXPY at all; only a faster memory would. Table 14.2 gives the bound for 4 GPUs.
 
 Even on an H100, SAXPY at its bound performs 558 GFLOP/s, less than 1% of that GPU's
 single-precision peak of 67 TFLOP/s. The speed of a map is therefore measured in bytes per second,
-and an implementation is judged by how close it comes to the memory bandwidth. Section 14.8
-measures how close ours come.
+and an implementation is judged by how close it comes to the memory bandwidth. In Section 14.8
+we measure how close ours come.
 
 <div class="exercises">
 
@@ -834,8 +834,8 @@ lambda that captures by reference, `[&]`, with the error
 Rust, the bound `Copy` rejects any closure that owns memory, such as a captured `Vec<f32>`, and the
 keyword `move` makes the closure copy `a` instead of borrowing it. A Rust closure that borrows a
 host variable still compiles, because a reference is `Copy`. Both the C++ lambda with a host
-pointer and the Rust closure with a host reference then read a host address on the GPU; the Common
-mistakes at the end of the chapter show the result.
+pointer and the Rust closure with a host reference then read a host address on the GPU; the result is
+shown in the Common mistakes at the end of the chapter.
 
 The program also launches the 1-thread-per-element form of the map, `map`, with the closure
 `axpy` and with a second closure, `|x, y| x.max(y)`, which captures nothing. Both are checked
@@ -927,7 +927,7 @@ GB/s of the memory.
 
 ### 14.8.3 Why 91 GB/s, not 102 GB/s
 
-Section 14.6.2 predicted at least 1.97 ms at 102 GB/s; the kernels took 2.16 ms to 2.24 ms, 10%
+In Section 14.6.2 we predicted at least 1.97 ms at 102 GB/s; the kernels took 2.16 ms to 2.24 ms, 10%
 to 14% longer. The figure of 102 GB/s is the rate at the pins of the memory chips: the measured GPU
 moves 16 bytes per transfer over a 128-bit bus at 6,400 million transfers per second, and
 \\(16 \text{ B} \cdot 6.4 \cdot 10^9 \text{ /s} = 102.4 \text{ GB/s}\\). The memory cannot

@@ -386,8 +386,8 @@ int)` and `poly(const double*, double*, int)`. To give each of them a distinct s
 C++ compiler encodes the parameter types into the name. Our kernel becomes `_Z4polyPKfPfi`: `_Z`
 starts an encoded name, `4poly` is the 4-letter name, `PKf` is a pointer to a constant float,
 `Pf` a pointer to a float, and `i` an int. This encoding is called **name mangling**. Since
-section 12.5.2 looks up the kernel by its name, the name must be predictable. Second, the format
-**`%.9e`** of `snprintf` prints each coefficient in scientific notation: 1 digit, a decimal
+we look up the kernel by its name in section 12.5.2, the name must be predictable. Second, the
+format **`%.9e`** of `snprintf` prints each coefficient in scientific notation: 1 digit, a decimal
 point and 9 more digits, followed by a power of 10, for example `3.125000000e-02` = 3.125 ×
 10<sup>−2</sup> for 1/32. 9 significant decimal digits are sufficient to represent every `float`
 value exactly, and the format prints 10, so each constant in the text is the same `float` that
@@ -419,8 +419,8 @@ compiles the string in 44 to 88 ms and returns either 2,237 bytes of PTX or a cu
 bytes for `sm_87`. The driver loads the image into the context as a module: the cubin in 0.05
 ms, the PTX in 13 to 45 ms because the driver must first JIT-compile it, or in about 0.7 ms if
 it finds the result of an earlier compilation in its cache (section 12.7). The program looks up
-`poly` in the module and launches it with `cuLaunchKernel`. Sections 12.4 and 12.5 take these
-steps in order: compile, load and look up, launch.
+`poly` in the module and launches it with `cuLaunchKernel`. In Sections 12.4 and 12.5 we take
+these steps in order: compile, load and look up, launch.
 
 A compilation consists of 5 steps:
 
@@ -550,7 +550,7 @@ The driver API can also create additional contexts with `cuCtxCreate`. However, 
 belongs to the context that allocated it and is not valid in any other context. A program that
 combined the runtime API with a context of its own would therefore hold 2 separate sets of
 memory. By retaining the primary context, the program uses a single context throughout, as
-section 12.8 discusses further. At the end of the program, `cuDevicePrimaryCtxRelease`
+we discuss further in section 12.8. At the end of the program, `cuDevicePrimaryCtxRelease`
 decrements the count of users.
 
 ### 12.5.2 Modules and functions
@@ -728,7 +728,7 @@ Compiling the source took 45.74 ms to produce PTX and 51.99 ms to produce a cubi
 runs the complete compiler on the CPU once for each output. Across repeated runs, the compile
 time ranged from 44 ms to 88 ms, depending on the load that other programs placed on the CPU.
 Loading the PTX took only 0.68 ms in this run because the driver found a compiled copy in its
-cache; section 12.7 explains the cache and shows that a load without it costs 13 to 45 ms.
+cache; in section 12.7 we explain the cache and show that a load without it costs 13 to 45 ms.
 Loading the cubin took 0.05 ms, since a cubin is already machine code and only needs to be
 copied into the context.
 
@@ -983,7 +983,7 @@ the choices.
 
 </div>
 
-Chapter 13 begins Part V, in which every kernel is written in Rust with cuda-oxide. The
+In Chapter 13 we begin Part V, in which every kernel is written in Rust with cuda-oxide. The
 `kernels::load` call in each of those programs is the driver API load described in this chapter.
 
 ## Exercises

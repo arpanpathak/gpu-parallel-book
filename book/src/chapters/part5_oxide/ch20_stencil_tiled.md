@@ -74,8 +74,8 @@ into shared memory, and the other 3 can read it from there.
 
 </div>
 
-Chapter 19 found that the caches already serve many of these repeated reads. The tile makes the
-reuse explicit instead of leaving it to the caches; Section 20.7 measures the difference.
+In Chapter 19 we found that the caches already serve many of these repeated reads. The tile makes
+the reuse explicit instead of leaving it to the caches; we measure the difference in Section 20.7.
 
 <div class="exercises">
 
@@ -189,7 +189,7 @@ and 4 load 4: \\(180 + 144 + 16 = 340\\). Every thread computes, but a few threa
 the rest.
 
 Both ways give every slot exactly 1 loading thread, which is what the correctness proof of Section
-20.5 needs. They differ in cost, and Section 20.7 measures both.
+20.5 needs. They differ in cost, and we measure both in Section 20.7.
 
 ### 20.3.2 Slots outside the grid
 
@@ -586,12 +586,13 @@ positions in 64-bit integers and derive the height with a division.
 
 ### 20.7.2 Why the tile gains nothing here
 
-Chapter 19 measured that the direct kernel already moves only about 9 bytes per cell from memory,
-1.25 reads and 1 write, and runs within 12% of a copy. The 4 reads per cell that the direct kernel
-requests are mostly answered by the L1 and L2 caches, which keep the 3 rows that neighbouring warps
-share (Figure 19.11). The tile loads 1.33 values per result, 340 cells for 256 results; with the
-write, that is 9.3 bytes per cell, no less than what the direct kernel already moves. A tile can
-remove only the traffic that reaches memory, and here the caches have removed it already.
+In Chapter 19 we measured that the direct kernel already moves only about 9 bytes per cell from
+memory, 1.25 reads and 1 write, and runs within 12% of a copy. The 4 reads per cell that the direct
+kernel requests are mostly answered by the L1 and L2 caches, which keep the 3 rows that
+neighbouring warps share (Figure 19.11). The tile loads 1.33 values per result, 340 cells for 256
+results; with the write, that is 9.3 bytes per cell, no less than what the direct kernel already
+moves. A tile can remove only the traffic that reaches memory, and here the caches have removed it
+already.
 
 2 further measurements support this account. First, we bypassed the L1 cache in the direct kernel
 (each neighbour read with the C++ intrinsic `__ldcg`, which reads through L2 only): it ran at 61.4
@@ -609,8 +610,8 @@ threads in flight, or that does not cache global loads in L1, the direct kernel'
 reach memory, and the tile's 1.33 is a 3-fold reduction of the traffic. On the measured GPU the caches
 capture the reuse of a 5-point stencil, and the tile adds only work. A stencil with more
 reuse per value, such as a 3-D stencil of radius 4 that reads 25 values per result, or a kernel that
-performs several steps on 1 tile, leaves more for the tile to capture. The next section measures the
-second.
+performs several steps on 1 tile, leaves more for the tile to capture. We measure the second in the
+next section.
 
 <div class="exercises">
 

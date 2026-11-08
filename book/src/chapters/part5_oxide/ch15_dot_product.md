@@ -17,8 +17,8 @@ their values in shared memory, step by step, separated by barriers. We remove a 
 wrong sum it produces and prove the tree correct with a loop invariant. We then replace most of
 the barriers by warp shuffles, and compare 2 ways of combining the sums of different blocks: a
 second launch and atomic additions. The implementation is given in Rust with cuda-oxide and in
-CUDA C++. The measurements explain why the fused kernel runs more than twice as fast as a map
-followed by a separate reduction, and why atomic additions change the last bits of the result
+CUDA C++. From the measurements we explain why the fused kernel runs more than twice as fast as a
+map followed by a separate reduction, and why atomic additions change the last bits of the result
 from run to run.
 
 <div class="covers" markdown="1">
@@ -187,8 +187,8 @@ perform each of them.
 </div>
 
 Floating-point addition is associative only approximately, because every addition rounds its
-result. Section 15.6.3 shows what that changes; until then, we work with the exact integers of the
-example.
+result. In Section 15.6.3 we show what that changes; until then, we work with the exact integers
+of the example.
 
 <div class="exercises">
 
@@ -300,7 +300,7 @@ threads, \\(P = 16 = n\\), so the loop runs once and \\(v\\) is the thread's sin
 stores the sum in the thread's own cell, and the barrier of line 8 waits until all \\(B\\) cells
 are filled. Lines 9 to 14 are the tree of Figure 15.4, with a barrier after every step, and lines
 15 to 17 write the block's sum. On the example, block 0 writes 32 into `partial[0]` and block 1
-writes 31 into `partial[1]`. Section 15.6 adds the partial sums.
+writes 31 into `partial[1]`. We add the partial sums in Section 15.6.
 
 Lines 8 and 13 lie outside every `if`. The barrier of line 13 is executed by all \\(B\\) threads in
 every step, including the threads with \\(t \ge s\\) that have nothing to add.
@@ -422,8 +422,8 @@ the sum over \\(j \equiv 0 \pmod{1}\\), that is, over all \\(j \in [0, B)\\).
 </div>
 
 The proof uses each barrier once: line 8 in the initialization and line 13 in the maintenance.
-Removing either breaks exactly the step of the proof that uses it, and Section 15.4.1 showed the
-wrong value that follows.
+Removing either breaks exactly the step of the proof that uses it, and in Section 15.4.1 we saw
+the wrong value that follows.
 
 <div class="rule-box">
 
@@ -632,10 +632,10 @@ fixed pattern. The result is the same, bit for bit, in every run with the same g
 additions, the 1,024 block sums arrive in an order that depends on timing, and the last bits of
 the result can change from run to run. Both results are correct to the precision of a float.
 
-The program uses this to verify itself exactly, as the paper on tiled matrix multiplication does
-with small integers. Its second test fills \\(a\\) and \\(b\\) with 0s and 1s, so that every
-product, every partial sum and the total are integers no larger than \\(2^{24}\\), all of which
-are floats. No addition then rounds, every order gives the same result, and every method must
+The program uses this to verify itself exactly, as is done with small integers in the paper on
+tiled matrix multiplication. Its second test fills \\(a\\) and \\(b\\) with 0s and 1s, so that
+every product, every partial sum and the total are integers no larger than \\(2^{24}\\), all of
+which are floats. No addition then rounds, every order gives the same result, and every method must
 return exactly 2,796,203, the number of positions divisible by 6.
 
 <div class="exercises">
@@ -906,8 +906,8 @@ every run, while the fused kernels ran at the same speed in both languages.
 The tree with 9 barriers and the warp shuffles with 1 run at the same speed, 1.409 ms and 1.405 ms
 in Rust. Each thread adds 64 products in its register before the block sum begins, so a block pays
 for its 9 barriers once per \\(64 \cdot 256 = 16{,}384\\) products, a small part of its time.
-Chapter 8 found the same for the plain sum: after coarsening, its tree and its shuffle sum ran at
-64.1 GB/s and 64.4 GB/s. Shuffles matter where a combination is frequent, as in the many short
+In Chapter 8 we found the same for the plain sum: after coarsening, its tree and its shuffle sum
+ran at 64.1 GB/s and 64.4 GB/s. Shuffles matter where a combination is frequent, as in the many short
 reductions of a softmax over the rows of a matrix (Chapter 23).
 
 The atomic design is as fast as the others: its 1,024 atomic additions are few, and its extra

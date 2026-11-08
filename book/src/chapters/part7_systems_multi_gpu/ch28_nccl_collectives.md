@@ -2,7 +2,7 @@
 
 # Chapter 28: NCCL & Multi-GPU Collective Communication
 
-Chapter 27 described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
+In Chapter 27 we described the connections between GPUs: PCIe, NVLink and NVSwitch. In this chapter,
 we turn to the data that programs send over those connections. When several GPUs work on 1
 problem, each GPU computes a partial result, and the partial results must be combined, usually
 in every iteration of the program. The time that this combination takes depends not only on the
@@ -15,7 +15,7 @@ time that a message takes. We then analyze 2 algorithms for the most important c
 all-reduce: the ring and the tree. We count the steps and the bytes of each by hand, and derive the
 message size at which one becomes faster than the other. We then implement both algorithms in CUDA
 C++ and in Rust, run them on 1 GPU that holds the data of all the participants in its memory, and
-compare the measured times with the model. The chapter ends with NCCL, NVIDIA's library of
+compare the measured times with the model. We end the chapter with NCCL, NVIDIA's library of
 collective operations, and with the way frameworks such as PyTorch use it.
 
 <div class="covers" markdown="1">
@@ -150,7 +150,7 @@ therefore takes 24 ms. During those 24 ms, the links of ranks 1, 2 and 3 each ca
 in each direction, a third of what the link of rank 0 carries.
 
 In general, the link of the collector carries k − 1 times the message in each direction, so the
-time grows with the number of ranks while the other links are mostly idle. Section 28.4 presents
+time grows with the number of ranks while the other links are mostly idle. In Section 28.4 we present
 an algorithm in which every link carries the same share, 150 MB in this example, and the same
 exchange takes 6 ms.
 
@@ -365,8 +365,8 @@ algorithm for small ones.
 ### 28.4.1 Chunks and steps of the ring
 
 Recall the problem of Section 28.1.2. With a single collector, the link of rank 0 carried every
-byte of the exchange, while the links of ranks 1, 2 and 3 were mostly idle. Section 28.2.3
-suggests a remedy. An all-reduce is a reduce-scatter followed by an all-gather, and in a
+byte of the exchange, while the links of ranks 1, 2 and 3 were mostly idle. A remedy follows
+from Section 28.2.3. An all-reduce is a reduce-scatter followed by an all-gather, and in a
 reduce-scatter each rank computes only 1 piece of the sum. If each of 4 ranks is responsible for a
 quarter of the sum, all 4 links can share the traffic. The ring all-reduce organizes the ranks and
 their data so that this happens. We first define its 2 ingredients and then follow the data by
@@ -569,8 +569,8 @@ each of the 3 other ranks, so 24 floats leave through the same link. The link of
 cannot send the sum before it has received all 3 messages, so its 2 directions work one after the
 other: the exchange lasts as long as 24 + 24 = 48 floats crossing 1 link. In the ring, every link
 sends and receives its 12 floats at the same time, so the exchange lasts as long as 12 floats
-crossing 1 link. The ring is 48 ÷ 12 = 4 times as fast, a factor of k, as Section 28.4.4 shows in
-general.
+crossing 1 link. The ring is 48 ÷ 12 = 4 times as fast, a factor of k, as we show in Section
+28.4.4 in general.
 
 For k ranks and a message of m bytes, each phase of the ring takes k − 1 steps, so the all-reduce
 takes 2 (k − 1) steps. In each step, a rank sends 1 chunk of m / k bytes. Over the whole
@@ -817,8 +817,8 @@ r n + n − 1, where n is the number of floats per rank. A send from rank r to r
 becomes a read from 1 slice and a write into another.
 
 Note that the program measures the algorithms, not a network. All the simulated links share the
-memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. Section 28.6.4
-shows how this affects the measured times.
+memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. In Section 28.6.4
+we show how this affects the measured times.
 
 The program first converts an algorithm into a **plan**: a list of steps, each of which is a list of
 **transfers** that run at the same time. A transfer specifies the offset that it reads from and the
@@ -1264,8 +1264,8 @@ ring that must cross a `SYS` path, between processor sockets, runs at the speed 
 
 </div>
 
-This chapter concludes the part of the book on systems with more than one GPU. The Epilogue looks
-at the directions in which GPU hardware and its programming are developing.
+With this chapter we conclude the part of the book on systems with more than one GPU. In the
+Epilogue we look at the directions in which GPU hardware and its programming are developing.
 
 ## Exercises
 

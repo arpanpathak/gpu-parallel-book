@@ -82,8 +82,8 @@ the mean of the temperatures of its 4 neighbours,
 
 A cell warmer than all its neighbours would lose heat to them, and a cell colder than all of them
 would gain heat, so in the final state neither can exist. We can check the rule on the answer.
-Section 19.2 computes the final temperatures of our plate; in it, cell (1, 1) holds 45.45 and its
-neighbours hold 100 above, 22.35 below, 0 to the left and 59.47 to the right. Their mean is
+In Section 19.2 we compute the final temperatures of our plate; there, cell (1, 1) holds 45.45 and
+its neighbours hold 100 above, 22.35 below, 0 to the left and 59.47 to the right. Their mean is
 \\((100 + 22.35 + 0 + 59.47) / 4 = 181.82 / 4 = 45.45\\), the value of the cell itself (Figure
 19.2).
 
@@ -217,9 +217,9 @@ written last becomes the grid read by the next step.
 Line 3 of Jacobi-Step executes once for each interior cell, \\((W - 2)(H - 2)\\) times per step.
 Each execution reads 4 values, performs 3 additions and 1 multiplication by 1/4, 4 floating-point
 operations, and writes 1 value. On our plate a step performs 16 updates: 64 reads, 64 operations
-and 16 writes. On a grid of 4096 × 4096 cells a step performs 16.7 million updates, and Section
-19.7 shows that such a grid needs millions of steps. A CPU performs the updates one after another;
-the next section asks which of them may run at the same time.
+and 16 writes. On a grid of 4096 × 4096 cells a step performs 16.7 million updates, and in
+Section 19.7 we will see that such a grid needs millions of steps. A CPU performs the updates one
+after another; in the next section we ask which of them may run at the same time.
 
 <div class="exercises">
 
@@ -256,8 +256,8 @@ which converges as well. On a GPU it gives no well-defined method at all. The ce
 different threads. The thread of cell (1, 2) may read its left neighbour before or after the
 thread of cell (1, 1) writes it, and the order is decided by how the hardware schedules the 2
 threads. The
-result can be 25, 31.25, or a mixture across the grid, and it can change from run to run. Section
-19.5 runs this variant.
+result can be 25, 31.25, or a mixture across the grid, and it can change from run to run. We run
+this variant in Section 19.5.
 
 ### 19.3.2 Which updates are independent
 
@@ -304,7 +304,7 @@ cell (1, 2) receive in step 1?
 ### 19.4.1 Threads and blocks
 
 A GPU runs 1 function many times at once. The terms below were introduced in Chapters 3 and 13; we
-restate them because the rest of the chapter uses them.
+restate them because we use them in the rest of the chapter.
 
 <div class="definition">
 
@@ -396,8 +396,8 @@ memory and 1 write, and none of the values it reads was written in the same step
 
 Over the whole step, the 16 interior threads of the plate read 64 values and write 16. A grid of
 4096 × 4096 cells has 16.7 million interior threads per step, which read 67 million values,
-268 MB, and write 16.7 million, 67 MB. Section 19.8 shows that most of those reads never reach the
-memory chips.
+268 MB, and write 16.7 million, 67 MB. In Section 19.8 we will see that most of those reads never
+reach the memory chips.
 
 <div class="exercises">
 
@@ -429,9 +429,9 @@ in place, 4096 x 4096, run 2: 28330 of 16777216 cells differ from Jacobi after 1
 in place, 4096 x 4096, run 3: 28464 of 16777216 cells differ from Jacobi after 10 steps
 ```
 
-The number of wrong cells changes from run to run, as Section 19.3 predicted. On the 6 × 6 plate
-the same launch printed the correct values of Figure 19.3. There all 36 cells belong to 1 block,
-and in our runs every thread of the block read its neighbours before any of them wrote; nothing
+The number of wrong cells changes from run to run, as we predicted in Section 19.3. On the 6 × 6
+plate the same launch printed the correct values of Figure 19.3. There all 36 cells belong to 1
+block, and in our runs every thread of the block read its neighbours before any of them wrote; nothing
 in the hardware guarantees that order. A test on a small grid therefore
 cannot show the error. It appears where 1 block reads cells that another block, running earlier or
 later, writes.
@@ -778,8 +778,8 @@ The prediction also gives the cost of the method on a large grid. Reducing the e
 800 for \\(n = 63\\), and about 3.4 million for a grid of 4096 × 4096 cells. The number of steps
 grows with the square of the width, so large solvers use Jacobi steps as one part of faster
 methods, such as multigrid, which apply a few Jacobi steps on a series of coarser grids. A fast
-Jacobi step is the building block of those methods, and the rest of this chapter and the next
-measure how fast a step can be.
+Jacobi step is the building block of those methods, and in the rest of this chapter and in the
+next we measure how fast a step can be.
 
 <div class="exercises">
 
@@ -862,8 +862,8 @@ PASSED
 
 ### 19.8.3 Why the step runs at 89% of a copy
 
-The copy reaches 76.4 GB/s, 75% of the rated 102 GB/s; Chapter 7 showed that no kernel reaches the
-rated figure. The copy is the ceiling for a step. The C++ step reaches 89% of it. If every one of
+The copy reaches 76.4 GB/s, 75% of the rated 102 GB/s; in Chapter 7 we saw that no kernel reaches
+the rated figure. The copy is the ceiling for a step. The C++ step reaches 89% of it. If every one of
 its 4 reads per cell went to memory, a step would move 16 bytes of reads and 4 of writes, 20 bytes
 per cell, and take at least \\(20 / 8 = 2.5\\) times as long as the copy, 4.4 ms. It took 1.97 ms.
 Requesting 20 bytes per cell in 1.966 ms is a rate of \\(20 \cdot 16.7 \times 10^6 / 1.966 \times
@@ -886,8 +886,8 @@ writes 1: 9 bytes per cell instead of 8. At the copy's rate, 9 bytes per cell ta
 </figure>
 
 The step is thus close to the best it can be. It moves about 9 bytes per cell where 8 are needed,
-and its speed follows from that count. Chapter 20 asks whether a block can do better by copying its
-10 rows into shared memory itself.
+and its speed follows from that count. In Chapter 20 we ask whether a block can do better by
+copying its 10 rows into shared memory itself.
 
 ### 19.8.4 Why the Rust step is slower
 

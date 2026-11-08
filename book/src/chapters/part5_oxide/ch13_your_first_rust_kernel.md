@@ -15,9 +15,9 @@ This chapter covers
 
 </div>
 
-This part of the book writes GPU kernels in Rust with **cuda-oxide**, NVIDIA's compiler backend that compiles ordinary Rust functions into GPU code. The kernel and the host program that launches it are written in the same `.rs` file, and both are built with a single command.
+In this part we write GPU kernels in Rust with **cuda-oxide**, NVIDIA's compiler backend that compiles ordinary Rust functions into GPU code. The kernel and the host program that launches it are written in the same `.rs` file, and both are built with a single command.
 
-The first kernel adds 2 vectors. We choose this computation because its arithmetic is trivial, so that the discussion can concentrate on the structure of a GPU program: how threads are mapped to data, how data is moved between host and device, and how a kernel is launched. The kernels of the later chapters in this part, dot products, matrix multiplication, stencils and scans, use the same structure.
+The first kernel adds 2 vectors. We choose this computation because its arithmetic is trivial, so that we can concentrate on the structure of a GPU program: how threads are mapped to data, how data is moved between host and device, and how a kernel is launched. The kernels of the later chapters in this part, dot products, matrix multiplication, stencils and scans, use the same structure.
 
 ## 13.1 Vector addition
 
@@ -77,7 +77,7 @@ Consider `N = 20` elements and blocks of 8 threads. The grid must contain at lea
 
 Thread 3 of block 2 computes 2 × 8 + 3 = 19 and adds `a[19]` and `b[19]`. Thread 4 of block 2 computes 20. There is no element 20, so this thread must not access memory.
 
-Such spare threads exist whenever `N` is not a multiple of the block size, which is the usual case. Every kernel therefore contains a guard that disables the threads whose index lies past the end of the data. In CUDA C++ the programmer writes this guard by hand, and omitting it is a common bug. In cuda-oxide the guard is enforced by the type of the output parameter, as section 13.6 shows.
+Such spare threads exist whenever `N` is not a multiple of the block size, which is the usual case. Every kernel therefore contains a guard that disables the threads whose index lies past the end of the data. In CUDA C++ the programmer writes this guard by hand, and omitting it is a common bug. In cuda-oxide the guard is enforced by the type of the output parameter, as we show in section 13.6.
 
 ## 13.4 Structure of the program
 
@@ -105,7 +105,7 @@ The kernel operates on GPU memory. The host program therefore copies the inputs 
 <figcaption><b>Figure 13.3</b> Copy in, launch, copy out.</figcaption>
 </figure>
 
-> **NOTE:** On an integrated GPU, the CPU and the GPU share the same physical memory, and the program still copies. The copy places the data in memory allocated for the GPU, and the same code then runs unchanged on a discrete GPU with its own memory. Later chapters describe ways to avoid the copy.
+> **NOTE:** On an integrated GPU, the CPU and the GPU share the same physical memory, and the program still copies. The copy places the data in memory allocated for the GPU, and the same code then runs unchanged on a discrete GPU with its own memory. We describe ways to avoid the copy in later chapters.
 
 ## 13.5 Setting up cuda-oxide
 
@@ -117,8 +117,6 @@ A cuda-oxide program requires 4 components:
 | An NVIDIA GPU | Ampere or newer (`sm_80`+) | `nvidia-smi` |
 | The CUDA Toolkit | 12.x or 13.x | `nvcc --version` |
 | Rust nightly | the version cuda-oxide pins | installed for you by `rustup` |
-
-The examples in this book were built and run on a Jetson Orin NX 16 GB developer kit (`sm_87`, 8 SMs) with CUDA 12.6.
 
 The build is driven by a cargo subcommand. We install it and then let it check the machine:
 
@@ -190,13 +188,13 @@ The kernel itself is defined inside a module:
 
 We examine its parts from the outside in.
 
-**`#[cuda_module] mod kernels`** groups the kernels that the program launches. At build time, cuda-oxide compiles everything inside the module for the GPU and embeds the result in the executable. It also generates host functions that load this code and launch each kernel; section 13.7 uses them.
+**`#[cuda_module] mod kernels`** groups the kernels that the program launches. At build time, cuda-oxide compiles everything inside the module for the GPU and embeds the result in the executable. It also generates host functions that load this code and launch each kernel; we use them in section 13.7.
 
 **`#[kernel]`** marks `vector_add` as a GPU entry point, a function that the host can launch. The CPU never executes its body. The function is type-checked like any other Rust function, so a type error in a kernel is a compile error.
 
 **`#[launch_bounds(256)]`** tells the compiler that a block never contains more than 256 threads. With this limit known, the compiler can decide how many registers each thread may use.
 
-**`#[launch_contract(domain = 1, block = (256, 1, 1))]`** states how the kernel must be launched: with a 1-dimensional grid, and with blocks of exactly 256 threads. The host checks the contract before every launch. Section 13.9 shows what happens when a launch violates it.
+**`#[launch_contract(domain = 1, block = (256, 1, 1))]`** states how the kernel must be launched: with a 1-dimensional grid, and with blocks of exactly 256 threads. The host checks the contract before every launch. In Section 13.9 we show what happens when a launch violates it.
 
 **The parameters** have ordinary Rust types. `a` and `b` are shared slices, `&[f32]`, because every thread may read any element of them. The output `c` has the type `DisjointSlice<f32>`, which is what makes the kernel free of data races.
 
@@ -287,7 +285,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-An exact comparison with `!=` is correct here, because a single addition of 2 `f32` values gives the same bits on the GPU as on the CPU. Later chapters add many numbers in a different order on each side, and their comparisons need a tolerance.
+An exact comparison with `!=` is correct here, because a single addition of 2 `f32` values gives the same bits on the GPU as on the CPU. In later chapters we add many numbers in a different order on each side, and those comparisons need a tolerance.
 
 ## 13.8 Running the program
 
@@ -297,7 +295,7 @@ The program is built and run from the `vector_add` directory:
 $ cargo oxide run
 ```
 
-The first build takes 1 to 2 minutes, because cargo compiles the cuda-oxide crates. Later builds take a few seconds. The program printed:
+The first build takes 1 to 2 minutes, because cargo compiles the cuda-oxide crates. Later builds take a few seconds. On a Jetson Orin NX 16 GB (`sm_87`, 8 SMs) with CUDA 12.6, the program printed:
 
 ```text
 elements      1000003
@@ -320,13 +318,13 @@ The output agrees with the hand calculation:
 
 The timing lines show that the GPU took longer than 1 CPU core. The reason lies in the ratio of arithmetic to memory traffic.
 
-For each element, the kernel reads 8 bytes, writes 4 bytes, and performs 1 addition: 1 floating-point operation for every 12 bytes moved. Chapter 1 called this ratio the **arithmetic intensity**, and a value of 1/12 FLOP/byte is among the lowest a kernel can have. The arithmetic units of the GPU spend almost all their time waiting for memory. In addition, the `gpu + copy` timer includes the copy of 4 MB back to the CPU and the first kernel launch of the process.
+For each element, the kernel reads 8 bytes, writes 4 bytes, and performs 1 addition: 1 floating-point operation for every 12 bytes moved. In Chapter 1 we called this ratio the **arithmetic intensity**, and a value of 1/12 FLOP/byte is among the lowest a kernel can have. The arithmetic units of the GPU spend almost all their time waiting for memory. In addition, the `gpu + copy` timer includes the copy of 4 MB back to the CPU and the first kernel launch of the process.
 
 2 runs on the same machine gave 2.8 ms and 3.1 ms for the GPU line, and 1.8 ms and 2.2 ms for the CPU line, so these values are approximate. The conclusion does not depend on them. A GPU is faster when each byte it loads is used for many arithmetic operations, or when the data remain on the GPU across many kernels. Matrix multiplication, later in this part, is the first kernel in this part for which this holds.
 
 ## 13.9 Common launch errors
 
-2 mistakes are common in a first kernel. Both were run on the same machine, and their real output is shown below.
+2 mistakes are common in a first kernel. The real output of each is shown below.
 
 **The block size does not match the contract.** The launch is changed to blocks of 128 threads:
 
@@ -374,7 +372,7 @@ Error: "FAILED: 67 elements differ from the CPU"
 - The host program copies the inputs to the GPU, launches the kernel, copies the result back, and checks it against the CPU.
 - Vector addition is memory-bound: it performs 1 addition for every 12 bytes. The GPU is faster on kernels that perform more arithmetic per byte.
 
-The next chapter makes the kernel generic. A single `map` kernel takes any closure, so that `c[i] = a[i] + b[i]`, SAXPY (`y = αx + y`) and other element-wise operations share 1 kernel. It also launches fewer threads than there are elements, using the *grid-stride loop*.
+In the next chapter we make the kernel generic. A single `map` kernel takes any closure, so that `c[i] = a[i] + b[i]`, SAXPY (`y = αx + y`) and other element-wise operations share 1 kernel. It also launches fewer threads than there are elements, using the *grid-stride loop*.
 
 ## Exercises
 

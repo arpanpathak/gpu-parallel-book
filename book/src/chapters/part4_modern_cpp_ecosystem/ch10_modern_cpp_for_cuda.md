@@ -305,8 +305,8 @@ Third, the `static_assert` rejects types that cannot be stored in device memory.
 **trivially copyable** when copying its bytes produces a valid copy of the object. `float`,
 `int` and a struct of floats are trivially copyable. A `std::string` is not, because it holds a
 pointer to host memory, and a copy of its bytes on the device would contain an address that the
-GPU cannot use. `DeviceBuffer<std::string>` is therefore a compile error. Section 10.5 describes
-`static_assert` in more detail.
+GPU cannot use. `DeviceBuffer<std::string>` is therefore a compile error. We describe
+`static_assert` in more detail in Section 10.5.
 
 Note also that the first constructor is declared `explicit`. Without this keyword, the compiler
 would convert a number into a buffer implicitly, and a function that takes a
@@ -419,14 +419,14 @@ class DeviceBuffer {
 };
 ```
 
-`view()` returns a read-only view of the buffer and `span()` a writable one; section 10.6.1
-introduces the type of these views. `release()` tests for `nullptr` because a buffer that has
+`view()` returns a read-only view of the buffer and `span()` a writable one; we introduce
+the type of these views in section 10.6.1. `release()` tests for `nullptr` because a buffer that has
 been moved from no longer owns any memory.
 
 ### 10.2.4 Error reporting without a macro
 
-Chapters 3 to 9 checked each CUDA call with a small function that printed the error and ended
-the program. Many CUDA programs use a macro instead, `CHECK(call)`. A **macro** is a name that
+In Chapters 3 to 9 we checked each CUDA call with a small function that printed the error and
+ended the program. Many CUDA programs use a macro instead, `CHECK(call)`. A **macro** is a name that
 the **preprocessor**, a text-substitution step that runs before the compiler proper, replaces
 with other text wherever the name appears. Programs use a macro here for 1 reason: the
 preprocessor replaces `__FILE__` and `__LINE__` with the file name and line number of the place
@@ -616,8 +616,8 @@ KERNEL transform<T, F>(in, out, f):         # T: element type, F: operation from
 ```
 
 The line `template <Number T, UnaryOp<T> F>` states that `T` must be a numeric type and `F` an
-operation that maps a `T` to a `T`; section 10.7 defines both conditions. The arguments `in` and
-`out` are spans, which carry their length together with the pointer, so the bounds check
+operation that maps a `T` to a `T`; we define both conditions in section 10.7. The arguments `in`
+and `out` are spans, which carry their length together with the pointer, so the bounds check
 compares `i` with `in.size()` rather than with a separate `n` that might belong to another array
 (section 10.6.1). The index `i` is a `std::size_t` of 64 bits, so the kernel also works on
 arrays of more than 2<sup>31</sup> elements.
@@ -627,7 +627,7 @@ arrays of more than 2<sup>31</sup> elements.
 object `triple` of type `Scale<float>` with `factor` = 3 can be called as `triple(x)`, and
 `triple(2.0f)` returns 6.0. It stores its state, the factor, as a member, and it is passed to
 the GPU as a kernel argument of `sizeof(T)` bytes. Its `operator()` is marked `__host__
-__device__` so that the kernel can call it; section 10.4 explains these qualifiers.
+__device__` so that the kernel can call it; we explain these qualifiers in section 10.4.
 
 Let us run `transform<float, Scale<float>>` by hand on 4 values, `in` = 1, 2, 3, 4, with `f` =
 `triple`. With blocks of 256 threads, 1 block is launched, and threads 0 to 3 pass the test `i <
@@ -666,7 +666,7 @@ hostlambda.cu(227): error: The closure type for a lambda ("lambda [](float)->flo
 A lambda written in host code is a host function, and the GPU cannot execute host code. The
 error message names the solution. An **extended lambda** carries `__device__` or `__host__
 __device__` after its capture list, and the compiler then generates a device version of it. The
-program must be compiled with `--extended-lambda`. Section 10.4.2 uses 2 extended lambdas.
+program must be compiled with `--extended-lambda`. We use 2 extended lambdas in Section 10.4.2.
 
 A lambda can also **capture** variables, which copies them into the lambda object, as in
 `[factor](float v) {...}`. For example, if the host variable `factor` holds 3.0 when the lambda
@@ -1240,7 +1240,7 @@ of its memory rise only under sustained load.
 
 </div>
 
-Chapter 11 applies these techniques in NVIDIA's libraries. Thrust's `device_vector` is a
+In Chapter 11 we find these techniques in NVIDIA's libraries. Thrust's `device_vector` is a
 `DeviceBuffer` with algorithms, CUB is a library of template building blocks, and cuBLAS
 provides the matrix product of Chapter 9.
 

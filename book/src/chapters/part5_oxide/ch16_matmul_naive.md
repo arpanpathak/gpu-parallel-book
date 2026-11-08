@@ -97,7 +97,7 @@ the sum of the products of their entries, taken in pairs.
 The 3 sizes play different roles. \\(M\\) is the number of rows of \\(A\\) and of \\(C\\),
 \\(N\\) the number of columns of \\(B\\) and of \\(C\\), and \\(K\\) the length of every dot
 product. \\(K\\) does not appear in the shape of the result at all; it only says how much work
-each entry takes. The kernels of this part accept any 3 sizes, and the measurements use square
+each entry takes. The kernels of this part accept any 3 sizes, and we measure them on square
 matrices, \\(M = N = K = n\\).
 
 ### 16.1.3 Storage in row-major order
@@ -308,8 +308,8 @@ to \\((1, 15)\\) form warp 0.
 With \\(x\\) along the columns, the threads of a warp compute neighbouring entries of a row of
 \\(C\\). At each step of the dot product they read the same entry of \\(A\\) and neighbouring
 entries of a row of \\(B\\), which lie next to each other in memory. Memory delivers such
-neighbouring values together in 1 transaction. Section 9.3 measured the opposite choice, \\(x\\)
-along the rows, as 5.4 times slower.
+neighbouring values together in 1 transaction. In Section 9.3 we measured the opposite choice,
+\\(x\\) along the rows, as 5.4 times slower.
 
 **3 dimensions.** For data in a volume, such as temperatures on a 3-dimensional mesh, we add the
 axis \\(z\\) and reason in the same way along each of the 3 axes:
@@ -356,8 +356,8 @@ order, so a correct kernel must never depend on the order of blocks.
 </figure>
 
 The block is also the unit of cooperation. Threads in the same block share a region of shared
-memory and can meet at a barrier, which Chapter 17 defines; threads in different blocks can do
-neither, and they exchange data only through global memory (Figure 16.9). The direct kernel of
+memory and can meet at a barrier, which we define in Chapter 17; threads in different blocks can
+do neither, and they exchange data only through global memory (Figure 16.9). The direct kernel of
 this chapter needs no cooperation at all, since every thread works alone; the tiled kernel of
 Chapter 17 depends on it.
 
@@ -481,8 +481,8 @@ kernel: an illegal memory access was encountered
 
 The threads in the 8 extra rows read past the end of \\(A\\) and write past the end of \\(C\\),
 and the GPU stopped the kernel. A smaller overhang can stay inside memory that the program owns,
-and then the kernel finishes and the error shows only in the values. Section 16.5.6 makes the same
-change in Rust, where the outcome is different.
+and then the kernel finishes and the error shows only in the values. In Section 16.5.6 we make
+the same change in Rust, where the outcome is different.
 
 ### 16.4.3 Counting the fetches
 
@@ -507,8 +507,8 @@ entry of \\(B\\) \\(M\\) times. For 2 matrices of 1,024 × 1,024 floats of 4 byt
 makes \\(2 \cdot 1{,}024^3 = 2.1 \times 10^9\\) fetches, 8.6 GB of traffic, to read 8.4 MB of
 input: every value is fetched 1,024 times, and each fetch that reaches global memory costs
 hundreds of cycles. The ratio of work to traffic is 2 FLOP for every 2 floats fetched,
-1 FLOP per float. Section 9.1.3 showed that a GPU needs about 100 FLOP per float fetched from
-memory to keep its arithmetic units busy: 94 on the Orin NX and 119 on the Thor.
+1 FLOP per float. Recall from Section 9.1.3 that a GPU needs about 100 FLOP per float fetched
+from memory to keep its arithmetic units busy: 94 on the Orin NX and 119 on the Thor.
 
 <div class="key-observation">
 
@@ -518,8 +518,8 @@ the same value \\(a_{01}\\). If these threads belong to the same block, 1 of the
 
 </div>
 
-Chapter 17 turns this observation into the tiled kernel. The rest of this chapter implements the
-direct kernel and measures how much the waste costs.
+In Chapter 17 we turn this observation into the tiled kernel. In the rest of this chapter we
+implement the direct kernel and measure how much the waste costs.
 
 <div class="exercises">
 
@@ -571,8 +571,8 @@ Definition 16.2: `a[row * k + s]` is \\(a_{\textit{row}, s}\\) in a matrix of ro
 and `b[s * n + col]` is \\(b_{s, \textit{col}}\\) in a matrix of row width \\(n\\). The Rust
 kernel receives the sizes as `u32`, the type of a launch argument, and converts them to `usize`
 once, so that all index arithmetic uses 1 type. Its loop is a `while` loop with `#[unroll(4)]`;
-Section 9.7 explained that cuda-oxide unrolls a `while` loop marked `#[unroll]` and does not unroll
-a `for` loop over a range.
+in Section 9.7 we explained that cuda-oxide unrolls a `while` loop marked `#[unroll]` and does not
+unroll a `for` loop over a range.
 
 ### 16.5.2 The output slice
 
@@ -717,9 +717,9 @@ require all 64 to be equal. They also run the 4 × 4 example with blocks of 2 ×
 
 ### 16.5.6 Removing the guard in Rust
 
-Section 16.4.2 removed lines 3 to 5 from the C++ kernel and the kernel faulted. In the Rust kernel,
-the guard is the condition `row < m && col < n` in front of the 2 `let` patterns. We removed it
-and ran the kernel on matrices of 1,000 × 1,000, comparing all 1,000,000 entries with the CPU:
+In Section 16.4.2 we removed lines 3 to 5 from the C++ kernel and the kernel faulted. In the Rust
+kernel, the guard is the condition `row < m && col < n` in front of the 2 `let` patterns. We removed
+it and ran the kernel on matrices of 1,000 × 1,000, comparing all 1,000,000 entries with the CPU:
 
 ```console
 no guard, n = 1000: 0 of 1000000 entries wrong
@@ -812,8 +812,8 @@ every run, in single and in double precision.
 ### 16.6.3 Why the rate is far below the peak
 
 The C++ kernel ran at 185.0 GFLOP/s for \\(n = 4{,}096\\), 7.7% of the FP32 peak of
-2,400 GFLOP/s; the arithmetic units were idle more than 92% of the time. Section 16.4.3 gives the
-reason. The kernel fetches 1 float for every FLOP. If every fetch went to global memory, the
+2,400 GFLOP/s; the arithmetic units were idle more than 92% of the time. We gave the reason in
+Section 16.4.3. The kernel fetches 1 float for every FLOP. If every fetch went to global memory, the
 102 GB/s of the measured GPU would deliver \\(102 / 4 = 25.5 \times 10^9\\) floats per second, and the
 kernel could perform at most 25.5 GFLOP/s.
 
@@ -841,7 +841,8 @@ fastest of all. Both Rust kernels read the same values in the same order; they d
 the compiler knows. With \\(n\\) and \\(k\\) constant, the loop has a fixed trip count, a multiple of
 4, and the addresses of consecutive reads of `b` lie a constant 4,096 bytes apart; with run-time
 sizes the compiler must handle a remainder and recompute every address. A width in the type costs
-1 compiled kernel per matrix size, and Chapter 17 recovers more speed for every size with tiling.
+1 compiled kernel per matrix size, and in Chapter 17 we recover more speed for every size with
+tiling.
 
 The measured rates also show what does not matter. The block shape of 16 × 16 threads keeps the
 reads of a warp contiguous, and the rates are almost the same at every size from 512 to 4,096:
@@ -909,8 +910,8 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 
 </div>
 
-Chapter 17 lets the threads of a block share the values they fetch, through shared memory, and
-derives the tiled kernel from the key observation of Section 16.4.3.
+In Chapter 17 we let the threads of a block share the values they fetch, through shared memory,
+and derive the tiled kernel from the key observation of Section 16.4.3.
 
 ## Exercises
 

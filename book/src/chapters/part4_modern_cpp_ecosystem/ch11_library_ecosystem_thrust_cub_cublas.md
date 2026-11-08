@@ -48,7 +48,7 @@ for Rust.
 ### 11.1.1 The libraries and what they replace
 
 The 5 libraries of this chapter cover most of the algorithms of Part III, as well as a few
-that the book does not implement by hand. All of them are installed with the CUDA toolkit.
+that we do not implement by hand. All of them are installed with the CUDA toolkit.
 Before we look at the table below, we need 4 terms. A **reduction** combines all the elements
 of an array into 1 value with an operation such as addition; the sum of Chapter 8 is a
 reduction. **GEMM** (general matrix multiply) is the matrix product \\(C = AB\\) of Chapter 9,
@@ -98,8 +98,8 @@ reduction, returns the result to the host. A CUB device-wide call performs the s
 leaves 2 decisions to the caller: where the temporary storage comes from, and when the host
 waits for the result. A CUB block-level call performs only 1 step of an algorithm, inside a
 kernel that the programmer writes. Since Thrust is built on CUB, the kernels launched at the
-top 2 levels are the same. Sections 11.2 and 11.3 measure what the difference in convenience
-costs.
+top 2 levels are the same. In Sections 11.2 and 11.3 we measure what the difference in
+convenience costs.
 
 ### 11.1.2 Advantages and limits of a library
 
@@ -111,8 +111,8 @@ a single program could not justify. The scan of Section 11.2.3, for example, rel
 protocol between thread blocks that we did not attempt in Chapter 8. Third, it is tested on
 every release against reference results and on a wide range of input shapes.
 
-A library also has a limitation, which this chapter measures: it does not know the context
-in which it is called. It cannot know that the same temporary storage could serve 1,000
+A library also has a limitation, which we measure in this chapter: it does not know the
+context in which it is called. It cannot know that the same temporary storage could serve 1,000
 consecutive calls, or that the result will be used by another kernel on the GPU rather than by
 the host. The programmer knows these facts and can pass them to the library by calling it at
 one of the lower levels of Fig. 11.1.
@@ -122,10 +122,10 @@ one of the lower levels of Fig. 11.1.
 **NOTE:** cuda-oxide, the Rust compiler used in this book, has no bindings to Thrust, CUB,
 cuBLAS, cuFFT or cuRAND at revision `b7fe543`. A Rust program can call these C libraries
 through Rust's **foreign function interface** (FFI), the mechanism by which Rust code declares
-and calls functions written in C. Chapter 12 uses it for NVRTC; its use for these libraries is
-beyond the scope of this chapter.
+and calls functions written in C. We use it for NVRTC in Chapter 12; its use for these
+libraries is beyond the scope of this chapter.
 cuda-oxide does provide its own block-level primitives for use inside a kernel, the
-counterparts of CUB's lowest level, and Section 11.3.2 measures them.
+counterparts of CUB's lowest level, and we measure them in Section 11.3.2.
 
 </div>
 
@@ -292,8 +292,8 @@ element. An **inclusive** scan includes the element itself in its total, whereas
 | exclusive scan | 0 | 3 | 4 | 6 |
 
 The exclusive scan is the inclusive scan shifted right by 1 position. Element \\(i\\) of the
-exclusive scan is the number of items that come before position \\(i\\), and Section 11.2.4
-uses exactly this property.
+exclusive scan is the number of items that come before position \\(i\\), and we use exactly
+this property in Section 11.2.4.
 
 <div class="definition">
 
@@ -471,7 +471,7 @@ int main()
 
 The program sorts 16,777,216 random 32-bit keys (64 MiB) and checks each result against
 `std::sort` on the CPU. It also runs CUB's own radix sort, `cub::DeviceRadixSort`, with its
-temporary storage allocated once, as Section 11.3.3 describes.
+temporary storage allocated once, as described in Section 11.3.3.
 
 ```console
 $ ./sort
@@ -629,8 +629,8 @@ PASSED
 
 The 2 Rust sums ran within 4% of each other and produced the same total. Both kernels read 1
 float per load, so they reach 68 GB/s rather than the 93 GB/s of the C++ kernels, which use
-`float4` loads, each of which reads 4 floats, 16 bytes, in 1 instruction; Chapter 8 measured
-the same difference. The first 8 scanned values increase by
+`float4` loads, each of which reads 4 floats, 16 bytes, in 1 instruction; we measured
+the same difference in Chapter 8. The first 8 scanned values increase by
 0 to 3 at each step, as the inputs 0, 1, 0, 2, 2, 0, 0, 1 require, and the program checked all
 67,108,864 results.
 
@@ -758,8 +758,9 @@ A matrix is stored in memory as a 1-dimensional sequence of numbers, so a progra
 in which order the entries are laid out. We work with 1 small matrix throughout this section,
 \\(A = [1\ 2\ 3;\ 4\ 5\ 6]\\), which has 2 rows and 3 columns; the semicolon separates the
 rows. We number the entries by (row, column) from 0, so the entry 6 is
-at (1, 2). Every chapter of this book has stored a matrix row by row, as C and C++ arrays do:
-row 0 occupies locations 0 to 2 and row 1 locations 3 to 5, so memory holds 1, 2, 3, 4, 5, 6.
+at (1, 2). In every chapter of this book we have stored a matrix row by row, as C and C++
+arrays do: row 0 occupies locations 0 to 2 and row 1 locations 3 to 5, so memory holds
+1, 2, 3, 4, 5, 6.
 To find entry (r, c), we skip r complete rows of 3 entries and then c entries, which gives
 location \\(3r + c\\). The entry 6 at (1, 2) is at location 3 + 2 = 5.
 
@@ -886,8 +887,8 @@ C = A B with A 2 x 3 and B 3 x 2, stored row by row
   C, operands swapped    = [58 64; 139 154]
 ```
 
-Both lines agree with the values computed by hand. Chapter 9 called cuBLAS in the same way
-for its square matrices. There the 2 outer dimensions are equal, so only the order of the
+Both lines agree with the values computed by hand. In Chapter 9 we called cuBLAS in the same
+way for square matrices. There the 2 outer dimensions are equal, so only the order of the
 operands differs, and a test with square matrices alone would not have exposed a wrong
 leading dimension.
 
@@ -1062,7 +1063,7 @@ frequencies appear, with the expected magnitudes.
 
 ## 11.6 Choosing between a library and a custom kernel
 
-Fig. 11.9 collects the measurements of this chapter for the 3 algorithms that the book also
+Fig. 11.9 collects the measurements of this chapter for the 3 algorithms that we also
 implemented by hand.
 
 <figure>
@@ -1197,8 +1198,8 @@ be the slowest stage of the pipeline.
 
 </div>
 
-Chapter 12 goes below the libraries. It compiles CUDA source code while the program runs,
-with NVRTC, and loads and launches the result through the driver API.
+In Chapter 12 we go below the libraries. We compile CUDA source code while the program runs,
+with NVRTC, and load and launch the result through the driver API.
 
 ## Exercises
 

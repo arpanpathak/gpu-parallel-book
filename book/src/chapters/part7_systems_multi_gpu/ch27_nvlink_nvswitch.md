@@ -88,7 +88,7 @@ In data parallelism, each GPU computes gradients from its own share of the batch
 gradients differ from GPU to GPU. Before any GPU updates its copy of the model, the gradients
 of all GPUs must be added, and every GPU must receive the sum. Otherwise the copies of the
 model would diverge. The operation that adds a value held by every GPU and gives the sum to
-every GPU is called an **all-reduce**. Chapter 28 develops the all-reduce algorithms; here we
+every GPU is called an **all-reduce**. We develop the all-reduce algorithms in Chapter 28; here we
 only need their cost. With the commonly used ring algorithm, each of \\(N\\) GPUs sends, and
 also receives, \\(2(N - 1)/N\\) times the size of the data.
 
@@ -104,7 +104,7 @@ The exchange therefore takes longer than the computation it serves. Figure 27.1 
 resulting step. On 8 GPUs connected by PCIe, a step takes 50 + 54.7 = 104.7 ms, so the 8 GPUs
 together are only 400 / 104.7 = 3.8 times as fast as a single GPU. With the NVLink of an A100,
 which carries 300 GB/s in each direction, the exchange takes 1.75 / 300 = 5.8 ms, and the 8
-GPUs are 400 / 55.8 = 7.2 times as fast. Section 27.6 generalises this example into a model.
+GPUs are 400 / 55.8 = 7.2 times as fast. In Section 27.6 we generalise this example into a model.
 
 <figure>
 <img src="../../figures/ch27-step.svg" alt="Three timelines of 1 training step. On 1 GPU, 400 ms of compute. On 8 GPUs joined by PCIe 4.0, 50 ms of compute and 54.7 ms of gradient exchange, 104.7 ms, 3.8 times as fast. On 8 GPUs joined by NVLink 3, 50 ms of compute and 5.8 ms of exchange, 55.8 ms, 7.2 times as fast.">
@@ -198,7 +198,7 @@ the 900 GB/s quoted for an H100 is 450 GB/s in each direction. PCIe bandwidth is
 direction, as in Chapter 4: 32 GB/s for PCIe 4.0 with 16 lanes and 64 GB/s for PCIe 5.0.
 
 A comparison between links must use the same convention for both. A GPU that sends its
-gradients to another GPU sends them in 1 direction, so this chapter quotes every link per
+gradients to another GPU sends them in 1 direction, so in this chapter we quote every link per
 direction. In this unit, NVIDIA's statement that the NVLink of the H100 has 7 times the
 bandwidth of PCIe 5.0 is confirmed: 450 / 64 = 7.0. The following table summarises the
 quantities for an H100.
@@ -555,7 +555,7 @@ The program of this section asks the system 3 questions and measures the answer 
 
 On a machine with 2 GPUs that can access each other, the copies go from GPU 0 to GPU 1. On a
 machine with a single GPU, they stay within GPU 0, and the program measures the GPU's own
-memory, the baseline against which Section 27.2.4 compared every link. The following
+memory, the baseline against which we compared every link in Section 27.2.4. The following
 pseudocode summarises the program.
 
 ```text
@@ -795,7 +795,7 @@ that the copies are being staged through the host; check the matrix for `no`.
 
 ### 27.6.1 A model of a training step
 
-Section 27.1.3 computed the time of a step by hand. Writing the same arithmetic with symbols
+In Section 27.1.3 we computed the time of a step by hand. Writing the same arithmetic with symbols
 tells us when a faster link improves performance. Let a step take \\(T_1\\) on a single GPU. On
 \\(N\\) GPUs, each GPU computes for \\(T_1 / N\\) and then exchanges data for \\(T_x\\), a time
 that does not decrease with \\(N\\):
@@ -838,7 +838,7 @@ The model classifies programs by the ratio of their exchange time to their compu
 
 The entries of the table follow from the arithmetic of the model rather than from fixed rules.
 To decide for a given program, measure the 2 terms: \\(T_1\\) with the events of Chapter 6, and
-\\(T_x\\) with the program of Section 27.5 or with nccl-tests, which Chapter 28 introduces.
+\\(T_x\\) with the program of Section 27.5 or with nccl-tests, which we introduce in Chapter 28.
 
 ## 27.7 Topology discovery
 
@@ -967,8 +967,8 @@ table above, and `nvmlDeviceGetNvLinkState` reports the state of each link.
 
 </div>
 
-Chapter 28 develops the all-reduce algorithms whose cost this chapter used, and NCCL, the
-library that runs them over the links that the topology provides.
+In Chapter 28 we develop the all-reduce algorithms whose cost we used in this chapter, and NCCL,
+the library that runs them over the links that the topology provides.
 
 ## Exercises
 

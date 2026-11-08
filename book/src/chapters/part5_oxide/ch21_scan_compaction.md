@@ -33,7 +33,7 @@ The code of the chapter is in
 [`code/oxide/ch21_scan_compaction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch21_scan_compaction)
 for Rust and in
 [`code/cuda/ch21_scan_compaction/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/cuda/ch21_scan_compaction)
-for C++. Chapter 8 already built a fast scan from warp shuffles (Section 8.7). Here we derive the
+for C++. In Chapter 8 we already built a fast scan from warp shuffles (Section 8.7). Here we derive the
 scan from the beginning, and we reuse the kernel of Chapter 8 as the third of our measured
 methods.
 
@@ -98,8 +98,8 @@ We write ranges as in the rest of the book: \\([a, b)\\) is the set of integers
 The exclusive scan has a direct use. Suppose some of the values are to be copied, in order, to
 the front of another array. Write 1 for every copied value and 0 for the others. The exclusive scan of these 1s and 0s
 at position \\(i\\) is the number of copied values before position \\(i\\), and that number is
-exactly the output position of value \\(i\\). Section 21.8 builds
-stream compaction on this fact, and Chapter 22 builds a radix sort on it.
+exactly the output position of value \\(i\\). In Section 21.8 we build
+stream compaction on this fact, and in Chapter 22 a radix sort.
 
 <div class="exercises">
 
@@ -168,7 +168,7 @@ GPU, we need an algorithm whose number of steps grows much more slowly than \\(n
 Exercises
 
 21.4 How many additions and how many steps does Sequential-Scan need for \\(n = 2^{20}\\)?<br>
-21.5 The sum of all \\(n\\) values is the last output of the scan. Chapter 15 computes a sum in
+21.5 The sum of all \\(n\\) values is the last output of the scan. In Chapter 15 we computed a sum in
 \\(\log_2 n\\) steps. Why does the tree of a sum not give all \\(n\\) outputs of a scan?
 
 </div>
@@ -247,7 +247,7 @@ order of the list, not on how its terms are grouped.
 
 Integer addition is associative exactly, which is why every program of this chapter can check
 its result against the CPU value by value. Floating-point addition is associative only
-approximately, because every addition rounds; Chapter 8 measured what a regrouped float sum
+approximately, because every addition rounds; in Chapter 8 we measured what a regrouped float sum
 changes (Section 8.2).
 
 <div class="key-observation">
@@ -363,7 +363,7 @@ in shared memory.
 Line 2 copies the input into shared memory, and the barrier in line 3 makes sure that every
 value is there before any thread reads a neighbour's value. Lines 5 and 6 are 1 step of Figure
 21.4. Line 7 is the barrier that ends the step, and line 8 makes the array written in this step the input of the
-next step. Section 21.6 removes line 7 and then line 8, and shows the wrong values
+next step. In Section 21.6 we remove line 7 and then line 8, and show the wrong values
 that each removal produces.
 
 ### 21.4.4 Counting the work
@@ -501,8 +501,8 @@ of the loop, and about 1/4.5 of the work of the Hillis-Steele scan. It pays with
 </figure>
 
 Which of the 2 parallel scans is faster on a GPU cannot be read from Figure 21.7 alone. The answer
-is set by what a step, an addition and a barrier cost on the hardware. Section 21.11 measures
-both.
+is set by what a step, an addition and a barrier cost on the hardware. We measure
+both in Section 21.11.
 
 <div class="exercises">
 
@@ -715,7 +715,7 @@ bytes, if nothing else is stored. Scan moves more. Line 2 reads the input and wr
 scans, and line 5 reads the tile scans again and writes them again: 16 bytes per value, plus 1
 total per 1,024 values. On 16,777,216 values, the minimum is 134 MB and Scan moves 268 MB. A scan
 that passes each tile's total directly to the next block while the kernel runs, a single-pass
-scan, avoids the second pass; Chapter 11 measured one from the CUB library.
+scan, avoids the second pass; in Chapter 11 we measured one from the CUB library.
 
 <div class="exercises">
 
@@ -1236,7 +1236,7 @@ which reads and writes all 16,777,216 values again: 134.2 MB in 1.65 ms is 81 GB
 ### 21.11.4 Why the warp votes are 3.3 times faster, not 3.8
 
 With half of the values kept, the 3-pass compaction took 8.05 ms and the warp votes 2.41 ms, a
-ratio of 3.3. Section 21.9.1 predicts the ratio of the bytes moved, 38 / 10 = 3.8. Dividing the
+ratio of 3.3. In Section 21.9.1 we predicted the ratio of the bytes moved, 38 / 10 = 3.8. Dividing the
 bytes each method moves by its time gives the rate at which it used the memory: \\(38 \times
 16{,}777{,}216 = 637.5\\) MB in 8.05 ms, 79.2 GB/s, for the 3 passes, and \\(10 \times
 16{,}777{,}216 = 167.8\\) MB in 2.41 ms, 69.6 GB/s, for the warp votes. Both run close to the
@@ -1314,7 +1314,7 @@ and compare with the measured value.
   compute the same positions inside each block and reduce the traffic from 38 to 10 bytes per
   value.
 
-Chapter 22 uses the exclusive scan as the core of a radix sort, and combines it with a histogram.
+In Chapter 22 we use the exclusive scan as the core of a radix sort, and combine it with a histogram.
 
 ## Exercises
 

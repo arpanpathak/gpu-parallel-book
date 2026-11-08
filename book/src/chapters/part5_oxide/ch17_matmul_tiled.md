@@ -188,7 +188,7 @@ threads continue together.
 ### 17.4.2 The tiled kernel
 
 Each phase repeats the same 4 steps: copy the tiles, wait, compute, wait (Figure 17.6). The 2 waits
-are barriers, and Section 17.6 explains why each of them is needed.
+are barriers, and in Section 17.6 we explain why each of them is needed.
 
 <figure>
 <img src="../../figures/ch17-cycle.svg" alt="4 boxes in a row: load tiles, global to shared; barrier, all loads complete; compute, T multiply-adds; barrier, all reads complete. An arrow runs from the last box back to the first, labelled next phase: t = t + 1, while t is less than the ceiling of K over T.">
@@ -224,8 +224,8 @@ Lines 1 and 2 are the same as in
 <span style="font-variant: small-caps">Direct-Kernel</span>. Lines 6 and 7 are the joint copy of
 Section 17.3, and lines 9 to 11 add 1 phase of the sum, the inner sum over \\(u\\) of the formula
 in Section 17.2. Lines 8 and 12 are the 2 barriers, and the zeros in lines 6 and 7 handle matrices
-whose size is not a multiple of \\(T\\); Section 17.6 covers both. Lines 14 to 16 store the result,
-and they replace the early return of the direct kernel, for a reason that Section 17.6.5 gives.
+whose size is not a multiple of \\(T\\); we treat both in Section 17.6. Lines 14 to 16 store the
+result, and they replace the early return of the direct kernel, for a reason given in Section 17.6.5.
 
 ## 17.5 Counting the fetches again
 
@@ -250,8 +250,8 @@ Chapter 9, the kernel performs \\(T\\) FLOP per float fetched from global memory
 
 What limits \\(T\\)? A block holds at most 1,024 threads, so \\(T \le 32\\). The 2 tiles take
 \\(2T^2\\) values of 4 bytes, which for \\(T = 16\\) is 2 KB of shared memory and for \\(T = 32\\)
-8 KB, well within the 48 KB a block may use. Section 17.8 shows that the largest \\(T\\) is not the
-fastest.
+8 KB, well within the 48 KB a block may use. In Section 17.8 we will see that the largest \\(T\\) is
+not the fastest.
 
 <div class="exercises">
 
@@ -401,7 +401,7 @@ stores it.
 
 The proof uses each barrier exactly once, in the maintenance step, and each use excludes 1 of the
 2 errors. A thread outside \\(C\\) is not covered by the proof, because it stores nothing; but it
-still takes part in lines 6 to 12, and the next section shows why it must.
+still takes part in lines 6 to 12, and in the next section we show why it must.
 
 ### 17.6.5 Matrices of any size
 
@@ -454,7 +454,7 @@ known at compile time, and a template parameter qualifies, so `matmulTiled<T>` d
 `T` × `T` floats and the compiler builds 1 kernel for each `T` the program uses.
 
 In cuda-oxide a fixed-size array in shared memory is a `static mut` of type `SharedArray<f32, N>`
-declared inside the kernel, with `N` known at compile time; Chapter 18 uses 1 for comparison. A
+declared inside the kernel, with `N` known at compile time; we use 1 in Chapter 18 for comparison. A
 `static` declared inside a function is a separate item of the program, with exactly 1 instance,
 and Rust does not allow its type to mention a generic parameter of the function that contains it:
 `SharedArray<f32, { T * T }>` inside `fn matmul_tiled<const T: usize>` is refused with error
@@ -689,7 +689,7 @@ multiples of the tile width.
 ### 17.8.2 Why the speedup is 1.5, not 16
 
 Our model in Section 17.5 counted fetches as if every fetch went all the way to global memory.
-Section 16.6.3 showed that this is not true for the direct kernel: it requested 738 GB/s, 7.2
+In Section 16.6.3 we saw that this is not true for the direct kernel: it requested 738 GB/s, 7.2
 times what global memory can deliver, so at least 86% of its fetches were answered by the L1 and L2
 caches. Tiling removes 15 of every 16 requested fetches, but most of the fetches it removes were
 already cheap. The hardware caches had recovered part of the reuse that tiling makes explicit.
@@ -736,7 +736,8 @@ On a Jetson AGX Thor, Rust kernels for the same 2 algorithms with \\(T = 16\\) t
 requested 927 GB/s, 3.4 times the 273 GB/s of the Thor's memory, so the caches answered at least
 70% of its fetches, against 86% on the measured GPU, and tiling had more to gain. The tiled kernel ran at
 941.5 GFLOP/s, 93% of the Thor's shared-memory limit of \\(8{,}100 / 8 = 1{,}012\\) GFLOP/s. On both
-GPUs the tiled kernel ends near the same limit, 1/8 of the arithmetic peak, which Chapter 18 removes.
+GPUs the tiled kernel ends near the same limit, 1/8 of the arithmetic peak, which we remove in
+Chapter 18.
 
 ## 17.9 The complete programs
 
@@ -802,8 +803,8 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 
 </div>
 
-Chapter 18 removes the second limit by letting each thread compute several entries of \\(C\\) and
-keep their sums in registers, so that each value read from shared memory is used several times.
+In Chapter 18 we remove the second limit by letting each thread compute several entries of \\(C\\)
+and keep their sums in registers, so that each value read from shared memory is used several times.
 
 ## Exercises
 

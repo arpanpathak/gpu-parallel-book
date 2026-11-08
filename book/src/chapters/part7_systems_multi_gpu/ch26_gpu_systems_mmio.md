@@ -7,8 +7,8 @@ So far, we have used the GPU only through the CUDA API. `cudaMalloc` returns a p
 a few microseconds while the kernel continues to run on the device. In Chapter 6 we measured a
 launch at 3.77 µs. Because the CPU and the GPU are separate devices, a launch cannot be an
 ordinary function call: the CPU must deliver the work to the GPU through the hardware that
-connects them. The **driver** is the software that operates the GPU on behalf of programs; section
-26.7 shows that it consists of 2 parts. In this chapter, we study the hardware that connects the
+connects them. The **driver** is the software that operates the GPU on behalf of programs; in section
+26.7 we show that it consists of 2 parts. In this chapter, we study the hardware that connects the
 CPU and the GPU and the way the driver uses it.
 
 We start with the physical addresses through which a CPU reaches any device, and with the way
@@ -40,8 +40,8 @@ The code of the chapter is in
 [`code/ch17_systems/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/ch17_systems)
 for C++ and in
 [`code/oxide/ch17_systems/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch17_systems)
-for Rust. Neither needs **root**, the administrator account of Linux: everything the chapter
-shows can be read by an ordinary user.
+for Rust. Neither needs **root**, the administrator account of Linux: everything we show in the
+chapter can be read by an ordinary user.
 
 ## 26.1 The GPU is a device on a bus
 
@@ -123,13 +123,13 @@ the device tree must say about such a device, names the first 2 windows `bar0` a
 the BARs of a PCIe GPU that we introduce in section 26.2.
 
 A store by the CPU to 0x1700_0000 + \\(r\\) writes the GPU's register at offset \\(r\\) of
-`bar0`. The driver, not a program, decides which offsets to touch; section 26.7 shows how the
+`bar0`. The driver, not a program, decides which offsets to touch; in section 26.7 we show how the
 operating system keeps ordinary programs away from these addresses.
 
 ### 26.1.2 PCIe: links, functions and addresses
 
 Most devices in a computer are not built into the processor chip but attached through
-**PCIe** (PCI Express), the standard connection for expansion devices. Section 4.1.2 described
+**PCIe** (PCI Express), the standard connection for expansion devices. In Section 4.1.2 we described
 its physical side: a **link** of 1 to 16 **lanes**, each lane a pair of wires in each
 direction, carrying about 2 GB/s each way per lane in generation 4.0 and 4 GB/s in 5.0.
 
@@ -233,11 +233,11 @@ hostNativeAtomic  1                          hostNativeAtomic  1
 Both GPUs report `integrated` = 1. The PCIe-function GPU reports the address that `lspci`
 showed, 0000:01:00.0. The platform-device GPU reports 0000:00:00.0: it has no PCIe address, and
 the runtime fills the field with zeros. Both report 2 **copy engines**, units that move data,
-which section 26.5 describes. `canMapHostMemory` = 1 means that a kernel can access pinned host
+which we describe in section 26.5. `canMapHostMemory` = 1 means that a kernel can access pinned host
 memory, host memory that the operating system may not move (Chapter 4), through a pointer. `unifiedAddressing` = 1 means that the CPU and the GPU share 1 range of
 virtual addresses for CUDA allocations, so that the value of a pointer alone tells whether it
 names host or device memory; this arrangement is called **unified virtual addressing** (UVA). The
-last 3 lines return in section 26.6, which explains how the PCIe-function GPU can use the CPU's
+last 3 lines return in section 26.6, where we explain how the PCIe-function GPU can use the CPU's
 page tables.
 
 The Rust program asks the driver directly. cuda-core wraps the common queries, such as
@@ -286,9 +286,9 @@ Figure 26.3 decodes the fields that matter. PCIe stores numbers wider than 1 byt
 byte first, an order called **little-endian**, so the first 2 bytes, `de 10`, are the number
 0x10de. In the worked example below, a **bit** \\(k\\) of a number is the digit worth
 \\(2^k\\) in its binary form, counted from bit 0 at the right. A **prefetchable** window is one
-whose reads have no side effects, so the processor may read it ahead of need; section 26.3.1
-explains side effects. An **interrupt** is a signal from a device that makes the CPU stop its
-current work and run a routine of the driver; section 26.7 returns to them.
+whose reads have no side effects, so the processor may read it ahead of need; we explain side
+effects in section 26.3.1. An **interrupt** is a signal from a device that makes the CPU stop its
+current work and run a routine of the driver; we return to them in section 26.7.
 
 <figure>
 <img src="../../figures/ch26-config.svg" alt="A grid of 64 bytes in 4 rows of 16, read without root from the PCIe-function GPU's configuration space. Coloured fields: bytes 0 to 3, de 10 00 2b, vendor 0x10de and device 0x2b00; bytes 4 and 5, 06 04, command 0x0406 with memory space and bus master enabled; bytes 9 to 11, 00 02 03, class 3D controller; bytes 16 to 23, 0c 00 00 c0 d0 00 00 00, BAR0 = 0xd0c000000c, address 0xd0c0000000; byte 52, 40, the capability pointer; byte 61, 01, interrupt pin A.">
@@ -589,7 +589,7 @@ a block wait for each other; a memory barrier orders the accesses of 1 thread. I
 and Rust, a store with **release ordering** is a store that becomes visible only after every
 access that precedes it in the program; it places the barrier before the store. Linux's `writel()`, the function a driver uses to
 write a 32-bit register, puts a write barrier before the store for exactly this case, so that a
-device started by the register sees every earlier write to memory. Section 26.4.6 shows what
+device started by the register sees every earlier write to memory. In Section 26.4.6 we show what
 happens when the order is wrong.
 
 <div class="rule-box">
@@ -696,7 +696,7 @@ puts the steps of 1 launch in order.
 <figcaption><b>Figure 26.7</b> 1 kernel launch, from the stores of libcuda to the SMs.</figcaption>
 </figure>
 
-Steps 1 to 5 are the launch call that Chapter 6 timed: a few ordinary stores into memory, 1
+Steps 1 to 5 are the launch call that we timed in Chapter 6: a few ordinary stores into memory, 1
 barrier and 1 store to a register, 3.77 µs with the rest of the runtime's work.
 Steps 6 to 9 happen later, on the GPU's own time. The part of the GPU that reads the ring, its
 **host interface**, fetches entries and methods from memory by DMA, so the CPU never waits for
@@ -1056,7 +1056,7 @@ platform device `17000000.gpu` under the name `gk20a`. The PCIe-function GPU is 
 `nvidia`, the same open kernel module that drives discrete GPUs, with `nvidia_uvm` for unified
 memory, the managed memory of section 26.3.2.
 
-The split explains 3 facts that earlier chapters stated without a reason. A launch costs a few
+The split explains 3 facts that we stated in earlier chapters without a reason. A launch costs a few
 microseconds, not the tens that a system call and a return would add, because it does not enter
 the kernel. A CUDA context belongs to a process, because the mappings and the channels belong
 to a process. And a crashed kernel ends with an error in 1 process, not a crashed machine,
@@ -1209,7 +1209,7 @@ pages, that is, to move them to the processor that touched them. **Peer access**
 
 </div>
 
-Chapter 27 extends the picture from 1 GPU to several, joined by NVLink: the same DMA, now from
+In Chapter 27 we extend the picture from 1 GPU to several, joined by NVLink: the same DMA, now from
 1 GPU's memory to another's.
 
 ## Exercises

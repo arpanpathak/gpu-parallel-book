@@ -4,10 +4,10 @@
 # Chapter 18: Register Tiling, Several Entries per Thread
 
 The tiled kernel of Chapter 17 fetches each value from global memory 16 times less often than the
-direct kernel, yet on the GPU measured there it ran only about 1.5 times as fast. Section 17.8.2 located the
-new limit in shared memory: every multiply-add of the tiled kernel reads 2 values from shared
-memory, and shared memory cannot deliver them as fast as the arithmetic units consume them. The
-kernel ends near 1/8 of the arithmetic peak on every GPU, whatever the tile width.
+direct kernel, yet on the GPU measured there it ran only about 1.5 times as fast. In Section 17.8.2
+we located the new limit in shared memory: every multiply-add of the tiled kernel reads 2 values
+from shared memory, and shared memory cannot deliver them as fast as the arithmetic units consume
+them. The kernel ends near 1/8 of the arithmetic peak on every GPU, whatever the tile width.
 
 In this chapter we remove that limit with the same idea that removed the first one, applied 1
 level closer to the arithmetic units. We start from Exercise 17.12 on the 4 × 4 matrices of
@@ -38,8 +38,8 @@ The code of the chapter is in
 [`code/oxide/ch18_matmul_register_tiled/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/oxide/ch18_matmul_register_tiled)
 for Rust and in
 [`code/cuda/ch18_matmul_register_tiled/`](https://github.com/arpanpathak/gpu-parallel-book/tree/main/code/cuda/ch18_matmul_register_tiled)
-for C++. Chapter 9 built a kernel with a 4 × 4 patch per thread in C++ and in Rust; this chapter
-derives that kernel from the tiled kernel step by step and generalizes its shape.
+for C++. In Chapter 9 we built a kernel with a 4 × 4 patch per thread in C++ and in Rust; here we
+derive that kernel from the tiled kernel step by step and generalize its shape.
 
 ## 18.1 The reads of the tiled kernel
 
@@ -62,12 +62,12 @@ The block of 4 threads makes 16 reads for 8 multiply-adds in the phase. Some of 
 repeated. Thread \\((0, 1)\\) reads row 0 of *tileA* again, the same 2 values that thread
 \\((0, 0)\\) has read a moment earlier, and thread \\((1, 0)\\) reads column 0 of *tileB* again. In general,
 every value of *tileA* is read by the \\(T\\) threads of its row of the block and every value of
-*tileB* by the \\(T\\) threads of its column: the same waste that Section 16.4.3 found in global
-memory, 1 level closer to the arithmetic.
+*tileB* by the \\(T\\) threads of its column: the same waste that we found in global memory in
+Section 16.4.3, 1 level closer to the arithmetic.
 
 ### 18.1.2 What the reads cost
 
-Section 17.8.2 turned this count into a limit. An SM's shared memory serves 1 read instruction
+In Section 17.8.2 we turned this count into a limit. An SM's shared memory serves 1 read instruction
 of a warp per cycle, 32 values, and the SM's 128 FP32 units could perform 128 multiply-adds in that
 cycle. At 2 reads per multiply-add, the SM completes at most 16 multiply-adds per cycle, 1/8 of its
 peak: 300 GFLOP/s on the GPU of Chapter 17, against which the tiled kernel measured 272 GFLOP/s. A larger
@@ -207,7 +207,7 @@ when \\(T_M = T_N\\).
 
 ## 18.3 Registers as the third level
 
-The sums of Section 18.2 live in registers. Chapter 16 described 3 kinds of storage: global
+The sums of Section 18.2 live in registers. In Chapter 16 we described 3 kinds of storage: global
 memory, shared memory and registers. The direct kernel took its operands from the first, the tiled
 kernel from the second, and the new kernel takes most of them from the third.
 
@@ -329,8 +329,8 @@ into registers, and line 15 adds their outer product, \\(T_M T_N\\) multiply-add
 Lines 19 to 22 store the \\(T_M T_N\\) results. As in Chapter 17, every thread stays in the loop to
 the end and reaches every barrier, and only the stores are guarded.
 
-Figure 18.8 runs the procedure for thread \\((0, 0)\\) of the example. In phase 0, *tileA* holds
-columns 0 and 1 of \\(A\\) and *tileB* rows 0 and 1 of \\(B\\). For \\(u = 0\\) the thread reads
+In Figure 18.8 we run the procedure for thread \\((0, 0)\\) of the example. In phase 0, *tileA*
+holds columns 0 and 1 of \\(A\\) and *tileB* rows 0 and 1 of \\(B\\). For \\(u = 0\\) the thread reads
 *aReg* = (1, 5) and *bReg* = (1, 0) and adds their outer product; for \\(u = 1\\) it reads (2, 6)
 and (0, 1). After phase 0 its sums are \\(\begin{pmatrix} 1 & 2 \\\\ 5 & 6 \end{pmatrix}\\), the
 same 4 values that the 4 threads of Chapter 17 held after phase 0 (Figure 17.3). Phase 1 adds
@@ -401,7 +401,7 @@ threads than \\(P\\), some slots of each tile would never be written, and the su
 left over from an earlier phase; if \\(P\\) did not divide the size of a tile, the last pass of the
 copy loop would run past it. The Rust host function that builds the launch derives the block shape
 from the 5 constants, so that the condition cannot be broken by the caller, and checks a second
-condition of the Rust implementation, which Section 18.6.4 describes.
+condition of the Rust implementation, described in Section 18.6.4.
 
 <div class="rule-box">
 
@@ -514,14 +514,15 @@ in local memory, a per-thread area of global memory, because its index is comput
 C++, `#pragma unroll` asks the compiler to unroll the next loop; nvcc unrolls loops with constant
 bounds of this size on its own, and the pragma states the intent. In cuda-oxide, `#[unroll]` on a
 `while` loop does the same, and it is required: cuda-oxide at the revision used here does not unroll
-a `for` loop over a range, and Section 9.7 measured the 4 × 4 kernel 33% slower with `for` loops.
+a `for` loop over a range, and in Section 9.7 we measured the 4 × 4 kernel 33% slower with `for`
+loops.
 
 ### 18.6.3 Writing the register tile
 
 Each thread writes \\(T_M T_N\\) entries of \\(C\\), not 1. In C++ the store of lines 19 to 22 is a
 pair of loops with a guard. In Rust, `DisjointSlice` with `Runtime2DIndex` gives a thread 1 element;
-Chapter 9 wrote its 4 × 4 patch through `get_unchecked_mut`, an `unsafe` call whose `SAFETY` comment
-argued that the patches do not overlap. cuda-oxide has an index space for this case,
+in Chapter 9 we wrote the 4 × 4 patch through `get_unchecked_mut`, an `unsafe` call whose `SAFETY`
+comment argued that the patches do not overlap. cuda-oxide has an index space for this case,
 `RuntimeRowMajorTiles<TM, TN>`, in which thread \\((y, x)\\) of the grid owns rows
 \\([y T_M, y T_M + T_M)\\) and columns \\([x T_N, x T_N + T_N)\\) of a matrix whose row width the host
 binds with `RowWidth`, exactly as in Chapter 16.
@@ -688,12 +689,12 @@ differently, and its 8 × 8 kernel ran at 827.5 GFLOP/s, faster than the C++ one
 at 875.5 GFLOP/s was slower. Larger register tiles help only while the registers they need leave
 enough threads on each SM.
 
-These results agree with Chapter 9, which measured a 4 × 4 patch kernel of the same shape on the
-same GPU at 901.4 GFLOP/s in C++, 931.9 GFLOP/s with `__launch_bounds__` asking for 4 blocks per SM,
-and 844.9 GFLOP/s in Rust. Our C++ kernel is 8% faster than the best of those, in part because of
-the fixed-count copy loops of Section 18.6.2. cuBLAS ran the same product at 1,495.3 GFLOP/s, 62% of
-the peak; Section 9.8 lists the techniques it adds, among them wider loads from shared memory and
-copying the next tiles while computing on the current ones.
+These results agree with those of Chapter 9, where we measured a 4 × 4 patch kernel of the same
+shape on the same GPU at 901.4 GFLOP/s in C++, 931.9 GFLOP/s with `__launch_bounds__` asking for
+4 blocks per SM, and 844.9 GFLOP/s in Rust. Our C++ kernel is 8% faster than the best of those, in
+part because of the fixed-count copy loops of Section 18.6.2. cuBLAS ran the same product at
+1,495.3 GFLOP/s, 62% of the peak; the techniques it adds are listed in Section 9.8, among them wider
+loads from shared memory and copying the next tiles while computing on the current ones.
 
 From the direct kernel of Chapter 16 to the 4 × 4 register tile, the 4,096 × 4,096 product went from
 743 ms to 136 ms in C++, 5.5 times as fast, and each step removed 1 measured limit: tiling removed
@@ -762,8 +763,8 @@ Build and run the Rust program with `cargo oxide run` in its directory, and the 
 
 </div>
 
-Chapter 19 turns to stencil computations, in which each output depends on a small neighbourhood of
-the input, and applies the same staging in shared memory to a grid with borders.
+In Chapter 19 we turn to stencil computations, in which each output depends on a small
+neighbourhood of the input, and apply the same staging in shared memory to a grid with borders.
 
 ## Exercises
 
@@ -785,7 +786,7 @@ the input, and applies the same staging in shared memory to a grid with borders.
 ## Sources and further reading
 
 - A. Pathak, *An Introduction to Tiled Parallel Programming, Simplified*, 2026: the tiled kernel and
-  its Exercise 7.2, from which this chapter starts.
+  its Exercise 7.2, from which we start in this chapter.
 - V. Volkov and J. Demmel, "Benchmarking GPUs to Tune Dense Linear Algebra", SC08, 2008: register
   blocking of matrix products on GPUs.
 - S. Boehm, "How to Optimize a CUDA Matmul Kernel for cuBLAS-like Performance", 2022.

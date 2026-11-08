@@ -104,7 +104,7 @@ Softmax appears in 2 places in a transformer. In an attention layer it is applie
 a matrix of scores between tokens, so a row holds 1 value per token of the sequence, often 1,024
 to 32,768 values. At the output of the model it is applied to a row with 1 value per word of the
 vocabulary, often 32,000 to 128,000 values. A GPU implementation must handle many short rows as
-well as a few long ones, and Section 23.7 measures both.
+well as a few long ones, and in Section 23.7 we measure both.
 
 ### 23.1.3 Layer normalization
 
@@ -355,7 +355,7 @@ and every output of the row is NaN. The entry \\(y_{00} = -1.3416\\) is gone. Th
 Section 23.6 prints the same 8 NaNs for \\(X + 10{,}000\\).
 
 The failure needs no extreme values. Rows of activations with a large common offset and a small
-spread occur in practice, and Section 23.7 measures an error of 2.97 on outputs of size 1 for
+spread occur in practice, and in Section 23.7 we measure an error of 2.97 on outputs of size 1 for
 values near 1,000. The remedy is to never form the squares of the values, only squares of
 deviations, which are small whenever the variance is small.
 
@@ -556,7 +556,7 @@ same state as merging \\(A\\) with the merge of \\(B\\) and \\(C\\). An operatio
 property is called **associative**, and associativity is what allows a tree of merges instead of a
 chain. Second, the test on line 2 is necessary. Without it, 2 empty states give
 \\(0 \cdot e^{-\infty - (-\infty)}\\), and \\(-\infty - (-\infty)\\) is NaN in `f32`. On a GPU
-many threads can hold empty states, and Section 23.5 shows what happens when line 2 is missing.
+many threads can hold empty states, and in Section 23.5 we show what happens when line 2 is missing.
 
 ### 23.3.4 Welford's method
 
@@ -642,7 +642,7 @@ is what line 4 adds, \\(\delta (x_{k-1} - \mu_k)\\).
 </div>
 
 Welford's method costs 1 division per value, on line 3, where the sum of squares costs 1
-multiplication. Section 23.7 measures what the division costs on a GPU.
+multiplication. In Section 23.7 we measure what the division costs on a GPU.
 
 ### 23.3.5 Merging 2 Welford states
 
@@ -792,7 +792,7 @@ holds the state of its own set of columns. After the steps with masks 16 down to
 \\(i\\) holds the merge over all lanes whose numbers differ from \\(i\\) only in the bits of value
 \\(k\\) or more. The step with mask \\(k / 2\\) merges this group with the group of lane
 \\(i \oplus k/2\\), which is disjoint from it and together with it forms the group for
-\\(k / 2\\). After the step with mask 1, the group is the whole warp. Chapter 8 used a different
+\\(k / 2\\). After the step with mask 1, the group is the whole warp. In Chapter 8 we used a different
 shuffle, `shfl_down`, which leaves the result in lane 0 only; the xor shuffle leaves it in every
 lane.
 
@@ -837,7 +837,7 @@ Here \\(\otimes\\) is the merge: \\(\max\\) for the maximum, \\(+\\) for a sum,
 <span class="sc">Merge-Softmax</span> or <span class="sc">Merge-Welford</span> for a state. Line 7
 is needed because line 8 reads slots that other warps write on line 5. Line 9 is needed when the
 same slots are used again by a second reduction: no warp may write a slot of the second reduction
-while another warp still reads the first. Section 23.5 removes line 9 and shows the result.
+while another warp still reads the first. In Section 23.5 we remove line 9 and show the result.
 
 <figure>
 <img src="../../figures/ch23-block-reduce.svg" alt="8 warps each reduce their 32 values by shuffles, and lane 0 of each writes the result into its slot in shared memory. After barrier 1 every thread adds the 8 slots. Barrier 2 waits until every thread has read them, so that a later reduction may write the slots again.">
@@ -937,7 +937,7 @@ For a matrix of \\(R\\) rows of \\(C\\) values, a kernel with \\(b\\) bytes per 
 Each kernel performs a few arithmetic operations per 4 bytes it reads, far fewer than a GPU can
 perform in the time the memory needs to deliver the bytes, so the bytes set the time. The model
 assumes that every read reaches main memory. A block reads its row of 16 KiB repeatedly within a
-short time, and some of the repeated reads may be served by a cache instead; Section 23.7 measures
+short time, and some of the repeated reads may be served by a cache instead; in Section 23.7 we measure
 how much.
 
 <div class="exercises">
@@ -1046,7 +1046,7 @@ cover the row. Different blocks touch different rows, so they do not interfere.
 The same argument, with Theorems 23.5 and 23.6, proves the Welford kernel. For a kernel that calls
 <span class="sc">Block-Reduce</span> twice with the same slots, the proof needs 1 more fact: no slot
 is written by the second call before every thread has read it in the first. Barrier 2 provides
-that fact, and Section 23.5.1 removed it.
+that fact, and in Section 23.5.1 we removed it.
 
 <div class="rule-box">
 
@@ -1158,7 +1158,7 @@ in the `SAFETY` comment. The C++ kernel writes through a plain pointer. The attr
 `#[launch_contract(domain = 1, block = (256, 1, 1))]` records that the kernel expects 1-dimensional
 blocks of 256 threads; the host's `prepare_softmax_three_pass` checks a launch configuration against
 it before the first launch. The Rust kernel also reads through a slice, `input[base + j]`, and every
-such read is checked against the slice length; Section 23.7.5 measures what the checks cost.
+such read is checked against the slice length; in Section 23.7.5 we measure what the checks cost.
 
 ### 23.6.3 The online kernel
 
@@ -1184,7 +1184,7 @@ such read is checked against the slice length; Section 23.7.5 measures what the 
 </div>
 
 `merge_softmax` is <span class="sc">Merge-Softmax</span>, with the test for 2 empty states that
-Section 23.5.2 removed. The first loop of the kernel is lines 1 to 4 of
+we removed in Section 23.5.2. The first loop of the kernel is lines 1 to 4 of
 <span class="sc">Softmax-Online-Kernel</span>: the `if` and the `else` are lines 3 to 8 of
 <span class="sc">Online-Softmax</span>. The butterfly shuffles both numbers of the state in each
 step, lane 0 of each warp writes its state to 2 slots, and after the barrier every thread merges
@@ -1245,7 +1245,7 @@ The 3 loops are lines 1 to 3, 5 to 7 and 9 to 11 of <span class="sc">Softmax-Fus
 The array `x` of `PER_THREAD = COLS / 256 = 16` values has a size fixed at compile time, which is
 why the row length is the constant `COLS = 4096` and not an argument. Each loop has a constant trip
 count and is fully unrolled, so that every `x[k]` names a fixed register. In Rust the loop is a
-`while` loop marked `#[unroll]`, which Section 9.7 found necessary for cuda-oxide to keep a small
+`while` loop marked `#[unroll]`, which we found necessary in Section 9.7 for cuda-oxide to keep a small
 array in registers; in C++ it is a `for` loop under `#pragma unroll`. The fused layer normalization in the complete programs
 has the same 3 loops, with the mean, the squared deviations and the outputs.
 
@@ -1389,7 +1389,7 @@ PASSED
 
 The GB/s column divides the modelled bytes of Section 23.4.5 by the measured time. The table
 collects the times of both programs, and of the Rust program built with
-`cargo oxide run --unchecked-indexing`, which Section 23.7.5 explains:
+`cargo oxide run --unchecked-indexing`, which we explain in Section 23.7.5:
 
 | Kernel | Bytes per element | Rust (ms) | Rust, unchecked (ms) | C++ (ms) | C++, modelled (GB/s) |
 |---|---|---|---|---|---|
@@ -1409,7 +1409,7 @@ collects the times of both programs, and of the Rust program built with
 
 The fused kernels match the model. They move 134 MB in 1.42 to 1.45 ms, 93 to 95 GB/s, which is
 91 to 93% of the 102 GB/s of the memory, the fraction a well-behaved streaming kernel reaches on
-this GPU. The other numbers need explanations, which the next 4 sections give.
+this GPU. The other numbers need explanations, which we give in the next 4 sections.
 
 ### 23.7.3 Why 3 passes cost no more than 1 on rows of 4,096
 

@@ -2,7 +2,7 @@
 
 # Chapter 24: Capstone: An Image Pipeline
 
-Chapters 14 to 23 derived 1 parallel algorithm at a time: a map, a reduction, a matrix product, a
+In Chapters 14 to 23 we derived 1 parallel algorithm at a time: a map, a reduction, a matrix product, a
 stencil, a scan, a histogram and a normalisation. A real program chains several of them. Each kernel
 reads what the previous kernel wrote, the data travel from host memory to the device and back, and
 the slowest stage sets the rate of the whole program. Image processing shows this well, because its
@@ -12,7 +12,7 @@ pixel, some from a small window around it, and some from every pixel of the imag
 In this chapter we build a pipeline of 4 stages that turns a colour image into a map of its edges:
 conversion to gray, histogram equalisation, a Gaussian blur and the Sobel edge detector. We carry an
 image of 8 × 8 pixels through every stage by hand, derive each kernel from the chapter of Part V
-that developed its pattern, and prove that a blur in 2 passes of 5 weights equals the blur with 25
+in which we developed its pattern, and prove that a blur in 2 passes of 5 weights equals the blur with 25
 weights. We then run the pipeline in Rust and in CUDA C++ on images of 1,920 × 1,080 pixels, check
 every pixel against the CPU, find which stage takes the most time and why, and process a batch of
 images on several streams so that copies overlap with computation.
@@ -104,7 +104,7 @@ operation, the histogram of all 64 levels.
 </div>
 
 Figure 24.2 shows the pipeline as the 7 kernels of our programs and the buffers between them. The
-equalisation takes 3 kernels and the blur takes 2; Sections 24.4 and 24.5 explain why. Figure 24.3
+equalisation takes 3 kernels and the blur takes 2; we explain why in Sections 24.4 and 24.5. Figure 24.3
 shows what the programs produce for their test image of 1,920 × 1,080 pixels.
 
 <figure>
@@ -143,7 +143,7 @@ brightest level; replacing each pixel by the median of its 3 × 3 window.
 On a CPU the 4 stages become a sequence of loops. A blur window near the border of the image
 reaches past the border; we let a position outside the image take the level of the nearest pixel
 inside it, and write \\(\mathrm{clamp}(i, n) = \min(\max(i, 0), n - 1)\\) for that rule. The 5
-weights of the blur are \\(w = (1, 4, 6, 4, 1)\\), and Section 24.5 explains them.
+weights of the blur are \\(w = (1, 4, 6, 4, 1)\\), and we explain them in Section 24.5.
 
 <div class="algo">
 <p class="algo-name">Image-Pipeline(\(rgb, W, H\))</p>
@@ -181,7 +181,7 @@ weights of the blur are \\(w = (1, 4, 6, 4, 1)\\), and Section 24.5 explains the
 
 Lines 1 to 3 convert to gray, lines 4 to 18 equalise, lines 19 to 24 blur in 2 passes, and lines 25
 to 28 compute the edges. The symbol \\(\gg 8\\) is a shift right by 8 bits, a division by 256 that
-discards the remainder. Sections 24.3 to 24.6 explain each group of lines on the example; here we
+discards the remainder. In Sections 24.3 to 24.6 we explain each group of lines on the example; here we
 count the work and look at what each line depends on.
 
 ### 24.2.2 Counting the work
@@ -195,7 +195,7 @@ weighted terms for the edges, and the CPU performs them one after another.
 
 In general, with \\(N = WH\\) pixels, every line except 10 and 14 runs \\(N\\) times. For an image of
 1,920 × 1,080 pixels, \\(N = 2{,}073{,}600\\), and the 2 blur passes alone perform
-\\(2 \cdot 5N = 20{,}736{,}000\\) multiply-adds. Section 24.10 measures the whole sequence on 8
+\\(2 \cdot 5N = 20{,}736{,}000\\) multiply-adds. In Section 24.10 we measure the whole sequence on 8
 CPU cores at 38 to 51 images per second.
 
 ### 24.2.3 What each line depends on
@@ -254,11 +254,11 @@ the nearest level instead of down. For the sky,
 the floating-point value 144.45 rounded. Figure 24.1 lists the same computation for the other 3
 colours.
 
-We use integers for a reason that Section 24.8 makes precise. The programs compare every pixel of
+We use integers for a reason that we make precise in Section 24.8. The programs compare every pixel of
 the GPU's output with the CPU's, and they can demand exact equality only if both processors perform
 exactly the same operations. Integer additions and multiplications give the same result on every
 processor. Floating-point expressions do not always: the GPU compiler may fuse a multiplication and
-an addition into 1 instruction that rounds once instead of twice, and Chapter 10 measured such
+an addition into 1 instruction that rounds once instead of twice, and in Chapter 10 we measured such
 differences on 585,903 of 2,097,152 values.
 
 ### 24.3.2 The kernel
@@ -568,8 +568,8 @@ The 3 barriers of Table-Kernel are the 3 calls to `sync_threads()` and `__syncth
 them lie outside every `if`, so every thread of the block reaches them. Line 13 writes the table
 through `table.get_mut(...)` in Rust, a `DisjointSlice` again, and through a plain store in C++.
 The scan inside a warp is the device function `warp_scan` (`warpScan` in C++), which adds the value
-of the lane 1, 2, 4, 8 and 16 places lower with `shuffle_up_sync` (`__shfl_up_sync`); Chapter 21
-derives it.
+of the lane 1, 2, 4, 8 and 16 places lower with `shuffle_up_sync` (`__shfl_up_sync`); we derived it
+in Chapter 21.
 
 ### 24.4.4 Applying the table
 
@@ -732,7 +732,7 @@ For the image of 1,920 × 1,080 pixels, the 2 passes save \\(15 \cdot 2{,}073{,}
 multiply-adds per image.
 
 The 2 passes cost memory traffic instead. The row pass writes its sums to an intermediate image of 2
-bytes per pixel, 4.1 MB for the large image, and the column pass reads it back. Section 24.9 shows
+bytes per pixel, 4.1 MB for the large image, and the column pass reads it back. In Section 24.9 we show
 that the time of the blur is set by this traffic, not by the multiply-adds.
 
 <figure>
@@ -818,7 +818,7 @@ computes \\(\mathrm{clamp}(i - 2, n)\\), so `tap(x0 + s, W)` is the pixel that b
 4]`. Rust writes `static mut TILE: SharedArray<u32, { ROW_T + 4 }>`, a type whose length is part of
 the type and must be a constant, which is why the tile widths are the constants `ROW_T`, `COL_W` and
 `COL_H`. Every access to the tile is `unsafe` in Rust, and the 2 `// SAFETY:` comments state the
-argument that the next section proves. The output is a `DisjointSlice<u16, Index2D<W>>`, addressed
+argument that we prove in the next section. The output is a `DisjointSlice<u16, Index2D<W>>`, addressed
 by the thread's 2-dimensional index `thread::index_2d::<W>()`, so the write needs no `unsafe` block.
 
 ### 24.5.5 Correctness of the tile
@@ -1117,8 +1117,8 @@ prepared value; in C++ the triple-angle-bracket launch takes any configuration.
 
 ## 24.8 Checking against the CPU
 
-A GPU program can produce an image that looks right and is wrong in a few thousand pixels, as Section
-24.5.6 showed. Both programs therefore compute the whole pipeline a second time on the CPU and compare
+A GPU program can produce an image that looks right and is wrong in a few thousand pixels, as we showed in
+Section 24.5.6. Both programs therefore compute the whole pipeline a second time on the CPU and compare
 the 2 results pixel by pixel. The CPU version uses the same integer formulas, the same clamping and
 a correctly rounded square root, so every pixel must agree exactly; no tolerance is needed.
 
@@ -1225,8 +1225,8 @@ blur with a tile of \\((8 + 4) \times (32 + 4)\\) inputs would move about 2 byte
 25 multiply-adds; Exercise 7 at the end of the chapter asks for it.
 
 The effective rates stay far below 102 GB/s because every access is narrow. Each thread of these
-kernels reads and writes 1 or 2 bytes, so 1 load instruction of a warp moves 32 or 64 bytes. Chapter
-8 measured the same effect with a histogram: 13.7 GB/s with 1-byte loads and 82.9 GB/s
+kernels reads and writes 1 or 2 bytes, so 1 load instruction of a warp moves 32 or 64 bytes. In Chapter
+8 we measured the same effect with a histogram: 13.7 GB/s with 1-byte loads and 82.9 GB/s
 with 16-byte loads. The Sobel kernel has the lowest rate, 18.4 GB/s, because it issues the most load
 instructions per byte. For each byte it writes, its code reads 12 bytes, most of them answered by
 the L1 cache, and takes a square root. The apply-table kernel, at 21.6 GB/s, adds a gather to its 2 bytes. Each
