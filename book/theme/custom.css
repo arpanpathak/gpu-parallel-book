@@ -440,6 +440,10 @@ details.check[open] > summary { margin-bottom: 0.4em; }
     white-space: nowrap;
 }
 
+.algo > ol > li.gap {
+    margin-top: 0.9em;
+}
+
 .algo > ol > li::before {
     content: counter(algo-line);
     position: absolute;

@@ -149,7 +149,7 @@ to it in each iteration.
 <li>for \(i \in [0, n)\) {</li>
 <li style="--d:1">\(\mathit{sum} = \mathit{sum} + a_i \cdot b_i\) <span class="c">// 2 reads, 2 FLOP</span></li>
 <li>}</li>
-<li>return \(\mathit{sum}\)</li>
+<li class="gap">return \(\mathit{sum}\)</li>
 </ol>
 </div>
 
@@ -316,8 +316,8 @@ computes 4, 11, 6 and 10 in the first step, 10 and 21 in the second, and 31 in t
 In our example, each block has 8 threads, and each thread holds exactly 1 product. A real block,
 however, has \\(\textit{blockDim.x} = 256\\) threads, and a real vector has millions of elements, many more than the
 threads of the grid. Each thread therefore begins with the grid-stride loop of Chapter 14. It
-multiplies the elements \\(\mathit{globalIndex}, \mathit{globalIndex} + \mathit{gridSize}, \mathit{globalIndex} + 2\,\mathit{gridSize}, \ldots\\) of the 2 vectors and adds the products in a
-register, where \\(\mathit{globalIndex}\\) is its global index and \\(\mathit{gridSize}\\) is the number of threads in the grid. The
+multiplies the elements \\(\mathit{index}, \mathit{index} + \mathit{gridSize}, \mathit{index} + 2\,\mathit{gridSize}, \ldots\\) of the 2 vectors and adds the products in a
+register, where \\(\mathit{index}\\) starts at the thread's global index and \\(\mathit{gridSize}\\) is the number of threads in the grid. The
 products are never stored in memory. The tree then combines the \\(\textit{blockDim.x}\\) register sums of the block,
 and thread 0 writes the block's sum to a **partial sum** array, which holds one element per block.
 Every thread executes the following procedure, in which `cells` is a shared array of \\(\textit{blockDim.x}\\)
@@ -328,20 +328,20 @@ floats and \\(\mathit{mySum}\\) is the thread's register sum.
 <ol>
 <li>\(\mathit{index} = \textit{blockIdx.x} \times \textit{blockDim.x} + \textit{threadIdx.x}\) <span class="c">// first element</span></li>
 <li>\(\mathit{gridSize} = \textit{gridDim.x} \times \textit{blockDim.x}\) <span class="c">// threads in the grid</span></li>
-<li>\(\mathit{mySum} = 0\)</li>
+<li class="gap">\(\mathit{mySum} = 0\)</li>
 <li>while \(\mathit{index} \lt n\) { <span class="c">// the grid-stride loop of Chapter 14</span></li>
 <li style="--d:1">\(\mathit{mySum} = \mathit{mySum} + a_{\mathit{index}} \times b_{\mathit{index}}\)</li>
 <li style="--d:1">\(\mathit{index} = \mathit{index} + \mathit{gridSize}\)</li>
 <li>}</li>
-<li>\(\mathit{cells}[\textit{threadIdx.x}] = \mathit{mySum}\)</li>
+<li class="gap">\(\mathit{cells}[\textit{threadIdx.x}] = \mathit{mySum}\)</li>
 <li><span class="sc">Barrier</span>() <span class="c">// every cell holds its value</span></li>
-<li>for \(\mathit{stride} = \textit{blockDim.x}/2, \textit{blockDim.x}/4, \ldots, 1\) {</li>
+<li class="gap">for \(\mathit{stride} = \textit{blockDim.x}/2, \textit{blockDim.x}/4, \ldots, 1\) {</li>
 <li style="--d:1">if \(\textit{threadIdx.x} \lt \mathit{stride}\) {</li>
 <li style="--d:2">\(\mathit{cells}[\textit{threadIdx.x}] = \mathit{cells}[\textit{threadIdx.x}] + \mathit{cells}[\textit{threadIdx.x} + \mathit{stride}]\)</li>
 <li style="--d:1">}</li>
 <li style="--d:1"><span class="sc">Barrier</span>() <span class="c">// this step is complete</span></li>
 <li>}</li>
-<li>if \(\textit{threadIdx.x} = 0\) {</li>
+<li class="gap">if \(\textit{threadIdx.x} = 0\) {</li>
 <li style="--d:1">\(\mathit{partial}[\textit{blockIdx.x}] = \mathit{cells}[0]\)</li>
 <li>}</li>
 </ol>
@@ -632,15 +632,15 @@ thread 70 of the block has \\(\mathit{lane} = 70 \bmod 32 = 6\\) and \\(w = \lfl
 <ol>
 <li>\(\mathit{lane} = \textit{threadIdx.x} \bmod 32\) <span class="c">// position in the warp</span></li>
 <li>\(\mathit{warpIndex} = \lfloor \textit{threadIdx.x} / 32 \rfloor\) <span class="c">// warp number in the block</span></li>
-<li>\(\mathit{warpTotal} = \) <span class="sc">Warp-Sum</span>\((\mathit{mySum})\)</li>
+<li class="gap">\(\mathit{warpTotal} = \) <span class="sc">Warp-Sum</span>\((\mathit{mySum})\)</li>
 <li>if \(\mathit{lane} = 0\) {</li>
 <li style="--d:1">\(\mathit{warpSums}[\mathit{warpIndex}] = \mathit{warpTotal}\)</li>
 <li>}</li>
-<li><span class="sc">Barrier</span>()</li>
+<li class="gap"><span class="sc">Barrier</span>()</li>
 <li>if \(\mathit{warpIndex} \ne 0\) {</li>
 <li style="--d:1">return 0 <span class="c">// only warp 0 finishes the sum</span></li>
 <li>}</li>
-<li>\(\mathit{value} = \mathit{warpSums}[\mathit{lane}]\) if \(\mathit{lane} \lt 8\), else 0</li>
+<li class="gap">\(\mathit{value} = \mathit{warpSums}[\mathit{lane}]\) if \(\mathit{lane} \lt 8\), else 0</li>
 <li>return <span class="sc">Warp-Sum</span>\((\mathit{value})\) <span class="c">// the block sum, in thread 0</span></li>
 </ol>
 </div>
