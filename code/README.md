@@ -21,6 +21,10 @@ comments; each directory builds standalone.
 | [`ch13_rust_vector_add/`](ch13_rust_vector_add/) | Ch 13 - Rust Meets the GPU | Rust host driving a CUDA kernel via `cudarc` | `cargo build --release` (needs CUDA toolkit) |
 | [`ch14_cuda_oxide/`](ch14_cuda_oxide/) | Ch 14 - CUDA-Oxide | The `#[kernel]` map example in pure Rust | `cargo oxide run host_closure` |
 | [`ch15_capstone/`](ch15_capstone/) | Ch 15 - Capstone Pipeline | The full RGB -> blur -> Sobel -> histogram pipeline | `nvcc -arch=compute_60 pipeline.cu -o pipeline` |
+| [`ch16_profiling/`](ch16_profiling/) | Ch 25 - Profiling, Debugging & Performance Engineering | 4 bugs for Compute Sanitizer, the GPU's limits and a warm-up curve, latencies with `clock64()`, tolerances in ULPs (Rust: `oxide/ch16_latency`) | `nvcc -arch=native -lineinfo <name>.cu -o <name>` for `bugs`, `measure`, `latency`, `verify` |
+| [`ch17_systems/`](ch17_systems/) | Ch 26 - GPU Systems & MMIO | What the runtime reports about the GPU, CPU speed over 4 memory types, a work ring with a doorbell between 2 threads (Rust: `oxide/ch17_systems`) | `nvcc -arch=native -O3 systems.cu -o systems` |
+| [`ch18_peer/`](ch18_peer/) | Ch 27 - NVLink & NVSwitch | GPU count, the peer-access matrix, UVA, and a copy and a copy kernel from GPU 0 to GPU 1, or within GPU 0 on 1 GPU (Rust: `oxide/ch18_peer`) | `nvcc -arch=native peer.cu -o peer` |
+| [`ch19_collectives/`](ch19_collectives/) | Ch 28 - NCCL & Collective Communication | Ring and tree all-reduce simulated on 1 GPU, k ranks as slices of 1 buffer, checked exact and timed (Rust: `oxide/ch19_collectives`) | `nvcc -arch=native allreduce.cu -o allreduce` |
 
 **Architecture flags.** `-arch=compute_60` produces portable PTX that the
 driver JIT-compiles on any CUDA 12.x GPU (Pascal or newer), including T4,

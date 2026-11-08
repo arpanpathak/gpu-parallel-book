@@ -25,16 +25,16 @@
   cuBLAS, Thrust, CUB, cuFFT, cuRAND, NVRTC.
 - **Nsight Compute / Nsight Systems User Guides** - the profilers of Chapter
   16.
-- **Compute Sanitizer User Guide** - the debugger of Chapter 16.
+- **Compute Sanitizer User Guide** - the debugger of Chapter 25.
 - **CUDA-Oxide (NVlabs/cuda-oxide)** - the README and examples are the
   primary source for Chapter 14; the project moves quickly, so read the
   repository, not just this book.
 - **NCCL Documentation** - the official `nccl` user guide and API reference
-  for Chapter 19 (collectives, algorithms, environment variables).
+  for Chapter 28 (collectives, algorithms, environment variables).
 - **NVLink & NVSwitch** - NVIDIA's interconnect architecture papers and DGX
-  system guides for Chapter 18.
+  system guides for Chapter 27.
 - **Linux kernel PCI/IOMMU documentation** - `Documentation/PCI/` and
-  `Documentation/IOMMU.txt` for the systems layer of Chapter 17.
+  `Documentation/IOMMU.txt` for the systems layer of Chapter 26.
 
 ## C.3 Tools
 

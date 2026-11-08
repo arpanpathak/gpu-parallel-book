@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 498" width="660" height="498" role="img" aria-label="A CPU core issues store to an address. An address decoder holds 5 ranges read from a device tree: 0x0_03B4_1000, 4 KiB, GPU window 3; 0x0_1700_0000, 16 MiB, GPU bar0; 0x0_1800_0000, 16 MiB, GPU bar1; the RAM ranges, 16 GB, DRAM; 0x24_2800_0000, 16 KiB, NVMe BAR0. The 3 GPU ranges lead to the GPU&#x27;s registers, driven by nvgpu; the RAM ranges to DRAM; the NVMe range to the NVMe controller at PCIe 0004:01:00.0.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="498" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 address space, many destinations</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The windows of an integrated GPU&#x27;s machine, from its device tree.</text>
+  <rect x="16" y="210" width="150" height="74" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M28,210.7 H22 V283.3 H28 A11.3,11.3 0 0 1 16.7,272 V222 A11.3,11.3 0 0 1 28,210.7 Z" fill="#2F6FDB"/>
+  <text x="36.0" y="234.0" class="name" text-anchor="start" xml:space="preserve">CPU core</text>
+  <text x="36.0" y="252.0" class="sub" text-anchor="start" xml:space="preserve">store [address],</text>
+  <text x="36.0" y="270.0" class="sub" text-anchor="start" xml:space="preserve">value</text>
+  <path class="wire" d="M166,247 L204,247" marker-end="url(#head)"/>
+  <rect x="196" y="120" width="216" height="236" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="214" y="109" width="146.0" height="22" rx="11" fill="#1B2430"/>
+  <text x="287.0" y="124.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">ADDRESS DECODER</text>
+  <rect x="208.0" y="150.0" width="124.0" height="30.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="270.0" y="169.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0x0_03B4_1000</text>
+  <rect x="336.0" y="150.0" width="64.0" height="30.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="368.0" y="169.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">4 KiB</text>
+  <rect x="208.0" y="190.0" width="124.0" height="30.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="270.0" y="209.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0x0_1700_0000</text>
+  <rect x="336.0" y="190.0" width="64.0" height="30.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="368.0" y="209.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16 MiB</text>
+  <rect x="208.0" y="230.0" width="124.0" height="30.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="270.0" y="249.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0x0_1800_0000</text>
+  <rect x="336.0" y="230.0" width="64.0" height="30.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="368.0" y="249.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">16 MiB</text>
+  <rect x="208.0" y="270.0" width="124.0" height="30.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="270.0" y="289.0" class="mono" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">RAM ranges</text>
+  <rect x="336.0" y="270.0" width="64.0" height="30.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <text x="368.0" y="289.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">16 GB</text>
+  <rect x="208.0" y="310.0" width="124.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="270.0" y="329.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0x24_2800_0000</text>
+  <rect x="336.0" y="310.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="368.0" y="329.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">16 KiB</text>
+  <rect x="452" y="152" width="192" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M464,152.7 H458 V215.3 H464 A11.3,11.3 0 0 1 452.7,204 V164 A11.3,11.3 0 0 1 464,152.7 Z" fill="#1F8A70"/>
+  <text x="472.0" y="171.0" class="name" text-anchor="start" xml:space="preserve">GPU registers</text>
+  <text x="472.0" y="189.0" class="sub" text-anchor="start" xml:space="preserve">bar0, bar1, window 3</text>
+  <text x="472.0" y="207.0" class="sub" text-anchor="start" xml:space="preserve">driver: nvgpu (gk20a)</text>
+  <rect x="452" y="262" width="192" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M464,262.7 H458 V325.3 H464 A11.3,11.3 0 0 1 452.7,314 V274 A11.3,11.3 0 0 1 464,262.7 Z" fill="#B7791F"/>
+  <text x="472.0" y="281.0" class="name" text-anchor="start" xml:space="preserve">DRAM</text>
+  <text x="472.0" y="299.0" class="sub" text-anchor="start" xml:space="preserve">cached, ordinary</text>
+  <text x="472.0" y="317.0" class="sub" text-anchor="start" xml:space="preserve">memory</text>
+  <rect x="452" y="342" width="192" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M464,342.7 H458 V405.3 H464 A11.3,11.3 0 0 1 452.7,394 V354 A11.3,11.3 0 0 1 464,342.7 Z" fill="#7A4FD0"/>
+  <text x="472.0" y="361.0" class="name" text-anchor="start" xml:space="preserve">NVMe controller</text>
+  <text x="472.0" y="379.0" class="sub" text-anchor="start" xml:space="preserve">on PCIe 0004:01:00.0</text>
+  <text x="472.0" y="397.0" class="sub" text-anchor="start" xml:space="preserve">driver: nvme</text>
+  <path d="M400,165 H412 V245 H400" fill="none" stroke="#3F5873" stroke-width="1.6"/>
+  <circle cx="412" cy="184" r="3" fill="#3F5873"/>
+  <path class="wire" d="M412,184 L452,184" marker-end="url(#head)"/>
+  <path class="wire" d="M400,285 L417,285 Q426,285 426.0,289.5 L426.0,289.5 Q426,294 435,294 L452,294" marker-end="url(#head)"/>
+  <path class="wire" d="M400,325 L421,325 Q430,325 430,334 L430,365 Q430,374 439,374 L452,374" marker-end="url(#head)"/>
+  <text x="16.0" y="440.0" class="note" text-anchor="start" xml:space="preserve">The interconnect sends every load and store by its address. An address in a device&#x27;s</text>
+  <text x="16.0" y="458.0" class="note" text-anchor="start" xml:space="preserve">window reaches that device&#x27;s registers; an address in a RAM range reaches DRAM. The</text>
+  <text x="16.0" y="476.0" class="note" text-anchor="start" xml:space="preserve">same store instruction does both: the address alone decides.</text>
+</svg>

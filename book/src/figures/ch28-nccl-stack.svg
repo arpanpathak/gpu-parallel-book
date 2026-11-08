@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 466" width="660" height="466" role="img" aria-label="Three layers. At the top, a framework such as PyTorch DistributedDataParallel asks for an all-reduce of the gradients. In the middle, NCCL keeps 1 communicator per rank, finds the topology, builds rings and trees, and runs each collective as 1 kernel on the rank&#x27;s stream. At the bottom, 4 transports: NVLink and NVSwitch, PCIe peer to peer, host memory within a node, and the network, InfiniBand or RoCE.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="466" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Where NCCL sits</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">1 call from the framework, 1 kernel per rank, a transport for each pair.</text>
+  <rect x="40" y="116" width="580" height="56" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,116.7 H46 V171.3 H52 A11.3,11.3 0 0 1 40.7,160 V128 A11.3,11.3 0 0 1 52,116.7 Z" fill="#7A4FD0"/>
+  <rect x="56" y="128.0" width="32" height="32" rx="8" fill="#F0EAFB"/>
+  <g transform="translate(62.0,134.0) scale(0.8333)"><path d="M12 2 2 7l10 5 10-5zm-7.8 8.6L2 11.7l10 5 10-5-2.2-1.1L12 14.5zm0 4.7L2 16.4l10 5 10-5-2.2-1.1L12 19.2z" fill="#7A4FD0" fill-rule="evenodd"/></g>
+  <text x="98.0" y="140.0" class="name" text-anchor="start" xml:space="preserve">framework: PyTorch DistributedDataParallel</text>
+  <text x="98.0" y="158.0" class="sub" text-anchor="start" xml:space="preserve">an all-reduce of the gradients after each backward pass</text>
+  <rect x="40" y="206" width="580" height="74" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M52,206.7 H46 V279.3 H52 A11.3,11.3 0 0 1 40.7,268 V218 A11.3,11.3 0 0 1 52,206.7 Z" fill="#2F6FDB"/>
+  <rect x="56" y="227.0" width="32" height="32" rx="8" fill="#EAF1FD"/>
+  <g transform="translate(62.0,233.0) scale(0.8333)"><path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.493 3.374 6.493 3.374s-2.774 3.851-5.75 3.851c-.398 0-.787-.062-1.158-.185v-4.346c1.528.185 1.837.857 2.747 2.385l2.04-1.714s-1.492-1.952-4-1.952a6.016 6.016 0 0 0-.796.035m0-4.735v2.138l.424-.027c5.45-.185 9.01 4.47 9.01 4.47s-4.08 4.964-8.33 4.964c-.37 0-.733-.035-1.095-.097v1.325c.3.035.61.062.91.062 3.957 0 6.82-2.023 9.593-4.408.459.371 2.34 1.263 2.73 1.652-2.633 2.208-8.772 3.984-12.253 3.984-.335 0-.653-.018-.971-.053v1.864H24V4.063zm0 10.326v1.131c-3.657-.654-4.673-4.46-4.673-4.46s1.758-1.944 4.673-2.262v1.237H8.94c-1.528-.186-2.73 1.245-2.73 1.245s.68 2.412 2.739 3.11M2.456 10.9s2.164-3.197 6.5-3.533V6.201C4.153 6.59 0 10.653 0 10.653s2.35 6.802 8.948 7.42v-1.237c-4.84-.6-6.492-5.936-6.492-5.936z" fill="#76B900" fill-rule="evenodd"/></g>
+  <text x="98.0" y="230.0" class="name" text-anchor="start" xml:space="preserve">NCCL: 1 communicator per rank</text>
+  <text x="98.0" y="248.0" class="sub" text-anchor="start" xml:space="preserve">finds the topology, builds rings and trees, runs each collective</text>
+  <text x="98.0" y="266.0" class="sub" text-anchor="start" xml:space="preserve">as 1 kernel on the rank&#x27;s CUDA stream</text>
+  <path class="wire" d="M330,172 L330,206" marker-end="url(#head)"/>
+  <path d="M330,280 V300 M102,300 H552" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="330" cy="300" r="3" fill="#3F5873"/>
+  <path d="M102,300 V327" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M252,300 V327" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M402,300 V327" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M552,300 V327" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="32" y="330" width="140" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M44,330.7 H38 V393.3 H44 A11.3,11.3 0 0 1 32.7,382 V342 A11.3,11.3 0 0 1 44,330.7 Z" fill="#2E8B3D"/>
+  <text x="52.0" y="358.0" class="name" text-anchor="start" xml:space="preserve">NVLink</text>
+  <text x="52.0" y="376.0" class="sub" text-anchor="start" xml:space="preserve">NVSwitch</text>
+  <rect x="182" y="330" width="140" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M194,330.7 H188 V393.3 H194 A11.3,11.3 0 0 1 182.7,382 V342 A11.3,11.3 0 0 1 194,330.7 Z" fill="#B7791F"/>
+  <text x="202.0" y="358.0" class="name" text-anchor="start" xml:space="preserve">PCIe</text>
+  <text x="202.0" y="376.0" class="sub" text-anchor="start" xml:space="preserve">peer to peer</text>
+  <rect x="332" y="330" width="140" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M344,330.7 H338 V393.3 H344 A11.3,11.3 0 0 1 332.7,382 V342 A11.3,11.3 0 0 1 344,330.7 Z" fill="#7F8EA0"/>
+  <text x="352.0" y="358.0" class="name" text-anchor="start" xml:space="preserve">host memory</text>
+  <text x="352.0" y="376.0" class="sub" text-anchor="start" xml:space="preserve">same node</text>
+  <rect x="482" y="330" width="140" height="64" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M494,330.7 H488 V393.3 H494 A11.3,11.3 0 0 1 482.7,382 V342 A11.3,11.3 0 0 1 494,330.7 Z" fill="#CF4526"/>
+  <text x="502.0" y="358.0" class="name" text-anchor="start" xml:space="preserve">network</text>
+  <text x="502.0" y="376.0" class="sub" text-anchor="start" xml:space="preserve">InfiniBand, RoCE</text>
+  <text x="40.0" y="426.0" class="note" text-anchor="start" xml:space="preserve">The same ncclAllReduce call runs over whichever transport joins 2 ranks; NCCL picks it</text>
+  <text x="40.0" y="444.0" class="note" text-anchor="start" xml:space="preserve">from the topology it detects when the communicator is created.</text>
+</svg>

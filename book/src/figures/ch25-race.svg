@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 442" width="660" height="442" role="img" aria-label="Two lanes of time for 1 block. Warp 0, threads 0 to 31, stores its own values, then at once adds s[t + 128] into s[t], which for thread 0 reads s[128]. Warp 4, threads 128 to 159, stores s[128] only later. The read of s[128] comes before its write: a race, which racecheck reports as a write at line 31 and a read at line 35.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="442" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The race in the block sum</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Without a barrier, a read can come before the write it needs.</text>
+  <rect x="16" y="104" width="628" height="250" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="319.0" height="22" rx="11" fill="#1B2430"/>
+  <text x="193.5" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">1 BLOCK, NO BARRIER BETWEEN THE STEPS</text>
+  <text x="40.0" y="142.0" class="sub" text-anchor="start" xml:space="preserve">warp 0, threads 0 to 31</text>
+  <line x1="40.0" y1="176.0" x2="620.0" y2="176.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="40.0" y="150.0" width="171.0" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="125.5" y="166.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">s[t] = in[…]</text>
+  <rect x="225.6" y="150.0" width="194.2" height="24.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <text x="322.7" y="166.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">s[t] += s[t + 128]</text>
+  <rect x="434.4" y="150.0" width="159.4" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="514.1" y="166.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">s[t] += s[t + 64]</text>
+  <text x="40.0" y="212.0" class="sub" text-anchor="start" xml:space="preserve">warp 4, threads 128 to 159</text>
+  <line x1="40.0" y1="246.0" x2="620.0" y2="246.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="295.2" y="220.0" width="171.0" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="380.7" y="236.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">s[t] = in[…]</text>
+  <line x1="225.6" y1="176.0" x2="225.6" y2="312.0" stroke="#CF4526" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="295.2" y1="246.0" x2="295.2" y2="312.0" stroke="#B7791F" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <rect x="115.2" y="316" width="106.4" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="168.4" y="328.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">read of s[128]</text>
+  <rect x="299.2" y="316" width="113.0" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="355.7" y="328.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">write of s[128]</text>
+  <text x="620.0" y="340.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">time →</text>
+  <text x="16.0" y="384.0" class="note" text-anchor="start" xml:space="preserve">Nothing makes warp 4 store s[128] before warp 0 reads it. When warp 0 runs first it adds</text>
+  <text x="16.0" y="402.0" class="note" text-anchor="start" xml:space="preserve">whatever s[128] held before, and the block sum is wrong. racecheck reports the pair as</text>
+  <text x="16.0" y="420.0" class="note" text-anchor="start" xml:space="preserve">a write at line 31 and a read at line 35 of the same shared location.</text>
+</svg>

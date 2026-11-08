@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 506" width="660" height="506" role="img" aria-label="Bars of 40 run times of y = 2 x over 256 MiB on 1 GPU. Run 1 takes 19.83 ms and runs 2 to 8 between 9.67 and 14.43 ms; from run 9 the times sit near 8.35 ms, with outliers of 10.43, 10.33, 12.91 and 9.80 ms. A dashed line marks the mean of all 40 runs, 9.46 ms; a solid line the median of runs 21 to 40, 8.35 ms.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="506" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The first 40 runs of 1 kernel</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">y = 2 x over 256 MiB, timed with events, from a cold start.</text>
+  <line x1="72.0" y1="400.0" x2="532.0" y2="400.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="64.0" y="404.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">0</text>
+  <line x1="72.0" y1="338.1" x2="532.0" y2="338.1" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="64.0" y="342.1" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">5</text>
+  <line x1="72.0" y1="276.2" x2="532.0" y2="276.2" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="64.0" y="280.2" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">10</text>
+  <line x1="72.0" y1="214.3" x2="532.0" y2="214.3" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="64.0" y="218.3" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">15</text>
+  <line x1="72.0" y1="152.4" x2="532.0" y2="152.4" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="64.0" y="156.4" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">20</text>
+  <rect x="73.5" y="154.5" width="8.5" height="245.5" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="85.0" y="221.3" width="8.5" height="178.7" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="96.5" y="268.4" width="8.5" height="131.6" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="108.0" y="236.0" width="8.5" height="164.0" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="119.5" y="268.3" width="8.5" height="131.7" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="131.0" y="258.9" width="8.5" height="141.1" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="142.5" y="268.5" width="8.5" height="131.5" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="154.0" y="280.3" width="8.5" height="119.7" rx="2" fill="#FCEBE6" stroke="#CF4526" stroke-width="1"/>
+  <rect x="165.5" y="295.0" width="8.5" height="105.0" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="177.0" y="295.3" width="8.5" height="104.7" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="188.5" y="295.1" width="8.5" height="104.9" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="200.0" y="295.1" width="8.5" height="104.9" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="211.5" y="295.3" width="8.5" height="104.7" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="223.0" y="295.1" width="8.5" height="104.9" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="234.5" y="270.9" width="8.5" height="129.1" rx="2" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <rect x="246.0" y="296.1" width="8.5" height="103.9" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="257.5" y="296.4" width="8.5" height="103.6" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="269.0" y="296.2" width="8.5" height="103.8" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="280.5" y="296.6" width="8.5" height="103.4" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="292.0" y="296.6" width="8.5" height="103.4" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="303.5" y="296.7" width="8.5" height="103.3" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="315.0" y="296.6" width="8.5" height="103.4" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="326.5" y="296.5" width="8.5" height="103.5" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="338.0" y="296.9" width="8.5" height="103.1" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="349.5" y="297.0" width="8.5" height="103.0" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="361.0" y="296.5" width="8.5" height="103.5" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="372.5" y="272.1" width="8.5" height="127.9" rx="2" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <rect x="384.0" y="296.2" width="8.5" height="103.8" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="395.5" y="296.0" width="8.5" height="104.0" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="407.0" y="296.6" width="8.5" height="103.4" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="418.5" y="296.7" width="8.5" height="103.3" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="430.0" y="296.7" width="8.5" height="103.3" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="441.5" y="240.2" width="8.5" height="159.8" rx="2" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <rect x="453.0" y="278.7" width="8.5" height="121.3" rx="2" fill="#FBF1DC" stroke="#B7791F" stroke-width="1"/>
+  <rect x="464.5" y="296.5" width="8.5" height="103.5" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="476.0" y="296.6" width="8.5" height="103.4" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="487.5" y="296.5" width="8.5" height="103.5" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="499.0" y="296.5" width="8.5" height="103.5" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="510.5" y="296.7" width="8.5" height="103.3" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <rect x="522.0" y="296.6" width="8.5" height="103.4" rx="2" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1"/>
+  <line x1="72.0" y1="282.8" x2="538.0" y2="282.8" stroke="#CF4526" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <line x1="302.0" y1="296.6" x2="538.0" y2="296.6" stroke="#2E8B3D" stroke-width="1.8"/>
+  <rect x="542.0" y="266.82047619047614" width="93.2" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="588.6" y="279.4" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">mean 9.46 ms</text>
+  <rect x="542.0" y="294.6190476190476" width="106.4" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="595.2" y="307.2" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">median 8.35 ms</text>
+  <text x="542.0" y="328.6" class="note" text-anchor="start" xml:space="preserve">of runs 21 to 40</text>
+  <text x="64.0" y="112.0" class="sub" text-anchor="end" xml:space="preserve">ms</text>
+  <text x="78.0" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
+  <text x="526.5" y="418.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">40</text>
+  <text x="302.0" y="418.0" class="sub" text-anchor="middle" xml:space="preserve">run</text>
+  <rect x="92.0" y="148.48571428571432" width="113.0" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="148.5" y="161.1" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">run 1: 19.83 ms</text>
+  <text x="40.0" y="448.0" class="note" text-anchor="start" xml:space="preserve">Runs 1 to 8 (red) pay for the cold start and the low clock; runs 9 to 40 sit near 8.35 ms,</text>
+  <text x="40.0" y="466.0" class="note" text-anchor="start" xml:space="preserve">with 4 outliers above 9 ms (amber) when other work used the GPU. The mean counts every</text>
+  <text x="40.0" y="484.0" class="note" text-anchor="start" xml:space="preserve">one of them; the median of the warm runs does not.</text>
+</svg>

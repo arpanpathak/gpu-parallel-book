@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 530" width="660" height="530" role="img" aria-label="Top: a toy float with 8 values between each 2 powers of 2, on a line from 0 to 16. Between 1 and 2 the values are 1/8 apart, between 2 and 4 1/4 apart, between 4 and 8 1/2 apart, and between 8 and 16 1 apart. Bottom: 4 cards. Near 1, 1 ULP of a real float is 2 to the minus 23, about 0.000000119. Near e to the 10, 22,026.47, 1 ULP is 2 to the minus 9, about 0.00195. expf was measured at most 2 ULPs from the nearest float to exp(x), __expf at most 8 ULPs, over x from minus 10 to 10.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="530" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Units in the last place</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The gap between neighbouring floats doubles at every power of 2.</text>
+  <rect x="16" y="104" width="628" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="366.2" height="22" rx="11" fill="#1B2430"/>
+  <text x="217.1" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">A TOY FLOAT: 8 VALUES BETWEEN 2 POWERS OF 2</text>
+  <line x1="50.0" y1="190.0" x2="610.0" y2="190.0" stroke="#3F5873" stroke-width="1.6"/>
+  <line x1="85.0" y1="178.0" x2="85.0" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <line x1="89.4" y1="178.0" x2="89.4" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <line x1="93.8" y1="178.0" x2="93.8" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <line x1="98.1" y1="178.0" x2="98.1" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <line x1="102.5" y1="178.0" x2="102.5" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <line x1="106.9" y1="178.0" x2="106.9" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <line x1="111.2" y1="178.0" x2="111.2" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <line x1="115.6" y1="178.0" x2="115.6" y2="202.0" stroke="#B7791F" stroke-width="1.8"/>
+  <text x="85.0" y="222.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">1</text>
+  <rect x="85.0" y="150" width="73.4" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="121.7" y="162.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">gap 0.125</text>
+  <line x1="120.0" y1="178.0" x2="120.0" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="128.8" y1="178.0" x2="128.8" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="137.5" y1="178.0" x2="137.5" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="146.2" y1="178.0" x2="146.2" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="155.0" y1="178.0" x2="155.0" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="163.8" y1="178.0" x2="163.8" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="172.5" y1="178.0" x2="172.5" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <line x1="181.2" y1="178.0" x2="181.2" y2="202.0" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="120.0" y="222.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">2</text>
+  <rect x="120.0" y="128" width="66.8" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="153.4" y="140.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">gap 0.25</text>
+  <line x1="190.0" y1="178.0" x2="190.0" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <line x1="207.5" y1="178.0" x2="207.5" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <line x1="225.0" y1="178.0" x2="225.0" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <line x1="242.5" y1="178.0" x2="242.5" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <line x1="260.0" y1="178.0" x2="260.0" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <line x1="277.5" y1="178.0" x2="277.5" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <line x1="295.0" y1="178.0" x2="295.0" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <line x1="312.5" y1="178.0" x2="312.5" y2="202.0" stroke="#7A4FD0" stroke-width="1.8"/>
+  <text x="190.0" y="222.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">4</text>
+  <rect x="190.0" y="150" width="60.2" height="18" rx="9" fill="#F0EAFB"/>
+  <text x="220.1" y="162.6" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">gap 0.5</text>
+  <line x1="330.0" y1="178.0" x2="330.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <line x1="365.0" y1="178.0" x2="365.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <line x1="400.0" y1="178.0" x2="400.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <line x1="435.0" y1="178.0" x2="435.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <line x1="470.0" y1="178.0" x2="470.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <line x1="505.0" y1="178.0" x2="505.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <line x1="540.0" y1="178.0" x2="540.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <line x1="575.0" y1="178.0" x2="575.0" y2="202.0" stroke="#2E8B3D" stroke-width="1.8"/>
+  <text x="330.0" y="222.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">8</text>
+  <rect x="330.0" y="128" width="47.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="353.5" y="140.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">gap 1</text>
+  <text x="610.0" y="222.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">16</text>
+  <text x="50.0" y="222.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
+  <text x="40.0" y="256.0" class="note" text-anchor="start" xml:space="preserve">Each stretch from 2ᵉ to 2ᵉ⁺¹ holds the same 8 values, so each gap is twice the last.</text>
+  <text x="40.0" y="274.0" class="note" text-anchor="start" xml:space="preserve">A real float holds 2²³ = 8,388,608 values in each stretch.</text>
+  <rect x="16" y="324" width="310" height="70" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M28,324.7 H22 V393.3 H28 A11.3,11.3 0 0 1 16.7,382 V336 A11.3,11.3 0 0 1 28,324.7 Z" fill="#B7791F"/>
+  <text x="36.0" y="355.0" class="name" text-anchor="start" xml:space="preserve">near 1</text>
+  <text x="36.0" y="373.0" class="sub" text-anchor="start" xml:space="preserve">1 ULP = 2⁻²³ ≈ 0.000000119</text>
+  <rect x="334" y="324" width="310" height="70" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M346,324.7 H340 V393.3 H346 A11.3,11.3 0 0 1 334.7,382 V336 A11.3,11.3 0 0 1 346,324.7 Z" fill="#2E8B3D"/>
+  <text x="354.0" y="355.0" class="name" text-anchor="start" xml:space="preserve">near e¹⁰ = 22,026.47</text>
+  <text x="354.0" y="373.0" class="sub" text-anchor="start" xml:space="preserve">1 ULP = 2⁻⁹ ≈ 0.00195</text>
+  <rect x="16" y="408" width="310" height="70" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M28,408.7 H22 V477.3 H28 A11.3,11.3 0 0 1 16.7,466 V420 A11.3,11.3 0 0 1 28,408.7 Z" fill="#2F6FDB"/>
+  <text x="36.0" y="430.0" class="name" text-anchor="start" xml:space="preserve">expf, measured</text>
+  <text x="36.0" y="448.0" class="sub" text-anchor="start" xml:space="preserve">at most 2 ULPs from the</text>
+  <text x="36.0" y="466.0" class="sub" text-anchor="start" xml:space="preserve">nearest float to exp(x)</text>
+  <rect x="334" y="408" width="310" height="70" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M346,408.7 H340 V477.3 H346 A11.3,11.3 0 0 1 334.7,466 V420 A11.3,11.3 0 0 1 346,408.7 Z" fill="#CF4526"/>
+  <text x="354.0" y="430.0" class="name" text-anchor="start" xml:space="preserve">__expf, measured</text>
+  <text x="354.0" y="448.0" class="sub" text-anchor="start" xml:space="preserve">at most 8 ULPs, over</text>
+  <text x="354.0" y="466.0" class="sub" text-anchor="start" xml:space="preserve">x in [−10, 10)</text>
+  <text x="16.0" y="508.0" class="note" text-anchor="start" xml:space="preserve">An error in ULPs means the same at every size: 2 ULPs is about 2 parts in 8 million.</text>
+</svg>

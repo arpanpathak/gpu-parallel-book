@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 478" width="660" height="478" role="img" aria-label="A strip of device memory with 3 allocations a, b and c of 4,000 bytes, each in a slot of 4,096 bytes, with 96 bytes of padding at the end of each slot. Threads 1,000 to 1,023, which are threads 232 to 255 of block 3, read and write inside the padding: 24 floats, 96 bytes. An enlarged view shows a[996] to a[999], the 24 padding floats, then b[0] at a + 4,096 bytes. No other array is touched, so the program sees no wrong element.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="478" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Why the missing guard went unnoticed</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">24 stray threads × 4 bytes fit exactly in the padding.</text>
+  <text x="40.0" y="128.0" class="sub" text-anchor="start" xml:space="preserve">device memory: 3 allocations of 4,000 bytes, in slots of 4,096 bytes</text>
+  <rect x="40.0" y="140.0" width="186.8" height="40.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="133.4" y="164.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">a[0] … a[999]</text>
+  <rect x="228.8" y="140.0" width="2.5" height="40.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="40.0" y="200.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">+0 bytes</text>
+  <rect x="233.3" y="140.0" width="186.8" height="40.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="326.7" y="164.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">b[0] … b[999]</text>
+  <rect x="422.1" y="140.0" width="2.5" height="40.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="233.3" y="200.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">+4,096 bytes</text>
+  <rect x="426.7" y="140.0" width="186.8" height="40.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="520.1" y="164.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">c[0] … c[999]</text>
+  <rect x="615.5" y="140.0" width="2.5" height="40.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="426.7" y="200.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">+8,192 bytes</text>
+  <rect x="16" y="240" width="628" height="150" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="229" width="90.9" height="22" rx="11" fill="#1B2430"/>
+  <text x="79.5" y="244.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">ENLARGED</text>
+  <rect x="40.0" y="296.0" width="51.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="65.5" y="317.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">a[997]</text>
+  <rect x="94.0" y="296.0" width="51.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="119.5" y="317.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">a[998]</text>
+  <rect x="148.0" y="296.0" width="51.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="173.5" y="317.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">a[999]</text>
+  <rect x="202.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="217.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="232.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="247.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="262.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="277.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="292.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="307.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="322.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="337.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="352.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="367.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="382.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="397.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="412.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="427.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="442.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="457.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="472.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="487.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="502.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="517.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="532.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="547.0" y="296.0" width="12.0" height="34.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="562.0" y="296.0" width="51.0" height="34.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="587.5" y="317.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">b[0]</text>
+  <path class="wire" d="M231.06770833333334,182 L231.06770833333334,221 Q231.06770833333334,230 222.06770833333334,230 L219,230 Q210,230 210,239 L210,293" marker-end="url(#head)"/>
+  <line x1="202.0" y1="286.0" x2="559.0" y2="286.0" stroke="#CF4526" stroke-width="1.4"/>
+  <line x1="202.0" y1="282.0" x2="202.0" y2="290.0" stroke="#CF4526" stroke-width="1.4"/>
+  <line x1="559.0" y1="282.0" x2="559.0" y2="290.0" stroke="#CF4526" stroke-width="1.4"/>
+  <rect x="205.2" y="258" width="350.6" height="18" rx="9" fill="#FCEBE6"/>
+  <text x="380.5" y="270.6" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">threads 1,000 to 1,023: block 3, threads 232 to 255</text>
+  <text x="202.0" y="352.0" class="mono" text-anchor="start" style="fill:#5D6B7A" xml:space="preserve">a + 4,000 bytes</text>
+  <text x="613.0" y="352.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">a + 4,096 bytes</text>
+  <text x="40.0" y="374.0" class="note" text-anchor="start" xml:space="preserve">24 floats of padding, 96 bytes, that belong to no array</text>
+  <text x="40.0" y="420.0" class="note" text-anchor="start" xml:space="preserve">cudaMalloc gave each 4,000-byte array a 4,096-byte slot. 1,024 threads − 1,000 elements =</text>
+  <text x="40.0" y="438.0" class="note" text-anchor="start" xml:space="preserve">24 extra threads; 24 × 4 bytes = 96 bytes, exactly the padding. The stray accesses touched</text>
+  <text x="40.0" y="456.0" class="note" text-anchor="start" xml:space="preserve">no other array, so the program saw nothing wrong; memcheck reports every one of them.</text>
+</svg>

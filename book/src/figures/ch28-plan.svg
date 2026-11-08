@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 520" width="660" height="520" role="img" aria-label="A buffer of 16 chunks, 4 per rank. In step 1 of reduce-scatter, 4 arrows leave chunk c0 of rank 0, c1 of rank 1, c2 of rank 2 and c3 of rank 3, and land on the same chunk of the next rank; the last one wraps from rank 3 back to rank 0. Below, 2 cards: 1 step is 1 launch, with blocks divided among the transfers; no element is both read and written within a step, so the transfers cannot race.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="520" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Ranks as slices of 1 buffer</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Each step of the plan becomes 1 kernel launch on the GPU.</text>
+  <text x="50.0" y="112.0" class="sub" text-anchor="start" xml:space="preserve">all: 1 buffer of k × n floats in the GPU&#x27;s memory</text>
+  <text x="116.0" y="140.0" class="name" text-anchor="middle" xml:space="preserve">rank 0</text>
+  <rect x="50.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="65.0" y="169.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">c0</text>
+  <rect x="84.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="99.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c1</text>
+  <rect x="118.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="133.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c2</text>
+  <rect x="152.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="167.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c3</text>
+  <text x="252.0" y="140.0" class="name" text-anchor="middle" xml:space="preserve">rank 1</text>
+  <rect x="186.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="201.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c0</text>
+  <rect x="220.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="235.0" y="169.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">c1</text>
+  <rect x="254.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="269.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c2</text>
+  <rect x="288.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="303.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c3</text>
+  <text x="388.0" y="140.0" class="name" text-anchor="middle" xml:space="preserve">rank 2</text>
+  <rect x="322.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="337.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c0</text>
+  <rect x="356.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="371.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c1</text>
+  <rect x="390.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="405.0" y="169.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">c2</text>
+  <rect x="424.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="439.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c3</text>
+  <text x="524.0" y="140.0" class="name" text-anchor="middle" xml:space="preserve">rank 3</text>
+  <rect x="458.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="473.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c0</text>
+  <rect x="492.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="507.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c1</text>
+  <rect x="526.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <text x="541.0" y="169.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c2</text>
+  <rect x="560.0" y="150.0" width="30.0" height="30.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.2"/>
+  <text x="575.0" y="169.0" class="mono" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">c3</text>
+  <circle cx="65.0" cy="180" r="3" fill="#2F6FDB"/>
+  <path d="M65.0,184 V230 H201.0 V183" fill="none" stroke="#2F6FDB" stroke-width="1.6" stroke-dasharray="" marker-end="url(#head)"/>
+  <text x="73.0" y="224.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">transfer 0</text>
+  <circle cx="235.0" cy="180" r="3" fill="#2F6FDB"/>
+  <path d="M235.0,184 V260 H371.0 V183" fill="none" stroke="#2F6FDB" stroke-width="1.6" stroke-dasharray="" marker-end="url(#head)"/>
+  <text x="243.0" y="254.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">transfer 1</text>
+  <circle cx="405.0" cy="180" r="3" fill="#2F6FDB"/>
+  <path d="M405.0,184 V290 H541.0 V183" fill="none" stroke="#2F6FDB" stroke-width="1.6" stroke-dasharray="" marker-end="url(#head)"/>
+  <text x="413.0" y="284.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">transfer 2</text>
+  <circle cx="575.0" cy="180" r="3" fill="#2F6FDB"/>
+  <path d="M575.0,184 V320 H167.0 V183" fill="none" stroke="#2F6FDB" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#head)"/>
+  <text x="175.0" y="314.0" class="mono" text-anchor="start" style="fill:#2F6FDB" xml:space="preserve">transfer 3</text>
+  <rect x="50" y="360" width="270" height="70" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M62,360.7 H56 V429.3 H62 A11.3,11.3 0 0 1 50.7,418 V372 A11.3,11.3 0 0 1 62,360.7 Z" fill="#2F6FDB"/>
+  <text x="70.0" y="382.0" class="name" text-anchor="start" xml:space="preserve">1 step = 1 launch</text>
+  <text x="70.0" y="400.0" class="sub" text-anchor="start" xml:space="preserve">blocks 0 … per − 1: transfer 0</text>
+  <text x="70.0" y="418.0" class="sub" text-anchor="start" xml:space="preserve">blocks per … 2 per − 1: transfer 1</text>
+  <rect x="340" y="360" width="290" height="70" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <path d="M352,360.7 H346 V429.3 H352 A11.3,11.3 0 0 1 340.7,418 V372 A11.3,11.3 0 0 1 352,360.7 Z" fill="#2E8B3D"/>
+  <text x="360.0" y="382.0" class="name" text-anchor="start" xml:space="preserve">No race inside a step</text>
+  <text x="360.0" y="400.0" class="sub" text-anchor="start" xml:space="preserve">no chunk is both read</text>
+  <text x="360.0" y="418.0" class="sub" text-anchor="start" xml:space="preserve">and written within 1 step</text>
+  <text x="16.0" y="462.0" class="note" text-anchor="start" xml:space="preserve">Step 1 of reduce-scatter on 4 ranks: rank r adds its chunk r into the same chunk of rank</text>
+  <text x="16.0" y="480.0" class="note" text-anchor="start" xml:space="preserve">r + 1. The 4 transfers run in 1 kernel launch, like 4 links working at once. The plan of</text>
+  <text x="16.0" y="498.0" class="note" text-anchor="start" xml:space="preserve">every step, pairs of offsets (from, to), sits in GPU memory before the first launch.</text>
+</svg>

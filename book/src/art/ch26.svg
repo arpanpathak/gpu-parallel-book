@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="Knock, a woodpecker, clings to a tree trunk and taps its beak on a brass doorbell plate fixed to the bark, marked with a register address. Beside the tree hangs a board with a ring of 8 slots: 5 of them hold work tickets, a PUT marker points past the last ticket written and a GET marker at the first ticket not yet done. A tag says write the work, then knock: the rule of a doorbell.">
+<defs><linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2540"/><stop offset="1" stop-color="#6a4a7a"/></linearGradient><linearGradient id="glow4" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f5c542" stop-opacity="0"/><stop offset="0.5" stop-color="#f5c542" stop-opacity="0.22"/><stop offset="1" stop-color="#7aa6ff" stop-opacity="0"/></linearGradient></defs>
+<rect x="0.0" y="0.0" width="960.0" height="420.0" rx="0" fill="url(#sky3)" stroke="none" stroke-width="0" />
+<path d="M0,144 C240,56 520,180 960,108 L960,178 C520,240 240,126 0,214 Z" fill="url(#glow4)" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="901.0" cy="155.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="138.0" cy="52.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="335.0" cy="141.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="532.0" cy="38.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="729.0" cy="127.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="926.0" cy="24.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="163.0" cy="113.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="360.0" cy="202.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="557.0" cy="99.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="754.0" cy="188.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="951.0" cy="85.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="188.0" cy="174.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="385.0" cy="71.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="582.0" cy="160.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="779.0" cy="57.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="16.0" cy="146.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="213.0" cy="43.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="410.0" cy="132.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="607.0" cy="29.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="804.0" cy="118.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="41.0" cy="15.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="238.0" cy="104.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="435.0" cy="193.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="632.0" cy="90.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="829.0" cy="179.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="66.0" cy="76.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="263.0" cy="165.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="460.0" cy="62.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="657.0" cy="151.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="854.0" cy="48.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="91.0" cy="137.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="288.0" cy="34.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="485.0" cy="123.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="682.0" cy="20.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<circle cx="879.0" cy="109.0" r="1.7" fill="#ffffff" opacity="0.65"/>
+<circle cx="116.0" cy="198.0" r="2.3" fill="#ffffff" opacity="0.80"/>
+<circle cx="313.0" cy="95.0" r="1.1" fill="#ffffff" opacity="0.35"/>
+<circle cx="510.0" cy="184.0" r="1.7" fill="#ffffff" opacity="0.50"/>
+<circle cx="707.0" cy="81.0" r="2.3" fill="#ffffff" opacity="0.65"/>
+<circle cx="904.0" cy="170.0" r="1.1" fill="#ffffff" opacity="0.80"/>
+<circle cx="141.0" cy="67.0" r="1.7" fill="#ffffff" opacity="0.35"/>
+<circle cx="338.0" cy="156.0" r="2.3" fill="#ffffff" opacity="0.50"/>
+<circle cx="535.0" cy="53.0" r="1.1" fill="#ffffff" opacity="0.65"/>
+<circle cx="732.0" cy="142.0" r="1.7" fill="#ffffff" opacity="0.80"/>
+<circle cx="929.0" cy="39.0" r="2.3" fill="#ffffff" opacity="0.35"/>
+<circle cx="166.0" cy="128.0" r="1.1" fill="#ffffff" opacity="0.50"/>
+<path d="M0,296 C200,270 420,314 640,288 S900,302 960,282 L960,420 L0,420 Z" fill="#a58e6a" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M0,316 C260,296 520,330 960,308 L960,420 L0,420 Z" fill="#c9b48e" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="300.0" y="0.0" width="100.0" height="332.0" rx="0" fill="#8a6a44" stroke="#2a1a10" stroke-width="3" />
+<path d="M314,40 q-6,60 0,120 t0,120" fill="none" stroke="#5a3d28" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+<path d="M336,70 q-6,60 0,120 t0,120" fill="none" stroke="#5a3d28" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+<path d="M358,100 q-6,60 0,120 t0,120" fill="none" stroke="#5a3d28" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+<path d="M380,40 q-6,60 0,120 t0,120" fill="none" stroke="#5a3d28" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+<path d="M270,330 Q350,302 430,330 Z" fill="#6b4f30" stroke="none" stroke-width="0" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="346.0" y="132.0" width="74.0" height="54.0" rx="8" fill="#c89b3c" stroke="#5a4210" stroke-width="3" />
+<circle cx="383.0" cy="159.0" r="12.0" fill="#e6c46a" stroke="#5a4210" stroke-width="3"/>
+<text x="383.0" y="210.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="72.0" lengthAdjust="spacingAndGlyphs">0x810090</text>
+<path d="M336,128 l-8,-12 M346,124 l0,-14 M356,128 l8,-12" fill="none" stroke="#f5c542" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M274.0,261.0 L250.0,317.0 L286.0,279.0 Z" fill="#23262d" stroke="#14161a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /><ellipse cx="280.0" cy="221.0" rx="30.0" ry="52.0" fill="#f4f1ea" stroke="#14161a" stroke-width="2.4"/><path d="M250.0,215.0 Q246.0,261.0 276.0,271.0 Q270.0,211.0 274.0,179.0 Q254.0,185.0 250.0,215.0 Z" fill="#23262d" stroke="#14161a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /><ellipse cx="266.0" cy="207.0" rx="4.0" ry="2.6" fill="#f4f1ea" /><ellipse cx="274.0" cy="220.0" rx="4.0" ry="2.6" fill="#f4f1ea" /><ellipse cx="266.0" cy="233.0" rx="4.0" ry="2.6" fill="#f4f1ea" /><ellipse cx="274.0" cy="246.0" rx="4.0" ry="2.6" fill="#f4f1ea" /><path d="M302.0,251.0 l16.0,-6.0 M302.0,261.0 l16.0,4.0" fill="none" stroke="#14161a" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" /><circle cx="286.0" cy="159.0" r="25.0" fill="#f4f1ea" stroke="#14161a" stroke-width="2.4"/><path d="M262.0,159.0 Q264.0,129.0 290.0,133.0 Q278.0,147.0 262.0,159.0 Z" fill="#23262d" stroke="#14161a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><path d="M266.0,143.0 Q280.0,123.0 300.0,137.0 Q286.0,141.0 266.0,143.0 Z" fill="#d8402a" stroke="#14161a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><path d="M264.0,169.0 Q286.0,175.0 306.0,167.0" fill="none" stroke="#23262d" stroke-width="5.0" stroke-linecap="round" stroke-linejoin="round" /><path d="M306.0,153.0 L350.0,159.0 L306.0,165.0 Z" fill="#c9a46a" stroke="#14161a" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" /><circle cx="294.0" cy="155.0" r="5.0" fill="#ffffff" />
+<circle cx="295.1" cy="155.3" r="2.6" fill="#1b2430" />
+<circle cx="296.0" cy="154.2" r="0.8" fill="#ffffff" />
+<rect x="494.0" y="132.0" width="416.0" height="152.0" rx="12" fill="#0f1c2b" stroke="#6f8196" stroke-width="3" opacity="0.75"/>
+<line x1="520.0" y1="104.0" x2="520.0" y2="132.0" stroke="#6f8196" stroke-width="3" stroke-linecap="round" />
+<line x1="890.0" y1="104.0" x2="890.0" y2="132.0" stroke="#6f8196" stroke-width="3" stroke-linecap="round" />
+<rect x="520.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#3a4a5e" stroke="#2a1a10" stroke-width="2.5" />
+<text x="540.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">0</text>
+<rect x="566.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#3a4a5e" stroke="#2a1a10" stroke-width="2.5" />
+<text x="586.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">1</text>
+<rect x="612.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#fff6e2" stroke="#2a1a10" stroke-width="2.5" />
+<line x1="620.0" y1="212.0" x2="644.0" y2="212.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="620.0" y1="220.0" x2="644.0" y2="220.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="620.0" y1="228.0" x2="644.0" y2="228.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<text x="632.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">2</text>
+<rect x="658.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#fff6e2" stroke="#2a1a10" stroke-width="2.5" />
+<line x1="666.0" y1="212.0" x2="690.0" y2="212.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="666.0" y1="220.0" x2="690.0" y2="220.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="666.0" y1="228.0" x2="690.0" y2="228.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<text x="678.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">3</text>
+<rect x="704.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#fff6e2" stroke="#2a1a10" stroke-width="2.5" />
+<line x1="712.0" y1="212.0" x2="736.0" y2="212.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="712.0" y1="220.0" x2="736.0" y2="220.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="712.0" y1="228.0" x2="736.0" y2="228.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<text x="724.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">4</text>
+<rect x="750.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#fff6e2" stroke="#2a1a10" stroke-width="2.5" />
+<line x1="758.0" y1="212.0" x2="782.0" y2="212.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="758.0" y1="220.0" x2="782.0" y2="220.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="758.0" y1="228.0" x2="782.0" y2="228.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<text x="770.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">5</text>
+<rect x="796.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#fff6e2" stroke="#2a1a10" stroke-width="2.5" />
+<line x1="804.0" y1="212.0" x2="828.0" y2="212.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="804.0" y1="220.0" x2="828.0" y2="220.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<line x1="804.0" y1="228.0" x2="828.0" y2="228.0" stroke="#7a5a32" stroke-width="2" stroke-linecap="round" />
+<text x="816.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">6</text>
+<rect x="842.0" y="196.0" width="40.0" height="52.0" rx="6" fill="#3a4a5e" stroke="#2a1a10" stroke-width="2.5" />
+<text x="862.0" y="268.0" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="9.0" lengthAdjust="spacingAndGlyphs">7</text>
+<rect x="602.5" y="152.5" width="59.0" height="27.0" rx="13.5" fill="#c8f0d0" stroke="none" stroke-width="0" /><text x="632.0" y="171.4" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#1d4a2a" text-anchor="middle"  textLength="27.0" lengthAdjust="spacingAndGlyphs">GET</text>
+<rect x="832.5" y="152.5" width="59.0" height="27.0" rx="13.5" fill="#ffe7a3" stroke="none" stroke-width="0" /><text x="862.0" y="171.4" font-family="JetBrains Mono, SF Mono, Menlo, DejaVu Sans Mono, monospace" font-size="15" font-weight="700" fill="#5a4210" text-anchor="middle"  textLength="27.0" lengthAdjust="spacingAndGlyphs">PUT</text>
+<rect x="556.2" y="48.7" width="279.5" height="30.6" rx="15.3" fill="#fff6e2" stroke="none" stroke-width="0" /><text x="696.0" y="70.1" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700" fill="#2a1a10" text-anchor="middle"  textLength="247.5" lengthAdjust="spacingAndGlyphs">write the work, then knock</text>
+<rect x="28.0" y="360.0" width="72.0" height="40.0" rx="6" fill="#d9622b" stroke="none" stroke-width="0" />
+<text x="64.0" y="388.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle"  textLength="30.8" lengthAdjust="spacingAndGlyphs">26</text>
+<rect x="100.0" y="360.0" width="597.6" height="40.0" rx="6" fill="#12263d" stroke="none" stroke-width="0" />
+<text x="120.0" y="387.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="18.5249169435216" font-weight="700" fill="#ffffff" text-anchor="start"  textLength="557.6" lengthAdjust="spacingAndGlyphs">GPU SYSTEMS PROGRAMMING &amp; MEMORY-MAPPED I/O</text>
+<rect x="709.6" y="364.0" width="222.4" height="32.0" rx="16" fill="#ffffffdd" stroke="none" stroke-width="0" />
+<text x="820.8" y="386.0" font-family="Avenir Next Condensed, Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#27405a" text-anchor="middle"  textLength="190.4" lengthAdjust="spacingAndGlyphs">Knock the woodpecker</text>
+</svg>

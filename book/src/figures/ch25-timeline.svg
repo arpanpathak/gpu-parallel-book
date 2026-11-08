@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 520" width="660" height="520" role="img" aria-label="Two timelines from Nsight Systems, each with 3 lanes: copy in, kernel, copy out, on a scale from 0 to 21 milliseconds. With 1 stream: copy in from 0 to 6.18 ms, kernel from 6.35 to 16.75 ms, copy out from 16.75 to 20.95 ms, one after the other. With 2 streams and 8 chunks: 8 kernels of about 1.33 ms each run almost back to back from 0.67 to 12.68 ms, alternating streams A and B, while copies of the other stream run beside them; the whole run ends at 13.59 ms.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="520" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Chapter 6&#x27;s pipeline, as nsys saw it</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Measured on a GPU with 8 SMs; stream A solid, stream B dashed.</text>
+  <text x="32.0" y="120.0" class="name" text-anchor="start" xml:space="preserve">1 stream, 1 chunk of 128 MiB</text>
+  <rect x="521.6" y="107" width="106.4" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="574.8" y="119.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">total 20.95 ms</text>
+  <text x="116.0" y="145.0" class="sub" text-anchor="end" xml:space="preserve">copy in</text>
+  <line x1="128.0" y1="152.0" x2="622.5" y2="152.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="128.0" y="130.0" width="140.5" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="198.3" y="144.0" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">A</text>
+  <text x="116.0" y="175.0" class="sub" text-anchor="end" xml:space="preserve">kernel</text>
+  <line x1="128.0" y1="182.0" x2="622.5" y2="182.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="274.0" y="160.0" width="375.6" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="461.9" y="174.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">A</text>
+  <text x="116.0" y="205.0" class="sub" text-anchor="end" xml:space="preserve">copy out</text>
+  <line x1="128.0" y1="212.0" x2="622.5" y2="212.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="651.3" y="190.0" width="-43.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <text x="32.0" y="270.0" class="name" text-anchor="start" xml:space="preserve">2 streams, 8 chunks of 16 MiB</text>
+  <rect x="521.6" y="257" width="106.4" height="18" rx="9" fill="#F1F4F7"/>
+  <text x="574.8" y="269.6" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">total 13.59 ms</text>
+  <text x="116.0" y="295.0" class="sub" text-anchor="end" xml:space="preserve">copy in</text>
+  <line x1="128.0" y1="302.0" x2="622.5" y2="302.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="128.0" y="280.0" width="13.7" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="143.3" y="280.0" width="17.0" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="193.2" y="280.0" width="20.0" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="224.9" y="280.0" width="17.5" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="264.9" y="280.0" width="20.2" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="296.6" y="280.0" width="17.4" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="336.8" y="280.0" width="20.2" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="368.4" y="280.0" width="17.5" height="20.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="116.0" y="325.0" class="sub" text-anchor="end" xml:space="preserve">kernel</text>
+  <line x1="128.0" y1="332.0" x2="622.5" y2="332.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="143.3" y="310.0" width="28.8" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="157.7" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">A</text>
+  <rect x="173.5" y="310.0" width="29.2" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="188.1" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">B</text>
+  <rect x="214.9" y="310.0" width="29.0" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="229.4" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">A</text>
+  <rect x="245.3" y="310.0" width="29.0" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="259.8" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">B</text>
+  <rect x="286.8" y="310.0" width="29.0" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="301.3" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">A</text>
+  <rect x="317.2" y="310.0" width="29.0" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="331.7" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">B</text>
+  <rect x="358.7" y="310.0" width="29.0" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="373.2" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">A</text>
+  <rect x="389.1" y="310.0" width="29.1" height="20.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="403.6" y="324.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">B</text>
+  <text x="116.0" y="355.0" class="sub" text-anchor="end" xml:space="preserve">copy out</text>
+  <line x1="128.0" y1="362.0" x2="622.5" y2="362.0" stroke="#D5DBE3" stroke-width="1"/>
+  <rect x="173.8" y="340.0" width="17.8" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="204.2" y="340.0" width="18.9" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="245.5" y="340.0" width="17.8" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="275.9" y="340.0" width="19.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="317.5" y="340.0" width="17.7" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="347.7" y="340.0" width="19.0" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <rect x="389.4" y="340.0" width="17.9" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="419.9" y="340.0" width="19.1" height="20.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <line x1="128.0" y1="112.0" x2="128.0" y2="384.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="128.0" y="402.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0 ms</text>
+  <line x1="243.0" y1="112.0" x2="243.0" y2="384.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="243.0" y="402.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">5 ms</text>
+  <line x1="358.0" y1="112.0" x2="358.0" y2="384.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="358.0" y="402.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">10 ms</text>
+  <line x1="473.0" y1="112.0" x2="473.0" y2="384.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="473.0" y="402.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">15 ms</text>
+  <line x1="588.0" y1="112.0" x2="588.0" y2="384.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="588.0" y="402.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">20 ms</text>
+  <rect x="128.0" y="420.0" width="30.0" height="16.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="166.0" y="433.0" class="note" text-anchor="start" xml:space="preserve">stream A</text>
+  <rect x="248.0" y="420.0" width="30.0" height="16.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="286.0" y="433.0" class="note" text-anchor="start" xml:space="preserve">stream B</text>
+  <text x="32.0" y="462.0" class="note" text-anchor="start" xml:space="preserve">Kernel lane busy: 10.40 of 20.95 ms with 1 stream (50%), and 8 × 1.33 = 10.61 of</text>
+  <text x="32.0" y="480.0" class="note" text-anchor="start" xml:space="preserve">13.59 ms with 2 streams (78%). With 2 streams each kernel starts as soon as its own</text>
+  <text x="32.0" y="498.0" class="note" text-anchor="start" xml:space="preserve">copy in ends, so the copies hide behind the kernels of the other stream.</text>
+</svg>

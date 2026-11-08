@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 442" width="660" height="442" role="img" aria-label="A chart like a profiler&#x27;s speed-of-light section, in percent of the peaks of a GPU with 2,400 GFLOP/s and 102 GB/s. y = 2 x over 256 MiB: memory 64.3 of 102 GB/s, 63%; arithmetic 8.0 of 2,400 GFLOP/s, 0.3%. Chapter 9&#x27;s 4 by 4 patch kernel: loads of 56.3 GB/s from L2 or DRAM, 55% of the memory peak if all came from DRAM, drawn dashed; arithmetic 901 of 2,400 GFLOP/s, 38%.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="442" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A speed-of-light report, by hand</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">How close 2 kernels come to the memory and the arithmetic peaks.</text>
+  <line x1="112.0" y1="128.0" x2="112.0" y2="332.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="112.0" y="350.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0%</text>
+  <line x1="187.0" y1="128.0" x2="187.0" y2="332.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="187.0" y="350.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">25%</text>
+  <line x1="262.0" y1="128.0" x2="262.0" y2="332.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="262.0" y="350.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">50%</text>
+  <line x1="337.0" y1="128.0" x2="337.0" y2="332.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="337.0" y="350.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">75%</text>
+  <line x1="412.0" y1="128.0" x2="412.0" y2="332.0" stroke="#D5DBE3" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="412.0" y="350.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">100%</text>
+  <text x="32.0" y="124.0" class="name" text-anchor="start" xml:space="preserve">y = 2 x, 256 MiB</text>
+  <text x="100.0" y="154.0" class="sub" text-anchor="end" xml:space="preserve">memory</text>
+  <rect x="112.0" y="138.0" width="189.1" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <text x="309.1" y="154.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">63%</text>
+  <text x="434.0" y="154.0" class="sub" text-anchor="start" xml:space="preserve">64.3 of 102 GB/s</text>
+  <text x="100.0" y="192.0" class="sub" text-anchor="end" xml:space="preserve">FP32</text>
+  <rect x="112.0" y="176.0" width="3.0" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="123.0" y="192.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">0.33%</text>
+  <text x="434.0" y="192.0" class="sub" text-anchor="start" xml:space="preserve">8.0 of 2,400 GFLOP/s</text>
+  <text x="32.0" y="232.0" class="name" text-anchor="start" xml:space="preserve">4 × 4 per thread (Ch. 9)</text>
+  <text x="100.0" y="262.0" class="sub" text-anchor="end" xml:space="preserve">loads</text>
+  <rect x="112.0" y="246.0" width="165.6" height="24.0" rx="6" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="285.6" y="262.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">55%</text>
+  <text x="434.0" y="262.0" class="sub" text-anchor="start" xml:space="preserve">56.3 GB/s, L2 or DRAM</text>
+  <text x="100.0" y="300.0" class="sub" text-anchor="end" xml:space="preserve">FP32</text>
+  <rect x="112.0" y="284.0" width="112.7" height="24.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <text x="232.7" y="300.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">38%</text>
+  <text x="434.0" y="300.0" class="sub" text-anchor="start" xml:space="preserve">901 of 2,400 GFLOP/s</text>
+  <text x="32.0" y="384.0" class="note" text-anchor="start" xml:space="preserve">Percentages of data-sheet peaks of 102 GB/s and 2,400 GFLOP/s. y = 2 x uses 63% of the</text>
+  <text x="32.0" y="402.0" class="note" text-anchor="start" xml:space="preserve">memory and 0.33% of the arithmetic: memory-bound. The patch kernel uses 38% of the</text>
+  <text x="32.0" y="420.0" class="note" text-anchor="start" xml:space="preserve">arithmetic; only a profiler&#x27;s counters can split its loads between L2 and DRAM.</text>
+</svg>

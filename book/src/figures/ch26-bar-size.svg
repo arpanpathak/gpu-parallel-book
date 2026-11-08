@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 524" width="660" height="524" role="img" aria-label="6 steps in 2 columns, for an NVMe drive&#x27;s BAR0 and a PCIe-function GPU&#x27;s BAR0. 1, the BAR holds 0x40000004 and 0xC000000C. 2, software writes 0xFFFFFFFF. 3, it reads back 0xFFFFC004 and 0xFF00000C. 4, the flag bits 3 to 0 are cleared: 0xFFFFC000 and 0xFF000000. 5, inverted: 0x00003FFF and 0x00FFFFFF. 6, plus 1: 0x4000 = 16,384 bytes = 16 KiB, and 0x1000000 = 16,777,216 bytes = 16 MiB.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="524" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">How the kernel learns a BAR&#x27;s size</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Write all ones; the bits that stay 0 give the size.</text>
+  <rect x="200" y="104" width="210" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="218" y="93" width="106.7" height="22" rx="11" fill="#1B2430"/>
+  <text x="271.3" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">NVME DRIVE</text>
+  <rect x="430" y="104" width="210" height="300" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="448" y="93" width="161.7" height="22" rx="11" fill="#1B2430"/>
+  <text x="528.9" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">PCIE-FUNCTION GPU</text>
+  <text x="24.0" y="159.0" class="sub" text-anchor="start" xml:space="preserve">1. BAR holds</text>
+  <rect x="222.0" y="140.0" width="166.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="305.0" y="158.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0x4000_0004</text>
+  <rect x="452.0" y="140.0" width="166.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="535.0" y="158.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0xC000_000C</text>
+  <path d="M305,168 V177" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M535,168 V177" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="24.0" y="199.0" class="sub" text-anchor="start" xml:space="preserve">2. write all ones</text>
+  <rect x="222.0" y="180.0" width="166.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="305.0" y="198.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0xFFFF_FFFF</text>
+  <rect x="452.0" y="180.0" width="166.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="535.0" y="198.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0xFFFF_FFFF</text>
+  <path d="M305,208 V217" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M535,208 V217" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="24.0" y="239.0" class="sub" text-anchor="start" xml:space="preserve">3. read back</text>
+  <rect x="222.0" y="220.0" width="166.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="305.0" y="238.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0xFFFF_C004</text>
+  <rect x="452.0" y="220.0" width="166.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="535.0" y="238.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0xFF00_000C</text>
+  <path d="M305,248 V257" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M535,248 V257" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="24.0" y="279.0" class="sub" text-anchor="start" xml:space="preserve">4. clear flag bits 3:0</text>
+  <rect x="222.0" y="260.0" width="166.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="305.0" y="278.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0xFFFF_C000</text>
+  <rect x="452.0" y="260.0" width="166.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="535.0" y="278.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0xFF00_0000</text>
+  <path d="M305,288 V297" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M535,288 V297" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="24.0" y="319.0" class="sub" text-anchor="start" xml:space="preserve">5. invert</text>
+  <rect x="222.0" y="300.0" width="166.0" height="28.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="305.0" y="318.0" class="mono" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0x0000_3FFF</text>
+  <rect x="452.0" y="300.0" width="166.0" height="28.0" rx="5" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.2"/>
+  <text x="535.0" y="318.0" class="mono" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0x00FF_FFFF</text>
+  <path d="M305,328 V337" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M535,328 V337" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="24.0" y="359.0" class="sub" text-anchor="start" xml:space="preserve">6. add 1: the size</text>
+  <rect x="222.0" y="340.0" width="166.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="305.0" y="358.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0x0000_4000</text>
+  <rect x="452.0" y="340.0" width="166.0" height="28.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="535.0" y="358.0" class="mono" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0x0100_0000</text>
+  <rect x="222.0" y="422" width="152.6" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="298.3" y="434.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">16,384 bytes = 16 KiB</text>
+  <rect x="452.0" y="422" width="179.0" height="18" rx="9" fill="#E7F5E9"/>
+  <text x="541.5" y="434.6" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">16,777,216 bytes = 16 MiB</text>
+  <text x="16.0" y="466.0" class="note" text-anchor="start" xml:space="preserve">The device wires the address bits below its size to 0, so they read back 0 whatever is</text>
+  <text x="16.0" y="484.0" class="note" text-anchor="start" xml:space="preserve">written. Counting those zeros gives the size, which is therefore always a power of 2.</text>
+  <text x="16.0" y="502.0" class="note" text-anchor="start" xml:space="preserve">Bits 3:0 are flags: 0x4 = 64-bit BAR, 0x8 = prefetchable. The kernel does this at boot.</text>
+</svg>

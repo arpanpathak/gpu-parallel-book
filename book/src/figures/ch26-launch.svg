@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 612" width="660" height="612" role="img" aria-label="3 vertical lanes: your process, DRAM and the GPU. 1, the process writes methods to the pushbuffer in DRAM. 2, it writes an 8-byte entry to the ring. 3, it writes GPPut = n + 1 at offset 0x8c of the USERD page. 4, a barrier orders the earlier writes. 5, it stores a token to the doorbell register of the GPU. 6, the GPU reads the ring entry by DMA. 7, it reads the methods by DMA. 8, its SMs run the kernel. 9, it writes GPGet = n + 1 at offset 0x88.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="612" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A launch, from store to SMs</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">What libcuda and the GPU do for 1 kernel launch.</text>
+  <line x1="90.0" y1="132.0" x2="90.0" y2="532.0" stroke="#D5DBE3" stroke-width="2" stroke-dasharray="6 5"/>
+  <rect x="43.4" y="108" width="93.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="90.0" y="120.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">your process</text>
+  <line x1="350.0" y1="132.0" x2="350.0" y2="532.0" stroke="#D5DBE3" stroke-width="2" stroke-dasharray="6 5"/>
+  <rect x="329.8" y="108" width="40.4" height="18" rx="9" fill="#FBF1DC"/>
+  <text x="350.0" y="120.6" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">DRAM</text>
+  <line x1="610.0" y1="132.0" x2="610.0" y2="532.0" stroke="#D5DBE3" stroke-width="2" stroke-dasharray="6 5"/>
+  <rect x="593.1" y="108" width="33.8" height="18" rx="9" fill="#E4F4EF"/>
+  <text x="610.0" y="120.6" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">GPU</text>
+  <path d="M90,168 H347" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="100.0" y="161.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">1. write methods (pushbuffer)</text>
+  <path d="M90,212 H347" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="100.0" y="205.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">2. write 8-byte ring entry</text>
+  <path d="M90,256 H347" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="100.0" y="249.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">3. GPPut = n + 1 (USERD 0x8c)</text>
+  <rect x="86.0" y="288.0" width="8.0" height="16.0" rx="5" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.2"/>
+  <text x="104.0" y="300.0" class="mono" text-anchor="start" style="fill:#CF4526" xml:space="preserve">4. barrier: earlier writes first</text>
+  <path d="M90,344 H607" fill="none" stroke="#CF4526" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head-danger)"/>
+  <text x="100.0" y="337.0" class="mono" text-anchor="start" style="fill:#CF4526" xml:space="preserve">5. store token to the doorbell</text>
+  <path d="M610,388 H353" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="600.0" y="381.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">6. read ring entry (DMA)</text>
+  <path d="M610,432 H353" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="600.0" y="425.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">7. read methods (DMA)</text>
+  <rect x="606.0" y="464.0" width="8.0" height="16.0" rx="5" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.2"/>
+  <text x="596.0" y="476.0" class="mono" text-anchor="end" style="fill:#2E8B3D" xml:space="preserve">8. SMs run the kernel</text>
+  <path d="M610,520 H353" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <text x="600.0" y="513.0" class="mono" text-anchor="end" style="fill:#1B2430" xml:space="preserve">9. GPGet = n + 1 (USERD 0x88)</text>
+  <text x="24.0" y="572.0" class="note" text-anchor="start" xml:space="preserve">Steps 1 to 5 are ordinary stores from the process, with no system call. The store in step</text>
+  <text x="24.0" y="590.0" class="note" text-anchor="start" xml:space="preserve">5 is the only one that reaches the GPU; it tells the GPU that new entries are waiting.</text>
+</svg>

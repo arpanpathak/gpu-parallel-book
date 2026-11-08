@@ -1115,7 +1115,7 @@ called a **stencil**, and the inputs that a tile of outputs needs from beyond it
 its **halo**. For a row of 256 pixels, the blur needs 3 more pixels on each side, 262 in all. No
 library call fits a stencil with a halo of neighbors, so the blur requires a custom kernel.
 It should read along rows, so that neighboring threads read neighboring pixels (Chapter 7).
-Tiling in shared memory should be added only if the profiler of Chapter 16 shows the blur to
+Tiling in shared memory should be added only if the profiler of Chapter 25 shows the blur to
 be the slowest stage of the pipeline.
 
 ## 11.7 The complete programs

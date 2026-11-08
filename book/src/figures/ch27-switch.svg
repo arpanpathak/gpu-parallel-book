@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 580" width="660" height="580" role="img" aria-label="Top: 8 H100s wired directly. GPU 0 fans out to GPUs 1 to 7, each with a tag of 2 links: 18 links over 7 peers give 2 links per peer, 50 GB/s each way. Bottom: 8 GPUs, each with 18 links going down into a row of 4 NVSwitch chips. Any pair can use all 18 links, 450 GB/s each way, and all 8 GPUs can do so at once; 144 of the 256 switch ports are used.">
+  <style>
+    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
+    .title { font-size: 18px; font-weight: 650; }
+    .lede { font-size: 12.5px; fill: #5D6B7A; }
+    .name { font-size: 14px; font-weight: 650; }
+    .sub { font-size: 12px; fill: #5D6B7A; }
+    .note { font-size: 12px; fill: #5D6B7A; }
+    .tab { font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; fill: #5D6B7A; }
+    .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+    .dim { fill: #8794A3; }
+    .strong { font-weight: 700; }
+    .trap { fill: #CF4526; font-weight: 700; }
+    .pill { font-size: 11px; font-weight: 600; }
+    .wire { fill: none; stroke: #3F5873; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire.danger { stroke: #CF4526; stroke-dasharray: 6 5; }
+    .wire.idle { stroke: #7F8EA0; stroke-dasharray: 2 5; }
+  </style>
+  <defs>
+    <filter id="lift" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2430" flood-opacity="0.13"/>
+    </filter>
+    <linearGradient id="thor-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C6CCD5"/><stop offset="1" stop-color="#979EA9"/>
+    </linearGradient>
+    <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
+    </marker>
+    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
+    </marker>
+    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
+    </marker>
+  </defs>
+  <rect width="660" height="580" rx="14" fill="#FBFAF6"/>
+  <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A mesh or a switch, for 8 H100s</text>
+  <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The switch gives every pair the whole 450 GB/s each way.</text>
+  <rect x="16" y="104" width="628" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="93" width="319.0" height="22" rx="11" fill="#1B2430"/>
+  <text x="193.5" y="108.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">DIRECT: 18 LINKS SHARED AMONG 7 PEERS</text>
+  <rect x="16" y="322" width="628" height="236" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="34" y="311" width="232.5" height="22" rx="11" fill="#1B2430"/>
+  <text x="150.3" y="326.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SWITCHED: 4 NVSWITCH CHIPS</text>
+  <rect x="290.0" y="130.0" width="80.0" height="32.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="330.0" y="150.0" class="name" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 0</text>
+  <path d="M330,162 V186 M76,186 H568" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="330" cy="186" r="3" fill="#3F5873"/>
+  <path d="M76,186 V211" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M158,186 V211" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M240,186 V211" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M322,186 V211" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M404,186 V211" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M486,186 V211" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <path d="M568,186 V211" fill="none" stroke="#3F5873" stroke-width="1.6" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="44.0" y="214.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="76.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 1</text>
+  <rect x="50.0" y="252" width="60.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="80.1" y="264.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2 links</text>
+  <rect x="126.0" y="214.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="158.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 2</text>
+  <rect x="132.0" y="252" width="60.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="162.1" y="264.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2 links</text>
+  <rect x="208.0" y="214.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="240.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 3</text>
+  <rect x="214.0" y="252" width="60.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="244.1" y="264.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2 links</text>
+  <rect x="290.0" y="214.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="322.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 4</text>
+  <rect x="296.0" y="252" width="60.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="326.1" y="264.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2 links</text>
+  <rect x="372.0" y="214.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="404.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 5</text>
+  <rect x="378.0" y="252" width="60.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="408.1" y="264.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2 links</text>
+  <rect x="454.0" y="214.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="486.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 6</text>
+  <rect x="460.0" y="252" width="60.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="490.1" y="264.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2 links</text>
+  <rect x="536.0" y="214.0" width="64.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="568.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 7</text>
+  <rect x="542.0" y="252" width="60.2" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="572.1" y="264.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">2 links</text>
+  <text x="400.0" y="146.0" class="note" text-anchor="start" xml:space="preserve">18 ÷ 7 = 2 per peer, 4 left</text>
+  <text x="40.0" y="290.0" class="note" text-anchor="start" xml:space="preserve">to any 1 peer: 2 × 25 = 50 GB/s each way</text>
+  <rect x="26.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="56.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 0</text>
+  <path d="M56,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="102.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="132.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 1</text>
+  <path d="M132,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="178.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="208.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 2</text>
+  <path d="M208,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="254.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="284.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 3</text>
+  <path d="M284,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="330.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="360.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 4</text>
+  <path d="M360,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="406.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="436.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 5</text>
+  <path d="M436,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="482.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="512.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 6</text>
+  <path d="M512,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="558.0" y="350.0" width="60.0" height="30.0" rx="5" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.2"/>
+  <text x="588.0" y="369.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">GPU 7</text>
+  <path d="M588,380 V447" fill="none" stroke="#3F5873" stroke-width="1.8" stroke-linecap="round" marker-end="url(#head)"/>
+  <rect x="26.0" y="400" width="66.8" height="18" rx="9" fill="#EAF1FD"/>
+  <text x="59.4" y="412.6" class="pill" text-anchor="middle" style="fill:#2F6FDB" xml:space="preserve">18 links</text>
+  <rect x="36" y="450" width="140" height="40" rx="8" fill="#2B3442" stroke="#1B2430" stroke-width="1.3" filter="url(#lift)"/>
+  <text x="106.0" y="475.0" class="pill" text-anchor="middle" style="fill:#DCE3EC" xml:space="preserve">NVSwitch 0</text>
+  <rect x="188" y="450" width="140" height="40" rx="8" fill="#2B3442" stroke="#1B2430" stroke-width="1.3" filter="url(#lift)"/>
+  <text x="258.0" y="475.0" class="pill" text-anchor="middle" style="fill:#DCE3EC" xml:space="preserve">NVSwitch 1</text>
+  <rect x="340" y="450" width="140" height="40" rx="8" fill="#2B3442" stroke="#1B2430" stroke-width="1.3" filter="url(#lift)"/>
+  <text x="410.0" y="475.0" class="pill" text-anchor="middle" style="fill:#DCE3EC" xml:space="preserve">NVSwitch 2</text>
+  <rect x="492" y="450" width="140" height="40" rx="8" fill="#2B3442" stroke="#1B2430" stroke-width="1.3" filter="url(#lift)"/>
+  <text x="562.0" y="475.0" class="pill" text-anchor="middle" style="fill:#DCE3EC" xml:space="preserve">NVSwitch 3</text>
+  <text x="40.0" y="516.0" class="note" text-anchor="start" xml:space="preserve">to any 1 peer: all 18 links, 450 GB/s each way, and all 8 GPUs at once</text>
+  <text x="40.0" y="534.0" class="note" text-anchor="start" xml:space="preserve">8 GPUs × 18 links = 144 of the 4 × 64 = 256 switch ports</text>
+</svg>
