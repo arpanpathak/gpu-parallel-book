@@ -4,15 +4,15 @@
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#3F51B5"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#8E99A8"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#3F51B5"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#00897B"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#E65100"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#C2185B"/></marker>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2185B"/></marker>
     <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="384" rx="14" fill="#FBFAF6"/>
@@ -50,7 +50,7 @@
   <rect x="533.8" y="62.9" width="21.0" height="167.1" rx="3" fill="#FFE6D6" stroke="#E65100" stroke-width="1.2"/>
   <rect x="556.8" y="66.0" width="21.0" height="164.0" rx="3" fill="#E3E8FD" stroke="#3F51B5" stroke-width="1.2"/>
   <text x="555.8" y="246.0" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="600" xml:space="preserve">48</text>
-  <path d="M114.2,170.2 L202.5,110.4 L290.8,50.5 L379.2,44.5 L467.5,44.5 L555.8,44.5" fill="none" stroke="#3F51B5" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="5 3"/>
+  <path d="M114.2,170.2 L202.5,110.4 L290.8,50.5 L379.2,44.5 L467.5,44.5 L555.8,44.5" fill="none" stroke="#3F51B5" stroke-width="1.6" stroke-dasharray="5 3"/>
   <text x="335.0" y="266.0" font-size="11.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">blocks of 256 threads per SM</text>
   <rect x="70.0" y="280.0" width="14.0" height="14.0" rx="3" fill="#FFE6D6" stroke="#E65100" stroke-width="1.2"/>
   <text x="90.0" y="291.0" font-size="11" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">Rust</text>

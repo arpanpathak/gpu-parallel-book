@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap");
+
 /* The book's boxes, figures and type, after Democratizing Linux and Cracking
    the Systems Programming Interview. The chapters use the same class names:
    img.plate, .covers, .callout, .bee, .lld, .listing, figure and .summary.
@@ -419,10 +421,32 @@ details.check[open] > summary { margin-bottom: 0.4em; }
     overflow-x: auto;
 }
 
+/* Pseudocode is set in Atkinson Hyperlegible, a typeface designed for low-vision and
+   dyslexic readers. Procedure names and keywords are bold, and math is upright and slightly
+   heavier, so the structure of each line stands out. */
+.algo {
+    font-family: "Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 1.02em;
+}
+
 .algo > .algo-name {
-    margin: 0 0 0.3em;
+    margin: 0 0 0.4em;
     font-variant: small-caps;
-    letter-spacing: 0.03em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.algo b.kw {
+    font-weight: 700;
+}
+
+.algo .sc {
+    font-weight: 700;
+}
+
+.algo .MathJax,
+.algo mjx-container {
+    -webkit-text-stroke: 0.35px currentColor;
 }
 
 .algo > ol {

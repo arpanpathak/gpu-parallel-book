@@ -132,6 +132,21 @@ def regroup():
          "steps.", parts)
 
 
+def merge_arrows(xt, xs, top, by, target, col):
+    """Two values meeting at a "+" badge centered at (xt, by), then the sum going down into
+    the cell whose top is at `target`. Every arrow tip ends exactly on the edge it points at."""
+    radius = 8
+    cx, cy = xt + 30, by - 30                     # last control point of the curve
+    dx, dy = cx - xt, cy - by
+    length = (dx * dx + dy * dy) ** 0.5
+    ex, ey = xt + dx / length * (radius + 1), by + dy / length * (radius + 1)
+    return [curve(f"M{xt:.1f},{top} L{xt:.1f},{by - radius - 1}", col, 2.2),
+            curve(f"M{xs:.1f},{top} C{xs:.1f},{top + 40} {cx:.1f},{cy:.1f} {ex:.1f},{ey:.1f}",
+                  col, 2.2),
+            curve(f"M{xt:.1f},{by + radius} L{xt:.1f},{target - 1}", col, 2.2),
+            plus_badge(xt, by, col)]
+
+
 def plus_badge(x, y, col):
     """A small round "+" badge: the place where 2 values are added."""
     accent = PAL[col][1]
@@ -180,11 +195,7 @@ def steps():
             xt = x0 + t * pitch + cw / 2
             xs = x0 + (t + s) * pitch + cw / 2
             by = ny - 20
-            parts.append(curve(f"M{xt:.1f},{y + ch + 3} L{xt:.1f},{by - 10}", col, 2.2))
-            parts.append(curve(f"M{xs:.1f},{y + ch + 3} C{xs:.1f},{y + ch + 44} "
-                               f"{xt + 34:.1f},{by - 30} {xt + 8:.1f},{by - 7}", col, 2.2))
-            parts.append(curve(f"M{xt:.1f},{by + 8} L{xt:.1f},{ny - 2}", col, 2.2))
-            parts.append(plus_badge(xt, by, col))
+            parts += merge_arrows(xt, xs, y + ch + 3, by, ny, col)
         y = ny
     parts.append(T(x0, y + 30, "Each new value is the sum of 2 cells: its own cell and the cell "
                    "stride places to the right.", 11.5, GREY, "start"))
@@ -281,11 +292,7 @@ def shuffle():
                 xs = x0 + (k + off) * pitch + cw / 2
                 xt = x0 + k * pitch + cw / 2
                 by = ny - 20
-                parts.append(curve(f"M{xt:.1f},{y + ch + 3} L{xt:.1f},{by - 10}", col, 2.2))
-                parts.append(curve(f"M{xs:.1f},{y + ch + 3} C{xs:.1f},{y + ch + 36} "
-                                   f"{xt + 34:.1f},{by - 30} {xt + 8:.1f},{by - 7}", col, 2.2))
-                parts.append(curve(f"M{xt:.1f},{by + 8} L{xt:.1f},{ny - 2}", col, 2.2))
-                parts.append(plus_badge(xt, by, col))
+                parts += merge_arrows(xt, xs, y + ch + 3, by, ny, col)
             y = ny
         else:
             y += ch

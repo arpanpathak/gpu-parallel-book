@@ -279,7 +279,7 @@ global memory before the barrier are visible to all threads of the block after i
 Rust, the same barrier is `thread::sync_threads()`.
 
 <figure>
-<img src="../../figures/ch05-barrier.svg" alt="Six warps of a block write shared memory and reach __syncthreads at different times. Each early warp waits, shown dashed, at a vertical line marking the barrier. When the last warp arrives, all 6 start phase 2 together and can read what the others wrote.">
+<img src="../../figures/ch05-barrier.svg" alt="Six warps of a block write shared memory and reach __syncthreads() at different times. Each early warp waits, shown dashed, at a vertical line marking the barrier. When the last warp arrives, all 6 start phase 2 together and can read what the others wrote.">
 <figcaption><b>Figure 5.3</b> Warps that reach the barrier early wait; the block continues when the last warp arrives.</figcaption>
 </figure>
 

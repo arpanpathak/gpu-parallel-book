@@ -47,9 +47,9 @@ STYLE = """  <style>
 def defs():
     out = ["  <defs>"]
     for name, colour in MARKERS.items():
-        out.append(f'    <marker id="m-{name}" viewBox="0 0 10 10" refX="8.5" refY="5" '
-                   f'markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" '
-                   f'orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="{colour}"/></marker>')
+        out.append(f'    <marker id="m-{name}" viewBox="0 0 10 10" refX="10" refY="5" '
+                   f'markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" '
+                   f'orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="{colour}"/></marker>')
     out.append('    <filter id="elev" x="-20%" y="-20%" width="140%" height="160%">'
                '<feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" '
                'flood-opacity="0.18"/></filter>')
@@ -105,7 +105,7 @@ def arrow(x1, y1, x2, y2, col="hi", w=2.0, dash=None):
     """A straight arrow; the tip stops on (x2, y2)."""
     d = f' stroke-dasharray="{dash}"' if dash else ""
     return (f'  <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" '
-            f'stroke="{MARKERS[col]}" stroke-width="{w}" stroke-linecap="round"{d} '
+            f'stroke="{MARKERS[col]}" stroke-width="{w}"{d} '
             f'marker-end="url(#m-{col})"/>')
 
 
@@ -113,8 +113,7 @@ def curve(d, col="hi", w=2.0, head=True, dash=None):
     """An arrow along an SVG path."""
     m = f' marker-end="url(#m-{col})"' if head else ""
     dd = f' stroke-dasharray="{dash}"' if dash else ""
-    return (f'  <path d="{d}" fill="none" stroke="{MARKERS[col]}" stroke-width="{w}" '
-            f'stroke-linecap="round"{dd}{m}/>')
+    return (f'  <path d="{d}" fill="none" stroke="{MARKERS[col]}" stroke-width="{w}"{dd}{m}/>')
 
 
 def brace(x1, x2, y, label, size=11):
