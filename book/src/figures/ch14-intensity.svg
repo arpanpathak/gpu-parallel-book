@@ -1,47 +1,51 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 330" width="640" height="330" role="img" aria-label="Top: 1 element of SAXPY reads x[i] and y[i] and writes y[i], 4 bytes each, for 2 floating-point operations: 0.17 FLOP per byte. Middle: the ridge points, 23.5 FLOP per byte for the Jetson Orin NX and 29.7 for the Jetson AGX Thor, dwarf SAXPY&#x27;s 0.17. Bottom: for 16,777,216 elements on the Orin NX the memory traffic takes 1.97 ms and the arithmetic 0.014 ms.">
   <style>
-    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#C2185B"/></marker>
+    <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="330" rx="12" fill="#FFFFFF"/>
   <text x="20.0" y="26.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">1 element of SAXPY</text>
-  <rect x="20.0" y="38.0" width="84.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <rect x="20.0" y="38.0" width="84.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="20.0" y="61.0" width="84.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="62.0" y="55.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">read x[i]</text>
-  <text x="62.0" y="80.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
-  <rect x="112.0" y="38.0" width="84.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <text x="62.0" y="80.0" font-size="11" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <rect x="112.0" y="38.0" width="84.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="112.0" y="61.0" width="84.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="154.0" y="55.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">read y[i]</text>
-  <text x="154.0" y="80.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
-  <rect x="204.0" y="38.0" width="84.0" height="26.0" rx="5" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <text x="154.0" y="80.0" font-size="11" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <rect x="204.0" y="38.0" width="84.0" height="26.0" rx="8" fill="#FFE6D6" stroke="#FFE6D6" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="204.0" y="61.0" width="84.0" height="3" rx="1.5" fill="#E65100"/>
   <text x="246.0" y="55.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">write y[i]</text>
-  <text x="246.0" y="80.0" font-size="11" fill="#8A94A3" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
+  <text x="246.0" y="80.0" font-size="11" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">4 B</text>
   <text x="300.0" y="56.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">+ 2 FLOP (1 multiply, 1 add)</text>
-  <text x="300.0" y="80.0" font-size="13" fill="#4F52C4" text-anchor="start" font-weight="700" xml:space="preserve">2 FLOP / 12 B = 0.17 FLOP/B</text>
+  <text x="300.0" y="80.0" font-size="13" fill="#3F51B5" text-anchor="start" font-weight="700" xml:space="preserve">2 FLOP / 12 B = 0.17 FLOP/B</text>
   <text x="20.0" y="124.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">FLOP per byte a GPU can do at its peak (ridge point)</text>
   <text x="140.0" y="152.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">SAXPY</text>
-  <rect x="150.0" y="138.0" width="2.2" height="20.0" rx="4" fill="#C9CAF6" stroke="#4F52C4" stroke-width="1.1"/>
+  <rect x="150.0" y="138.0" width="2.2" height="20.0" rx="4" fill="#3F51B5" stroke="#283593" stroke-width="1.1"/>
   <text x="158.2" y="152.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">0.17 FLOP/B</text>
   <text x="140.0" y="182.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">Jetson Orin NX</text>
-  <rect x="150.0" y="168.0" width="305.5" height="20.0" rx="4" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <rect x="150.0" y="168.0" width="305.5" height="20.0" rx="4" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.1"/>
   <text x="461.5" y="182.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">23.5 FLOP/B</text>
   <text x="140.0" y="212.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">Jetson AGX Thor</text>
-  <rect x="150.0" y="198.0" width="386.1" height="20.0" rx="4" fill="#F0F2F5" stroke="#C5CBD3" stroke-width="1.1"/>
+  <rect x="150.0" y="198.0" width="386.1" height="20.0" rx="4" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.1"/>
   <text x="542.1" y="212.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">29.7 FLOP/B</text>
   <text x="20.0" y="250.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">Time for n = 16,777,216 on the Orin NX (102 GB/s, 2.4 TFLOP/s)</text>
   <text x="140.0" y="278.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">201 MB of memory</text>
-  <rect x="150.0" y="264.0" width="394.0" height="20.0" rx="4" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
+  <rect x="150.0" y="264.0" width="394.0" height="20.0" rx="4" fill="#FFE6D6" stroke="#E65100" stroke-width="1.1"/>
   <text x="550.0" y="278.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">1.97 ms</text>
   <text x="140.0" y="308.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">33.6 MFLOP</text>
-  <rect x="150.0" y="294.0" width="2.8" height="20.0" rx="4" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
+  <rect x="150.0" y="294.0" width="2.8" height="20.0" rx="4" fill="#E3E8FD" stroke="#3F51B5" stroke-width="1.1"/>
   <text x="158.8" y="308.0" font-size="11.5" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">0.014 ms</text>
 </svg>

@@ -131,54 +131,70 @@ def regroup():
          "steps.", parts)
 
 
+def plus_badge(x, y, col):
+    """A small round "+" badge: the place where 2 values are added."""
+    accent = PAL[col][1]
+    return "\n".join([
+        f'  <circle cx="{x:.1f}" cy="{y:.1f}" r="8" fill="#FFFFFF" stroke="{accent}" '
+        f'stroke-width="1.6" filter="url(#elev)"/>',
+        T(x, y + 4.2, "+", 12, accent, weight=700)])
+
+
 def steps():
-    w = 640
-    cw, ch, pitch = 40, 28, 46
-    x0 = 150
+    w = 660
+    cw, ch, pitch = 44, 32, 54
+    x0 = 170
+    gap = 104
     levels = tree_levels(P[:8])
-    parts = [T(20, 22, "shared memory of block 0, cells 0 to 7", 12, INK, "start", 700)]
+    parts = [T(20, 24, "Shared memory of block 0, cells 0 to 7", 13, INK, "start", 700)]
     for k in range(8):
-        parts.append(T(x0 + k * pitch + cw / 2, 40, k, 10.5, GREY))
-    labels = ["after line 7", "s = 4", "s = 2", "s = 1"]
-    actives = [None, "threads 0 to 3 add", "threads 0, 1 add", "thread 0 adds"]
-    y = 48
+        parts.append(T(x0 + k * pitch + cw / 2, 44, f"cell {k}", 10, GREY))
+    labels = ["after line 9", "step with stride = 4", "step with stride = 2", "step with stride = 1"]
+    actives = [None, "threads 0 to 3 add", "threads 0 and 1 add", "thread 0 adds"]
+    y = 52
     for depth, cells in enumerate(levels):
-        s = 8 >> depth if depth else 8
-        live = 8 if depth == 0 else s
+        live = 8 if depth == 0 else 8 >> depth
         for k, v in enumerate(cells):
             if depth == 0:
-                col, faded = THREADS[k % 4] if False else "white", False
+                col, faded = "white", False
             elif k < live:
                 col, faded = THREADS[k % 4], False
             else:
                 col, faded = "grey", True
-            parts.append(cell(x0 + k * pitch, y, cw, ch, v, col, 12.5, faded=faded,
-                              outline=(depth == 3 and k == 0)))
-        parts.append(T(x0 - 14, y + 13, labels[depth], 11.5, INK, "end", 600))
+            parts.append(cell(x0 + k * pitch, y, cw, ch, v, col, 14, faded=faded,
+                              outline=(depth == 3 and k == 0), weight=600))
+        parts.append(T(x0 - 18, y + 15, labels[depth], 12, INK, "end", 700))
         if actives[depth]:
-            parts.append(T(x0 - 14, y + 27, actives[depth], 10.5, GREY, "end"))
-        if depth < 3:
-            ny = y + 74
-            s_next = 4 >> depth
-            for t in range(s_next):
-                xa = x0 + (t + s_next) * pitch + cw / 2
-                xb = x0 + t * pitch + cw / 2
-                parts.append(curve(f"M{xa:.1f},{y + ch + 2} C{xa:.1f},{y + ch + 26} "
-                                   f"{xb:.1f},{ny - 30} {xb:.1f},{ny - 2}", THREADS[t]
-                                   if THREADS[t] in ("blue", "mint", "peach", "pink") else "hi",
-                                   1.2))
-            parts.append(line(x0 - 6, ny - 8, x0 + 7 * pitch + cw + 6, ny - 8, INK, 1.4))
-            parts.append(T(x0 + 7 * pitch + cw + 10, ny - 4, "barrier", 10.5, INK, "start"))
-            y = ny
-        else:
+            parts.append(T(x0 - 18, y + 30, actives[depth], 10.5, GREY, "end"))
+        if depth == 3:
             y += ch
-    parts.append(T(x0, y + 26, "Gray cells are no longer read. After step s = 1, cell 0 holds 32.",
-                   11.5, GREY, "start"))
-    save("ch15-steps.svg", w, y + 40,
+            break
+        ny = y + gap
+        s = 4 >> depth
+        bar_y = y + ch + 16
+        parts.append(line(x0 - 8, bar_y, x0 + 7 * pitch + cw + 8, bar_y, "#5C6B7E", 1.6, "6 4"))
+        parts.append(T(x0 + 7 * pitch + cw + 14, bar_y + 4, "barrier", 11, "#5C6B7E", "start", 600))
+        for t in range(s):
+            col = THREADS[t % 4]
+            xt = x0 + t * pitch + cw / 2
+            xs = x0 + (t + s) * pitch + cw / 2
+            by = ny - 20
+            parts.append(curve(f"M{xt:.1f},{y + ch + 3} L{xt:.1f},{by - 10}", col, 2.2))
+            parts.append(curve(f"M{xs:.1f},{y + ch + 3} C{xs:.1f},{y + ch + 44} "
+                               f"{xt + 34:.1f},{by - 30} {xt + 8:.1f},{by - 7}", col, 2.2))
+            parts.append(curve(f"M{xt:.1f},{by + 8} L{xt:.1f},{ny - 2}", col, 2.2))
+            parts.append(plus_badge(xt, by, col))
+        y = ny
+    parts.append(T(x0, y + 30, "Each new value is the sum of 2 cells: its own cell and the cell "
+                   "stride places to the right.", 11.5, GREY, "start"))
+    parts.append(T(x0, y + 47, "Gray cells are no longer read. After step with stride = 1, cell 0 holds "
+                   "32.", 11.5, GREY, "start"))
+    save("ch15-steps.svg", w, y + 62,
          "The tree in the shared memory of block 0. The 8 cells start as 2, 6, 3, 4, 5, 1, 8, 3. "
-         "With s = 4, threads 0 to 3 add cell t + 4 into cell t, giving 7, 7, 11, 7. With s = 2, "
-         "threads 0 and 1 give 18 and 14. With s = 1, thread 0 gives 32. A barrier separates the "
-         "steps; cells no longer read are gray.", parts)
+         "In step with stride = 4, threads 0 to 3 each add 2 cells, its own cell and cell threadIndex + 4, into its own cell, "
+         "giving 2 + 5 = 7, 6 + 1 = 7, 3 + 8 = 11 and 4 + 3 = 7. In step with stride = 2, threads 0 and 1 "
+         "give 7 + 11 = 18 and 7 + 7 = 14. In step with stride = 1, thread 0 gives 18 + 14 = 32. Two arrows "
+         "lead into every new value, and a barrier separates the steps.", parts)
 
 
 def broken():
@@ -186,10 +202,10 @@ def broken():
     x0 = 130
     parts = [T(x0 - 12, 44, "thread 0", 11.5, INK, "end"),
              T(x0 - 12, 104, "thread 2", 11.5, INK, "end")]
-    parts += [cell(x0, 30, 120, 26, "s = 4: 2 + 5 = 7", "blue", 11),
-              cell(x0 + 128, 30, 160, 26, "s = 2: 7 + cell 2", "blue", 11),
-              cell(x0 + 296, 30, 130, 26, "s = 1: 10 + 14", "blue", 11),
-              cell(x0, 90, 230, 26, "s = 4 (delayed): 3 + 8 = 11", "peach", 11)]
+    parts += [cell(x0, 30, 120, 26, "stride = 4: 2 + 5 = 7", "blue", 11),
+              cell(x0 + 128, 30, 160, 26, "stride = 2: 7 + cell 2", "blue", 11),
+              cell(x0 + 296, 30, 130, 26, "stride = 1: 10 + 14", "blue", 11),
+              cell(x0, 90, 230, 26, "stride = 4 (delayed): 3 + 8 = 11", "peach", 11)]
     rx = x0 + 128 + 140
     parts += [line(rx, 57, rx, 76, RED, 1.4),
               f'  <circle cx="{rx}" cy="57" r="3.5" fill="{RED}"/>',
@@ -199,7 +215,7 @@ def broken():
               T(x0, 190, "cell 0 = 7 + 3 = 10 in place of 18", 12, RED, "start", 600),
               T(x0, 210, "block sum = 10 + 14 = 24 in place of 32", 13, RED, "start", 700)]
     save("ch15-broken.svg", w, 226,
-         "Without the barrier after step s = 4. Thread 0 finishes s = 4 early and in step s = 2 "
+         "Without the barrier after step with stride = 4. Thread 0 finishes stride = 4 early and in step with stride = 2 "
          "reads cell 2 while it still holds 3, because thread 2 has not yet stored 3 + 8 = 11. "
          "Cell 0 becomes 7 + 3 = 10 in place of 18, and the block sum 10 + 14 = 24 in place of "
          "32.", parts)
@@ -212,10 +228,10 @@ def invariant():
     parts = [T(x0 - 14, 36, "products of block 0", 11, GREY, "end")]
     for k in range(8):
         parts.append(cell(x0 + k * pitch, 20, cw, ch, P[k], "white", 12))
-    rows = [("start of s = 4", [0], "cell 0 = p0 = 2"),
-            ("start of s = 2", [0, 4], "cell 0 = p0 + p4 = 7"),
-            ("start of s = 1", [0, 2, 4, 6], "cell 0 = p0 + p2 + p4 + p6 = 18"),
-            ("after s = 1", list(range(8)), "cell 0 = all 8 products = 32")]
+    rows = [("start of stride = 4", [0], "cell 0 = p0 = 2"),
+            ("start of stride = 2", [0, 4], "cell 0 = p0 + p4 = 7"),
+            ("start of stride = 1", [0, 2, 4, 6], "cell 0 = p0 + p2 + p4 + p6 = 18"),
+            ("after stride = 1", list(range(8)), "cell 0 = all 8 products = 32")]
     y = 62
     for label, members, text in rows:
         parts.append(T(x0 - 14, y + 16, label, 11.5, INK, "end", 600))
@@ -225,11 +241,11 @@ def invariant():
                               "blue" if on else "white", 11, faded=not on))
         parts.append(T(x0, y + ch + 15, text, 11, HI, "start"))
         y += 58
-    parts.append(T(20, y + 10, "At the start of step s, cell 0 holds the products with index j ≡ 0 "
-                   "(mod 2s).", 11.5, GREY, "start"))
+    parts.append(T(20, y + 10, "At the start of the step with a given stride, cell 0 holds the products "
+                   "with index j ≡ 0 (mod 2 × stride).", 11.5, GREY, "start"))
     save("ch15-invariant.svg", w, y + 24,
-         "The loop invariant for cell 0 of block 0. At the start of step s = 4 it holds p0 = 2; "
-         "of s = 2, p0 + p4 = 7; of s = 1, p0 + p2 + p4 + p6 = 18; after s = 1, all 8 products, "
+         "The loop invariant for cell 0 of block 0. At the start of step with stride = 4 it holds p0 = 2; "
+         "of stride = 2, p0 + p4 = 7; of stride = 1, p0 + p2 + p4 + p6 = 18; after stride = 1, all 8 products, "
          "32.", parts)
 
 
@@ -242,11 +258,11 @@ def shuffle():
     for off in (4, 2, 1):
         v = [v[k] + (v[k + off] if k + off < 8 else 0) for k in range(8)]
         levels.append(list(v))
-    parts = [T(20, 22, "registers v of lanes 0 to 7 (no shared memory, no barrier)", 12, INK,
+    parts = [T(20, 22, "The register value of lanes 0 to 7 (no shared memory, no barrier)", 12, INK,
                "start", 700)]
     for k in range(8):
         parts.append(T(x0 + k * pitch + cw / 2, 40, f"lane {k}", 10.5, GREY))
-    labels = ["start", "offset 4", "offset 2", "offset 1"]
+    labels = ["start", "distance 4", "distance 2", "distance 1"]
     y = 48
     for depth, vals in enumerate(levels):
         used = 8 >> depth if depth else 8
@@ -258,23 +274,28 @@ def shuffle():
         parts.append(T(x0 - 14, y + 18, labels[depth], 11.5, INK, "end", 600))
         if depth < 3:
             off = 4 >> depth
-            ny = y + 64
+            ny = y + 92
             for k in range(off):
-                xa = x0 + (k + off) * pitch + cw / 2
-                xb = x0 + k * pitch + cw / 2
-                parts.append(curve(f"M{xa:.1f},{y + ch + 2} C{xa:.1f},{y + ch + 22} "
-                                   f"{xb:.1f},{ny - 26} {xb:.1f},{ny - 2}", THREADS[k % 4], 1.2))
+                col = THREADS[k % 4]
+                xs = x0 + (k + off) * pitch + cw / 2
+                xt = x0 + k * pitch + cw / 2
+                by = ny - 20
+                parts.append(curve(f"M{xt:.1f},{y + ch + 3} L{xt:.1f},{by - 10}", col, 2.2))
+                parts.append(curve(f"M{xs:.1f},{y + ch + 3} C{xs:.1f},{y + ch + 36} "
+                                   f"{xt + 34:.1f},{by - 30} {xt + 8:.1f},{by - 7}", col, 2.2))
+                parts.append(curve(f"M{xt:.1f},{by + 8} L{xt:.1f},{ny - 2}", col, 2.2))
+                parts.append(plus_badge(xt, by, col))
             y = ny
         else:
             y += ch
-    parts.append(T(x0, y + 24, "Lane k adds the value of lane k + offset. A real warp has 32 lanes"
-                   " and 5 steps:", 11.5, GREY, "start"))
-    parts.append(T(x0, y + 42, "offsets 16, 8, 4, 2, 1. Gray lanes compute values nobody uses.",
+    parts.append(T(x0, y + 24, "Each lane adds the value of the lane distance places to its right. A real warp"
+                   " has 32 lanes", 11.5, GREY, "start"))
+    parts.append(T(x0, y + 42, "and 5 steps, with distances 16, 8, 4, 2 and 1. Gray lanes hold values we do not use.",
                    11.5, GREY, "start"))
     save("ch15-shuffle.svg", w, y + 56,
          "A warp sum by shuffles, drawn on 8 lanes. The registers start as 2, 6, 3, 4, 5, 1, 8, 3. "
-         "With offset 4, lanes 0 to 3 add the values of lanes 4 to 7: 7, 7, 11, 7. With offset 2: "
-         "18, 14. With offset 1: lane 0 holds 32. The same numbers as the tree in shared memory, "
+         "With distance 4, lanes 0 to 3 add the values of lanes 4 to 7: 7, 7, 11, 7. With distance 2: "
+         "18, 14. With distance 1: lane 0 holds 32. The same numbers as the tree in shared memory, "
          "with no shared memory and no barrier.", parts)
 
 

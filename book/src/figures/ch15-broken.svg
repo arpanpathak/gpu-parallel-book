@@ -1,35 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 226" width="640" height="226" role="img" aria-label="Without the barrier after step s = 4. Thread 0 finishes s = 4 early and in step s = 2 reads cell 2 while it still holds 3, because thread 2 has not yet stored 3 + 8 = 11. Cell 0 becomes 7 + 3 = 10 in place of 18, and the block sum 10 + 14 = 24 in place of 32.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 226" width="640" height="226" role="img" aria-label="Without the barrier after step with stride = 4. Thread 0 finishes stride = 4 early and in step with stride = 2 reads cell 2 while it still holds 3, because thread 2 has not yet stored 3 + 8 = 11. Cell 0 becomes 7 + 3 = 10 in place of 18, and the block sum 10 + 14 = 24 in place of 32.">
   <style>
-    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#4F52C4"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#8A94A3"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7275D6"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F9F80"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#D98654"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CC6A91"/></marker>
+    <marker id="m-hi" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="#C2185B"/></marker>
+    <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="226" rx="12" fill="#FFFFFF"/>
   <text x="118.0" y="44.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">thread 0</text>
   <text x="118.0" y="104.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="400" xml:space="preserve">thread 2</text>
-  <rect x="130.0" y="30.0" width="120.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
-  <text x="190.0" y="47.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">s = 4: 2 + 5 = 7</text>
-  <rect x="258.0" y="30.0" width="160.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
-  <text x="338.0" y="47.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">s = 2: 7 + cell 2</text>
-  <rect x="426.0" y="30.0" width="130.0" height="26.0" rx="5" fill="#DEDFFA" stroke="#7275D6" stroke-width="1.1"/>
-  <text x="491.0" y="47.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">s = 1: 10 + 14</text>
-  <rect x="130.0" y="90.0" width="230.0" height="26.0" rx="5" fill="#FCE2D2" stroke="#D98654" stroke-width="1.1"/>
-  <text x="245.0" y="107.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">s = 4 (delayed): 3 + 8 = 11</text>
+  <rect x="130.0" y="30.0" width="120.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="130.0" y="53.0" width="120.0" height="3" rx="1.5" fill="#3F51B5"/>
+  <text x="190.0" y="47.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">stride = 4: 2 + 5 = 7</text>
+  <rect x="258.0" y="30.0" width="160.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="258.0" y="53.0" width="160.0" height="3" rx="1.5" fill="#3F51B5"/>
+  <text x="338.0" y="47.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">stride = 2: 7 + cell 2</text>
+  <rect x="426.0" y="30.0" width="130.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="426.0" y="53.0" width="130.0" height="3" rx="1.5" fill="#3F51B5"/>
+  <text x="491.0" y="47.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">stride = 1: 10 + 14</text>
+  <rect x="130.0" y="90.0" width="230.0" height="26.0" rx="8" fill="#FFE6D6" stroke="#FFE6D6" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="130.0" y="113.0" width="230.0" height="3" rx="1.5" fill="#E65100"/>
+  <text x="245.0" y="107.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">stride = 4 (delayed): 3 + 8 = 11</text>
   <line x1="398.0" y1="57.0" x2="398.0" y2="76.0" stroke="#C2412D" stroke-width="1.4"/>
   <circle cx="398" cy="57" r="3.5" fill="#C2412D"/>
   <text x="406.0" y="76.0" font-size="11" fill="#C2412D" text-anchor="start" font-weight="400" xml:space="preserve">reads cell 2 = 3, before thread 2 stores 11</text>
-  <line x1="130.0" y1="150.0" x2="600.0" y2="150.0" stroke="#8A94A3" stroke-width="1.1" marker-end="url(#m-grey)"/>
-  <text x="600.0" y="166.0" font-size="11" fill="#8A94A3" text-anchor="end" font-weight="400" xml:space="preserve">time</text>
+  <line x1="130.0" y1="150.0" x2="600.0" y2="150.0" stroke="#8E99A8" stroke-width="1.1" stroke-linecap="round" marker-end="url(#m-grey)"/>
+  <text x="600.0" y="166.0" font-size="11" fill="#8E99A8" text-anchor="end" font-weight="400" xml:space="preserve">time</text>
   <text x="130.0" y="190.0" font-size="12" fill="#C2412D" text-anchor="start" font-weight="600" xml:space="preserve">cell 0 = 7 + 3 = 10 in place of 18</text>
   <text x="130.0" y="210.0" font-size="13" fill="#C2412D" text-anchor="start" font-weight="700" xml:space="preserve">block sum = 10 + 14 = 24 in place of 32</text>
 </svg>

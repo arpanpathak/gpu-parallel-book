@@ -13,23 +13,24 @@ from pathlib import Path
 OUT = Path(__file__).resolve().parent.parent / "src" / "figures"
 
 INK = "#1F2633"
-GREY = "#8A94A3"
-EDGE = "#CBD1D9"
-HI = "#4F52C4"
+GREY = "#8E99A8"
+EDGE = "#D6DCE4"
+HI = "#3F51B5"
 RED = "#C2412D"
 GREEN = "#2E8B57"
 
 # name: (fill, stroke)
 PAL = {
-    "blue": ("#DEDFFA", "#7275D6"),
-    "mint": ("#D5F0E6", "#3F9F80"),
-    "peach": ("#FCE2D2", "#D98654"),
-    "pink": ("#F9DBE6", "#CC6A91"),
-    "amber": ("#FCEBC9", "#C99520"),
-    "grey": ("#F0F2F5", "#C5CBD3"),
-    "white": ("#FFFFFF", "#C5CBD3"),
-    "red": ("#FBE4E0", "#C2412D"),
-    "hi": ("#C9CAF6", "#4F52C4"),
+    # Material tonal pairs: (container fill, accent). Accents are the 600 shades.
+    "blue": ("#E3E8FD", "#3F51B5"),
+    "mint": ("#DDF3EC", "#00897B"),
+    "peach": ("#FFE6D6", "#E65100"),
+    "pink": ("#FCE0EA", "#C2185B"),
+    "amber": ("#FFF0CC", "#B26A00"),
+    "grey": ("#F1F3F6", "#B0B8C4"),
+    "white": ("#FFFFFF", "#C9D0D9"),
+    "red": ("#FDE3E0", "#C62828"),
+    "hi": ("#3F51B5", "#283593"),
 }
 THREADS = ["blue", "mint", "peach", "pink", "amber"]
 
@@ -38,7 +39,7 @@ MARKERS = {"hi": HI, "grey": GREY, "red": RED, "ink": INK, "green": GREEN,
            "pink": PAL["pink"][1]}
 
 STYLE = """  <style>
-    text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>"""
 
@@ -47,8 +48,11 @@ def defs():
     out = ["  <defs>"]
     for name, colour in MARKERS.items():
         out.append(f'    <marker id="m-{name}" viewBox="0 0 10 10" refX="8.5" refY="5" '
-                   f'markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" '
-                   f'orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="{colour}"/></marker>')
+                   f'markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" '
+                   f'orient="auto"><path d="M0.5,1 L9.5,5 L0.5,9 Z" fill="{colour}"/></marker>')
+    out.append('    <filter id="elev" x="-20%" y="-20%" width="140%" height="160%">'
+               '<feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" '
+               'flood-opacity="0.18"/></filter>')
     out.append("  </defs>")
     return "\n".join(out)
 
@@ -71,14 +75,23 @@ def rect(x, y, w, h, fill="#FFFFFF", stroke=EDGE, sw=1.2, rx=5, dash=None, opaci
 
 def cell(x, y, w, h, label=None, col="white", size=13, outline=False, dash=False,
          fill_text=INK, weight=400, faded=False, mono=False):
-    """A rounded cell holding 1 value. `outline` draws the thick highlight of the paper."""
-    fill, stroke = PAL[col]
-    parts = [rect(x, y, w, h, fill, HI if outline else stroke, 2.2 if outline else 1.1,
-                  dash="4 3" if dash else None)]
+    """A rounded cell holding 1 value, in the Material style: a tonal fill on a soft shadow.
+    `outline` marks the highlighted result with a solid primary fill and white text."""
+    fill, accent = PAL[col]
+    if outline:
+        fill, accent, fill_text, weight = HI, HI, "#FFFFFF", 700
+    shadow = "" if faded or dash else ' filter="url(#elev)"'
+    stroke = accent if col in ("white", "grey") or dash else fill
+    d = ' stroke-dasharray="4 3"' if dash else ""
+    parts = [f'  <rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="8" '
+             f'fill="{fill}" stroke="{stroke}" stroke-width="1.2"{d}{shadow}/>']
+    if col not in ("white", "grey") and not outline:
+        parts.append(f'  <rect x="{x:.1f}" y="{y + h - 3:.1f}" width="{w:.1f}" height="3" '
+                     f'rx="1.5" fill="{accent}"/>')
     if label is not None:
         colour = "#A7B0BC" if faded else fill_text
         parts.append(T(x + w / 2, y + h / 2 + size * 0.36, label, size, colour,
-                       weight=weight, mono=mono))
+                       weight=weight if not outline else 700, mono=mono))
     return "\n".join(parts)
 
 
@@ -88,18 +101,20 @@ def line(x1, y1, x2, y2, col=GREY, w=1.2, dash=None):
             f'stroke="{col}" stroke-width="{w}"{d}/>')
 
 
-def arrow(x1, y1, x2, y2, col="hi", w=1.4, dash=None):
+def arrow(x1, y1, x2, y2, col="hi", w=2.0, dash=None):
     """A straight arrow; the tip stops on (x2, y2)."""
     d = f' stroke-dasharray="{dash}"' if dash else ""
     return (f'  <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" '
-            f'stroke="{MARKERS[col]}" stroke-width="{w}"{d} marker-end="url(#m-{col})"/>')
+            f'stroke="{MARKERS[col]}" stroke-width="{w}" stroke-linecap="round"{d} '
+            f'marker-end="url(#m-{col})"/>')
 
 
-def curve(d, col="hi", w=1.4, head=True, dash=None):
+def curve(d, col="hi", w=2.0, head=True, dash=None):
     """An arrow along an SVG path."""
     m = f' marker-end="url(#m-{col})"' if head else ""
     dd = f' stroke-dasharray="{dash}"' if dash else ""
-    return (f'  <path d="{d}" fill="none" stroke="{MARKERS[col]}" stroke-width="{w}"{dd}{m}/>')
+    return (f'  <path d="{d}" fill="none" stroke="{MARKERS[col]}" stroke-width="{w}" '
+            f'stroke-linecap="round"{dd}{m}/>')
 
 
 def brace(x1, x2, y, label, size=11):
