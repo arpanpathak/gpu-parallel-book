@@ -1372,7 +1372,7 @@ Chapter 8. To obtain the tolerance, we count the additions that an element can p
 
 Worked example: \\(d\\) for the 2-launch sum
 
-1. Launch 1 runs 1,024 blocks of 256 threads, 262,144 threads in total. Each thread adds
+1. Launch 1 runs 1,024 blocks of 256 threads, 262,144 threads in total. We let each thread add
    16,777,216 / 262,144 = 64 elements in a loop: up to 64 additions.
 2. Its block then adds the 256 thread sums as a tree of log<sub>2</sub> 256 = 8 levels: 8 more
    additions.

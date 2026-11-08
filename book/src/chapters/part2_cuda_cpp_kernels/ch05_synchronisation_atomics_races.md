@@ -67,7 +67,7 @@ The second kernel, `countAtomic`, performs the same increment with `atomicAdd`, 
 in section 5.5.
 
 In Rust, the plain statement `counter[0] = counter[0] + 1` on a slice that all threads share
-does not compile: the kernel receives the slice as a shared reference, and the compiler rejects
+does not compile. The kernel receives the slice as a shared reference, and the compiler rejects
 the write with error E0594. The Rust kernel `count_racy` therefore writes the same race
 explicitly. It reads the counter with an atomic load and writes the incremented value back with a
 separate atomic store, so another thread can store between the 2 operations, exactly as in the
@@ -111,7 +111,7 @@ second GPU. Nearly every update was lost, because thousands of threads read the 
 the same time and wrote back almost the same value. The count also changes from one run to the
 next. Note that the kernel completed without any error. The hardware does not detect races, so a
 racy kernel stores a wrong result in exactly the same way as a correct kernel stores a right one.
-The atomic version counted all 1,048,576 additions. The Rust program behaves in the same way: its load-and-store kernel counted
+The atomic version counted all 1,048,576 additions. The Rust program behaves in the same way. Its load-and-store kernel counted
 94 of the 1,048,576 additions, and its `fetch_add` kernel counted all of them.
 
 Animation 1 shows the race with 2 threads, followed by the same 2 additions performed with
@@ -190,8 +190,8 @@ $ cargo oxide run
 ```
 
 The call to `fetch_add` takes a memory ordering, here `Relaxed`, which we explain in section 5.4.
-The guarantee that Rust provides is a narrow one: a data race on ordinary device memory cannot be
-written without `unsafe`. As we will see in section 5.3, accesses to shared memory still require
+The guarantee that Rust provides is a narrow one. A data race on ordinary device memory cannot be
+written without `unsafe`. In section 5.3, we'll see that accesses to shared memory still require
 `unsafe` blocks, and in those blocks the programmer is again responsible for correctness.
 
 ## 5.2 Control divergence
@@ -248,7 +248,7 @@ branch on every other thread, 16777216 threads, average of 10 runs
   lanes alternate         54.78 ms
 ```
 
-The same work took 54.78 / 28.37 = 1.93 times as long when lanes alternated. On the second GPU the
+The same work took 54.78 / 28.37 = 1.93 times as long when lanes alternated. On the second GPU, the
 ratio was 12.24 / 6.22 = 1.97. Both are close to 2, the ratio we expect from counting the paths
 each warp executes.
 
@@ -390,7 +390,7 @@ A **memory fence** orders the memory operations of 1 thread as other threads obs
 `__threadfence()` guarantees that every write the thread made before the fence becomes visible to
 the whole device before any write it makes after the fence. `__threadfence_block()` gives the
 same guarantee for the threads of the block, and `__threadfence_system()` extends it to the host.
-A fence does not make any thread wait. Its typical use is to publish data: a thread writes the
+A fence does not make any thread wait. Its typical use is to publish data. A thread writes the
 data, executes a fence, and then sets a flag, so that any thread that sees the flag also sees the
 data.
 

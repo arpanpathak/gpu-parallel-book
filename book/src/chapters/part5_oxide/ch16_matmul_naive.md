@@ -562,7 +562,7 @@ Lines 3 to 5 end the thread at once if its entry lies outside \\(C\\), which hap
 size of the matrix is not a multiple of \\(T\\). Lines 6 to 9 are the inner loop of
 <span style="font-variant: small-caps">Matrix-Multiply</span>, with the partial sum kept in the
 variable \\(\textit{sum}\\), which lives in a register. Line 10 stores the result in global
-memory. Every thread writes a different entry of \\(C\\), and every thread reads only \\(A\\) and
+memory. We let every thread write a different entry of \\(C\\), and every thread reads only \\(A\\) and
 \\(B\\), which no thread writes. Therefore, the threads never interfere with one another. In
 Figure 16.11, we follow a single thread through its work.
 

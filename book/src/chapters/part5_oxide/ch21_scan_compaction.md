@@ -1221,7 +1221,7 @@ mod kernels {
 
 The loops of the up-sweep and the down-sweep are lines 3 to 9 and lines 12 to 18 of the
 pseudocode, with `i = (2 * t + 2) * d - 1` as in line 6. The swap-and-add of line 16 keeps the old
-left value in the register `left` before it overwrites the left position. Each thread writes 2
+left value in the register `left` before it overwrites the left position. We let each thread write 2
 elements of `y`, at \\(2t\\) and \\(2t + 1\\), which are not the index of the thread, so the Rust
 kernel writes them through `get_unchecked_mut`, and the safety comment states that the 2 positions
 belong to thread \\(t\\) alone.

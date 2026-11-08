@@ -177,7 +177,7 @@ sum of 67108864 floats (256 MiB), average of 20 runs   # on a Jetson Orin NX
 ```
 
 The kernel reached 25.9 GB/s, a quarter of the first GPU's 102 GB/s; on the second GPU it reached
-88.3 GB/s, a third of 273 GB/s. The cause is the ratio of loads to barriers. Each thread loads 1
+88.3 GB/s, a third of 273 GB/s. The cause is the ratio of loads to barriers. We let each thread load 1
 float and then takes part in 8 levels separated by 8 barriers. In the last levels, almost all of
 the threads of a block wait for a few others: at stride 1, 1 thread adds and 255 threads wait.
 While its threads are busy with the tree, a block issues no loads, so the memory is idle for much
@@ -530,7 +530,7 @@ memory, the work-efficient algorithm due to Blelloch performs \\(2(n - 1)\\) add
 The kernel `scanBlocks` scans 1,024 values per block of 256 threads, 4 values per thread, in 4
 phases:
 
-1. Each thread loads its 4 consecutive values with a single 16-byte `uint4` load and scans them in
+1. We let each thread load its 4 consecutive values with a single 16-byte `uint4` load and scan them in
    its registers.
 2. The threads scan their 4-value totals with `warpScan`. Lane 31 of each warp then holds the
    total of its warp and writes it to shared memory.

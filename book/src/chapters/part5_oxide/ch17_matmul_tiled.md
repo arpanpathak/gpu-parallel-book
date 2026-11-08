@@ -149,7 +149,7 @@ them 1 tile at a time.
 
 Next, we decide which thread copies which value of a tile. A tile holds \\(T \times T = T^2\\)
 values, and a block of the tiled kernel has \\(T \times T = T^2\\) threads, so the work divides
-evenly. Each thread copies exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
+evenly. We let each thread copy exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
 \\(B\\). The natural choice is to let every thread copy the value that belongs at its own position
 in the tile. Recall from Chapter 16 that thread \\((ty, tx)\\) is the thread in row \\(ty\\) and
 column \\(tx\\) of its block, and that it computes the entry of \\(C\\) in row \\(\textit{row}\\)

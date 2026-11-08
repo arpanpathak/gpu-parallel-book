@@ -654,7 +654,7 @@ the 6 × 6 plate did not?
 
 ### 19.6.1 The kernel
 
-Listing 19.1 shows the kernel in both languages. Each thread computes its position, which is line 1
+Listing 19.1 shows the kernel in both languages. We let each thread compute its position, which is line 1
 of Jacobi-Kernel, keeps only interior cells, which is line 2, and stores the mean of its 4
 neighbors, which is line 3. In the flat array, the cell itself is element `c = row * width + col`.
 Its neighbors above and below are \\(W\\) elements away, at `c - width` and `c + width`, and those

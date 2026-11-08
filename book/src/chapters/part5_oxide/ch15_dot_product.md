@@ -732,7 +732,7 @@ addition gives \\(16{,}777{,}216 + 1 = 16{,}777{,}217\\), which is not a float a
 <figcaption><b>Figure 15.11</b> The same 3 floats added in 2 orders give 2 different sums.</figcaption>
 </figure>
 
-With a second launch, the order of every addition is fixed. Each thread adds its elements in the
+With a second launch, the order of every addition is fixed. We let each thread add its elements in the
 order of its loop, the shuffles combine fixed pairs of lanes, and the last block adds the partial
 sums in a fixed pattern. The result is therefore the same, bit for bit, in every run with the same
 grid. With atomic additions, the 1,024 block sums arrive in an order that depends on timing, and
@@ -1033,7 +1033,7 @@ same speed in both languages.
 ### 15.8.4 Barriers, shuffles and atomics
 
 The tree with 9 barriers and the warp shuffles with 1 barrier run at the same speed, 1.409 ms and
-1.405 ms in Rust. Each thread adds 64 products in its register before the block sum begins, so a
+1.405 ms in Rust. We let each thread add 64 products in its register before the block sum begins, so a
 block pays for its 9 barriers only once per \\(64 \cdot 256 = 16{,}384\\) products, which is a small
 part of its time. In Chapter 8, we found the same for the plain sum: after coarsening, its tree and
 its shuffle sum ran at 64.1 GB/s and 64.4 GB/s. Shuffles matter where combinations are frequent,

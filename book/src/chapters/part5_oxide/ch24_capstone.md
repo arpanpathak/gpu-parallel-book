@@ -1089,7 +1089,7 @@ blurred image in row \\(r\\) and column \\(c\\), with both coordinates clamped t
 </ol>
 </div>
 
-Each thread uses the 8 pixels around its own, since the center has weight 0 in both masks, and it
+We let each thread use the 8 pixels around its own, since the center has weight 0 in both masks, and it
 writes 1 byte. The kernel reads the 8 pixels from global memory without a shared tile. A pixel is
 read by up to 9 threads, but those threads belong to the same block or to neighboring blocks, and
 most of the repeated reads are served by the L1 cache of the SM. Exercise 24.18 asks whether a tile

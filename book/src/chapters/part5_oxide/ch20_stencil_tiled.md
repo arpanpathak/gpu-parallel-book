@@ -210,7 +210,7 @@ Figure 20.4.
 </figure>
 
 **Extra threads.** In the first way, the block is given one thread per slot, that is,
-\\((T_x + 2) \times (T_y + 2)\\) threads. Every thread loads the slot at its own position, and after
+\\((T_x + 2) \times (T_y + 2)\\) threads. We let every thread load the slot at its own position, and after
 the barrier, only the \\(T_x \times T_y\\) inner threads compute a cell. For block (1, 1), this
 means 16 threads, of which 12 only load. In the programs, it means 34 × 10 = 340 threads, of which
 256 compute. The loading is a single statement per thread, but 84 of the 340 threads are idle
@@ -239,7 +239,7 @@ slots, the counts are less even. The row \\(i\\) takes the value \\(ty\\), and a
 when \\(ty < 2\\), since the tile has only 10 rows. The column \\(j\\) takes the value \\(tx\\), and
 also \\(tx + 32\\) when \\(tx < 2\\), since the tile has only 34 columns. As a result, 180 threads
 load 1 slot, 72 threads load 2 slots, and 4 threads load 4 slots, which accounts for all
-\\(180 + 144 + 16 = 340\\) slots. Every thread computes a cell, but a few threads load more slots
+\\(180 + 144 + 16 = 340\\) slots. We let every thread compute a cell, but a few threads load more slots
 than the rest.
 
 Both ways give every slot exactly 1 loading thread, which is what the correctness proof of Section

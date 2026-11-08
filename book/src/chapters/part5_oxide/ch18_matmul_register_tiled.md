@@ -832,7 +832,7 @@ range, and in Section 9.7, we measured the 4 × 4 kernel 33% slower with `for` l
 
 ### 18.6.3 Writing the register tile
 
-Each thread writes \\(T_M T_N\\) entries of \\(C\\), not 1. In C++, the store of lines 19 to 22 is
+We let each thread write \\(T_M T_N\\) entries of \\(C\\), not 1. In C++, the store of lines 19 to 22 is
 a pair of loops with a guard. In Rust, the index space `Runtime2DIndex` of a `DisjointSlice` gives
 each thread a single element. Recall that in Chapter 9, we therefore wrote the 4 × 4 patch through
 `get_unchecked_mut`, an `unsafe` call whose `SAFETY` comment argued that the patches of different

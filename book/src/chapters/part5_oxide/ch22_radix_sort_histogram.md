@@ -914,7 +914,7 @@ mod kernels {
 
 The variable `zeros` is \\(Z\\), and `upto` is the inclusive scan \\(s_i\\), so that `upto - 1` is
 \\(e_i\\) for a key with bit 0, and `zeros + i - upto` is \\(Z + i - e_i\\) for a key with bit 1,
-whose flag is 0. Every thread reads `scanned[n - 1]`, the number of keys with bit 0, and the cache
+whose flag is 0. We let every thread read `scanned[n - 1]`, the number of keys with bit 0, and the cache
 serves all but the first of these reads. The Rust write uses `get_unchecked_mut`, and its safety
 comment is Theorem 22.2: the positions form a permutation of \\([0, n)\\).
 
