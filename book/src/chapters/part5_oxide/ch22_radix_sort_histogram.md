@@ -368,7 +368,7 @@ reason.
 
 ## 22.5 The cost of 1-bit passes
 
-A sort of 32-bit keys by Parallel-Split takes 32 passes. Each pass is memory-bound: it performs a
+A sort of 32-bit keys by Parallel-Split takes 32 passes. Each pass is memory-bound. It performs a
 few operations per key and moves several bytes per key, so its time is set by the bytes it moves.
 We count these bytes per key of 4 bytes. Line 1 reads the key and writes the flag, which is 8
 bytes. The scan of Section 21.7 reads and writes the flags twice, which is 16 bytes. Lines 4 to 8
@@ -418,7 +418,7 @@ In line 3, the key \\(K_i\\) itself serves as the index of the bin. For \\(i = 1
 ### 22.6.2 1 thread per key, and atomic additions
 
 The direct parallel version gives every key its own thread, and each thread executes line 3 for its
-key. Line 3, however, consists of 3 operations: it reads the bin, adds 1, and writes the bin back.
+key. Line 3, however, consists of 3 operations. It reads the bin, adds 1, and writes the bin back.
 In our example, threads 1 and 3 hold the same key, 2. If both read \\(h_2 = 0\\) before either of
 them writes, both write 1, and 1 of the 2 counts is lost. The GPU offers an operation that cannot be
 split in this way.
@@ -426,9 +426,9 @@ split in this way.
 <div class="definition">
 
 <span class="box-label">Definition 22.4</span> **Atomic operation.** An atomic operation reads a
-memory location, modifies the value and writes it back as 1 indivisible step: no other thread can
+memory location, modifies the value and writes it back as 1 indivisible step. No other thread can
 access the location between the read and the write. When several threads apply atomic operations
-to the same location, the hardware performs them 1 after the other, in an order it chooses, and
+to the same location, the hardware performs them one after the other, in an order it chooses, and
 every one of them takes effect. In CUDA C++, the atomic addition is `atomicAdd(&h[v], 1)`; in
 cuda-oxide, it is the method `fetch_add` of an atomic type such as `DeviceAtomicU32`.
 
@@ -444,7 +444,7 @@ update the same bin.
 
 <span class="box-label">Definition 22.5</span> **Contention.** Contention is the waiting that
 occurs when several threads apply atomic operations to the same location at about the same time:
-since the operations are performed 1 after the other, each waits for those before it.
+since the operations are performed one after the other, each waits for those before it.
 
 *Example.* Bins 2 and 5 each receive 2 requests from our 8 threads, and 1 of the 2 requests waits
 for the other (Figure 22.5).
@@ -526,7 +526,7 @@ keys makes \\(1{,}024 \cdot 16 = 16{,}384\\) atomic additions on global memory i
 ### 22.6.4 Warp aggregation
 
 Inside a block, some contention remains. When the 32 lanes of a warp hold the same digit, 32
-atomic operations on 1 bin in shared memory are performed 1 after the other. The lanes can,
+atomic operations on 1 bin in shared memory are performed one after the other. The lanes can,
 however, combine their counts first, with the following instruction.
 
 <div class="definition">
@@ -668,7 +668,7 @@ step, and of the earlier steps of the tile, complete the rank.
 
 ### 22.7.3 The algorithm
 
-A pass on the digit of \\(r = 4\\) bits at shift \\(s\\) has 3 parts. The first kernel counts the
+A pass on the digit of \\(r = 4\\) bits at shift \\(s\\) has three parts. The first kernel counts the
 digits of every tile with private bins, as in lines 1 to 6 of Histogram-Private but without a
 grid-stride loop, and writes its 16 counts into column \\(b\\) of the table \\(c\\). Scan then
 computes the inclusive scan of the table, which has \\(16m\\) entries for \\(m\\) tiles. The second
@@ -708,7 +708,7 @@ digit \\(d\\) in warp \\(w\\) in the current step.
 | \\(wc[w][d]\\) | keys with digit \\(d\\) in warp \\(w\\), written by the lane with rank 0 | 3, written by lane 1 |
 | \\(start[d]\\) | output position of the next key with digit \\(d\\) in this tile | 3 in the 1-tile example |
 
-Line 8 corresponds to line 5 of Counting-Pass, with the rank assembled from 3 parts. The first
+Line 8 corresponds to line 5 of Counting-Pass, with the rank assembled from three parts. The first
 part is the number of keys with the same digit in the earlier steps of the tile, which line 10 has
 added to \\(start[d]\\). The second part is the number of such keys in the earlier warps of the
 step, and the third part is the number in the earlier lanes of the warp. In the 8-lane example,
@@ -981,7 +981,7 @@ lane past the end of the array gets the digit 16, matches only with other such l
 nothing, but it still reaches every barrier. The Rust write uses `get_unchecked_mut`, and its
 safety comment is Theorem 22.3.
 
-The last listing runs the 8 passes on the host. Each pass launches the 2 kernels and the scan of
+The last listing runs the 8 passes on the host. Each pass launches the two kernels and the scan of
 the table between them.
 
 <p class="listing"><b>Listing 22.6</b> 8 passes of 4 bits on the host.</p>
@@ -1068,7 +1068,7 @@ the keys that are all 7, and 255.32 ms and 39.89 ms for the 2 sorts.
 Figure 22.10 draws the histogram times. With global bins, the keys that are all 7 took 15.15 ms,
 and the random keys took 3.23 ms, 4.7 times less. In Section 5.5.2, we measured a factor of 4 for
 bytes in 256 global bins. With all keys equal, every one of the 16,777,216 atomic additions went to
-1 address, and the L2 cache performed them 1 after the other, at a rate of
+1 address, and the L2 cache performed them one after the other, at a rate of
 \\(16{,}777{,}216 / 15.15\\ \text{ms} = 1.11\\) billion per second. Spreading them over 16 addresses
 raised the rate only to 5.19 billion per second.
 
@@ -1169,7 +1169,7 @@ checks every result against the CPU, and prints the times.
   that it is correct when every pass is stable.
 - A split on 1 bit is 2 stream compactions that share 1 exclusive scan: keys with bit 0 go to
   \\(e_i\\), and keys with bit 1 go to \\(Z + i - e_i\\).
-- A histogram counts keys by digit. Atomic additions make 1 thread per key correct, but contention
+- A histogram counts keys by digit. Atomic additions make one thread per key correct, but contention
   makes them slow when many threads update 1 bin, and private bins in shared memory remove most of
   it.
 - A pass on a digit of \\(r\\) bits places every key at the exclusive scan of the digit histogram
@@ -1188,7 +1188,7 @@ on every element.
    the keys. Which kernels change?
 3. Signed integers in two's complement do not sort correctly as unsigned keys. Which single bit
    must be flipped before the sort, and after it?
-4. Measure the histogram of 8-bit digits (256 bins) with the 3 kernels of Section 22.6, on random
+4. Measure the histogram of 8-bit digits (256 bins) with the three kernels of Section 22.6, on random
    keys and on keys that are all equal, and compare with the 16-bin results.
 5. Replace the 3 passes of Section 22.7 (count, scan, scatter) by a version that keeps each tile's
    keys sorted by digit in shared memory before writing them, so that the writes of a warp go to

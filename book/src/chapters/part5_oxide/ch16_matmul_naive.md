@@ -50,7 +50,7 @@ throughout.
 
 ### 16.1.1 A worked example
 
-We use the same pair of matrices throughout this chapter and the 2 chapters that follow it. The
+We use the same pair of matrices throughout this chapter and the two chapters that follow it. The
 2 factors, \\(A\\) and \\(B\\), and their product, \\(C\\), are
 
 \\[
@@ -412,7 +412,7 @@ position
 
 and the positions \\(y\\) and \\(z\\) are computed in the same way from the components \\(y\\) and
 \\(z\\) of the 3 values. Figure 16.7 covers a 4 × 2 × 4 volume with 4 blocks of 2 × 2 × 2
-threads. Here we write positions in the order \\((x, y, z)\\). Thread \\((1, 0, 0)\\) of block
+threads. Here, we write positions in the order \\((x, y, z)\\). Thread \\((1, 0, 0)\\) of block
 \\((1, 0, 1)\\) lies at \\(x = 1 \cdot 2 + 1 = 3\\), \\(y = 0 \cdot 2 + 0 = 0\\) and
 \\(z = 1 \cdot 2 + 0 = 2\\).
 
@@ -493,7 +493,7 @@ inside the device, which are shown in Figure 16.10.
 
 <span class="box-label">Definition 16.7</span> **Registers, shared memory, global memory.**
 **Registers** hold the variables of a single thread and respond in about 1 cycle. **Shared
-memory** belongs to a block: every thread of the block can read and write it, no other thread
+memory** belongs to a block. Every thread of the block can read and write it, no other thread
 can, it responds within a few cycles, and values enter it only when threads of the block store
 them there. **Global memory** is visible to every thread, holds gigabytes, and takes several
 hundred cycles to respond. Between the SMs and global memory sits the **L2 cache**, which keeps
@@ -536,7 +536,7 @@ waves are needed?
 
 We obtain the simplest GPU kernel from <span style="font-variant: small-caps">Matrix-Multiply</span>
 by removing its 2 outer loops. In the sequential algorithm, these loops chose the entry
-\\(c_{ij}\\) to compute. In the kernel, there is 1 thread for every entry of \\(C\\), and the
+\\(c_{ij}\\) to compute. In the kernel, there is one thread for every entry of \\(C\\), and the
 position of a thread in the grid takes the place of \\(i\\) and \\(j\\): the thread computes the
 entry in row \\(\textit{row}\\) and column \\(\textit{col}\\), given by the formulas of
 Section 16.3.2. Every thread executes the following procedure.
@@ -637,7 +637,7 @@ of \\(C\\). For example, \\(b_{21} = 1\\) is fetched by the threads that compute
 and 4 values of \\(B\\), which makes 128 fetches, although the 2 matrices hold only 32 distinct
 values.
 
-In general, the kernel runs 1 thread for each of the \\(MN\\) entries of \\(C\\), and each thread
+In general, the kernel runs one thread for each of the \\(MN\\) entries of \\(C\\), and each thread
 makes \\(2K\\) fetches, \\(K\\) from its row of \\(A\\) and \\(K\\) from its column of \\(B\\). The
 direct kernel therefore performs \\(MN \cdot 2K = 2MNK\\) fetches, which is 1 fetch for every FLOP.
 In our example, \\(MN = 16\\) threads each make \\(2K = 8\\) fetches, which gives the 128 fetches
@@ -726,7 +726,7 @@ but does not unroll a `for` loop over a range.
 
 ### 16.5.2 The output slice
 
-The 2 kernels differ in how they write \\(C\\). The C++ kernel receives a raw pointer `T* c` and
+The two kernels differ in how they write \\(C\\). The C++ kernel receives a raw pointer `T* c` and
 stores to `c[row * n + col]`. Nothing in the language prevents 2 threads from storing to the same
 address, or a thread from storing past the end of the matrix. In Rust, a kernel that took
 `&mut [T]` would allow every thread to write anywhere in \\(C\\), and nothing would prevent 2
@@ -735,7 +735,7 @@ threads from writing the same element at the same time.
 <div class="definition">
 
 <span class="box-label">Definition 16.8</span> **Data race.** A **data race** occurs when 2
-threads access the same memory location, at least 1 of them writes it, and nothing orders the 2
+threads access the same memory location, at least one of them writes it, and nothing orders the 2
 accesses. The value that results depends on the timing of the threads.
 
 *Example.* If thread \\((0, 0)\\) and thread \\((0, 1)\\) both stored their sums to \\(c_{00}\\),
@@ -801,7 +801,7 @@ compile-time width is 1 compiled kernel per matrix size.
 
 The attribute `#[launch_contract]` states the conditions under which a launch of the kernel is
 correct, and cuda-oxide checks them on the host before the kernel starts. The contract of `matmul`
-has 3 parts. The setting `domain = 2` declares a 2-dimensional launch with \\(z = 1\\), which the
+has three parts. The setting `domain = 2` declares a 2-dimensional launch with \\(z = 1\\), which the
 2-dimensional index space requires. The setting `coordinates = u32` requires every coordinate of
 the launch to fit in 32 bits. The attribute `#[launch_bounds(256)]`, which accompanies the
 contract, limits a block to 256 threads, so that the same kernel serves both the blocks of 2 × 2
@@ -952,7 +952,7 @@ pub fn matmul<T>(
 
 The bound lists exactly the operations that the kernel performs, namely copying values
 (`Copy`), creating the initial 0 with `T::default()` (`Default`), adding (`Add`), and multiplying
-(`Mul`). A type that lacks 1 of them is refused at the call, and the error message names the
+(`Mul`). A type that lacks one of them is refused at the call, and the error message names the
 missing trait. cuda-oxide compiles 1 GPU function for each type with which the host prepares the
 kernel, here `prepare_matmul::<f32>` and `prepare_matmul::<f64>`. The 2 versions perform the same
 number of operations. However, an `f64` occupies 8 bytes instead of 4, and a GPU has separate
@@ -1044,7 +1044,7 @@ PASSED
 
 The first lines reproduce the product of Section 16.1, with \\(c_{00} = 11\\) and
 \\(c_{01} = 13\\). The C++ program prints the same example and the same table. The following
-table shows the times of the 2 programs side by side.
+table shows the times of the two programs side by side.
 
 | n | type | C++ time | C++ rate | Rust time | Rust rate | requested fetches (C++) |
 |---|---|---|---|---|---|---|
@@ -1095,7 +1095,7 @@ of that peak, compared with 7.7% for `f32`. Its operands are twice as large, and
 data-centre GPU with an FP32:FP64 ratio of 2, the `f64` kernel would be limited by memory, like
 the `f32` kernel.
 
-The 2 languages agree at 512 × 512 and in double precision. From 1,024 × 1,024 upwards, however,
+The two languages agree at 512 × 512 and in double precision. From 1,024 × 1,024 upwards, however,
 the generic Rust kernel, whose sizes are known only at run time, ran at 138 GFLOP/s, compared with
 182 to 185 GFLOP/s in C++. The Rust kernel with the width in its type ran at 194.0 GFLOP/s, the
 fastest of all. Both Rust kernels read the same values in the same order, and they differ only in

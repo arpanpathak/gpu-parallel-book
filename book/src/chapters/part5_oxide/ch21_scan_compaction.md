@@ -9,7 +9,7 @@ element is written when a program packs, sorts or distributes data. The sequenti
 scan is a single loop, and every iteration of that loop needs the result of the iteration before
 it. At first sight, therefore, a scan looks like the opposite of a parallel computation.
 
-In this chapter, we derive 2 parallel scans from the sequential loop, using 1 example of 8 small
+In this chapter, we derive 2 parallel scans from the sequential loop, using one example of 8 small
 integers throughout, so that every number can be checked by hand. The first, the Hillis-Steele
 scan, takes the fewest steps. The second, the Blelloch scan, performs no more additions than
 necessary, up to a factor of 2. We then show why each barrier of these algorithms is needed, by
@@ -25,7 +25,7 @@ This chapter covers
 - inclusive and exclusive scans, worked by hand on 8 values
 - the dependence chain of the sequential scan, and how associativity breaks it
 - the Hillis-Steele and Blelloch scans, their work and their steps
-- the barrier and the second buffer of a scan, broken 1 at a time, and a proof of correctness
+- the barrier and the second buffer of a scan, broken one at a time, and a proof of correctness
 - the scan of an array of many blocks
 - stream compaction with a scan, and with warp votes
 - measured times on 16,777,216 values, and why they differ
@@ -54,7 +54,7 @@ the list and adding each value to the total so far. The first total is 3. Adding
 7 gives 11, and adding 0 leaves the total at 11. In the same way, the remaining 4 values give the
 totals 15, 16, 22 and 25. The last total, 25, is the sum of all 8 values.
 
-There are 2 ways to line up these totals with the input. In the first, the total at position
+There are two ways to line up these totals with the input. In the first, the total at position
 \\(i\\) includes the value \\(x_i\\) itself, so that position 4 holds \\(3 + 1 + 7 + 0 + 4 = 15\\).
 In the second, the total at position \\(i\\) stops just before \\(x_i\\), so that position 4 holds
 \\(3 + 1 + 7 + 0 = 11\\). In the second form, position 0 has no values before it and holds the
@@ -348,7 +348,7 @@ We call the distance between a position and the position whose value it adds the
 the step, and write it \\(d\\). In our example, the offsets are \\(d = 1\\), 2 and 4. A position
 whose index is smaller than the offset has no partner, because position \\(i - d\\) would be
 negative. Such a position already holds the sum of a range that starts at position 0, so its value
-is final, and it simply keeps it. Figure 21.4 shows all 3 steps on our values, with the range that
+is final, and it keeps it. Figure 21.4 shows all 3 steps on our values, with the range that
 each cell sums written under the cell.
 
 <figure>
@@ -602,7 +602,7 @@ The up-sweep performs \\(n - 1\\) additions, and so does the down-sweep, so the 
 performs \\(2(n - 1)\\) additions in total. This is 14 for our example and 2,046 for 1,024 values,
 twice the work of the sequential loop and about 1/4.5 of the work of the Hillis-Steele scan. The
 Blelloch scan pays for this saving with steps. It has \\(2 \log_2 n\\) levels, 20 for 1,024
-values, and 21 barriers. Figure 21.7 compares the 3 algorithms.
+values, and 21 barriers. Figure 21.7 compares the three algorithms.
 
 <figure>
 <img src="../../figures/ch21-work.svg" alt="Additions and steps of the 3 scans. For n = 8: sequential 7 additions in 7 steps, Hillis-Steele 17 in 3, Blelloch 14 in 6. For n = 1,024: 1,023 in 1,023, 9,217 in 10, and 2,046 in 20.">
@@ -1069,7 +1069,7 @@ goes to position 2, as in Figure 21.12.
 
 ### 21.9.3 The algorithm
 
-The method runs 2 kernels on tiles of 1,024 values, with 1 block of 256 threads per tile, and each
+The method runs two kernels on tiles of 1,024 values, with 1 block of 256 threads per tile, and each
 thread handles 4 values. The first kernel counts the kept values of every tile. Scan then turns the
 16,384 counts into the position of the first kept value of each tile. The second kernel reads the
 values again and places every kept value after the kept values of the earlier tiles, of the earlier
@@ -1108,7 +1108,7 @@ array \\(c\\) holds the count of kept values of each of the 8 warps in the curre
 | \\(before\\) | kept values in warps 0 to \\(w - 1\\) of this step | \\(c[0] + c[1]\\) |
 | \\(total\\) | kept values in all 8 warps of this step | \\(c[0] + \cdots + c[7]\\) |
 
-The index \\(i\\) in line 3 is built from 3 parts. The tile of block \\(b\\) begins at value
+The index \\(i\\) in line 3 is built from three parts. The tile of block \\(b\\) begins at value
 \\(1024b\\), step \\(k\\) begins \\(256k\\) values later, and thread \\(t\\) takes the value \\(t\\)
 places after that. Line 8 then adds 4 counts to find the output position of a kept value: the kept
 values of the earlier tiles and earlier steps, which are in \\(next\\), those of the earlier warps
@@ -1124,7 +1124,7 @@ sum of the 8 warp counts.
 
 With half of the values kept, this method reads the values twice and writes the kept values once,
 which is \\(4 + 4 + 2 = 10\\) bytes per value, and the scan of 1 count per 1,024 values adds almost
-nothing. Figure 21.13 compares the 2 methods.
+nothing. Figure 21.13 compares the two methods.
 
 <div class="exercises">
 
@@ -1170,13 +1170,13 @@ mod kernels {
 
 The load into the first buffer is line 2 of the pseudocode, and the first barrier is line 3. The
 loop over `step` is lines 4 to 9, with \\(d = 2^{step}\\), so that steps 0, 1 and 2 have the
-offsets 1, 2 and 4. The 2 buffers \\(a\\) and \\(b\\) are the 2 halves of 1 shared array of 2,048
+offsets 1, 2 and 4. The 2 buffers \\(a\\) and \\(b\\) are the two halves of 1 shared array of 2,048
 values, and `src` and `dst` are the offsets of these halves, 0 or 1,024. The assignment
 `src = dst` at the end of the loop is line 8, the exchange of the names. The barrier inside the
 loop is line 7, and it stands outside every `if`, so every thread reaches it. Finally, the last
 thread of the block also writes the total of the tile to `sums`, for line 2 of Scan.
 
-The 2 languages differ in 3 places. First, shared memory in cuda-oxide is a `static mut` of type
+The two languages differ in 3 places. First, shared memory in cuda-oxide is a `static mut` of type
 `SharedArray<u32, 2048>`, whose length is part of its type, whereas C++ declares a `__shared__`
 array. Every access to the shared array is `unsafe` in Rust, because the compiler cannot see the
 barriers that make the accesses safe, so each `unsafe` block carries a `// SAFETY:` comment that
@@ -1256,11 +1256,11 @@ tile kernels have the same interface, so the functions take the method as a para
 </div>
 
 The C++ function scans the tile totals in place, in `scratch`, which holds every level of the
-recursion 1 after another. A Rust function, however, cannot borrow 1 buffer as both its input
+recursion one after another. A Rust function, however, cannot borrow 1 buffer as both its input
 `&[u32]` and its output `DisjointSlice<u32>`. The Rust version therefore gives each level its own
 pair of buffers, `totals` and `scanned`, which `scan_levels` allocates once before any timing
 starts, and it hands the remaining levels to the recursive call with `split_first_mut`. Both
-versions launch the 3 kernels on 1 stream, so each launch starts after the previous one has
+versions launch the three kernels on 1 stream, so each launch starts after the previous one has
 finished.
 
 ### 21.10.4 The compaction kernels
@@ -1392,7 +1392,7 @@ The Blelloch scan performs 2,046 additions per tile and the Hillis-Steele scan 9
 Blelloch scan is only 1.17 times as fast, 4.72 ms against 5.54 ms. Both take 2.7 to 3.2 times as
 long as the scan of Chapter 8, which runs at 76.7 GB/s, 75% of the 102 GB/s of the memory. All 3
 kernels read and write the same 134.2 MB, so the difference must lie inside the SMs. The
-difference is explained by 3 costs, which we take in turn.
+difference is explained by three costs, which we take in turn.
 
 The first cost is the barrier. Removing line 7 from the Hillis-Steele kernel, as in
 Section 21.6.1, gives wrong results, but it lets us measure what the 10 barriers of the loop cost.
@@ -1410,11 +1410,11 @@ number of its threads, or warps, that an SM holds at the same time, often given 
 the most the SM can hold.
 
 *Example.* An SM of the measured GPU holds at most 1,536 threads. A block of 1,024 threads leaves room
-for no second block: 1 block per SM, 2/3 of the maximum.
+for no second block: one block per SM, 2/3 of the maximum.
 
 </div>
 
-The Hillis-Steele kernel runs 1 block per SM. While that block waits at 1 of its 11 barriers, or
+The Hillis-Steele kernel runs one block per SM. While that block waits at one of its 11 barriers, or
 for its tile to arrive from global memory, the SM has nothing else to run. The Blelloch kernel uses
 blocks of 512 threads and runs 3 of them per SM. Its 22 barriers are twice as many, but while 1
 block waits, the 2 others can work. The warp-shuffle kernel runs 6 blocks of 256 threads per SM and
@@ -1430,7 +1430,7 @@ it writes only 1 total per warp to shared memory.
 We can now see why Figure 21.7 does not predict the measured times. The work in that figure counts
 additions, and in a GPU block, an addition is the cheapest part of a step. What a step costs is set
 by its barrier, its accesses to shared memory, and the occupancy that decides whether those waits
-overlap with other work. The scan of Chapter 8 was designed around these 3 costs, and it is the
+overlap with other work. The scan of Chapter 8 was designed around these three costs, and it is the
 scan that the compaction uses.
 
 The whole scan adds 1.58 to 1.65 ms to each tile scan. This is the second pass of
@@ -1518,9 +1518,9 @@ every result against the CPU, and prints the times.
   additions. Building a tree and then descending it gives the Blelloch scan, with
   \\(2 \log_2 n\\) steps and \\(2(n - 1)\\) additions.
 - A step must not start before the previous one has ended, and it must not read what it writes.
-  These 2 requirements are met by 1 barrier and 1 double buffer, both of which are used in the
+  These two requirements are met by 1 barrier and 1 double buffer, both of which are used in the
   proof of Theorem 21.1.
-- An array of many blocks is scanned in tiles: we scan the tiles, scan their totals, and add the
+- An array of many blocks is scanned in tiles. We scan the tiles, scan their totals, and add the
   offsets.
 - Stream compaction is a scan of flags followed by a scatter to the exclusive scan. Warp votes
   compute the same positions inside each block and reduce the traffic from 38 to 10 bytes per

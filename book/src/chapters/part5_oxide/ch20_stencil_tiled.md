@@ -103,7 +103,7 @@ and how many different values does it read?
 ### 20.2.1 The cells a block needs
 
 To turn the observation into an algorithm, we divide the plate among blocks. For the worked
-example, we use blocks of \\(2 \times 2\\) threads with 1 thread per cell, so the 6 × 6 cells need
+example, we use blocks of \\(2 \times 2\\) threads with one thread per cell, so the 6 × 6 cells need
 \\(3 \times 3 = 9\\) blocks. The programs use blocks of 32 × 8 threads, and everything below
 carries over to them. We follow block (1, 1), which computes the 4 centre cells (2, 2), (2, 3),
 (3, 2) and (3, 3), as shown in Figure 20.2.
@@ -124,7 +124,7 @@ columns 1 to 4, which holds 16 values. Of these, the 4 corner values (1, 1), (1,
 <div class="definition">
 
 <span class="box-label">Definition 20.1</span> **Shared memory.** **Shared memory** is a memory on
-each SM that belongs to 1 block: every thread of the block can read and write it, no other thread
+each SM that belongs to 1 block. Every thread of the block can read and write it, no other thread
 can, it responds within a few cycles, and values enter it only when the threads of the block store
 them there.
 
@@ -148,7 +148,7 @@ does not read.
 </div>
 
 Here \\(T_x\\) is the number of cells that a block computes along a row, and \\(T_y\\) the number
-along a column. The ring adds 1 cell on each of the 2 sides, which explains the 2 in
+along a column. The ring adds 1 cell on each of the two sides, which explains the 2 in
 \\(T_x + 2\\) and \\(T_y + 2\\). For the blocks of our programs, \\(T_x = 32\\) and \\(T_y = 8\\),
 so the tile is \\(34 \times 10\\), the size given in the example of Definition 20.1.
 
@@ -209,14 +209,14 @@ Figure 20.4.
 <figcaption><b>Figure 20.4</b> 2 ways to fill a 4 × 4 tile: 16 threads that load 1 slot each, or 4 threads that load 4 slots each.</figcaption>
 </figure>
 
-**Extra threads.** In the first way, the block is given 1 thread per slot, that is,
+**Extra threads.** In the first way, the block is given one thread per slot, that is,
 \\((T_x + 2) \times (T_y + 2)\\) threads. Every thread loads the slot at its own position, and after
 the barrier, only the \\(T_x \times T_y\\) inner threads compute a cell. For block (1, 1), this
 means 16 threads, of which 12 only load. In the programs, it means 34 × 10 = 340 threads, of which
 256 compute. The loading is a single statement per thread, but 84 of the 340 threads are idle
 while the others compute.
 
-**A loading loop.** In the second way, the block keeps 1 thread per computed cell, and each thread
+**A loading loop.** In the second way, the block keeps one thread per computed cell, and each thread
 loads several slots. We write \\((ty, tx)\\) for the row and column of a thread within its block.
 Thread \\((ty, tx)\\) starts at slot \\((ty, tx)\\) and moves down the tile in strides of \\(T_y\\)
 rows and across it in strides of \\(T_x\\) columns, loading every slot that it lands on, as long as
@@ -484,7 +484,7 @@ Tiled-Jacobi-Kernel writes the same value into every cell of \\(v\\) as Jacobi-K
 
 <div class="proof">
 
-*Proof.* Fix a block with first cell \\((top, left)\\). We show 3 facts.
+*Proof.* Fix a block with first cell \\((top, left)\\). We show three facts.
 
 *Every slot is loaded once, with the old value.* The loops of lines 3 to 7 let thread \\((ty, tx)\\)
 store slot \\((i, j)\\) exactly when \\(i \equiv ty \pmod{T_y}\\) and \\(j \equiv tx \pmod{T_x}\\).
@@ -539,7 +539,7 @@ empty, and which cells of block (1, 1) of the plate would be wrong in step 2?<br
 
 Listing 20.1 implements Tiled-Jacobi-Kernel with blocks of 32 × 8 threads and a 34 × 10 tile. The
 2 `while` loops in Rust and the 2 `for` loops in C++ are lines 3 to 7 of the pseudocode. The test
-of line 5, whether a cell lies in the grid, is written differently in the 2 languages. Rust uses
+of line 5, whether a cell lies in the grid, is written differently in the two languages. Rust uses
 `wrapping_sub` on unsigned positions. For the first block, `top + i - 1` is −1, which
 `wrapping_sub` turns into the largest `usize`, so the test `r < height` fails and the slot
 receives 0. The C++ version computes signed positions and tests `r >= 0` as well. In both
@@ -569,7 +569,7 @@ mod kernels {
 </div>
 </div>
 
-The tile is declared differently in the 2 languages. In C++, `__shared__ float tile[TH][TW]` is a
+The tile is declared differently in the two languages. In C++, `__shared__ float tile[TH][TW]` is a
 2-D array, and `tile[ty][tx + 1]` reads it like any other array. In Rust, the tile is a
 `static mut TILE: SharedArray<f32, { TW * TH }>`, a flat array of 340 floats with 1 copy per
 block, and slot \\((i, j)\\) is element `i * TW + j`. Every access to it is `unsafe`, because the
@@ -648,7 +648,7 @@ Exercises
 
 20.12 Rewrite the loading loop of Listing 20.1 as a single loop over the slot number
 \\(k = ty \cdot 32 + tx, k + 256, \ldots\\), with \\(i = k / 34\\) and \\(j = k \bmod 34\\). Which
-threads now load 2 slots? Measure the 2 versions.<br>
+threads now load 2 slots? Measure the two versions.<br>
 20.13 In the Rust extra-threads kernel, which fact of the proof of Theorem 20.1 does the
 `// SAFETY:` comment of the final write rely on?
 
@@ -709,7 +709,7 @@ that neighbouring warps share (Figure 19.11). The tile loads 1.33 values per res
 is no less than what the direct kernel already moves. A tile can remove only the traffic that
 reaches memory, and in this case, the caches have already removed it.
 
-2 further measurements support this explanation. First, we bypassed the L1 cache in the direct
+Two further measurements support this explanation. First, we bypassed the L1 cache in the direct
 kernel by reading each neighbour with the C++ intrinsic `__ldcg`, which reads through the L2 cache
 only. The kernel then ran at 61.4 to 63.7 GB/s, which is 7 to 10% slower. The L2 cache alone thus
 captures most of the reuse, since the 2 MiB L2 of the measured GPU holds the few rows that the
@@ -884,7 +884,7 @@ From \\(K = 1\\) to \\(K = 4\\), the traffic falls by a factor of 3, and the spe
 \\(K = 4\\), the traffic hardly changes, while the work per cell grows from 1.78 to 4 thread-steps,
 and the speed falls again. The time of the kernel now follows its work rather than its traffic. At
 its best, with \\(K = 4\\), the temporal kernel reached 62.4 GB/s in this run, 96% of the direct
-kernel's 65.0 GB/s, while moving a third of the bytes. In the run of Section 20.7, the 2 kernels
+kernel's 65.0 GB/s, while moving a third of the bytes. In the run of Section 20.7, the two kernels
 reached 63.5 and 68.3 GB/s, a ratio of 93%. On the measured GPU, with 8 SMs, a 5-point step costs
 about as much in instructions as in memory traffic once the caches have done their part, so
 neither tiling nor temporal blocking beats the direct kernel. On a GPU with more arithmetic per

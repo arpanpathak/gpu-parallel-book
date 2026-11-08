@@ -10,7 +10,7 @@ contributes a part of it. Whenever 2 threads access the same memory location, an
 them writes it, the result can depend on the order of the accesses. The hardware does not choose
 that order in any predictable way, so the program must impose an order where one is needed.
 
-In this chapter, we study the 2 mechanisms that CUDA provides for this purpose. Barriers make the
+In this chapter, we study the two mechanisms that CUDA provides for this purpose. Barriers make the
 threads of a block wait for each other at a point in the program, and atomic operations perform a
 read-modify-write on a memory location as 1 indivisible step. We also examine control divergence,
 the cost a warp pays when its threads take different paths through a branch. Each effect is
@@ -51,7 +51,7 @@ can access `counter` between them. Figure 5.1 shows 2 threads that do so.
 </figure>
 
 The counter initially holds 5. Thread A reads 5 in step 1, and thread B reads 5 in step 2, before
-A has written its result. Both threads compute 6, and both write 6. 2 additions were performed,
+A has written its result. Both threads compute 6, and both write 6. Two additions were performed,
 but the counter increased by only 1. The addition performed by thread A has been overwritten; we
 call this a **lost update**. The situation that makes it possible is called a race condition. A
 **race condition**, or data race, occurs when 2 or more threads access the same memory location,
@@ -413,10 +413,10 @@ announces that data is ready needs `Release` on the write and `Acquire` on the r
 
 ### 5.5.1 Atomic read-modify-write
 
-An **atomic operation** is a read-modify-write that the hardware performs indivisibly: no other
+An **atomic operation** is a read-modify-write that the hardware performs indivisibly. No other
 thread can read or write the location between the read and the write of the operation. When 2
-threads call `atomicAdd` on the same location, the 2 operations are performed 1 after the other,
-in an order chosen by the hardware, and both take effect. Note that atomic operations do not
+threads call `atomicAdd` on the same location, the 2 operations are performed one after the other,
+in an order chosen by the hardware, and both take effect. Atomic operations do not
 impose a particular order between the threads; they only guarantee that the operations do not
 overlap. Atomic operations on global memory are performed in the L2 cache, which all SMs share
 (figure 5.5).
@@ -633,7 +633,7 @@ their values in a different order each time, and the rounding errors therefore d
 For most programs this variation is acceptable. Programs that need the same bits on every run, for
 example to compare results across software versions or to reproduce a training run, must add in a
 fixed order. The tree sum of section 5.3 always adds the same pairs, so it gives the same result on
-every run. Chapter 8 develops fast sums of this kind.
+every run. In Chapter 8, we develop fast sums of this kind.
 
 ## 5.7 Choosing a synchronisation method
 

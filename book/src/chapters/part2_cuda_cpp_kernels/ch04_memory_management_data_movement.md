@@ -13,7 +13,7 @@ on the running time of the whole program unless the transfers are also made fast
 We first describe the path that data takes between the CPU and the GPU, which differs between
 discrete and integrated GPUs. We then explain why CUDA distinguishes pageable from pinned host
 memory, build a simple model of the cost of a transfer, and compare the model with
-measurements. The chapter ends with 2 kinds of memory that reduce or remove explicit
+measurements. The chapter ends with two kinds of memory that reduce or remove explicit
 transfers: unified memory and zero-copy memory. The measurements are made by 2 small programs,
 one in C++ and one in Rust, which run on any NVIDIA GPU.
 
@@ -56,7 +56,7 @@ GPU's memory over a **link**, which is a connection between the 2 chips. A GPU i
 **integrated** if it has no memory of its own and uses the CPU's memory chips, as the GPUs of
 the Jetson boards and of the DGX Spark do.
 
-The 2 designs make different trade-offs. The memory of a discrete GPU serves the GPU alone and
+The two designs make different trade-offs. The memory of a discrete GPU serves the GPU alone and
 is very fast; an H100 reads its own memory at 3.35 TB/s. However, the link that fills this
 memory is much slower, so data is fast to use once it has arrived and slow to arrive. An
 integrated GPU has no link to cross, but its memory is slower and is shared with the CPU.
@@ -427,7 +427,7 @@ load and temperature; the shape of the results does not change.
 <summary>A program copies 1,000 buffers of 4 KB each to the device, 1 copy per buffer, with t<sub>0</sub> = 16 µs and B = 30 GB/s. How long does it take, and how long would 1 copy of all 4 MB take?</summary>
 
 1,000 copies take about 1,000 × (16 µs + 4 KB / 30 GB/s) = 1,000 × (16 + 0.13) µs ≈ 16 ms.
-1 copy of 4 MB takes 16 µs + 4 MB / 30 GB/s ≈ 16 + 133 = 149 µs, about 100 times less.
+One copy of 4 MB takes 16 µs + 4 MB / 30 GB/s ≈ 16 + 133 = 149 µs, about 100 times less.
 
 </details>
 
@@ -671,7 +671,7 @@ which Chapter 6 introduces.
 
 </div>
 
-Chapter 5 turns to threads that depend on each other's results: barriers, atomic operations and
+In Chapter 5, we turn to threads that depend on each other's results: barriers, atomic operations and
 race conditions.
 
 ## Exercises

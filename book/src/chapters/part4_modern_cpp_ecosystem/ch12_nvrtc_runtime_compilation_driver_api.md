@@ -19,9 +19,9 @@ a string, compile it with **NVRTC**, the CUDA runtime compilation library, and l
 the result through the **driver API**, the lower-level interface on which the CUDA runtime
 itself is built.
 
-We use 1 example throughout the chapter: a polynomial of degree 32, evaluated at 16,777,216
+We use one example throughout the chapter: a polynomial of degree 32, evaluated at 16,777,216
 points. A generic kernel reads the 33 coefficients from memory. A specialised kernel, generated
-by the program after the coefficients are known, contains them as constants. The 2 kernels
+by the program after the coefficients are known, contains them as constants. The two kernels
 produce bit-identical results, and we will measure both what the specialised kernel gains and
 what it costs to compile. The times in this chapter were measured on a Jetson Orin NX, an
 integrated GPU of compute capability 8.7 with 102 GB/s of memory bandwidth; the programs were
@@ -93,7 +93,7 @@ recorded in the same context.
 
 </div>
 
-A context plays a role for the GPU similar to the role a process plays for the CPU: 2 programs
+A context plays a role for the GPU similar to the role a process plays for the CPU: two programs
 on the same GPU have 2 contexts, and neither can use the addresses of the other.
 
 All 3 services depend on the kernel being known when the program is compiled. A kernel that is
@@ -220,7 +220,7 @@ the first cubin on an Orin, the second on an H100, and JIT-compiles the PTX on a
 `nvcc` embeds a fatbin in every executable it builds. When the program loads it, the driver
 selects the cubin that matches the GPU, or JIT-compiles the PTX if no cubin matches.
 
-Figure 12.2 shows the 3 forms twice: produced by `nvcc` before the program runs, and produced by
+Figure 12.2 shows the three forms twice: produced by `nvcc` before the program runs, and produced by
 NVRTC while it runs. The sizes are those of the polynomial kernel of this chapter, compiled for
 `sm_87`.
 
@@ -231,7 +231,7 @@ NVRTC while it runs. The sizes are those of the polynomial kernel of this chapte
 
 ### 12.2.2 Binary and PTX compatibility
 
-The CUDA programming guide gives 2 rules that decide whether a piece of GPU code can run on a
+The CUDA programming guide gives two rules that decide whether a piece of GPU code can run on a
 given GPU:
 
 - A cubin built for compute capability X.y runs on a GPU of compute capability X.z only if
@@ -240,7 +240,7 @@ given GPU:
 - PTX compiled for `compute_X.y` can be JIT-compiled for any GPU of compute capability X.y or
   higher, including GPUs of later major generations.
 
-The following table applies the 2 rules to code compiled for compute capability 8.0.
+The following table applies the two rules to code compiled for compute capability 8.0.
 
 | GPU | Compute capability | Real architecture | Runs a cubin for `sm_80`? | Runs PTX for `compute_80`? |
 |---|---|---|---|---|
@@ -341,7 +341,7 @@ on its own, because fusing changes the rounding of the result.
 
 Once the program knows the coefficients, it can generate a kernel that contains them. Consider
 first the polynomial of degree 2 of Figure 12.3, with the coefficients 1, 0.5 and 0.3333. For
-each step of Horner's rule, the generic kernel performs 4 operations: it reads `c[k]` from
+each step of Horner's rule, the generic kernel performs 4 operations. It reads `c[k]` from
 memory, decrements `k`, tests whether the loop continues, and performs the FMA. If the program
 writes the coefficients into the source text, the same evaluation becomes 3 lines with no loop
 and no reads:
@@ -401,7 +401,7 @@ SPECIALISED SOURCE(c[0..d]):
 </div>
 </div>
 
-3 details of the generated text deserve attention. First, the kernel is declared **`extern
+We explain three details of the generated text. First, the kernel is declared **`extern
 "C"`**, which keeps its name exactly `poly`. C++ allows **overloaded functions**, several
 functions with the same name and different parameter types, such as `poly(const float*, float*,
 int)` and `poly(const double*, double*, int)`. To give each of them a distinct symbol name, the
@@ -411,13 +411,13 @@ starts an encoded name, `4poly` is the 4-letter name, `PKf` is a pointer to a co
 we look up the kernel by its name in section 12.5.2, the name must be predictable. Second, the
 format **`%.9e`** of `snprintf` prints each coefficient in scientific notation: 1 digit, a decimal
 point and 9 more digits, followed by a power of 10, for example `3.125000000e-02` = 3.125 ×
-10<sup>−2</sup> for 1/32. 9 significant decimal digits are sufficient to represent every `float`
+10<sup>−2</sup> for 1/32. Nine significant decimal digits are sufficient to represent every `float`
 value exactly, and the format prints 10, so each constant in the text is the same `float` that
 the generic kernel reads from memory. Third, the **`f` suffix** makes each constant a `float`.
 Without the suffix, `3.125000000e-02` is a `double` in C++, and the entire FMA would be
 performed in double precision.
 
-Figure 12.4 compares the 2 kernels, together with the execution times that we will measure in
+Figure 12.4 compares the two kernels, together with the execution times that we will measure in
 section 12.6.
 
 <figure>
@@ -617,9 +617,9 @@ called before any other `cu` function, and its argument must be 0. `cuDeviceGet`
 device number 0 into a `CUdevice`. `cuDevicePrimaryCtxRetain` returns the **primary context** of
 the device, which is the single context per GPU that the runtime API uses, and increments the
 count of its users. The driver destroys the primary context only when this count returns to 0,
-so a context retained by 2 parts of a program, for example the runtime API and our own code,
+so a context retained by two parts of a program, for example the runtime API and our own code,
 survives until both have released it. Finally, `cuCtxSetCurrent` makes this context the
-**current context** of the calling host thread: every later driver call made by that CPU thread,
+**current context** of the calling host thread. Every later driver call made by that CPU thread,
 such as `cuModuleLoadData`, operates on this context without naming it.
 
 The driver API can also create additional contexts with `cuCtxCreate`. However, a device pointer
@@ -838,7 +838,7 @@ arguments.
 We now measure what runtime compilation costs and what it gains. The C++ program compiles the
 specialised kernel to PTX and to a cubin and loads both. It then runs the generic kernel for
 about 0.4 s so that the GPU reaches its steady clock frequency, and times 20 runs of each
-kernel. To verify the results, it compares all 16,777,216 outputs of the 2 kernels with each
+kernel. To verify the results, it compares all 16,777,216 outputs of the two kernels with each
 other, and checks every 4,099th output against Horner's rule evaluated in double precision on
 the CPU.
 
@@ -869,7 +869,7 @@ copied into the context.
 
 The specialised kernel ran 2.605 / 1.840 = 1.42 times as fast as the generic kernel. Across the
 quiet runs, the ratio ranged from 1.3 to 1.46, because the GPU clock varies between runs, as we
-observed in Chapter 6. The 2 kernels agree to the last bit, a difference of 0.0, because both
+observed in Chapter 6. The two kernels agree to the last bit, a difference of 0.0, because both
 perform the same FMAs on the same `float` values in the same order. Both are within
 5.1 × 10<sup>−7</sup> of the double-precision value.
 
@@ -1030,7 +1030,7 @@ of section 12.6 absorb this cost, so the measured times include only the kernels
 
 ## 12.9 When to compile at run time
 
-Runtime compilation is worth its cost in 3 situations:
+Runtime compilation is worth its cost in three situations:
 
 1. **The kernel depends on values known only at run time**, and it runs often enough to repay
 the compilation, as in section 12.6. Typical values are sizes, shapes, coefficients, and the

@@ -21,7 +21,7 @@ in CUDA C++ and in Rust.
 This chapter covers
 
 - the operations, memory traffic and data reuse of a matrix product
-- a kernel with 1 thread per output element, and the effect of the thread-to-element mapping
+- a kernel with one thread per output element, and the effect of the thread-to-element mapping
 - shared-memory tiling
 - register tiling with a 4 × 4 output patch per thread
 - register usage, occupancy and `__launch_bounds__`
@@ -256,7 +256,7 @@ The only change from listing 9.1 is in the first 2 lines of the kernel: the row 
 The Rust kernel uses the 2-D launch contract of section 7.4.3. The functions
 `thread::index_2d_row()` and `index_2d_col()` return the row and the column with x along the row,
 and the output type `DisjointSlice<f32, Index2D<N>>` lets each thread write its own element of
-\\(C\\) without `unsafe`. Section 9.7 explains the `while` loop and the `#[unroll(4)]` attribute.
+\\(C\\) without `unsafe`. In Section 9.7, we explain the `while` loop and the `#[unroll(4)]` attribute.
 
 ```console
   1 per thread, by row         739.14 ms    185.9 GFLOP/s  max error 3.4e-05     # Orin NX
@@ -488,7 +488,7 @@ Register tiling makes the product 3.3 times as fast on the smaller GPU and 3.4 t
 the larger one: 901.4 GFLOP/s, 38% of the smaller GPU's peak, and 3,222.0 GFLOP/s, 40% of the
 larger GPU's peak. At 64 FLOP per float, memory could now supply 1,632 GFLOP/s on the smaller GPU
 and 4,368 GFLOP/s on the larger one, so memory bandwidth is no longer the first limit. Figure 9.7
-compares the 3 kernels by the number of floats that 1 thread reads for 16 multiply-adds, and where
+compares the three kernels by the number of floats that 1 thread reads for 16 multiply-adds, and where
 it reads them from.
 
 <figure>
@@ -629,7 +629,7 @@ C = A B, 4096 x 4096 floats
   4 x 4 per thread        47.69 ms   2881.8 GFLOP/s  max error 3.4e-5
 ```
 
-The Rust kernels match the C++ kernels within 10% for 1 element per thread and for tiles, and
+The Rust kernels match the C++ kernels within 10% for one element per thread and for tiles, and
 reach 94% and 89% of the C++ patch kernel on the 2 GPUs.
 
 <details class="check">
@@ -691,7 +691,7 @@ The remaining gap comes from techniques beyond the scope of this chapter, which 
 and tunes for each GPU:
 
 - **Larger patches.** With 8 × 8 elements per thread, a kernel reads shared memory 8 times less
-  than with 1 element per thread, against 4 times less for 4 × 4, at the cost of more registers.
+  than with one element per thread, against 4 times less for 4 × 4, at the cost of more registers.
 - **Wide shared-memory loads.** 4 operands can be read with 1 `float4` load, as in Chapter 7.
 - **Double buffering.** The next pair of tiles is copied while the current pair is used, so that
   the barrier never waits for memory.
@@ -744,7 +744,7 @@ only when the program allows it. Chapter 11 returns to cuBLAS.
 - A product of \\(N \times N\\) matrices performs \\(2N^3\\) operations on \\(3N^2\\) values. Each
   value has \\(N\\) uses, and a GPU needs about 100 uses per load from memory: 94 FLOP per float
   on the Orin NX and 119 on the Thor.
-- The kernel with 1 thread per element ran at 1.4% of peak. Mapping `threadIdx.x` along a row
+- The kernel with one thread per element ran at 1.4% of peak. Mapping `threadIdx.x` along a row
   reduced the sectors per warp from 17 to 4 and made the kernel 5 times as fast, with the caches
   serving most of the reuse.
 - Tiles of \\(T \times T\\) in shared memory give \\(T\\) FLOP per float from global memory, but
@@ -760,7 +760,7 @@ only when the program allows it. Chapter 11 returns to cuBLAS.
 
 </div>
 
-Part IV turns to the C++ code around such kernels. Chapter 10 develops resource-safe buffers and
+In Part IV, we turn to the C++ code around such kernels. In Chapter 10, we develop resource-safe buffers and
 error handling, and Chapter 11 the CUDA libraries, including cuBLAS.
 
 ## Exercises

@@ -145,7 +145,7 @@ every other stream of the device. An operation in the default stream waits for a
 all streams, and work queued later in other streams waits for it. Therefore, a single launch or
 `cudaMemcpy` without a stream can serialise a program that was designed to overlap its operations.
 
-There are 2 ways to avoid this behaviour:
+There are two ways to avoid this behaviour:
 
 - **Name a stream in every launch and copy.** The dependencies between operations are then
   visible in the code, at the place where the work is queued.
@@ -264,7 +264,7 @@ The asynchronous copies are `unsafe` for a reason that the borrow checker cannot
 continues after `copy_from_pinned_host_async` has returned, so the host buffer must remain alive
 and unchanged until the GPU has finished with it. The borrow of `part.host` ends when the call
 returns, but the GPU's use of the buffer ends only at `stream.synchronize()`. The `SAFETY` comment
-states why the program meets this requirement: no code touches the host buffers until every
+states why the program meets this requirement. No code touches the host buffers until every
 stream has been synchronized.
 
 ### 6.5.3 Measured pipeline times
@@ -313,10 +313,10 @@ kernel's time, and each additional chunk adds 3 more calls that the host must qu
 <figcaption><b>Figure 6.5</b> Pipeline times of the C++ runs above.</figcaption>
 </figure>
 
-On the Thor, the gain was 13%, for 2 reasons. First, its kernel dominates: the kernel takes
+On the Thor, the gain was 13%, for two reasons. First, its kernel dominates: the kernel takes
 3.05 ms, against 1.1 ms for each copy, so even perfect overlap could hide only the copies, about
 2.2 ms of the 5.2 ms. Second, on an integrated GPU the copies and the kernel use the same memory,
-so a copy that runs during a kernel slows the kernel down. Chapter 4 showed a larger saving that
+so a copy that runs during a kernel slows the kernel down. In Chapter 4, we saw a larger saving that
 is available on such a GPU: avoiding the copies altogether with zero-copy or unified memory.
 
 <div class="bee bee-happy" markdown="1">
@@ -511,7 +511,7 @@ shared-memory tiling and bank conflicts, each measured.
 2. Copy in takes 8 ms, the kernel 3 ms and copy out 2 ms. What is the bound for 4 chunks on 2
    streams, and which stage sets it?
 3. Change `streams.cu` to use 1 stream with 8 chunks. Predict the time, then measure it.
-4. Why does the gain from overlap fall on an integrated GPU such as the Thor? Name 2 reasons.
+4. Why does the gain from overlap fall on an integrated GPU such as the Thor? Name two reasons.
 5. Record an event after the copy in stream 0 and make stream 1 wait for it with
    `cudaStreamWaitEvent`. What does stream 1 now wait for, and what does the host wait for?
 6. A loop launches 5 kernels of 20 µs each, 10,000 times. Estimate the launch overhead at 4 µs per

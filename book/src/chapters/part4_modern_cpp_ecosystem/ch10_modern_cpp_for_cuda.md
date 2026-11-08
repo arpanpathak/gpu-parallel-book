@@ -6,7 +6,7 @@ The host code of Chapters 3 to 9 was written in the style of the CUDA C API. Dev
 allocated with `cudaMalloc` and released with `cudaFree`, every API call returns an error code
 of type `cudaError_t`, and every size passed to a copy is a number of bytes. This style keeps
 each step of a program visible, which is why we used it for the first programs. It also leaves
-3 responsibilities to the programmer at every call site: every allocation must be freed on
+3 responsibilities to the programmer at every call site. Every allocation must be freed on
 every path out of a function, every error code must be examined, and every size must be given
 in the unit that the called function expects. The compiler checks none of them.
 
@@ -22,7 +22,7 @@ which we show alongside, since Rust makes most of these rules part of the langua
 
 This chapter covers
 
-- 3 errors that the CUDA C API does not detect, run and measured
+- Three errors that the CUDA C API does not detect, run and measured
 - RAII: allocation in a constructor and release in a destructor
 - ownership: why copying is forbidden and moving is allowed
 - error reporting with exceptions and `std::source_location`, without a macro
@@ -57,7 +57,7 @@ look reasonable.
 
 To detect a leak, we need an exact count of the device memory that a program holds. The programs
 of this chapter allocate with `cudaMallocAsync(&pointer, bytes, stream)`, the **stream-ordered
-allocator** introduced in CUDA 11.2. It behaves like `cudaMalloc`, with 2 differences. First,
+allocator** introduced in CUDA 11.2. It behaves like `cudaMalloc`, with two differences. First,
 the allocation and the matching `cudaFreeAsync` are ordered in a stream, the queue of GPU work
 introduced in Chapter 6, in the same way as kernel launches. Second, the memory comes from a
 **pool**, a reserve of device memory that the driver keeps for each GPU and reuses between
@@ -269,7 +269,7 @@ an array, and none of these errors produced a message.
 
 ## 10.2 RAII: The Device Buffer
 
-The 3 errors of section 10.1 have a common cause. Each rule, such as "every allocation is
+The three errors of section 10.1 have a common cause. Each rule, such as "every allocation is
 freed", must be applied by hand at every place in the program where it is relevant, and a single
 omission is enough to break it. C++ allows us to state such a rule once, inside a type, and have
 the compiler apply it wherever the type is used. We begin with the rule that every allocation is
@@ -374,7 +374,7 @@ section 10.2.6 describes.
 
 The first constructor allocates `count` elements. The second constructor allocates enough
 elements for a host vector and copies the vector into them. The destructor frees the
-allocation. 3 details of this code deserve attention.
+allocation. We explain three details of this code.
 
 First, the size in bytes is always computed from the type: `bytes()` returns
 `count_ * sizeof(T)`. Since no caller ever writes a byte count, the error of section 10.1.4
@@ -556,7 +556,7 @@ dropped, so `drop` needs no such test.
 In Chapters 3 to 9, we checked each CUDA call with a small function that printed the error and
 ended the program. Many CUDA programs use a macro instead, `CHECK(call)`. A **macro** is a name that
 the **preprocessor**, a text-substitution step that runs before the compiler proper, replaces
-with other text wherever the name appears. Programs use a macro here for 1 reason: the
+with other text wherever the name appears. Programs use a macro here for one reason: the
 preprocessor replaces `__FILE__` and `__LINE__` with the file name and line number of the place
 where the macro is written, so the message names the call that failed. For example, `CHECK`
 written on line 40 of `app.cu` produces a message that contains `app.cu` and 40. Before C++20, a
@@ -671,7 +671,7 @@ ownership
   copies sized by the type: 2097152 of 2097152 correct
 ```
 
-All 3 errors are gone. The early returns leaked 0.0 MiB. The launch error became an exception
+All three errors are gone. The early returns leaked 0.0 MiB. The launch error became an exception
 that names line 134, the `check(cudaGetLastError())` after the launch, and the 2 buffers of
 `launchTooWide`, 16 MiB in total, were freed while the exception travelled to `main`. Every
 element was copied correctly, because no caller states a byte count.
@@ -807,7 +807,7 @@ A template is not yet code. Only its instantiations are compiled into machine co
 as if it had been written by hand, so a program contains 1 kernel for each type with which it
 uses the template.
 
-Our kernel is generic in 2 ways: in the element type `T`, and in the operation `F` applied to
+Our kernel is generic in two ways: in the element type `T`, and in the operation `F` applied to
 each element. Its pseudocode is that of `scale`, with the multiplication replaced by a call to
 `f`.
 
@@ -918,7 +918,7 @@ the error `An extended __device__ lambda cannot capture variables by reference`.
 
 ### 10.3.3 The run-time cost of templates
 
-A template, a function object and a span are abstractions: they give names to things that the
+A template, a function object and a span are abstractions. They give names to things that the
 hand-written kernel did directly. To measure their cost, we compare `transform<float>` with
 `scaleRaw`, the C-style kernel of `raw.cu`, on the same 16,777,216 floats, and run the other 2
 instantiations alongside. Each measurement follows 500 ms of warm-up, because a GPU raises the
@@ -1032,7 +1032,7 @@ runs, and in the same order: double reaches the highest rate in bytes per second
 ### 10.4.1 Compiling a function for both processors
 
 CUDA marks every function with the processor it is compiled for. A `__global__` function is a
-kernel: it is launched from the host and runs on the device. A `__device__` function runs on the
+kernel. It is launched from the host and runs on the device. A `__device__` function runs on the
 device and is called from device code. A function with no qualifier, or with `__host__`, runs on
 the host. A function marked `__host__ __device__` is compiled twice from 1 definition, once for
 each processor, and can be called from either side.
@@ -1071,9 +1071,9 @@ kernel is compiled for both processors from the same text (section 10.4.3).
 
 As an example, we use the polynomial 1 + x + x²/2 + x³/6, the first 4 terms of the series of
 e<sup>x</sup>. **Horner's rule** evaluates a polynomial from its highest coefficient down by
-nesting the multiplications: it writes the polynomial as 1 + x(1 + x(1/2 + x/6)), which takes 3
+nesting the multiplications. It writes the polynomial as 1 + x(1 + x(1/2 + x/6)), which takes 3
 multiplications, each followed by an addition. At x = 1, for example, the 3 steps give 1/2 + 1/6
-= 0.6667, then 1 + 0.6667 = 1.6667, then 1 + 1.6667 = 2.6667. Listing 10.17 writes it in 2 ways.
+= 0.6667, then 1 + 0.6667 = 1.6667, then 1 + 1.6667 = 2.6667. Listing 10.17 writes it in two ways.
 
 <p class="listing"><b>Listing 10.17</b> 1 polynomial, written 2 ways, for both processors.</p>
 
@@ -1190,7 +1190,7 @@ applies.
 
 The same source code can produce different bits on the CPU and the GPU, because the GPU fuses a
 multiplication and an addition into an operation with 1 rounding. Use `fmaf` (or `mul_add` in
-Rust) where the 2 sides must agree bit for bit.
+Rust) where the two sides must agree bit for bit.
 
 </div>
 
@@ -1266,7 +1266,7 @@ compiling.
 
 The function `blocksFor` computes the number of blocks needed for a given number of elements,
 rounding up. For 1,000 elements and blocks of 256 threads, it computes
-(1,000 + 256 − 1) / 256 = 1,255 / 256 = 4 in integer division. 4 blocks hold 1,024 threads,
+(1,000 + 256 − 1) / 256 = 1,255 / 256 = 4 in integer division. Four blocks hold 1,024 threads,
 enough for 1,000 elements, whereas 3 blocks, with 768 threads, would not be. Because `blocksFor`
 is `constexpr`, the compiler performs this division itself, and the assertion
 `static_assert(blocksFor(1000) == 4)` holds.

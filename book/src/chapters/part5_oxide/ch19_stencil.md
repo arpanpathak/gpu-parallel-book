@@ -25,8 +25,8 @@ This chapter covers
 - the Laplace equation on a grid, and the 5-point stencil derived from it
 - Jacobi iteration, worked by hand on a 6 × 6 plate
 - why an update in place computes a different method, and the exact wrong value it produces
-- 2 buffers used in turn, and a proof that they compute Jacobi iteration
-- 1 thread per cell, in Rust with `DisjointSlice` and in C++ with `__restrict__`
+- Two buffers used in turn, and a proof that they compute Jacobi iteration
+- One thread per cell, in Rust with `DisjointSlice` and in C++ with `__restrict__`
 - how fast the iteration converges, measured and predicted
 - arithmetic intensity, and why a stencil is limited by memory bandwidth
 
@@ -61,7 +61,7 @@ known temperatures, and the 16 cells inside them are the unknowns that we want t
 <div class="definition">
 
 <span class="box-label">Definition 19.1</span> **Grid, boundary cell, interior cell.** A **grid** of
-\\(W \times H\\) cells holds 1 value per cell; cell \\((r, c)\\) lies in row \\(r \in [0, H)\\) and
+\\(W \times H\\) cells holds one value per cell; cell \\((r, c)\\) lies in row \\(r \in [0, H)\\) and
 column \\(c \in [0, W)\\). A **boundary cell** lies in the first or last row or column; its value is
 given by the problem and never changes. Every other cell is an **interior cell**, and its value is
 unknown.
@@ -184,7 +184,7 @@ boundary cells?<br>
 
 ### 19.2.1 Jacobi iteration
 
-We do not know the final temperatures, but we do know a property that they have: each interior
+We do not know the final temperatures, but we do know a property that they have. Each interior
 value is the mean of its neighbours. Jacobi iteration turns this property into a procedure. It
 starts from a guess and replaces every interior value by the mean of its neighbours, again and
 again. If the guess is wrong, the replacement moves each value towards the mean of its neighbours,
@@ -506,7 +506,7 @@ threads have no cell?<br>
 ## 19.5 Correctness
 
 The kernel is correct only if the buffers are used as Jacobi-GPU prescribes. In this section, we
-break the prescription in 2 ways and run each broken variant. We then prove that the correct
+break the prescription in two ways and run each broken variant. We then prove that the correct
 program computes Jacobi iteration exactly.
 
 ### 19.5.1 1 buffer for both arguments
@@ -576,7 +576,7 @@ in Figure 19.6. We ran this variant, and it printed the following grids.
 <figcaption><b>Figure 19.6</b> A second buffer without the boundary: step 2 reads a cold top edge, and cell (1, 1) becomes 6.25 in place of 31.25.</figcaption>
 </figure>
 
-Note that the grid printed after step 2 shows 100 in its top row. The program printed buffer
+The grid printed after step 2 shows 100 in its top row. The program printed buffer
 \\(a\\), which holds the boundary, while the step itself had read the cold top row of \\(b\\). The
 iteration still converges, but to the answer of a different problem, in which the top edge is hot
 only in every second step. After 200 steps, cell (2, 2) holds 17.55, whereas the correct value is
@@ -686,7 +686,7 @@ mod kernels {
 </div>
 </div>
 
-The 2 versions differ in how they state that the 2 grids do not overlap. The C++ kernel receives 2
+The two versions differ in how they state that the 2 grids do not overlap. The C++ kernel receives 2
 raw pointers and marks them `__restrict__`, which is a promise to the compiler that no element is
 reached through both pointers. The compiler does not check this promise. The Rust kernel receives
 the old grid as a shared slice, `&[f32]`, and the new grid as a

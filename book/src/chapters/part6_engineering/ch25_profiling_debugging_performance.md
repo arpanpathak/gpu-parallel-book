@@ -60,13 +60,13 @@ how the 20 ms divide among the 3 steps. If the 2 copies take 15 ms and the kerne
 to the kernel can save more than 5 ms. The second, once we know that the kernel matters, is what
 the kernel did during its time: whether it was reading memory, computing, or waiting. A
 **profiler** is a program that records what another program does while it runs, and on a GPU the 2
-questions are answered by 2 kinds of record.
+questions are answered by two kinds of record.
 
 <div class="definition">
 
 <span class="box-label">Definition 25.1</span> **Trace and hardware performance counter.** A
 **trace** is a list of timestamped events, each with a start time and an end time. A **hardware
-performance counter** is a register inside the GPU that counts events of 1 kind while a kernel
+performance counter** is a register inside the GPU that counts events of one kind while a kernel
 runs.
 
 *Example.* The trace of section 25.2 records a copy that started at 0.665 ms and ended at 1.470
@@ -171,7 +171,7 @@ that group.
 
 Recall from Chapter 6 that a **stream** is a queue of GPU work whose operations run in the order in
 which they were issued, and that work in different streams may overlap. Chapter 6's program
-`streams` performs the same work in 3 ways: copy in, kernel and copy out on 1 stream; the same in 8
+`streams` performs the same work in three ways: copy in, kernel and copy out on 1 stream; the same in 8
 chunks on 2 streams; and the same in 32 chunks. A **chunk** is 1 of the equal pieces into which
 the data is split, so that the copy of 1 chunk can run while the kernel works on another. We can
 trace the program without changing a line of code:
@@ -231,8 +231,8 @@ A and chunk 1 to stream B, and operations of different streams may overlap:
 | 4 to 5 | idle | chunk 1 | idle |
 | 5 to 6 | idle | idle | chunk 1 |
 
-The run takes 6 ms. The kernel lane is busy for 4 of the 6 ms, and the 2 kernels run back to back,
-from 1 ms to 5 ms. The run is therefore made of 3 parts: the first copy in, 1 ms; the kernels, 2
+The run takes 6 ms. The kernel lane is busy for 4 of the 6 ms, and the two kernels run back to back,
+from 1 ms to 5 ms. The run is therefore made of three parts: the first copy in, 1 ms; the kernels, 2
 + 2 = 4 ms; and the last copy out, 1 ms. The copies of the other chunk are hidden behind the
 kernels.
 
@@ -273,7 +273,7 @@ run, 13.59 ms, is within 4% of those times, so the trace describes the program a
 ### 25.2.3 Common timeline patterns
 
 Most performance problems of a GPU program are visible on a timeline. The table below lists the common
-patterns, their likely causes, and the chapters in which we treat them. 4 terms in it come from
+patterns, their likely causes, and the chapters in which we treat them. Four terms in it come from
 earlier chapters. **Pageable memory** is ordinary host memory, which the operating system may move, and
 **pinned memory** is host memory locked in place, so that the GPU can copy it directly (Chapter
 4). The **launch cost** is the CPU time that 1 kernel launch takes before it returns. A **CUDA
@@ -318,7 +318,7 @@ The **speed of light** of a hardware unit is its peak rate. The `SpeedOfLight` s
 close the kernel came to the peak rate of the arithmetic units and to that of the memory system, as
 percentages. A kernel that comes close to 100% for one of these units is limited by that unit, as
 the roofline model of Chapter 1 predicts. Recall that the **roofline model** bounds the rate of a
-kernel by the smaller of 2 limits: the peak arithmetic rate, and the memory bandwidth multiplied by
+kernel by the smaller of two limits: the peak arithmetic rate, and the memory bandwidth multiplied by
 the number of operations the kernel performs per byte it moves. In Section 25.3.3, we compute these
 percentages by hand.
 
@@ -482,7 +482,7 @@ once and written once, so the kernel moves 2 × 4 bytes per element, 536,870,912
 total. The achieved memory rate is therefore 536,870,912 bytes / 8.35 ms = 64.3 GB/s, which is
 64.3 / 102 = 63% of the peak. The kernel performs 1 multiplication per element, 67,108,864 FLOP in
 total, so its arithmetic rate is 67,108,864 FLOP / 8.35 ms = 8.0 GFLOP/s, or 8.0 / 2,400 = 0.33% of
-the peak. The kernel is clearly memory-bound: its arithmetic intensity, 1 FLOP per 8 bytes or 0.125
+the peak. The kernel is memory-bound: its arithmetic intensity, 1 FLOP per 8 bytes or 0.125
 FLOP/B, lies far below the GPU's ridge point of 24 FLOP/B (Chapter 2, section 2.1.5).
 
 Let us now apply the same analysis to Chapter 9's best kernel, in which each thread computes a 4 ×
@@ -542,7 +542,7 @@ int main()
 blocks of 256 per SM          6 = 1536 threads
 ```
 
-6 blocks of 256 threads are 1,536 threads, or 48 warps, which is the limit of an SM on both GPUs.
+Six blocks of 256 threads are 1,536 threads, or 48 warps, which is the limit of an SM on both GPUs.
 The theoretical occupancy of the kernel is therefore 48 / 48 = 100%.
 
 ## 25.4 Compute Sanitizer
@@ -550,7 +550,7 @@ The theoretical occupancy of the kernel is therefore 48 / 48 = 100%.
 ### 25.4.1 Bugs that produce no error
 
 The most dangerous bugs of a GPU program produce no error message. An **allocation** is a range of
-memory returned by 1 call such as `cudaMalloc`. A kernel that writes past the end of an array
+memory returned by a single call such as `cudaMalloc`. A kernel that writes past the end of an array
 usually writes into memory that belongs to no allocation, or to another array of the same program.
 The hardware raises no **fault**, the error by which a processor stops an illegal access, and the
 launch reports success.
@@ -559,11 +559,11 @@ Compute Sanitizer finds such bugs by **instrumentation**: it rewrites the kernel
 load, store and barrier first calls a check, and then runs the rewritten kernel. For example, the
 statement `c[i] = a[i] + b[i]` contains 2 loads and 1 store. In the rewritten kernel, each of the 3
 accesses is preceded by a call that looks up the address in the table of the program's
-allocations and reports an error if the 4 bytes at that address do not lie inside 1 of them. A
+allocations and reports an error if the 4 bytes at that address do not lie inside one of them. A
 kernel with 3 accesses per thread thus makes 3 additional calls per thread, each far more costly
 than the access it checks.
 
-2 more terms appear in the table of checkers. An access is **misaligned** when its address is
+Two more terms appear in the table of checkers. An access is **misaligned** when its address is
 not a multiple of its size, such as a 4-byte load from address 6. A **race** is a pair of
 accesses to the same location by different threads, at least one of them a write, with nothing
 that orders them; we work an example in section 25.4.3. The tool has 4 checkers, selected with the
@@ -598,7 +598,7 @@ did with the fourth.
 
 Recall from Chapter 3 that we round the number of threads up to a whole number of blocks, and that
 the kernel needs a guard, `if (i < n)`, so that the extra threads do nothing. Consider a small
-case first: 10 elements and blocks of 4 threads. 2 blocks give only 8 threads, so we launch 3
+case first: 10 elements and blocks of 4 threads. Two blocks give only 8 threads, so we launch 3
 blocks, 12 threads. Thread \\(t\\) of block \\(b\\) handles element \\(i = 4b + t\\), and the last
 block covers \\(i\\) = 8, 9, 10 and 11. Elements 10 and 11 do not exist, so without the guard
 threads 2 and 3 of block 2 read and write the 2 positions immediately past the end of each array.
@@ -696,7 +696,7 @@ holds the sum, 31. At the first level, thread 0 reads `s[4]`, a value that threa
 suppose that threads 0 to 3 form 1 warp and threads 4 to 7 another, and that the first warp
 reaches the addition before the second has stored its values. Thread 0 then reads whatever `s[4]`
 held before, for example 0, and the block sum becomes 3 + 0 + ... instead of 3 + 5 + .... The
-barrier after the stores forbids this order: no thread may read until every thread has stored.
+barrier after the stores forbids this order. No thread may read until every thread has stored.
 
 <div class="definition">
 
@@ -886,7 +886,7 @@ before trusting it.
 `cuda-gdb` extends the GNU debugger, `gdb`, the standard debugger of Linux, with support for GPU
 threads. A breakpoint on a line of a kernel stops the whole grid as soon as any thread reaches it.
 At that moment thousands of threads are stopped, each with its own variables, and the debugger can
-show the variables of only 1 of them at a time. The **focus** is the thread that the debugger
+show the variables of only one of them at a time. The **focus** is the thread that the debugger
 currently shows. The program is built with `-G`, which keeps device variables in a form the
 debugger can read and turns off most optimizations, and with `-g` for the host code. A debugging
 session can be scripted with `-batch` and 1 `-ex` option per command. In the session below, the
@@ -997,7 +997,7 @@ KERNEL chase(next, warm, hops), 1 thread:
 
 ### 25.6.2 Latency of arithmetic
 
-Listing 25.7 implements the first measurement in 2 forms.
+Listing 25.7 implements the first measurement in two forms.
 
 <p class="listing"><b>Listing 25.7</b> 1 dependent chain, and 4 independent chains, timed with <code>clock64()</code>. <a href="https://github.com/arpanpathak/gpu-parallel-book/blob/main/code/ch16_profiling/latency.cu">code/ch16_profiling/latency.cu</a></p>
 
@@ -1095,7 +1095,7 @@ and branching. With 4 independent chains, a multiply-add takes 1.31 cycles, so t
 4 times as many operations per cycle. This is what Little's law predicts (Chapter 1, section
 1.1.4). **Little's law** states that the number of operations in flight equals the rate at which
 they complete multiplied by their latency, so the rate equals the number in flight divided by the
-latency. 4 operations in flight with a latency of 4 cycles complete at a rate of 4 / 4 = 1 per
+latency. Four operations in flight with a latency of 4 cycles complete at a rate of 4 / 4 = 1 per
 cycle.
 
 The loads can be converted from cycles to time in the same way. At 1,173 MHz, a cycle lasts
@@ -1150,7 +1150,7 @@ iterations. Less of each step is therefore spent on counting, and the Rust kerne
 
 A **benchmark** is a measurement of a program's speed made in such a way that it can be repeated
 and compared. The first rule of benchmarking is to measure the program in the state in which it
-will normally run. To see why, `measure.cu` times the kernel `y = 2 x` 40 times in a row with
+will normally run. To show the difference, `measure.cu` times the kernel `y = 2 x` 40 times in a row with
 events, starting after the GPU has been idle. Listing 25.9 shows how a single launch is timed.
 
 <p class="listing"><b>Listing 25.9</b> 1 launch, timed with 2 events.</p>
@@ -1192,7 +1192,7 @@ PASSED: 0 of 67108864 elements wrong
 </figure>
 
 As Figure 25.7 shows, the same kernel on the same data took 19.83 ms the first time and 8.35 ms
-once warm. 2 effects contribute to the difference. First, a first launch pays one-time costs, such
+once warm. Two effects contribute to the difference. First, a first launch pays one-time costs, such
 as loading the kernel's code onto the GPU. Second, a **power governor**, the part of the driver or
 firmware that sets the clock rate according to the load, lowers the GPU clock while the GPU is
 idle and raises it only after it has seen sustained load (Chapter 6). The governor of the Jetson
@@ -1265,7 +1265,8 @@ errors are far smaller than those of `float`. For integers, the comparison is ex
 floating-point numbers, it needs a **tolerance**, the largest difference that still counts as
 correct, and the tolerance needs a unit.
 
-To see why an absolute number such as 0.001 is not a good unit, consider a small floating-point
+An absolute number such as 0.001 is not a good unit, and a small example shows the reason.
+Consider a small floating-point
 format that we invent for the purpose, with 8 evenly spaced values between each 2 consecutive
 powers of 2. Between 1 and 2, its values are 1, 1.125, 1.25, ..., 1.875, which lie 1/8 = 0.125
 apart. Between 2 and 4 there are again 8 values, 2, 2.25, 2.5, ..., 3.75, now 0.25 apart, and
@@ -1305,7 +1306,7 @@ same **relative size**, the error divided by the value: about 1 part in 4 millio
 Because positive floats are stored in order, the number of floats between 2 of them is the
 difference of their bit patterns read as integers. For example, the float 1.0 has the bit pattern
 0x3F80_0000, and the next larger float, 1 + 2<sup>−23</sup>, has the pattern 0x3F80_0001. The
-difference of the 2 patterns read as integers is 1, and the 2 floats are 1 ULP apart. Listing 25.10 uses this property to measure the
+difference of the two patterns read as integers is 1, and the 2 floats are 1 ULP apart. Listing 25.10 uses this property to measure the
 error of `expf`, and of `__expf`, the faster hardware version that `--use_fast_math` substitutes,
 against the nearest float to the exact value. `--use_fast_math` is a compiler flag of `nvcc` that
 replaces standard math functions with faster and less accurate versions.
@@ -1347,7 +1348,7 @@ moves a value by at most half a ULP, and half a ULP is at most \\(u = 2^{-24}\\)
 example, the floats between 1 and 2 lie \\(2^{-23}\\) apart, so rounding a result near 1 moves it
 by at most \\(2^{-24}\\).
 
-Consider 4 inputs summed in 2 ways. As a tree, \\((x_0 + x_1) + (x_2 + x_3)\\), every input passes
+Consider 4 inputs summed in two ways. As a tree, \\((x_0 + x_1) + (x_2 + x_3)\\), every input passes
 through 2 additions on its way to the total. In a loop, \\(((x_0 + x_1) + x_2) + x_3\\), the inputs
 \\(x_0\\) and \\(x_1\\) pass through 3 additions, \\(x_2\\) through 2 and \\(x_3\\) through 1. Each
 addition that an input passes through may round the partial sum that contains it, and so adds an
@@ -1470,7 +1471,7 @@ the slice before each load, so each load must wait for the index returned by the
 then for the comparison.
 
 The first attempt replaced the `for` loop with a `while` loop and the indexing with
-`get_unchecked` at the same time, and it measured 39 cycles. Because 2 things had changed, the
+`get_unchecked` at the same time, and it measured 39 cycles. Because two things had changed, the
 measurement could not tell which change mattered. Measured separately, the `while` loop with the
 bounds check still took 62 cycles. The bounds check alone accounted for the 23 cycles, and the form
 of the loop for none of them.
@@ -1586,7 +1587,7 @@ which the memory system moves data. The procedure above is how each of these exp
   the data sheet.
 - **A tolerance with no unit or no derivation.** Count ULPs for single operations, derive the bound
   for sums, and add known-answer inputs with a tolerance of 0.
-- **Changing 2 things between measurements.** The first fix of the Rust chase changed 2 things, and
+- **Changing two things between measurements.** The first fix of the Rust chase changed two things, and
   only a second measurement showed which one mattered.
 - **Profiling a debug build.** `-G` turns off optimization. Profile the build that will run, built
   with `-lineinfo` for source lines.

@@ -93,7 +93,7 @@ memory they use.
 </figure>
 
 The 3 levels trade convenience for control. A Thrust call does everything for the
-programmer: it allocates its temporary storage, launches its kernels and, in the case of a
+programmer. It allocates its temporary storage, launches its kernels and, in the case of a
 reduction, returns the result to the host. A CUB device-wide call performs the same work but
 leaves 2 decisions to the caller: where the temporary storage comes from, and when the host
 waits for the result. A CUB block-level call performs only 1 step of an algorithm, inside a
@@ -111,7 +111,7 @@ a single program could not justify. The scan of Section 11.2.3, for example, rel
 protocol between thread blocks that we did not attempt in Chapter 8. Third, it is tested on
 every release against reference results and on a wide range of input shapes.
 
-A library also has a limitation, which we measure in this chapter: it does not know the
+A library also has a limitation, which we measure in this chapter. It does not know the
 context in which it is called. It cannot know that the same temporary storage could serve 1,000
 consecutive calls, or that the result will be used by another kernel on the GPU rather than by
 the host. The programmer knows these facts and can pass them to the library by calling it at
@@ -446,7 +446,7 @@ comes before 28; a stable pass on the tens digit keeps 21 before 28.
 </div>
 
 Stability is what preserves the order established by the lower digits. Each pass is built from
-2 algorithms of Chapter 8. A **histogram** counts how many keys have each digit. An exclusive
+two algorithms of Chapter 8. A **histogram** counts how many keys have each digit. An exclusive
 scan of the counts then gives the first output position of each digit's group. Finally, every
 key is written to the next free position of its group. Writing each element to a position
 computed for it, rather than to the next position in order, is called a **scatter**:
@@ -493,7 +493,7 @@ sort therefore grows with the number of keys times the number of passes, not wit
 2<sup>24</sup> keys, a comparison sort needs on the order of \\(n \log_2 n\\) = 24\\(n\\)
 comparisons, while a radix sort on 32-bit keys makes 4 passes over the \\(n\\) keys.
 
-Radix sort has 1 requirement: it must know what the bits of a key mean. Thrust uses it only
+Radix sort has 1 requirement. It must know what the bits of a key mean. Thrust uses it only
 when the keys are numbers and the order is a standard one, `less` or `greater`. If the
 program supplies any other comparison, such as the functor `Ascending` in Listing 11.4,
 Thrust cannot look inside it and falls back to a **merge sort**, a comparison sort that
@@ -507,7 +507,7 @@ with `cudaFree` at the end. An **allocator** is an object that provides memory o
 Thrust accepts an allocator as part of its execution policy, `thrust::cuda::par(allocator)`, and
 then takes its temporary storage from the allocator. The allocator `Arena` in Listing 11.4 keeps
 1 large buffer and hands out pieces of it. During 1 sort, Thrust asks for several pieces, and
-`Arena` hands them out 1 after another from the start of the buffer. Before the sort returns,
+`Arena` hands them out one after another from the start of the buffer. Before the sort returns,
 Thrust gives every piece back, and `Arena` then starts again from the beginning. The next sort
 therefore receives the same memory, with no call to `cudaMalloc` or `cudaFree` in between.
 
@@ -660,7 +660,7 @@ The `cooperative_groups` module of cuda-oxide provides the Rust counterparts: `w
 operations `Sum`, `Min` and `Max`. They work in the same 3 steps as `cub::BlockReduce`. Each
 warp reduces its 32 values with shuffles, lane 0 of each warp writes the warp's total to a
 slot in shared memory, and warp 0 reduces the slots. The slots are a `SharedArray`,
-cuda-oxide's type for an array in shared memory, with 1 element per warp, which is 256 / 32 = 8
+cuda-oxide's type for an array in shared memory, with one element per warp, which is 256 / 32 = 8
 elements for a block of 256 threads. The kernel declares the array as a `static mut`, a variable
 that exists once for the whole block rather than once per thread, and that may be modified. A
 Rust **reference** is a pointer that the compiler checks: while a mutable reference exists, the
@@ -808,7 +808,7 @@ data, where the work itself takes 2.9 ms, neither difference from `thrust::reduc
 small array, however, they determine the time.
 
 Consider a sum of 4,096 floats, 16 KiB. At 92 GB/s, reading 16 KiB takes 16,384 B / 92 GB/s
-= 0.18 µs. Listing 11.10 measures 3 ways of computing this sum. `thrust::reduce` took 68.1 µs
+= 0.18 µs. Listing 11.10 measures three ways of computing this sum. `thrust::reduce` took 68.1 µs
 per sum, CUB with the result copied to the host took 29.9 µs, and CUB with the result left on
 the GPU took 8.8 µs. The differences identify where the time goes. Allocating and freeing the
 temporary storage costs 68.1 − 29.9 = 38.2 µs, and copying 4 bytes back and waiting for the
@@ -926,9 +926,9 @@ then r entries, which gives location \\(2c + r\\). The entry 6 at (1, 2) is now 
 <div class="definition">
 
 <span class="box-label">Definition 11.5</span> **Row-major and column-major order.** In
-**row-major** order, the rows of a matrix are stored 1 after another; in a matrix with \\(n\\)
+**row-major** order, the rows of a matrix are stored one after another; in a matrix with \\(n\\)
 columns, entry (r, c) is at location \\(r n + c\\). In **column-major** order, the columns are
-stored 1 after another; in a matrix with \\(m\\) rows, entry (r, c) is at location
+stored one after another; in a matrix with \\(m\\) rows, entry (r, c) is at location
 \\(c m + r\\).
 
 *Example.* For the 2 × 3 matrix \\(A\\) above, entry (0, 1) = 2 is at location 1 in row-major
@@ -1232,7 +1232,7 @@ operations: for \\(N\\) = 1,024, about 10,240 instead of 1,048,576.
 
 cuFFT works with a **plan**, which is created once for a given size and kind of transform and
 can then be executed on any number of arrays of that shape. A plan plays the role of the cuBLAS
-handle: it holds the choices that cuFFT makes once for a size, such as how to split 1,024 into
+handle. It holds the choices that cuFFT makes once for a size, such as how to split 1,024 into
 halves, so that later transforms of that size can skip them. The list of magnitudes, 1 per
 frequency, is called the **spectrum** of the signal. For real input, cuFFT returns
 \\(N/2 + 1\\) frequencies; the remaining half of the spectrum is a mirror image and carries no
@@ -1292,7 +1292,7 @@ frequencies appear, with the expected magnitudes.
 
 ## 11.6 Choosing between a library and a custom kernel
 
-Fig. 11.9 collects the measurements of this chapter for the 3 algorithms that we also
+Fig. 11.9 collects the measurements of this chapter for the three algorithms that we also
 implemented by hand.
 
 <figure>

@@ -11,7 +11,7 @@ combining 100 MB from each of 4 GPUs takes 24 ms with one simple scheme and 6 ms
 over the same links.
 
 We first define the collective operations that multi-GPU programs use, and a simple model of the
-time that a message takes. We then analyze 2 algorithms for the most important collective,
+time that a message takes. We then analyze two algorithms for the most important collective,
 all-reduce: the ring and the tree. We count the steps and the bytes of each by hand, and derive the
 message size at which one becomes faster than the other. We then implement both algorithms in CUDA
 C++ and in Rust, run them on 1 GPU that holds the data of all the participants in its memory, and
@@ -65,7 +65,7 @@ a program running on the host CPU, and in most systems each GPU has a program of
 
 <span class="box-label">Definition 28.1</span> **Process.** A **process** is a running instance of
 a program. It has its own memory on the host and its own threads, and it cannot read the variables
-of another process. 2 processes exchange data only through an explicit channel, such as a file, a
+of another process. Two processes exchange data only through an explicit channel, such as a file, a
 network connection or a library of collective operations.
 
 *Example.* On a server with 4 GPUs, the command `torchrun --nproc_per_node=4 train.py` starts 4
@@ -82,7 +82,7 @@ Each process therefore needs a number that tells it which member of the group it
 <span class="box-label">Definition 28.2</span> **Group and rank.** A **group** is a set of k
 processes that cooperate on 1 problem; k is the **size** of the group. The **rank** of a process is
 the number that identifies it within its group. The k members are numbered 0, 1, …, k − 1, and
-each number is given to exactly 1 member. We also call the member itself a rank, so "rank 2"
+each number is given to exactly one member. We also call the member itself a rank, so "rank 2"
 means the process whose number is 2.
 
 *Example.* 4 processes drive the 4 GPUs of a server, 1 GPU each, and form a group of size k = 4
@@ -165,7 +165,7 @@ bytes evenly over all the links.
 
 ### 28.2.1 Common collective operations
 
-The exchange of Section 28.1.2 differs from the copies of earlier chapters in 1 respect: no single
+The exchange of Section 28.1.2 differs from the copies of earlier chapters in 1 respect. No single
 transfer produces the result. Every rank must contribute, and the operation is complete only when
 all of them have taken part.
 
@@ -182,7 +182,7 @@ is the root.
 
 </div>
 
-5 collectives cover most programs. We work each of them by hand on the same 4 ranks, each of which
+Five collectives cover most programs. We work each of them by hand on the same 4 ranks, each of which
 holds 4 numbers:
 
 | Rank | Its data |
@@ -305,7 +305,7 @@ all-gather. In Figure 28.1, the reduce-scatter leaves the sum 4, 6, 7, 5 spread 
 the all-reduce.
 
 The ring algorithm of Section 28.4 uses the second decomposition. Its first half makes each rank
-responsible for computing 1 piece of the sum, so the additions are divided evenly among the
+responsible for computing one piece of the sum, so the additions are divided evenly among the
 ranks. Its second half distributes the finished pieces to all ranks.
 
 <details class="check">
@@ -324,7 +324,7 @@ hand over a link of 25 GB/s. A message of 100 MB occupies the link for
 100 × 10<sup>6</sup> B ÷ (25 × 10<sup>9</sup> B/s) = 4 ms. By the same division, a message of
 4 KB would occupy it for 0.16 µs. However, a message of any size must be started by the sender,
 must cross the link, and must be detected by the receiver, and these actions take microseconds
-regardless of the number of bytes. The time of a message therefore has 2 parts: a fixed part that
+regardless of the number of bytes. The time of a message therefore has two parts: a fixed part that
 every message pays, and a part that grows with the number of bytes.
 
 In Section 4.3, we modelled a copy between the host and the device in exactly this way, as a fixed
@@ -367,7 +367,7 @@ algorithm for small ones.
 Recall the problem of Section 28.1.2. With a single collector, the link of rank 0 carried every
 byte of the exchange, while the links of ranks 1, 2 and 3 were mostly idle. A remedy follows
 from Section 28.2.3. An all-reduce is a reduce-scatter followed by an all-gather, and in a
-reduce-scatter each rank computes only 1 piece of the sum. If each of 4 ranks is responsible for a
+reduce-scatter each rank computes only one piece of the sum. If each of 4 ranks is responsible for a
 quarter of the sum, all 4 links can share the traffic. The ring all-reduce organizes the ranks and
 their data so that this happens. We first define its 2 ingredients and then follow the data by
 hand.
@@ -566,7 +566,7 @@ Now count the collector of Section 28.1.2 on the same data. Ranks 1, 2 and 3 eac
 floats to rank 0, so 24 floats enter the link of rank 0. Rank 0 then sends the sum of 8 floats to
 each of the 3 other ranks, so 24 floats leave through the same link. The link of rank 0 thus carries
 24 floats in each direction, twice the 12 floats of any link of the ring. Moreover, the collector
-cannot send the sum before it has received all 3 messages, so its 2 directions work one after the
+cannot send the sum before it has received all 3 messages, so its two directions work one after the
 other: the exchange lasts as long as 24 + 24 = 48 floats crossing 1 link. In the ring, every link
 sends and receives its 12 floats at the same time, so the exchange lasts as long as 12 floats
 crossing 1 link. The ring is 48 ÷ 12 = 4 times as fast, a factor of k, as we show in Section
@@ -581,7 +581,7 @@ all-reduce, each rank therefore sends
 bytes, and it receives the same number of bytes. For k = 4, the factor is 2 × 3 / 4 = 1.5, as
 counted above.
 
-The factor 2 (k − 1) / k approaches 2 as the number of ranks grows: it is 1.5 for 4 ranks, 1.75
+The factor 2 (k − 1) / k approaches 2 as the number of ranks grows. It is 1.5 for 4 ranks, 1.75
 for 8 ranks and 1.97 for 64 ranks. The number of bytes on each link therefore barely grows with
 the number of ranks.
 
@@ -664,8 +664,8 @@ hold a partial sum, instead of adding 1 contribution at a time.
 
 Let us first work a tree by hand on 4 ranks that hold 1, 2, 3 and 4, so that the sum is 10. In step
 1, rank 1 sends its 2 to rank 0, which now holds 1 + 2 = 3, and at the same time rank 3 sends its 4
-to rank 2, which now holds 3 + 4 = 7. 2 partial sums remain, on ranks 0 and 2. In step 2, rank 2
-sends its 7 to rank 0, which now holds 3 + 7 = 10, the complete sum. 2 steps have reduced 4
+to rank 2, which now holds 3 + 4 = 7. Two partial sums remain, on ranks 0 and 2. In step 2, rank 2
+sends its 7 to rank 0, which now holds 3 + 7 = 10, the complete sum. Two steps have reduced 4
 contributions to 1. The broadcast repeats the same pairs in the opposite order and direction. In
 step 3, rank 0 sends 10 to rank 2. In step 4, rank 0 sends 10 to rank 1 and, at the same time, rank
 2 sends 10 to rank 3. After 4 steps, every rank holds 10, whereas the ring of Section 28.4.2 needed
@@ -816,7 +816,7 @@ ranks in the memory of that GPU, as k slices of 1 buffer. Rank r owns the floats
 r n + n − 1, where n is the number of floats per rank. A send from rank r to rank r + 1 then
 becomes a read from 1 slice and a write into another.
 
-Note that the program measures the algorithms, not a network. All the simulated links share the
+The program measures the algorithms, not a network. All the simulated links share the
 memory of 1 GPU, so the transfers of 1 step do not each have a link of their own. In Section 28.6.4,
 we show how this affects the measured times.
 
@@ -945,7 +945,7 @@ In Rust, 2 threads may write to the same `DisjointSlice` only at indices that th
 prove to be different, which is the thread's own index. The step kernel writes at `to + i` and
 reads at `from + i`, where the offsets come from the plan, so it uses `get_unchecked_mut` inside an
 `unsafe` block, as the per-block writes of Chapter 8 did. The `SAFETY` comment states the argument
-of the previous paragraph: no element is both read and written within 1 step.
+of the previous paragraph. No element is both read and written within 1 step.
 
 ### 28.6.3 Running the 4-rank example
 
@@ -1045,7 +1045,7 @@ steps, 11.6 µs per step, and the tree took 0.070 ms for 6 steps, 11.7 µs per s
 GPU, the α of a step is therefore about 12 µs. A timeline from Nsight Systems (Chapter 25) divides
 it into about 9 µs inside the step kernel and 3.5 µs between 1 kernel and the next.
 
-For large messages, the time follows the memory traffic. At 16 MiB, the 2 algorithms took about
+For large messages, the time follows the memory traffic. At 16 MiB, the two algorithms took about
 the same time, 7.2 ms and 6.6 ms. The reason is that the simulated links share 1 memory. A float
 that is added costs 12 bytes of memory traffic, 2 reads and 1 write, and a float that is copied
 costs 8 bytes, 1 read and 1 write. Both algorithms add (k − 1) n floats and copy (k − 1) n floats.
@@ -1059,7 +1059,7 @@ The dashed lines of Figure 28.7 show the model T = steps × 11.6 µs + 35 m ÷ 8
 matches both ends of the measurements. At 1 MiB, where neither term dominates, the measured times
 lie about 0.3 ms above it.
 
-On a machine with separate links, the 2 algorithms would differ at large sizes. A link of the ring
+On a machine with separate links, the two algorithms would differ at large sizes. A link of the ring
 would carry 1.75 × 16 MiB, whereas the link of the root of the tree would carry 3 × 16 MiB, so the
 ring would take about 1.75 ÷ 3 = 58% of the time of the tree. The simulation cannot show this
 difference, because its 8 links are 1 memory and only the total traffic matters. A simulation on 1
@@ -1103,7 +1103,7 @@ rank within it, and the rings and connections that NCCL built for the group. Eve
 a communicator as a parameter.
 
 Before ranks in different processes can communicate, they must agree that they belong to the same
-group. 1 rank calls `ncclGetUniqueId`, which returns a `ncclUniqueId`, 128 bytes that identify the
+group. One rank calls `ncclGetUniqueId`, which returns a `ncclUniqueId`, 128 bytes that identify the
 group. The program sends these 128 bytes to every other rank through a channel of its own choice,
 such as a file, a TCP connection, or a broadcast of MPI, the Message Passing Interface used in
 supercomputer programs. Then, every rank calls `ncclCommInitRank` with the size of the group, the
@@ -1283,7 +1283,7 @@ ring that must cross a `SYS` path, between processor sockets, runs at the speed 
 
 ## Summary
 
-- Data-parallel training needs an all-reduce of the gradients in every step: every rank
+- Data-parallel training needs an all-reduce of the gradients in every step. Every rank
   contributes, and every rank needs the sum.
 - The 5 common collectives are broadcast, reduce, all-reduce, reduce-scatter and all-gather. An
   all-reduce is equivalent to a reduce-scatter followed by an all-gather.
@@ -1318,7 +1318,7 @@ Epilogue we look at the directions in which GPU hardware and its programming are
    change, and which count from Section 28.4.3 or 28.5.1 explains the change?
 5. The tree in Listing 28.2 assumes that k is a power of 2. Which ranks lose their partner when
    k = 6, and how would you change `tree` to handle them?
-6. Write a plan for an all-gather alone and add it to the program: each rank starts with 1 chunk.
+6. Write a plan for an all-gather alone and add it to the program. Each rank starts with 1 chunk.
    How many steps does it take, and how many bytes does each rank send?
 7. Prove that within 1 reduce-scatter step of the ring, no chunk is both read and written.
 8. The NCCL tests report an algorithm bandwidth of 160 GB/s for an all-reduce over 8 GPUs. Compute

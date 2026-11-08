@@ -5,7 +5,7 @@
 Most kernels perform only a few arithmetic operations for each byte they read from global memory.
 As we saw in Chapter 1, the speed of such a kernel is limited by the memory bandwidth of the GPU,
 not by its arithmetic units. For a memory-bound kernel, the number of operations it performs
-matters less than the number of bytes it moves and the fraction of those bytes it uses. 2 kernels
+matters less than the number of bytes it moves and the fraction of those bytes it uses. Two kernels
 that compute the same result can differ 5 times in speed because one of them moves 5 times as many
 bytes.
 
@@ -53,7 +53,7 @@ kernel whose effective bandwidth is close to that of a copy has little left to g
 kernel far below it either transfers bytes that it does not use or accesses memory in an
 unfavourable pattern.
 
-There are 2 ways to improve a memory-bound kernel:
+There are two ways to improve a memory-bound kernel:
 
 1. **Waste fewer bytes.** Arrange the accesses so that every byte delivered by the memory is used.
 2. **Fetch fewer bytes.** When the same data is needed more than once, keep it on the chip, in
@@ -210,7 +210,7 @@ for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; i += stride) {
 </div>
 
 In every iteration of the loop, neighbouring threads access neighbouring elements, so the loop
-keeps the coalescing of the kernel with 1 thread per element. It allows a kernel to process data of
+keeps the coalescing of the kernel with one thread per element. It allows a kernel to process data of
 any size with a grid sized to the GPU, typically a few blocks per SM. It also allows each thread to
 accumulate a private result over many elements before it updates shared state, as the histogram
 kernel of Chapter 5 did.
@@ -330,7 +330,7 @@ Shared memory is divided into 32 **banks**, each of which can serve 1 32-bit wor
 Consecutive words are assigned to consecutive banks, so word \\(w\\) is located in bank \\(w \bmod
 32\\) (Chapter 2). A warp's 32 accesses complete in 1 cycle when they fall into 32 different banks.
 When several accesses fall into the same bank at different addresses, the result is a **bank
-conflict**, and that bank serves the accesses 1 after another.
+conflict**, and that bank serves the accesses one after another.
 
 In a tile declared as `float tile[32][32]`, element `tile[r][c]` is word \\(32r + c\\), which is in
 bank \\((32r + c) \bmod 32 = c\\). Reading column 0 means reading `tile[0][0]` to `tile[31][0]`,
@@ -540,7 +540,7 @@ For a memory-bound kernel, check the following items in order, and measure after
 - **Timing before the clocks have risen.** Run the kernel for a fraction of a second before timing
   it.
 - **A 32 × 32 shared tile read by columns.** Pad it to 32 × 33.
-- **A missing barrier between filling a tile and reading it.** Chapter 5 measured the consequences.
+- **A missing barrier between filling a tile and reading it.** We measured the consequences in Chapter 5.
 - **Casting an unaligned pointer to `float4*`.** Only offsets that are multiples of 4 floats are
   safe.
 - **Constant memory indexed differently by each thread.** The accesses are serialised.
@@ -556,7 +556,7 @@ For a memory-bound kernel, check the following items in order, and measure after
   needs, and the measured useful bandwidth fell 3 to 5 times.
 - A tile in shared memory allows a transpose to read and write global memory only along rows; a
   barrier separates filling the tile from reading it.
-- Shared memory has 32 banks. 1 additional column in a 32 × 32 tile removes the 32-way conflict of a
+- Shared memory has 32 banks. One additional column in a 32 × 32 tile removes the 32-way conflict of a
   column read. Tiling and padding made the transpose 2.7 times as fast on the Orin NX.
 - `float4` loads moved the same bytes with a quarter of the instructions and were 12 to 19% faster.
 - In Rust, a write to another thread's index requires `unsafe` and a stated permutation argument.

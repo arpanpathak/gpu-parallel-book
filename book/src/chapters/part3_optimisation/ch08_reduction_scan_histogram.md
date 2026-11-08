@@ -46,7 +46,7 @@ operator. A sum uses \\(+\\), a maximum uses \\(\max\\), and a count of the elem
 a condition uses \\(+\\) over values of 0 and 1. A sequential program computes a reduction by
 walking the array from one end to the other and combining each element with the result so far.
 
-A parallel program must combine the values in a different order: it adds them in pairs, then adds
+A parallel program must combine the values in a different order. It adds them in pairs, then adds
 the pairs, and so on. The result is unchanged only if the operator is **associative**, that is,
 if \\((a + b) + c = a + (b + c)\\) for any 3 values. Integer addition, maximum and minimum are
 associative. Floating-point addition is associative only approximately, because every addition
@@ -56,7 +56,7 @@ we will see in section 8.2, it is usually the more accurate of the 2.
 
 ### 8.1.2 Work and steps
 
-2 quantities describe the cost of a parallel computation. The **work** of a computation is the
+Two quantities describe the cost of a parallel computation. The **work** of a computation is the
 number of operations it performs. Its **steps**, also called its depth, is the length of the
 longest chain of operations in which each operation needs the result of the one before. Given
 enough threads, the work determines the energy that the computation consumes, and the number of
@@ -432,7 +432,7 @@ order. Thread \\(i\\) always adds the same elements in the same order, each warp
 the same pairs, and the second launch always adds the 1,024 partial sums in the same way. The same
 order of additions produces the same roundings and therefore the same bits.
 
-Note, however, that the order depends on the shape of the launch. The tree with 1 element per
+Note, however, that the order depends on the shape of the launch. The tree with one element per
 thread and the `float4` version group the values differently from the coarsened versions, and
 both printed 33,557,628.0, 1 float step lower. A program that must reproduce its results across
 machines must therefore fix its block size and grid size, not only its algorithm.
@@ -657,7 +657,7 @@ between 96 and 128 GB/s.
 
 ## 8.8 Histogram with wide loads
 
-In Chapter 5, section 5.5.2, we privatised a histogram of bytes: each block counts into 256 bins
+In Chapter 5, section 5.5.2, we privatised a histogram of bytes. Each block counts into 256 bins
 in shared memory and adds them to the global bins once. This made the kernel 6 to 28 times as fast
 as the version with global atomics. Measured as a bandwidth, however, its speed was still low.
 Listing 5.7, run here as `histBytes`, read 64 MiB at 13.7 GB/s on the first GPU, 13% of the
@@ -779,7 +779,7 @@ privatisation was designed to avoid.
 | Scan | \\(n\\) running sums | warp scan by shuffles, block scan, 3 steps across blocks | none | 80% and 67% of rated, counting the bytes moved |
 | Histogram | counts per bin | atomics on private bins in shared memory, 1 fold per block | 256 bins | 81% and 70% of rated |
 
-The 3 kernels follow the same method. Each does as much of the work as possible in registers,
+The three kernels follow the same method. Each does as much of the work as possible in registers,
 combines values within a warp by shuffles, and then combines the warps of a block through shared
 memory. It combines results across blocks only once, through global memory or a second launch.
 Each optimisation was kept only when a measurement showed that it removed a cost.
@@ -813,8 +813,8 @@ Each optimisation was kept only when a measurement showed that it removed a cost
   `__shfl_down_sync`; calling it inside `if (lane < 8)` is undefined.
 - **Reading the partial result of a lane other than lane 0** after a shuffle sum. Only lane 0
   holds the total.
-- **A missing barrier between writing the warp totals and reading them.** Chapter 5 measured the
-  effect.
+- **A missing barrier between writing the warp totals and reading them.** We measured the
+  effect in Chapter 5.
 - **Summing many floats sequentially into a float.** Above 2<sup>24</sup>, small values are lost.
 - **Comparing results bit for bit across launch shapes.** A different grid groups the additions
   differently.
@@ -829,7 +829,7 @@ Each optimisation was kept only when a measurement showed that it removed a cost
   \\(n - 1\\) operations as a sequential chain, in \\(\log_2 n\\) steps.
 - A float sum of values below 1, computed sequentially, stopped at 2<sup>24</sup> = 16,777,216.
   The tree on the GPU produced the float nearest to the exact sum.
-- A tree with 1 element per thread reached a quarter to a third of rated bandwidth. Coarsening to
+- A tree with one element per thread reached a quarter to a third of rated bandwidth. Coarsening to
   256 elements per thread made it 2.3 to 2.5 times as fast.
 - Warp shuffles combine the registers of a warp without shared memory or barriers. After
   coarsening they changed little, because the tree had become a small cost.

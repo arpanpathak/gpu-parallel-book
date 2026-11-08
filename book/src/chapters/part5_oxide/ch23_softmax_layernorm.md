@@ -5,7 +5,7 @@
 Every layer of a transformer model applies 2 operations to the rows of a matrix. The first,
 softmax, turns a row of scores into probabilities that are positive and add up to 1. The second,
 layer normalization, shifts and scales a row so that its values have mean 0 and variance 1. The 2
-operations have one property in common, which shapes everything in this chapter: no output value
+operations have one property in common, which shapes everything in this chapter. No output value
 can be computed from its own input alone. Every output depends on a statistic of its whole row,
 namely the largest value and the sum of exponentials for softmax, and the mean and the variance
 for layer normalization. Each operation is therefore a reduction over the row, which produces the
@@ -31,7 +31,7 @@ This chapter covers
 - cancellation in the variance formula \\(\overline{x^2} - \mu^2\\), with a negative variance in `f32`
 - the online softmax and Welford's method, each with a loop invariant and a proof
 - merging 2 partial results, and the empty state
-- 1 block per row: warp shuffles, block-wide reductions and their 2 barriers
+- One block per row: warp shuffles, block-wide reductions and their 2 barriers
 - fused kernels that read each value once, and the bytes per element of every version
 - measured times in Rust and C++, and the reasons for each gap to the memory bandwidth
 
@@ -113,7 +113,7 @@ also preserves order: a larger input receives a larger output. More precisely, a
 
 Figure 23.2 computes row 0 by hand. The 4 exponentials are 2.718, 7.389, 20.086 and 54.598, and
 their sum is 84.791. Dividing each of them by the sum gives 0.0321, 0.0871, 0.2369 and 0.6439.
-Note that the value 4 receives 64% of the total, although it is only 4 times the value 1. The
+The value 4 receives 64% of the total, although it is only 4 times the value 1. The
 reason is that the exponential magnifies differences: \\(e^4\\) is \\(e^3 = 20.1\\) times
 \\(e^1\\).
 
@@ -127,8 +127,8 @@ Row 1 is computed in the same way. Its denominator is \\(e^2 + e^4 + e^4 + e^5 =
 expect, the 2 equal inputs receive equal outputs.
 
 Softmax appears in 2 places in a transformer. In an attention layer, it is applied to every row of
-a matrix of scores between tokens, so a row holds 1 value per token of the sequence, often 1,024
-to 32,768 values. At the output of the model, it is applied to a row with 1 value per word of the
+a matrix of scores between tokens, so a row holds one value per token of the sequence, often 1,024
+to 32,768 values. At the output of the model, it is applied to a row with one value per word of the
 vocabulary, often 32,000 to 128,000 values. A GPU implementation must therefore handle many short
 rows as well as a few long ones, and in Section 23.7, we measure both cases.
 
@@ -239,7 +239,7 @@ exponentials range from \\(7.31 \times 10^{43}\\) to \\(1.47 \times 10^{45}\\), 
 largest `f32`. Each of them therefore becomes \\(\infty\\), their sum is \\(\infty\\), and every
 output is \\(\infty / \infty\\), which is NaN, as shown in the left half of Figure 23.4. The entry
 \\(p_{03} = 0.6439\\) is lost, and so is every other entry of the row, although the true softmax
-of this row is perfectly ordinary, as we will see next.
+of this row is ordinary, as we show next.
 
 <figure>
 <img src="../../figures/ch23-overflow.svg" alt="Left: row 0 of X + 100 holds 101 to 104, whose exponentials 7.31e43 to 1.47e45 exceed the largest float32, 3.40e38, so each becomes infinity and every output is infinity divided by infinity, NaN. Right: after subtracting the maximum 104 the arguments are -3 to 0, the exponentials sum to 1.5530, and the outputs are 0.0321, 0.0871, 0.2369 and 0.6439, the same as for row 0 of X.">
@@ -348,7 +348,7 @@ traffic, and therefore the number of passes decides the time.
 
 Layer normalization has the same difficulty. The definition of the variance needs the mean before
 the squared deviations can be summed, so a direct algorithm also reads the row 3 times, once for
-the mean, once for the variance and once for the outputs. A well-known identity removes 1 of these
+the mean, once for the variance and once for the outputs. A well-known identity removes one of these
 passes, because it expresses the variance through sums that do not need the mean in advance.
 
 <div class="theorem">
@@ -444,7 +444,7 @@ not even positive, so \\(\sqrt{-8 + 10^{-5}}\\) is NaN, and every output of the 
 The entry \\(y_{00} = -1.3416\\) is lost. The GPU kernel of Section 23.6 prints the same 8 NaNs
 for \\(X + 10{,}000\\).
 
-Note that the failure needs no extreme values. Rows of activations with a large common offset and
+The failure needs no extreme values. Rows of activations with a large common offset and
 a small spread occur in practice, and in Section 23.7, we measure an error of 2.97 on outputs of
 size 1 for values near 1,000. The difficulty lies in forming the squares of the values
 themselves, which are large whenever the values are large, even when the variance is small. The
@@ -475,16 +475,16 @@ line 10 needs \\(s\\), which is known only after the last iteration of line 7. T
 dependence cannot be avoided, since an output \\(e^{x_j - m} / s\\) cannot be written before the
 whole sum \\(s\\) is known. The first dependence, however, deserves a closer look.
 
-Suppose that we process row 1, which holds 2, 4, 4 and 5, from the left, and that we simply
+Suppose that we process row 1, which holds 2, 4, 4 and 5, from the left, and that we
 pretend that the largest value seen so far is the maximum. After the first value, the maximum so
 far is 2, and the sum so far is \\(e^{2-2} = 1\\). The second value, 4, is larger, so the sum so
-far was taken relative to the wrong maximum: we wanted the term \\(e^{2-4}\\), and we have
+far was taken relative to the wrong maximum. We wanted the term \\(e^{2-4}\\), and we have
 \\(e^{2-2}\\) instead. The work is not lost, however. Since \\(e^{a} \cdot e^{b} = e^{a+b}\\), the
 term that we have becomes the term that we want when we multiply it by \\(e^{2-4}\\):
 
 \\[ e^{2-2} \cdot e^{2-4} = e^{2-4}. \\]
 
-Here the first factor is the term relative to the old maximum 2, the second factor is the
+Here, the first factor is the term relative to the old maximum 2, the second factor is the
 correction from the old maximum 2 to the new maximum 4, and the right side is the term relative
 to the new maximum. The correction factor depends only on the 2 maxima, not on the value of the
 term. The same multiplication therefore corrects any number of terms at once, because every term
@@ -568,7 +568,7 @@ describes a set \\(S\\) of values when \\(m = \max S\\) and \\(s = \sum_{x \in S
 Lines 1 to 9 form the first pass, and they replace lines 1 to 8 of
 <span class="sc">Softmax-3-Pass</span>. Lines 10 to 12 are its third pass, unchanged. Line 4 is the
 correction of the key observation, followed by the term \\(e^{x_j - x_j} = 1\\) of the new value.
-Note that line 4 also handles the first value without a special case: when \\(m = -\infty\\), the
+Line 4 also handles the first value without a special case: when \\(m = -\infty\\), the
 factor \\(e^{m - x_j}\\) is 0, and \\(s\\) becomes 1. The loop computes 1 exponential per value,
 either on line 4 or on line 7, so the amount of arithmetic is the same as before, \\(2n\\)
 exponentials in all. What changes is the traffic. The algorithm makes 2 reads and 1 write per
@@ -663,7 +663,7 @@ In the procedure, \\((m_a, s_a)\\) and \\((m_b, s_b)\\) are the 2 states to be m
 factors \\(e^{m_a - m}\\) and \\(e^{m_b - m}\\) move each sum from its own maximum to the common
 maximum \\(m\\). The factor of the state that already has the larger maximum is \\(e^0 = 1\\).
 
-The left half of Figure 23.9 merges the 2 halves of row 1 in this way. The values 2 and 4 have
+The left half of Figure 23.9 merges the two halves of row 1 in this way. The values 2 and 4 have
 the state \\((m_a, s_a) = (4, 1.1353)\\), and the values 4 and 5 have the state
 \\((m_b, s_b) = (5, e^{-1} + 1) = (5, 1.3679)\\). The merge gives \\(m = 5\\) and
 \\(s = 1.1353 \cdot e^{4-5} + 1.3679 \cdot e^{5-5} = 0.4177 + 1.3679 = 1.7855\\), which is the
@@ -674,7 +674,7 @@ sum of Figure 23.7.
 <figcaption><b>Figure 23.9</b> Merging 2 partial states. Left: softmax states of the halves of row 1. Right: Welford states of the halves of row 0 (Section 23.3.5).</figcaption>
 </figure>
 
-The theorem has 2 consequences that matter for the GPU. First, the result depends only on the
+The theorem has two consequences that matter for the GPU. First, the result depends only on the
 union of the sets, so merges can be grouped in any order. Merging \\(A\\) with \\(B\\) and then
 with a third set \\(C\\) gives the same state as merging \\(A\\) with the merge of \\(B\\) and
 \\(C\\). An operation with this property is called **associative**, and associativity is what
@@ -688,7 +688,7 @@ Section 23.5, we show what happens when line 2 is missing.
 The same idea removes the extra pass of the variance, and it removes the cancellation at the same
 time. Recall from Section 23.2.5 that the trouble came from squaring the values themselves. We
 would rather sum the squared deviations from the mean, as the definition does, but the mean is not
-known until the whole row has been read. We therefore proceed as we did with the maximum: we use
+known until the whole row has been read. We therefore proceed as we did with the maximum. We use
 the mean of the values seen so far, and we correct the sum each time this mean moves.
 
 While reading the row, we keep 3 numbers: the count \\(n\\) of values seen, their mean \\(\mu\\),
@@ -734,7 +734,7 @@ where the last step uses \\(x - \mu' = \delta (k-1)/k\\).
 | \\(q'\\) | sum of squared deviations of all \\(k\\) values from \\(\mu'\\) | \\(0.5 + 1.5 \cdot 1 = 2\\) |
 
 Indeed, the values 1, 2 and 3 have the squared deviations 1, 0 and 1 from their mean 2, which add
-up to 2. Note that the final form of the update needs only the old mean and the new mean, and that
+up to 2. The final form of the update needs only the old mean and the new mean, and that
 it multiplies 2 deviations, never 2 values.
 
 <div class="algo">
@@ -1008,7 +1008,7 @@ the block has reached it.
 </div>
 
 The exchange takes 3 steps. First, lane 0 of each warp writes its warp's result to the slot of its
-warp. Then a barrier makes sure that all 8 slots have been written before anyone reads them.
+warp. Then, a barrier makes sure that all 8 slots have been written before anyone reads them.
 Finally, every thread reads all 8 slots and merges them itself, so that every thread ends with the
 result of the row. Reading 8 slots costs less than a second round of shuffles, and it needs no
 broadcast of the result afterwards. The following procedure, shown in Figure 23.13, combines the
@@ -1116,7 +1116,7 @@ Here \\(r_k\\) is the \\(k\\)-th value that the thread keeps in a register, and 
 \\(kB + t\\) of the row. For example, thread 5 keeps column \\(0 \cdot 256 + 5 = 5\\) in \\(r_0\\)
 and column \\(15 \cdot 256 + 5 = 3{,}845\\) in \\(r_{15}\\), the same 16 columns as in Figure 23.11.
 
-Note that the fused kernel needs no online softmax. Once the values are in registers, a second and
+The fused kernel needs no online softmax. Once the values are in registers, a second and
 a third pass over them cost no memory traffic, and the plain 3-pass order is the simplest. Line 6
 overwrites each value with its exponential, so that line 10 only divides. Likewise, the fused layer
 normalization uses the definition directly, with 1 reduction for the mean and then 1 over the
@@ -1152,7 +1152,7 @@ every kernel.
 
 Each kernel performs only a few arithmetic operations per 4 bytes that it reads, far fewer than a
 GPU can perform in the time that the memory needs to deliver those bytes, so the bytes set the
-time. Note that the model assumes that every read reaches main memory. A block reads its row of
+time. The model assumes that every read reaches main memory. A block reads its row of
 16 KiB repeatedly within a short time, however, and some of the repeated reads may be served by a
 cache instead. In Section 23.7, we measure how much this matters.
 
@@ -1212,7 +1212,7 @@ layernorm sum of squares: 11 of 100 runs wrong, 12 rows
 
 In 11 of the 100 launches, at least 1 row was NaN, 12 rows in all, and the first wrong row of the
 first failing launch was row 94. The other 89 launches were correct. A race is therefore hard to
-find, since a test that runs the kernel once passes 9 times in 10. On the example \\(X\\), the race
+find, since a test that runs the kernel once passes 9 times in 10. On the example, \\(X\\), the race
 cannot change the output at all. Only warp 0 of each block holds values, and the other warps write
 sums of 0, which do not change any total (Exercise 23.13).
 
@@ -1362,7 +1362,7 @@ mod kernels {
 The correspondence with the procedure is direct. Lane 0 writes the slot of its warp, the first
 call to `sync_threads` is barrier 1, the loop over `w` is line 8, and the second call to
 `sync_threads` is barrier 2. Both barriers sit outside every `if`, so every thread of the block
-reaches them. The function `block_sum` differs only in the merge. The 2 languages differ, however,
+reaches them. The function `block_sum` differs only in the merge. The two languages differ, however,
 in where the slots live. A cuda-oxide `#[device]` function cannot declare shared memory of its
 own, so each kernel declares `static mut SLOTS: SharedArray<f32, 8>` and passes a raw pointer to
 the helper. Every access through the pointer is `unsafe`, with a `// SAFETY:` comment that names
@@ -1371,7 +1371,7 @@ receives the same pointer from a `__shared__` array of its kernel and needs no s
 
 ### 23.6.2 The 3-pass kernel
 
-The following kernel implements <span class="sc">Softmax-3-Pass</span> with 1 block per row.
+The following kernel implements <span class="sc">Softmax-3-Pass</span> with one block per row.
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -1489,7 +1489,7 @@ mod kernels {
 </div>
 
 The first loop applies <span class="sc">Welford-Update</span> to the thread's columns, and its 4
-lines are the 4 lines of the procedure. Note that the state holds the count as a float, so that
+lines are the 4 lines of the procedure. The state holds the count as a float, so that
 all 3 numbers can be shuffled with the same instruction. This is safe, because counts up to
 \\(2^{24}\\) are exact in `f32`. After the warp merge, lane 0 writes 3 numbers. In Rust, they
 occupy 3 consecutive slots of a `SharedArray<f32, 24>`, and in C++, 1 slot of an array of
@@ -1739,7 +1739,7 @@ are not free.
 cuda-oxide can remove the checks. Built with `cargo oxide run --unchecked-indexing`, the same
 program runs the online kernel in 1.545 ms, the long-row kernels in 3.088 and 2.453 ms, and the sum
 of squares in 1.433 ms, all within 5% of C++. The 3-pass kernel on short rows improves from 2.025
-to 1.684 ms, but it remains 17% slower than C++. Note that the flag makes every out-of-range index
+to 1.684 ms, but it remains 17% slower than C++. The flag makes every out-of-range index
 undefined behaviour, exactly like `get_unchecked`, in every kernel of the program. The kernels of
 this chapter read only indices \\(b \cdot C + j\\) with \\(b < R\\) and \\(j < C\\), so they stay in
 range, but the compiler no longer checks this claim. A per-kernel form,
@@ -1821,14 +1821,14 @@ with 3.35 TB/s of memory bandwidth and 50 MB of L2 cache.
   \\(\varepsilon\\) under the square root, and then applies a scale and a shift per column.
 - Subtracting the row maximum leaves softmax unchanged (Theorem 23.1) and keeps every exponential in
   \\((0, 1]\\). The variance computed as \\(\overline{x^2} - \mu^2\\), the mean of
-  the squares minus the square of the mean, suffers from cancellation: it gives \\(-8\\) instead of
+  the squares minus the square of the mean, suffers from cancellation. It gives \\(-8\\) instead of
   1.25 for 10,001 to 10,004 in `f32`.
 - A sum of exponentials relative to 1 maximum is moved to a larger one by 1 multiplication. The
   online softmax uses this to find the maximum and the sum in 1 pass, and Welford's method applies
   the same idea to the mean and the sum of squared deviations.
 - Partial states of disjoint parts of a row merge into the state of their union. The merges are
   associative, which allows a tree of merges, and they must treat 2 empty states separately.
-- With 1 block per row, the threads read coalesced columns, merge within each warp by an xor
+- With one block per row, the threads read coalesced columns, merge within each warp by an xor
   butterfly, and merge across warps through 8 shared slots and 2 barriers. Removing the second
   barrier produced NaN rows in 11 of 100 launches.
 - Fused kernels keep the row in registers, read it once, and reached 91 to 93% of the 102 GB/s of

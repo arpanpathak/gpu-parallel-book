@@ -13,7 +13,7 @@ CPU and the GPU and the way the driver uses it.
 
 We start with the physical addresses through which a CPU reaches any device, and with the way
 the operating system finds a GPU and the address ranges that the GPU occupies. We then look at
-the 2 ways in which the CPU and the GPU exchange information: small stores into the GPU's
+the two ways in which the CPU and the GPU exchange information: small stores into the GPU's
 registers, called memory-mapped I/O, and bulk transfers that the GPU performs by itself, called
 direct memory access. With these mechanisms in place, we follow a kernel launch from the CPU to
 the GPU's streaming multiprocessors (SMs), the processors that run the threads of a kernel, and
@@ -25,7 +25,7 @@ This chapter covers
 
 - physical addresses, and memory-mapped I/O: devices that answer to addresses
 - PCIe devices, their configuration space and their base address registers (BARs)
-- 3 ways to attach a GPU: a discrete card on PCIe, an integrated GPU presented as a PCIe
+- Three ways to attach a GPU: a discrete card on PCIe, an integrated GPU presented as a PCIe
   function, and an integrated GPU described by the device tree
 - the control path (MMIO) and the data path (DMA), and why they differ
 - cached, write-combined and device memory, measured from the CPU
@@ -128,7 +128,7 @@ operating system keeps ordinary programs away from these addresses.
 
 ### 26.1.2 PCIe: links, functions and addresses
 
-Most devices in a computer are not built into the processor chip but attached through
+Most devices in a computer are attached to the processor chip through
 **PCIe** (PCI Express), the standard connection for expansion devices. In Section 4.1.2, we described
 its physical side: a **link** of 1 to 16 **lanes**, each lane a pair of wires in each
 direction, carrying about 2 GB/s each way per lane in generation 4.0 and 4 GB/s in 5.0.
@@ -427,7 +427,7 @@ reaches the same registers at 0x24_2800_0000. The root port translates between t
 store to 0x24_2800_0000 + \\(r\\) leaves the root port as a PCIe write to bus address
 0x4000_0000 + \\(r\\). For the PCIe-function GPU the 2 numbers happen to be equal: its BAR
 holds 0xd0_c000_0000, and `lspci` reports the CPU address d0c0000000. A driver must never
-assume either case; Linux keeps the 2 kinds of address apart in its types for exactly this
+assume either case; Linux keeps the two kinds of address apart in its types for exactly this
 reason.
 
 ### 26.2.4 The BARs of a GPU
@@ -489,10 +489,10 @@ neighbouring addresses in a small buffer and send them as 1 larger transaction. 
 stores of 4 bytes to the addresses 0x1000, 0x1004, ..., 0x103C fill 64 neighbouring bytes. Without
 combining they leave the core as 16 transactions of 4 bytes; with combining they leave as 1
 transaction of 64 bytes. A program that fills a frame buffer or a command buffer with a stream of
-stores runs much faster that way. Device memory forbids even that: each store reaches the device
+stores runs much faster that way. Device memory forbids even that. Each store reaches the device
 as written, in program order.
 
-On PCIe the 2 directions differ in cost. A memory write is **posted**: the root complex sends
+On PCIe the two directions differ in cost. A memory write is **posted**: the root complex sends
 it and lets the CPU continue at once, without waiting for any reply. A memory read is
 **non-posted**: it must wait for the device's completion to travel back across the link,
 typically several hundred nanoseconds to more than a microsecond, a few thousand CPU cycles.
@@ -800,7 +800,7 @@ address.
 
 `submit` waits while the ring holds `depth` entries, writes the entry, then stores PUT + 1 with
 release ordering: the barrier of section 26.3.3, built into the store. The device loads PUT
-with **acquire ordering**, the counterpart of release: no access that follows the load in the
+with **acquire ordering**, the counterpart of release. No access that follows the load in the
 program may become visible before it. The 2 orderings pair: once the device sees PUT = \\(c\\) +
 1, it also sees entry \\(c\\). The `doorbellFirst` branch exists to break that order on purpose
 (section 26.4.6).
@@ -874,7 +874,7 @@ Figure 26.8 draws 1 burst at depth 1 and at depth 32.
 
 <span class="box-label">Key observation</span> The host's own work overlaps the device's work only
 for the entries that the ring can hold. When the ring holds the whole burst, the host submits
-everything at once, and the 2 kinds of work run side by side.
+everything at once, and the two kinds of work run side by side.
 
 </div>
 
@@ -920,7 +920,7 @@ does not compile a program in which 2 threads touch the same plain memory in thi
 slots had to be atomics. The broken program is nevertheless free of data races in Rust's sense,
 and it still loses entries. The compiler can
 prove that every access is safe, but not that the protocol, entry first and doorbell second, is
-followed. The C++ version is worse off: there the swap also creates a data race, and its
+followed. The C++ version is worse off. There the swap also creates a data race, and its
 behaviour is **undefined**: the language does not specify what the program does. In a driver, the same mistake causes the GPU to execute stale
 commands, rarely and usually under load.
 
@@ -1087,7 +1087,7 @@ platform device `17000000.gpu` under the name `gk20a`. The PCIe-function GPU is 
 `nvidia`, the same open kernel module that drives discrete GPUs, with `nvidia_uvm` for unified
 memory, the managed memory of section 26.3.2.
 
-The split explains 3 facts that we stated in earlier chapters without a reason. A launch costs a few
+The split explains three facts that we stated in earlier chapters without a reason. A launch costs a few
 microseconds, not the tens that a system call and a return would add, because it does not enter
 the kernel. A CUDA context belongs to a process, because the mappings and the channels belong
 to a process. And a crashed kernel ends with an error in 1 process, not a crashed machine,

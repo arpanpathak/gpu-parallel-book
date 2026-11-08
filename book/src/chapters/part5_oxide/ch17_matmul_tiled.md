@@ -142,14 +142,14 @@ The number of phases is \\(\lceil K/T \rceil\\), the quotient \\(K/T\\) rounded 
 entries beyond the edge of a matrix as 0, so that the missing terms add nothing to the sum. Note
 also how the tiles move. From 1 phase to the next, the tile of \\(A\\) moves \\(T\\) columns to the
 right along the rows of the block, and the tile of \\(B\\) moves \\(T\\) rows down along its
-columns. Each thread still uses its entire row of \\(A\\) and column of \\(B\\); it simply receives
+columns. Each thread still uses its entire row of \\(A\\) and column of \\(B\\); it receives
 them 1 tile at a time.
 
 ## 17.3 Loading a tile together
 
 Next, we decide which thread copies which value of a tile. A tile holds \\(T \times T = T^2\\)
 values, and a block of the tiled kernel has \\(T \times T = T^2\\) threads, so the work divides
-evenly: each thread copies exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
+evenly. Each thread copies exactly 1 value of the tile of \\(A\\) and 1 value of the tile of
 \\(B\\). The natural choice is to let every thread copy the value that belongs at its own position
 in the tile. Recall from Chapter 16 that thread \\((ty, tx)\\) is the thread in row \\(ty\\) and
 column \\(tx\\) of its block, and that it computes the entry of \\(C\\) in row \\(\textit{row}\\)
@@ -436,11 +436,11 @@ again before the next copy.
 <figcaption><b>Figure 17.10</b> 1 phase with both barriers. The dotted segments show threads waiting for the slowest thread.</figcaption>
 </figure>
 
-The 2 errors are of different kinds. The first barrier orders a write of a slot before a read of
-the same slot. Here the reading thread needs the value that the writing thread produces, and such
+The two errors are of different kinds. The first barrier orders a write of a slot before a read of
+the same slot. Here, the reading thread needs the value that the writing thread produces, and such
 an ordering is called a **read-after-write** dependence. In Section 17.6.1, thread \\((0, 0)\\) had
 to read \\(\textit{tileB}[1][0]\\) after thread \\((1, 0)\\) had written it. The second barrier
-orders a read of a slot before the next write of the same slot. Here the writing thread needs
+orders a read of a slot before the next write of the same slot. Here, the writing thread needs
 nothing from the reading thread, and the conflict exists only because both use the same slot in
 consecutive phases. Such an ordering is called a **write-after-read** dependence. In
 Section 17.6.2, thread \\((1, 1)\\) had to write \\(\textit{tileB}[1][1]\\) only after thread
@@ -547,7 +547,7 @@ stores it.
 </div>
 
 The proof uses each barrier exactly once, in the maintenance step, and each use excludes 1 of the
-2 errors of Sections 17.6.1 and 17.6.2. Note that the proof covers only the threads that have an
+two errors of Sections 17.6.1 and 17.6.2. The proof covers only the threads that have an
 entry of \\(C\\). A thread outside \\(C\\) stores nothing, so there is no result of its own to
 prove correct. It still takes part in lines 6 to 12, however, and in the next section, we show
 why it must.
@@ -747,7 +747,7 @@ the edge of a matrix, the conditional expression yields 0 instead of reading mem
 call to the barrier, `thread::sync_threads()` in Rust and `__syncthreads()` in C++, is line 8. It
 lies outside every `if`, so every thread reaches it, as the Rule of Section 17.6.5 requires.
 
-In Rust, the copy is split into 2 halves. The reads `a[row * k + a_col]` and `b[b_row * n + col]`
+In Rust, the copy is split into two halves. The reads `a[row * k + a_col]` and `b[b_row * n + col]`
 are ordinary slice reads, bounds-checked like every slice access in safe Rust. The stores through
 the raw pointers `tile_a` and `tile_b` are different. The compiler cannot check how many threads
 write a slot of shared memory, or when, so every access to shared memory must stand in an
@@ -922,7 +922,7 @@ bytes, where \\(n\\) is the size of the matrices and \\(T = 1\\) for the direct 
 at \\(n = 512\\) with \\(T = 16\\), the model gives \\(2 \cdot 512^3 / 16 = 16{,}777{,}216\\)
 values, or 64 MiB. The column *fetch GB/s* divides this amount by the time, so it is the rate at
 which the kernel requests data from global memory, whether or not a cache answers the request. The
-C++ program prints the same lines. The following table compares the 2 languages at the smallest
+C++ program prints the same lines. The following table compares the two languages at the smallest
 and the largest size.
 
 | n | kernel | modelled fetches | C++ time | C++ rate | Rust time | Rust rate |
@@ -942,7 +942,7 @@ against 0.976 ms) and 1.47 times as fast at 4,096 × 4,096. In Rust, the factors
 The second Rust factor is larger because the generic Rust direct kernel is slower at large sizes
 (Section 16.6.3). The Rust and C++ tiled kernels agree within 6% at every size. All checked
 entries were exact, including those of the 3 shapes that are not multiples of the tile width.
-Figure 17.15 shows the rates at \\(n = 4{,}096\\) against 2 limits, which we explain in the next
+Figure 17.15 shows the rates at \\(n = 4{,}096\\) against two limits, which we explain in the next
 section.
 
 <figure>
@@ -960,7 +960,7 @@ answered by the L1 and L2 caches. Tiling removes 15 of every 16 requested fetche
 fetches that it removes were already cheap. In effect, the hardware caches had already recovered
 part of the reuse that tiling makes explicit.
 
-The difference between the 2 approaches is control. A value stays in a cache only by chance, and
+The difference between the two approaches is control. A value stays in a cache only by chance, and
 the chance shrinks as the matrices grow beyond the size of the cache. A value in shared memory
 stays there for exactly 1 phase, by construction, at every matrix size. The tiled kernel with
 \\(T = 16\\) requested 68 GB/s from global memory, two-thirds of the 102 GB/s available, so global
@@ -1003,7 +1003,7 @@ barriers take a larger share of each phase. Moreover, an SM holds at most 16 blo
 in C++.
 
 The speedup differs between GPUs, because it depends on how well the caches serve the direct
-kernel. On a Jetson AGX Thor, Rust kernels for the same 2 algorithms with \\(T = 16\\) took
+kernel. On a Jetson AGX Thor, Rust kernels for the same two algorithms with \\(T = 16\\) took
 1.158 ms and 0.285 ms for 512 × 512 matrices, a speedup of 4.06 (Pathak, 2026). On that GPU, the
 direct kernel requested 927 GB/s, 3.4 times the 273 GB/s of the Thor's memory, so the caches
 answered at least 70% of its fetches, against 86% on the measured GPU, and tiling had more to

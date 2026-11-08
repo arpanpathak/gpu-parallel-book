@@ -28,7 +28,7 @@ Chapter 17 and the C++ kernels of Chapter 9.
 This chapter covers
 
 - the shared-memory reads of the tiled kernel, counted on the example
-- 1 thread computing a 2 × 1 and then a 2 × 2 block of \\(C\\)
+- One thread computing a 2 × 1 and then a 2 × 2 block of \\(C\\)
 - the inner loop as a sum of outer products
 - reads per multiply-add, \\((T_M + T_N) / (T_M T_N)\\), and registers as the third level of
   storage
@@ -85,7 +85,7 @@ found for global memory in Section 16.4.3, now 1 level closer to the arithmetic 
 
 ### 18.1.2 What the reads cost
 
-In Section 17.8.2, we turned this count of reads into a limit on speed. Recall the 2 facts on
+In Section 17.8.2, we turned this count of reads into a limit on speed. Recall the two facts on
 which the limit rests. The shared memory of an SM serves 1 read instruction of a warp per cycle,
 which delivers 32 values, and in the same cycle, the 128 FP32 units of the SM could perform 128
 multiply-adds. When every multiply-add needs 2 reads, the 32 values delivered in a cycle feed only
@@ -123,7 +123,7 @@ Both entries use column 0 of \\(B\\): \\(c_{00}\\) is row 0 of \\(A\\) times col
 and \\(c_{10}\\) is row 1 of \\(A\\) times the same column. Consider the first term of each sum,
 the term with \\(u = 0\\). For \\(c_{00}\\), the thread needs \\(a_{00} = 1\\); for \\(c_{10}\\),
 it needs \\(a_{10} = 5\\); and for both, it needs \\(b_{00} = 1\\). The thread reads these 3
-values from shared memory once, keeps them in registers, and performs 2 multiply-adds: it adds
+values from shared memory once, keeps them in registers, and performs 2 multiply-adds. It adds
 \\(1 \cdot 1 = 1\\) to the sum of \\(c_{00}\\), and \\(5 \cdot 1 = 5\\) to the sum of \\(c_{10}\\)
 (Figure 18.2).
 
@@ -135,7 +135,7 @@ values from shared memory once, keeps them in registers, and performs 2 multiply
 In the tiled kernel, the same 2 multiply-adds were performed by 2 threads, \\((0, 0)\\) and
 \\((1, 0)\\), and took 4 reads, because each of the 2 threads read \\(b_{00}\\) on its own. Now
 they are performed by 1 thread with 3 reads, which is \\(3/2 = 1.5\\) reads per multiply-add
-instead of 2. The saving comes from the value of \\(B\\) that the 2 entries share: it is read once
+instead of 2. The saving comes from the value of \\(B\\) that the 2 entries share. It is read once
 and used twice from a register.
 
 ### 18.2.2 A 2 × 2 block of C
@@ -305,7 +305,7 @@ when \\(T_M = T_N\\).
 ## 18.3 Registers as the third level
 
 The sums and the values of the current step in Section 18.2 must be kept close to the arithmetic
-units, and the place for them is the registers. Recall that in Chapter 16, we described 3 kinds of
+units, and the place for them is the registers. Recall that in Chapter 16, we described three kinds of
 storage: global memory, shared memory and registers. The direct kernel took its operands from
 global memory, the tiled kernel took them from shared memory, and the new kernel takes most of them
 from registers.
@@ -377,7 +377,7 @@ For \\(B_M = B_N = 64\\), the count is \\(MNK (1/64 + 1/64) = 2MNK/64\\). Recall
 that the tiled kernel with \\(T = 16\\) fetches \\(2MNK/16\\) values, so the new kernel fetches 4
 times fewer. In our 4 × 4 example, with \\(B_M = B_N = 4\\) and \\(B_K = 2\\), the formula gives
 \\(4 \cdot 4 \cdot 4 \cdot (1/4 + 1/4) = 32\\), which means that each of the 32 values of \\(A\\)
-and \\(B\\) is fetched exactly once. Note that the number of fetches from global memory depends only
+and \\(B\\) is fetched exactly once. The number of fetches from global memory depends only
 on the block's part of \\(C\\), \\(B_M \times B_N\\), whereas the number of reads from shared memory
 per multiply-add, \\((T_M + T_N)/(T_M T_N)\\), depends only on the thread tile. The 2 can therefore
 be chosen independently. In other words, global memory sees the block tile, shared memory sees the thread
@@ -414,7 +414,7 @@ In our example, we take \\(B_M = B_N = 4\\), \\(B_K = 2\\) and \\(T_M = T_N = 2\
 of 2 × 2 threads then covers all of \\(C\\), and each thread owns a 2 × 2 block of it
 (Figure 18.7). For instance, thread \\((1, 0)\\) of block \\((0, 0)\\) owns the block that begins in
 row \\(0 \cdot 4 + 1 \cdot 2 = 2\\) and column \\(0 \cdot 4 + 0 \cdot 2 = 0\\), that is, the entries
-\\(c_{20} = 43\\), \\(c_{21} = 45\\), \\(c_{30} = 59\\) and \\(c_{31} = 61\\). Note that thread
+\\(c_{20} = 43\\), \\(c_{21} = 45\\), \\(c_{30} = 59\\) and \\(c_{31} = 61\\). Thread
 \\((0, 0)\\) alone now computes the 4 entries that the 4 threads of block \\((0, 0)\\) computed in
 Chapter 17.
 
@@ -691,7 +691,7 @@ padding prevents a conflict between the reads of line 13. A warp of a 16 × 16 b
 rows of 16 threads, and in line 13, the 2 rows of threads read rows of *tileA* that are
 \\(T_M\\) rows apart. Without padding, these rows are \\(T_M B_K\\) values apart, which is 64 values
 for a 4 × 4 register tile with \\(B_K = 16\\). Since shared memory has 32 banks and 64 is a
-multiple of 32, the 2 values fall in the same bank, and the 2 reads are served 1 after the other
+multiple of 32, the 2 values fall in the same bank, and the 2 reads are served one after the other
 (Section 9.5.3). With the padding, the 2 values are \\(T_M (B_K + 1) = 68\\) values apart, which
 places them in different banks.
 
@@ -1000,7 +1000,7 @@ PASSED
 
 The column *reads/FMA* is \\((T_M + T_N)/(T_M T_N)\\), and the column *fetched MiB* is the model of
 Section 18.3, \\(n^3 (1/B_M + 1/B_N)\\) values of 4 bytes each. The C++ program prints the same
-lines. The following table compares the 2 programs at \\(n = 4{,}096\\). It also lists the
+lines. The following table compares the two programs at \\(n = 4{,}096\\). It also lists the
 shared-memory limit of Section 18.1.2 for each kernel, \\(300 \cdot 2 / r\\) GFLOP/s for \\(r\\)
 reads per multiply-add, and the number of registers per thread that nvcc reports for each C++
 kernel.
@@ -1025,7 +1025,7 @@ Up to the 2 × 2 register tile, the model of Section 18.1.2 predicts the measure
 the reads per multiply-add from 2 to 1 doubled the rate, and each configuration ran within 3% to 5%
 of its limit: in C++, 391.5 of 400 GFLOP/s for 2 × 1 and 583.5 of 600 GFLOP/s for 2 × 2, with Rust
 within 3% of C++. The 1 × 1 configuration performs the same arithmetic as the tiled kernel of
-Chapter 17 and fetches the same values, but it ran at 220 GFLOP/s instead of 272. The 2 kernels
+Chapter 17 and fetches the same values, but it ran at 220 GFLOP/s instead of 272. The two kernels
 differ only in their copy code, which in the general kernel computes each slot from the slot number
 \\(e\\).
 
@@ -1093,9 +1093,9 @@ program,
   \\((B_M/T_M)(B_N/T_N)\\) threads, so the block shape should be derived from the constants in 1
   function.
 - **Copy loops with a run-time count.** A copy loop whose count the compiler cannot see is not
-  unrolled, and the loads of a phase wait 1 after another.
+  unrolled, and the loads of a phase wait one after another.
 - **Forgetting the padding of tileA.** Without it, the threads of a warp read *tileA* in the same
-  bank, and the reads are served 1 after another.
+  bank, and the reads are served one after another.
 - **Partial thread tiles in Rust.** `tile_2d32_rt` writes only whole tiles, so a matrix size that is
   not a multiple of the thread tile must be refused or padded.
 

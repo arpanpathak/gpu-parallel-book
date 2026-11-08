@@ -27,7 +27,7 @@ This chapter covers
 - The pattern behind each stage: a map, a histogram with a scan, and 2 stencils
 - The proof that 2 passes of 5 weights equal 1 pass of 25 weights, and the work it saves
 - A shared tile with a halo, and the wrong pixels a missing halo produces
-- 1 easy mistake for each stage, with the wrong value it gives on the example
+- One easy mistake for each stage, with the wrong value it gives on the example
 - The host program: buffers, streams, and an exact comparison with the CPU
 - The time of each stage, and copies overlapped with kernels on 2 and 3 streams
 
@@ -95,7 +95,7 @@ in 4 stages.
 
 Each stage reads the image that the previous stage wrote. What distinguishes the stages, from the
 point of view of a parallel program, is the number of input pixels on which 1 output pixel depends.
-We name the 3 cases that occur.
+We name the three cases that occur.
 
 <div class="definition">
 
@@ -112,7 +112,7 @@ operation, the histogram of all 64 levels.
 </div>
 
 Figure 24.2 shows the pipeline as the 7 kernels of our programs, together with the buffers between
-them. The equalisation takes 3 kernels and the blur takes 2, for reasons that we explain in
+them. The equalisation takes three kernels and the blur takes 2, for reasons that we explain in
 Sections 24.4 and 24.5. Figure 24.3 shows what the programs produce for their test image of
 1,920 × 1,080 pixels.
 
@@ -349,7 +349,7 @@ instructions from the same 3 segments of 32 bytes.
 </div>
 
 For the image of 1,920 × 1,080 pixels, the programs launch 8,100 blocks of 256 threads, and since
-\\(8{,}100 \cdot 256 = 2{,}073{,}600\\), this is exactly 1 thread per pixel. The following kernels
+\\(8{,}100 \cdot 256 = 2{,}073{,}600\\), this is exactly one thread per pixel. The following kernels
 implement lines 1 to 5 of Gray-Kernel.
 
 <div class="code-tabs">
@@ -555,7 +555,7 @@ mod kernels {
 </div>
 </div>
 
-The 2 kernels follow Histogram-Kernel line by line, and they differ only in how they reach shared
+The two kernels follow Histogram-Kernel line by line, and they differ only in how they reach shared
 memory. C++ declares `__shared__ unsigned local[256]` and calls `atomicAdd` on an element. Rust
 declares `static mut LOCAL: SharedArray<u32, 256>` and turns the address of an element into a
 `BlockAtomicU32`, an integer whose operations are atomic among the threads of 1 block, which is all
@@ -803,12 +803,12 @@ reads in row \\(y_i\\) do not depend on \\(i\\). Hence
 y_i), \\]
 since multiplication distributes over the inner sum. Every quantity is a non-negative integer: a row
 sum is at most \\(16 \cdot 255 = 4{,}080\\), and a column sum at most \\(16 \cdot 4{,}080 =
-65{,}280\\), far below \\(2^{32}\\). Every addition and multiplication is therefore exact, the 2 sides
+65{,}280\\), far below \\(2^{32}\\). Every addition and multiplication is therefore exact, the two sides
 are the same integer before the shift, and the shift gives the same result.
 
 </div>
 
-Note that the proof needs the row pass to keep its sums whole. A program that divides by 16 with
+The proof needs the row pass to keep its sums whole. A program that divides by 16 with
 rounding after each pass, instead of by 256 once at the end, computes a different image. On the
 example, the row sum 2,635 becomes 165, 4,080 becomes 255, and pixel \\((3, 3)\\) becomes
 \\((255 + 15 \cdot 165 + 8) \gg 4 = 171\\) instead of 170. In this way, 16 of the 64 pixels of the
@@ -913,7 +913,7 @@ mod kernels {
 In the row pass, the line that writes `TILE[tx + 2]` (C++: `tile[tx + 2]`) is line 2 of Blur-Rows,
 the `if tx < 2` block is lines 3 to 6, and the barrier is line 7. The device function `tap(i, n)`
 computes \\(\mathrm{clamp}(i - 2, n)\\), so `tap(x0 + s, W)` is the pixel that belongs in slot
-\\(s\\). The 2 languages declare the tile differently. C++ writes `__shared__ unsigned tile[ROW_T +
+\\(s\\). The two languages declare the tile differently. C++ writes `__shared__ unsigned tile[ROW_T +
 4]`. Rust writes `static mut TILE: SharedArray<u32, { ROW_T + 4 }>`, a type whose length is part of
 the type and must be a constant, and this is why the tile widths are the constants `ROW_T`, `COL_W`
 and `COL_H`. Every access to the tile is `unsafe` in Rust, and the 2 `// SAFETY:` comments state the
@@ -987,7 +987,7 @@ image      pixels that differ from the CPU
 FAILED
 ```
 
-Note that the program compiled without a warning. The reads of the tile are inside `unsafe` blocks,
+The program compiled without a warning. The reads of the tile are inside `unsafe` blocks,
 and the compiler accepts the argument of their `// SAFETY:` comments without checking it. Of the
 64,800 blurred pixels at risk, 56,548, or 87%, are wrong; in the others, the old contents of shared
 memory happened to give the right sum. Pixel \\((0, 0)\\) is 164 instead of 106. The edge image has
@@ -1028,7 +1028,7 @@ An **edge** in an image is a place where the level changes quickly from 1 pixel 
 a region of the example, such as the sky, neighbouring pixels have almost the same level, while at
 the border between the sky and the house, the level drops by about 70 within 2 rows. To find edges,
 we therefore estimate how fast the level changes at each pixel. The **Sobel operator** makes this
-estimate in 2 directions from the 3 × 3 neighbourhood of the pixel. Its horizontal component
+estimate in two directions from the 3 × 3 neighbourhood of the pixel. Its horizontal component
 \\(g_x\\) is the weighted sum of the column to the right of the pixel minus the weighted sum of the
 column to its left, with the weights 1, 2 and 1 from top to bottom. Its vertical component \\(g_y\\)
 is the weighted sum of the row below the pixel minus that of the row above, with the same weights
@@ -1207,7 +1207,7 @@ copies and kernel launches, that the device executes in the order in which the h
 in 1 stream starts only after the previous work in the same stream has finished. Work in different
 streams has no order and may run at the same time.
 
-*Example.* The 7 kernels of 1 image, issued on stream 0, run 1 after the other; the kernels of a
+*Example.* The 7 kernels of 1 image, issued on stream 0, run one after the other; the kernels of a
 second image, on stream 1, may run while the first image is copied.
 
 </div>
@@ -1291,7 +1291,7 @@ edge image checksum: 166b66c2
 ```
 
 All 4 images agree in all 2,073,600 pixels. The last line is a checksum of the GPU's edge image, and
-the Rust and the C++ programs print the same value, 166b66c2. The 2 languages therefore produce the
+the Rust and the C++ programs print the same value, 166b66c2. The two languages therefore produce the
 same edge image, byte for byte. The batch of Section 24.10 checks the output once more, by comparing
 the last edge image that each stream copies back with the CPU's edge image of the same input.
 
@@ -1331,7 +1331,7 @@ after the other take 1.165 ms in C++, a little more than the sum of their separa
 
 The table kernel, a single block of 256 threads, takes 0.007 ms, which is about the cost of
 launching any kernel. A kernel with almost no parallelism thus costs nothing noticeable when it
-handles 256 values between 2 kernels that handle 2 million.
+handles 256 values between two kernels that handle 2 million.
 
 ### 24.9.2 Which stage dominates, and why
 
@@ -1370,7 +1370,7 @@ last, partly filled wave of blocks are a visible part of its time.
 The Rust kernels take 1.380 ms against 1.079 ms in C++, which is 28% more. The difference lies in 3
 kernels: the row pass (0.301 against 0.208 ms), the column pass (0.280 against 0.210 ms) and the
 Sobel kernel (0.350 against 0.225 ms). The 2 maps and the histogram are within 10% of each other in
-the 2 languages. The 3 slower kernels are those that index slices most. In cuda-oxide, every index
+the two languages. The 3 slower kernels are those that index slices most. In cuda-oxide, every index
 into a slice, such as `src[r * W + c]`, compiles to a comparison with the length of the slice and a
 branch that stops the kernel if the index lies outside. The Sobel kernel performs 12 such reads per
 pixel. We ran the Rust program with `#[kernel(unchecked_indexing)]` on every kernel, which removes
@@ -1385,7 +1385,7 @@ the checks.
 
 A program that processes a sequence of video frames must also copy each frame to the device and each
 result back. Per image, the copy in moves 6.2 MB, and the copy out moves 2.1 MB. On 1 stream, the 2
-copies and the 7 kernels run 1 after the other, and the SMs wait during the copies. The copies,
+copies and the 7 kernels run one after the other, and the SMs wait during the copies. The copies,
 however, are not performed by the SMs, so in principle they could run while the SMs work on another
 image.
 

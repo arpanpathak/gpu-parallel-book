@@ -10,7 +10,7 @@ Chapter 2 described the hardware that runs these programs. This chapter writes t
 complete program, vector addition, and runs it.
 
 Every program in the chapter appears twice: in CUDA C++, and in Rust with **cuda-oxide**,
-NVIDIA's compiler that turns Rust functions into GPU kernels. The 2 versions take the same
+NVIDIA's compiler that turns Rust functions into GPU kernels. The two versions take the same
 steps, so each idea is seen from both sides. Part V of the book uses cuda-oxide throughout.
 
 <div class="covers" markdown="1">
@@ -61,7 +61,7 @@ between the card and the CPU (Chapter 2, section 2.1.4).
 
 **NOTE:** On integrated systems such as Jetson modules and DGX Spark, host and device share
 1 set of memory chips. The programs in this chapter still allocate device memory and copy
-data explicitly, so they run unchanged on every NVIDIA GPU. Chapter 4 shows how integrated
+data explicitly, so they run unchanged on every NVIDIA GPU. In Chapter 4, we show how integrated
 systems can avoid the copies.
 
 </div>
@@ -160,7 +160,7 @@ each block asks for (Chapter 7).
 
 A launch states how much work there is and how it is grouped. It does not state an order.
 The GPU decides which SM runs which block, and when, so blocks may run in any order and
-must not depend on each other. Section 3.6 shows a real run in which block 1 printed before
+must not depend on each other. In Section 3.6, we show a real run in which block 1 printed before
 block 0.
 
 ### 3.3.2 2 and 3 dimensions
@@ -214,7 +214,7 @@ counts 4, and a layer of 16 counts 16, so the thread at (2, 1, 1) is number
 </figure>
 
 Stacked, the layers form a cube (figure 3.5). A block of `dim3(4, 4, 4)` holds 64 threads,
-2 warps. 1 layer holds 16 threads, half a warp, so warp 0 is layers z = 0 and 1, and warp 1
+2 warps. One layer holds 16 threads, half a warp, so warp 0 is layers z = 0 and 1, and warp 1
 is layers z = 2 and 3. The thread at (2, 0, 3), on top of the back layer, is number
 2 + 4 × 0 + 16 × 3 = 50, and 50 ÷ 32 = 1 remainder 18 places it in warp 1, lane 18.
 
@@ -258,7 +258,7 @@ hold 3 unsigned integers.
 
 ## 3.5 The global index formula
 
-Chapter 2 found a thread's index by counting the threads of the blocks before it, then
+In Chapter 2, we found a thread's index by counting the threads of the blocks before it, then
 adding its position. In CUDA's names:
 
 <div class="code-tabs">
@@ -496,7 +496,7 @@ pointer in its first argument, which is why it receives the pointer's address, `
 `cudaMemcpy` then copies each input from host to device.
 
 In Rust, `DeviceBuffer::from_host` allocates device memory and copies a host array into it
-in 1 call, and `DeviceBuffer::zeroed` allocates the output, filled with zeros. A
+in a single call, and `DeviceBuffer::zeroed` allocates the output, filled with zeros. A
 `DeviceBuffer` frees its memory when it goes out of scope, so the Rust program has no
 equivalent of `cudaFree`.
 
@@ -651,7 +651,7 @@ on both sides.
 ## 3.8 Errors and asynchronous launches
 
 Every CUDA runtime function returns a value of type `cudaError_t`: `cudaSuccess`, which is
-0, or a code that names what went wrong. Errors arrive in 2 ways.
+0, or a code that names what went wrong. Errors arrive in two ways.
 
 1. **Immediately.** A call with a bad argument, such as a copy from a null pointer, returns
    an error code at once.

@@ -11,7 +11,7 @@ This chapter covers
 - the installation of cuda-oxide and the contents of `Cargo.toml`
 - a vector-addition kernel written in Rust
 - the host program: device buffers, the kernel launch and the copy back
-- 2 common launch errors and their real output
+- Two common launch errors and their real output
 
 </div>
 
@@ -57,7 +57,7 @@ Note that the computation of `c[2]` requires only `a[2]` and `b[2]`. It does not
 
 On a CPU, vector addition is written as a loop, and 1 core executes the iterations one after another: element 0, then element 1, then element 2.
 
-On a GPU, the programmer writes the body of the loop as a function, and the GPU executes 1 instance of that function for each element. Each instance is executed by a **thread**. Thread 0 computes `c[0]`, thread 1 computes `c[1]`, and so on, and the threads run at the same time (figure 13.1). The loop has been replaced by the set of threads: each thread corresponds to 1 iteration of the original loop.
+On a GPU, the programmer writes the body of the loop as a function, and the GPU executes 1 instance of that function for each element. Each instance is executed by a **thread**. Thread 0 computes `c[0]`, thread 1 computes `c[1]`, and so on, and the threads run at the same time (figure 13.1). The loop has been replaced by the set of threads. Each thread corresponds to 1 iteration of the original loop.
 
 <figure>
 <img src="../../figures/ch13-loop-vs-threads.svg" alt="Left: one CPU core walks eight cells in order, index 0 then 1 then 2. Right: eight GPU threads t0 to t7, each with an arrow down to its own cell, all computing c[i] = a[i] + b[i] at the same time.">
@@ -202,7 +202,7 @@ The program begins with its imports. Each name is explained where it is used.
 </div>
 </div>
 
-2 constants set the size of the problem. `N` is chosen not to be a multiple of 256, so that the last block contains spare threads, as in figure 13.2.
+Two constants set the size of the problem. `N` is chosen not to be a multiple of 256, so that the last block contains spare threads, as in figure 13.2.
 
 <div class="code-tabs">
 <div class="code-tab" data-lang="Rust">
@@ -371,7 +371,7 @@ int main()
 
 **Preparation.** `prepare_vector_add` is also generated, from the launch contract. It checks the launch configuration against the contract in `#[launch_contract]` and against the limits of the GPU. If both checks pass, it returns a `PreparedLaunch` value, which records that the configuration has been checked.
 
-**Launch.** `module.vector_add(...)` takes the `PreparedLaunch` value and the buffers. Note that the launch requires no `unsafe`: the configuration has been checked, and the buffer types match the parameter types of the kernel, so the launch is safe Rust.
+**Launch.** `module.vector_add(...)` takes the `PreparedLaunch` value and the buffers. The launch requires no `unsafe`: the configuration has been checked, and the buffer types match the parameter types of the kernel, so the launch is safe Rust.
 
 **Copy back.** `to_host_vec` copies `c_dev` into a new `Vec<f32>`. It is issued to the same stream as the launch, so it begins only after the kernel has finished.
 
@@ -459,11 +459,11 @@ The timing lines show that the GPU took longer than 1 CPU core. The reason lies 
 
 For each element, the kernel reads 8 bytes, writes 4 bytes, and performs 1 addition: 1 floating-point operation for every 12 bytes moved. In Chapter 1, we called this ratio the **arithmetic intensity**, and a value of 1/12 FLOP/byte is among the lowest a kernel can have. The arithmetic units of the GPU spend almost all their time waiting for memory. In addition, the `gpu + copy` timer includes the copy of 4 MB back to the CPU and the first kernel launch of the process.
 
-2 runs on the same machine gave 2.8 ms and 3.1 ms for the GPU line, and 1.8 ms and 2.2 ms for the CPU line, so these values are approximate. The conclusion does not depend on them. A GPU is faster when each byte it loads is used for many arithmetic operations, or when the data remain on the GPU across many kernels. Matrix multiplication, later in this part, is the first kernel in this part for which this holds.
+Two runs on the same machine gave 2.8 ms and 3.1 ms for the GPU line, and 1.8 ms and 2.2 ms for the CPU line, so these values are approximate. The conclusion does not depend on them. A GPU is faster when each byte it loads is used for many arithmetic operations, or when the data remain on the GPU across many kernels. Matrix multiplication, later in this part, is the first kernel in this part for which this holds.
 
 ## 13.9 Common launch errors
 
-2 mistakes are common in a first kernel. The real output of each is shown below.
+Two mistakes are common in a first kernel. The real output of each is shown below.
 
 **The block size does not match the contract.** The launch is changed to blocks of 128 threads:
 
@@ -563,7 +563,7 @@ FAILED: 67 elements differ from the CPU
 - `DisjointSlice::get_mut` gives each thread its own output element, or `None` past the end. The type excludes both data races and a missing bounds guard.
 - `#[launch_contract]` makes the launch checked and safe. Only the loading of the embedded GPU code remains `unsafe`.
 - The host program copies the inputs to the GPU, launches the kernel, copies the result back, and checks it against the CPU.
-- Vector addition is memory-bound: it performs 1 addition for every 12 bytes. The GPU is faster on kernels that perform more arithmetic per byte.
+- Vector addition is memory-bound. It performs 1 addition for every 12 bytes. The GPU is faster on kernels that perform more arithmetic per byte.
 
 In the next chapter, we make the kernel generic. A single `map` kernel takes any closure, so that `c[i] = a[i] + b[i]`, SAXPY (`y = αx + y`) and other element-wise operations share 1 kernel. It also launches fewer threads than there are elements, using the *grid-stride loop*.
 

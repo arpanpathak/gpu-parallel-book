@@ -7,7 +7,7 @@ It is the inner loop of a matrix-vector product, it gives the length of a vector
 between 2 vectors, and every iterative solver computes several dot products in each step to decide
 how far it is from convergence. The multiplications form a map, the pattern of Chapter 14, and they
 can run in parallel in the same way. The additions cannot be treated in this way. All products must
-flow into a single number, and the obvious loop adds them 1 after another, each addition waiting
+flow into a single number, and the obvious loop adds them one after another, each addition waiting
 for the one before it. A computation that combines many values into 1 value in this way is called a
 reduction, and it is the second basic pattern of parallel programming.
 
@@ -18,7 +18,7 @@ be performed at the same time. The tree becomes a kernel in which the threads of
 values in shared memory, step by step, with a barrier between consecutive steps. We remove a
 barrier to see the wrong sum that results, and we prove with a loop invariant that the tree is
 correct when all barriers are present. After that, we replace most of the barriers by warp
-shuffles, and we compare 2 ways of combining the sums of different blocks, a second launch and
+shuffles, and we compare two ways of combining the sums of different blocks, a second launch and
 atomic additions. Finally, we implement all designs in Rust with cuda-oxide and in CUDA C++. From
 the measurements, we explain why the fused kernel runs more than twice as fast as a map followed by
 a separate reduction, and why atomic additions change the last bits of the result from run to
@@ -74,7 +74,7 @@ they add up to 31. The dot product is therefore \\(32 + 31 = 63\\), as shown in 
 
 The example contains 3 numbers that appear again and again in the chapter. The first 8 products add up
 to 32, the last 8 products add up to 31, and all 16 products add up to 63. Later in the chapter,
-the GPU splits the work exactly along this line, with 1 block for each half of the vectors. The
+the GPU splits the work exactly along this line, with one block for each half of the vectors. The
 faulty kernels of Sections 15.4 and 15.6 then produce 24 instead of 32, and 31 instead of 63.
 
 ### 15.1.2 Definitions
@@ -99,7 +99,7 @@ faulty kernels of Sections 15.4 and 15.6 then produce 24 instead of 32, and 31 i
 | \\(\sum_{i \in [0, n)}\\) | sum over all positions \\(i\\) from 0 to \\(n - 1\\) | \\(2 + 6 + \cdots + 4\\) |
 | \\(a \cdot b\\) | the dot product | 63 |
 
-The dot product consists of 2 parts. The first part computes the products, which we call
+The dot product consists of two parts. The first part computes the products, which we call
 \\(p_i = a_i b_i\\), so that \\(p_0 = 2\\) and \\(p_1 = 6\\) in our example. The products form a map
 in the sense of Definition 14.2, since each of them depends only on the elements at position
 \\(i\\). The second part, the sum, then combines all \\(n\\) products into 1 number. A computation
@@ -317,7 +317,7 @@ threads of the grid. Each thread therefore begins with the grid-stride loop of C
 multiplies the elements \\(g, g + P, g + 2P, \ldots\\) of the 2 vectors and adds the products in a
 register, where \\(g\\) is its global index and \\(P\\) is the number of threads in the grid. The
 products are never stored in memory. The tree then combines the \\(B\\) register sums of the block,
-and thread 0 writes the block's sum to a **partial sum** array, which holds 1 element per block.
+and thread 0 writes the block's sum to a **partial sum** array, which holds one element per block.
 Every thread executes the following procedure, in which `cells` is a shared array of \\(B\\)
 floats and \\(v\\) is the thread's register sum.
 
@@ -502,7 +502,7 @@ cells written, \\([0, s)\\), and the cells that are only read, \\([s, 2s)\\), do
 cell of \\([0, s)\\) is written by exactly 1 thread. Hence, no read in this iteration sees a write
 of this iteration, except the thread's own. After line 11, for \\(t < s\\), cell \\(t\\) holds the
 sum over \\(j \equiv t \pmod{2s}\\) plus the sum over \\(j \equiv t + s \pmod{2s}\\). An index
-\\(j\\) belongs to 1 of these 2 groups exactly when it leaves the remainder \\(t\\) when divided by
+\\(j\\) belongs to one of these 2 groups exactly when it leaves the remainder \\(t\\) when divided by
 \\(s\\), so the 2 sums together are the sum over \\(j \equiv t \pmod{s}\\). For example, with
 \\(s = 2\\) and \\(t = 1\\), cell 1 holds \\(v_1 + v_5\\) and cell 3 holds \\(v_3 + v_7\\), and their
 sum is the sum over the odd \\(j\\), that is, over \\(j \equiv 1 \pmod{2}\\). The barrier of line 13
@@ -515,7 +515,7 @@ this is the sum over all \\(j \in [0, B)\\).
 
 </div>
 
-Note that the proof uses each barrier once, the barrier of line 8 in the initialization and the
+The proof uses each barrier once, the barrier of line 8 in the initialization and the
 barrier of line 13 in the maintenance. Removing either barrier breaks exactly the step of the proof
 that uses it, and in Section 15.4.1, we saw the wrong value that follows.
 
@@ -547,7 +547,7 @@ error[E0133]: use of mutable static is unsafe and requires unsafe block
     = note: mutable statics can be mutated by multiple threads: aliasing violations or data races will cause undefined behavior
 ```
 
-The program's `// SAFETY:` comments state the 2 facts that the proof of Theorem 15.1 uses. The
+The program's `// SAFETY:` comments state the two facts that the proof of Theorem 15.1 uses. The
 first is that each thread writes only its own cell before the barrier of line 8. The second is that
 in each step, thread \\(t\\) alone writes cell \\(t\\) and reads cell \\(t + s\\), which no thread writes
 in that step. The compiler accepts the program without the barrier as well, because the `unsafe`
@@ -680,7 +680,7 @@ requires an addition that no other thread can interrupt.
 <div class="definition">
 
 <span class="box-label">Definition 15.7</span> **Atomic operation.** An atomic operation is a
-read-modify-write of 1 memory location that executes as 1 indivisible step: no other thread can
+read-modify-write of 1 memory location that executes as 1 indivisible step. No other thread can
 access the location between the read and the write. `atomicAdd(p, v)` in C++ and
 `fetch_add(v, ...)` on a `DeviceAtomicF32` in Rust add \\(v\\) to the value at \\(p\\) atomically.
 
@@ -689,7 +689,7 @@ then changes it from 31 to 63.
 
 </div>
 
-Figure 15.9 compares the 2 methods. With the second launch, the 2 partial sums are added in an
+Figure 15.9 compares the two methods. With the second launch, the 2 partial sums are added in an
 order that the program fixes. With atomic additions, they are added in the order in which the
 blocks finish, and this order changes from run to run.
 
@@ -829,7 +829,7 @@ The call `products(a, b)` performs lines 1 to 6, the store into `cells[t]` or `C
 line 7, and the first barrier is line 8. The loop performs lines 9 to 14, with the barrier of
 line 13 after the `if`, and the final `if t == 0` performs lines 15 to 17.
 
-The 2 languages differ in 3 places. First, C++ declares the shared array with `__shared__`, while
+The two languages differ in 3 places. First, C++ declares the shared array with `__shared__`, while
 Rust declares a `static mut SharedArray<f32, 256>`. The length of the Rust array is part of its
 type, and this is why the Rust kernel's launch contract fixes the block at exactly 256 threads.
 Every access to the array is in an `unsafe` block with its argument (Section 15.4.3). Second, the
@@ -1023,7 +1023,7 @@ design moves 16 bytes per pair, or 268 MB for \\(2^{24}\\) pairs. The fused kern
 
 The measured ratio is \\(3.334 / 1.405 = 2.4\\) in Rust and \\(3.096 / 1.412 = 2.2\\) in C++.
 Halving the bytes accounts for a factor of 2. The rest comes from the lower rate of the first
-design, 80.5 GB/s and 86.7 GB/s against 95 GB/s. Its multiplication kernel writes 1 value for every
+design, 80.5 GB/s and 86.7 GB/s against 95 GB/s. Its multiplication kernel writes one value for every
 2 values that it reads, as SAXPY does, and recall from Chapter 14 that SAXPY reached at most
 93 GB/s, for the reasons given in Section 14.8.3. The fused kernels only read, and they reach
 92 GB/s to 97 GB/s, which is 90% to 95% of the pin rate of the memory. The Rust map-then-reduce
@@ -1048,7 +1048,7 @@ design returned the same bits every time. The atomic design returned 3 different
 runs, 4,195,680.5, 4,195,681.0 and 4,195,681.5, which lie 1 to 3 float steps above the nearest
 float, and in other runs, it also returned 4,195,680.0. All of these values are correct to a
 relative error of \\(3.2 \cdot 10^{-7}\\), which is about the precision of a float. A program that
-must reproduce its results bit for bit, for example to compare 2 versions of a simulation, needs
+must reproduce its results bit for bit, for example to compare two versions of a simulation, needs
 the second launch.
 
 <div class="exercises">
