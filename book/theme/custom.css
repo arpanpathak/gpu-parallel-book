@@ -444,14 +444,17 @@ details.check[open] > summary { margin-bottom: 0.4em; }
     margin-top: 0.9em;
 }
 
+/* The number is an inline box on the same baseline as the text of its line, so the two stay
+   aligned whatever the line contains. It sits in the left padding of the line. */
 .algo > ol > li::before {
     content: counter(algo-line);
-    position: absolute;
-    left: 0;
+    display: inline-block;
     width: 1.6em;
+    margin-left: calc(-2.4em - var(--d, 0) * 1.6em);
+    margin-right: calc(0.8em + var(--d, 0) * 1.6em);
     text-align: right;
     color: var(--book-steel);
-    font-size: 0.85em;
+    font-variant-numeric: tabular-nums;
 }
 
 .algo .sc {
