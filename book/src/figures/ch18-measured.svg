@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 464" width="660" height="464" role="img" aria-label="Horizontal bars of the rate in GFLOP/s at n = 4,096 on the Orin NX, C++ and Rust for each kernel, with a red mark at the shared-memory limit of 300 times 2 divided by the reads per multiply-add. Chapter 17&#x27;s kernel with T = 16: 271.9 and 274.4, limit 300. 1 by 1: 220.4 and 219.4, limit 300. 2 by 1: 391.5 and 389.8, limit 400. 2 by 2: 583.5 and 568.5, limit 600. 4 by 4: 1,009.9 and 875.5, limit 1,200. 8 by 8: 773.1 and 827.5, limit 2,400, the FP32 peak.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="464" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Register tiles, measured</text>

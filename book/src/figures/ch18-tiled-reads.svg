@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 462" width="660" height="462" role="img" aria-label="Left: tileA = 1 2 / 5 6 and tileB = 1 0 / 0 1 in shared memory during phase 0; row 0 of tileA and column 0 of tileB are highlighted. Right: thread (0, 0) of the tiled kernel of Chapter 17 at offset = 0 reads 1 and 1 and adds 1 times 1; at offset = 1 it reads 2 and 0 and adds 2 times 0: 2 reads from shared memory for each multiply-add. Below: 1 thread makes 4 reads for 2 multiply-adds, 4 FLOP, in a phase; the block of 4 threads makes 16 reads for 8 multiply-adds. Thread (0, 1) reads the same row 0 of tileA again.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,59 +27,53 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="462" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 read per FLOP in the tiled kernel</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Thread (0, 0) of Chapter 17 in phase 0: 2 shared-memory reads per multiply-add.</text>
-  <rect x="16" y="100" width="250" height="196" rx="16" fill="#F3F1EA" stroke="#E4E0D4" stroke-width="1.2"/>
+  <rect x="16" y="100" width="250" height="196" rx="16" fill="#F0EEE6" stroke="none" stroke-width="1.2"/>
   <rect x="34" y="89" width="201.1" height="22" rx="11" fill="#1B2430"/>
   <text x="134.5" y="104.2" class="tab" text-anchor="middle" style="fill:#FFFFFF" xml:space="preserve">SHARED MEMORY, PHASE 0</text>
   <text x="82.0" y="136.0" class="tab" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">TILEA</text>
   <text x="200.0" y="136.0" class="tab" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">TILEB</text>
-  <rect x="50.0" y="148.0" width="30.0" height="30.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="50.0" y="148.0" width="30.0" height="30.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="65.0" y="167.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">1</text>
-  <rect x="84.0" y="148.0" width="30.0" height="30.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="84.0" y="148.0" width="30.0" height="30.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="99.0" y="167.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">2</text>
-  <rect x="50.0" y="182.0" width="30.0" height="30.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="50.0" y="182.0" width="30.0" height="30.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="65.0" y="201.2" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">5</text>
-  <rect x="84.0" y="182.0" width="30.0" height="30.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="84.0" y="182.0" width="30.0" height="30.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="99.0" y="201.2" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
-  <rect x="168.0" y="148.0" width="30.0" height="30.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="168.0" y="148.0" width="30.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="183.0" y="167.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">1</text>
-  <rect x="202.0" y="148.0" width="30.0" height="30.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="202.0" y="148.0" width="30.0" height="30.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="217.0" y="167.2" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">0</text>
-  <rect x="168.0" y="182.0" width="30.0" height="30.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="168.0" y="182.0" width="30.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="183.0" y="201.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
-  <rect x="202.0" y="182.0" width="30.0" height="30.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="202.0" y="182.0" width="30.0" height="30.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="217.0" y="201.2" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">1</text>
   <text x="82.0" y="240.0" class="note" text-anchor="middle" xml:space="preserve">row 0</text>
   <text x="200.0" y="240.0" class="note" text-anchor="middle" xml:space="preserve">column 0</text>
   <text x="36.0" y="274.0" class="note" text-anchor="start" xml:space="preserve">thread (0, 0) computes c00</text>
-  <rect x="290.0" y="120.0" width="352.0" height="62.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="290.0" y="120.0" width="352.0" height="62.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="304.0" y="142.0" class="name" text-anchor="start" xml:space="preserve">offset = 0</text>
   <text x="360.0" y="142.0" class="note" text-anchor="start" xml:space="preserve">read tileA[0][0] = 1, tileB[0][0] = 1</text>
   <text x="360.0" y="164.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">sum += 1 · 1</text>
   <text x="626.0" y="164.0" class="pill" text-anchor="end" style="fill:#5B6BD6" xml:space="preserve">2 reads, 1 FMA</text>
-  <rect x="290.0" y="198.0" width="352.0" height="62.0" rx="5" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.2"/>
+  <rect filter="url(#m3-shadow)" x="290.0" y="198.0" width="352.0" height="62.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="304.0" y="220.0" class="name" text-anchor="start" xml:space="preserve">offset = 1</text>
   <text x="360.0" y="220.0" class="note" text-anchor="start" xml:space="preserve">read tileA[0][1] = 2, tileB[1][0] = 0</text>
   <text x="360.0" y="242.0" class="mono" text-anchor="start" style="fill:#1B2430" xml:space="preserve">sum += 2 · 0</text>
   <text x="626.0" y="242.0" class="pill" text-anchor="end" style="fill:#5B6BD6" xml:space="preserve">2 reads, 1 FMA</text>
-  <rect x="16" y="318" width="304" height="76" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <rect filter="url(#m3-shadow)" x="16" y="318" width="304" height="76" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <path d="M28,318.7 H22 V393.3 H28 A11.3,11.3 0 0 1 16.7,382 V330 A11.3,11.3 0 0 1 28,318.7 Z" fill="#2F6FDB"/>
   <text x="36.0" y="343.0" class="name" text-anchor="start" xml:space="preserve">1 thread, 1 phase</text>
   <text x="36.0" y="361.0" class="sub" text-anchor="start" xml:space="preserve">4 reads from shared memory</text>
   <text x="36.0" y="379.0" class="sub" text-anchor="start" xml:space="preserve">2 multiply-adds, 4 FLOP</text>
-  <rect x="338" y="318" width="304" height="76" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <rect filter="url(#m3-shadow)" x="338" y="318" width="304" height="76" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <path d="M350,318.7 H344 V393.3 H350 A11.3,11.3 0 0 1 338.7,382 V330 A11.3,11.3 0 0 1 350,318.7 Z" fill="#B7791F"/>
   <text x="358.0" y="343.0" class="name" text-anchor="start" xml:space="preserve">the block of 4 threads</text>
   <text x="358.0" y="361.0" class="sub" text-anchor="start" xml:space="preserve">16 reads from shared memory</text>

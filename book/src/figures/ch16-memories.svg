@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 440" width="660" height="440" role="img" aria-label="3 SM cards side by side: SM 0, SM 1 and SM p minus 1. Each holds a grid of arithmetic units, registers that hold 1 thread&#x27;s variables, and shared memory that holds 1 block&#x27;s tiles. Blue labels show 1 possible placement: blocks (0, 0) and (1, 0) on SM 0, blocks (0, 1) and (1, 1) on SM 1. All SMs connect to an L2 cache shared by all SMs, which holds recently used values of global memory, and below it to global memory, the device DRAM, which holds A, B and C.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,28 +27,19 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="440" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The memories of the device</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Registers and shared memory sit in each SM; global memory is shared.</text>
   <defs>
-    <marker id="tip-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/></marker>
-    <marker id="tip-deep" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3B47B0"/></marker>
-    <marker id="tip-mint" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse"
-      markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker>
+    <marker id="tip-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="tip-ink-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="tip-deep" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3B47B0"/></marker><marker id="tip-deep-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3B47B0"/></marker>
+    <marker id="tip-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F8A70"/></marker><marker id="tip-mint-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#1F8A70"/></marker>
   </defs>
-  <rect x="40.0" y="96.0" width="180.0" height="196.0" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="40.0" y="96.0" width="180.0" height="196.0" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="130.0" y="118.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">SM 0</text>
   <rect x="60.0" y="128.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <rect x="78.0" y="128.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
@@ -66,15 +58,15 @@
   <rect x="168.0" y="144.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <rect x="186.0" y="144.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <text x="130.0" y="172.0" text-anchor="middle" font-size="11" style="fill:#5D6B7A" xml:space="preserve">arithmetic units</text>
-  <rect x="54.0" y="180.0" width="152.0" height="36.0" rx="8" fill="#FCEFCF" stroke="#E3B55A" stroke-width="1.3"/>
+  <rect x="54.0" y="180.0" width="152.0" height="36.0" rx="8" fill="#F8E5BA" stroke="none" stroke-width="1.3"/>
   <text x="130.0" y="196.0" text-anchor="middle" font-size="12" font-weight="650" style="fill:#8A5A00" xml:space="preserve">registers</text>
   <text x="130.0" y="210.0" text-anchor="middle" font-size="10.5" style="fill:#8A5A00" xml:space="preserve">1 thread's variables</text>
-  <rect x="54.0" y="222.0" width="152.0" height="36.0" rx="8" fill="#D7F0E6" stroke="#7CC6AA" stroke-width="1.3"/>
+  <rect x="54.0" y="222.0" width="152.0" height="36.0" rx="8" fill="#C7E8DB" stroke="none" stroke-width="1.3"/>
   <text x="130.0" y="238.0" text-anchor="middle" font-size="12" font-weight="650" style="fill:#1F6F5A" xml:space="preserve">shared memory</text>
   <text x="130.0" y="252.0" text-anchor="middle" font-size="10.5" style="fill:#1F6F5A" xml:space="preserve">1 block's tiles</text>
   <text x="130.0" y="280.0" text-anchor="middle" font-size="11" style="fill:#3B47B0" xml:space="preserve">block (0, 0), block (1, 0)</text>
   <path d="M130,292 V318" stroke="#9AA6B4" stroke-width="1.4"/>
-  <rect x="240.0" y="96.0" width="180.0" height="196.0" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="240.0" y="96.0" width="180.0" height="196.0" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="330.0" y="118.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">SM 1</text>
   <rect x="260.0" y="128.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <rect x="278.0" y="128.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
@@ -93,15 +85,15 @@
   <rect x="368.0" y="144.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <rect x="386.0" y="144.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <text x="330.0" y="172.0" text-anchor="middle" font-size="11" style="fill:#5D6B7A" xml:space="preserve">arithmetic units</text>
-  <rect x="254.0" y="180.0" width="152.0" height="36.0" rx="8" fill="#FCEFCF" stroke="#E3B55A" stroke-width="1.3"/>
+  <rect x="254.0" y="180.0" width="152.0" height="36.0" rx="8" fill="#F8E5BA" stroke="none" stroke-width="1.3"/>
   <text x="330.0" y="196.0" text-anchor="middle" font-size="12" font-weight="650" style="fill:#8A5A00" xml:space="preserve">registers</text>
   <text x="330.0" y="210.0" text-anchor="middle" font-size="10.5" style="fill:#8A5A00" xml:space="preserve">1 thread's variables</text>
-  <rect x="254.0" y="222.0" width="152.0" height="36.0" rx="8" fill="#D7F0E6" stroke="#7CC6AA" stroke-width="1.3"/>
+  <rect x="254.0" y="222.0" width="152.0" height="36.0" rx="8" fill="#C7E8DB" stroke="none" stroke-width="1.3"/>
   <text x="330.0" y="238.0" text-anchor="middle" font-size="12" font-weight="650" style="fill:#1F6F5A" xml:space="preserve">shared memory</text>
   <text x="330.0" y="252.0" text-anchor="middle" font-size="10.5" style="fill:#1F6F5A" xml:space="preserve">1 block's tiles</text>
   <text x="330.0" y="280.0" text-anchor="middle" font-size="11" style="fill:#3B47B0" xml:space="preserve">block (0, 1), block (1, 1)</text>
   <path d="M330,292 V318" stroke="#9AA6B4" stroke-width="1.4"/>
-  <rect x="440.0" y="96.0" width="180.0" height="196.0" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="440.0" y="96.0" width="180.0" height="196.0" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="530.0" y="118.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">SM p − 1</text>
   <rect x="460.0" y="128.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <rect x="478.0" y="128.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
@@ -120,18 +112,18 @@
   <rect x="568.0" y="144.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <rect x="586.0" y="144.0" width="14.0" height="12.0" rx="3" fill="#E6E9FB" stroke="#C5CCF3" stroke-width="1.2"/>
   <text x="530.0" y="172.0" text-anchor="middle" font-size="11" style="fill:#5D6B7A" xml:space="preserve">arithmetic units</text>
-  <rect x="454.0" y="180.0" width="152.0" height="36.0" rx="8" fill="#FCEFCF" stroke="#E3B55A" stroke-width="1.3"/>
+  <rect x="454.0" y="180.0" width="152.0" height="36.0" rx="8" fill="#F8E5BA" stroke="none" stroke-width="1.3"/>
   <text x="530.0" y="196.0" text-anchor="middle" font-size="12" font-weight="650" style="fill:#8A5A00" xml:space="preserve">registers</text>
   <text x="530.0" y="210.0" text-anchor="middle" font-size="10.5" style="fill:#8A5A00" xml:space="preserve">1 thread's variables</text>
-  <rect x="454.0" y="222.0" width="152.0" height="36.0" rx="8" fill="#D7F0E6" stroke="#7CC6AA" stroke-width="1.3"/>
+  <rect x="454.0" y="222.0" width="152.0" height="36.0" rx="8" fill="#C7E8DB" stroke="none" stroke-width="1.3"/>
   <text x="530.0" y="238.0" text-anchor="middle" font-size="12" font-weight="650" style="fill:#1F6F5A" xml:space="preserve">shared memory</text>
   <text x="530.0" y="252.0" text-anchor="middle" font-size="10.5" style="fill:#1F6F5A" xml:space="preserve">1 block's tiles</text>
   <text x="530.0" y="280.0" text-anchor="middle" font-size="11" style="fill:#3B47B0" xml:space="preserve">…</text>
   <path d="M530,292 V318" stroke="#9AA6B4" stroke-width="1.4"/>
-  <rect x="40.0" y="318.0" width="580.0" height="34.0" rx="8" fill="#F1F2F5" stroke="#D5DBE3" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="40.0" y="318.0" width="580.0" height="34.0" rx="8" fill="#F1F2F5" stroke="none" stroke-width="1.3"/>
   <text x="330.0" y="340.0" text-anchor="middle" font-size="11.5" style="fill:#1B2430" xml:space="preserve">L2 cache: recently used values of global memory, shared by all SMs</text>
   <path d="M330,352 V370" stroke="#9AA6B4" stroke-width="1.4"/>
-  <rect x="40.0" y="370.0" width="580.0" height="48.0" rx="8" fill="#E4E7EC" stroke="#C9CED6" stroke-width="1.3"/>
+  <rect x="40.0" y="370.0" width="580.0" height="48.0" rx="8" fill="#DFE2E8" stroke="none" stroke-width="1.3"/>
   <text x="330.0" y="390.0" text-anchor="middle" font-size="13" font-weight="650" style="fill:#1B2430" xml:space="preserve">Global memory (device DRAM)</text>
   <text x="330.0" y="407.0" text-anchor="middle" font-size="11" style="fill:#5D6B7A" xml:space="preserve">A, B and C, visible to every thread</text>
 </svg>

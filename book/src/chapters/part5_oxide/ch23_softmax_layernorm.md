@@ -311,14 +311,14 @@ passes and moves \\(12 \cdot 4 + 4 \cdot 4 = 64\\) bytes.
 <p class="algo-name">Softmax-3-Pass(\(x, p, n\))</p>
 <ol>
 <li>\(m = -\infty\)</li>
-<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(m = \max(m, x_j)\) <span class="c">// pass 1: the maximum</span></li>
 <li>}</li>
-<li>\(s = 0\)</li>
-<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li class="gap">\(s = 0\)</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(s = s + e^{x_j - m}\) <span class="c">// pass 2: the sum</span></li>
 <li>}</li>
-<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(p_j = e^{x_j - m} / s\) <span class="c">// pass 3: the outputs</span></li>
 <li>}</li>
 </ol>
@@ -376,11 +376,11 @@ pass instead of 2, as the following procedure shows.
 <p class="algo-name">LayerNorm-Sum-Of-Squares(\(x, y, n, \gamma, \beta\))</p>
 <ol>
 <li>\(\mathsf{sum} = 0\), \(\mathsf{squares} = 0\)</li>
-<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + x_j\), \(\mathsf{squares} = \mathsf{squares} + x_j^2\) <span class="c">// pass 1: 2 sums</span></li>
 <li>}</li>
-<li>\(\mu = \mathsf{sum} / n\), \(\sigma^2 = \mathsf{squares} / n - \mu^2\)</li>
-<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li class="gap">\(\mu = \mathsf{sum} / n\), \(\sigma^2 = \mathsf{squares} / n - \mu^2\)</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(y_j = (x_j - \mu) / \sqrt{\sigma^2 + \varepsilon} \cdot \gamma_j + \beta_j\) <span class="c">// pass 2: the outputs</span></li>
 <li>}</li>
 </ol>
@@ -551,7 +551,7 @@ describes a set \\(S\\) of values when \\(m = \max S\\) and \\(s = \sum_{x \in S
 <p class="algo-name">Online-Softmax(\(x, p, n\))</p>
 <ol>
 <li>\(m = -\infty\), \(s = 0\) <span class="c">// the empty state</span></li>
-<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1"><b class="kw">if</b> \(x_j > m\) {</li>
 <li style="--d:2">\(s = s \cdot e^{m - x_j} + 1\) <span class="c">// move the sum to the new maximum</span></li>
 <li style="--d:2">\(m = x_j\)</li>
@@ -559,7 +559,7 @@ describes a set \\(S\\) of values when \\(m = \max S\\) and \\(s = \sum_{x \in S
 <li style="--d:2">\(s = s + e^{x_j - m}\)</li>
 <li style="--d:1">}</li>
 <li>}</li>
-<li><b class="kw">for</b> \(j \in [0, n)\) {</li>
+<li class="gap"><b class="kw">for</b> \(j \in [0, n)\) {</li>
 <li style="--d:1">\(p_j = e^{x_j - m} / s\)</li>
 <li>}</li>
 </ol>
@@ -633,10 +633,10 @@ The key observation thus combines 2 states as easily as it adds 1 value.
 <p class="algo-name">Merge-Softmax(\((m_a, s_a), (m_b, s_b)\))</p>
 <ol>
 <li>\(m = \max(m_a, m_b)\)</li>
-<li><b class="kw">if</b> \(m = -\infty\) {</li>
+<li class="gap"><b class="kw">if</b> \(m = -\infty\) {</li>
 <li style="--d:1"><b class="kw">return</b> \((-\infty, 0)\) <span class="c">// both states are empty</span></li>
 <li>}</li>
-<li><b class="kw">return</b> \((m,\; s_a e^{m_a - m} + s_b e^{m_b - m})\)</li>
+<li class="gap"><b class="kw">return</b> \((m,\; s_a e^{m_a - m} + s_b e^{m_b - m})\)</li>
 </ol>
 </div>
 
@@ -744,7 +744,7 @@ it multiplies 2 deviations, never 2 values.
 <li>\(\delta = x - \mu\) <span class="c">// deviation from the old mean</span></li>
 <li>\(\mu = \mu + \delta / n\)</li>
 <li>\(q = q + \delta \cdot (x - \mu)\) <span class="c">// old deviation times new deviation</span></li>
-<li><b class="kw">return</b> \((n, \mu, q)\)</li>
+<li class="gap"><b class="kw">return</b> \((n, \mu, q)\)</li>
 </ol>
 </div>
 
@@ -819,13 +819,13 @@ and LeVeque.
 <p class="algo-name">Merge-Welford(\((n_a, \mu_a, q_a), (n_b, \mu_b, q_b)\))</p>
 <ol>
 <li>\(n = n_a + n_b\)</li>
-<li><b class="kw">if</b> \(n = 0\) {</li>
+<li class="gap"><b class="kw">if</b> \(n = 0\) {</li>
 <li style="--d:1"><b class="kw">return</b> \((0, 0, 0)\) <span class="c">// both states are empty</span></li>
 <li>}</li>
-<li>\(\delta = \mu_b - \mu_a\)</li>
+<li class="gap">\(\delta = \mu_b - \mu_a\)</li>
 <li>\(\mu = \mu_a + \delta \, n_b / n\)</li>
 <li>\(q = q_a + q_b + \delta^2 \, n_a n_b / n\)</li>
-<li><b class="kw">return</b> \((n, \mu, q)\)</li>
+<li class="gap"><b class="kw">return</b> \((n, \mu, q)\)</li>
 </ol>
 </div>
 
@@ -1024,10 +1024,10 @@ butterfly with these 3 steps.
 <li class="gap"><b class="kw">if</b> \(\mathsf{threadIdx{.}x} \bmod 32 = 0\) {</li>
 <li style="--d:1">\(\mathsf{slots}[\lfloor \mathsf{threadIdx{.}x} / 32 \rfloor] = \mathsf{value}\) <span class="c">// lane 0 writes its warp's slot</span></li>
 <li>}</li>
-<li><span class="sc">Barrier</span>() <span class="c">// barrier 1: all slots written</span></li>
+<li class="gap"><span class="sc">Barrier</span>() <span class="c">// barrier 1: all slots written</span></li>
 <li class="gap">\(\mathsf{result} = \mathsf{slots}[0] \otimes \mathsf{slots}[1] \otimes \dots \otimes \mathsf{slots}[7]\)</li>
 <li><span class="sc">Barrier</span>() <span class="c">// barrier 2: all slots read</span></li>
-<li><b class="kw">return</b> \(\mathsf{result}\)</li>
+<li class="gap"><b class="kw">return</b> \(\mathsf{result}\)</li>
 </ol>
 </div>
 

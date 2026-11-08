@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" width="660" height="340" role="img" aria-label="4 threads of a block as horizontal bars on a time axis, with a vertical line for the barrier. Thread 3 arrives first, then thread 0, thread 2 and finally thread 1; each early thread waits on a dotted line until the barrier. After the barrier, all 4 bars start at the same time.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,40 +27,34 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="340" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A barrier</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">The 4 threads arrive at different times, wait, and leave together.</text>
   <text x="400.0" y="100.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;font-weight:700;fill:#1B2430">barrier</text>
   <text x="130.0" y="134.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread 0</text>
-  <rect x="150.0" y="120.0" width="100.0" height="22.0" rx="6" fill="#DDE3FB" stroke="#DDE3FB" stroke-width="1.2"/>
+  <rect x="150.0" y="120.0" width="100.0" height="22.0" rx="6" fill="#DDE3FB" stroke="none" stroke-width="1.2"/>
   <line x1="250.0" y1="131.0" x2="396.0" y2="131.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
   <circle cx="250.0" cy="131.0" r="4" fill="#1B2430"/>
-  <rect x="408.0" y="120.0" width="150.0" height="22.0" rx="6" fill="#DDE3FB" stroke="#DDE3FB" stroke-width="1.2"/>
+  <rect x="408.0" y="120.0" width="150.0" height="22.0" rx="6" fill="#DDE3FB" stroke="none" stroke-width="1.2"/>
   <text x="130.0" y="178.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread 1</text>
-  <rect x="150.0" y="164.0" width="240.0" height="22.0" rx="6" fill="#D7F0E6" stroke="#D7F0E6" stroke-width="1.2"/>
+  <rect x="150.0" y="164.0" width="240.0" height="22.0" rx="6" fill="#D7F0E6" stroke="none" stroke-width="1.2"/>
   <line x1="390.0" y1="175.0" x2="396.0" y2="175.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
   <circle cx="390.0" cy="175.0" r="4" fill="#1B2430"/>
-  <rect x="408.0" y="164.0" width="150.0" height="22.0" rx="6" fill="#D7F0E6" stroke="#D7F0E6" stroke-width="1.2"/>
+  <rect x="408.0" y="164.0" width="150.0" height="22.0" rx="6" fill="#D7F0E6" stroke="none" stroke-width="1.2"/>
   <text x="130.0" y="222.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread 2</text>
-  <rect x="150.0" y="208.0" width="180.0" height="22.0" rx="6" fill="#FBE3D2" stroke="#FBE3D2" stroke-width="1.2"/>
+  <rect x="150.0" y="208.0" width="180.0" height="22.0" rx="6" fill="#FBE3D2" stroke="none" stroke-width="1.2"/>
   <line x1="330.0" y1="219.0" x2="396.0" y2="219.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
   <circle cx="330.0" cy="219.0" r="4" fill="#1B2430"/>
-  <rect x="408.0" y="208.0" width="150.0" height="22.0" rx="6" fill="#FBE3D2" stroke="#FBE3D2" stroke-width="1.2"/>
+  <rect x="408.0" y="208.0" width="150.0" height="22.0" rx="6" fill="#FBE3D2" stroke="none" stroke-width="1.2"/>
   <text x="130.0" y="266.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread 3</text>
-  <rect x="150.0" y="252.0" width="55.0" height="22.0" rx="6" fill="#F9DCE6" stroke="#F9DCE6" stroke-width="1.2"/>
+  <rect x="150.0" y="252.0" width="55.0" height="22.0" rx="6" fill="#F9DCE6" stroke="none" stroke-width="1.2"/>
   <line x1="205.0" y1="263.0" x2="396.0" y2="263.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
   <circle cx="205.0" cy="263.0" r="4" fill="#1B2430"/>
-  <rect x="408.0" y="252.0" width="150.0" height="22.0" rx="6" fill="#F9DCE6" stroke="#F9DCE6" stroke-width="1.2"/>
+  <rect x="408.0" y="252.0" width="150.0" height="22.0" rx="6" fill="#F9DCE6" stroke="none" stroke-width="1.2"/>
   <line x1="400.0" y1="108.0" x2="400.0" y2="296.0" stroke="#1B2430" stroke-width="2.5"/>
   <text x="275.0" y="320.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;fill:#5D6B7A">arrive at different times; dotted = waiting</text>
   <text x="483.0" y="320.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;fill:#5D6B7A">leave together</text>

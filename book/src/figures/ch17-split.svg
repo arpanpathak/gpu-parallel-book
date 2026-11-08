@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 386" width="660" height="386" role="img" aria-label="Matrices A and B of the 4 by 4 example. Row 0 of A and column 0 of B are colored in 2 groups: columns 0 and 1 of A with rows 0 and 1 of B in blue, columns 2 and 3 of A with rows 2 and 3 of B in amber. Below, the blue group gives 1 times 1 plus 2 times 0 = 1 (phase 0), the amber group 3 times 2 plus 4 times 1 = 10 (phase 1), and 1 + 10 = 11, the entry c00.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,89 +27,83 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="386" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Splitting the sum</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">c00 = 11 as 2 groups of 2 terms: each group uses a 2 × 2 piece of A and of B.</text>
   <text x="216.0" y="98.0" text-anchor="middle" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">A</text>
   <text x="466.0" y="98.0" text-anchor="middle" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">B</text>
-  <rect x="130.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="130.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="150.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">1</text>
-  <rect x="174.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="174.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">2</text>
-  <rect x="218.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="218.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="238.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">3</text>
-  <rect x="262.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="262.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="282.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">4</text>
-  <rect x="130.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="130.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="150.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">5</text>
-  <rect x="174.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="174.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">6</text>
-  <rect x="218.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="218.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="238.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">7</text>
-  <rect x="262.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="262.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="282.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">8</text>
-  <rect x="130.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="130.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="150.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">9</text>
-  <rect x="174.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="174.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">10</text>
-  <rect x="218.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="218.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="238.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">11</text>
-  <rect x="262.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="262.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="282.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">12</text>
-  <rect x="130.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="130.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="150.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">13</text>
-  <rect x="174.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="174.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">14</text>
-  <rect x="218.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="218.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="238.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">15</text>
-  <rect x="262.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="262.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="282.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">16</text>
-  <rect x="380.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="380.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="400.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">1</text>
-  <rect x="424.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="424.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="444.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">0</text>
-  <rect x="468.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="468.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="488.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">2</text>
-  <rect x="512.0" y="110.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="512.0" y="110.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="532.0" y="134.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">1</text>
-  <rect x="380.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="380.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="400.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">0</text>
-  <rect x="424.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="424.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="444.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">1</text>
-  <rect x="468.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="468.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="488.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">1</text>
-  <rect x="512.0" y="154.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="512.0" y="154.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="532.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">2</text>
-  <rect x="380.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="380.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="400.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">2</text>
-  <rect x="424.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="424.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="444.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">1</text>
-  <rect x="468.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="468.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="488.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">0</text>
-  <rect x="512.0" y="198.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="512.0" y="198.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="532.0" y="222.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">1</text>
-  <rect x="380.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="380.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="400.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">1</text>
-  <rect x="424.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="424.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="444.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">2</text>
-  <rect x="468.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="468.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="488.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">1</text>
-  <rect x="512.0" y="242.0" width="40.0" height="40.0" rx="5" fill="#FFFFFF" stroke="#E6EAEF" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="512.0" y="242.0" width="40.0" height="40.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <text x="532.0" y="266.7" text-anchor="middle" style="font-size:13px;fill:#B8C0CA">0</text>
-  <rect x="150.0" y="310.0" width="150.0" height="34.0" rx="6" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.2"/>
+  <rect x="150.0" y="310.0" width="150.0" height="34.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.2"/>
   <text x="225.0" y="331.0" text-anchor="middle" xml:space="preserve" style="font-size:11.5px;fill:#1B2430">1·1 + 2·0 = 1</text>
   <text x="320.0" y="332.0" text-anchor="middle" xml:space="preserve" style="font-size:16px;fill:#1B2430">+</text>
-  <rect x="340.0" y="310.0" width="150.0" height="34.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="340.0" y="310.0" width="150.0" height="34.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="415.0" y="331.0" text-anchor="middle" xml:space="preserve" style="font-size:11.5px;fill:#1B2430">3·2 + 4·1 = 10</text>
   <text x="512.0" y="332.0" text-anchor="middle" xml:space="preserve" style="font-size:15px;font-weight:700;fill:#1B2430">= 11</text>
   <text x="225.0" y="364.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;font-weight:700;fill:#2F6FDB">phase 0</text>

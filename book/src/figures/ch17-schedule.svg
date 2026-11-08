@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 322" width="660" height="322" role="img" aria-label="A timeline of 4 threads over 1 phase with both barriers. The loads of one phase end at different times, and each thread waits on a dotted line until barrier 1. All 4 threads then compute that phase, meet at barrier 2, and start the loads of the next phase.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="322" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 phase with both barriers</text>
@@ -43,25 +38,25 @@
   <text x="370.0" y="100.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;fill:#5D6B7A">compute this phase</text>
   <text x="540.0" y="100.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;fill:#5D6B7A">load next phase</text>
   <text x="140.0" y="132.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread (0,0)</text>
-  <rect x="156.0" y="118.0" width="62.0" height="22.0" rx="6" fill="#DDE3FB" stroke="#DDE3FB" stroke-width="1.2"/>
+  <rect x="156.0" y="118.0" width="62.0" height="22.0" rx="6" fill="#DDE3FB" stroke="none" stroke-width="1.2"/>
   <line x1="222.0" y1="129.0" x2="266.0" y2="129.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
-  <rect x="276.0" y="118.0" width="188.0" height="22.0" rx="6" fill="#DDE3FB" stroke="#DDE3FB" stroke-width="1.2"/>
-  <rect x="476.0" y="118.0" width="44.0" height="22.0" rx="6" fill="#DDE3FB" stroke="#DDE3FB" stroke-width="1.2"/>
+  <rect x="276.0" y="118.0" width="188.0" height="22.0" rx="6" fill="#DDE3FB" stroke="none" stroke-width="1.2"/>
+  <rect x="476.0" y="118.0" width="44.0" height="22.0" rx="6" fill="#DDE3FB" stroke="none" stroke-width="1.2"/>
   <text x="140.0" y="172.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread (0,1)</text>
-  <rect x="156.0" y="158.0" width="100.0" height="22.0" rx="6" fill="#D7F0E6" stroke="#D7F0E6" stroke-width="1.2"/>
+  <rect x="156.0" y="158.0" width="100.0" height="22.0" rx="6" fill="#D7F0E6" stroke="none" stroke-width="1.2"/>
   <line x1="260.0" y1="169.0" x2="266.0" y2="169.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
-  <rect x="276.0" y="158.0" width="188.0" height="22.0" rx="6" fill="#D7F0E6" stroke="#D7F0E6" stroke-width="1.2"/>
-  <rect x="476.0" y="158.0" width="80.0" height="22.0" rx="6" fill="#D7F0E6" stroke="#D7F0E6" stroke-width="1.2"/>
+  <rect x="276.0" y="158.0" width="188.0" height="22.0" rx="6" fill="#D7F0E6" stroke="none" stroke-width="1.2"/>
+  <rect x="476.0" y="158.0" width="80.0" height="22.0" rx="6" fill="#D7F0E6" stroke="none" stroke-width="1.2"/>
   <text x="140.0" y="212.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread (1,0)</text>
-  <rect x="156.0" y="198.0" width="80.0" height="22.0" rx="6" fill="#FBE3D2" stroke="#FBE3D2" stroke-width="1.2"/>
+  <rect x="156.0" y="198.0" width="80.0" height="22.0" rx="6" fill="#FBE3D2" stroke="none" stroke-width="1.2"/>
   <line x1="240.0" y1="209.0" x2="266.0" y2="209.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
-  <rect x="276.0" y="198.0" width="188.0" height="22.0" rx="6" fill="#FBE3D2" stroke="#FBE3D2" stroke-width="1.2"/>
-  <rect x="476.0" y="198.0" width="64.0" height="22.0" rx="6" fill="#FBE3D2" stroke="#FBE3D2" stroke-width="1.2"/>
+  <rect x="276.0" y="198.0" width="188.0" height="22.0" rx="6" fill="#FBE3D2" stroke="none" stroke-width="1.2"/>
+  <rect x="476.0" y="198.0" width="64.0" height="22.0" rx="6" fill="#FBE3D2" stroke="none" stroke-width="1.2"/>
   <text x="140.0" y="252.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#1B2430">thread (1,1)</text>
-  <rect x="156.0" y="238.0" width="50.0" height="22.0" rx="6" fill="#F9DCE6" stroke="#F9DCE6" stroke-width="1.2"/>
+  <rect x="156.0" y="238.0" width="50.0" height="22.0" rx="6" fill="#F9DCE6" stroke="none" stroke-width="1.2"/>
   <line x1="210.0" y1="249.0" x2="266.0" y2="249.0" stroke="#5D6B7A" stroke-width="1.2" stroke-dasharray="3 4"/>
-  <rect x="276.0" y="238.0" width="188.0" height="22.0" rx="6" fill="#F9DCE6" stroke="#F9DCE6" stroke-width="1.2"/>
-  <rect x="476.0" y="238.0" width="34.0" height="22.0" rx="6" fill="#F9DCE6" stroke="#F9DCE6" stroke-width="1.2"/>
+  <rect x="276.0" y="238.0" width="188.0" height="22.0" rx="6" fill="#F9DCE6" stroke="none" stroke-width="1.2"/>
+  <rect x="476.0" y="238.0" width="34.0" height="22.0" rx="6" fill="#F9DCE6" stroke="none" stroke-width="1.2"/>
   <line x1="270.0" y1="106.0" x2="270.0" y2="280.0" stroke="#1B2430" stroke-width="2.5"/>
   <line x1="470.0" y1="106.0" x2="470.0" y2="280.0" stroke="#1B2430" stroke-width="2.5"/>
   <text x="270.0" y="300.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;font-weight:700;fill:#1B2430">barrier 1</text>

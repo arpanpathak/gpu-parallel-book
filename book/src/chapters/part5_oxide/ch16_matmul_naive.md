@@ -201,7 +201,7 @@ for that entry.
 <li><b class="kw">for</b> \(\mathsf{row} \in [0, M)\) {</li>
 <li style="--d:1"><b class="kw">for</b> \(\mathsf{col} \in [0, N)\) {</li>
 <li style="--d:2">\(c_{\mathsf{row}, \mathsf{col}} = 0\)</li>
-<li style="--d:2"><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
+<li class="gap" style="--d:2"><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
 <li style="--d:3">\(c_{\mathsf{row}, \mathsf{col}} = c_{\mathsf{row}, \mathsf{col}} + a_{\mathsf{row}, \mathsf{inner}} \cdot b_{\mathsf{inner}, \mathsf{col}}\)</li>
 <li style="--d:2">}</li>
 <li style="--d:1">}</li>
@@ -305,10 +305,10 @@ wait for one another. The **grid** is the set of all blocks of 1 launch.
 
 Blocks and grids can extend along 1, 2 or 3 axes, named \\(x\\), \\(y\\) and \\(z\\), and we choose
 the shape to match the data. For each thread, the GPU provides 3 values from which the thread can
-work out which piece of the data belongs to it. The value *blockIdx* is the position of the
-thread's block within the grid, *threadIdx* is the position of the thread within its block, and
-*blockDim* is the size of a block, that is, the number of threads it holds along each axis. Each
-of the 3 values has 1 component per axis, written with a suffix; for example, *threadIdx.x* is
+work out which piece of the data belongs to it. The value \\(\mathsf{blockIdx}\\) is the position of the
+thread's block within the grid, \\(\mathsf{threadIdx}\\) is the position of the thread within its block, and
+\\(\mathsf{blockDim}\\) is the size of a block, that is, the number of threads it holds along each axis. Each
+of the 3 values has 1 component per axis, written with a suffix; for example, \\(\mathsf{threadIdx{.}x}\\) is
 the position of the thread along the axis \\(x\\). We first see how a thread uses these values in
 1 dimension, where the computation is easiest to follow.
 
@@ -549,7 +549,7 @@ Section 16.3.2. Every thread executes the following procedure.
 <li style="--d:1"><b class="kw">return</b></li>
 <li>}</li>
 <li class="gap">\(\mathsf{sum} = 0\)</li>
-<li><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
+<li class="gap"><b class="kw">for</b> \(\mathsf{inner} \in [0, K)\) {</li>
 <li style="--d:1">\(\mathsf{sum} = \mathsf{sum} + a_{\mathsf{row}, \mathsf{inner}} \cdot b_{\mathsf{inner}, \mathsf{col}}\) <span class="c">// 2 reads from global memory</span></li>
 <li>}</li>
 <li class="gap">\(c_{\mathsf{row}, \mathsf{col}} = \mathsf{sum}\)</li>

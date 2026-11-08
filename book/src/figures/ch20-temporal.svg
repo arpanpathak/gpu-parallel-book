@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 456" width="640" height="456" role="img" aria-label="A 32 by 32 tile drawn as nested squares. The outer ring 4 cells wide is the halo, loaded from global memory. After step 1 the correct region is 30 by 30, after step 2 28 by 28, after step 3 26 by 26, after step 4 24 by 24, the block&#x27;s own cells, which are written to global memory. Beside it, 2 tiles in shared memory, A and B, with arrows A to B for steps 1 and 3 and B to A for steps 2 and 4.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="640" height="456" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">Temporal blocking with K = 4</text>
@@ -56,28 +51,28 @@
   <rect x="362" y="226" width="12" height="12" rx="2" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.4"/>
   <text x="190.0" y="394.4" class="note" text-anchor="middle" xml:space="preserve">halo 4 cells wide, own cells 24 × 24</text>
   <text x="362.0" y="300.0" class="note" text-anchor="start" xml:space="preserve">step 1</text>
-  <rect x="420.0" y="284.0" width="44.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="420.0" y="284.0" width="44.0" height="24.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="442.0" y="300.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">A</text>
-  <path d="M468.0,296.0 L530.0,296.0" stroke="#3F5873" stroke-width="1.8" fill="none" marker-end="url(#head)"/>
-  <rect x="534.0" y="284.0" width="44.0" height="24.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <path d="M 468,296 L 524.0,296.0" stroke="#3F5873" stroke-width="1.8" fill="none" stroke-linecap="butt" marker-end="url(#head)"/>
+  <rect x="534.0" y="284.0" width="44.0" height="24.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="556.0" y="300.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">B</text>
   <text x="362.0" y="334.0" class="note" text-anchor="start" xml:space="preserve">step 2</text>
-  <rect x="420.0" y="318.0" width="44.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="420.0" y="318.0" width="44.0" height="24.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="442.0" y="334.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">B</text>
-  <path d="M468.0,330.0 L530.0,330.0" stroke="#3F5873" stroke-width="1.8" fill="none" marker-end="url(#head)"/>
-  <rect x="534.0" y="318.0" width="44.0" height="24.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <path d="M 468,330 L 524.0,330.0" stroke="#3F5873" stroke-width="1.8" fill="none" stroke-linecap="butt" marker-end="url(#head)"/>
+  <rect x="534.0" y="318.0" width="44.0" height="24.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="556.0" y="334.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">A</text>
   <text x="362.0" y="368.0" class="note" text-anchor="start" xml:space="preserve">step 3</text>
-  <rect x="420.0" y="352.0" width="44.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="420.0" y="352.0" width="44.0" height="24.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="442.0" y="368.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">A</text>
-  <path d="M468.0,364.0 L530.0,364.0" stroke="#3F5873" stroke-width="1.8" fill="none" marker-end="url(#head)"/>
-  <rect x="534.0" y="352.0" width="44.0" height="24.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <path d="M 468,364 L 524.0,364.0" stroke="#3F5873" stroke-width="1.8" fill="none" stroke-linecap="butt" marker-end="url(#head)"/>
+  <rect x="534.0" y="352.0" width="44.0" height="24.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="556.0" y="368.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">B</text>
   <text x="362.0" y="402.0" class="note" text-anchor="start" xml:space="preserve">step 4</text>
-  <rect x="420.0" y="386.0" width="44.0" height="24.0" rx="4" fill="#EAF1FD" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="420.0" y="386.0" width="44.0" height="24.0" rx="8" fill="#C8DAF7" stroke="none" stroke-width="1.3"/>
   <text x="442.0" y="402.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">B</text>
-  <path d="M468.0,398.0 L530.0,398.0" stroke="#3F5873" stroke-width="1.8" fill="none" marker-end="url(#head)"/>
-  <rect x="534.0" y="386.0" width="44.0" height="24.0" rx="4" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <path d="M 468,398 L 524.0,398.0" stroke="#3F5873" stroke-width="1.8" fill="none" stroke-linecap="butt" marker-end="url(#head)"/>
+  <rect x="534.0" y="386.0" width="44.0" height="24.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="556.0" y="402.0" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">A</text>
   <text x="362.0" y="438.0" class="note" text-anchor="start" xml:space="preserve">2 tiles in shared memory, used in turn</text>
 </svg>

@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" width="660" height="340" role="img" aria-label="Row 0 of A, 1 2 3 4, and column 0 of B, 1 0 2 1, drawn as 2 rows of cells: the first 2 cells of each in blue (phase 0), the last 2 in amber (phase 1). Below, 3 bars show how much of the dot product sum covers: at the start of phase 0 no terms, sum = 0; at the start of phase 1 the terms s in [0, 2), sum = 1 times 1 plus 2 times 0 = 1; at the end of the loop, the terms s in [0, 4), sum = 1 + 3 times 2 + 4 times 1 = 11 = c00.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,36 +27,30 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="340" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The loop invariant</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Thread (0, 0) with T = 2: before each phase, sum holds the terms s ∈ [0, phase · T).</text>
   <text x="136.0" y="124.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#5D6B7A">row 0 of A</text>
   <text x="136.0" y="176.0" text-anchor="end" xml:space="preserve" style="font-size:12px;fill:#5D6B7A">column 0 of B</text>
-  <rect x="150.0" y="100.0" width="44.0" height="44.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="150.0" y="100.0" width="44.0" height="44.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="172.0" y="126.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">1</text>
-  <rect x="150.0" y="152.0" width="44.0" height="44.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="150.0" y="152.0" width="44.0" height="44.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="172.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">1</text>
-  <rect x="198.0" y="100.0" width="44.0" height="44.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="198.0" y="100.0" width="44.0" height="44.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="220.0" y="126.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">2</text>
-  <rect x="198.0" y="152.0" width="44.0" height="44.0" rx="5" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="198.0" y="152.0" width="44.0" height="44.0" rx="8" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="220.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#2F6FDB">0</text>
-  <rect x="246.0" y="100.0" width="44.0" height="44.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="246.0" y="100.0" width="44.0" height="44.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="268.0" y="126.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">3</text>
-  <rect x="246.0" y="152.0" width="44.0" height="44.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="246.0" y="152.0" width="44.0" height="44.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="268.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">2</text>
-  <rect x="294.0" y="100.0" width="44.0" height="44.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="294.0" y="100.0" width="44.0" height="44.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="316.0" y="126.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">4</text>
-  <rect x="294.0" y="152.0" width="44.0" height="44.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="294.0" y="152.0" width="44.0" height="44.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="316.0" y="178.7" text-anchor="middle" style="font-size:13px;fill:#B7791F">1</text>
   <text x="136.0" y="239.0" text-anchor="end" xml:space="preserve" style="font-size:12px;font-weight:700;fill:#1B2430">start of phase 0</text>
   <rect x="150.0" y="226.0" width="4.0" height="18.0" rx="6" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>

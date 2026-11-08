@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 250" width="660" height="250" role="img" aria-label="4 boxes in a row: load tiles, global to shared; barrier, all loads complete; compute, T multiply-adds; barrier, all reads complete. An arrow runs from the last box back to the first, labeled next phase: phase + 1, while phase is less than the ceiling of K over T.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,36 +27,30 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="250" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">One phase of the tiled kernel</text>
   <text x="32.0" y="63.0" class="lede" text-anchor="start" xml:space="preserve">Copy, wait, compute, wait. The cycle repeats ⌈K/T⌉ times.</text>
   <text x="330.0" y="96.0" text-anchor="middle" xml:space="preserve" style="font-size:12px;font-weight:700;fill:#1B2430">one phase</text>
-  <rect x="33" y="112" width="128" height="58" rx="10" fill="#DDE7FB" stroke="#2F6FDB" stroke-width="1.3"/>
+  <rect x="33" y="112" width="128" height="58" rx="10" fill="#BED1F5" stroke="none" stroke-width="1.3"/>
   <text x="97.0" y="137.0" text-anchor="middle" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">load tiles</text>
   <text x="97.0" y="156.0" text-anchor="middle" xml:space="preserve" style="font-size:11.5px;fill:#5D6B7A">global → shared</text>
-  <path class="wire" d="M161,141 L189,141" marker-end="url(#head)"/>
-  <rect x="189" y="112" width="128" height="58" rx="10" fill="#EEF0F3" stroke="#9AA5B1" stroke-width="1.3"/>
+  <path class="wire" d="M 161,141 L 183.0,141.0" stroke-linecap="butt" marker-end="url(#head)"/>
+  <rect x="189" y="112" width="128" height="58" rx="10" fill="#DFE2E7" stroke="none" stroke-width="1.3"/>
   <text x="253.0" y="137.0" text-anchor="middle" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">barrier</text>
   <text x="253.0" y="156.0" text-anchor="middle" xml:space="preserve" style="font-size:11.5px;fill:#5D6B7A">all loads complete</text>
-  <path class="wire" d="M317,141 L345,141" marker-end="url(#head)"/>
-  <rect x="345" y="112" width="128" height="58" rx="10" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.3"/>
+  <path class="wire" d="M 317,141 L 339.0,141.0" stroke-linecap="butt" marker-end="url(#head)"/>
+  <rect x="345" y="112" width="128" height="58" rx="10" fill="#C6CDF4" stroke="none" stroke-width="1.3"/>
   <text x="409.0" y="137.0" text-anchor="middle" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">compute</text>
   <text x="409.0" y="156.0" text-anchor="middle" xml:space="preserve" style="font-size:11.5px;fill:#5D6B7A">T multiply-adds</text>
-  <path class="wire" d="M473,141 L501,141" marker-end="url(#head)"/>
-  <rect x="501" y="112" width="128" height="58" rx="10" fill="#EEF0F3" stroke="#9AA5B1" stroke-width="1.3"/>
+  <path class="wire" d="M 473,141 L 495.0,141.0" stroke-linecap="butt" marker-end="url(#head)"/>
+  <rect x="501" y="112" width="128" height="58" rx="10" fill="#DFE2E7" stroke="none" stroke-width="1.3"/>
   <text x="565.0" y="137.0" text-anchor="middle" xml:space="preserve" style="font-size:13px;font-weight:700;fill:#1B2430">barrier</text>
   <text x="565.0" y="156.0" text-anchor="middle" xml:space="preserve" style="font-size:11.5px;fill:#5D6B7A">all reads complete</text>
-  <path class="wire" d="M565.0,170 L565.0,213 Q565.0,222 556.0,222 L106.0,222 Q97.0,222 97.0,213 L97.0,170" marker-end="url(#head)"/>
+  <path class="wire" d="M 565,170 L 565,213 Q 565,222 556,222 L 106,222 Q 97,222 97,213 L 97.0,176.0" stroke-linecap="butt" marker-end="url(#head)"/>
   <rect x="185.4" y="213.0" width="291.2" height="18" rx="9" fill="#FBFAF6" stroke="#3F5873" stroke-width="1"/>
   <text x="331.0" y="225.8" class="pill" text-anchor="middle" style="fill:#3F5873" xml:space="preserve">next phase: phase + 1, while phase &lt; ⌈K/T⌉</text>
 </svg>

@@ -10,6 +10,9 @@ code/cuda/ch14_map_saxpy).
 from html import escape
 from pathlib import Path
 
+
+from fig_arrows import materialize, sharpen
+
 OUT = Path(__file__).resolve().parent.parent / "src" / "figures"
 
 INK = "#1F2633"
@@ -179,7 +182,7 @@ def save(name, w, h, alt, parts):
            f'{T(28, 38, title, 18, INK, "start", 700)}\n'
            f'{T(28, 60, lede, 12.5, "#5D6B7A", "start")}\n'
            f'  <g transform="translate(0,{HEAD_ROOM})">\n{body}\n  </g>\n</svg>\n')
-    (OUT / name).write_text(svg)
+    (OUT / name).write_text(materialize(sharpen(svg)))
 
 
 def barrier(x1, x2, y):

@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 486" width="640" height="486" role="img" aria-label="A warp sum by shuffles, drawn on 8 lanes. The registers start as 2, 6, 3, 4, 5, 1, 8, 3. With distance 4, lanes 0 to 3 add the values of lanes 4 to 7: 7, 7, 11, 7. With distance 2: 18, 14. With distance 1: lane 0 holds 32. The same numbers as the tree in shared memory, with no shared memory and no barrier.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#8E99A8"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#00897B"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#E65100"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2185B"/></marker>
+    <marker id="m-hi" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker><marker id="m-hi-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#8E99A8"/></marker><marker id="m-grey-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2412D"/></marker><marker id="m-red-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F2633"/></marker><marker id="m-ink-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#2E8B57"/></marker><marker id="m-green-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker><marker id="m-blue-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#00897B"/></marker><marker id="m-mint-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#E65100"/></marker><marker id="m-peach-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2185B"/></marker><marker id="m-pink-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#C2185B"/></marker>
     <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="486" rx="14" fill="#FBFAF6"/>
@@ -28,121 +29,121 @@
   <text x="440.0" y="40.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">lane 5</text>
   <text x="494.0" y="40.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">lane 6</text>
   <text x="548.0" y="40.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">lane 7</text>
-  <rect x="150.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="150.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="150.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="170.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
-  <rect x="204.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="204.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="204.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="224.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
-  <rect x="258.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FFE6D6" stroke="#FFE6D6" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="258.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FFE6D6" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="258.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#E65100"/>
   <text x="278.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
-  <rect x="312.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FCE0EA" stroke="#FCE0EA" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="312.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FCE0EA" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="312.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#C2185B"/>
   <text x="332.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
-  <rect x="366.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="366.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="366.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="386.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
-  <rect x="420.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="420.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="420.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="440.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
-  <rect x="474.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FFE6D6" stroke="#FFE6D6" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="474.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FFE6D6" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="474.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#E65100"/>
   <text x="494.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
-  <rect x="528.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FCE0EA" stroke="#FCE0EA" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="528.0" y="48.0" width="40.0" height="28.0" rx="8" fill="#FCE0EA" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="528.0" y="73.0" width="40.0" height="3" rx="1.5" fill="#C2185B"/>
   <text x="548.0" y="66.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
   <text x="136.0" y="66.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">start</text>
-  <path d="M170.0,79 L170.0,111" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
-  <path d="M386.0,79 C386.0,119 200.0,90.0 176.4,113.6" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
-  <path d="M170.0,128 L170.0,139" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
+  <path d="M 170,79 L 170.0,105.0" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue)"/>
+  <path d="M 386,79 C 386.0,119.0 200.0,90.0 180.6,109.4" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue)"/>
+  <path d="M 170,128 L 170.0,135.4" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue-small)"/>
   <circle cx="170.0" cy="120.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="170.0" y="124.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <path d="M224.0,79 L224.0,111" fill="none" stroke="#00897B" stroke-width="2.2" marker-end="url(#m-mint)"/>
-  <path d="M440.0,79 C440.0,119 254.0,90.0 230.4,113.6" fill="none" stroke="#00897B" stroke-width="2.2" marker-end="url(#m-mint)"/>
-  <path d="M224.0,128 L224.0,139" fill="none" stroke="#00897B" stroke-width="2.2" marker-end="url(#m-mint)"/>
+  <path d="M 224,79 L 224.0,105.0" fill="none" stroke="#00897B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-mint)"/>
+  <path d="M 440,79 C 440.0,119.0 254.0,90.0 234.6,109.4" fill="none" stroke="#00897B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-mint)"/>
+  <path d="M 224,128 L 224.0,135.4" fill="none" stroke="#00897B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-mint-small)"/>
   <circle cx="224.0" cy="120.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="224.0" y="124.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <path d="M278.0,79 L278.0,111" fill="none" stroke="#E65100" stroke-width="2.2" marker-end="url(#m-peach)"/>
-  <path d="M494.0,79 C494.0,119 308.0,90.0 284.4,113.6" fill="none" stroke="#E65100" stroke-width="2.2" marker-end="url(#m-peach)"/>
-  <path d="M278.0,128 L278.0,139" fill="none" stroke="#E65100" stroke-width="2.2" marker-end="url(#m-peach)"/>
+  <path d="M 278,79 L 278.0,105.0" fill="none" stroke="#E65100" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-peach)"/>
+  <path d="M 494,79 C 494.0,119.0 308.0,90.0 288.6,109.4" fill="none" stroke="#E65100" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-peach)"/>
+  <path d="M 278,128 L 278.0,135.4" fill="none" stroke="#E65100" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-peach-small)"/>
   <circle cx="278.0" cy="120.0" r="8" fill="#FFFFFF" stroke="#E65100" stroke-width="1.6" filter="url(#elev)"/>
   <text x="278.0" y="124.2" font-size="12" fill="#E65100" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <path d="M332.0,79 L332.0,111" fill="none" stroke="#C2185B" stroke-width="2.2" marker-end="url(#m-pink)"/>
-  <path d="M548.0,79 C548.0,119 362.0,90.0 338.4,113.6" fill="none" stroke="#C2185B" stroke-width="2.2" marker-end="url(#m-pink)"/>
-  <path d="M332.0,128 L332.0,139" fill="none" stroke="#C2185B" stroke-width="2.2" marker-end="url(#m-pink)"/>
+  <path d="M 332,79 L 332.0,105.0" fill="none" stroke="#C2185B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-pink)"/>
+  <path d="M 548,79 C 548.0,119.0 362.0,90.0 342.6,109.4" fill="none" stroke="#C2185B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-pink)"/>
+  <path d="M 332,128 L 332.0,135.4" fill="none" stroke="#C2185B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-pink-small)"/>
   <circle cx="332.0" cy="120.0" r="8" fill="#FFFFFF" stroke="#C2185B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="332.0" y="124.2" font-size="12" fill="#C2185B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="150.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="150.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="150.0" y="165.0" width="40.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="170.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
-  <rect x="204.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="204.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="204.0" y="165.0" width="40.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="224.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
-  <rect x="258.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#FFE6D6" stroke="#FFE6D6" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="258.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#FFE6D6" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="258.0" y="165.0" width="40.0" height="3" rx="1.5" fill="#E65100"/>
   <text x="278.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
-  <rect x="312.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#FCE0EA" stroke="#FCE0EA" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="312.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#FCE0EA" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="312.0" y="165.0" width="40.0" height="3" rx="1.5" fill="#C2185B"/>
   <text x="332.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
-  <rect x="366.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="366.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="386.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="420.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="420.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="440.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="474.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="474.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="494.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="528.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="528.0" y="140.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="548.0" y="158.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
   <text x="136.0" y="158.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">distance 4</text>
-  <path d="M170.0,171 L170.0,203" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
-  <path d="M278.0,171 C278.0,211 200.0,182.0 176.4,205.6" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
-  <path d="M170.0,220 L170.0,231" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
+  <path d="M 170,171 L 170.0,197.0" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue)"/>
+  <path d="M 278,171 C 278.0,211.0 200.0,182.0 180.6,201.4" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue)"/>
+  <path d="M 170,220 L 170.0,227.4" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue-small)"/>
   <circle cx="170.0" cy="212.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="170.0" y="216.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <path d="M224.0,171 L224.0,203" fill="none" stroke="#00897B" stroke-width="2.2" marker-end="url(#m-mint)"/>
-  <path d="M332.0,171 C332.0,211 254.0,182.0 230.4,205.6" fill="none" stroke="#00897B" stroke-width="2.2" marker-end="url(#m-mint)"/>
-  <path d="M224.0,220 L224.0,231" fill="none" stroke="#00897B" stroke-width="2.2" marker-end="url(#m-mint)"/>
+  <path d="M 224,171 L 224.0,197.0" fill="none" stroke="#00897B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-mint)"/>
+  <path d="M 332,171 C 332.0,211.0 254.0,182.0 234.6,201.4" fill="none" stroke="#00897B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-mint)"/>
+  <path d="M 224,220 L 224.0,227.4" fill="none" stroke="#00897B" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-mint-small)"/>
   <circle cx="224.0" cy="212.0" r="8" fill="#FFFFFF" stroke="#00897B" stroke-width="1.6" filter="url(#elev)"/>
   <text x="224.0" y="216.2" font-size="12" fill="#00897B" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="150.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="150.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="150.0" y="257.0" width="40.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="170.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">18</text>
-  <rect x="204.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="204.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="204.0" y="257.0" width="40.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="224.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">14</text>
-  <rect x="258.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="258.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="278.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="312.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="312.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="332.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="366.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="366.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="386.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="420.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="420.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="440.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="474.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="474.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="494.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="528.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="528.0" y="232.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="548.0" y="250.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
   <text x="136.0" y="250.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">distance 2</text>
-  <path d="M170.0,263 L170.0,295" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
-  <path d="M224.0,263 C224.0,303 200.0,274.0 176.4,297.6" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
-  <path d="M170.0,312 L170.0,323" fill="none" stroke="#3F51B5" stroke-width="2.2" marker-end="url(#m-blue)"/>
+  <path d="M 170,263 L 170.0,289.0" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue)"/>
+  <path d="M 224,263 C 224.0,303.0 200.0,274.0 180.6,293.4" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue)"/>
+  <path d="M 170,312 L 170.0,319.4" fill="none" stroke="#3F51B5" stroke-width="2.2" stroke-linecap="butt" marker-end="url(#m-blue-small)"/>
   <circle cx="170.0" cy="304.0" r="8" fill="#FFFFFF" stroke="#3F51B5" stroke-width="1.6" filter="url(#elev)"/>
   <text x="170.0" y="308.2" font-size="12" fill="#3F51B5" text-anchor="middle" font-weight="700" xml:space="preserve">+</text>
-  <rect x="150.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#3F51B5" stroke="#3F51B5" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="150.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#3F51B5" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <text x="170.0" y="342.3" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" xml:space="preserve">32</text>
-  <rect x="204.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="204.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="224.0" y="342.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="258.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="258.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="278.0" y="342.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="312.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="312.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="332.0" y="342.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="366.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="366.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="386.0" y="342.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="420.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="420.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="440.0" y="342.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="474.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="474.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="494.0" y="342.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
-  <rect x="528.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="#B0B8C4" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="528.0" y="324.0" width="40.0" height="28.0" rx="8" fill="#F1F3F6" stroke="none" stroke-width="1.2"/>
   <text x="548.0" y="342.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve"></text>
   <text x="136.0" y="342.0" font-size="11.5" fill="#1F2633" text-anchor="end" font-weight="600" xml:space="preserve">distance 1</text>
   <text x="150.0" y="376.0" font-size="11.5" fill="#8E99A8" text-anchor="start" font-weight="400" xml:space="preserve">Each lane adds the value of the lane distance places to its right. A real warp has 32 lanes</text>

@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520" width="680" height="520" role="img" aria-label="The down-sweep of the Blelloch scan. Element 7 is set to 0. Distance 4: elements 3 and 7 become 0 and 11. Distance 2: elements 1, 3, 5, 7 become 0, 4, 11, 16. Distance 1: all 8 become 0, 3, 4, 11, 11, 15, 16, 22, the exclusive scan.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="680" height="520" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">The down-sweep</text>
@@ -49,90 +44,90 @@
   <text x="542.0" y="96.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
   <text x="600.0" y="96.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
   <text x="156.0" y="125.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">clear 7</text>
-  <rect x="170.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="170.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="125.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
-  <rect x="228.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="228.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="125.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
-  <rect x="286.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="286.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="125.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">7</text>
-  <rect x="344.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="344.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="125.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">11</text>
-  <rect x="402.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="402.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="125.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
-  <rect x="460.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="460.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="125.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">5</text>
-  <rect x="518.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="518.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="125.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">6</text>
-  <rect x="576.0" y="106.0" width="48.0" height="30.0" rx="6" fill="#FCEBE6" stroke="#CF4526" stroke-width="1.3"/>
+  <rect x="576.0" y="106.0" width="48.0" height="30.0" rx="8" fill="#F4CDC3" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="125.0" class="pill" text-anchor="middle" style="fill:#CF4526" xml:space="preserve">0</text>
-  <path d="M362.0,140.0 V162.0 H594.0 V189.0" fill="none" stroke="#1F8A70" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-service)"/>
-  <path d="M606.0,140.0 V176.0 H374.0 V189.0" fill="none" stroke="#1F8A70" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-service)"/>
+  <path d="M 362,140 V162 H594 L 594.0,183.0" fill="none" stroke="#1F8A70" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-service)"/>
+  <path d="M 606,140 V176 H374 L 374.0,185.4" fill="none" stroke="#1F8A70" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-service-small)"/>
   <text x="156.0" y="211.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">distance = 4</text>
-  <rect x="170.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="170.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
-  <rect x="228.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="228.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
-  <rect x="286.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="286.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">7</text>
-  <rect x="344.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="344.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="211.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">0</text>
-  <rect x="402.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="402.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
-  <rect x="460.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="460.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">5</text>
-  <rect x="518.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="518.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="211.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">6</text>
-  <rect x="576.0" y="192.0" width="48.0" height="30.0" rx="6" fill="#E4F4EF" stroke="#1F8A70" stroke-width="1.3"/>
+  <rect x="576.0" y="192.0" width="48.0" height="30.0" rx="8" fill="#C1E1D8" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="211.0" class="pill" text-anchor="middle" style="fill:#1F8A70" xml:space="preserve">11</text>
-  <path d="M246.0,226.0 V248.0 H362.0 V275.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
-  <path d="M374.0,226.0 V262.0 H258.0 V275.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
-  <path d="M478.0,226.0 V248.0 H594.0 V275.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
-  <path d="M606.0,226.0 V262.0 H490.0 V275.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-store)"/>
+  <path d="M 246,226 V248 H362 L 362.0,269.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-store)"/>
+  <path d="M 374,226 V262 H258 L 258.0,271.4" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-store-small)"/>
+  <path d="M 478,226 V248 H594 L 594.0,269.0" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-store)"/>
+  <path d="M 606,226 V262 H490 L 490.0,271.4" fill="none" stroke="#B7791F" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-store-small)"/>
   <text x="156.0" y="297.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">distance = 2</text>
-  <rect x="170.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="170.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">3</text>
-  <rect x="228.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="228.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">0</text>
-  <rect x="286.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="286.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">7</text>
-  <rect x="344.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="344.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4</text>
-  <rect x="402.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="402.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
-  <rect x="460.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="460.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">11</text>
-  <rect x="518.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="518.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="297.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">6</text>
-  <rect x="576.0" y="278.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="576.0" y="278.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="297.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">16</text>
-  <path d="M188.0,312.0 V334.0 H246.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
-  <path d="M258.0,312.0 V348.0 H200.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
-  <path d="M304.0,312.0 V334.0 H362.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
-  <path d="M374.0,312.0 V348.0 H316.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
-  <path d="M420.0,312.0 V334.0 H478.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
-  <path d="M490.0,312.0 V348.0 H432.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
-  <path d="M536.0,312.0 V334.0 H594.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
-  <path d="M606.0,312.0 V348.0 H548.0 V361.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#m-outside)"/>
+  <path d="M 188,312 V334 H246 L 246.0,355.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside)"/>
+  <path d="M 258,312 V348 H200 L 200.0,357.4" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside-small)"/>
+  <path d="M 304,312 V334 H362 L 362.0,355.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside)"/>
+  <path d="M 374,312 V348 H316 L 316.0,357.4" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside-small)"/>
+  <path d="M 420,312 V334 H478 L 478.0,355.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside)"/>
+  <path d="M 490,312 V348 H432 L 432.0,357.4" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside-small)"/>
+  <path d="M 536,312 V334 H594 L 594.0,355.0" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside)"/>
+  <path d="M 606,312 V348 H548 L 548.0,357.4" fill="none" stroke="#7A4FD0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#m-outside-small)"/>
   <text x="156.0" y="383.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">distance = 1</text>
-  <rect x="170.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="170.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">0</text>
-  <rect x="228.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="228.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">3</text>
-  <rect x="286.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="286.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">4</text>
-  <rect x="344.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="344.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">11</text>
-  <rect x="402.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="402.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">11</text>
-  <rect x="460.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="460.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">15</text>
-  <rect x="518.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="518.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">16</text>
-  <rect x="576.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#F0EAFB" stroke="#7A4FD0" stroke-width="1.3"/>
+  <rect x="576.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#DBCEF3" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="383.0" class="pill" text-anchor="middle" style="fill:#7A4FD0" xml:space="preserve">22</text>
-  <defs><marker id="m-service" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#1F8A70"/></marker></defs>
-  <defs><marker id="m-store" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#B7791F"/></marker></defs>
-  <defs><marker id="m-outside" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7A4FD0"/></marker></defs>
+  <defs><marker id="m-service" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F8A70"/></marker><marker id="m-service-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#1F8A70"/></marker></defs>
+  <defs><marker id="m-store" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#B7791F"/></marker><marker id="m-store-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#B7791F"/></marker></defs>
+  <defs><marker id="m-outside" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7A4FD0"/></marker><marker id="m-outside-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7A4FD0"/></marker></defs>
   <text x="32.0" y="458.0" class="note" text-anchor="start" xml:space="preserve">Each pair (i - distance, i) swaps and adds: the left element receives the right</text>
   <text x="32.0" y="476.0" class="note" text-anchor="start" xml:space="preserve">one&#x27;s value, and the right one adds the old left value. The last row,</text>
   <text x="32.0" y="494.0" class="note" text-anchor="start" xml:space="preserve">0, 3, 4, 11, 11, 15, 16, 22, is the exclusive scan of the 8 values.</text>

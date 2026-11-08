@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 534" width="660" height="534" role="img" aria-label="A split of 5, 2, 7, 2, 0, 6, 3, 5 on bit 0 as 2 compactions. Flags for bit 0 equal to 0: 0, 1, 0, 1, 1, 1, 0, 0, exclusive scan 0, 0, 1, 1, 2, 3, 4, 4. Flags for bit 0 equal to 1: 1, 0, 1, 0, 0, 0, 1, 1, with 4 plus their exclusive scan 4, 5, 5, 6, 6, 6, 6, 7. Positions 4, 0, 5, 1, 2, 3, 6, 7; output 2, 2, 0, 6, 5, 7, 3, 5.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="534" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">A split on bit 0</text>
@@ -49,131 +44,131 @@
   <text x="542.0" y="100.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">6</text>
   <text x="600.0" y="100.0" class="mono" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">7</text>
   <text x="156.0" y="131.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">key</text>
-  <rect x="170.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="170.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
   <text x="194.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">101</text>
-  <rect x="228.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="228.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
   <text x="252.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">010</text>
-  <rect x="286.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="286.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">7</text>
   <text x="310.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">111</text>
-  <rect x="344.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="344.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
   <text x="368.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">010</text>
-  <rect x="402.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="402.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
   <text x="426.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">000</text>
-  <rect x="460.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="460.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="131.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
   <text x="484.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">110</text>
-  <rect x="518.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="518.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">3</text>
   <text x="542.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">011</text>
-  <rect x="576.0" y="112.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="576.0" y="112.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="131.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
   <text x="600.0" y="155.0" text-anchor="middle" font-size="10.5" style="fill:#5D6B7A" xml:space="preserve">101</text>
   <text x="156.0" y="191.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">bit 0 is 0</text>
-  <rect x="170.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="170.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="191.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="228.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="228.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="191.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="286.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="286.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="191.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="344.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="344.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="191.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="402.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="402.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="191.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="460.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="460.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="191.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="518.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="518.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="191.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="576.0" y="172.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="576.0" y="172.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="191.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
   <text x="156.0" y="233.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">exclusive</text>
-  <rect x="170.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="170.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="228.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="228.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="233.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
-  <rect x="286.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="286.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">1</text>
-  <rect x="344.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="344.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="233.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="402.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="402.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="233.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
-  <rect x="460.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="460.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="233.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">3</text>
-  <rect x="518.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="518.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
-  <rect x="576.0" y="214.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="576.0" y="214.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="233.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">4</text>
   <text x="156.0" y="287.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">bit 0 is 1</text>
-  <rect x="170.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="170.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="287.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="228.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="228.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="287.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="286.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="286.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="287.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="344.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="344.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="287.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="402.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="402.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="287.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="460.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="460.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="287.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">0</text>
-  <rect x="518.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="518.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="287.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
-  <rect x="576.0" y="268.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="576.0" y="268.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="287.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">1</text>
   <text x="156.0" y="329.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">4 + exclusive</text>
-  <rect x="170.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="170.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="329.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4</text>
-  <rect x="228.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="228.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="329.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">5</text>
-  <rect x="286.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="286.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="329.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
-  <rect x="344.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="344.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="329.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">6</text>
-  <rect x="402.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="402.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="329.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">6</text>
-  <rect x="460.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#F1F4F7" stroke="#7F8EA0" stroke-width="1.3"/>
+  <rect filter="url(#m3-shadow)" x="460.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#F1F4F7" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="329.0" class="pill" text-anchor="middle" style="fill:#7F8EA0" xml:space="preserve">6</text>
-  <rect x="518.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="518.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="329.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">6</text>
-  <rect x="576.0" y="310.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="576.0" y="310.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="329.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">7</text>
   <text x="156.0" y="383.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">position</text>
-  <rect x="170.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="170.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="383.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">4</text>
-  <rect x="228.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="228.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="383.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
-  <rect x="286.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="286.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="383.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
-  <rect x="344.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="344.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="383.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">1</text>
-  <rect x="402.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="402.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="383.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
-  <rect x="460.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="460.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="383.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">3</text>
-  <rect x="518.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="518.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="383.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">6</text>
-  <rect x="576.0" y="364.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="576.0" y="364.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="383.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">7</text>
   <text x="156.0" y="445.0" class="mono" text-anchor="end" style="fill:#5D6B7A" xml:space="preserve">output</text>
-  <rect x="170.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="170.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="194.0" y="445.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
-  <rect x="228.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="228.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="252.0" y="445.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">2</text>
-  <rect x="286.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="286.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="310.0" y="445.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">0</text>
-  <rect x="344.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#E7F5E9" stroke="#2E8B3D" stroke-width="1.3"/>
+  <rect x="344.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#C6E2CA" stroke="none" stroke-width="1.3"/>
   <text x="368.0" y="445.0" class="pill" text-anchor="middle" style="fill:#2E8B3D" xml:space="preserve">6</text>
-  <rect x="402.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="402.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="426.0" y="445.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
-  <rect x="460.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="460.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="484.0" y="445.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">7</text>
-  <rect x="518.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="518.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="542.0" y="445.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">3</text>
-  <rect x="576.0" y="426.0" width="48.0" height="30.0" rx="6" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.3"/>
+  <rect x="576.0" y="426.0" width="48.0" height="30.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.3"/>
   <text x="600.0" y="445.0" class="pill" text-anchor="middle" style="fill:#B7791F" xml:space="preserve">5</text>
   <text x="32.0" y="488.0" class="note" text-anchor="start" xml:space="preserve">Compaction 1 sends the 4 keys whose bit 0 is 0 to positions 0 to 3; compaction 2 sends</text>
   <text x="32.0" y="506.0" class="note" text-anchor="start" xml:space="preserve">the other 4 to 4 + their exclusive scan, positions 4 to 7. Both keep the input order.</text>

@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="2 ways to combine the block sums 32 and 31. Left: each block writes its partial sum, and a second kernel, which starts after every block of the first is done, adds them in a fixed order: 63. Right: each block adds its sum into result with an atomic addition, in the order the blocks finish, here block 1 then block 0: 0, 31, 63.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#8E99A8"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#00897B"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#E65100"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2185B"/></marker>
+    <marker id="m-hi" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker><marker id="m-hi-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#8E99A8"/></marker><marker id="m-grey-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2412D"/></marker><marker id="m-red-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F2633"/></marker><marker id="m-ink-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#2E8B57"/></marker><marker id="m-green-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker><marker id="m-blue-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#00897B"/></marker><marker id="m-mint-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#E65100"/></marker><marker id="m-peach-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2185B"/></marker><marker id="m-pink-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#C2185B"/></marker>
     <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="320" rx="14" fill="#FBFAF6"/>
@@ -21,35 +22,35 @@
   <g transform="translate(0,78)">
   <text x="20.0" y="22.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">a second launch</text>
   <text x="340.0" y="22.0" font-size="12.5" fill="#1F2633" text-anchor="start" font-weight="700" xml:space="preserve">atomic additions</text>
-  <rect x="30.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="30.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="30.0" y="65.0" width="110.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="85.0" y="58.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">block 0: 32</text>
-  <rect x="160.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="160.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="160.0" y="65.0" width="110.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="215.0" y="58.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">block 1: 31</text>
-  <line x1="85.0" y1="69.0" x2="85.0" y2="98.0" stroke="#8E99A8" stroke-width="1.1" marker-end="url(#m-grey)"/>
-  <line x1="215.0" y1="69.0" x2="215.0" y2="98.0" stroke="#8E99A8" stroke-width="1.1" marker-end="url(#m-grey)"/>
-  <rect x="30.0" y="100.0" width="110.0" height="26.0" rx="8" fill="#FFFFFF" stroke="#C9D0D9" stroke-width="1.2" filter="url(#elev)"/>
+  <line x1="85.0" y1="69.0" x2="85.0" y2="92.0" stroke="#8E99A8" stroke-width="1.1" stroke-linecap="butt" marker-end="url(#m-grey)"/>
+  <line x1="215.0" y1="69.0" x2="215.0" y2="92.0" stroke="#8E99A8" stroke-width="1.1" stroke-linecap="butt" marker-end="url(#m-grey)"/>
+  <rect filter="url(#m3-shadow)" x="30.0" y="100.0" width="110.0" height="26.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="85.0" y="117.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">partial[0] = 32</text>
-  <rect x="160.0" y="100.0" width="110.0" height="26.0" rx="8" fill="#FFFFFF" stroke="#C9D0D9" stroke-width="1.2" filter="url(#elev)"/>
+  <rect filter="url(#m3-shadow)" x="160.0" y="100.0" width="110.0" height="26.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="215.0" y="117.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">partial[1] = 31</text>
   <text x="150.0" y="146.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">end of kernel 1: every block is done</text>
-  <line x1="150.0" y1="152.0" x2="150.0" y2="176.0" stroke="#8E99A8" stroke-width="1.1" marker-end="url(#m-grey)"/>
-  <rect x="60.0" y="178.0" width="180.0" height="28.0" rx="8" fill="#3F51B5" stroke="#3F51B5" stroke-width="1.2" filter="url(#elev)"/>
+  <line x1="150.0" y1="152.0" x2="150.0" y2="170.0" stroke="#8E99A8" stroke-width="1.1" stroke-linecap="butt" marker-end="url(#m-grey)"/>
+  <rect x="60.0" y="178.0" width="180.0" height="28.0" rx="8" fill="#3F51B5" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="60.0" y="203.0" width="180.0" height="3" rx="1.5" fill="#283593"/>
   <text x="150.0" y="196.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">kernel 2: 32 + 31 = 63</text>
   <text x="150.0" y="226.0" font-size="11" fill="#2E8B57" text-anchor="middle" font-weight="600" xml:space="preserve">fixed order, same bits every run</text>
-  <rect x="350.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#DDF3EC" stroke="#DDF3EC" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="350.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#DDF3EC" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="350.0" y="65.0" width="110.0" height="3" rx="1.5" fill="#00897B"/>
   <text x="405.0" y="58.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">block 1: 31</text>
-  <rect x="480.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="480.0" y="40.0" width="110.0" height="28.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="480.0" y="65.0" width="110.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="535.0" y="58.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">block 0: 32</text>
   <text x="405.0" y="84.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">finishes first</text>
   <text x="535.0" y="84.0" font-size="10.5" fill="#8E99A8" text-anchor="middle" font-weight="400" xml:space="preserve">finishes second</text>
-  <line x1="405.0" y1="89.0" x2="405.0" y2="116.0" stroke="#00897B" stroke-width="1.3" marker-end="url(#m-mint)"/>
-  <line x1="535.0" y1="89.0" x2="535.0" y2="116.0" stroke="#3F51B5" stroke-width="1.3" marker-end="url(#m-blue)"/>
-  <rect x="350.0" y="118.0" width="240.0" height="26.0" rx="8" fill="#FFFFFF" stroke="#C9D0D9" stroke-width="1.2" filter="url(#elev)"/>
+  <line x1="405.0" y1="89.0" x2="405.0" y2="110.0" stroke="#00897B" stroke-width="1.3" stroke-linecap="butt" marker-end="url(#m-mint)"/>
+  <line x1="535.0" y1="89.0" x2="535.0" y2="110.0" stroke="#3F51B5" stroke-width="1.3" stroke-linecap="butt" marker-end="url(#m-blue)"/>
+  <rect filter="url(#m3-shadow)" x="350.0" y="118.0" width="240.0" height="26.0" rx="8" fill="#FFFFFF" stroke="none" stroke-width="1.2"/>
   <text x="470.0" y="135.1" font-size="11.5" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">result: 0 → 31 → 63</text>
   <text x="470.0" y="168.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1 kernel, no second launch;</text>
   <text x="470.0" y="186.0" font-size="11" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">the order of additions depends on timing</text>

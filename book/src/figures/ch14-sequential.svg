@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 294" width="640" height="294" role="img" aria-label="The sequential loop visits the 12 elements in order, 1 to 12 along a time axis. Visit 10 handles element 9: it reads x[9] = 8 and y[9] = 3 and writes y[9] = 19, with 2 reads, 1 write and 2 floating-point operations. In total 12 visits make 24 FLOP and move 144 bytes.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Roboto, Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; }
   </style>
   <defs>
-    <marker id="m-hi" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-grey" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#8E99A8"/></marker>
-    <marker id="m-red" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2412D"/></marker>
-    <marker id="m-ink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#1F2633"/></marker>
-    <marker id="m-green" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#2E8B57"/></marker>
-    <marker id="m-blue" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#3F51B5"/></marker>
-    <marker id="m-mint" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#00897B"/></marker>
-    <marker id="m-peach" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#E65100"/></marker>
-    <marker id="m-pink" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0.5 L10,5 L0,9.5 Z" fill="#C2185B"/></marker>
+    <marker id="m-hi" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker><marker id="m-hi-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F51B5"/></marker>
+    <marker id="m-grey" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#8E99A8"/></marker><marker id="m-grey-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#8E99A8"/></marker>
+    <marker id="m-red" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2412D"/></marker><marker id="m-red-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#C2412D"/></marker>
+    <marker id="m-ink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#1F2633"/></marker><marker id="m-ink-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#1F2633"/></marker>
+    <marker id="m-green" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#2E8B57"/></marker><marker id="m-green-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#2E8B57"/></marker>
+    <marker id="m-blue" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F51B5"/></marker><marker id="m-blue-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F51B5"/></marker>
+    <marker id="m-mint" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#00897B"/></marker><marker id="m-mint-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#00897B"/></marker>
+    <marker id="m-peach" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#E65100"/></marker><marker id="m-peach-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#E65100"/></marker>
+    <marker id="m-pink" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#C2185B"/></marker><marker id="m-pink-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#C2185B"/></marker>
     <filter id="elev" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1F2633" flood-opacity="0.18"/></filter>
   </defs>
   <rect width="640" height="294" rx="14" fill="#FBFAF6"/>
@@ -20,45 +21,45 @@
   <text x="28.0" y="60.0" font-size="12.5" fill="#5D6B7A" text-anchor="start" font-weight="400" xml:space="preserve">One pass per element, one after another.</text>
   <g transform="translate(0,78)">
   <text x="82.0" y="46.0" font-size="11" fill="#8E99A8" text-anchor="end" font-weight="400" xml:space="preserve">visit</text>
-  <rect x="96.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="96.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="96.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="113.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">1</text>
-  <rect x="134.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="134.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="134.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="151.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">2</text>
-  <rect x="172.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="172.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="172.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="189.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">3</text>
-  <rect x="210.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="210.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="210.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="227.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">4</text>
-  <rect x="248.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="248.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="248.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="265.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">5</text>
-  <rect x="286.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="286.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="286.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="303.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">6</text>
-  <rect x="324.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="324.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="324.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="341.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">7</text>
-  <rect x="362.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="362.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="362.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="379.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">8</text>
-  <rect x="400.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="400.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="400.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="417.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">9</text>
-  <rect x="438.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#3F51B5" stroke="#3F51B5" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="438.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#3F51B5" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <text x="455.0" y="45.3" font-size="12" fill="#FFFFFF" text-anchor="middle" font-weight="700" xml:space="preserve">10</text>
-  <rect x="476.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="476.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="476.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="493.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">11</text>
-  <rect x="514.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="#E3E8FD" stroke-width="1.2" filter="url(#elev)"/>
+  <rect x="514.0" y="28.0" width="34.0" height="26.0" rx="8" fill="#E3E8FD" stroke="none" stroke-width="1.2" filter="url(#elev)"/>
   <rect x="514.0" y="51.0" width="34.0" height="3" rx="1.5" fill="#3F51B5"/>
   <text x="531.0" y="45.3" font-size="12" fill="#1F2633" text-anchor="middle" font-weight="400" xml:space="preserve">12</text>
-  <line x1="96.0" y1="74.0" x2="548.0" y2="74.0" stroke="#8E99A8" stroke-width="1.1" marker-end="url(#m-grey)"/>
+  <line x1="96.0" y1="74.0" x2="542.0" y2="74.0" stroke="#8E99A8" stroke-width="1.1" stroke-linecap="butt" marker-end="url(#m-grey)"/>
   <text x="548.0" y="90.0" font-size="11" fill="#8E99A8" text-anchor="end" font-weight="400" xml:space="preserve">time</text>
   <line x1="455.0" y1="56.0" x2="455.0" y2="104.0" stroke="#3F51B5" stroke-width="1.2" stroke-dasharray="3 3"/>
-  <rect x="248.0" y="108.0" width="296.0" height="92.0" rx="8" fill="#F7F7FE" stroke="#283593" stroke-width="1.2"/>
+  <rect x="248.0" y="108.0" width="296.0" height="92.0" rx="8" fill="#D2D4EB" stroke="none" stroke-width="1.2"/>
   <text x="262.0" y="130.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="600" xml:space="preserve">visit 10, i = 9 (line 2 of the loop):</text>
   <text x="262.0" y="152.0" font-size="12" fill="#1F2633" text-anchor="start" font-weight="400" xml:space="preserve">read x[9] = 8 and y[9] = 3</text>
   <text x="262.0" y="172.0" font-size="12" fill="#3F51B5" text-anchor="start" font-weight="600" xml:space="preserve">y[9] = 2 · 8 + 3 = 19, written back</text>

@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 384" width="660" height="384" role="img" aria-label="For offset = 0, the values 1 and 5 from column 0 of A run down the left, and the values 1 and 0 from row 0 of B run across the top. The 4 cells hold the products 1 times 1 = 1, 1 times 0 = 0, 5 times 1 = 5 and 5 times 0 = 0, which are added to c00, c01, c10 and c11. Cards: 4 reads, 2 values of A and 2 of B; 4 multiply-adds, every value read is used twice; 1 read per multiply-add.">
+  <defs><filter id="m3-shadow" x="-10%" y="-20%" width="120%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.18"/><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/></filter></defs>
   <style>
     text { font-family: Inter, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1B2430; }
     .title { font-size: 18px; font-weight: 650; }
@@ -26,15 +27,9 @@
     <linearGradient id="switch-body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3B4656"/><stop offset="1" stop-color="#232B37"/>
     </linearGradient>
-    <marker id="head" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#3F5873"/>
-    </marker>
-    <marker id="head-danger" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#CF4526"/>
-    </marker>
-    <marker id="head-idle" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
-      <path d="M0.5,1 L9,5 L0.5,9 Z" fill="#7F8EA0"/>
-    </marker>
+    <marker id="head" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#3F5873"/></marker><marker id="head-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#3F5873"/></marker>
+    <marker id="head-danger" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#CF4526"/></marker><marker id="head-danger-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#CF4526"/></marker>
+    <marker id="head-idle" viewBox="0 0 12 9" refX="6" refY="4.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" orient="auto"><path d="M0,0 L12,4.5 L0,9 L3.5,4.5 Z" fill="#7F8EA0"/></marker><marker id="head-idle-small" viewBox="0 0 7.2 5.4" refX="3.6" refY="2.7" markerUnits="userSpaceOnUse" markerWidth="7.2" markerHeight="5.4" orient="auto"><path d="M0,0 L7.2,2.7 L0,5.4 L2.1,2.7 Z" fill="#7F8EA0"/></marker>
   </defs>
   <rect width="660" height="384" rx="14" fill="#FBFAF6"/>
   <text x="32.0" y="42.0" class="title" text-anchor="start" xml:space="preserve">1 thread, a 2 × 2 block of C</text>
@@ -42,36 +37,36 @@
   <text x="24.0" y="112.0" class="note" text-anchor="start" xml:space="preserve">offset = 0: column 0 of A, rows 0 and 1, and row 0 of B, columns 0 and 1</text>
   <text x="144.0" y="182.0" class="tab" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">A_REG</text>
   <text x="266.0" y="132.0" class="tab" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">B_REG</text>
-  <rect x="128.0" y="196.0" width="40.0" height="60.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="128.0" y="196.0" width="40.0" height="60.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="148.0" y="230.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">1</text>
-  <rect x="128.0" y="260.0" width="40.0" height="60.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="128.0" y="260.0" width="40.0" height="60.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="148.0" y="294.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">5</text>
-  <rect x="200.0" y="144.0" width="60.0" height="40.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="200.0" y="144.0" width="60.0" height="40.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="230.0" y="168.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">1</text>
-  <rect x="264.0" y="144.0" width="60.0" height="40.0" rx="5" fill="#FBF1DC" stroke="#B7791F" stroke-width="1.2"/>
+  <rect x="264.0" y="144.0" width="60.0" height="40.0" rx="8" fill="#EFDBBA" stroke="none" stroke-width="1.2"/>
   <text x="294.0" y="168.2" class="mono" text-anchor="middle" style="fill:#1B2430" xml:space="preserve">0</text>
-  <rect x="200.0" y="196.0" width="60.0" height="60.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="200.0" y="196.0" width="60.0" height="60.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="230.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">1 · 1</text>
   <text x="230.0" y="240.0" class="mono strong" text-anchor="middle" xml:space="preserve">= 1</text>
-  <rect x="264.0" y="196.0" width="60.0" height="60.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="264.0" y="196.0" width="60.0" height="60.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="294.0" y="222.0" class="mono" text-anchor="middle" xml:space="preserve">1 · 0</text>
   <text x="294.0" y="240.0" class="mono strong" text-anchor="middle" xml:space="preserve">= 0</text>
-  <rect x="200.0" y="260.0" width="60.0" height="60.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="200.0" y="260.0" width="60.0" height="60.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="230.0" y="286.0" class="mono" text-anchor="middle" xml:space="preserve">5 · 1</text>
   <text x="230.0" y="304.0" class="mono strong" text-anchor="middle" xml:space="preserve">= 5</text>
-  <rect x="264.0" y="260.0" width="60.0" height="60.0" rx="5" fill="#DDE3FB" stroke="#5B6BD6" stroke-width="1.2"/>
+  <rect x="264.0" y="260.0" width="60.0" height="60.0" rx="8" fill="#C6CDF4" stroke="none" stroke-width="1.2"/>
   <text x="294.0" y="286.0" class="mono" text-anchor="middle" xml:space="preserve">5 · 0</text>
   <text x="294.0" y="304.0" class="mono strong" text-anchor="middle" xml:space="preserve">= 0</text>
   <text x="262.0" y="342.0" class="note" text-anchor="middle" style="fill:#5D6B7A" xml:space="preserve">c00  c01 / c10  c11</text>
-  <rect x="380" y="150" width="262" height="68" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <rect filter="url(#m3-shadow)" x="380" y="150" width="262" height="68" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <path d="M392,150.7 H386 V217.3 H392 A11.3,11.3 0 0 1 380.7,206 V162 A11.3,11.3 0 0 1 392,150.7 Z" fill="#2F6FDB"/>
   <text x="400.0" y="180.0" class="name" text-anchor="start" xml:space="preserve">4 reads</text>
   <text x="400.0" y="198.0" class="sub" text-anchor="start" xml:space="preserve">2 values of A, 2 values of B</text>
-  <rect x="380" y="230" width="262" height="68" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <rect filter="url(#m3-shadow)" x="380" y="230" width="262" height="68" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <path d="M392,230.7 H386 V297.3 H392 A11.3,11.3 0 0 1 380.7,286 V242 A11.3,11.3 0 0 1 392,230.7 Z" fill="#2E8B3D"/>
   <text x="400.0" y="260.0" class="name" text-anchor="start" xml:space="preserve">4 multiply-adds</text>
   <text x="400.0" y="278.0" class="sub" text-anchor="start" xml:space="preserve">every value read is used twice</text>
-  <rect x="380" y="310" width="262" height="52" rx="12" fill="#FFFFFF" stroke="#D5DBE3" stroke-width="1.3" filter="url(#lift)"/>
+  <rect filter="url(#m3-shadow)" x="380" y="310" width="262" height="52" rx="12" fill="#FFFFFF" stroke="none" stroke-width="1.3"/>
   <path d="M392,310.7 H386 V361.3 H392 A11.3,11.3 0 0 1 380.7,350 V322 A11.3,11.3 0 0 1 392,310.7 Z" fill="#B7791F"/>
   <text x="400.0" y="341.0" class="name" text-anchor="start" xml:space="preserve">1 read per multiply-add</text>
 </svg>
