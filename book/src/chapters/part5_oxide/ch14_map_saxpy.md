@@ -384,38 +384,49 @@ Which elements of the example are never computed with \\(B = 8\\)?
 
 ### 14.4.1 Why a smaller grid
 
-<span class="sc">Saxpy-Kernel</span> launches 1 thread for every element, which means 16,777,216
-threads for the measured arrays. A GPU does not run so many threads at once. A Jetson Orin NX, for
-example, holds at most 1,536 threads on each of its 8 SMs, which is 12,288 threads in total.
-The 65,536 blocks of 256 threads therefore run in about 1,366 rounds, and each block starts when an
-earlier block has finished. Nothing is wrong with this arrangement, and in Section 14.8, we measure
-that it runs at full speed. There are nevertheless 3 reasons to prefer a grid with fewer threads
-than elements.
+<span class="sc">Saxpy-Kernel</span> launches one thread for every element, so for the measured
+arrays of 16,777,216 elements it launches 16,777,216 threads. The GPU cannot hold all of these
+threads at the same time. An SM of the measured GPU holds at most 1,536 threads, and with 8 SMs the
+whole GPU holds 12,288. The hardware therefore runs the 65,536 blocks of 256 threads in about
+1,366 successive rounds, starting a new block whenever an earlier block finishes. This is not a
+performance problem in itself; the measurements of Section 14.8 show that the kernel still runs
+close to the memory bandwidth. A launch with one thread per element does, however, tie the shape
+of the grid to the length of the array, and there are 3 situations in which we would rather choose
+the number of threads ourselves.
 
-1. Work that a thread does once, before or after it processes its elements, is then shared by all
-   of its elements. In Chapter 15, we rely on this for the dot product: each thread first adds many
-   products in a register, and only the few register sums are combined afterwards.
-2. The size of the grid can be chosen to fit the GPU, from its number of SMs, and it need not
-   change with \\(n\\).
-3. A single prepared launch can then serve arrays of every length.
+1. **Work done once per thread.** Some kernels do a fixed amount of work in every thread in
+   addition to the work per element. The dot product of Chapter 15 is an example: every thread
+   accumulates its products in a register, and at the end the partial sums of all threads must be
+   combined, which costs barriers and memory traffic in proportion to the number of threads. If
+   each thread handles 64 elements instead of one, there are 64 times fewer partial sums to
+   combine.
+2. **A grid sized for the GPU.** Since the measured GPU holds only 12,288 threads at once, a grid of, for
+   example, 6 blocks of 256 threads per SM keeps every SM fully occupied, whatever the length of
+   the array. We can then choose the grid from the properties of the GPU, its number of SMs and
+   the number of threads each SM holds, instead of from \\(n\\).
+3. **One launch for every length.** In cuda-oxide, the host prepares a launch for a given grid and block
+   size once, with a method such as `prepare_saxpy`, and can then launch it many times. If the
+   grid does not depend on \\(n\\), one prepared launch can process arrays of any length, which is
+   convenient when a program processes many arrays of different sizes.
 
 ### 14.4.2 Which elements a thread takes
 
-Suppose that the grid has \\(P\\) threads in total and that \\(P < n\\). Each thread must then take
-several elements, and together the threads must take each element exactly once. In our example, we
-use \\(P = 4\\) threads, in 2 blocks of 2 threads, for the 12 elements, so each thread takes
-\\(12 / 4 = 3\\) elements. There are 2 natural ways to assign the elements to the threads, and
-both are drawn in Figure 14.6.
+Suppose now that the grid has \\(P\\) threads in total and that \\(P\\) is smaller than \\(n\\).
+Each thread must then process several elements, and the elements must be divided among the threads
+so that every element is processed exactly once. In our example, we use \\(P = 4\\) threads,
+arranged as 2 blocks of 2 threads, for the 12 elements, so that each thread processes
+\\(12 / 4 = 3\\) elements. There are 2 natural ways to divide the elements, both drawn in
+Figure 14.6. In both, \\(t\\) denotes the global index of a thread, from 0 to 3.
 
-- **Chunks.** Thread \\(t\\) takes the 3 neighbouring elements \\(3t\\), \\(3t + 1\\) and
-  \\(3t + 2\\). Thread 3 takes elements 9, 10 and 11.
-- **Stride.** Thread \\(t\\) takes elements \\(t\\), \\(t + 4\\) and \\(t + 8\\). Thread 1 takes
-  elements 1, 5 and 9.
+- **Chunks.** Thread \\(t\\) takes 3 neighbouring elements, \\(3t\\), \\(3t + 1\\) and
+  \\(3t + 2\\). For example, thread 3 takes elements 9, 10 and 11.
+- **Stride.** Thread \\(t\\) takes every fourth element, starting at its own index: \\(t\\),
+  \\(t + 4\\) and \\(t + 8\\). For example, thread 1 takes elements 1, 5 and 9.
 
-In both assignments, \\(t\\) is the global index of the thread, from 0 to 3. Both assignments are
-correct, since each gives every element to exactly 1 thread. They differ, however, in the
-addresses that the 4 threads use at the same moment, and this difference decides how fast the
-memory can serve them. To see why, we need 2 more terms.
+Both divisions are correct, because each gives every element to exactly one thread. They are not
+equally fast, however. The difference lies in which addresses the threads read at the same moment,
+and to explain it we need 2 properties of the hardware: threads execute in groups of 32, and
+global memory is read in segments of 32 bytes.
 
 <div class="definition">
 
@@ -424,8 +435,8 @@ block with consecutive indices, threads 0 to 31, 32 to 63, and so on. The SM iss
 instruction for a whole warp at once, so the 32 threads of a warp execute their loads at the same
 moment. The position of a thread within its warp, 0 to 31, is called its **lane**.
 
-*Example.* A block of 256 threads consists of 8 warps. In the example, the 4 threads stand for the
-lanes of 1 warp.
+*Example.* A block of 256 threads consists of 8 warps. In our small example, the 4 threads play
+the role of the lanes of one warp.
 
 </div>
 
@@ -441,15 +452,18 @@ bytes: a coalesced access.
 
 </div>
 
-We can now compare the 2 assignments. Each thread processes its elements in steps, 1 element per
-step, and in each step the threads of a warp load their elements at the same moment. In step 0 of
-the chunk assignment, the 4 threads read elements 0, 3, 6 and 9, so their 4 values are spread over
-40 bytes. With 32 threads per warp and chunks of 3 elements, the addresses of 1 load instruction
-are \\(3 \cdot 4 = 12\\) bytes apart, and the warp touches 12 segments of 32 bytes. The memory
-therefore delivers 384 bytes, of which only 128 are used. In step 0 of the stride assignment, the
-threads read elements 0, 1, 2 and 3, which occupy 16 neighbouring bytes. With 32 threads, the warp
-reads 128 neighbouring bytes in 4 segments, and every byte delivered is used. The stride assignment
-keeps every step of every warp coalesced in this way, and Figure 14.6 shows it for all 3 steps.
+We can now compare the 2 divisions. Each thread processes its elements one after another, in
+steps, and in each step the threads of a warp issue their loads together. Consider the first step
+of the chunk division. The 4 threads of our example read elements 0, 3, 6 and 9, which lie 12
+bytes apart and are spread over 40 bytes. In a real warp of 32 threads with chunks of 3 elements,
+the 32 addresses of one load instruction are again 12 bytes apart and span 384 bytes, which is 12
+segments of 32 bytes. The memory system delivers all 384 bytes, but the warp uses only the 128
+bytes that hold its 32 floats, one third of what was read. Now consider the first step of the
+stride division. The threads read elements 0, 1, 2 and 3, which occupy 16 neighbouring bytes. In a
+warp of 32 threads, the 32 floats occupy 128 neighbouring bytes, exactly 4 segments, and every
+byte that the memory delivers is used. The same holds in every later step, because each step
+shifts all addresses by the same amount. The stride division therefore keeps every load of every
+warp coalesced, as Figure 14.6 shows for all 3 steps.
 
 <figure>
 <img src="../../figures/ch14-assign.svg" alt="2 ways to give 12 elements to 4 threads, shown as 3 steps. Top, chunks: in step 0 the 4 threads touch elements 0, 3, 6 and 9, spread over 40 bytes. Bottom, stride 4: in step 0 they touch elements 0 to 3, then 4 to 7, then 8 to 11, each step 16 neighbouring bytes. Colours mark threads 0 to 3.">
@@ -463,7 +477,7 @@ keeps every step of every warp coalesced in this way, and Figure 14.6 shows it f
 | 2 | 1, 0 | 2, 6, 10 | 6, 4, 13 |
 | 3 | 1, 1 | 3, 7, 11 | 17, 22, 18 |
 
-<p class="listing"><b>Table 14.1</b> The stride assignment on the example: 4 threads, 12 elements, \(P = 4\).</p>
+<p class="listing"><b>Table 14.1</b> The stride assignment on the example: 4 threads, 12 elements, \\(P = 4\\).</p>
 
 ### 14.4.3 The grid-stride loop
 
