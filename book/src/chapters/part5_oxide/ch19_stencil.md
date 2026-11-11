@@ -198,8 +198,8 @@ whose boundary cells hold the given values and whose interior cells hold a guess
 iteration** computes the grids \\(u^{(1)}, u^{(2)}, \ldots\\), where each step keeps the boundary
 cells and sets every interior cell to
 
-\\[ u^{(k+1)}_{r,c} = \frac{1}{4} \left( u^{(k)}_{r-1,c} + u^{(k)}_{r+1,c} + u^{(k)}_{r,c-1} +
-u^{(k)}_{r,c+1} \right). \\]
+\\[ u^{(k+1)}\_{r,c} = \frac{1}{4} \left( u^{(k)}\_{r-1,c} + u^{(k)}\_{r+1,c} +
+u^{(k)}\_{r,c-1} + u^{(k)}\_{r,c+1} \right). \\]
 
 The right-hand side uses only values of step \\(k\\).
 

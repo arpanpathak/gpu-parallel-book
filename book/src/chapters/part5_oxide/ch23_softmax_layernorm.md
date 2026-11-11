@@ -327,9 +327,9 @@ passes and moves \\(12 \cdot 4 + 4 \cdot 4 = 64\\) bytes.
 Lines 1 to 4 find the maximum \\(m\\), lines 5 to 8 add the shifted exponentials into the sum
 \\(s\\), and lines 9 to 11 write the outputs. Each of lines 3, 7 and 10 executes \\(n\\) times, so
 the algorithm performs \\(n\\) comparisons, \\(2n\\) exponentials and \\(n\\) divisions. Figure 23.5
-follows the 3 passes on row 1. Pass 1 finds \\(m = 5\\). Pass 2 adds \\(e^{-3} + e^{-1} + e^{-1}
-+ e^{0} = 0.0498 + 0.3679 + 0.3679 + 1 = 1.7855\\). Pass 3 writes 0.0279, 0.2060, 0.2060 and
-0.5601, which is row 1 of \\(P\\) in Figure 23.1.
+follows the 3 passes on row 1. Pass 1 finds \\(m = 5\\). Pass 2 adds
+\\(e^{-3} + e^{-1} + e^{-1} + e^{0} = 0.0498 + 0.3679 + 0.3679 + 1 = 1.7855\\). Pass 3 writes
+0.0279, 0.2060, 0.2060 and 0.5601, which is row 1 of \\(P\\) in Figure 23.1.
 
 <figure>
 <img src="../../figures/ch23-three-pass.svg" alt="Row 1 holds 2, 4, 4, 5. Pass 1 reads it and finds the maximum 5. Pass 2 reads it again and adds exp(x - 5): 0.0498, 0.3679, 0.3679 and 1, sum 1.7855. Pass 3 reads it a third time and writes 0.0279, 0.2060, 0.2060 and 0.5601. 12 reads and 4 writes of 4 bytes, 16 bytes per element.">

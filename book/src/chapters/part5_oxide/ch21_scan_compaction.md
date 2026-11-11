@@ -241,7 +241,7 @@ general, each thread rebuilds a total that another thread already holds.
 Thread 7 needs \\(y_7 = 3 + 1 + 7 + 0 + 4 + 1 + 6 + 3\\). Since the result of an addition does not
 depend on how its terms are grouped, we may write
 
-\\[ y_7 = \underbrace{(3 + 1 + 7 + 0)}_{11} + \underbrace{(4 + 1 + 6 + 3)}_{14} = 25. \\]
+\\[ y_7 = \underbrace{(3 + 1 + 7 + 0)}\_{11} + \underbrace{(4 + 1 + 6 + 3)}\_{14} = 25. \\]
 
 The left group is the sum of the values at positions 0 to 3, and the right group is the sum of the
 values at positions 4 to 7. Each group can itself be split into 2 pairs, which gives the 4 pair
@@ -830,9 +830,9 @@ Adding 11 to every value of tile 1 gives \\((15, 16, 22, 25)\\), and the whole s
 The scan of the tile totals is itself a scan, of an array 1,024 times shorter than the input, so
 the procedure can call itself. For example, 16,777,216 values form 16,384 tiles, whose 16,384
 totals form 16 tiles, whose 16 totals fit in a single tile. In the following procedure, \\(\mathsf{tiles}\\) is
-the number of tiles, \\(\mathsf{totals}_{\mathsf{tile}}\\) is the total of tile \\(\mathsf{tile}\\), and \\(\mathsf{offsets}\\) is the inclusive scan of
-the totals, so that \\(\mathsf{offsets}_{\mathsf{tile}-1}\\) is the sum of all values before tile \\(\mathsf{tile}\\). In our example,
-\\(\mathsf{tiles} = 2\\), \\(\mathsf{totals} = (11, 14)\\), \\(\mathsf{offsets} = (11, 25)\\), and tile 1 receives \\(\mathsf{offsets}_0 = 11\\).
+the number of tiles, \\(\mathsf{totals}\_{\mathsf{tile}}\\) is the total of tile \\(\mathsf{tile}\\), and \\(\mathsf{offsets}\\) is the inclusive scan of
+the totals, so that \\(\mathsf{offsets}\_{\mathsf{tile}-1}\\) is the sum of all values before tile \\(\mathsf{tile}\\). In our example,
+\\(\mathsf{tiles} = 2\\), \\(\mathsf{totals} = (11, 14)\\), \\(\mathsf{offsets} = (11, 25)\\), and tile 1 receives \\(\mathsf{offsets}\_0 = 11\\).
 
 <div class="algo">
 <p class="algo-name">Scan(\(x, y, n\))</p>

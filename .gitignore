@@ -30,6 +30,7 @@ __pycache__/
 /code/ch16_profiling/verify
 /code/ch18_peer/peer
 /code/ch19_collectives/allreduce
+/code/ch17_systems/systems
 /code/ch14_cuda_oxide/host_closure.ptx
 /code/ch14_cuda_oxide/*.ll
 /code/ch14_cuda_oxide/*.opt.ll
@@ -37,3 +38,7 @@ __pycache__/
 # cuda-oxide build by-products (never part of the book)
 /code/oxide/*/*.ptx
 /code/oxide/*/*.ll
+
+# Part V CUDA C++ binaries: validate.sh builds each one next to its .cu source
+/code/cuda/*/*
+!/code/cuda/*/*.*
