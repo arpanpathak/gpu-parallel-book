@@ -54,11 +54,10 @@ We use the same pair of matrices throughout this chapter and the two chapters th
 2 factors, \\(A\\) and \\(B\\), and their product, \\(C\\), are
 
 \\[
-\underbrace{\begin{pmatrix} 1 & 2 & 3 & 4 \\\\ 5 & 6 & 7 & 8 \\\\ 9 & 10 & 11 & 12 \\\\ 13 & 14 & 15 & 16 \end{pmatrix}}_{A}
+\underbrace{\begin{pmatrix} 1 & 2 & 3 & 4 \\\\ 5 & 6 & 7 & 8 \\\\ 9 & 10 & 11 & 12 \\\\ 13 & 14 & 15 & 16 \end{pmatrix}}\_{A}
 \times
-\underbrace{\begin{pmatrix} 1 & 0 & 2 & 1 \\\\ 0 & 1 & 1 & 2 \\\\ 2 & 1 & 0 & 1 \\\\ 1 & 2 & 1 & 0 \end{pmatrix}}_{B}
-=
-\underbrace{\begin{pmatrix} 11 & 13 & 8 & 8 \\\\ 27 & 29 & 24 & 24 \\\\ 43 & 45 & 40 & 40 \\\\ 59 & 61 & 56 & 56 \end{pmatrix}}_{C}.
+\underbrace{\begin{pmatrix} 1 & 0 & 2 & 1 \\\\ 0 & 1 & 1 & 2 \\\\ 2 & 1 & 0 & 1 \\\\ 1 & 2 & 1 & 0 \end{pmatrix}}\_{B} =
+\underbrace{\begin{pmatrix} 11 & 13 & 8 & 8 \\\\ 27 & 29 & 24 & 24 \\\\ 43 & 45 & 40 & 40 \\\\ 59 & 61 & 56 & 56 \end{pmatrix}}\_{C}.
 \\]
 
 Each entry of \\(C\\) is computed from 1 row of \\(A\\) and 1 column of \\(B\\). To obtain the

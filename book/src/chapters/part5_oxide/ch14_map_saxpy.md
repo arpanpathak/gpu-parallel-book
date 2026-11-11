@@ -507,7 +507,7 @@ division therefore keeps every read of every warp coalesced. Figure 14.6 shows a
 | 2 | 1, 0 | 2, 6, 10 | 6, 4, 13 |
 | 3 | 1, 1 | 3, 7, 11 | 17, 22, 18 |
 
-<p class="listing"><b>Table 14.1</b> The stride assignment on the example: 4 threads, 12 elements, \\(\mathsf{gridSize} = 4\\).</p>
+<p class="listing"><b>Table 14.1</b> The stride assignment on the example: 4 threads, 12 elements, \(\mathsf{gridSize} = 4\).</p>
 
 ### 14.4.3 The grid-stride loop
 
